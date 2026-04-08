@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useCivicStore, type ViewTab } from "../lib/store";
-import { initializePipeline } from "../lib/pipeline";
 
 // Views
 import { MonitorDashboard } from "../components/MonitorDashboard";
@@ -32,39 +31,8 @@ export default function CivicIntelApp() {
 		setSearchQuery,
 		threads,
 	} = useCivicStore();
-	const [initialized, setInitialized] = useState(false);
-	const [initError, setInitError] = useState<string | null>(null);
 	const [showThemePicker, setShowThemePicker] = useState(false);
 	const [currentTime, setCurrentTime] = useState(new Date());
-
-	// Initialize pipeline
-	useEffect(() => {
-		initializePipeline()
-			.then((result) => {
-				useCivicStore.getState().setSeedData({
-					contracts: result.contracts,
-					filings: result.filings,
-					donations: result.donations,
-					disclosures: result.disclosures,
-					projects: result.projects,
-					people: result.people,
-					organizations: result.organizations,
-				});
-				useCivicStore.getState().setIntelligence(result.threads, result.brief);
-				useCivicStore.getState().setSweepState({
-					running: false,
-					lastRun: new Date().toISOString(),
-					count: 1,
-				delta: result.sweepDelta,
-				});
-				setInitialized(true);
-			})
-			.catch((err) => {
-				console.error("Pipeline init failed:", err);
-				setInitError(err instanceof Error ? err.message : "Unknown error");
-				setInitialized(true);
-			});
-	}, []);
 
 	// Clock
 	useEffect(() => {
@@ -235,17 +203,11 @@ export default function CivicIntelApp() {
 
 			{/* ── Main Content ─────────────────────────────────── */}
 			<main className="flex-1 overflow-auto">
-				{!initialized ? (
-					<LoadingScreen error={initError} />
-				) : (
-					<Suspense fallback={<LoadingScreen />}>
-						{activeView === "monitor" && <MonitorDashboard />}
-						{activeView === "brief" && <BriefView />}
-						{activeView === "explore" && <ExplorerView />}
-						{activeView === "signals" && <SignalsView />}
-						{activeView === "community" && <SocialView />}
-					</Suspense>
-				)}
+				{activeView === "monitor" && <MonitorDashboard />}
+				{activeView === "brief" && <BriefView />}
+				{activeView === "explore" && <ExplorerView />}
+				{activeView === "signals" && <SignalsView />}
+				{activeView === "community" && <SocialView />}
 			</main>
 
 			{/* ── News Ticker ──────────────────────────────────── */}
@@ -253,74 +215,38 @@ export default function CivicIntelApp() {
 				<div className="ticker-wrap">
 					<div className="ticker-content animate-ticker text-xs text-[var(--muted)]">
 						<span>
-							▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> New $45M
-							sole-source contract: L3Harris Technologies → DND
+							▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> Navigator LLP
-							filed monthly communication report for L3Harris targeting DND
+							▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period — Navigator LLP + Hill+Knowlton dominate
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Sarah Mitchell
-							disclosed spouse employment at L3Harris Technologies
+							▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell disclosed spouse on L3Harris board — same vendor received $45M sole-source
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International
-							received $12M for Philippines development program
+							▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M in GAC projects + $2.3M IRCC contract + lobbying registered
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-donation)]">ELECTIONS</span> Robert Mitchell
-							donated $1,500 to Conservative Party of Canada
+							▸ <span className="text-[var(--signal-donation)]">ELECTIONS</span> Brookfield donated $40K to Liberal Party → received $8.5M contract 3 months later
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-sole-source)]">ANALYSIS</span> 7 active
-							intelligence threads detected across 5 data sources
-						</span>
-						{/* Duplicate for seamless loop */}
-						<span>
-							▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> New $45M
-							sole-source contract: L3Harris Technologies → DND
+							▸ <span className="text-[var(--signal-sole-source)]">ANALYSIS</span> 72% of defence contract value is sole-source — up 40% from prior year
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> Navigator LLP
-							filed monthly communication report for L3Harris targeting DND
+							▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Sarah Mitchell
-							disclosed spouse employment at L3Harris Technologies
+							▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period — Navigator LLP + Hill+Knowlton dominate
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International
-							received $12M for Philippines development program
+							▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell disclosed spouse on L3Harris board — same vendor received $45M sole-source
 						</span>
 						<span>
-							▸ <span className="text-[var(--signal-donation)]">ELECTIONS</span> Robert Mitchell
-							donated $1,500 to Conservative Party of Canada
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-sole-source)]">ANALYSIS</span> 7 active
-							intelligence threads detected across 5 data sources
+							▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M in GAC projects + $2.3M IRCC contract + lobbying registered
 						</span>
 					</div>
 				</div>
 			</footer>
-		</div>
-	);
-}
-
-function LoadingScreen({ error }: { error?: string | null }) {
-	return (
-		<div className="flex flex-col items-center justify-center h-full gap-4">
-			<div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse-live" />
-			<div className="text-sm text-[var(--muted)] font-mono">
-				{error ? `ERROR: ${error}` : "INITIALIZING INTELLIGENCE PIPELINE..."}
-			</div>
-			{!error && (
-				<div className="text-xs text-[var(--muted)]">
-					Loading seed data → resolving entities → building graph → detecting
-					signals
-				</div>
-			)}
 		</div>
 	);
 }
