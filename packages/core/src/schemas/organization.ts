@@ -1,0 +1,39 @@
+import { z } from "zod";
+import { GovernmentSourceSchema } from "./base";
+
+export const OrganizationTypeSchema = z.enum([
+	"corporation",
+	"non_profit",
+	"lobbying_firm",
+	"consultancy",
+	"industry_association",
+	"government_agency",
+	"crown_corporation",
+	"trade_union",
+	"other",
+]);
+
+export const RegistrationSchema = z.object({
+	number: z.string(),
+	jurisdiction: z.string(),
+	type: z.string(),
+	status: z.enum(["active", "inactive", "dissolved"]),
+	dateFiled: z.string(),
+	source: GovernmentSourceSchema,
+});
+
+export const OrganizationSchema = z.object({
+	id: z.string().uuid(),
+	source: GovernmentSourceSchema,
+	rawData: z.record(z.unknown()),
+	createdAt: z.string().datetime(),
+	updatedAt: z.string().datetime(),
+	names: z.array(z.string()),
+	type: OrganizationTypeSchema,
+	registrations: z.array(RegistrationSchema),
+	industry: z.string().optional(),
+	province: z.string().optional(),
+	city: z.string().optional(),
+	website: z.string().url().optional(),
+	parentOrganizationId: z.string().uuid().optional(),
+});
