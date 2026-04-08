@@ -33,7 +33,7 @@
 ## Feature 7: Core Data Layer — CIEC + Elections Canada Parser
 - Description: TypeScript ETL parser for (1) Conflict of Interest and Ethics Commissioner public summaries — including spousal/dependent interests, and (2) Elections Canada political contribution data. Normalizes into Disclosure and Donation schemas. Links disclosed interests to organizations.
 - Dependencies: Feature 2
-- Status: pending
+- Status: done
 
 ## Feature 8: Core Data Layer — Graph Builder & Signal Detectors
 - Description: Build the connection graph from resolved entities and their relationships. Implements the signal detectors: procurement-lobbying overlap, revolving door detection, spousal interest proximity, sole-source + heavy lobbying, donation-proximity correlation, mandate divergence, and international layering. Each signal produces an IntelligenceThread with confidence scores and source citations.
@@ -88,7 +88,7 @@
 ## Feature 17: Integration — Seed Data & End-to-End Demo
 - Description: Create a seed data script that generates realistic Canadian government data (mock but structurally accurate) for all parsers. Wire the full pipeline: seed data → parsers → entity resolution → graph → signals → briefs → web app display. The demo should show at least 3 "holy shit" connection threads when you open the app. Verify all 4 tabs work with real (seeded) data flowing through the entire system.
 - Dependencies: Feature 10, Feature 12, Feature 13, Feature 14, Feature 15, Feature 16
-- Status: pending
+- Status: done
 
 ## SOCIAL LAYER — Collective Intelligence Features
 

@@ -40,3 +40,4 @@ export type {
 	Role,
 	RoleCategory,
 } from "./person";
+export * from './social';
