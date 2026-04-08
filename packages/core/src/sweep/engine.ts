@@ -9,6 +9,7 @@
  */
 
 import { BriefGenerator } from "../briefs/generator";
+import { AliasManager } from "../entity/aliases";
 import { EntityResolver } from "../entity/resolver";
 import { GraphBuilder } from "../graph/builder";
 import { runAllDetectors } from "../graph/signals";
@@ -25,6 +26,9 @@ import type { Donation } from "../types/donation";
 import type { GACProject } from "../types/gac";
 import type { IntelligenceThread } from "../types/graph";
 import type { LobbyingFiling } from "../types/lobbying";
+import type { Organization } from "../types/organization";
+import type { Person } from "../types/person";
+import type { GovernmentSource } from "../types/base";
 
 /** Delta: what changed since last sweep */
 export interface SweepDelta {
@@ -113,8 +117,12 @@ export class SweepEngine {
 	private gacParser: GACParser;
 
 	constructor() {
-		this.resolver = new EntityResolver();
-		this.graphBuilder = new GraphBuilder();
+		// Create in-memory SQLite for entity resolution
+		const Database = require('better-sqlite3');
+		const db = new Database(':memory:');
+		const aliasManager = new AliasManager(db);
+		this.resolver = new EntityResolver(aliasManager);
+		this.graphBuilder = new GraphBuilder(aliasManager);
 		this.briefGenerator = new BriefGenerator();
 		this.spendingParser = new SpendingParser();
 		this.lobbyingParser = new LobbyingParser();
@@ -523,50 +531,171 @@ export class SweepEngine {
 	private resolveEntities(data: ParsedData): number {
 		let count = 0;
 
+		// Collect unique org names and person names for batch resolution
+		const orgNames = new Set<string>();
+		const personNames = new Set<string>();
+
 		for (const contract of data.contracts) {
-			this.resolver.resolveOrganization(contract.vendorName);
-			count++;
+			orgNames.add(contract.vendorName);
+			orgNames.add(contract.department);
 		}
 
 		for (const filing of data.filings) {
-			this.resolver.resolveOrganization(filing.clientName);
-			if (filing.registrant.firmName) {
-				this.resolver.resolveOrganization(filing.registrant.firmName);
+			orgNames.add(filing.clientName);
+			if (filing.registrant.firmName) orgNames.add(filing.registrant.firmName);
+			personNames.add(filing.registrant.name);
+			for (const comm of filing.communications) {
+				for (const official of comm.officials) {
+					personNames.add(official);
+				}
 			}
-			this.resolver.resolvePerson(filing.registrant.name);
-			count++;
 		}
 
 		for (const donation of data.donations) {
-			this.resolver.resolveOrganization(donation.donorName);
-			this.resolver.resolvePerson(donation.donorName);
-			count++;
+			if (donation.isCorporate) orgNames.add(donation.donorName);
+			personNames.add(donation.donorName);
 		}
 
 		for (const disclosure of data.disclosures) {
-			this.resolver.resolvePerson(disclosure.personName);
-			count++;
+			personNames.add(disclosure.personName);
 		}
 
 		for (const project of data.projects) {
 			for (const partner of project.implementingPartners) {
-				this.resolver.resolveOrganization(partner.name);
-				count++;
+				orgNames.add(partner.name);
 			}
 		}
 
+		count = orgNames.size + personNames.size;
 		return count;
 	}
 
 	private buildGraph(data: ParsedData) {
-		// Build graph from all entities
-		this.graphBuilder.addContracts(data.contracts);
-		this.graphBuilder.addFilings(data.filings);
-		this.graphBuilder.addDonations(data.donations);
-		this.graphBuilder.addDisclosures(data.disclosures);
-		this.graphBuilder.addProjects(data.projects);
+		// Extract persons and organizations from the data for graph building
+		const persons = this.extractPersons(data);
+		const organizations = this.extractOrganizations(data);
 
-		return this.graphBuilder.build();
+		return this.graphBuilder.buildGraph(
+			persons,
+			organizations,
+			data.contracts,
+			data.filings,
+			data.donations,
+			data.disclosures,
+			data.projects,
+		);
+	}
+
+	private extractPersons(data: ParsedData): Person[] {
+		const persons = new Map<string, Person>();
+		for (const filing of data.filings) {
+			const name = filing.registrant.name;
+			if (!persons.has(name)) {
+				persons.set(name, {
+					id: `person-${name.toLowerCase().replace(/\s+/g, "-")}`,
+					names: [name],
+					firstName: name.split(" ")[0],
+					lastName: name.split(" ").slice(1).join(" "),
+					roles: [],
+					relationships: [],
+					source: filing.source,
+					rawData: {},
+					createdAt: filing.createdAt,
+					updatedAt: filing.updatedAt,
+				});
+			}
+			for (const comm of filing.communications) {
+				for (const official of comm.officials) {
+					if (!persons.has(official)) {
+						persons.set(official, {
+							id: `person-${official.toLowerCase().replace(/\s+/g, "-")}`,
+							names: [official],
+							firstName: official.split(" ")[0],
+							lastName: official.split(" ").slice(1).join(" "),
+							roles: [],
+							relationships: [],
+							source: filing.source,
+							rawData: {},
+							createdAt: filing.createdAt,
+							updatedAt: filing.updatedAt,
+						});
+					}
+			}
+		}
+		for (const disclosure of data.disclosures) {
+			if (!persons.has(disclosure.personName)) {
+				persons.set(disclosure.personName, {
+					id: disclosure.personId ?? `person-${disclosure.personName.toLowerCase().replace(/\s+/g, "-")}`,
+					names: [disclosure.personName],
+					firstName: disclosure.personName.split(" ")[0],
+					lastName: disclosure.personName.split(" ").slice(1).join(" "),
+					roles: [{ title: disclosure.position, organization: disclosure.department, startDate: String(disclosure.year), category: "appointed", source: disclosure.source }],
+					relationships: [],
+					source: disclosure.source,
+					rawData: {},
+					createdAt: disclosure.createdAt,
+					updatedAt: disclosure.updatedAt,
+				});
+			}
+		}
+		for (const donation of data.donations) {
+			if (!donation.isCorporate && !persons.has(donation.donorName)) {
+				persons.set(donation.donorName, {
+					id: donation.donorPersonId ?? `person-${donation.donorName.toLowerCase().replace(/\s+/g, "-")}`,
+					names: [donation.donorName],
+					firstName: donation.donorName.split(" ")[0],
+					lastName: donation.donorName.split(" ").slice(1).join(" "),
+					roles: [],
+					relationships: [],
+					source: donation.source,
+					rawData: {},
+					createdAt: donation.createdAt,
+					updatedAt: donation.updatedAt,
+				});
+			}
+		}
+		return [...persons.values()];
+	}
+
+	private extractOrganizations(data: ParsedData): Organization[] {
+		const orgs = new Map<string, Organization>();
+		const ts = nowISO();
+
+		const addOrg = (name: string, source: GovernmentSource, typeParam: string = "corporation", industryParam?: string) => {
+			if (!orgs.has(name)) {
+				orgs.set(name, {
+					id: `org-${name.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+					names: [name],
+					type: typeParam as Organization["type"],
+					registrations: [],
+					industry: industryParam,
+					source,
+					rawData: {},
+					createdAt: ts,
+					updatedAt: ts,
+				});
+			}
+		};
+
+		for (const contract of data.contracts) {
+			addOrg(contract.vendorName, contract.source, "corporation");
+			addOrg(contract.department, contract.source, "government_agency", "Government");
+		}
+		for (const filing of data.filings) {
+			addOrg(filing.clientName, filing.source, "corporation");
+			if (filing.registrant.firmName) addOrg(filing.registrant.firmName, filing.source, "lobbying_firm", "Government Relations");
+			addOrg(filing.institution, filing.source, "government_agency", "Government");
+		}
+		for (const donation of data.donations) {
+			if (donation.isCorporate) addOrg(donation.donorName, donation.source, "corporation");
+		}
+		for (const project of data.projects) {
+			addOrg(project.department, project.source, "government_agency", "Government");
+			for (const partner of project.implementingPartners) {
+				addOrg(partner.name, project.source, partner.name.includes("UN") || partner.name.includes("Plan") ? "non_profit" : "corporation");
+			}
+		}
+		return [...orgs.values()];
 	}
 
 	private computeDelta(

@@ -39,7 +39,9 @@ function findOrg(
 	resolver: EntityResolver,
 ): Organization | undefined {
 	for (const org of organizations) {
+		if (!org?.names) continue;
 		for (const orgName of org.names) {
+			if (!orgName) continue;
 			if (resolver.resolveOrgNames(orgName, name) >= 0.7) {
 				return org;
 			}
