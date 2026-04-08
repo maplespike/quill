@@ -1,0 +1,24 @@
+{
+	"name": "civic-intel",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "pnpm --filter @civic-intel/web dev",
+		"build": "pnpm -r build",
+		"build:core": "pnpm --filter @civic-intel/core build",
+		"build:pretext": "pnpm --filter @civic-intel/pretext-civic build",
+		"build:web": "pnpm --filter @civic-intel/web build",
+		"test": "pnpm -r test",
+		"lint": "pnpm -r lint",
+		"typecheck": "pnpm -r typecheck",
+		"ingest": "pnpm --filter @civic-intel/core ingest",
+		"graph:build": "pnpm --filter @civic-intel/core graph:build"
+	},
+	"engines": {
+		"node": ">=20",
+		"pnpm": ">=9"
+	},
+	"packageManager": "pnpm@9.15.4"
+}
