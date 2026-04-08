@@ -1,635 +1,192 @@
 "use client";
 
-import { useSocialStore } from "../lib/social-store";
+import { useCivicStore } from "../lib/store";
 import { useState } from "react";
-import type {
-	Verification,
-	Investigation,
-	Annotation,
-	AnalysisSession,
-} from "@civic-intel/core";
 
-type SocialTab = "verifications" | "annotations" | "investigations" | "community" | "sessions";
+interface LeaderboardEntry {
+	rank: number;
+	name: string;
+	trust: "newcomer" | "contributor" | "analyst" | "expert";
+	badges: string[];
+	verifications: number;
+	findings: number;
+}
+
+const TRUST_COLORS: Record<string, string> = {
+	newcomer: "var(--muted)",
+	contributor: "var(--primary)",
+	analyst: "var(--accent)",
+	expert: "var(--warning)",
+};
+
+const SEED_LEADERBOARD: LeaderboardEntry[] = [
+	{ rank: 1, name: "OttawaWatch", trust: "expert", badges: ["🏛️ Parliament Hill", "🔍 Deep Diver", "📊 Data Maven"], verifications: 142, findings: 38 },
+	{ rank: 2, name: "CivicEngager_YOW", trust: "expert", badges: ["🏛️ Parliament Hill", "✓ Fact Checker"], verifications: 98, findings: 24 },
+	{ rank: 3, name: "TransparencyCA", trust: "analyst", badges: ["📋 Records Analyst", "🔗 Connection Maker"], verifications: 67, findings: 15 },
+	{ rank: 4, name: "DefenceWatch_CA", trust: "analyst", badges: ["⚔️ Defence Sector"], verifications: 54, findings: 12 },
+	{ rank: 5, name: "GAC_Monitor", trust: "contributor", badges: ["🌍 International Dev"], verifications: 31, findings: 8 },
+	{ rank: 6, name: "LobbyTracker", trust: "contributor", badges: ["🗳️ Elections Watch"], verifications: 28, findings: 5 },
+	{ rank: 7, name: "NewCitizen2026", trust: "newcomer", badges: [], verifications: 3, findings: 1 },
+];
 
 export function SocialView() {
-	const [activeTab, setActiveTab] = useState<SocialTab>("verifications");
+	const { threads, contracts, filings, people } = useCivicStore();
+	const [activeTab, setActiveTab] = useState<"leaderboard" | "investigations" | "annotations">("leaderboard");
 
 	return (
-		<div className="max-w-5xl mx-auto p-4">
-			<div className="flex items-center justify-between mb-6">
-				<div>
-					<h2 className="text-lg font-bold">Community Intelligence</h2>
-					<p className="text-xs text-[var(--muted)]">
-						Collaborative verification, annotation, and investigation of government data
-					</p>
-				</div>
-			</div>
-
-			{/* Tab strip */}
-			<div className="flex items-center gap-1 mb-6 border-b border-[var(--border)]">
-				{([
-					["verifications", "✓ Verifications"],
-					["annotations", "📝 Annotations"],
-					["investigations", "🔍 Investigations"],
-					["community", "👥 Community"],
-					["sessions", "📺 Watch Parties"],
-				] as const).map(([id, label]) => (
-					<button
-						key={id}
-						onClick={() => setActiveTab(id)}
-						className={`px-4 py-2 text-xs font-semibold transition-colors ${
-							activeTab === id ? "tab-active" : "tab-inactive"
-						}`}
-					>
-						{label}
-					</button>
-				))}
-			</div>
-
-			{activeTab === "verifications" && <VerificationsTab />}
-			{activeTab === "annotations" && <AnnotationsTab />}
-			{activeTab === "investigations" && <InvestigationsTab />}
-			{activeTab === "community" && <CommunityTab />}
-			{activeTab === "sessions" && <SessionsTab />}
-		</div>
-	);
-}
-
-// ── Feature 18: Verifications ─────────────────────────────
-
-function VerificationsTab() {
-	const { verifications, addVerification, currentCitizen } = useSocialStore();
-	const [showForm, setShowForm] = useState(false);
-
-	return (
-		<div>
-			<div className="flex justify-between items-center mb-4">
-				<span className="text-xs text-[var(--muted)]">
-					{verifications.length} verifications from the community
-				</span>
-				<button
-					onClick={() => setShowForm(!showForm)}
-					className="px-3 py-1.5 text-xs rounded bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90"
-				>
-					+ Add Verification
-				</button>
-			</div>
-
-			{showForm && (
-				<VerificationForm
-					onSubmit={(v) => {
-						addVerification(v);
-						setShowForm(false);
-					}}
-					citizenId={currentCitizen.id}
-					citizenName={currentCitizen.name}
-				/>
-			)}
-
-			<div className="flex flex-col gap-3">
-				{verifications.map((v) => (
-					<div key={v.id} className="card">
-						<div className="flex items-start gap-3">
-							<div
-								className={`w-8 h-8 rounded flex items-center justify-center text-sm font-bold ${
-									v.type === "verify"
-										? "bg-[rgba(34,197,94,0.15)] text-[var(--success)]"
-										: v.type === "challenge"
-											? "bg-[rgba(239,68,68,0.15)] text-[var(--destructive)]"
-											: "bg-[var(--accent-dim)] text-[var(--accent)]"
-								}`}
-							>
-								{v.type === "verify" ? "✓" : v.type === "challenge" ? "✗" : "+"}
-							</div>
-							<div className="flex-1">
-								<div className="flex items-center gap-2 mb-1">
-									<span className="text-xs font-semibold">{v.citizenName}</span>
-									<span
-										className={`badge ${
-											v.type === "verify"
-												? "bg-[rgba(34,197,94,0.15)] text-[var(--success)]"
-												: v.type === "challenge"
-													? "bg-[rgba(239,68,68,0.15)] text-[var(--destructive)]"
-													: "bg-[var(--accent-dim)] text-[var(--accent)]"
-										}`}
-									>
-										{v.type.toUpperCase()}
-									</span>
-									<span className="text-[10px] text-[var(--muted)] ml-auto">
-										{new Date(v.createdAt).toLocaleDateString()}
-									</span>
-								</div>
-								<p className="text-xs text-[var(--foreground)] leading-relaxed mb-2">
-									{v.description}
-								</p>
-								<div className="flex items-center gap-3">
-									<a
-										href={v.sourceUrl}
-										className="text-[10px] text-[var(--primary)] hover:underline"
-										target="_blank"
-										rel="noopener"
-									>
-										📎 Primary Source
-									</a>
-									<span className="text-[10px] text-[var(--muted)]">
-										Confidence: {Math.round(v.confidenceVote * 100)}%
-									</span>
-									<div className="flex-1" />
-									<button className="text-[10px] text-[var(--success)]">
-										▲ {v.upvotes}
-									</button>
-									<button className="text-[10px] text-[var(--destructive)]">
-										▼ {v.downvotes}
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-function VerificationForm({
-	onSubmit,
-	citizenId,
-	citizenName,
-}: {
-	onSubmit: (v: Verification) => void;
-	citizenId: string;
-	citizenName: string;
-}) {
-	const [type, setType] = useState<"verify" | "challenge" | "extend">("verify");
-	const [sourceUrl, setSourceUrl] = useState("");
-	const [description, setDescription] = useState("");
-
-	return (
-		<div className="card mb-4 animate-fade-in-up">
-			<h4 className="text-xs font-semibold mb-3">Add Verification</h4>
-			<div className="flex gap-2 mb-3">
-				{(["verify", "challenge", "extend"] as const).map((t) => (
-					<button
-						key={t}
-						onClick={() => setType(t)}
-						className={`px-3 py-1 text-xs rounded ${
-							type === t
-								? "bg-[var(--primary)] text-white"
-								: "border border-[var(--border)] text-[var(--muted)]"
-						}`}
-					>
-						{t === "verify" ? "✓ Verify" : t === "challenge" ? "✗ Challenge" : "+ Extend"}
-					</button>
-				))}
-			</div>
-			<input
-				type="url"
-				placeholder="Primary source URL..."
-				value={sourceUrl}
-				onChange={(e) => setSourceUrl(e.target.value)}
-				className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)] rounded mb-2 focus:border-[var(--primary)] focus:outline-none"
-			/>
-			<textarea
-				placeholder="Describe your verification..."
-				value={description}
-				onChange={(e) => setDescription(e.target.value)}
-				className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)] rounded mb-3 focus:border-[var(--primary)] focus:outline-none h-20 resize-none"
-			/>
-			<div className="flex gap-2">
-				<button
-					onClick={() => {
-						onSubmit({
-							id: "v-" + Date.now(),
-							threadId: "",
-							type,
-							citizenId,
-							citizenName,
-							sourceUrl,
-							description,
-							confidenceVote: 0.8,
-							createdAt: new Date().toISOString(),
-							upvotes: 0,
-							downvotes: 0,
-						});
-					}}
-					className="px-4 py-1.5 text-xs rounded bg-[var(--primary)] text-white"
-				>
-					Submit
-				</button>
-			</div>
-		</div>
-	);
-}
-
-// ── Feature 20: Annotations ──────────────────────────────
-
-function AnnotationsTab() {
-	const { annotations, addAnnotation, currentCitizen } = useSocialStore();
-	const [showForm, setShowForm] = useState(false);
-
-	return (
-		<div>
-			<div className="flex justify-between items-center mb-4">
-				<span className="text-xs text-[var(--muted)]">
-					{annotations.length} community annotations
-				</span>
-				<button
-					onClick={() => setShowForm(!showForm)}
-					className="px-3 py-1.5 text-xs rounded bg-[var(--primary)] text-white"
-				>
-					+ Annotate
-				</button>
-			</div>
-
-			{showForm && (
-				<AnnotationForm
-					onSubmit={(a) => {
-						addAnnotation(a);
-						setShowForm(false);
-					}}
-					citizenId={currentCitizen.id}
-					citizenName={currentCitizen.name}
-				/>
-			)}
-
-			<div className="flex flex-col gap-3">
-				{annotations.map((a) => (
-					<div key={a.id} className="card">
-						<div className="flex items-center gap-2 mb-2">
-							<span className="text-xs font-semibold">{a.citizenName}</span>
-							<span className="text-[10px] text-[var(--muted)]">
-								on {a.entityId.replace(/org-|person-/g, "").replace(/-/g, " ")}
-							</span>
-							<span className="text-[10px] text-[var(--muted)] ml-auto">
-								{new Date(a.createdAt).toLocaleDateString()}
-							</span>
-						</div>
-						<p className="text-xs text-[var(--foreground)] leading-relaxed mb-2">
-							{a.content}
-						</p>
-						<div className="flex items-center gap-3">
-							<a
-								href={a.sourceUrl}
-								className="text-[10px] text-[var(--primary)] hover:underline"
-								target="_blank"
-								rel="noopener"
-							>
-								📎 Source
-							</a>
-							{a.tags.map((tag) => (
-								<span
-									key={tag}
-									className="text-[9px] px-2 py-0.5 rounded bg-[var(--accent-dim)] text-[var(--accent)]"
-								>
-									{tag}
-								</span>
-							))}
-							<div className="flex-1" />
-							<button className="text-[10px] text-[var(--success)]">▲ {a.upvotes}</button>
-							<button className="text-[10px] text-[var(--destructive)]">▼ {a.downvotes}</button>
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-function AnnotationForm({
-	onSubmit,
-	citizenId,
-	citizenName,
-}: {
-	onSubmit: (a: Annotation) => void;
-	citizenId: string;
-	citizenName: string;
-}) {
-	const [entityId, setEntityId] = useState("");
-	const [content, setContent] = useState("");
-	const [sourceUrl, setSourceUrl] = useState("");
-	const [tags, setTags] = useState("");
-
-	return (
-		<div className="card mb-4 animate-fade-in-up">
-			<h4 className="text-xs font-semibold mb-3">Add Annotation</h4>
-			<input
-				placeholder="Entity (e.g. L3Harris Technologies)"
-				value={entityId}
-				onChange={(e) => setEntityId(e.target.value)}
-				className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)] rounded mb-2 focus:border-[var(--primary)] focus:outline-none"
-			/>
-			<textarea
-				placeholder="Your annotation (must link to a primary source)..."
-				value={content}
-				onChange={(e) => setContent(e.target.value)}
-				className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)] rounded mb-2 focus:border-[var(--primary)] focus:outline-none h-20 resize-none"
-			/>
-			<input
-				type="url"
-				placeholder="Primary source URL..."
-				value={sourceUrl}
-				onChange={(e) => setSourceUrl(e.target.value)}
-				className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)] rounded mb-2 focus:border-[var(--primary)] focus:outline-none"
-			/>
-			<input
-				placeholder="Tags (comma separated)"
-				value={tags}
-				onChange={(e) => setTags(e.target.value)}
-				className="w-full px-3 py-2 text-xs bg-[var(--background)] border border-[var(--border)] rounded mb-3 focus:border-[var(--primary)] focus:outline-none"
-			/>
-			<button
-				onClick={() => {
-					onSubmit({
-						id: "a-" + Date.now(),
-						entityId: "org-" + entityId.toLowerCase().replace(/\s+/g, "-"),
-						citizenId,
-						citizenName,
-						content,
-						sourceUrl,
-						tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
-						createdAt: new Date().toISOString(),
-						upvotes: 0,
-						downvotes: 0,
-						replies: [],
-						parentId: null,
-					});
-				}}
-				className="px-4 py-1.5 text-xs rounded bg-[var(--primary)] text-white"
-			>
-				Submit Annotation
-			</button>
-		</div>
-	);
-}
-
-// ── Feature 19: Investigations ────────────────────────────
-
-function InvestigationsTab() {
-	const { investigations } = useSocialStore();
-
-	return (
-		<div>
-			<div className="flex justify-between items-center mb-4">
-				<span className="text-xs text-[var(--muted)]">
-					{investigations.length} active investigations
-				</span>
-				<button className="px-3 py-1.5 text-xs rounded bg-[var(--primary)] text-white">
-					+ New Investigation
-				</button>
-			</div>
-
-			<div className="flex flex-col gap-4">
-				{investigations.map((inv) => (
-					<div key={inv.id} className="card">
-						<div className="flex items-center gap-2 mb-2">
-							<span
-								className={`badge ${
-									inv.status === "open"
-										? "bg-[rgba(34,197,94,0.15)] text-[var(--success)]"
-										: inv.status === "completed"
-											? "bg-[var(--accent-dim)] text-[var(--accent)]"
-											: "bg-[rgba(107,107,128,0.15)] text-[var(--muted)]"
-								}`}
-							>
-								{inv.status.toUpperCase()}
-							</span>
-							<span className="badge bg-[var(--accent-dim)] text-[var(--accent)]">
-								{inv.visibility}
-							</span>
-							<span className="text-[10px] text-[var(--muted)]">
-								{inv.contributors.length} contributors
-							</span>
-						</div>
-						<h4 className="text-sm font-semibold mb-1">{inv.title}</h4>
-						<p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
-							{inv.description}
-						</p>
-
-						{/* Evidence */}
-						<div className="mb-3">
-							<span className="text-[10px] text-[var(--muted)] tracking-widest">
-								EVIDENCE ({inv.evidence.length})
-							</span>
-							<div className="flex flex-col gap-1 mt-1">
-								{inv.evidence.map((e) => (
-									<div
-										key={e.id}
-										className="flex items-center gap-2 px-2 py-1 rounded bg-[var(--background)] text-xs"
-									>
-										<span>📎</span>
-										<span className="flex-1 truncate">{e.title}</span>
-										<a
-											href={e.sourceUrl}
-											className="text-[var(--primary)] text-[10px]"
-											target="_blank"
-											rel="noopener"
-										>
-											source
-										</a>
-									</div>
-								))}
-							</div>
-						</div>
-
-						{/* Findings */}
-						{inv.findings && (
-							<div className="pt-2 border-t border-[var(--border)]">
-								<span className="text-[10px] text-[var(--muted)] tracking-widest">
-									FINDINGS
-								</span>
-								<p className="text-xs text-[var(--foreground)] mt-1 leading-relaxed">
-									{inv.findings}
-								</p>
-							</div>
-						)}
-
-						{/* Tags */}
-						<div className="flex flex-wrap gap-1 mt-3">
-							{inv.tags.map((tag) => (
-								<span
-									key={tag}
-									className="text-[9px] px-2 py-0.5 rounded bg-[var(--accent-dim)] text-[var(--accent)]"
-								>
-									{tag}
-								</span>
-							))}
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-}
-
-// ── Feature 22+23: Community & Reputation ─────────────────
-
-function CommunityTab() {
-	const { leaderboard, currentCitizen } = useSocialStore();
-
-	return (
-		<div>
-			{/* Current user profile */}
-			<div className="card mb-6">
-				<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
-					YOUR PROFILE
-				</h3>
-				<div className="flex items-start gap-4">
-					<div className="w-12 h-12 rounded-lg bg-[var(--accent-dim)] flex items-center justify-center text-xl">
-						👤
-					</div>
-					<div className="flex-1">
-						<div className="flex items-center gap-2 mb-1">
-							<span className="text-sm font-bold">{currentCitizen.name}</span>
-							<span className="text-xs text-[var(--muted)]">{currentCitizen.handle}</span>
-							<span
-								className="badge bg-[rgba(34,197,94,0.15)] text-[var(--success)]"
-							>
-								{currentCitizen.trustLevel.toUpperCase()}
-							</span>
-						</div>
-						<div className="flex items-center gap-4 text-xs text-[var(--muted)] mb-2">
-							<span>Score: {currentCitizen.verificationScore}</span>
-							<span>Contributions: {currentCitizen.contributions}</span>
-						</div>
-						<div className="flex flex-wrap gap-1 mb-2">
-							{currentCitizen.domainTags.map((tag) => (
-								<span
-									key={tag}
-									className="text-[9px] px-2 py-0.5 rounded bg-[var(--primary)]20 text-[var(--primary)]"
-								>
-									{tag}
-								</span>
-							))}
-						</div>
-						{/* Badges */}
-						<div className="flex gap-2">
-							{currentCitizen.badges.map((b) => (
-								<div
-									key={b.id}
-									className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--background)] text-xs"
-									title={b.description}
-								>
-									<span>{b.icon}</span>
-									<span className="text-[10px]">{b.name}</span>
-								</div>
-							))}
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{/* Leaderboard */}
-			<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
-				LEADERBOARD
-			</h3>
-			<div className="flex flex-col gap-2">
-				{leaderboard
-					.sort((a, b) => b.verificationScore - a.verificationScore)
-					.map((citizen, i) => (
-						<div key={citizen.id} className="card flex items-center gap-3">
-							<div
-								className={`w-8 h-8 rounded flex items-center justify-center text-sm font-bold ${
-									i === 0
-										? "bg-[rgba(245,158,11,0.2)] text-[var(--warning)]"
-										: i === 1
-											? "bg-[rgba(148,163,184,0.2)] text-[var(--muted)]"
-											: "bg-[var(--background)] text-[var(--muted)]"
-								}`}
-							>
-								#{i + 1}
-							</div>
-							<div className="flex-1">
-								<div className="flex items-center gap-2">
-									<span className="text-xs font-semibold">{citizen.name}</span>
-									<span className="text-[10px] text-[var(--muted)]">{citizen.handle}</span>
-								</div>
-								<div className="flex gap-1 mt-0.5">
-									{citizen.domainTags.slice(0, 2).map((tag) => (
-										<span
-											key={tag}
-											className="text-[8px] px-1.5 py-0.5 rounded bg-[var(--accent-dim)] text-[var(--accent)]"
-										>
-											{tag}
-										</span>
-									))}
-								</div>
-							</div>
-							<div className="text-right">
-								<div className="text-sm font-bold tabular-nums">{citizen.verificationScore}</div>
-								<div className="text-[9px] text-[var(--muted)]">
-									{citizen.contributions} contributions
-								</div>
-							</div>
-						</div>
+		<div className="flex h-full">
+			{/* ── Left: Navigation ────────────────────────────── */}
+			<div className="w-56 border-r border-[var(--border)] bg-[var(--card)] p-4">
+				<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-4">COMMUNITY</h3>
+				<div className="flex flex-col gap-1">
+					{(["leaderboard", "investigations", "annotations"] as const).map(tab => (
+						<button
+							key={tab}
+							onClick={() => setActiveTab(tab)}
+							className={"text-left text-xs px-2 py-1.5 rounded transition-colors " + (activeTab === tab ? "bg-[var(--accent-dim)] text-[var(--primary)]" : "text-[var(--muted)] hover:bg-[var(--card-hover)]")}
+						>
+							{tab === "leaderboard" ? "🏆 " : tab === "investigations" ? "🔬 " : "📝 "}
+							{tab.charAt(0).toUpperCase() + tab.slice(1)}
+						</button>
 					))}
+				</div>
+
+				<div className="mt-6">
+					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-2">COMMUNITY STATS</h3>
+					<div className="text-xs text-[var(--muted)] space-y-1">
+						<div>Active analysts: <span className="text-[var(--foreground)]">7</span></div>
+						<div>Verifications: <span className="text-[var(--foreground)]">423</span></div>
+						<div>Findings: <span className="text-[var(--foreground)]">103</span></div>
+						<div>Active threads: <span className="text-[var(--foreground)]">{threads.length}</span></div>
+					</div>
+				</div>
+			</div>
+
+			{/* ── Main Content ────────────────────────────────── */}
+			<div className="flex-1 overflow-auto p-6">
+				{activeTab === "leaderboard" && (
+					<div>
+						<h2 className="text-sm font-semibold tracking-widest text-[var(--muted)] mb-4">REPUTATION LEADERBOARD</h2>
+						<div className="flex flex-col gap-3">
+							{SEED_LEADERBOARD.map(entry => (
+								<div key={entry.rank} className="card flex items-center gap-4">
+									<div className="w-8 text-center">
+										<span className={"text-lg font-bold " + (entry.rank <= 3 ? "text-[var(--primary)]" : "text-[var(--muted)]")}>
+											{entry.rank}
+										</span>
+									</div>
+									<div className="flex-1">
+										<div className="flex items-center gap-2">
+											<span className="text-sm font-semibold">{entry.name}</span>
+											<span
+												className="text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider"
+												style={{ backgroundColor: TRUST_COLORS[entry.trust] + "20", color: TRUST_COLORS[entry.trust] }}
+											>
+												{entry.trust}
+											</span>
+										</div>
+										<div className="flex flex-wrap gap-1 mt-1">
+											{entry.badges.map((b, i) => (
+												<span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--background)] text-[var(--muted)]">
+													{b}
+												</span>
+											))}
+										</div>
+									</div>
+									<div className="text-right text-xs text-[var(--muted)]">
+										<div>{entry.verifications} <span className="text-[9px]">verifications</span></div>
+										<div>{entry.findings} <span className="text-[9px]">findings</span></div>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
+
+				{activeTab === "investigations" && (
+					<div>
+						<h2 className="text-sm font-semibold tracking-widest text-[var(--muted)] mb-4">ACTIVE INVESTIGATIONS</h2>
+						<div className="flex flex-col gap-3">
+							<InvestigationCard
+								title="The L3Harris Triangle"
+								status="active"
+								contributors={3}
+								findings={5}
+								tags={["defence", "lobbying", "spousal-interest"]}
+								description="Coordinated investigation into the convergence of procurement, lobbying, and ministerial spousal interests around L3Harris Technologies."
+							/>
+							<InvestigationCard
+								title="Defence Sole-Source Spending Trends"
+								status="active"
+								contributors={2}
+								findings={3}
+								tags={["sole-source", "defence", "mandate-divergence"]}
+								description="Tracking the 40% year-over-year increase in sole-source defence contracts despite competitive bidding mandate."
+							/>
+							<InvestigationCard
+								title="Brookfield Political Connections"
+								status="open"
+								contributors={1}
+								findings={1}
+								tags={["donations", "real-estate", "ministerial-connection"]}
+								description="Examining the relationship between Brookfield political donations and federal real property contracts."
+							/>
+						</div>
+					</div>
+				)}
+
+				{activeTab === "annotations" && (
+					<div>
+						<h2 className="text-sm font-semibold tracking-widest text-[var(--muted)] mb-4">RECENT CITIZEN ANNOTATIONS</h2>
+						<div className="flex flex-col gap-3">
+							{[
+								{ entity: "L3Harris Technologies", author: "OttawaWatch", note: "Note that L3Harris also appears in the 2024 supplementary estimates for an additional $12M in unspecified defence services. This was not captured in the CanadaBuys disclosure.", votes: 14, sources: 2 },
+								{ entity: "Michael Chen", author: "TransparencyCA", note: "Chen's CIEC filing (2024-06-15) lists his Navigator LLP start date as April 15, 2024 — only 15 days after leaving DND. The standard cooling-off period for ADM-level officials is 2 years under the Conflict of Interest Act.", votes: 28, sources: 1 },
+								{ entity: "Sarah Mitchell", author: "CivicEngager_YOW", note: "Minister Mitchell's public disclosure also lists a family trust holding defence sector ETFs. The trust was established before her appointment but the holdings were not divested.", votes: 19, sources: 1 },
+								{ entity: "Lockheed Martin Canada", author: "DefenceWatch_CA", note: "The CF-35 maintenance contract was originally listed as competitive in the 2024 defence acquisition guide but was reclassified as sole-source in March 2025.", votes: 11, sources: 3 },
+							].map((a, i) => (
+								<div key={i} className="card">
+									<div className="flex items-center gap-2 mb-2">
+										<span className="text-[10px] text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 py-0.5 rounded">{a.entity}</span>
+										<span className="text-[10px] text-[var(--muted)]">— {a.author}</span>
+									</div>
+									<p className="text-xs text-[var(--foreground)] leading-relaxed">{a.note}</p>
+									<div className="flex items-center gap-4 mt-2 text-[10px] text-[var(--muted)]">
+										<span>▲ {a.votes}</span>
+										<span>{a.sources} sources cited</span>
+										<button className="text-[var(--primary)] hover:underline">Reply</button>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);
 }
 
-// ── Feature 24: Watch Parties ─────────────────────────────
-
-function SessionsTab() {
-	const { sessions } = useSocialStore();
-
+function InvestigationCard({ title, status, contributors, findings, tags, description }: {
+	title: string; status: string; contributors: number; findings: number; tags: string[]; description: string;
+}) {
 	return (
-		<div>
-			<div className="flex justify-between items-center mb-4">
-				<span className="text-xs text-[var(--muted)]">
-					{sessions.length} analysis sessions
+		<div className="card" style={{ borderLeft: "3px solid " + (status === "active" ? "var(--primary)" : "var(--muted)") }}>
+			<div className="flex items-center gap-2 mb-2">
+				<span className="text-sm font-semibold">{title}</span>
+				<span className={"text-[9px] px-1.5 py-0.5 rounded uppercase " + (status === "active" ? "bg-[var(--primary)]/20 text-[var(--primary)]" : "bg-[var(--muted)]/20 text-[var(--muted)]")}>
+					{status}
 				</span>
-				<button className="px-3 py-1.5 text-xs rounded bg-[var(--primary)] text-white">
-					+ Schedule Session
-				</button>
 			</div>
-
-			<div className="flex flex-col gap-3">
-				{sessions.map((s) => (
-					<div key={s.id} className="card">
-						<div className="flex items-center gap-2 mb-2">
-							<span
-								className={`badge ${
-									s.status === "live"
-										? "bg-[rgba(239,68,68,0.15)] text-[var(--destructive)] animate-pulse-live"
-										: s.status === "scheduled"
-											? "bg-[rgba(59,130,246,0.15)] text-[var(--primary)]"
-											: "bg-[rgba(107,107,128,0.15)] text-[var(--muted)]"
-								}`}
-							>
-								{s.status === "live" ? "● LIVE" : s.status === "scheduled" ? "○ SCHEDULED" : "✓ COMPLETED"}
-							</span>
-							{s.participants > 0 && (
-								<span className="text-[10px] text-[var(--muted)]">
-									{s.participants} participants
-								</span>
-							)}
-						</div>
-						<h4 className="text-sm font-semibold mb-1">{s.title}</h4>
-						<p className="text-xs text-[var(--muted)] leading-relaxed mb-2">
-							{s.description}
-						</p>
-						<div className="flex items-center gap-3 text-xs text-[var(--muted)]">
-							<span>
-								📅 {new Date(s.scheduledAt).toLocaleDateString("en-CA", {
-									month: "short",
-									day: "numeric",
-									hour: "2-digit",
-									minute: "2-digit",
-								})}
-							</span>
-							{s.status === "scheduled" && (
-								<button className="px-3 py-1 text-[10px] rounded border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white transition-colors">
-									Join Session
-								</button>
-							)}
-							{s.status === "completed" && s.recordingUrl && (
-								<button className="px-3 py-1 text-[10px] rounded border border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
-									▶ Watch Recording
-								</button>
-							)}
-						</div>
-					</div>
+			<p className="text-xs text-[var(--muted)] mb-2">{description}</p>
+			<div className="flex items-center gap-2">
+				{tags.map(t => (
+					<span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--background)] text-[var(--muted)]">
+						{t}
+					</span>
 				))}
+				<span className="ml-auto text-[10px] text-[var(--muted)]">
+					{contributors} contributors • {findings} findings
+				</span>
 			</div>
 		</div>
 	);

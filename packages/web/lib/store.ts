@@ -1,30 +1,21 @@
 /**
  * CivicIntel — Global Store (Zustand)
  *
- * Manages: active view, theme, sweep state, seed data, signal threads.
+ * Pre-populated with seed data. No async initialization needed.
  */
 
 import { create } from "zustand";
-import type {
-	IntelligenceThread,
-	Brief,
-	Contract,
-	LobbyingFiling,
-	Donation,
-	Disclosure,
-	GACProject,
-	Person,
-	Organization,
-} from "@civic-intel/core";
-import type { PipelineResult } from "./pipeline";
+import {
+	people, organizations, contracts, filings, donations,
+	disclosures, projects, threads, brief, sweepDelta,
+	type IntelligenceThread, type Person, type Organization,
+	type Contract, type LobbyingFiling, type Donation, type Disclosure,
+	type GACProject, type Brief, type SweepDelta,
+	graphNodes, graphEdges, type GraphNode, type GraphEdge,
+} from "./data";
 
 export type ViewTab = "monitor" | "brief" | "explore" | "signals" | "community";
-export type ThemeVariant =
-	| "nightwatch"
-	| "phosphor"
-	| "arctic"
-	| "solarized"
-	| "parchment";
+export type ThemeVariant = "nightwatch" | "phosphor" | "arctic" | "solarized" | "parchment";
 
 export interface SignalAlert {
 	id: string;
@@ -46,54 +37,35 @@ interface CivicStore {
 	// Sweep state
 	sweepRunning: boolean;
 	sweepLastRun: string | null;
-	sweepNextRun: string | null;
 	sweepCount: number;
-	sweepDelta: PipelineResult['sweepDelta'] | null;
-	setSweepState: (state: {
-		running?: boolean;
-		lastRun?: string | null;
-		nextRun?: string | null;
-		count?: number;
-		delta?: PipelineResult['sweepDelta'];
-	}) => void;
+	sweepDelta: SweepDelta;
+	setSweepState: (state: { running?: boolean; lastRun?: string | null; count?: number }) => void;
 
-	// Seed data
+	// Data
+	people: Person[];
+	organizations: Organization[];
 	contracts: Contract[];
 	filings: LobbyingFiling[];
 	donations: Donation[];
 	disclosures: Disclosure[];
 	projects: GACProject[];
-	people: Person[];
-	organizations: Organization[];
-	setSeedData: (data: {
-		contracts: Contract[];
-		filings: LobbyingFiling[];
-		donations: Donation[];
-		disclosures: Disclosure[];
-		projects: GACProject[];
-		people: Person[];
-		organizations: Organization[];
-	}) => void;
-
-	// Intelligence
 	threads: IntelligenceThread[];
 	brief: Brief | null;
-	setIntelligence: (threads: IntelligenceThread[], brief: Brief | null) => void;
+
+	// Graph
+	graphNodes: GraphNode[];
+	graphEdges: GraphEdge[];
 
 	// Signals / Alerts
 	alerts: SignalAlert[];
-	addAlert: (thread: IntelligenceThread) => void;
 	dismissAlert: (id: string) => void;
 	readAlert: (id: string) => void;
-	clearAlerts: () => void;
 
 	// Search
 	searchQuery: string;
 	setSearchQuery: (q: string) => void;
 
-	// Explorer filters
-	explorerEntityType: string | null;
-	setExplorerEntityType: (type: string | null) => void;
+	// Explorer
 	explorerFocusEntity: string | null;
 	setExplorerFocusEntity: (id: string | null) => void;
 }
@@ -112,51 +84,41 @@ export const useCivicStore = create<CivicStore>((set) => ({
 		set({ theme });
 	},
 
-	// Sweep state
+	// Sweep
 	sweepRunning: false,
-	sweepLastRun: null,
-	sweepNextRun: null,
-	sweepCount: 0,
-	sweepDelta: null,
+	sweepLastRun: new Date().toISOString(),
+	sweepCount: 1,
+	sweepDelta,
 	setSweepState: (state) =>
 		set((prev) => ({
 			sweepRunning: state.running ?? prev.sweepRunning,
 			sweepLastRun: state.lastRun ?? prev.sweepLastRun,
-			sweepNextRun: state.nextRun ?? prev.sweepNextRun,
 			sweepCount: state.count ?? prev.sweepCount,
-			sweepDelta: state.delta ?? prev.sweepDelta,
 		})),
 
-	// Seed data
-	contracts: [],
-	filings: [],
-	donations: [],
-	disclosures: [],
-	projects: [],
-	people: [],
-	organizations: [],
-	setSeedData: (data) => set(data),
+	// Pre-populated data
+	people,
+	organizations,
+	contracts,
+	filings,
+	donations,
+	disclosures,
+	projects,
+	threads,
+	brief,
 
-	// Intelligence
-	threads: [],
-	brief: null,
-	setIntelligence: (threads, brief) => set({ threads, brief }),
+	// Graph
+	graphNodes,
+	graphEdges,
 
-	// Signals / Alerts
-	alerts: [],
-	addAlert: (thread) =>
-		set((prev) => ({
-			alerts: [
-				{
-					id: `alert-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-					thread,
-					dismissed: false,
-					read: false,
-					timestamp: Date.now(),
-				},
-				...prev.alerts,
-			],
-		})),
+	// Alerts
+	alerts: threads.map((t, i) => ({
+		id: "alert-" + i,
+		thread: t,
+		dismissed: false,
+		read: i > 2,
+		timestamp: Date.now() - i * 3600000,
+	})),
 	dismissAlert: (id) =>
 		set((prev) => ({
 			alerts: prev.alerts.map((a) =>
@@ -169,15 +131,12 @@ export const useCivicStore = create<CivicStore>((set) => ({
 				a.id === id ? { ...a, read: true } : a,
 			),
 		})),
-	clearAlerts: () => set({ alerts: [] }),
 
 	// Search
 	searchQuery: "",
 	setSearchQuery: (q) => set({ searchQuery: q }),
 
-	// Explorer filters
-	explorerEntityType: null,
-	setExplorerEntityType: (type) => set({ explorerEntityType: type }),
+	// Explorer
 	explorerFocusEntity: null,
 	setExplorerFocusEntity: (id) => set({ explorerFocusEntity: id }),
 }));

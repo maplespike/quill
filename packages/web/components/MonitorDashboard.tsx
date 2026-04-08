@@ -2,7 +2,7 @@
 
 import { useCivicStore } from "../lib/store";
 import { useMemo } from "react";
-import type { IntelligenceThread } from "@civic-intel/core";
+import type { IntelligenceThread } from "../lib/data";
 
 const SIGNAL_COLORS: Record<string, string> = {
 	procurement_lobbying_overlap: "var(--signal-procurement)",
@@ -40,42 +40,35 @@ export function MonitorDashboard() {
 		sweepDelta,
 		sweepRunning,
 		sweepLastRun,
+		people,
+		organizations,
 	} = useCivicStore();
 
 	const stats = useMemo(() => {
-		const totalSpending = contracts.reduce(
-			(sum, c) => sum + (typeof c.value === "number" ? c.value : 0),
-			0,
-		);
+		const totalSpending = contracts.reduce((sum, c) => sum + c.value, 0);
+		const soleSourceValue = contracts.filter(c => c.isSoleSource).reduce((sum, c) => sum + c.value, 0);
+		const soleSourcePct = totalSpending > 0 ? (soleSourceValue / totalSpending * 100) : 0;
 		const topVendors = Object.entries(
 			contracts.reduce<Record<string, number>>((acc, c) => {
-				acc[c.vendorName] = (acc[c.vendorName] || 0) + (typeof c.value === "number" ? c.value : 0);
+				acc[c.vendorName] = (acc[c.vendorName] || 0) + c.value;
 				return acc;
 			}, {}),
-		)
-			.sort(([, a], [, b]) => b - a)
-			.slice(0, 5);
+		).sort(([, a], [, b]) => b - a).slice(0, 5);
 
 		const lobbyingByDept = Object.entries(
 			filings.reduce<Record<string, number>>((acc, f) => {
-				acc[f.institution] = (acc[f.institution] || 0) + 1;
+				acc[f.institution] = (acc[f.institution] || 0) + f.communications.length;
 				return acc;
 			}, {}),
 		).sort(([, a], [, b]) => b - a);
 
+		const totalComms = filings.reduce((sum, f) => sum + f.communications.length, 0);
 		const highConfidence = threads.filter((t) => t.confidence >= 0.7).length;
-		const avgConfidence =
-			threads.length > 0
-				? threads.reduce((s, t) => s + t.confidence, 0) / threads.length
-				: 0;
+		const avgConfidence = threads.length > 0
+			? threads.reduce((s, t) => s + t.confidence, 0) / threads.length
+			: 0;
 
-		return {
-			totalSpending,
-			topVendors,
-			lobbyingByDept,
-			highConfidence,
-			avgConfidence,
-		};
+		return { totalSpending, soleSourcePct, topVendors, lobbyingByDept, totalComms, highConfidence, avgConfidence };
 	}, [contracts, filings, threads]);
 
 	const signalDistribution = useMemo(() => {
@@ -92,52 +85,47 @@ export function MonitorDashboard() {
 			<div className="col-span-3 flex flex-col gap-3">
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
-						ACTIVE SIGNALS
+						ACTIVE SIGNALS ({threads.length})
 					</h3>
-					<div className="flex flex-col gap-2 max-h-[calc(100vh-320px)] overflow-auto">
+					<div className="flex flex-col gap-2 max-h-[calc(100vh-320px)] overflow-auto pr-1">
 						{threads.map((thread) => (
 							<SignalCard key={thread.id} thread={thread} />
 						))}
-						{threads.length === 0 && (
-							<div className="text-xs text-[var(--muted)] text-center py-4">
-								No signals detected
-							</div>
-						)}
 					</div>
 				</div>
 			</div>
 
-			{/* ── Center Panel: Charts Grid ───────────────────── */}
+			{/* ── Center Panel: Charts ────────────────────────── */}
 			<div className="col-span-6 flex flex-col gap-3">
 				{/* Top stats row */}
 				<div className="grid grid-cols-4 gap-3">
 					<StatCard
 						label="TOTAL SPENDING"
-						value={`$${(stats.totalSpending / 1_000_000).toFixed(1)}M`}
-						subtitle={contracts.length + ' contracts'}
+						value={"$" + (stats.totalSpending / 1_000_000).toFixed(1) + "M"}
+						subtitle={contracts.length + " contracts tracked"}
 						color="var(--signal-procurement)"
 					/>
 					<StatCard
-						label="LOBBYING FILINGS"
-						value={String(filings.length)}
-						subtitle={stats.lobbyingByDept.length + ' departments'}
+						label="SOLE-SOURCE %"
+						value={stats.soleSourcePct.toFixed(0) + "%"}
+						subtitle={"$" + (contracts.filter(c => c.isSoleSource).reduce((s, c) => s + c.value, 0) / 1_000_000).toFixed(0) + "M non-competitive"}
+						color="var(--destructive)"
+					/>
+					<StatCard
+						label="LOBBYING COMMS"
+						value={String(stats.totalComms)}
+						subtitle={filings.length + " active filings"}
 						color="var(--signal-revolving)"
 					/>
 					<StatCard
-						label="ACTIVE THREADS"
-						value={String(threads.length)}
-						subtitle={stats.highConfidence + ' high confidence'}
-						color="var(--primary)"
-					/>
-					<StatCard
-						label="HEALTH SCORE"
+						label="THREAT LEVEL"
 						value={String(Math.round(stats.avgConfidence * 100))}
-						subtitle={'avg ' + (stats.avgConfidence * 100).toFixed(0) + '% confidence'}
+						subtitle={stats.highConfidence + " high-confidence / " + threads.length + " total"}
 						color="var(--accent)"
 					/>
 				</div>
 
-				{/* Spending by vendor (horizontal bars) */}
+				{/* Top vendors — horizontal bars */}
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						TOP VENDORS BY CONTRACT VALUE
@@ -146,31 +134,41 @@ export function MonitorDashboard() {
 						{stats.topVendors.map(([name, value], i) => {
 							const maxVal = stats.topVendors[0]?.[1] ?? 1;
 							const pct = (value / maxVal) * 100;
+							const isSoleSource = contracts.find(c => c.vendorName === name)?.isSoleSource;
 							return (
 								<div key={name} className="flex items-center gap-2">
-									<div className="w-32 text-xs text-[var(--foreground)] truncate">
-										{name}
+									<div className="w-36 text-xs text-[var(--foreground)] truncate flex items-center gap-1">
+										<span>{name.replace(" Technologies Canada", "").replace(" Asset Management", "")}</span>
+										{isSoleSource && <span className="text-[8px] text-[var(--destructive)] bg-[var(--destructive)]/10 px-1 rounded">SOLE</span>}
 									</div>
-									<div className="flex-1 h-5 bg-[var(--background)] rounded overflow-hidden">
+									<div className="flex-1 h-6 bg-[var(--background)] rounded overflow-hidden relative">
 										<div
 											className="h-full rounded transition-all duration-1000 ease-out"
 											style={{
-												width: pct + '%',
-												background: 'linear-gradient(90deg, var(--primary), var(--accent))',
+												width: pct + "%",
+												background: i === 0
+													? "linear-gradient(90deg, var(--primary), var(--accent))"
+													: i === 1
+														? "linear-gradient(90deg, var(--signal-revolving), var(--signal-sole-source))"
+														: "linear-gradient(90deg, var(--muted), var(--border))",
 												opacity: 1 - i * 0.15,
 											}}
 										/>
-									</div>
-									<div className="w-16 text-xs text-right text-[var(--muted)] tabular-nums">
-										${(value / 1_000_000).toFixed(1)}M
+										<span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--foreground)] font-mono">
+											${(value / 1_000_000).toFixed(1)}M
+										</span>
 									</div>
 								</div>
 							);
 						})}
 					</div>
+					<div className="mt-2 pt-2 border-t border-[var(--border)] flex justify-between text-[10px] text-[var(--muted)]">
+						<span>{contracts.length} contracts • {stats.soleSourcePct.toFixed(0)}% sole-source by value</span>
+						<span>Sources: CanadaBuys proactive disclosure</span>
+					</div>
 				</div>
 
-				{/* Signal Distribution + Severity Gauge row */}
+				{/* Signal Distribution + Severity Gauge */}
 				<div className="grid grid-cols-2 gap-3">
 					{/* Signal type distribution */}
 					<div className="card">
@@ -181,13 +179,23 @@ export function MonitorDashboard() {
 							{signalDistribution.map(([type, count]) => (
 								<div key={type} className="flex items-center gap-2">
 									<div
-										className="w-2 h-2 rounded-full"
+										className="w-2 h-2 rounded-full flex-shrink-0"
 										style={{ backgroundColor: SIGNAL_COLORS[type] }}
 									/>
 									<div className="flex-1 text-xs text-[var(--foreground)]">
 										{SIGNAL_LABELS[type] || type}
 									</div>
-									<div className="text-xs text-[var(--muted)] tabular-nums">
+									<div className="w-24 h-3 bg-[var(--background)] rounded overflow-hidden">
+										<div
+											className="h-full rounded"
+											style={{
+												width: (count / threads.length * 100) + "%",
+												backgroundColor: SIGNAL_COLORS[type],
+												opacity: 0.7,
+											}}
+										/>
+									</div>
+									<div className="text-xs text-[var(--muted)] tabular-nums w-4 text-right">
 										{count}
 									</div>
 								</div>
@@ -195,36 +203,19 @@ export function MonitorDashboard() {
 						</div>
 					</div>
 
-					{/* Severity Gauge (CSS-only) */}
+					{/* Severity Gauge */}
 					<div className="card flex flex-col items-center justify-center">
 						<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-4">
-							THREAT LEVEL
+							HEALTH SCORE
 						</h3>
 						<div className="relative w-32 h-32">
 							<svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+								<circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" strokeWidth="8" />
 								<circle
-									cx="50"
-									cy="50"
-									r="40"
-									fill="none"
-									stroke="var(--border)"
-									strokeWidth="8"
-								/>
-								<circle
-									cx="50"
-									cy="50"
-									r="40"
-									fill="none"
-									stroke={
-										stats.avgConfidence > 0.7
-											? "var(--destructive)"
-											: stats.avgConfidence > 0.5
-												? "var(--warning)"
-												: "var(--success)"
-									}
-									strokeWidth="8"
-									strokeLinecap="round"
-									strokeDasharray={stats.avgConfidence * 251.3 + ' 251.3'}
+									cx="50" cy="50" r="40" fill="none"
+									stroke={stats.avgConfidence > 0.7 ? "var(--destructive)" : stats.avgConfidence > 0.5 ? "var(--warning)" : "var(--success)"}
+									strokeWidth="8" strokeLinecap="round"
+									strokeDasharray={stats.avgConfidence * 251.3 + " 251.3"}
 									className="transition-all duration-1000"
 								/>
 							</svg>
@@ -235,17 +226,13 @@ export function MonitorDashboard() {
 								<span className="text-[9px] text-[var(--muted)]">/ 100</span>
 							</div>
 						</div>
-						<div className="mt-2 text-xs text-[var(--muted)]">
-							{stats.avgConfidence > 0.7
-								? "HIGH RISK"
-								: stats.avgConfidence > 0.5
-									? "MODERATE"
-									: "LOW"}
+						<div className="mt-2 text-xs font-semibold" style={{ color: stats.avgConfidence > 0.7 ? "var(--destructive)" : "var(--warning)" }}>
+							{stats.avgConfidence > 0.7 ? "▲ ELEVATED RISK" : stats.avgConfidence > 0.5 ? "● MODERATE" : "▽ LOW"}
 						</div>
 					</div>
 				</div>
 
-				{/* Lobbying heatmap by department */}
+				{/* Lobbying Activity Heatmap */}
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						LOBBYING ACTIVITY BY DEPARTMENT
@@ -256,12 +243,12 @@ export function MonitorDashboard() {
 								key={dept}
 								className="px-3 py-1.5 rounded text-xs transition-all hover:scale-105 cursor-pointer"
 								style={{
-									background: 'rgba(239, 68, 68, ${Math.min(0.3 + count * 0.15, 0.9)})',
+									background: "rgba(239, 68, 68, " + (Math.min(0.15 + count * 0.08, 0.5)) + ")",
 									color: "var(--foreground)",
 								}}
 							>
-								{dept.split(" ").slice(-2).join(" ")}{" "}
-								<span className="opacity-60">({count})</span>
+								{dept.replace("Department of ", "").replace("Immigration, Refugees and Citizenship Canada", "IRCC")}{" "}
+								<span className="opacity-60">({count} comms)</span>
 							</div>
 						))}
 					</div>
@@ -273,51 +260,44 @@ export function MonitorDashboard() {
 				{/* Sweep status */}
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
-						SWEEP STATUS
+						LATEST SWEEP
 					</h3>
 					{sweepRunning ? (
 						<div className="flex items-center gap-2">
 							<div className="w-2 h-2 rounded-full bg-[var(--sweep-active)] animate-pulse-live" />
-							<span className="text-xs text-[var(--sweep-active)]">
-								Running sweep...
-							</span>
+							<span className="text-xs text-[var(--sweep-active)]">Running sweep...</span>
 						</div>
 					) : (
 						<div className="text-xs text-[var(--muted)]">
-							Last:{" "}
-							{sweepLastRun
-								? new Date(sweepLastRun).toLocaleTimeString()
-								: "Never"}
+							Last: {sweepLastRun ? new Date(sweepLastRun).toLocaleTimeString() : "Just now"}
 						</div>
 					)}
-					{sweepDelta && (
-						<div className="mt-2 grid grid-cols-2 gap-1 text-[10px]">
-							<div>
-								<span className="text-[var(--signal-procurement)]">
-									{sweepDelta.newContracts}
-								</span>{" "}
-								contracts
-							</div>
-							<div>
-								<span className="text-[var(--signal-revolving)]">
-									{sweepDelta.newFilings}
-								</span>{" "}
-								filings
-							</div>
-							<div>
-								<span className="text-[var(--signal-donation)]">
-									{sweepDelta.newDonations}
-								</span>{" "}
-								donations
-							</div>
-							<div>
-								<span className="text-[var(--signal-mandate)]">
-									{sweepDelta.newSignals}
-								</span>{" "}
-								signals
-							</div>
+					<div className="mt-2 grid grid-cols-3 gap-2 text-[10px]">
+						<div className="p-1.5 rounded bg-[var(--background)]">
+							<div className="text-[var(--signal-procurement)] font-bold">{sweepDelta.newContracts}</div>
+							<div className="text-[var(--muted)]">contracts</div>
 						</div>
-					)}
+						<div className="p-1.5 rounded bg-[var(--background)]">
+							<div className="text-[var(--signal-revolving)] font-bold">{sweepDelta.newFilings}</div>
+							<div className="text-[var(--muted)]">filings</div>
+						</div>
+						<div className="p-1.5 rounded bg-[var(--background)]">
+							<div className="text-[var(--signal-donation)] font-bold">{sweepDelta.newDonations}</div>
+							<div className="text-[var(--muted)]">donations</div>
+						</div>
+						<div className="p-1.5 rounded bg-[var(--background)]">
+							<div className="text-[var(--signal-spousal)] font-bold">{sweepDelta.newDisclosures}</div>
+							<div className="text-[var(--muted)]">disclosures</div>
+						</div>
+						<div className="p-1.5 rounded bg-[var(--background)]">
+							<div className="text-[var(--signal-international)] font-bold">{sweepDelta.newProjects}</div>
+							<div className="text-[var(--muted)]">GAC projects</div>
+						</div>
+						<div className="p-1.5 rounded bg-[var(--background)]">
+							<div className="text-[var(--primary)] font-bold">{sweepDelta.newSignals}</div>
+							<div className="text-[var(--muted)]">signals</div>
+						</div>
+					</div>
 				</div>
 
 				{/* Entity watchlist */}
@@ -328,23 +308,54 @@ export function MonitorDashboard() {
 					<EntityWatchlist />
 				</div>
 
-				{/* Donations summary */}
+				{/* Recent donations */}
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
-						RECENT DONATIONS
+						POLITICAL DONATIONS
 					</h3>
 					<div className="flex flex-col gap-1.5">
-						{donations.slice(0, 5).map((d, i) => (
-							<div
-								key={i}
-								className="flex justify-between text-xs py-1 border-b border-[var(--border)] last:border-0"
-							>
-								<span className="truncate max-w-[140px]">{d.donorName}</span>
-								<span className="text-[var(--signal-donation)] tabular-nums">
-									${typeof d.amount === "number" ? d.amount.toLocaleString() : "—"}
+						{donations.map((d) => (
+							<div key={d.id} className="flex justify-between text-xs py-1 border-b border-[var(--border)] last:border-0">
+								<div className="flex flex-col">
+									<span className="truncate max-w-[140px]">{d.donorName}</span>
+									<span className="text-[9px] text-[var(--muted)]">→ {d.recipientName} • {d.date}</span>
+								</div>
+								<span className="text-[var(--signal-donation)] tabular-nums font-mono">
+									${d.amount.toLocaleString()}
 								</span>
 							</div>
 						))}
+					</div>
+					<div className="mt-1 pt-1 border-t border-[var(--border)] text-[10px] text-[var(--muted)]">
+						Total: ${donations.reduce((s, d) => s + d.amount, 0).toLocaleString()}
+					</div>
+				</div>
+
+				{/* People tracker */}
+				<div className="card">
+					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
+						KEY PERSONS
+					</h3>
+					<div className="flex flex-col gap-1.5">
+						{people.map((p) => {
+							const threadCount = threads.filter(t => t.nodes.includes(p.id)).length;
+							return (
+								<div key={p.id} className="flex items-center gap-2 text-xs py-1">
+									<div className="w-6 h-6 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[9px] text-[var(--primary)] font-bold flex-shrink-0">
+										{p.firstName[0]}{p.lastName[0]}
+									</div>
+									<div className="flex-1 min-w-0">
+										<div className="truncate">{p.firstName} {p.lastName}</div>
+										<div className="text-[9px] text-[var(--muted)] truncate">{p.roles[0]?.title}</div>
+									</div>
+									{threadCount > 0 && (
+										<span className="text-[9px] bg-[var(--destructive)]/20 text-[var(--destructive)] px-1.5 rounded">
+											{threadCount}
+										</span>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			</div>
@@ -358,18 +369,15 @@ function SignalCard({ thread }: { thread: IntelligenceThread }) {
 
 	return (
 		<div
-			className={`card severity-${severity} cursor-pointer hover:bg-[var(--card-hover)] transition-colors`}
+			className={"card cursor-pointer hover:bg-[var(--card-hover)] transition-colors severity-" + severity}
 			style={{ borderLeftColor: color, borderLeftWidth: "3px" }}
 		>
 			<div className="flex items-center gap-2 mb-1">
-				<div
-					className="w-1.5 h-1.5 rounded-full"
-					style={{ backgroundColor: color }}
-				/>
+				<div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
 				<span className="text-[10px] text-[var(--muted)] uppercase tracking-wider">
 					{SIGNAL_LABELS[thread.signalType]}
 				</span>
-				<span className="ml-auto text-[10px] text-[var(--muted)] tabular-nums">
+				<span className="ml-auto text-[10px] tabular-nums" style={{ color }}>
 					{Math.round(thread.confidence * 100)}%
 				</span>
 			</div>
@@ -380,25 +388,14 @@ function SignalCard({ thread }: { thread: IntelligenceThread }) {
 	);
 }
 
-function StatCard({
-	label,
-	value,
-	subtitle,
-	color,
-}: {
-	label: string;
-	value: string;
-	subtitle: string;
-	color: string;
+function StatCard({ label, value, subtitle, color }: {
+	label: string; value: string; subtitle: string; color: string;
+	children?: React.ReactNode;
 }) {
 	return (
 		<div className="card text-center">
-			<div className="text-[9px] text-[var(--muted)] tracking-widest mb-1">
-				{label}
-			</div>
-			<div className="text-xl font-bold tabular-nums" style={{ color }}>
-				{value}
-			</div>
+			<div className="text-[9px] text-[var(--muted)] tracking-widest mb-1">{label}</div>
+			<div className="text-xl font-bold tabular-nums" style={{ color }}>{value}</div>
 			<div className="text-[10px] text-[var(--muted)]">{subtitle}</div>
 		</div>
 	);
@@ -408,8 +405,7 @@ function EntityWatchlist() {
 	const { threads, organizations } = useCivicStore();
 
 	const entityCounts = useMemo(() => {
-		const counts: Record<string, { name: string; count: number; color: string }> =
-			{};
+		const counts: Record<string, { name: string; count: number; color: string }> = {};
 		for (const thread of threads) {
 			for (const entityId of thread.nodes) {
 				if (!counts[entityId]) {
@@ -434,10 +430,7 @@ function EntityWatchlist() {
 					key={e.name}
 					className="flex items-center gap-2 text-xs py-1 cursor-pointer hover:bg-[var(--card-hover)] rounded px-1 transition-colors"
 				>
-					<div
-						className="w-1.5 h-1.5 rounded-full"
-						style={{ backgroundColor: e.color }}
-					/>
+					<div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.color }} />
 					<span className="flex-1 truncate">{e.name}</span>
 					<span className="text-[var(--muted)] tabular-nums">{e.count}</span>
 				</div>
