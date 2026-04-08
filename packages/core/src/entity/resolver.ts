@@ -26,6 +26,7 @@ function classifyConfidence(score: number): ConfidenceLevel {
 
 /** Normalize a string for comparison: lowercase, trim, collapse whitespace, remove accents */
 function normalize(str: string): string {
+	if (!str) return "";
 	return str
 		.toLowerCase()
 		.normalize("NFD")
