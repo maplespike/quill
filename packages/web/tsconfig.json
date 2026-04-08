@@ -1,0 +1,18 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": ".",
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"jsx": "preserve",
+		"paths": {
+			"@/*": ["./app/*"],
+			"@civic-intel/core": ["../core/src"],
+			"@civic-intel/pretext-civic": ["../pretext-civic/src"]
+		}
+	},
+	"include": ["app/**/*.ts", "app/**/*.tsx", "next-env.d.ts"],
+	"exclude": ["node_modules", "dist", ".next"]
+}
