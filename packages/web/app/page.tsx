@@ -199,14 +199,20 @@ export default function CivicIntelApp() {
 			<footer className="border-t border-[var(--border)] bg-[var(--card)] py-1.5 px-4">
 				<div className="ticker-wrap">
 					<div className="ticker-content animate-ticker text-xs text-[var(--muted)]">
-						<span>▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending</span>
-						<span>▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period</span>
-						<span>▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell disclosed spouse on L3Harris board — same vendor received $45M sole-source</span>
-						<span>▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M in GAC projects + $2.3M IRCC contract</span>
-						<span>▸ <span className="text-[var(--signal-donation)]">ELECTIONS</span> Brookfield donated $40K to Liberal Party → received $8.5M contract 3 months later</span>
-						<span>▸ <span className="text-[var(--signal-sole-source)]">ANALYSIS</span> 72% of defence contract value is sole-source — up 40% from prior year</span>
-						<span>▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending</span>
-						<span>▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period</span>
+						<span>▸ <span className="text-[var(--signal-procurement)]">CONTRACT</span> L3Harris receives $45M sole-source DND contract — 2 days after ex-ADM lobbied Minister</span>
+						<span>▸ <span className="text-[var(--signal-revolving)]">REVOLVING DOOR</span> Michael Chen: DND ADM → Navigator LLP in 31 days → now lobbying DND for L3Harris</span>
+						<span>▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell's spouse on L3Harris board — same vendor she awarded $73M in contracts</span>
+						<span>▸ <span className="text-[var(--signal-sole-source)]">SOLE-SOURCE</span> Lockheed Martin $120M sole-source after 6 lobbying meetings in 5 months</span>
+						<span>▸ <span className="text-[var(--signal-donation)]">DONATION</span> Brookfield: $40K to Liberal Party → $8.5M government contract 3 months later</span>
+						<span>▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M GAC + $2.3M IRCC + lobbying — multi-layered revenue</span>
+						<span>▸ <span className="text-[var(--signal-mandate)]">MANDATE</span> Sole-source up 40% despite competitive bidding mandate — Indigenous procurement below 1%</span>
+						<span>▸ <span className="text-[var(--signal-procurement)]">CONTRACT</span> L3Harris receives $45M sole-source DND contract — 2 days after ex-ADM lobbied Minister</span>
+						<span>▸ <span className="text-[var(--signal-revolving)]">REVOLVING DOOR</span> Michael Chen: DND ADM → Navigator LLP in 31 days → now lobbying DND for L3Harris</span>
+						<span>▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell's spouse on L3Harris board — same vendor she awarded $73M in contracts</span>
+						<span>▸ <span className="text-[var(--signal-sole-source)]">SOLE-SOURCE</span> Lockheed Martin $120M sole-source after 6 lobbying meetings in 5 months</span>
+						<span>▸ <span className="text-[var(--signal-donation)]">DONATION</span> Brookfield: $40K to Liberal Party → $8.5M government contract 3 months later</span>
+						<span>▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M GAC + $2.3M IRCC + lobbying — multi-layered revenue</span>
+						<span>▸ <span className="text-[var(--signal-mandate)]">MANDATE</span> Sole-source up 40% despite competitive bidding mandate — Indigenous procurement below 1%</span>
 					</div>
 				</div>
 			</footer>
