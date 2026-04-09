@@ -3,6 +3,7 @@
 import { useCivicStore } from "../lib/store";
 import { useMemo } from "react";
 import type { IntelligenceThread } from "../lib/data";
+import { connectionStrengths, graphNodes } from "../lib/data";
 
 const SIGNAL_COLORS: Record<string, string> = {
 	procurement_lobbying_overlap: "var(--signal-procurement)",
@@ -331,6 +332,14 @@ export function MonitorDashboard() {
 					</div>
 				</div>
 
+				{/* Connection Strengths */}
+				<div className="card">
+					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
+						STRONGEST CONNECTIONS
+					</h3>
+					<ConnectionStrengths />
+				</div>
+
 				{/* People tracker */}
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
@@ -390,7 +399,6 @@ function SignalCard({ thread }: { thread: IntelligenceThread }) {
 
 function StatCard({ label, value, subtitle, color }: {
 	label: string; value: string; subtitle: string; color: string;
-	children?: React.ReactNode;
 }) {
 	return (
 		<div className="card text-center">
@@ -435,6 +443,39 @@ function EntityWatchlist() {
 					<span className="text-[var(--muted)] tabular-nums">{e.count}</span>
 				</div>
 			))}
+		</div>
+	);
+}
+
+function ConnectionStrengths() {
+	return (
+		<div className="flex flex-col gap-2">
+			{connectionStrengths.slice(0, 6).map((cs, i) => {
+				const fromLabel = graphNodes.find(n => n.id === cs.fromId)?.label || cs.fromId;
+				const toLabel = graphNodes.find(n => n.id === cs.toId)?.label || cs.toId;
+				const pct = Math.round(cs.strength * 100);
+				const color = pct > 80 ? "var(--destructive)" : pct > 60 ? "var(--warning)" : "var(--primary)";
+				return (
+					<div key={i} className="group cursor-pointer">
+						<div className="flex items-center gap-1 text-[10px] mb-0.5">
+							<span className="truncate flex-1 text-[var(--foreground)]">
+								{fromLabel.length > 12 ? fromLabel.slice(0, 12) + "…" : fromLabel}
+							</span>
+							<span className="text-[var(--muted)]">↔</span>
+							<span className="truncate flex-1 text-[var(--foreground)] text-right">
+								{toLabel.length > 12 ? toLabel.slice(0, 12) + "…" : toLabel}
+							</span>
+							<span className="text-[9px] tabular-nums ml-1" style={{ color }}>{pct}%</span>
+						</div>
+						<div className="strength-bar">
+							<div className="strength-bar-fill" style={{ width: pct + "%", backgroundColor: color }} />
+						</div>
+						<div className="text-[8px] text-[var(--muted)] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity line-clamp-1">
+							{cs.summary}
+						</div>
+					</div>
+				);
+			})}
 		</div>
 	);
 }
