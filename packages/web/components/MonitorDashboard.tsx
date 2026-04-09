@@ -233,6 +233,25 @@ export function MonitorDashboard() {
 					</div>
 				</div>
 
+				{/* Key Insight: The L3Harris Triangle */}
+				<div className="card" style={{ borderLeft: "3px solid var(--destructive)" }}>
+					<h3 className="text-xs font-semibold tracking-widest mb-2" style={{ color: "var(--destructive)" }}>
+						▲ KEY INSIGHT — THE L3HARRIS TRIANGLE
+					</h3>
+					<p className="text-xs text-[var(--foreground)] leading-relaxed mb-2">
+						Three independent signals converge on a single cluster: <strong>L3Harris Technologies</strong> holds
+						$73M in DND sole-source contracts, is lobbied for by a <strong>former DND executive</strong> through
+						Navigator LLP, and the <strong>Minister's spouse</strong> sits on L3Harris's board.
+					</p>
+					<div className="flex items-center gap-2 text-[10px]">
+						<span className="badge" style={{ background: "rgba(239, 68, 68, 0.15)", color: "var(--destructive)" }}>3 signals</span>
+						<span className="text-[var(--muted)]">•</span>
+						<span className="text-[var(--muted)]">92% max confidence</span>
+						<span className="text-[var(--muted)]">•</span>
+						<span className="text-[var(--muted)]">5 entities involved</span>
+					</div>
+				</div>
+
 				{/* Lobbying Activity Heatmap */}
 				<div className="card">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
