@@ -6,11 +6,10 @@
 
 import { create } from "zustand";
 import {
-	people, organizations, contracts, filings, donations,
-	disclosures, projects, threads, brief, sweepDelta,
+	people, organizations, contracts, filings,
+	threads, brief, sweepDelta,
 	type IntelligenceThread, type Person, type Organization,
-	type Contract, type LobbyingFiling, type Donation, type Disclosure,
-	type GACProject, type Brief, type SweepDelta,
+	type Contract, type LobbyingFiling, type Brief, type SweepDelta,
 	graphNodes, graphEdges, type GraphNode, type GraphEdge,
 } from "./data";
 
@@ -46,9 +45,6 @@ interface CivicStore {
 	organizations: Organization[];
 	contracts: Contract[];
 	filings: LobbyingFiling[];
-	donations: Donation[];
-	disclosures: Disclosure[];
-	projects: GACProject[];
 	threads: IntelligenceThread[];
 	brief: Brief | null;
 
@@ -101,9 +97,6 @@ export const useCivicStore = create<CivicStore>((set) => ({
 	organizations,
 	contracts,
 	filings,
-	donations,
-	disclosures,
-	projects,
 	threads,
 	brief,
 
