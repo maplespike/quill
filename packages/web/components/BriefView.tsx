@@ -218,10 +218,18 @@ export function BriefView() {
 			{/* ── Methodology ─────────────────────────────────── */}
 			<div className="brief-section mb-10">
 				<div className="card bg-[var(--background)] border-dashed">
-					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-2">METHODOLOGY</h3>
-					<p className="text-xs text-[var(--muted)] leading-relaxed">
-						This brief is generated from publicly available Canadian government data: CanadaBuys (proactive disclosure of contracts over $10K), the Office of the Commissioner of Lobbying (monthly communication reports), the Conflict of Interest and Ethics Commissioner (public summaries of disclosed interests including spousal interests), Elections Canada (political contribution data), and Global Affairs Canada (international assistance project data). Every assertion links to a primary source. Signal confidence scores reflect the strength of cross-referenced connections, not editorial judgment.
+					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-2">METHODOLOGY & SOURCES</h3>
+					<p className="text-xs text-[var(--muted)] leading-relaxed mb-3">
+						This brief is generated from publicly available Canadian government data. Every assertion links to a primary source. Signal confidence scores reflect the strength of cross-referenced connections, not editorial judgment.
 					</p>
+					<div className="flex flex-wrap gap-2">
+						<a href="https://buyandsell.gc.ca/" target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded bg-[var(--accent-dim)] text-[var(--accent)] hover:underline">CanadaBuys</a>
+						<a href="https://lobbycanada.gc.ca/" target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded bg-[var(--accent-dim)] text-[var(--accent)] hover:underline">Lobby Commissioner</a>
+						<a href="https://ciec-ccie.parl.gc.ca/" target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded bg-[var(--accent-dim)] text-[var(--accent)] hover:underline">CIEC</a>
+						<a href="https://www.elections.ca/" target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded bg-[var(--accent-dim)] text-[var(--accent)] hover:underline">Elections Canada</a>
+						<a href="https://www.international.gc.ca/" target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded bg-[var(--accent-dim)] text-[var(--accent)] hover:underline">Global Affairs Canada</a>
+						<a href="https://open.canada.ca/" target="_blank" rel="noopener noreferrer" className="text-[10px] px-2 py-1 rounded bg-[var(--accent-dim)] text-[var(--accent)] hover:underline">Open Government</a>
+					</div>
 				</div>
 			</div>
 
