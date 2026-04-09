@@ -147,7 +147,7 @@ export default function CivicIntelApp() {
 					</div>
 
 					<div className="text-xs text-[var(--muted)]">
-						{threads.length} THREADS
+						{sweepRunning ? "(" : "("}{threads.length} THREADS • {people.length} PEOPLE • {organizations.length} ORGS)
 					</div>
 				</div>
 

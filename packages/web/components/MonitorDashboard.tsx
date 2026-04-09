@@ -37,6 +37,8 @@ export function MonitorDashboard() {
 		contracts,
 		filings,
 		donations,
+		disclosures,
+		projects,
 		threads,
 		sweepDelta,
 		sweepRunning,
@@ -81,9 +83,9 @@ export function MonitorDashboard() {
 	}, [threads]);
 
 	return (
-		<div className="grid grid-cols-12 gap-3 p-4 h-full overflow-auto">
+		<div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 h-full overflow-auto">
 			{/* ── Left Panel: Anomaly Feed ────────────────────── */}
-			<div className="col-span-3 flex flex-col gap-3">
+			<div className="md:col-span-3 flex flex-col gap-3">
 				<div className="card card-enter card-enter-1">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						ACTIVE SIGNALS ({threads.length})
@@ -97,7 +99,7 @@ export function MonitorDashboard() {
 			</div>
 
 			{/* ── Center Panel: Charts ────────────────────────── */}
-			<div className="col-span-6 flex flex-col gap-3">
+			<div className="md:col-span-6 flex flex-col gap-3">
 				{/* Top stats row */}
 				<div className="grid grid-cols-4 gap-3">
 					<StatCard
@@ -170,6 +172,21 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Signal Distribution + Severity Gauge */}
+
+				{/* Data Coverage */}
+				<div className="card card-enter card-enter-5">
+					<div className="flex items-center gap-4 text-[10px] text-[var(--muted)] flex-wrap">
+						<span className="tracking-widest font-semibold">DATA COVERAGE</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-procurement)]" />{contracts.length} contracts</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-revolving)]" />{filings.length} lobbying filings</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-donation)]" />{donations.length} donations</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-spousal)]" />{disclosures.length} CIEC disclosures</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-international)]" />{projects.length} GAC projects</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />{people.length} people</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />{organizations.length} orgs</span>
+					</div>
+				</div>
+
 				<div className="grid grid-cols-2 gap-3">
 					{/* Signal type distribution */}
 					<div className="card card-enter card-enter-3">
@@ -276,7 +293,7 @@ export function MonitorDashboard() {
 			</div>
 
 			{/* ── Right Panel ─────────────────────────────────── */}
-			<div className="col-span-3 flex flex-col gap-3">
+			<div className="md:col-span-3 flex flex-col gap-3">
 				{/* Sweep status */}
 				<div className="card card-enter card-enter-6">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
