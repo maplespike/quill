@@ -273,7 +273,7 @@ export function ExplorerView() {
 												<div key={t.id} className="card mb-2 text-xs" style={{ borderLeft: "3px solid var(--primary)" }}>
 													<div className="text-[10px] text-[var(--muted)]">{t.signalType.replace(/_/g, " ").toUpperCase()}</div>
 													<div className="font-semibold">{t.title}</div>
-													<div className="text-[var(--muted)] mt-1 line-clamp-2">{t.description}</div>
+													<div className="text-[var(--muted)] mt-1 line-clamp-2">{t.summary}</div>
 												</div>
 											))}
 										</div>
