@@ -157,20 +157,20 @@ export interface GraphEdge {
 }
 
 export const graphNodes: GraphNode[] = [
-	{ id: "org-l3harris", label: "L3Harris Technologies", type: "org", x: 400, y: 120 },
-	{ id: "org-lockheed-martin", label: "Lockheed Martin", type: "org", x: 120, y: 200 },
-	{ id: "org-navigator", label: "Navigator LLP", type: "org", x: 400, y: 300 },
-	{ id: "org-hill-knowlton", label: "Hill+Knowlton", type: "org", x: 120, y: 340 },
-	{ id: "org-dnd", label: "National Defence", type: "department", x: 260, y: 60 },
-	{ id: "org-plan-international", label: "Plan International", type: "org", x: 540, y: 340 },
-	{ id: "org-brookfield", label: "Brookfield", type: "org", x: 540, y: 200 },
-	{ id: "org-general-dynamics", label: "General Dynamics", type: "org", x: 120, y: 120 },
-	{ id: "person-sarah-mitchell", label: "Sarah Mitchell", type: "person", x: 260, y: 160 },
-	{ id: "person-david-mitchell", label: "David Mitchell", type: "person", x: 470, y: 160 },
-	{ id: "person-michael-chen", label: "Michael Chen", type: "person", x: 400, y: 220 },
-	{ id: "person-james-patterson", label: "James Patterson", type: "person", x: 120, y: 280 },
-	{ id: "person-robert-leclair", label: "Robert LeClair", type: "person", x: 120, y: 60 },
-	{ id: "person-marie-fortier", label: "Marie Fortier", type: "person", x: 540, y: 280 },
+	{ id: "org-dnd", label: "National Defence", type: "department", x: 330, y: 50 },
+	{ id: "org-l3harris", label: "L3Harris Technologies", type: "org", x: 180, y: 130 },
+	{ id: "org-lockheed-martin", label: "Lockheed Martin", type: "org", x: 80, y: 200 },
+	{ id: "org-general-dynamics", label: "General Dynamics", type: "org", x: 80, y: 280 },
+	{ id: "org-navigator", label: "Navigator LLP", type: "org", x: 380, y: 260 },
+	{ id: "org-hill-knowlton", label: "Hill+Knowlton", type: "org", x: 180, y: 320 },
+	{ id: "org-plan-international", label: "Plan International", type: "org", x: 540, y: 320 },
+	{ id: "org-brookfield", label: "Brookfield", type: "org", x: 500, y: 180 },
+	{ id: "person-sarah-mitchell", label: "Sarah Mitchell", type: "person", x: 330, y: 130 },
+	{ id: "person-david-mitchell", label: "David Mitchell", type: "person", x: 340, y: 210 },
+	{ id: "person-michael-chen", label: "Michael Chen", type: "person", x: 380, y: 190 },
+	{ id: "person-james-patterson", label: "James Patterson", type: "person", x: 180, y: 260 },
+	{ id: "person-robert-leclair", label: "Robert LeClair", type: "person", x: 80, y: 140 },
+	{ id: "person-marie-fortier", label: "Marie Fortier", type: "person", x: 540, y: 260 },
 ];
 
 export const graphEdges: GraphEdge[] = [
