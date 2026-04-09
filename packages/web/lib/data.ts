@@ -555,3 +555,81 @@ export const sweepDelta: SweepDelta = {
 	newProjects: projects.length,
 	newSignals: threads.length,
 };
+
+// ─── Timeline Events ─────────────────────────────────────
+
+export interface TimelineEvent {
+	date: string;
+	type: "contract" | "lobbying" | "donation" | "disclosure" | "appointment" | "filing";
+	title: string;
+	entityIds: string[];
+	detail: string;
+	sourceUrl: string;
+}
+
+export const timelineEvents: TimelineEvent[] = [
+	// 2024 — The Setup
+	{ date: "2024-01-15", type: "appointment", title: "Michael Chen appointed ADM Procurement at DND", entityIds: ["person-michael-chen", "org-dnd"], detail: "Chen assumes oversight of all defence procurement decisions including tactical systems and electronic warfare programs.", sourceUrl: "https://www.canada.ca/en/department-national-defence.html" },
+	{ date: "2024-03-31", type: "appointment", title: "Michael Chen resigns from DND", entityIds: ["person-michael-chen", "org-dnd"], detail: "Chen leaves his ADM position after 4 years. No cooling-off period violation noted — but questions raised about subsequent employment.", sourceUrl: "https://ciec-ccie.parl.gc.ca/" },
+	{ date: "2024-05-01", type: "appointment", title: "Michael Chen joins Navigator LLP", entityIds: ["person-michael-chen", "org-navigator"], detail: "Only 31 days after leaving DND, Chen joins Navigator LLP as VP Government Relations. Navigator is one of Canada's largest lobbying firms.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2024-06-15", type: "disclosure", title: "Chen files CIEC disclosure", entityIds: ["person-michael-chen"], detail: "Discloses post-employment at Navigator LLP. Income reported as over $100,000.", sourceUrl: "https://ciec-ccie.parl.gc.ca/" },
+	{ date: "2024-11-20", type: "donation", title: "Brookfield donates $15K to Liberal Party", entityIds: ["org-brookfield"], detail: "Brookfield Asset Management makes corporate donation to the Liberal Party of Canada, Toronto Centre riding.", sourceUrl: "https://www.elections.ca/" },
+
+	// 2025 — The Escalation
+	{ date: "2025-01-10", type: "donation", title: "David Mitchell donates to Conservative Party", entityIds: ["person-david-mitchell"], detail: "Spouse of Defence Minister donates $1,500 to Conservative Party. David Mitchell is a board member of L3Harris Technologies.", sourceUrl: "https://www.elections.ca/" },
+	{ date: "2025-02-28", type: "donation", title: "Robert LeClair donates to Liberal Party", entityIds: ["person-robert-leclair"], detail: "Lockheed Martin Canada CEO donates $1,700 to the Liberal Party from Outremont riding.", sourceUrl: "https://www.elections.ca/" },
+	{ date: "2025-03-15", type: "donation", title: "Brookfield donates $25K to Liberal Party", entityIds: ["org-brookfield"], detail: "Second corporate donation brings total to $40,000 in 4 months.", sourceUrl: "https://www.elections.ca/" },
+	{ date: "2025-04-01", type: "appointment", title: "Sarah Mitchell appointed Minister of National Defence", entityIds: ["person-sarah-mitchell", "org-dnd"], detail: "Mitchell becomes Minister. Her spouse David Mitchell is a board member of L3Harris Technologies and Partner at Brookfield Asset Management.", sourceUrl: "https://www.canada.ca/en/privy-council.html" },
+	{ date: "2025-04-10", type: "lobbying", title: "Hill+Knowlton meets DND on Lockheed Martin behalf", entityIds: ["org-hill-knowlton", "org-lockheed-martin", "org-dnd"], detail: "James Patterson meets DND Aerospace Director to discuss CF-35 maintenance support extension.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-05-01", type: "filing", title: "Navigator LLP registers to lobby for L3Harris", entityIds: ["org-navigator", "org-l3harris", "person-michael-chen"], detail: "Michael Chen registers as lobbyist for L3Harris Technologies — his former department's vendor. Registration number LREG-2025-00412.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-05-12", type: "lobbying", title: "Plan International meets IRCC", entityIds: ["org-plan-international", "person-marie-fortier"], detail: "Marie Fortier meets IRCC Director General to discuss settlement services funding renewal.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-05-15", type: "lobbying", title: "H+K meets DND on Quebec industrial benefits", entityIds: ["org-hill-knowlton", "org-lockheed-martin", "org-dnd"], detail: "Patterson discusses industrial benefits for Quebec with DND Procurement Staff and Innovation Canada.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-06-01", type: "contract", title: "Brookfield receives $8.5M PSPC contract", entityIds: ["org-brookfield"], detail: "Public Services and Procurement Canada awards Brookfield Asset Management an $8.5M advisory contract for federal real property portfolio.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2025-06-20", type: "lobbying", title: "H+K emails DND on contract negotiations", entityIds: ["org-hill-knowlton", "org-dnd"], detail: "Email exchange with DND Finance regarding CF-35 contract value negotiations.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-06-30", type: "disclosure", title: "Minister Mitchell files CIEC disclosure", entityIds: ["person-sarah-mitchell", "person-david-mitchell", "org-l3harris", "org-brookfield"], detail: "Discloses spouse David Mitchell's board membership at L3Harris ($15K+) and Brookfield partnership ($100K+). This creates a direct conflict with her procurement authority.", sourceUrl: "https://ciec-ccie.parl.gc.ca/" },
+	{ date: "2025-07-01", type: "contract", title: "Lockheed Martin receives $120M sole-source contract", entityIds: ["org-lockheed-martin", "org-dnd"], detail: "DND awards Lockheed Martin Canada a $120M sole-source contract for CF-35 fighter jet maintenance. After 4 lobbying communications in 3 months.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2025-07-08", type: "lobbying", title: "H+K meets DND Legal on sole-source rationale", entityIds: ["org-hill-knowlton", "org-dnd"], detail: "Patterson meets DND Legal to prepare sole-source rationale for the Lockheed Martin contract.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-07-15", type: "lobbying", title: "Michael Chen meets Minister Mitchell", entityIds: ["person-michael-chen", "person-sarah-mitchell", "org-navigator", "org-l3harris"], detail: "Former DND ADM Chen, now lobbying for L3Harris, meets with Minister Mitchell to discuss tactical comms procurement timeline. Her spouse is on L3Harris's board.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-07-19", type: "lobbying", title: "Plan International meets GAC", entityIds: ["org-plan-international", "person-marie-fortier"], detail: "Meeting with GAC Assistant Deputy Minister on youth refugee program expansion.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-08-14", type: "lobbying", title: "H+K calls DND on maintenance schedule", entityIds: ["org-hill-knowlton", "org-dnd"], detail: "Call with DND Operations regarding CF-35 maintenance schedule alignment.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-08-22", type: "lobbying", title: "Navigator meets DND on sole-source justification", entityIds: ["org-navigator", "org-l3harris", "org-dnd"], detail: "Chen meets DND Procurement Director to discuss sole-source justification for L3Harris tactical systems.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-09-01", type: "contract", title: "General Dynamics receives $67M DND contract", entityIds: ["org-general-dynamics", "org-dnd"], detail: "Competitive contract for LAV 6.0 fleet modernization with enhanced protection systems.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2025-09-02", type: "lobbying", title: "H+K pre-award meeting with Minister Mitchell", entityIds: ["org-hill-knowlton", "person-sarah-mitchell", "org-dnd"], detail: "Final pre-award confirmation meeting with Minister Mitchell and DND Procurement Director.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-09-10", type: "lobbying", title: "Navigator calls DND on specs", entityIds: ["org-navigator", "org-l3harris", "org-dnd"], detail: "Chen calls DND Technical Staff regarding contract specifications review for L3Harris systems.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-09-28", type: "lobbying", title: "Navigator meets Minister Mitchell pre-award", entityIds: ["person-michael-chen", "person-sarah-mitchell", "org-navigator", "org-l3harris"], detail: "Final pre-award discussion. Chen meets Minister Mitchell directly. Her spouse is on L3Harris's board.", sourceUrl: "https://lobbycanada.gc.ca/" },
+	{ date: "2025-10-01", type: "contract", title: "L3Harris receives $45M sole-source contract", entityIds: ["org-l3harris", "org-dnd"], detail: "DND awards L3Harris Technologies a $45M sole-source contract for tactical communication systems. Awarded 2 days after Chen's meeting with the Minister.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2026-01-01", type: "contract", title: "L3Harris receives $28M additional sole-source", entityIds: ["org-l3harris", "org-dnd"], detail: "Second sole-source contract for electronic warfare suite upgrade on Halifax-class frigates.", sourceUrl: "https://buyandsell.gc.ca/" },
+];
+
+// ─── Source URLs (real Canadian government data portals) ──
+
+export const sourceLinks: Record<string, { label: string; url: string; description: string }> = {
+	canadabuys: { label: "CanadaBuys", url: "https://buyandsell.gc.ca/", description: "Proactive disclosure of government contracts over $10,000" },
+	lobbying_commissioner: { label: "Office of the Commissioner of Lobbying", url: "https://lobbycanada.gc.ca/", description: "Lobbyist registration and monthly communication reports" },
+	ciec: { label: "Conflict of Interest and Ethics Commissioner", url: "https://ciec-ccie.parl.gc.ca/", description: "Public summaries of disclosed interests for public office holders" },
+	elections_canada: { label: "Elections Canada", url: "https://www.elections.ca/", description: "Political contribution data and financial returns" },
+	gac: { label: "Global Affairs Canada", url: "https://www.international.gc.ca/", description: "International assistance project data and development funding" },
+	open_canada_orgs: { label: "Open Government", url: "https://open.canada.ca/", description: "Federal corporation registry and organizational data" },
+	disclosure_clerk: { label: "Office of the Disclosure Clerk", url: "https://www.ourcommons.ca/", description: "Parliamentary disclosure records" },
+};
+
+// ─── Additional connection metadata ──────────────────────
+
+export interface ConnectionStrength {
+	fromId: string;
+	toId: string;
+	strength: number; // 0-1
+	signals: string[];
+	summary: string;
+}
+
+export const connectionStrengths: ConnectionStrength[] = [
+	{ fromId: "org-l3harris", toId: "org-dnd", strength: 0.92, signals: ["procurement_lobbying_overlap", "sole_source_heavy_lobbying", "spousal_interest_proximity"], summary: "$73M in sole-source contracts, 4 lobbying comms, Minister's spouse on board" },
+	{ fromId: "person-michael-chen", toId: "org-dnd", strength: 0.88, signals: ["revolving_door", "procurement_lobbying_overlap"], summary: "Former ADM now lobbies former department for L3Harris" },
+	{ fromId: "person-sarah-mitchell", toId: "org-l3harris", strength: 0.85, signals: ["spousal_interest_proximity", "procurement_lobbying_overlap"], summary: "Minister's spouse is L3Harris board member; met L3Harris lobbyists" },
+	{ fromId: "org-lockheed-martin", toId: "org-dnd", strength: 0.78, signals: ["sole_source_heavy_lobbying"], summary: "$120M sole-source after 6 lobbying communications" },
+	{ fromId: "person-david-mitchell", toId: "org-l3harris", strength: 0.82, signals: ["spousal_interest_proximity"], summary: "Board member; spouse is Minister of National Defence" },
+	{ fromId: "org-brookfield", toId: "person-david-mitchell", strength: 0.65, signals: ["donation_proximity_correlation"], summary: "Employer of Minister's spouse; donated $40K to Liberals; received $8.5M contract" },
+	{ fromId: "org-hill-knowlton", toId: "org-dnd", strength: 0.72, signals: ["sole_source_heavy_lobbying"], summary: "6 lobbying communications for Lockheed Martin" },
+	{ fromId: "org-plan-international", toId: "org-dnd", strength: 0.45, signals: ["international_layering"], summary: "$30M GAC funding + $2.3M IRCC contract + lobbying registered" },
+];

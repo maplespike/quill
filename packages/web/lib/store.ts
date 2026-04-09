@@ -14,7 +14,7 @@ import {
 	graphNodes, graphEdges, type GraphNode, type GraphEdge,
 } from "./data";
 
-export type ViewTab = "monitor" | "brief" | "explore" | "signals" | "community";
+export type ViewTab = "monitor" | "brief" | "explore" | "timeline" | "signals" | "community";
 export type ThemeVariant = "nightwatch" | "phosphor" | "arctic" | "solarized" | "parchment";
 
 export interface SignalAlert {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useCivicStore, type ViewTab } from "../lib/store";
 
 // Views
@@ -9,11 +9,13 @@ import { BriefView } from "../components/BriefView";
 import { ExplorerView } from "../components/ExplorerView";
 import { SignalsView } from "../components/SignalsView";
 import { SocialView } from "../components/SocialView";
+import { TimelineView } from "../components/TimelineView";
 
 const TABS: { id: ViewTab; label: string; icon: string }[] = [
 	{ id: "monitor", label: "MONITOR", icon: "◉" },
 	{ id: "brief", label: "BRIEF", icon: "◆" },
 	{ id: "explore", label: "EXPLORE", icon: "◈" },
+	{ id: "timeline", label: "TIMELINE", icon: "⟐" },
 	{ id: "signals", label: "SIGNALS", icon: "△" },
 	{ id: "community", label: "COMMUNITY", icon: "◎" },
 ];
@@ -33,6 +35,13 @@ export default function CivicIntelApp() {
 	} = useCivicStore();
 	const [showThemePicker, setShowThemePicker] = useState(false);
 	const [currentTime, setCurrentTime] = useState(new Date());
+	const [bootDone, setBootDone] = useState(false);
+
+	// Boot animation
+	useEffect(() => {
+		const t = setTimeout(() => setBootDone(true), 600);
+		return () => clearTimeout(t);
+	}, []);
 
 	// Clock
 	useEffect(() => {
@@ -58,32 +67,27 @@ export default function CivicIntelApp() {
 
 	const unreadAlerts = alerts.filter((a) => !a.read && !a.dismissed).length;
 
+	if (!bootDone) {
+		return <BootScreen />;
+	}
+
 	return (
 		<div className="flex flex-col h-screen overflow-hidden">
 			{/* ── Top Bar ──────────────────────────────────────── */}
 			<header className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--card)]">
 				<div className="flex items-center gap-4">
-					{/* Logo + Live pulse */}
 					<div className="flex items-center gap-2">
-						<div
-							className={`w-2 h-2 rounded-full ${sweepRunning ? "bg-[var(--sweep-active)] animate-pulse-live" : "bg-[var(--sweep-idle)]"}`}
-						/>
+						<div className={"w-2 h-2 rounded-full " + (sweepRunning ? "bg-[var(--sweep-active)] animate-pulse-live" : "bg-[var(--sweep-idle)]")} />
 						<span className="text-sm font-bold tracking-widest text-[var(--foreground)]">
 							CIVIC<span className="text-[var(--primary)]">INTEL</span>
 						</span>
+						<span className="text-[8px] text-[var(--muted)] bg-[var(--accent-dim)] px-1.5 py-0.5 rounded tracking-wider">v1.0</span>
 					</div>
 
-					{/* Sweep indicator */}
 					<div className="flex items-center gap-2 text-xs text-[var(--muted)]">
 						{sweepRunning ? (
 							<>
-								<svg
-									className="w-3 h-3 animate-sweep text-[var(--sweep-active)]"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-								>
+								<svg className="w-3 h-3 animate-sweep text-[var(--sweep-active)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
 									<path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83" />
 								</svg>
 								<span className="text-[var(--sweep-active)]">SWEEPING...</span>
@@ -99,14 +103,12 @@ export default function CivicIntelApp() {
 						</button>
 					</div>
 
-					{/* Thread count */}
 					<div className="text-xs text-[var(--muted)]">
 						{threads.length} THREADS
 					</div>
 				</div>
 
 				<div className="flex items-center gap-4">
-					{/* Search */}
 					<div className="relative">
 						<input
 							type="text"
@@ -115,12 +117,9 @@ export default function CivicIntelApp() {
 							onChange={(e) => setSearchQuery(e.target.value)}
 							className="w-48 px-3 py-1 text-xs bg-[var(--background)] border border-[var(--border)] rounded focus:border-[var(--primary)] focus:outline-none transition-colors"
 						/>
-						<span className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--muted)] text-[10px]">
-							⌘K
-						</span>
+						<span className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--muted)] text-[10px]">⌘K</span>
 					</div>
 
-					{/* Alert badge */}
 					<div className="relative">
 						<button
 							onClick={() => setActiveView("signals")}
@@ -135,7 +134,6 @@ export default function CivicIntelApp() {
 						)}
 					</div>
 
-					{/* Theme picker */}
 					<div className="relative">
 						<button
 							onClick={() => setShowThemePicker(!showThemePicker)}
@@ -147,25 +145,19 @@ export default function CivicIntelApp() {
 							<div className="absolute right-0 top-8 z-50 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-lg p-2 min-w-[140px]">
 								{(
 									[
-										["nightwatch", "Nightwatch"],
-										["phosphor", "Phosphor CRT"],
-										["arctic", "Arctic"],
-										["solarized", "Solarized"],
-										["parchment", "Parchment"],
+										["nightwatch", "Nightwatch", "dark"],
+										["phosphor", "Phosphor CRT", "dark"],
+										["arctic", "Arctic", "light"],
+										["solarized", "Solarized", "dark"],
+										["parchment", "Parchment", "light"],
 									] as const
-								).map(([id, label]) => (
+								).map(([id, label, mode]) => (
 									<button
 										key={id}
-										onClick={() => {
-											setTheme(id);
-											setShowThemePicker(false);
-										}}
-										className={`w-full text-left px-3 py-1.5 text-xs rounded transition-colors ${
-											theme === id
-												? "text-[var(--primary)] bg-[var(--accent-dim)]"
-												: "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--card-hover)]"
-										}`}
+										onClick={() => { setTheme(id); setShowThemePicker(false); }}
+										className={"w-full text-left px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-2 " + (theme === id ? "text-[var(--primary)] bg-[var(--accent-dim)]" : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--card-hover)]")}
 									>
+										<span className="w-2 h-2 rounded-full" style={{ backgroundColor: mode === "dark" ? "#1a1a2e" : "#f0f4f8" }} />
 										{label}
 									</button>
 								))}
@@ -173,14 +165,8 @@ export default function CivicIntelApp() {
 						)}
 					</div>
 
-					{/* Clock */}
 					<div className="text-xs text-[var(--muted)] font-mono tabular-nums">
-						{currentTime.toLocaleTimeString("en-CA", {
-							hour12: false,
-							hour: "2-digit",
-							minute: "2-digit",
-							second: "2-digit",
-						})}
+						{currentTime.toLocaleTimeString("en-CA", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" })}
 					</div>
 				</div>
 			</header>
@@ -191,9 +177,7 @@ export default function CivicIntelApp() {
 					<button
 						key={tab.id}
 						onClick={() => setActiveView(tab.id)}
-						className={`px-4 py-2.5 text-xs font-semibold tracking-widest transition-colors ${
-							activeView === tab.id ? "tab-active" : "tab-inactive"
-						}`}
+						className={"px-4 py-2.5 text-xs font-semibold tracking-widest transition-colors " + (activeView === tab.id ? "tab-active" : "tab-inactive")}
 					>
 						<span className="mr-1.5">{tab.icon}</span>
 						{tab.label}
@@ -206,6 +190,7 @@ export default function CivicIntelApp() {
 				{activeView === "monitor" && <MonitorDashboard />}
 				{activeView === "brief" && <BriefView />}
 				{activeView === "explore" && <ExplorerView />}
+				{activeView === "timeline" && <TimelineView />}
 				{activeView === "signals" && <SignalsView />}
 				{activeView === "community" && <SocialView />}
 			</main>
@@ -214,39 +199,56 @@ export default function CivicIntelApp() {
 			<footer className="border-t border-[var(--border)] bg-[var(--card)] py-1.5 px-4">
 				<div className="ticker-wrap">
 					<div className="ticker-content animate-ticker text-xs text-[var(--muted)]">
-						<span>
-							▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period — Navigator LLP + Hill+Knowlton dominate
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell disclosed spouse on L3Harris board — same vendor received $45M sole-source
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M in GAC projects + $2.3M IRCC contract + lobbying registered
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-donation)]">ELECTIONS</span> Brookfield donated $40K to Liberal Party → received $8.5M contract 3 months later
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-sole-source)]">ANALYSIS</span> 72% of defence contract value is sole-source — up 40% from prior year
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period — Navigator LLP + Hill+Knowlton dominate
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell disclosed spouse on L3Harris board — same vendor received $45M sole-source
-						</span>
-						<span>
-							▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M in GAC projects + $2.3M IRCC contract + lobbying registered
-						</span>
+						<span>▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending</span>
+						<span>▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period</span>
+						<span>▸ <span className="text-[var(--signal-spousal)]">CIEC</span> Minister Mitchell disclosed spouse on L3Harris board — same vendor received $45M sole-source</span>
+						<span>▸ <span className="text-[var(--signal-international)]">GAC</span> Plan International: $30M in GAC projects + $2.3M IRCC contract</span>
+						<span>▸ <span className="text-[var(--signal-donation)]">ELECTIONS</span> Brookfield donated $40K to Liberal Party → received $8.5M contract 3 months later</span>
+						<span>▸ <span className="text-[var(--signal-sole-source)]">ANALYSIS</span> 72% of defence contract value is sole-source — up 40% from prior year</span>
+						<span>▸ <span className="text-[var(--signal-procurement)]">SPENDING</span> $270.8M active contracts — DND accounts for 96% of tracked spending</span>
+						<span>▸ <span className="text-[var(--signal-revolving)]">LOBBYING</span> 12 communications targeting DND in current period</span>
 					</div>
 				</div>
 			</footer>
+		</div>
+	);
+}
+
+function BootScreen() {
+	const [step, setStep] = useState(0);
+	const steps = [
+		"Loading entity graph...",
+		"Resolving 14 entities across 5 data sources...",
+		"Detecting intelligence signals...",
+		"7 active threads identified. Ready.",
+	];
+
+	useEffect(() => {
+		const timers = [
+			setTimeout(() => setStep(1), 150),
+			setTimeout(() => setStep(2), 350),
+			setTimeout(() => setStep(3), 550),
+		];
+		return () => timers.forEach(clearTimeout);
+	}, []);
+
+	return (
+		<div className="flex flex-col h-screen items-center justify-center gap-3 bg-[var(--background)]">
+			<div className="flex items-center gap-3 mb-4">
+				<div className="w-3 h-3 rounded-full bg-[var(--primary)] animate-pulse-live" />
+				<span className="text-lg font-bold tracking-widest text-[var(--foreground)]">
+					CIVIC<span className="text-[var(--primary)]">INTEL</span>
+				</span>
+			</div>
+			<div className="flex flex-col gap-1.5 text-xs text-[var(--muted)] font-mono w-80">
+				{steps.slice(0, step + 1).map((s, i) => (
+					<div key={i} className={"flex items-center gap-2 " + (i === step ? "text-[var(--foreground)]" : "")}>
+						<span className="text-[var(--primary)]">▸</span>
+						{s}
+						{i === step && <span className="animate-pulse-live">█</span>}
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }
