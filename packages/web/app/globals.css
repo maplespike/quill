@@ -223,6 +223,53 @@ a:hover { text-decoration: underline; }
 	animation: glow-pulse 3s ease-in-out infinite;
 }
 
+/* Sweep progress bar */
+.sweep-progress-bar {
+	width: 60px;
+	height: 3px;
+	background: var(--border);
+	border-radius: 2px;
+	overflow: hidden;
+}
+.sweep-progress-fill {
+	height: 100%;
+	background: var(--sweep-active);
+	border-radius: 2px;
+	animation: sweep-fill 2.2s ease-in-out forwards;
+}
+@keyframes sweep-fill {
+	0% { width: 0%; }
+	20% { width: 30%; }
+	50% { width: 55%; }
+	80% { width: 85%; }
+	100% { width: 100%; }
+}
+
+/* Entrance animation for cards */
+.card-enter {
+	animation: card-enter 0.3s ease-out both;
+}
+@keyframes card-enter {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Staggered card entrance (set via style={{ animationDelay }}) */
+.card-enter-1 { animation-delay: 50ms; }
+.card-enter-2 { animation-delay: 100ms; }
+.card-enter-3 { animation-delay: 150ms; }
+.card-enter-4 { animation-delay: 200ms; }
+.card-enter-5 { animation-delay: 250ms; }
+.card-enter-6 { animation-delay: 300ms; }
+.card-enter-7 { animation-delay: 350ms; }
+.card-enter-8 { animation-delay: 400ms; }
+
 /* ── Utility classes ──────────────────────────────────── */
 .card {
 	background: var(--card);

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useCivicStore, type ViewTab } from "../lib/store";
+import { people, organizations, threads, graphNodes, timelineEvents } from "../lib/data";
 
 // Views
 import { MonitorDashboard } from "../components/MonitorDashboard";
@@ -54,15 +55,54 @@ export default function CivicIntelApp() {
 		document.documentElement.setAttribute("data-theme", theme);
 	}, [theme]);
 
+	// Search modal state
+	const [showSearch, setShowSearch] = useState(false);
+
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handler = (e: KeyboardEvent) => {
+			// ⌘K or Ctrl+K → search
+			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+				e.preventDefault();
+				setShowSearch(true);
+			}
+			// / → search (when not in input)
+			if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
+				e.preventDefault();
+				setShowSearch(true);
+			}
+			// Escape → close search
+			if (e.key === "Escape") {
+				setShowSearch(false);
+			}
+			// 1-6 → tab switch (when search closed and not in input)
+			if (!showSearch && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) {
+				const tabMap: Record<string, ViewTab> = { "1": "monitor", "2": "brief", "3": "explore", "4": "timeline", "5": "signals", "6": "community" };
+				if (tabMap[e.key]) setActiveView(tabMap[e.key]);
+			}
+		};
+		window.addEventListener("keydown", handler);
+		return () => window.removeEventListener("keydown", handler);
+	}, [showSearch, setActiveView]);
+
 	const handleSweep = useCallback(() => {
-		useCivicStore.getState().setSweepState({ running: true });
-		setTimeout(() => {
-			useCivicStore.getState().setSweepState({
-				running: false,
-				lastRun: new Date().toISOString(),
-				count: useCivicStore.getState().sweepCount + 1,
-			});
-		}, 2000);
+		const store = useCivicStore.getState();
+		store.setSweepState({ running: true });
+
+		// Simulate phased sweep
+		const phases = [
+			setTimeout(() => {/* scanning */}, 400),
+			setTimeout(() => {/* fetching */}, 1000),
+			setTimeout(() => {/* resolving */}, 1600),
+			setTimeout(() => {
+				useCivicStore.getState().setSweepState({
+					running: false,
+					lastRun: new Date().toISOString(),
+					count: useCivicStore.getState().sweepCount + 1,
+				});
+			}, 2200),
+		];
+		return () => phases.forEach(clearTimeout);
 	}, []);
 
 	const unreadAlerts = alerts.filter((a) => !a.read && !a.dismissed).length;
@@ -91,6 +131,9 @@ export default function CivicIntelApp() {
 									<path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83" />
 								</svg>
 								<span className="text-[var(--sweep-active)]">SWEEPING...</span>
+								<div className="sweep-progress-bar">
+									<div className="sweep-progress-fill" />
+								</div>
 							</>
 						) : (
 							<span>SWEEP #{sweepCount}</span>
@@ -216,6 +259,141 @@ export default function CivicIntelApp() {
 					</div>
 				</div>
 			</footer>
+
+			{/* ── Search Modal (⌘K) ──────────────────────────── */}
+			{showSearch && <SearchModal onClose={() => setShowSearch(false)} />}
+		</div>
+	);
+}
+
+function SearchModal({ onClose }: { onClose: () => void }) {
+	const [query, setQuery] = useState("");
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		inputRef.current?.focus();
+	}, []);
+
+	const results = useMemo(() => {
+		if (query.length < 2) return [];
+		const q = query.toLowerCase();
+		const items: { type: string; label: string; sub: string; action: () => void; icon: string }[] = [];
+
+		// People
+		for (const p of people) {
+			const name = p.firstName + " " + p.lastName;
+			if (name.toLowerCase().includes(q) || p.roles[0]?.title.toLowerCase().includes(q)) {
+				items.push({
+					type: "person", label: name,
+					sub: p.roles[0]?.title || "",
+					action: () => { useCivicStore.getState().setExplorerFocusEntity(p.id); useCivicStore.getState().setActiveView("explore"); onClose(); },
+					icon: "●",
+				});
+			}
+		}
+
+		// Organizations
+		for (const o of organizations) {
+			const name = o.names[0] || o.id;
+			if (name.toLowerCase().includes(q)) {
+				items.push({
+					type: "org", label: name,
+					sub: o.type + (o.industry ? " • " + o.industry : ""),
+					action: () => { useCivicStore.getState().setExplorerFocusEntity(o.id); useCivicStore.getState().setActiveView("explore"); onClose(); },
+					icon: "◆",
+				});
+			}
+		}
+
+		// Threads
+		for (const t of threads) {
+			if (t.title.toLowerCase().includes(q) || t.signalType.toLowerCase().includes(q)) {
+				items.push({
+					type: "signal", label: t.title,
+					sub: Math.round(t.confidence * 100) + "% confidence • " + t.signalType.replace(/_/g, " "),
+					action: () => { useCivicStore.getState().setActiveView("signals"); onClose(); },
+					icon: "△",
+				});
+			}
+		}
+
+		// Graph nodes
+		for (const n of graphNodes) {
+			if (n.label.toLowerCase().includes(q) && !items.some(i => i.label === n.label)) {
+				items.push({
+					type: n.type, label: n.label,
+					sub: n.type,
+					action: () => { useCivicStore.getState().setExplorerFocusEntity(n.id); useCivicStore.getState().setActiveView("explore"); onClose(); },
+					icon: n.type === "person" ? "●" : n.type === "department" ? "■" : "◆",
+				});
+			}
+		}
+
+		// Timeline events
+		for (const e of timelineEvents) {
+			if (e.title.toLowerCase().includes(q)) {
+				items.push({
+					type: "event", label: e.title,
+					sub: e.date + " • " + e.type,
+					action: () => { useCivicStore.getState().setActiveView("timeline"); onClose(); },
+					icon: "⏎",
+				});
+			}
+		}
+
+		return items.slice(0, 12);
+	}, [query, onClose]);
+
+	return (
+		<div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh]" onClick={onClose}>
+			<div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+			<div
+				className="relative w-full max-w-lg bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)]">
+					<span className="text-[var(--muted)]">⌘</span>
+					<input
+						ref={inputRef}
+						type="text"
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+						placeholder="Search people, organizations, signals, events..."
+						className="flex-1 bg-transparent text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:outline-none"
+					/>
+					<button onClick={onClose} className="text-[var(--muted)] text-xs border border-[var(--border)] rounded px-1.5 py-0.5">ESC</button>
+				</div>
+				{results.length > 0 ? (
+					<div className="max-h-80 overflow-auto py-1">
+						{results.map((r, i) => (
+							<button
+								key={i}
+								onClick={r.action}
+								className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[var(--card-hover)] transition-colors"
+							>
+								<span className="text-[var(--muted)] text-xs">{r.icon}</span>
+								<div className="flex-1 min-w-0">
+									<div className="text-sm text-[var(--foreground)] truncate">{r.label}</div>
+									<div className="text-[10px] text-[var(--muted)] truncate">{r.sub}</div>
+								</div>
+								<span className="text-[9px] text-[var(--muted)] bg-[var(--background)] px-1.5 py-0.5 rounded">{r.type}</span>
+							</button>
+						))}
+					</div>
+				) : query.length >= 2 ? (
+					<div className="py-8 text-center text-xs text-[var(--muted)]">No results for "{query}"</div>
+				) : (
+					<div className="py-8 text-center text-xs text-[var(--muted)]">
+						Type to search across {people.length} people, {organizations.length} organizations, {threads.length} signals, {timelineEvents.length} events
+					</div>
+				)}
+				<div className="px-4 py-2 border-t border-[var(--border)] flex items-center gap-4 text-[10px] text-[var(--muted)]">
+					<span>↑↓ navigate</span>
+					<span>↵ select</span>
+					<span>esc close</span>
+					<span className="ml-auto">1-6 switch tabs</span>
+				</div>
+			</div>
 		</div>
 	);
 }
