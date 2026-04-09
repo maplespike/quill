@@ -2,7 +2,7 @@
 
 import { useCivicStore } from "../lib/store";
 import { useState, useMemo } from "react";
-import { graphNodes, graphEdges, type GraphNode, type GraphEdge } from "../lib/data";
+import { graphNodes, graphEdges, timelineEvents, type GraphNode, type GraphEdge } from "../lib/data";
 
 const NODE_COLORS: Record<string, string> = {
 	person: "#3b82f6",
@@ -278,6 +278,27 @@ export function ExplorerView() {
 											))}
 										</div>
 									)}
+
+									{/* Timeline events for this entity */}
+									{entity && (() => {
+										const events = timelineEvents
+											.filter(e => e.entityIds.includes(entity.id))
+											.sort((a, b) => b.date.localeCompare(a.date));
+										if (events.length === 0) return null;
+										return (
+											<div className="mb-4">
+												<div className="text-[10px] text-[var(--muted)] tracking-widest mb-2">EVENTS ({events.length})</div>
+												<div className="flex flex-col gap-1 max-h-40 overflow-auto">
+													{events.slice(0, 10).map((evt, i) => (
+														<div key={i} className="flex items-start gap-2 text-xs py-1 border-b border-[var(--border)] last:border-0">
+															<span className="text-[9px] text-[var(--muted)] tabular-nums whitespace-nowrap pt-0.5">{evt.date}</span>
+															<span className="text-[var(--foreground)] leading-relaxed">{evt.title}</span>
+														</div>
+													))}
+												</div>
+											</div>
+										);
+									})()}
 
 									{/* Connections */}
 									<div>
