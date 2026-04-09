@@ -84,7 +84,7 @@ export function MonitorDashboard() {
 		<div className="grid grid-cols-12 gap-3 p-4 h-full overflow-auto">
 			{/* ── Left Panel: Anomaly Feed ────────────────────── */}
 			<div className="col-span-3 flex flex-col gap-3">
-				<div className="card">
+				<div className="card card-enter card-enter-1">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						ACTIVE SIGNALS ({threads.length})
 					</h3>
@@ -127,7 +127,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Top vendors — horizontal bars */}
-				<div className="card">
+				<div className="card card-enter card-enter-2">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						TOP VENDORS BY CONTRACT VALUE
 					</h3>
@@ -172,7 +172,7 @@ export function MonitorDashboard() {
 				{/* Signal Distribution + Severity Gauge */}
 				<div className="grid grid-cols-2 gap-3">
 					{/* Signal type distribution */}
-					<div className="card">
+					<div className="card card-enter card-enter-3">
 						<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 							SIGNAL DISTRIBUTION
 						</h3>
@@ -234,7 +234,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Key Insight: The L3Harris Triangle */}
-				<div className="card" style={{ borderLeft: "3px solid var(--destructive)" }}>
+				<div className="card card-enter card-enter-4" style={{ borderLeft: "3px solid var(--destructive)" }}>
 					<h3 className="text-xs font-semibold tracking-widest mb-2" style={{ color: "var(--destructive)" }}>
 						▲ KEY INSIGHT — THE L3HARRIS TRIANGLE
 					</h3>
@@ -253,7 +253,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Lobbying Activity Heatmap */}
-				<div className="card">
+				<div className="card card-enter card-enter-5">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						LOBBYING ACTIVITY BY DEPARTMENT
 					</h3>
@@ -278,7 +278,7 @@ export function MonitorDashboard() {
 			{/* ── Right Panel ─────────────────────────────────── */}
 			<div className="col-span-3 flex flex-col gap-3">
 				{/* Sweep status */}
-				<div className="card">
+				<div className="card card-enter card-enter-6">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						LATEST SWEEP
 					</h3>
@@ -321,7 +321,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Entity watchlist */}
-				<div className="card">
+				<div className="card card-enter card-enter-7">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						ENTITY WATCHLIST
 					</h3>
@@ -329,7 +329,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Recent donations */}
-				<div className="card">
+				<div className="card card-enter card-enter-8">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						POLITICAL DONATIONS
 					</h3>
@@ -352,7 +352,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* Connection Strengths */}
-				<div className="card">
+				<div className="card card-enter card-enter-1">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						STRONGEST CONNECTIONS
 					</h3>
@@ -360,7 +360,7 @@ export function MonitorDashboard() {
 				</div>
 
 				{/* People tracker */}
-				<div className="card">
+				<div className="card card-enter card-enter-2">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
 						KEY PERSONS
 					</h3>
