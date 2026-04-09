@@ -124,31 +124,51 @@ export function ExplorerView() {
 							{/* SVG Connection Graph */}
 							<div className="flex-1 p-4">
 								<svg viewBox="0 0 660 400" className="w-full h-full max-h-[calc(100vh-180px)]">
+									{/* Defs for edge gradients */}
+									<defs>
+										{Object.entries({ contract: "#ef4444", lobbying: "#8b5cf6", donation: "#f97316", spousal: "#ec4899", employment: "#06b6d4", board: "#14b8a6" }).map(([type, color]) => (
+											<marker key={type} id={"arrow-" + type} viewBox="0 0 10 10" refX="20" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+												<path d="M 0 0 L 10 5 L 0 10 z" fill={color} fillOpacity={0.6} />
+											</marker>
+										))}
+									</defs>
+
 									{/* Edges */}
 									{graphEdges.map((edge, i) => {
 										const from = graphNodes.find(n => n.id === edge.from);
 										const to = graphNodes.find(n => n.id === edge.to);
 										if (!from || !to) return null;
 										const highlighted = highlightedEdges.has("edge-" + i) || hoveredNode === null;
+										// Curve control point: offset perpendicular to the line
+										const dx = to.x - from.x;
+										const dy = to.y - from.y;
+										const mx = (from.x + to.x) / 2;
+										const my = (from.y + to.y) / 2;
+										const offset = (i % 2 === 0 ? 15 : -15);
+										const cx = mx + (-dy / Math.sqrt(dx * dx + dy * dy + 1)) * offset;
+										const cy = my + (dx / Math.sqrt(dx * dx + dy * dy + 1)) * offset;
 										return (
 											<g key={"edge-" + i}>
-												<line
-													x1={from.x} y1={from.y}
-													x2={to.x} y2={to.y}
+												<path
+													d={"M " + from.x + " " + from.y + " Q " + cx + " " + cy + " " + to.x + " " + to.y}
+													fill="none"
 													stroke={EDGE_COLORS[edge.type]}
 													strokeWidth={highlighted ? 2 : 1}
-													opacity={highlighted ? 0.7 : 0.15}
+													strokeDasharray={edge.type === "spousal" ? "4 4" : undefined}
+													opacity={highlighted ? 0.6 : 0.12}
+													markerEnd={"url(#arrow-" + edge.type + ")"}
 													className="transition-all duration-300"
 												/>
 												{/* Edge label */}
 												<text
-													x={(from.x + to.x) / 2}
-													y={(from.y + to.y) / 2 - 5}
+													x={cx}
+													y={cy - 4}
 													fill={EDGE_COLORS[edge.type]}
-													fontSize="7"
+													fontSize="6.5"
 													textAnchor="middle"
-													opacity={highlighted ? 0.8 : 0.2}
-													className="transition-all duration-300"
+													opacity={highlighted ? 0.8 : 0.15}
+													className="transition-all duration-300 pointer-events-none"
+													fontWeight={highlighted ? "bold" : "normal"}
 												>
 													{edge.label}
 												</text>
@@ -165,39 +185,68 @@ export function ExplorerView() {
 											<g
 												key={node.id}
 												className="cursor-pointer transition-all duration-300"
-												opacity={isConnected ? 1 : 0.2}
+												opacity={isConnected ? 1 : 0.15}
 												onMouseEnter={() => setHoveredNode(node.id)}
 												onMouseLeave={() => setHoveredNode(null)}
 												onClick={() => setExplorerFocusEntity(explorerFocusEntity === node.id ? null : node.id)}
 											>
+												{/* Outer glow */}
+												{isFocused && (
+													<circle cx={node.x} cy={node.y} r={24} fill={NODE_COLORS[node.type]} opacity={0.1} />
+												)}
+												{/* Background circle */}
 												<circle
 													cx={node.x} cy={node.y}
-													r={isFocused ? 22 : 16}
+													r={isFocused ? 20 : 14}
 													fill={NODE_COLORS[node.type]}
-													opacity={0.2}
+													opacity={isConnected ? 0.2 : 0.05}
 													className="transition-all duration-300"
 												/>
+												{/* Main circle */}
 												<circle
 													cx={node.x} cy={node.y}
-													r={isFocused ? 18 : 12}
+													r={isFocused ? 16 : 10}
 													fill="var(--card)"
 													stroke={NODE_COLORS[node.type]}
-													strokeWidth={isFocused ? 3 : 2}
+													strokeWidth={isFocused ? 2.5 : 1.5}
 													className="transition-all duration-300"
 												/>
+												{/* Type icon */}
 												<text
-													x={node.x} y={node.y + (node.y < 200 ? -20 : 24)}
+													x={node.x} y={node.y + 3.5}
+													textAnchor="middle"
+													fontSize="9"
+													fill={NODE_COLORS[node.type]}
+													className="pointer-events-none"
+												>
+													{node.type === "person" ? "●" : node.type === "department" ? "■" : "◆"}
+												</text>
+												{/* Label */}
+												<text
+													x={node.x} y={node.y + (node.y < 200 ? -18 : 22)}
 													fill="var(--foreground)"
-													fontSize="8"
-													fontWeight={isFocused ? "bold" : "normal"}
+													fontSize="7.5"
+													fontWeight={isFocused || (hoveredNode === node.id) ? "bold" : "normal"}
 													textAnchor="middle"
 													className="transition-all duration-300 pointer-events-none"
 												>
-													{node.label.length > 18 ? node.label.slice(0, 16) + "…" : node.label}
+													{node.label.length > 20 ? node.label.slice(0, 18) + "…" : node.label}
 												</text>
 											</g>
 										);
 									})}
+
+									{/* Legend */}
+									<g transform="translate(10, 370)">
+										{["person", "org", "department"].map((type, i) => (
+											<g key={type} transform={"translate(" + (i * 120) + ", 0)"}>
+												<circle cx={0} cy={0} r={4} fill={NODE_COLORS[type]} />
+												<text x={8} y={3.5} fill="var(--muted)" fontSize="7" textAnchor="start">
+													{type === "person" ? "Person" : type === "org" ? "Organization" : "Department"}
+												</text>
+											</g>
+										))}
+									</g>
 								</svg>
 							</div>
 
