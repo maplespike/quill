@@ -412,6 +412,20 @@ function SignalCard({ thread }: { thread: IntelligenceThread }) {
 			<div className="text-xs text-[var(--foreground)] leading-relaxed line-clamp-2">
 				{thread.title}
 			</div>
+			{/* Mini entity dots */}
+			<div className="flex items-center gap-1 mt-1.5">
+				{thread.nodes.slice(0, 4).map((nodeId) => {
+					const name = nodeId.replace(/org-|person-/g, "").replace(/-/g, " ").split(" ").slice(0, 2).join(" ");
+					return (
+						<span key={nodeId} className="text-[8px] px-1 py-0.5 rounded bg-[var(--background)] text-[var(--muted)] truncate max-w-[80px]">
+							{name}
+						</span>
+					);
+				})}
+				{thread.nodes.length > 4 && (
+					<span className="text-[8px] text-[var(--muted)]">+{thread.nodes.length - 4}</span>
+				)}
+			</div>
 		</div>
 	);
 }
