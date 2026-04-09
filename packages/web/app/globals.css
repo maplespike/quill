@@ -334,3 +334,119 @@ a:hover { text-decoration: underline; }
 	display: inline-flex;
 	gap: 48px;
 }
+
+/* ── Boot sequence ─────────────────────────────────────── */
+@keyframes boot-fade {
+	from { opacity: 0; transform: translateY(4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.boot-step {
+	animation: boot-fade 0.2s ease-out forwards;
+}
+
+/* ── Connection strength bars ──────────────────────────── */
+.strength-bar {
+	position: relative;
+	height: 4px;
+	background: var(--border);
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.strength-bar-fill {
+	height: 100%;
+	border-radius: 2px;
+	transition: width 1s ease-out;
+}
+
+/* ── Enhanced card with subtle glow on hover ───────────── */
+.card-glow {
+	position: relative;
+	overflow: hidden;
+}
+
+.card-glow::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	opacity: 0;
+	transition: opacity 0.3s;
+	background: radial-gradient(
+		ellipse at var(--mouse-x, 50%) var(--mouse-y, 50%),
+		var(--primary) 0%,
+		transparent 60%
+	);
+	opacity: 0.03;
+	pointer-events: none;
+}
+
+.card-glow:hover::before {
+	opacity: 0.06;
+}
+
+/* ── Animated number counter ───────────────────────────── */
+@keyframes count-up {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-animate {
+	animation: count-up 0.4s ease-out forwards;
+}
+
+/* ── Timeline ──────────────────────────────────────────── */
+.timeline-dot {
+	transition: all 0.2s;
+}
+
+.timeline-dot:hover {
+	transform: scale(1.5);
+}
+
+/* ── Severity pulse for critical signals ───────────────── */
+@keyframes severity-pulse {
+	0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+	50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}
+
+.severity-critical {
+	animation: severity-pulse 2s ease-in-out infinite;
+}
+
+/* ── Tab indicator animation ───────────────────────────── */
+.tab-active {
+	position: relative;
+}
+
+.tab-active::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: var(--primary);
+	animation: tab-underline 0.3s ease-out;
+}
+
+@keyframes tab-underline {
+	from { transform: scaleX(0); }
+	to { transform: scaleX(1); }
+}
+
+/* ── Graph node hover ──────────────────────────────────── */
+.graph-node-label {
+	pointer-events: none;
+	transition: opacity 0.2s;
+}
+
+/* ── Print-friendly ────────────────────────────────────── */
+@media print {
+	.card { border: 1px solid #ccc; break-inside: avoid; }
+	.card:hover { background: inherit; }
+	footer, header { display: none; }
+}
