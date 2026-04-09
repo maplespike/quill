@@ -123,7 +123,7 @@ export function ExplorerView() {
 						<div className="flex h-full">
 							{/* SVG Connection Graph */}
 							<div className="flex-1 p-4">
-								<svg viewBox="0 0 660 400" className="w-full h-full max-h-[calc(100vh-180px)]">
+								<svg viewBox="0 0 660 400" className="w-full h-full max-h-[calc(100vh-180px)]" style={{ minWidth: 600 }}>
 									{/* Defs for edge gradients */}
 									<defs>
 										{Object.entries({ contract: "#ef4444", lobbying: "#8b5cf6", donation: "#f97316", spousal: "#ec4899", employment: "#06b6d4", board: "#14b8a6" }).map(([type, color]) => (

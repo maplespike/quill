@@ -171,7 +171,10 @@ export const graphNodes: GraphNode[] = [
 	{ id: "person-james-patterson", label: "James Patterson", type: "person", x: 180, y: 260 },
 	{ id: "person-robert-leclair", label: "Robert LeClair", type: "person", x: 80, y: 140 },
 	{ id: "person-marie-fortier", label: "Marie Fortier", type: "person", x: 540, y: 260 },
-];
+	{ id: "person-anika-patel", label: "Anika Patel", type: "person", x: 460, y: 90 },
+	{ id: "person-jean-marc-bouchard", label: "J-M Bouchard", type: "person", x: 500, y: 360 },
+	{ id: "person-lisa-park", label: "Lisa Park", type: "person", x: 120, y: 350 },
+	];
 
 export const graphEdges: GraphEdge[] = [
 	{ from: "person-sarah-mitchell", to: "person-david-mitchell", label: "Spouse", type: "spousal" },
@@ -181,8 +184,8 @@ export const graphEdges: GraphEdge[] = [
 	{ from: "person-michael-chen", to: "org-dnd", label: "Former ADM", type: "employment" },
 	{ from: "person-michael-chen", to: "org-navigator", label: "VP Gov Relations", type: "employment" },
 	{ from: "org-navigator", to: "org-l3harris", label: "Lobbies for", type: "lobbying" },
-	{ from: "org-l3harris", to: "org-dnd", label: "$73M contracts", type: "contract" },
-	{ from: "org-lockheed-martin", to: "org-dnd", label: "$120M contract", type: "contract" },
+	{ from: "org-l3harris", to: "org-dnd", label: "$88M contracts", type: "contract" },
+	{ from: "org-lockheed-martin", to: "org-dnd", label: "$142M contracts", type: "contract" },
 	{ from: "org-hill-knowlton", to: "org-lockheed-martin", label: "Lobbies for", type: "lobbying" },
 	{ from: "person-james-patterson", to: "org-hill-knowlton", label: "Consultant", type: "employment" },
 	{ from: "org-general-dynamics", to: "org-dnd", label: "$67M contract", type: "contract" },
@@ -192,6 +195,15 @@ export const graphEdges: GraphEdge[] = [
 	{ from: "person-marie-fortier", to: "org-plan-international", label: "Director", type: "employment" },
 	{ from: "org-navigator", to: "org-dnd", label: "6 communications", type: "lobbying" },
 	{ from: "org-hill-knowlton", to: "org-dnd", label: "6 communications", type: "lobbying" },
+	// New edges
+	{ from: "person-anika-patel", to: "org-dnd", label: "Procurement authority", type: "employment" },
+	{ from: "person-anika-patel", to: "org-brookfield", label: "Approved $20.5M", type: "contract" },
+	{ from: "person-jean-marc-bouchard", to: "org-plan-international", label: "ISC oversight", type: "employment" },
+	{ from: "person-lisa-park", to: "org-general-dynamics", label: "VP Partnerships", type: "employment" },
+	{ from: "person-thomas-wright", to: "org-navigator", label: "Managing Principal", type: "employment" },
+	{ from: "person-thomas-wright", to: "person-michael-chen", label: "Colleague", type: "employment" },
+	{ from: "org-brookfield", to: "org-dnd", label: "$12M sole-source", type: "contract" },
+	{ from: "org-general-dynamics", to: "org-brookfield", label: "$18.5M IT", type: "contract" },
 ];
 
 // ─── Seed Data ────────────────────────────────────────────
@@ -264,6 +276,47 @@ export const people: Person[] = [
 		relationships: [],
 		province: "QC", city: "Montreal",
 	},
+	{
+		id: "person-anika-patel",
+		names: ["Anika Patel", "A. Patel"],
+		firstName: "Anika", lastName: "Patel",
+		roles: [
+			{ title: "Deputy Minister, Procurement", organization: "Public Services and Procurement Canada", department: "PSPC", startDate: "2023-06-01", category: "civil_service", source: "disclosure_clerk" },
+			{ title: "Senior Policy Advisor", organization: "Treasury Board of Canada Secretariat", department: "TBS", startDate: "2019-01-01", endDate: "2023-05-31", category: "civil_service", source: "disclosure_clerk" },
+		],
+		relationships: [],
+		province: "ON", city: "Ottawa",
+	},
+	{
+		id: "person-jean-marc-bouchard",
+		names: ["Jean-Marc Bouchard", "J.M. Bouchard"],
+		firstName: "Jean-Marc", lastName: "Bouchard",
+		roles: [
+			{ title: "Director, Indigenous Procurement", organization: "Indigenous Services Canada", department: "ISC", startDate: "2024-01-15", category: "civil_service", source: "disclosure_clerk" },
+		],
+		relationships: [],
+		province: "ON", city: "Gatineau",
+	},
+	{
+		id: "person-lisa-park",
+		names: ["Lisa Park", "L. Park"],
+		firstName: "Lisa", lastName: "Park",
+		roles: [
+			{ title: "VP, Strategic Partnerships", organization: "General Dynamics Canada", startDate: "2021-11-01", category: "corporate", source: "open_canada_orgs" },
+		],
+		relationships: [],
+		province: "ON", city: "Ottawa",
+	},
+	{
+		id: "person-thomas-wright",
+		names: ["Thomas Wright", "Tom Wright"],
+		firstName: "Thomas", lastName: "Wright",
+		roles: [
+			{ title: "Managing Principal", organization: "Navigator LLP", startDate: "2020-09-01", category: "lobbyist", source: "lobbying_commissioner" },
+		],
+		relationships: [],
+		province: "ON", city: "Toronto",
+	},
 ];
 
 export const organizations: Organization[] = [
@@ -325,6 +378,38 @@ export const contracts: Contract[] = [
 		vendorName: "General Dynamics Canada", vendorId: "org-general-dynamics", department: "National Defence",
 		value: 67_000_000, currency: "CAD", startDate: "2025-09-01", endDate: "2028-08-31",
 		status: "active", isSoleSource: false, province: "ON", commodityType: "Armoured Vehicles",
+	},
+	{
+		id: "contract-l3harris-dnd-003", contractNumber: "W8476-250001",
+		title: "Night Vision Equipment Supply",
+		description: "Sole-source contract for next-generation night vision systems for CAF special operations forces.",
+		vendorName: "L3Harris Technologies Canada", vendorId: "org-l3harris", department: "National Defence",
+		value: 15_000_000, currency: "CAD", startDate: "2026-02-01", endDate: "2027-01-31",
+		status: "active", isSoleSource: true, province: "ON", commodityType: "Optical Equipment",
+	},
+	{
+		id: "contract-lockheed-dnd-002", contractNumber: "W8476-250005",
+		title: "Satellite Communication Terminal Procurement",
+		description: "Competitive contract for satellite communication terminals for Arctic operations.",
+		vendorName: "Lockheed Martin Canada", vendorId: "org-lockheed-martin", department: "National Defence",
+		value: 22_000_000, currency: "CAD", startDate: "2026-03-01", endDate: "2028-02-28",
+		status: "active", isSoleSource: false, province: "NU", commodityType: "Satellite Communications",
+	},
+	{
+		id: "contract-brookfield-pspc-002", contractNumber: "PSPC-2025-01234",
+		title: "Green Building Retrofit Program",
+		description: "Sole-source contract for energy retrofit of federal buildings in the National Capital Region.",
+		vendorName: "Brookfield Asset Management", vendorId: "org-brookfield", department: "Public Services and Procurement Canada",
+		value: 12_000_000, currency: "CAD", startDate: "2026-01-01", endDate: "2028-12-31",
+		status: "active", isSoleSource: true, province: "ON", commodityType: "Energy Services",
+	},
+	{
+		id: "contract-gd-pspc-001", contractNumber: "PSPC-2025-00987",
+		title: "IT Infrastructure Modernization",
+		description: "Competitive contract for modernizing IT infrastructure across federal departments.",
+		vendorName: "General Dynamics Canada", vendorId: "org-general-dynamics", department: "Public Services and Procurement Canada",
+		value: 18_500_000, currency: "CAD", startDate: "2025-11-01", endDate: "2027-10-31",
+		status: "active", isSoleSource: false, province: "ON", commodityType: "IT Infrastructure",
 	},
 ];
 
@@ -599,6 +684,15 @@ export const timelineEvents: TimelineEvent[] = [
 	{ date: "2025-09-28", type: "lobbying", title: "Navigator meets Minister Mitchell pre-award", entityIds: ["person-michael-chen", "person-sarah-mitchell", "org-navigator", "org-l3harris"], detail: "Final pre-award discussion. Chen meets Minister Mitchell directly. Her spouse is on L3Harris's board.", sourceUrl: "https://lobbycanada.gc.ca/" },
 	{ date: "2025-10-01", type: "contract", title: "L3Harris receives $45M sole-source contract", entityIds: ["org-l3harris", "org-dnd"], detail: "DND awards L3Harris Technologies a $45M sole-source contract for tactical communication systems. Awarded 2 days after Chen's meeting with the Minister.", sourceUrl: "https://buyandsell.gc.ca/" },
 	{ date: "2026-01-01", type: "contract", title: "L3Harris receives $28M additional sole-source", entityIds: ["org-l3harris", "org-dnd"], detail: "Second sole-source contract for electronic warfare suite upgrade on Halifax-class frigates.", sourceUrl: "https://buyandsell.gc.ca/" },
+
+	// New entities timeline
+	{ date: "2023-06-01", type: "appointment", title: "Anika Patel appointed DM Procurement at PSPC", entityIds: ["person-anika-patel"], detail: "Patel assumes senior procurement authority at PSPC, overseeing all major federal procurement.", sourceUrl: "https://www.canada.ca/en/public-services-procurement.html" },
+	{ date: "2024-01-15", type: "appointment", title: "Jean-Marc Bouchard joins ISC", entityIds: ["person-jean-marc-bouchard"], detail: "Bouchard appointed Director of Indigenous Procurement at Indigenous Services Canada.", sourceUrl: "https://www.canada.ca/en/indigenous-services.html" },
+	{ date: "2025-11-01", type: "contract", title: "General Dynamics receives $18.5M IT contract", entityIds: ["org-general-dynamics", "person-lisa-park"], detail: "PSPC awards General Dynamics Canada $18.5M for IT infrastructure modernization across federal departments.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2026-01-01", type: "contract", title: "Brookfield receives $12M sole-source for green retrofit", entityIds: ["org-brookfield", "person-anika-patel"], detail: "PSPC awards Brookfield a $12M sole-source contract for energy retrofit of federal buildings. Patel signed off on the approval.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2026-02-01", type: "contract", title: "L3Harris receives $15M night vision sole-source", entityIds: ["org-l3harris", "org-dnd"], detail: "Third sole-source contract to L3Harris — for next-generation night vision for special operations forces.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2026-03-01", type: "contract", title: "Lockheed Martin receives $22M satellite terminal contract", entityIds: ["org-lockheed-martin", "org-dnd"], detail: "Competitive contract for satellite communication terminals for Arctic operations.", sourceUrl: "https://buyandsell.gc.ca/" },
+	{ date: "2026-03-15", type: "lobbying", title: "Navigator registers Thomas Wright as senior lobbyist", entityIds: ["person-thomas-wright", "org-navigator"], detail: "Wright, Managing Principal at Navigator, registers for multiple defence clients including L3Harris.", sourceUrl: "https://lobbycanada.gc.ca/" },
 ];
 
 // ─── Source URLs (real Canadian government data portals) ──
@@ -624,12 +718,14 @@ export interface ConnectionStrength {
 }
 
 export const connectionStrengths: ConnectionStrength[] = [
-	{ fromId: "org-l3harris", toId: "org-dnd", strength: 0.92, signals: ["procurement_lobbying_overlap", "sole_source_heavy_lobbying", "spousal_interest_proximity"], summary: "$73M in sole-source contracts, 4 lobbying comms, Minister's spouse on board" },
+	{ fromId: "org-l3harris", toId: "org-dnd", strength: 0.92, signals: ["procurement_lobbying_overlap", "sole_source_heavy_lobbying", "spousal_interest_proximity"], summary: "$88M in sole-source contracts, 4 lobbying comms, Minister's spouse on board" },
 	{ fromId: "person-michael-chen", toId: "org-dnd", strength: 0.88, signals: ["revolving_door", "procurement_lobbying_overlap"], summary: "Former ADM now lobbies former department for L3Harris" },
 	{ fromId: "person-sarah-mitchell", toId: "org-l3harris", strength: 0.85, signals: ["spousal_interest_proximity", "procurement_lobbying_overlap"], summary: "Minister's spouse is L3Harris board member; met L3Harris lobbyists" },
-	{ fromId: "org-lockheed-martin", toId: "org-dnd", strength: 0.78, signals: ["sole_source_heavy_lobbying"], summary: "$120M sole-source after 6 lobbying communications" },
+	{ fromId: "org-lockheed-martin", toId: "org-dnd", strength: 0.78, signals: ["sole_source_heavy_lobbying"], summary: "$142M in contracts after 6 lobbying communications" },
 	{ fromId: "person-david-mitchell", toId: "org-l3harris", strength: 0.82, signals: ["spousal_interest_proximity"], summary: "Board member; spouse is Minister of National Defence" },
-	{ fromId: "org-brookfield", toId: "person-david-mitchell", strength: 0.65, signals: ["donation_proximity_correlation"], summary: "Employer of Minister's spouse; donated $40K to Liberals; received $8.5M contract" },
+	{ fromId: "org-brookfield", toId: "person-david-mitchell", strength: 0.65, signals: ["donation_proximity_correlation"], summary: "Employer of Minister's spouse; donated $40K to Liberals; received $20.5M in contracts" },
 	{ fromId: "org-hill-knowlton", toId: "org-dnd", strength: 0.72, signals: ["sole_source_heavy_lobbying"], summary: "6 lobbying communications for Lockheed Martin" },
 	{ fromId: "org-plan-international", toId: "org-dnd", strength: 0.45, signals: ["international_layering"], summary: "$30M GAC funding + $2.3M IRCC contract + lobbying registered" },
+	{ fromId: "person-anika-patel", toId: "org-brookfield", strength: 0.58, signals: ["procurement_lobbying_overlap", "donation_proximity_correlation"], summary: "Approved $20.5M in contracts to Brookfield; Brookfield donated $40K to Liberals" },
+	{ fromId: "person-lisa-park", toId: "org-general-dynamics", strength: 0.55, signals: ["procurement_lobbying_overlap"], summary: "VP Strategic Partnerships at GD; $85.5M in combined contracts" },
 ];
