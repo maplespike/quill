@@ -89,7 +89,7 @@ export function BriefView() {
 					DAILY INTELLIGENCE BRIEF
 					<div className="flex-1 h-px bg-[var(--border)]" />
 					<span className="tabular-nums">
-						{new Date(brief.generatedAt).toLocaleDateString("en-CA", {
+						{new Date(new Date().toISOString()).toLocaleDateString("en-CA", {
 							weekday: "long", year: "numeric", month: "long", day: "numeric",
 						})}
 					</span>
@@ -102,13 +102,13 @@ export function BriefView() {
 							<circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" strokeWidth="6" />
 							<circle
 								cx="50" cy="50" r="40" fill="none"
-								stroke={brief.confidence > 0.7 ? "var(--destructive)" : brief.confidence > 0.4 ? "var(--warning)" : "var(--success)"}
+								stroke={threads.reduce((s, t) => s + t.confidence, 0) / threads.length > 0.7 ? "var(--destructive)" : threads.reduce((s, t) => s + t.confidence, 0) / threads.length > 0.4 ? "var(--warning)" : "var(--success)"}
 								strokeWidth="6" strokeLinecap="round"
-								strokeDasharray={(brief.confidence * 251.3) + " 251.3"}
+								strokeDasharray={(threads.reduce((s, t) => s + t.confidence, 0) / threads.length * 251.3) + " 251.3"}
 							/>
 						</svg>
 						<div className="absolute inset-0 flex flex-col items-center justify-center">
-							<span className="text-xl font-bold tabular-nums">{Math.round(brief.confidence * 100)}</span>
+							<span className="text-xl font-bold tabular-nums">{Math.round(threads.reduce((s, t) => s + t.confidence, 0) / threads.length * 100)}</span>
 							<span className="text-[8px] text-[var(--muted)]">SCORE</span>
 						</div>
 					</div>
@@ -134,8 +134,21 @@ export function BriefView() {
 						>
 							{section.signalTypes?.length ? "● " : ""}{section.title.toUpperCase()}
 						</span>
+						{section.signalTypes?.map((st, j) => (
+							<span
+								key={j}
+								className="text-[9px] px-1.5 py-0.5 rounded-full border"
+								style={{
+									borderColor: SIGNAL_COLORS[st],
+									color: SIGNAL_COLORS[st],
+									backgroundColor: "color-mix(in srgb, " + SIGNAL_COLORS[st] + " 10%, transparent)",
+								}}
+							>
+								{SIGNAL_ICONS[st]} {SIGNAL_LABELS[st]}
+							</span>
+						))}
 						<div className="flex-1 h-px bg-[var(--border)]" />
-						<span className="text-[10px] text-[var(--muted)]">{i + 1}/{brief.sections.length}</span>
+						<span className="text-[10px] text-[var(--m)]">{i + 1}/{brief.sections.length}</span>
 					</div>
 					<div
 						className="text-sm leading-relaxed text-[var(--card-foreground)]"
@@ -179,7 +192,7 @@ export function BriefView() {
 										</div>
 										<h4 className="text-sm font-semibold mb-1">{thread.title}</h4>
 										<p className="text-xs text-[var(--muted)] leading-relaxed">
-											{isExpanded ? thread.description : thread.description.slice(0, 150) + (thread.description.length > 150 ? "…" : "")}
+											{isExpanded ? thread.summary : thread.summary.slice(0, 150) + (thread.summary.length > 150 ? "…" : "")}
 										</p>
 
 										{isExpanded && (

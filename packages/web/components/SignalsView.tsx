@@ -221,7 +221,7 @@ function SignalDetailCard({ thread }: { thread: IntelligenceThread }) {
 
 					<h4 className="text-sm font-semibold mb-1">{thread.title}</h4>
 					<p className="text-xs text-[var(--muted)] leading-relaxed">
-						{expanded ? thread.description : thread.description.slice(0, 200) + (thread.description.length > 200 ? "…" : "")}
+						{expanded ? thread.summary : thread.summary.slice(0, 200) + (thread.summary.length > 200 ? "…" : "")}
 					</p>
 
 					{/* Confidence bar */}

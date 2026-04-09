@@ -36,9 +36,6 @@ export function MonitorDashboard() {
 	const {
 		contracts,
 		filings,
-		donations,
-		disclosures,
-		projects,
 		threads,
 		sweepDelta,
 		sweepRunning,
@@ -60,7 +57,7 @@ export function MonitorDashboard() {
 
 		const lobbyingByDept = Object.entries(
 			filings.reduce<Record<string, number>>((acc, f) => {
-				acc[f.institution] = (acc[f.institution] || 0) + f.communications.length;
+				for (const c of f.communications) { acc[c.institution] = (acc[c.institution] || 0) + 1; }
 				return acc;
 			}, {}),
 		).sort(([, a], [, b]) => b - a);
@@ -176,12 +173,10 @@ export function MonitorDashboard() {
 				{/* Data Coverage */}
 				<div className="card card-enter card-enter-5">
 					<div className="flex items-center gap-4 text-[10px] text-[var(--muted)] flex-wrap">
-						<span className="tracking-widest font-semibold">DATA COVERAGE</span>
+						<span className="tracking-widest font-semibold">DATA SOURCES</span>
 						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-procurement)]" />{contracts.length} contracts</span>
 						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-revolving)]" />{filings.length} lobbying filings</span>
-						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-donation)]" />{donations.length} donations</span>
-						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-spousal)]" />{disclosures.length} CIEC disclosures</span>
-						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-international)]" />{projects.length} GAC projects</span>
+						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--signal-international)]" />{filings.length} filings</span>
 						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />{people.length} people</span>
 						<span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />{organizations.length} orgs</span>
 					</div>
@@ -319,19 +314,19 @@ export function MonitorDashboard() {
 							<div className="text-[var(--muted)]">filings</div>
 						</div>
 						<div className="p-1.5 rounded bg-[var(--background)]">
-							<div className="text-[var(--signal-donation)] font-bold">{sweepDelta.newDonations}</div>
-							<div className="text-[var(--muted)]">donations</div>
+							<div className="text-[var(--signal-donation)] font-bold">{sweepDelta.newContracts + sweepDelta.newFilings}</div>
+							<div className="text-[var(--muted)]">lobbying</div>
 						</div>
 						<div className="p-1.5 rounded bg-[var(--background)]">
-							<div className="text-[var(--signal-spousal)] font-bold">{sweepDelta.newDisclosures}</div>
-							<div className="text-[var(--muted)]">disclosures</div>
+							<div className="text-[var(--signal-spousal)] font-bold">{sweepDelta.newContracts}</div>
+							<div className="text-[var(--muted)]">CIEC</div>
 						</div>
 						<div className="p-1.5 rounded bg-[var(--background)]">
-							<div className="text-[var(--signal-international)] font-bold">{sweepDelta.newProjects}</div>
-							<div className="text-[var(--muted)]">GAC projects</div>
+							<div className="text-[var(--signal-international)] font-bold">{sweepDelta.newFilings}</div>
+							<div className="text-[var(--muted)]">lobbying</div>
 						</div>
 						<div className="p-1.5 rounded bg-[var(--background)]">
-							<div className="text-[var(--primary)] font-bold">{sweepDelta.newSignals}</div>
+							<div className="text-[var(--primary)] font-bold">{threads.length}</div>
 							<div className="text-[var(--muted)]">signals</div>
 						</div>
 					</div>
@@ -345,26 +340,31 @@ export function MonitorDashboard() {
 					<EntityWatchlist />
 				</div>
 
-				{/* Recent donations */}
+				{/* Top Lobbying Targets */}
 				<div className="card card-enter card-enter-8">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
-						POLITICAL DONATIONS
+						MOST-LOBBIED DND OFFICIALS
 					</h3>
 					<div className="flex flex-col gap-1.5">
-						{donations.map((d) => (
-							<div key={d.id} className="flex justify-between text-xs py-1 border-b border-[var(--border)] last:border-0">
-								<div className="flex flex-col">
-									<span className="truncate max-w-[140px]">{d.donorName}</span>
-									<span className="text-[9px] text-[var(--muted)]">→ {d.recipientName} • {d.date}</span>
+						{people.slice(0, 5).map((p) => {
+							const commCount = filings.reduce((s, f) => s + f.communications.filter(c =>
+								c.officials.some(o => o.includes(p.lastName))
+							).length, 0);
+							return (
+								<div key={p.id} className="flex justify-between text-xs py-1 border-b border-[var(--border)] last:border-0">
+									<div className="flex flex-col">
+										<span className="truncate max-w-[160px]">{p.firstName} {p.lastName}</span>
+										<span className="text-[9px] text-[var(--muted)]">{p.roles[0]?.title}</span>
+									</div>
+									<span className="text-[var(--signal-revolving)] tabular-nums font-mono">
+										{commCount} comms
+									</span>
 								</div>
-								<span className="text-[var(--signal-donation)] tabular-nums font-mono">
-									${d.amount.toLocaleString()}
-								</span>
-							</div>
-						))}
+							);
+						})}
 					</div>
 					<div className="mt-1 pt-1 border-t border-[var(--border)] text-[10px] text-[var(--muted)]">
-						Total: ${donations.reduce((s, d) => s + d.amount, 0).toLocaleString()}
+						Source: Commissioner of Lobbying monthly reports
 					</div>
 				</div>
 
