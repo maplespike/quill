@@ -831,3 +831,86 @@ h6 {
     display: none;
   }
 }
+
+/* ── Visual Hierarchy Tiers ────────────────────────────── */
+/* Tier 1: Hero — one per view, highest visual weight */
+.tier-hero {
+  padding: 20px;
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  box-shadow: var(--glow-primary);
+  background: var(--card);
+}
+
+/* Tier 2: Primary cards — main content */
+.tier-primary {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+/* Tier 3: Context panels — secondary info */
+.tier-context {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  opacity: 0.85;
+  font-size: 0.875rem;
+}
+
+/* Tier 4: Background — tickers, metadata */
+.tier-background {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  color: var(--muted);
+}
+
+/* ── Skeleton Loader ──────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.skeleton {
+  background: var(--border);
+  border-radius: 6px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Empty State ──────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  gap: 12px;
+  color: var(--muted);
+}
+.empty-state-icon {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+/* ── Onboarding Modal ─────────────────────────────────── */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+.onboarding-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  max-width: 520px;
+  width: 90%;
+  padding: 32px;
+  box-shadow: var(--glow-primary);
+}
