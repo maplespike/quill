@@ -109,6 +109,7 @@ export class SweepEngine {
 	private resolver: EntityResolver;
 	private graphBuilder: GraphBuilder;
 	private briefGenerator: BriefGenerator;
+	private aliasManager: AliasManager;
 
 	// Parsers (can be injected for testing)
 	private spendingParser: SpendingParser;
@@ -120,9 +121,9 @@ export class SweepEngine {
 		// Create in-memory SQLite for entity resolution
 		const Database = require('better-sqlite3');
 		const db = new Database(':memory:');
-		const aliasManager = new AliasManager(db);
-		this.resolver = new EntityResolver(aliasManager);
-		this.graphBuilder = new GraphBuilder(aliasManager);
+		this.aliasManager = new AliasManager(db);
+		this.resolver = new EntityResolver(this.aliasManager);
+		this.graphBuilder = new GraphBuilder(this.aliasManager);
 		this.briefGenerator = new BriefGenerator();
 		this.spendingParser = new SpendingParser();
 		this.lobbyingParser = new LobbyingParser();
@@ -158,7 +159,17 @@ export class SweepEngine {
 			const graph = this.buildGraph(parsed);
 
 			// 5. Detect signals
-			const threads = runAllDetectors(graph.nodes, graph.edges);
+			const threads = runAllDetectors(
+				parsed.contracts,
+				parsed.filings,
+				parsed.donations,
+				parsed.disclosures,
+				parsed.projects,
+				this.extractPersons(parsed),
+				this.extractOrganizations(parsed),
+				[],
+				this.aliasManager,
+			);
 
 			// 6. Generate brief
 			const brief = this.briefGenerator.generateDailyBrief(threads, graph);
@@ -234,7 +245,17 @@ export class SweepEngine {
 			const graph = this.buildGraph(merged);
 
 			// Detect signals
-			const threads = runAllDetectors(graph.nodes, graph.edges);
+			const threads = runAllDetectors(
+				merged.contracts,
+				merged.filings,
+				merged.donations,
+				merged.disclosures,
+				merged.projects,
+				this.extractPersons(merged),
+				this.extractOrganizations(merged),
+				[],
+				this.aliasManager,
+			);
 
 			// Generate brief
 			const brief = this.briefGenerator.generateDailyBrief(threads, graph);
@@ -293,7 +314,17 @@ export class SweepEngine {
 			const sweepResult = this.buildSweepResult(data);
 			this.resolveEntities(data);
 			const graph = this.buildGraph(data);
-			const threads = runAllDetectors(graph.nodes, graph.edges);
+			const threads = runAllDetectors(
+				data.contracts,
+				data.filings,
+				data.donations,
+				data.disclosures,
+				data.projects,
+				this.extractPersons(data),
+				this.extractOrganizations(data),
+				[],
+				this.aliasManager,
+			);
 			const brief = this.briefGenerator.generateDailyBrief(threads, graph);
 			const delta = this.computeDelta(data, threads, graph);
 			const durationMs = Date.now() - startTime;
@@ -388,26 +419,26 @@ export class SweepEngine {
 
 		// Parse spending/contracts
 		if (rawData.spending) {
-			const result = this.spendingParser.parseCsv(rawData.spending);
+			const result = this.spendingParser.parseProactiveDisclosure(rawData.spending);
 			parsed.contracts = result.data;
 		}
 
 		// Parse lobbying filings
 		if (rawData.lobbying) {
-			const result = this.lobbyingParser.parseCsv(rawData.lobbying);
+			const result = this.lobbyingParser.parseRegistrations(rawData.lobbying);
 			parsed.filings = result.data;
 		}
 
 		// Parse CIEC (disclosures + donations)
 		if (rawData.ciec) {
-			const result = this.ciecParser.parseCsv(rawData.ciec);
-			parsed.disclosures = result.disclosures;
-			parsed.donations = result.donations;
+			const result = this.ciecParser.parseDisclosureSummary(rawData.ciec);
+			parsed.disclosures = result.data;
+			parsed.donations = [];
 		}
 
 		// Parse GAC projects
 		if (rawData.gac) {
-			const result = this.gacParser.parseXml(rawData.gac);
+			const result = this.gacParser.parseProjectBrowser(rawData.gac);
 			parsed.projects = result.data;
 		}
 
@@ -417,22 +448,22 @@ export class SweepEngine {
 	private parseSource(source: string, rawData: string): Partial<ParsedData> {
 		switch (source) {
 			case "spending": {
-				const result = this.spendingParser.parseCsv(rawData);
+				const result = this.spendingParser.parseProactiveDisclosure(rawData);
 				return { contracts: result.data };
 			}
 			case "lobbying": {
-				const result = this.lobbyingParser.parseCsv(rawData);
+				const result = this.lobbyingParser.parseRegistrations(rawData);
 				return { filings: result.data };
 			}
 			case "ciec": {
-				const result = this.ciecParser.parseCsv(rawData);
+				const result = this.ciecParser.parseDisclosureSummary(rawData);
 				return {
-					disclosures: result.disclosures,
-					donations: result.donations,
+					disclosures: result.data,
+					donations: [],
 				};
 			}
 			case "gac": {
-				const result = this.gacParser.parseXml(rawData);
+				const result = this.gacParser.parseProjectBrowser(rawData);
 				return { projects: result.data };
 			}
 			default:
@@ -620,6 +651,7 @@ export class SweepEngine {
 							updatedAt: filing.updatedAt,
 						});
 					}
+			}
 			}
 		}
 		for (const disclosure of data.disclosures) {
