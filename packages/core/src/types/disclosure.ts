@@ -1,28 +1,28 @@
 import type { BaseEntity, GovernmentSource } from "./base";
 
 export type InterestCategory =
-	| "real_property"
-	| "securities"
-	| "corporations"
-	| "partnerships"
-	| "liabilities"
-	| "other";
+  | "real_property"
+  | "securities"
+  | "corporations"
+  | "partnerships"
+  | "liabilities"
+  | "other";
 
 export interface Interest {
-	category: InterestCategory;
-	description: string;
-	value?: string;
-	province?: string;
+  category: InterestCategory;
+  description: string;
+  value?: string;
+  province?: string;
 }
 
 export interface Disclosure extends BaseEntity {
-	personName: string;
-	personId?: string;
-	position: string;
-	department: string;
-	year: number;
-	interests: Interest[];
-	province?: string;
-	filingDate: string;
-	source: GovernmentSource;
+  personName: string;
+  personId?: string;
+  position: string;
+  department: string;
+  year: number;
+  interests: Interest[];
+  province?: string;
+  filingDate: string;
+  source: GovernmentSource;
 }

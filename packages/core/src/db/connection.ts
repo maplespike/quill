@@ -7,20 +7,20 @@ export type DbClient = ReturnType<typeof createDb>;
 const DEFAULT_DB_PATH = "civic-intel.sqlite";
 
 export function createDb(dbPath?: string): ReturnType<typeof drizzle> {
-	const path = dbPath ?? DEFAULT_DB_PATH;
-	const sqlite = new Database(path);
+  const path = dbPath ?? DEFAULT_DB_PATH;
+  const sqlite = new Database(path);
 
-	// Enable WAL mode for better concurrent read performance
-	sqlite.pragma("journal_mode = WAL");
-	sqlite.pragma("foreign_keys = ON");
+  // Enable WAL mode for better concurrent read performance
+  sqlite.pragma("journal_mode = WAL");
+  sqlite.pragma("foreign_keys = ON");
 
-	return drizzle(sqlite, { schema });
+  return drizzle(sqlite, { schema });
 }
 
 export function runMigrations(db: DbClient): void {
-	const sqlite = (db as unknown as { $client: Database.Database }).$client;
+  const sqlite = (db as unknown as { $client: Database.Database }).$client;
 
-	sqlite.exec(`
+  sqlite.exec(`
     CREATE TABLE IF NOT EXISTS persons (
       id TEXT PRIMARY KEY,
       names TEXT NOT NULL,
