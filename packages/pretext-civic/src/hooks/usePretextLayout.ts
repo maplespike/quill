@@ -1,103 +1,111 @@
-import { useCallback, useMemo, useRef } from "react";
+/**
+ * usePretextLayout — Legacy hook, now backed by real @chenglou/pretext.
+ *
+ * Previously used require() which always failed in ESM,
+ * falling back to charsPerLine slicing. Now uses the real API:
+ *   prepare() for one-time measurement
+ *   layoutWithLines() for line-by-line output
+ *
+ * Backward-compatible return type for existing consumers.
+ */
+import {
+  layoutWithLines,
+  type PreparedTextWithSegments,
+  prepareWithSegments,
+} from "@chenglou/pretext";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-/** Safely split text into lines of roughly `charsPerLine` characters. */
-function wrapText(inputText: string, charsPerLine: number): string[] {
-	if (charsPerLine < 1) charsPerLine = 1;
-	const result: string[] = [];
-	for (let i = 0; i < inputText.length; i += charsPerLine) {
-		result.push(inputText.slice(i, i + charsPerLine));
-	}
-	return result.length > 0 ? result : [inputText];
+export interface PretextLayoutLine {
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface PretextLayoutResult {
+  lines: string[];
+  height: number;
+  layout: {
+    lines: PretextLayoutLine[];
+  } | null;
 }
 
 /**
- * React hook wrapping @chenglou/pretext for text measurement & layout.
+ * Layout text with real pretext measurement.
  *
- * Usage:
- *   const { lines, height, layout } = usePretextLayout("Hello world", "Georgia", 300);
- *
- * SSR-safe: returns null on the server.
+ * ```ts
+ * const result = usePretextLayout("Hello world", "Georgia", 300, {
+ *   fontSize: 16, fontWeight: 400, lineHeight: 1.5
+ * })
+ * ```
  */
 export function usePretextLayout(
-	text: string,
-	fontFamily: string,
-	width: number,
-	options?: {
-		fontSize?: number;
-		fontWeight?: number;
-		lineHeight?: number;
-	},
-): {
-	lines: string[];
-	height: number;
-	layout: {
-		lines: Array<{
-			text: string;
-			x: number;
-			y: number;
-			width: number;
-			height: number;
-		}>;
-	} | null;
-} | null {
-	const fontSize = options?.fontSize ?? 16;
-	const fontWeight = options?.fontWeight ?? 400;
-	const lineHeight = options?.lineHeight ?? 1.5;
+  text: string,
+  fontFamily: string,
+  width: number,
+  options?: {
+    fontSize?: number;
+    fontWeight?: number;
+    lineHeight?: number;
+  },
+): PretextLayoutResult | null {
+  const fontSize = options?.fontSize ?? 16;
+  const fontWeight = options?.fontWeight ?? 400;
+  const lineHeightRatio = options?.lineHeight ?? 1.5;
+  const lineHeightPx = Math.round(fontSize * lineHeightRatio);
 
-	return useMemo(() => {
-		// SSR guard
-		if (typeof window === "undefined") return null;
+  const [fontsReady, setFontsReady] = useState(false);
+  const preparedRef = useRef<PreparedTextWithSegments | null>(null);
+  const prevDepsRef = useRef("");
 
-		try {
-			// Dynamic import won't work in useMemo; use the synchronous API.
-			// eslint-disable-next-line @typescript-eslint/no-require-imports
-			const pretext = require("@chenglou/pretext");
+  useEffect(() => {
+    document.fonts.ready.then(() => setFontsReady(true));
+  }, []);
 
-			// Build a paragraph / text block via pretext's analysis step
-			const analysis = pretext.analysis ?? pretext.analyse ?? pretext.analyze;
-			const layoutFn = pretext.layout;
+  const font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  const depsKey = `${text}│${font}`;
 
-			if (!analysis || !layoutFn) {
-				// Fallback: rough estimate
-				const charsPerLine = Math.floor(width / (fontSize * 0.6));
-				const wrappedLines = wrapText(text, charsPerLine);
-				return {
-					lines: wrappedLines,
-					height: wrappedLines.length * fontSize * lineHeight,
-					layout: null,
-				};
-			}
+  return useMemo(() => {
+    if (typeof window === "undefined" || !fontsReady || !text || width <= 0) {
+      return null;
+    }
 
-			// Create the analysed text structure
-			const analysed = analysis({
-				text,
-				fontFamily,
-				fontSize,
-				fontWeight,
-				lineHeight,
-			});
+    // Re-prepare only when text/font changes (expensive)
+    if (depsKey !== prevDepsRef.current || !preparedRef.current) {
+      prevDepsRef.current = depsKey;
+      try {
+        preparedRef.current = prepareWithSegments(text, font);
+      } catch {
+        // Graceful fallback
+        const charsPerLine = Math.max(1, Math.floor(width / (fontSize * 0.6)));
+        const lines: string[] = [];
+        for (let i = 0; i < text.length; i += charsPerLine) {
+          lines.push(text.slice(i, i + charsPerLine));
+        }
+        return {
+          lines: lines.length > 0 ? lines : [text],
+          height: (lines.length || 1) * lineHeightPx,
+          layout: null,
+        };
+      }
+    }
 
-			// Lay it out at the given width
-			const result = layoutFn(analysed, { width });
+    // Layout is pure arithmetic — cheap to re-run
+    const result = layoutWithLines(preparedRef.current, width, lineHeightPx);
 
-			const lines: string[] = result.lines
-				? result.lines.map((l: { text: string }) => l.text)
-				: [text];
+    const layoutLines: PretextLayoutLine[] = result.lines.map((l, i) => ({
+      text: l.text,
+      x: 0,
+      y: i * lineHeightPx,
+      width: l.width,
+      height: lineHeightPx,
+    }));
 
-			return {
-				lines,
-				height: result.height ?? lines.length * fontSize * lineHeight,
-				layout: result.lines ?? null,
-			};
-		} catch {
-			// Graceful fallback if pretext API doesn't match expectations
-			const charsPerLine = Math.max(1, Math.floor(width / (fontSize * 0.6)));
-			const wrappedLines = wrapText(text, charsPerLine);
-			return {
-				lines: wrappedLines,
-				height: wrappedLines.length * fontSize * lineHeight,
-				layout: null,
-			};
-		}
-	}, [text, fontFamily, width, fontSize, fontWeight, lineHeight]);
+    return {
+      lines: layoutLines.map((l) => l.text),
+      height: result.height,
+      layout: { lines: layoutLines },
+    };
+  }, [fontsReady, text, font, width, fontSize, lineHeightPx, depsKey]);
 }

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-	categorizePartners,
-	extractCountries,
-	extractPartners,
-	groupByPartner,
+  categorizePartners,
+  extractCountries,
+  extractPartners,
+  groupByPartner,
 } from "./mapper";
 import { GACParser } from "./parser";
 
@@ -61,170 +61,170 @@ const SAMPLE_IATI_XML = `<?xml version="1.0" encoding="UTF-8"?>
 </iati-activities>`;
 
 describe("GACParser", () => {
-	const parser = new GACParser();
+  const parser = new GACParser();
 
-	describe("parseProjectBrowser", () => {
-		it("parses CSV data into GACProject objects", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data).toHaveLength(10);
-			expect(result.errors).toHaveLength(0);
-			expect(result.metadata.source).toBe("gac_projects");
-			expect(result.metadata.format).toBe("csv");
-		});
+  describe("parseProjectBrowser", () => {
+    it("parses CSV data into GACProject objects", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data).toHaveLength(10);
+      expect(result.errors).toHaveLength(0);
+      expect(result.metadata.source).toBe("gac_projects");
+      expect(result.metadata.format).toBe("csv");
+    });
 
-		it("extracts project IDs", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data[0].projectId).toBe("GA-2023-AF-001");
-			expect(result.data[1].projectId).toBe("GA-2023-UK-002");
-		});
+    it("extracts project IDs", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data[0].projectId).toBe("GA-2023-AF-001");
+      expect(result.data[1].projectId).toBe("GA-2023-UK-002");
+    });
 
-		it("extracts country and region", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data[0].country).toBe("Afghanistan");
-			expect(result.data[0].region).toBe("South Asia");
-			expect(result.data[1].country).toBe("Ukraine");
-		});
+    it("extracts country and region", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data[0].country).toBe("Afghanistan");
+      expect(result.data[0].region).toBe("South Asia");
+      expect(result.data[1].country).toBe("Ukraine");
+    });
 
-		it("parses budget values", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data[0].budget).toBe(28500000);
-			expect(result.data[9].budget).toBe(35000000);
-		});
+    it("parses budget values", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data[0].budget).toBe(28500000);
+      expect(result.data[9].budget).toBe(35000000);
+    });
 
-		it("parses implementing partners with pipe-separated fields", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data[0].implementingPartners).toHaveLength(2);
-			expect(result.data[0].implementingPartners[0].name).toBe(
-				"World Food Programme",
-			);
-			expect(result.data[0].implementingPartners[0].role).toBe("Lead Agency");
-		});
+    it("parses implementing partners with pipe-separated fields", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data[0].implementingPartners).toHaveLength(2);
+      expect(result.data[0].implementingPartners[0].name).toBe(
+        "World Food Programme",
+      );
+      expect(result.data[0].implementingPartners[0].role).toBe("Lead Agency");
+    });
 
-		it("handles projects with multiple partners", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			// Bangladesh has 3 partners
-			expect(result.data[3].implementingPartners).toHaveLength(3);
-		});
+    it("handles projects with multiple partners", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      // Bangladesh has 3 partners
+      expect(result.data[3].implementingPartners).toHaveLength(3);
+    });
 
-		it("maps project statuses", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data[8].status).toBe("active");
-			expect(result.data[7].status).toBe("pipeline");
-			expect(result.data[9].status).toBe("completed");
-		});
+    it("maps project statuses", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data[8].status).toBe("active");
+      expect(result.data[7].status).toBe("pipeline");
+      expect(result.data[9].status).toBe("completed");
+    });
 
-		it("sets department to Global Affairs Canada", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			for (const project of result.data) {
-				expect(project.department).toBe("Global Affairs Canada");
-			}
-		});
+    it("sets department to Global Affairs Canada", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      for (const project of result.data) {
+        expect(project.department).toBe("Global Affairs Canada");
+      }
+    });
 
-		it("preserves raw data", () => {
-			const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
-			expect(result.data[0].rawData.project_id).toBe("GA-2023-AF-001");
-		});
-	});
+    it("preserves raw data", () => {
+      const result = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV);
+      expect(result.data[0].rawData.project_id).toBe("GA-2023-AF-001");
+    });
+  });
 
-	describe("parseIATIXml", () => {
-		it("parses IATI XML data", () => {
-			const result = parser.parseIATIXml(SAMPLE_IATI_XML);
-			expect(result.data).toHaveLength(3);
-			expect(result.errors).toHaveLength(0);
-			expect(result.metadata.format).toBe("xml");
-		});
+  describe("parseIATIXml", () => {
+    it("parses IATI XML data", () => {
+      const result = parser.parseIATIXml(SAMPLE_IATI_XML);
+      expect(result.data).toHaveLength(3);
+      expect(result.errors).toHaveLength(0);
+      expect(result.metadata.format).toBe("xml");
+    });
 
-		it("extracts IATI identifiers", () => {
-			const result = parser.parseIATIXml(SAMPLE_IATI_XML);
-			expect(result.data[0].projectId).toBe("CA-3-GA-2023-AF-001");
-		});
+    it("extracts IATI identifiers", () => {
+      const result = parser.parseIATIXml(SAMPLE_IATI_XML);
+      expect(result.data[0].projectId).toBe("CA-3-GA-2023-AF-001");
+    });
 
-		it("extracts implementing partners from XML", () => {
-			const result = parser.parseIATIXml(SAMPLE_IATI_XML);
-			expect(result.data[0].implementingPartners).toHaveLength(2);
-			expect(result.data[0].implementingPartners[0].name).toBe(
-				"World Food Programme",
-			);
-		});
+    it("extracts implementing partners from XML", () => {
+      const result = parser.parseIATIXml(SAMPLE_IATI_XML);
+      expect(result.data[0].implementingPartners).toHaveLength(2);
+      expect(result.data[0].implementingPartners[0].name).toBe(
+        "World Food Programme",
+      );
+    });
 
-		it("extracts budget from XML", () => {
-			const result = parser.parseIATIXml(SAMPLE_IATI_XML);
-			expect(result.data[0].budget).toBe(28500000);
-		});
+    it("extracts budget from XML", () => {
+      const result = parser.parseIATIXml(SAMPLE_IATI_XML);
+      expect(result.data[0].budget).toBe(28500000);
+    });
 
-		it("extracts sector from XML", () => {
-			const result = parser.parseIATIXml(SAMPLE_IATI_XML);
-			expect(result.data[0].sector).toBe("Humanitarian");
-		});
-	});
+    it("extracts sector from XML", () => {
+      const result = parser.parseIATIXml(SAMPLE_IATI_XML);
+      expect(result.data[0].sector).toBe("Humanitarian");
+    });
+  });
 });
 
 describe("GAC Mapper", () => {
-	const parser = new GACParser();
-	const projects = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV).data;
+  const parser = new GACParser();
+  const projects = parser.parseProjectBrowser(SAMPLE_PROJECT_CSV).data;
 
-	describe("extractPartners", () => {
-		it("extracts unique partners across projects", () => {
-			const partners = extractPartners(projects);
-			expect(partners.size).toBeGreaterThanOrEqual(8);
-		});
+  describe("extractPartners", () => {
+    it("extracts unique partners across projects", () => {
+      const partners = extractPartners(projects);
+      expect(partners.size).toBeGreaterThanOrEqual(8);
+    });
 
-		it("aggregates partner budget and project counts", () => {
-			const partners = extractPartners(projects);
-			const wfp = partners.get("World Food Programme");
-			expect(wfp).toBeDefined();
-			expect(wfp!.projectCount).toBeGreaterThanOrEqual(1);
-			expect(wfp!.totalBudget).toBeGreaterThanOrEqual(28500000);
-		});
+    it("aggregates partner budget and project counts", () => {
+      const partners = extractPartners(projects);
+      const wfp = partners.get("World Food Programme");
+      expect(wfp).toBeDefined();
+      expect(wfp!.projectCount).toBeGreaterThanOrEqual(1);
+      expect(wfp!.totalBudget).toBeGreaterThanOrEqual(28500000);
+    });
 
-		it("tracks countries per partner", () => {
-			const partners = extractPartners(projects);
-			const undp = partners.get("United Nations Development Programme");
-			expect(undp).toBeDefined();
-			expect(undp!.countries.size).toBeGreaterThanOrEqual(1);
-		});
-	});
+    it("tracks countries per partner", () => {
+      const partners = extractPartners(projects);
+      const undp = partners.get("United Nations Development Programme");
+      expect(undp).toBeDefined();
+      expect(undp!.countries.size).toBeGreaterThanOrEqual(1);
+    });
+  });
 
-	describe("extractCountries", () => {
-		it("extracts country summaries", () => {
-			const countries = extractCountries(projects);
-			expect(countries.size).toBeGreaterThanOrEqual(5);
-		});
+  describe("extractCountries", () => {
+    it("extracts country summaries", () => {
+      const countries = extractCountries(projects);
+      expect(countries.size).toBeGreaterThanOrEqual(5);
+    });
 
-		it("aggregates country budgets", () => {
-			const countries = extractCountries(projects);
-			const ukraine = countries.get("Ukraine");
-			expect(ukraine).toBeDefined();
-			expect(ukraine!.totalBudget).toBe(45000000 + 35000000);
-			expect(ukraine!.projectCount).toBe(2);
-		});
-	});
+    it("aggregates country budgets", () => {
+      const countries = extractCountries(projects);
+      const ukraine = countries.get("Ukraine");
+      expect(ukraine).toBeDefined();
+      expect(ukraine!.totalBudget).toBe(45000000 + 35000000);
+      expect(ukraine!.projectCount).toBe(2);
+    });
+  });
 
-	describe("categorizePartners", () => {
-		it("categorizes partners by type", () => {
-			const allPartners = projects.flatMap((p) => p.implementingPartners);
-			const categories = categorizePartners(allPartners);
+  describe("categorizePartners", () => {
+    it("categorizes partners by type", () => {
+      const allPartners = projects.flatMap((p) => p.implementingPartners);
+      const categories = categorizePartners(allPartners);
 
-			expect(categories.has("UN Agency")).toBe(true);
-			expect(categories.has("NGO")).toBe(true);
-		});
+      expect(categories.has("UN Agency")).toBe(true);
+      expect(categories.has("NGO")).toBe(true);
+    });
 
-		it("identifies UN agencies correctly", () => {
-			const allPartners = projects.flatMap((p) => p.implementingPartners);
-			const categories = categorizePartners(allPartners);
-			const unPartners = categories.get("UN Agency") ?? [];
-			const unNames = unPartners.map((p) => p.name);
-			expect(unNames).toContain("UNICEF");
-			expect(unNames).toContain("World Food Programme");
-		});
-	});
+    it("identifies UN agencies correctly", () => {
+      const allPartners = projects.flatMap((p) => p.implementingPartners);
+      const categories = categorizePartners(allPartners);
+      const unPartners = categories.get("UN Agency") ?? [];
+      const unNames = unPartners.map((p) => p.name);
+      expect(unNames).toContain("UNICEF");
+      expect(unNames).toContain("World Food Programme");
+    });
+  });
 
-	describe("groupByPartner", () => {
-		it("groups projects by partner name", () => {
-			const groups = groupByPartner(projects);
-			const undp = groups.get("United Nations Development Programme");
-			expect(undp).toBeDefined();
-			expect(undp!.length).toBeGreaterThanOrEqual(2); // Ukraine + Colombia
-		});
-	});
+  describe("groupByPartner", () => {
+    it("groups projects by partner name", () => {
+      const groups = groupByPartner(projects);
+      const undp = groups.get("United Nations Development Programme");
+      expect(undp).toBeDefined();
+      expect(undp!.length).toBeGreaterThanOrEqual(2); // Ukraine + Colombia
+    });
+  });
 });

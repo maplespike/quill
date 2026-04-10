@@ -3,11 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
@@ -16,15 +12,9 @@
     "resolveJsonModule": true,
     "noEmit": true,
     "paths": {
-      "@/*": [
-        "./app/*"
-      ],
-      "@civic-intel/core": [
-        "../core/src"
-      ],
-      "@civic-intel/pretext-civic": [
-        "../pretext-civic/src"
-      ]
+      "@/*": ["./app/*"],
+      "@civic-intel/core": ["../core/src"],
+      "@civic-intel/pretext-civic": ["../pretext-civic/src"]
     },
     "allowJs": true,
     "incremental": true,
@@ -44,9 +34,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".next"
-  ]
+  "exclude": ["node_modules", "dist", ".next"]
 }

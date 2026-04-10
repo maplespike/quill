@@ -59,165 +59,165 @@ const SAMPLE_TENDER_XML = `<?xml version="1.0" encoding="UTF-8"?>
 </notices>`;
 
 describe("SpendingParser", () => {
-	const parser = new SpendingParser();
+  const parser = new SpendingParser();
 
-	describe("parseProactiveDisclosure", () => {
-		it("parses CSV data into Contract objects", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+  describe("parseProactiveDisclosure", () => {
+    it("parses CSV data into Contract objects", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
 
-			expect(result.data).toHaveLength(10);
-			expect(result.errors).toHaveLength(0);
-			expect(result.metadata.source).toBe("open_canada_contracts");
-			expect(result.metadata.format).toBe("csv");
-			expect(result.metadata.totalRows).toBe(10);
-		});
+      expect(result.data).toHaveLength(10);
+      expect(result.errors).toHaveLength(0);
+      expect(result.metadata.source).toBe("open_canada_contracts");
+      expect(result.metadata.format).toBe("csv");
+      expect(result.metadata.totalRows).toBe(10);
+    });
 
-		it("maps vendor names correctly", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			expect(result.data[0].vendorName).toBe("Lockheed Martin Canada");
-			expect(result.data[1].vendorName).toBe("General Dynamics Land Systems");
-			expect(result.data[2].vendorName).toBe("Amazon Web Services Canada");
-		});
+    it("maps vendor names correctly", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      expect(result.data[0].vendorName).toBe("Lockheed Martin Canada");
+      expect(result.data[1].vendorName).toBe("General Dynamics Land Systems");
+      expect(result.data[2].vendorName).toBe("Amazon Web Services Canada");
+    });
 
-		it("parses contract values correctly", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			expect(result.data[0].value).toBe(2500000);
-			expect(result.data[1].value).toBe(875000);
-			expect(result.data[8].value).toBe(8900000);
-		});
+    it("parses contract values correctly", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      expect(result.data[0].value).toBe(2500000);
+      expect(result.data[1].value).toBe(875000);
+      expect(result.data[8].value).toBe(8900000);
+    });
 
-		it("maps contract statuses", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			expect(result.data[0].status).toBe("completed");
-			expect(result.data[1].status).toBe("active");
-		});
+    it("maps contract statuses", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      expect(result.data[0].status).toBe("completed");
+      expect(result.data[1].status).toBe("active");
+    });
 
-		it("parses sole source flags", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			expect(result.data[0].isSoleSource).toBe(false);
-			expect(result.data[1].isSoleSource).toBe(true);
-		});
+    it("parses sole source flags", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      expect(result.data[0].isSoleSource).toBe(false);
+      expect(result.data[1].isSoleSource).toBe(true);
+    });
 
-		it("sets currency to CAD", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			for (const contract of result.data) {
-				expect(contract.currency).toBe("CAD");
-			}
-		});
+    it("sets currency to CAD", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      for (const contract of result.data) {
+        expect(contract.currency).toBe("CAD");
+      }
+    });
 
-		it("generates UUIDs for each contract", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			const ids = result.data.map((c) => c.id);
-			const uniqueIds = new Set(ids);
-			expect(uniqueIds.size).toBe(10);
-			for (const id of ids) {
-				expect(id).toMatch(
-					/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-				);
-			}
-		});
+    it("generates UUIDs for each contract", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      const ids = result.data.map((c) => c.id);
+      const uniqueIds = new Set(ids);
+      expect(uniqueIds.size).toBe(10);
+      for (const id of ids) {
+        expect(id).toMatch(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+        );
+      }
+    });
 
-		it("preserves raw data", () => {
-			const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
-			expect(result.data[0].rawData.vendor_name).toBe("Lockheed Martin Canada");
-			expect(result.data[0].rawData.department).toBe("National Defence");
-		});
-	});
+    it("preserves raw data", () => {
+      const result = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV);
+      expect(result.data[0].rawData.vendor_name).toBe("Lockheed Martin Canada");
+      expect(result.data[0].rawData.department).toBe("National Defence");
+    });
+  });
 
-	describe("parseTenderNotice", () => {
-		it("parses XML tender notices", () => {
-			const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
+  describe("parseTenderNotice", () => {
+    it("parses XML tender notices", () => {
+      const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
 
-			expect(result.data).toHaveLength(3);
-			expect(result.errors).toHaveLength(0);
-			expect(result.metadata.format).toBe("xml");
-		});
+      expect(result.data).toHaveLength(3);
+      expect(result.errors).toHaveLength(0);
+      expect(result.metadata.format).toBe("xml");
+    });
 
-		it("extracts tender fields correctly", () => {
-			const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
-			expect(result.data[0].solicitationNumber).toBe("PW-23-01060001");
-			expect(result.data[0].title).toBe("Fighter Jet Maintenance Support");
-			expect(result.data[0].department).toBe("National Defence");
-			expect(result.data[0].estimatedValue).toBe(15000000);
-		});
+    it("extracts tender fields correctly", () => {
+      const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
+      expect(result.data[0].solicitationNumber).toBe("PW-23-01060001");
+      expect(result.data[0].title).toBe("Fighter Jet Maintenance Support");
+      expect(result.data[0].department).toBe("National Defence");
+      expect(result.data[0].estimatedValue).toBe(15000000);
+    });
 
-		it("maps tender statuses", () => {
-			const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
-			expect(result.data[0].status).toBe("open");
-			expect(result.data[2].status).toBe("awarded");
-		});
+    it("maps tender statuses", () => {
+      const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
+      expect(result.data[0].status).toBe("open");
+      expect(result.data[2].status).toBe("awarded");
+    });
 
-		it("parses sole source from XML", () => {
-			const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
-			expect(result.data[0].isSoleSource).toBe(false);
-			expect(result.data[2].isSoleSource).toBe(true);
-		});
-	});
+    it("parses sole source from XML", () => {
+      const result = parser.parseTenderNotice(SAMPLE_TENDER_XML);
+      expect(result.data[0].isSoleSource).toBe(false);
+      expect(result.data[2].isSoleSource).toBe(true);
+    });
+  });
 
-	describe("normalizeContract", () => {
-		it("handles missing optional fields", () => {
-			const p = new SpendingParser();
-			const result = p.parseProactiveDisclosure(
-				"contract_number,title,vendor_name,department,contract_value,start_date,status\n" +
-					'PW-01,"Test Contract","Test Vendor","Test Dept",1000,2023-01-01,active',
-			);
-			expect(result.data).toHaveLength(1);
-			expect(result.data[0].endDate).toBeUndefined();
-			expect(result.data[0].vendorId).toBeUndefined();
-			expect(result.data[0].province).toBeUndefined();
-		});
-	});
+  describe("normalizeContract", () => {
+    it("handles missing optional fields", () => {
+      const p = new SpendingParser();
+      const result = p.parseProactiveDisclosure(
+        "contract_number,title,vendor_name,department,contract_value,start_date,status\n" +
+          'PW-01,"Test Contract","Test Vendor","Test Dept",1000,2023-01-01,active',
+      );
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].endDate).toBeUndefined();
+      expect(result.data[0].vendorId).toBeUndefined();
+      expect(result.data[0].province).toBeUndefined();
+    });
+  });
 });
 
 describe("Spending Mapper", () => {
-	const parser = new SpendingParser();
-	const contracts = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV).data;
+  const parser = new SpendingParser();
+  const contracts = parser.parseProactiveDisclosure(SAMPLE_CONTRACT_CSV).data;
 
-	describe("extractVendors", () => {
-		it("extracts unique vendors with counts", () => {
-			const vendors = extractVendors(contracts);
-			expect(vendors.size).toBe(10); // all unique vendors
-		});
+  describe("extractVendors", () => {
+    it("extracts unique vendors with counts", () => {
+      const vendors = extractVendors(contracts);
+      expect(vendors.size).toBe(10); // all unique vendors
+    });
 
-		it("aggregates vendor values", () => {
-			const vendors = extractVendors(contracts);
-			const lockheed = vendors.get("Lockheed Martin Canada");
-			expect(lockheed).toBeDefined();
-			expect(lockheed!.contractCount).toBe(1);
-			expect(lockheed!.totalValue).toBe(2500000);
-		});
+    it("aggregates vendor values", () => {
+      const vendors = extractVendors(contracts);
+      const lockheed = vendors.get("Lockheed Martin Canada");
+      expect(lockheed).toBeDefined();
+      expect(lockheed!.contractCount).toBe(1);
+      expect(lockheed!.totalValue).toBe(2500000);
+    });
 
-		it("tracks department interactions", () => {
-			const vendors = extractVendors(contracts);
-			const lockheed = vendors.get("Lockheed Martin Canada");
-			expect(lockheed!.departmentInteractions.has("National Defence")).toBe(
-				true,
-			);
-		});
-	});
+    it("tracks department interactions", () => {
+      const vendors = extractVendors(contracts);
+      const lockheed = vendors.get("Lockheed Martin Canada");
+      expect(lockheed!.departmentInteractions.has("National Defence")).toBe(
+        true,
+      );
+    });
+  });
 
-	describe("extractDepartments", () => {
-		it("extracts unique departments", () => {
-			const depts = extractDepartments(contracts);
-			expect(depts.size).toBeGreaterThanOrEqual(5);
-		});
+  describe("extractDepartments", () => {
+    it("extracts unique departments", () => {
+      const depts = extractDepartments(contracts);
+      expect(depts.size).toBeGreaterThanOrEqual(5);
+    });
 
-		it("aggregates department spending", () => {
-			const depts = extractDepartments(contracts);
-			const defence = depts.get("National Defence");
-			expect(defence).toBeDefined();
-			expect(defence!.contractCount).toBe(3); // 3 National Defence contracts
-			expect(defence!.totalValue).toBe(2500000 + 875000 + 3200000);
-		});
-	});
+    it("aggregates department spending", () => {
+      const depts = extractDepartments(contracts);
+      const defence = depts.get("National Defence");
+      expect(defence).toBeDefined();
+      expect(defence!.contractCount).toBe(3); // 3 National Defence contracts
+      expect(defence!.totalValue).toBe(2500000 + 875000 + 3200000);
+    });
+  });
 
-	describe("groupByVendor", () => {
-		it("groups contracts by vendor", () => {
-			const groups = groupByVendor(contracts);
-			expect(groups.size).toBe(10);
-			for (const [, list] of groups) {
-				expect(list.length).toBeGreaterThanOrEqual(1);
-			}
-		});
-	});
+  describe("groupByVendor", () => {
+    it("groups contracts by vendor", () => {
+      const groups = groupByVendor(contracts);
+      expect(groups.size).toBe(10);
+      for (const [, list] of groups) {
+        expect(list.length).toBeGreaterThanOrEqual(1);
+      }
+    });
+  });
 });
