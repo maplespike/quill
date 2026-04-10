@@ -2,6 +2,11 @@
 node_modules/
 .pnpm-store/
 
+# Nix / Devenv
+.devenv/
+.direnv/
+.envrc.private
+
 # Build outputs
 dist/
 .next/
