@@ -132,12 +132,14 @@ The demo includes realistic Canadian government data producing connection thread
 
 ## Project Status
 
-| Layer            | Status      | Notes                                              |
-| ---------------- | ----------- | -------------------------------------------------- |
-| Core data layer  | ✅ Complete | Parsers, entity resolution, graph, signals, briefs |
-| Web views        | ✅ Complete | 7 views, all functional with real data             |
-| Charts library   | ✅ Complete | 10 chart types, all implemented                    |
-| Social features  | ⚠️ Prototype| Types defined, UI shells exist, not production-ready |
+| Layer | Status | Notes |
+|-------|--------|-------|
+| Core data layer | ✅ Complete | Parsers, entity resolution, graph, signals, briefs |
+| Sweep engine | ✅ Fixed | Aligned with actual parser APIs, full build passes |
+| Web views | ✅ Complete | 7 views with cross-view linking |
+| Charts library | ✅ Complete | 10 chart types, all implemented |
+| UX patterns | ✅ Complete | Onboarding, URL sync, hero card, skeletons, empty states |
+| Social features | ⚠️ Prototype | Types defined, UI shells exist, not production-ready |
 
 See [features.md](./features.md) for detailed feature breakdown.
 
