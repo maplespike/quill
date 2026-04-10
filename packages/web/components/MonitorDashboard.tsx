@@ -566,6 +566,7 @@ export function MonitorDashboard() {
 	);
 }
 
+function StatCard({
 	label,
 	value,
 	subtitle,
