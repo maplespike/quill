@@ -422,3 +422,24 @@ After refactoring, users should be able to:
 3. **Understand hierarchy** — Know what's most important on each screen
 4. **Take action** — Every card has a clear next step
 5. **Return easily** — Deep links work; state persists
+
+## Progress Log
+
+### Phase 1: Cross-View Linking — DONE
+
+**Commit:** `7b2f637`
+
+- ✅ Store updated with `focusThread`, `focusEntity`, `navigateTo()`
+- ✅ `useURLSync` hook for deep linking (`?view=explore&entity=person-123`)
+- ✅ Reusable `SignalCard` component with Explore →, Read Brief, Share, Dismiss actions
+- ✅ MonitorDashboard using shared SignalCard
+- ✅ URL state sync in main page
+
+### Pre-existing Issues Found
+
+**`packages/core/src/sweep/engine.ts`** — This file has never compiled:
+1. Missing closing brace for `for filing` loop in `extractPersons` (off-by-one indentation)
+2. Parser API mismatches throughout — calls `parseCsv()`/`parseXml()` instead of actual method names (`parseProactiveDisclosure()`, `parseRegistrations()`, etc.)
+3. `runAllDetectors()` called with 2 args but expects 9
+
+The tests pass because they don't import engine.ts. This file needs a full rewrite to match the actual parser APIs.
