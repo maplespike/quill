@@ -443,3 +443,21 @@ After refactoring, users should be able to:
 3. `runAllDetectors()` called with 2 args but expects 9
 
 The tests pass because they don't import engine.ts. This file needs a full rewrite to match the actual parser APIs.
+
+### Phase 2: Visual Hierarchy — IN PROGRESS
+
+**Commit:** `dd732d1`
+
+- ✅ Hero signal card added to Monitor dashboard
+- ✅ Highest-confidence thread shown prominently with border-2 + signal color
+- ✅ Embedded action buttons from shared SignalCard
+
+### Engine Fix — DONE
+
+**Commit:** `07ac265`
+
+- ✅ Fixed missing closing brace in extractPersons
+- ✅ Aligned all parser calls with actual API surface
+- ✅ Fixed runAllDetectors to pass 9 required arguments
+- ✅ Full build passes (core + web)
+- ✅ 135 tests pass
