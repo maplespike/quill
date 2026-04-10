@@ -6,6 +6,10 @@ import { ExplorerView } from "../components/ExplorerView";
 
 // Views
 import { MonitorDashboard } from "../components/MonitorDashboard";
+import {
+	hasCompletedOnboarding,
+	OnboardingModal,
+} from "../components/OnboardingModal";
 import { SignalsView } from "../components/SignalsView";
 import { SocialView } from "../components/SocialView";
 import { TimelineView } from "../components/TimelineView";
@@ -44,11 +48,19 @@ export default function CivicIntelApp() {
 		threads,
 	} = useCivicStore();
 	const [showThemePicker, setShowThemePicker] = useState(false);
+	const [showOnboarding, setShowOnboarding] = useState(false);
 	const [currentTime, setCurrentTime] = useState(new Date());
 	const [bootDone, setBootDone] = useState(false);
 
 	// Boot animation
 	useEffect(() => {
+
+	// Check onboarding on first load
+	useEffect(() => {
+		if (bootDone && !hasCompletedOnboarding()) {
+			setShowOnboarding(true);
+		}
+	}, [bootDone]);
 		const t = setTimeout(() => setBootDone(true), 600);
 		return () => clearTimeout(t);
 	}, []);
@@ -141,6 +153,11 @@ export default function CivicIntelApp() {
 		return <BootScreen />;
 	}
 
+
+	// Onboarding overlay
+	const onboardingOverlay = showOnboarding && (
+		<OnboardingModal onComplete={() => setShowOnboarding(false)} />
+	);
 	return (
 		<div className="flex flex-col h-dvh overflow-hidden">
 			{/* Skip link for keyboard users */}
@@ -417,6 +434,7 @@ export default function CivicIntelApp() {
 
 			{/* ── Search Modal (⌘K) ──────────────────────────── */}
 			{showSearch && <SearchModal onClose={() => setShowSearch(false)} />}
+		{onboardingOverlay}
 		</div>
 	);
 }
