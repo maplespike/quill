@@ -162,6 +162,58 @@ export function MonitorDashboard() {
 					/>
 				</div>
 
+				{/* Hero Signal — highest confidence thread */}
+				{threads.length > 0 &&
+					(() => {
+						const hero = [...threads].sort(
+							(a, b) => b.confidence - a.confidence,
+						)[0];
+						if (!hero) return null;
+						const heroColor =
+							SIGNAL_COLORS[hero.signalType] || "var(--primary)";
+						return (
+							<div
+								className="card-enter card-enter-2 rounded-lg p-4 border-2 transition-all"
+								style={{ borderColor: heroColor }}
+							>
+								<div className="flex items-start gap-3">
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-2 mb-2">
+											<span
+												className="text-[10px] font-bold tracking-widest"
+												style={{ color: heroColor }}
+											>
+												HIGHEST PRIORITY SIGNAL
+											</span>
+											<span
+												className="text-[9px] px-1.5 py-0.5 rounded font-bold"
+												style={{
+													backgroundColor: heroColor + "20",
+													color: heroColor,
+												}}
+											>
+												{Math.round(hero.confidence * 100)}% CONFIDENCE
+											</span>
+										</div>
+										<h2 className="text-sm font-semibold text-[var(--foreground)] leading-snug mb-2">
+											{hero.title}
+										</h2>
+										<p className="text-xs text-[var(--muted)] leading-relaxed">
+											{hero.summary}
+										</p>
+									</div>
+								</div>
+								<div className="flex items-center gap-2 mt-3">
+									<SharedSignalCard
+										thread={hero}
+										showActions={true}
+										onClick={() => undefined}
+									/>
+								</div>
+							</div>
+						);
+					})()}
+
 				{/* Top vendors — horizontal bars */}
 				<div className="card card-enter card-enter-2">
 					<h3 className="text-xs font-semibold tracking-widest text-[var(--muted)] mb-3">
