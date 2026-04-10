@@ -54,6 +54,9 @@ export default function CivicIntelApp() {
 
 	// Boot animation
 	useEffect(() => {
+		const t = setTimeout(() => setBootDone(true), 600);
+		return () => clearTimeout(t);
+	}, []);
 
 	// Check onboarding on first load
 	useEffect(() => {
@@ -61,9 +64,6 @@ export default function CivicIntelApp() {
 			setShowOnboarding(true);
 		}
 	}, [bootDone]);
-		const t = setTimeout(() => setBootDone(true), 600);
-		return () => clearTimeout(t);
-	}, []);
 
 	// Clock
 	useEffect(() => {
@@ -152,7 +152,6 @@ export default function CivicIntelApp() {
 	if (!bootDone) {
 		return <BootScreen />;
 	}
-
 
 	// Onboarding overlay
 	const onboardingOverlay = showOnboarding && (
@@ -434,7 +433,7 @@ export default function CivicIntelApp() {
 
 			{/* ── Search Modal (⌘K) ──────────────────────────── */}
 			{showSearch && <SearchModal onClose={() => setShowSearch(false)} />}
-		{onboardingOverlay}
+			{onboardingOverlay}
 		</div>
 	);
 }
