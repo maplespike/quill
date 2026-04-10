@@ -5,9 +5,9 @@
 export { AliasManager } from "./aliases";
 export { EntityResolver } from "./resolver";
 export type {
-	AliasEntry,
-	ConfidenceLevel,
-	ResolutionMap,
-	ResolutionResult,
-	ResolvedEntity,
+  AliasEntry,
+  ConfidenceLevel,
+  ResolutionMap,
+  ResolutionResult,
+  ResolvedEntity,
 } from "./types";

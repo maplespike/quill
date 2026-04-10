@@ -22,7 +22,8 @@ spec:
         - name: civic-intel
           image: localhost/civic-intel:latest
           imagePullPolicy: Never
-          args: ["darkhttpd", "/var/www/", "--port", "8081", "--addr", "0.0.0.0"]
+          args:
+            ["darkhttpd", "/var/www/", "--port", "8081", "--addr", "0.0.0.0"]
           ports:
             - containerPort: 8081
           resources:

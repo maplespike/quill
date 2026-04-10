@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-	extractClients,
-	extractLobbyists,
-	extractOfficials,
-	extractRelationships,
+  extractClients,
+  extractLobbyists,
+  extractOfficials,
+  extractRelationships,
 } from "./mapper";
 import { LobbyingParser } from "./parser";
 
@@ -29,171 +29,171 @@ const SAMPLE_COMMUNICATION_CSV = `filing_number,communication_date,communication
 "LR-2023-00356",2023-11-01,letter,"Written submission on proposed financial consumer protection amendments","Director Financial Institutions Division",Department of Finance Canada`;
 
 describe("LobbyingParser", () => {
-	const parser = new LobbyingParser();
+  const parser = new LobbyingParser();
 
-	describe("parseRegistrations", () => {
-		it("parses registration CSV into LobbyingFiling objects", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			expect(result.data).toHaveLength(8);
-			expect(result.errors).toHaveLength(0);
-			expect(result.metadata.source).toBe("lobbying_commissioner");
-			expect(result.metadata.format).toBe("csv");
-		});
+  describe("parseRegistrations", () => {
+    it("parses registration CSV into LobbyingFiling objects", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      expect(result.data).toHaveLength(8);
+      expect(result.errors).toHaveLength(0);
+      expect(result.metadata.source).toBe("lobbying_commissioner");
+      expect(result.metadata.format).toBe("csv");
+    });
 
-		it("extracts registrant names", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			expect(result.data[0].registrant.name).toBe("Sarah Mitchell");
-			expect(result.data[0].registrant.firmName).toBe(
-				"Hill+Knowlton Strategies",
-			);
-		});
+    it("extracts registrant names", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      expect(result.data[0].registrant.name).toBe("Sarah Mitchell");
+      expect(result.data[0].registrant.firmName).toBe(
+        "Hill+Knowlton Strategies",
+      );
+    });
 
-		it("handles lobbyists without firms", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			// Marie-Claire Dupont has empty firm
-			const marie = result.data.find(
-				(f) => f.registrant.name === "Marie-Claire Dupont",
-			);
-			expect(marie).toBeDefined();
-			expect(marie!.registrant.firmName).toBeUndefined();
-		});
+    it("handles lobbyists without firms", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      // Marie-Claire Dupont has empty firm
+      const marie = result.data.find(
+        (f) => f.registrant.name === "Marie-Claire Dupont",
+      );
+      expect(marie).toBeDefined();
+      expect(marie!.registrant.firmName).toBeUndefined();
+    });
 
-		it("extracts client names", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			expect(result.data[0].clientName).toBe("Lockheed Martin Canada Corp");
-			expect(result.data[1].clientName).toBe("Suncor Energy");
-		});
+    it("extracts client names", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      expect(result.data[0].clientName).toBe("Lockheed Martin Canada Corp");
+      expect(result.data[1].clientName).toBe("Suncor Energy");
+    });
 
-		it("parses activities from semicolons", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			expect(result.data[0].activities).toContain(
-				"Legislative proposal review",
-			);
-			expect(result.data[0].activities).toContain("Government relations");
-			expect(result.data[0].activities).toContain("Policy consultation");
-		});
+    it("parses activities from semicolons", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      expect(result.data[0].activities).toContain(
+        "Legislative proposal review",
+      );
+      expect(result.data[0].activities).toContain("Government relations");
+      expect(result.data[0].activities).toContain("Policy consultation");
+    });
 
-		it("maps institutions correctly", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			expect(result.data[0].institution).toBe("National Defence");
-			expect(result.data[1].institution).toBe(
-				"Environment and Climate Change Canada",
-			);
-		});
+    it("maps institutions correctly", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      expect(result.data[0].institution).toBe("National Defence");
+      expect(result.data[1].institution).toBe(
+        "Environment and Climate Change Canada",
+      );
+    });
 
-		it("generates valid UUIDs", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			for (const filing of result.data) {
-				expect(filing.id).toMatch(
-					/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-				);
-			}
-		});
+    it("generates valid UUIDs", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      for (const filing of result.data) {
+        expect(filing.id).toMatch(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+        );
+      }
+    });
 
-		it("preserves raw data", () => {
-			const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
-			expect(result.data[0].rawData.filing_number).toBe("LR-2023-00142");
-		});
-	});
+    it("preserves raw data", () => {
+      const result = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV);
+      expect(result.data[0].rawData.filing_number).toBe("LR-2023-00142");
+    });
+  });
 
-	describe("parseCommunications", () => {
-		it("parses communication report CSV", () => {
-			const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
-			expect(result.data).toHaveLength(8);
-			expect(result.errors).toHaveLength(0);
-		});
+  describe("parseCommunications", () => {
+    it("parses communication report CSV", () => {
+      const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
+      expect(result.data).toHaveLength(8);
+      expect(result.errors).toHaveLength(0);
+    });
 
-		it("maps communication types", () => {
-			const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
-			expect(result.data[0].type).toBe("meeting");
-			expect(result.data[1].type).toBe("call");
-			expect(result.data[4].type).toBe("email");
-			expect(result.data[7].type).toBe("letter");
-			expect(result.data[5].type).toBe("conference");
-		});
+    it("maps communication types", () => {
+      const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
+      expect(result.data[0].type).toBe("meeting");
+      expect(result.data[1].type).toBe("call");
+      expect(result.data[4].type).toBe("email");
+      expect(result.data[7].type).toBe("letter");
+      expect(result.data[5].type).toBe("conference");
+    });
 
-		it("parses pipe-separated officials", () => {
-			const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
-			expect(result.data[0].officials).toHaveLength(2);
-			expect(result.data[0].officials).toContain(
-				"Minister of National Defence",
-			);
-			expect(result.data[0].officials).toContain(
-				"Assistant Deputy Minister (Acquisition)",
-			);
-		});
+    it("parses pipe-separated officials", () => {
+      const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
+      expect(result.data[0].officials).toHaveLength(2);
+      expect(result.data[0].officials).toContain(
+        "Minister of National Defence",
+      );
+      expect(result.data[0].officials).toContain(
+        "Assistant Deputy Minister (Acquisition)",
+      );
+    });
 
-		it("extracts subject matter", () => {
-			const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
-			expect(result.data[0].subjectMatter).toContain(
-				"Future Fighter Capability",
-			);
-		});
-	});
+    it("extracts subject matter", () => {
+      const result = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV);
+      expect(result.data[0].subjectMatter).toContain(
+        "Future Fighter Capability",
+      );
+    });
+  });
 });
 
 describe("Lobbying Mapper", () => {
-	const parser = new LobbyingParser();
-	const filings = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV).data;
-	const comms = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV).data;
+  const parser = new LobbyingParser();
+  const filings = parser.parseRegistrations(SAMPLE_REGISTRATION_CSV).data;
+  const comms = parser.parseCommunications(SAMPLE_COMMUNICATION_CSV).data;
 
-	describe("extractLobbyists", () => {
-		it("extracts unique lobbyists", () => {
-			const lobbyists = extractLobbyists(filings);
-			expect(lobbyists.size).toBe(8);
-		});
+  describe("extractLobbyists", () => {
+    it("extracts unique lobbyists", () => {
+      const lobbyists = extractLobbyists(filings);
+      expect(lobbyists.size).toBe(8);
+    });
 
-		it("tracks filing counts", () => {
-			const lobbyists = extractLobbyists(filings);
-			const sarah = lobbyists.get("Sarah Mitchell");
-			expect(sarah).toBeDefined();
-			expect(sarah!.filingCount).toBe(1);
-		});
+    it("tracks filing counts", () => {
+      const lobbyists = extractLobbyists(filings);
+      const sarah = lobbyists.get("Sarah Mitchell");
+      expect(sarah).toBeDefined();
+      expect(sarah!.filingCount).toBe(1);
+    });
 
-		it("tracks institutions", () => {
-			const lobbyists = extractLobbyists(filings);
-			const sarah = lobbyists.get("Sarah Mitchell");
-			expect(sarah!.institutions.has("National Defence")).toBe(true);
-		});
-	});
+    it("tracks institutions", () => {
+      const lobbyists = extractLobbyists(filings);
+      const sarah = lobbyists.get("Sarah Mitchell");
+      expect(sarah!.institutions.has("National Defence")).toBe(true);
+    });
+  });
 
-	describe("extractClients", () => {
-		it("extracts unique clients", () => {
-			const clients = extractClients(filings);
-			expect(clients.size).toBe(8);
-		});
+  describe("extractClients", () => {
+    it("extracts unique clients", () => {
+      const clients = extractClients(filings);
+      expect(clients.size).toBe(8);
+    });
 
-		it("tracks client details", () => {
-			const clients = extractClients(filings);
-			const lockheed = clients.get("Lockheed Martin Canada Corp");
-			expect(lockheed).toBeDefined();
-			expect(lockheed!.filingCount).toBe(1);
-		});
-	});
+    it("tracks client details", () => {
+      const clients = extractClients(filings);
+      const lockheed = clients.get("Lockheed Martin Canada Corp");
+      expect(lockheed).toBeDefined();
+      expect(lockheed!.filingCount).toBe(1);
+    });
+  });
 
-	describe("extractOfficials", () => {
-		it("extracts government officials from communications", () => {
-			const officials = extractOfficials(comms);
-			expect(officials.size).toBeGreaterThanOrEqual(5);
-		});
+  describe("extractOfficials", () => {
+    it("extracts government officials from communications", () => {
+      const officials = extractOfficials(comms);
+      expect(officials.size).toBeGreaterThanOrEqual(5);
+    });
 
-		it("tracks meeting counts per official", () => {
-			const officials = extractOfficials(comms);
-			// Check that officials have meeting data
-			for (const [name, summary] of officials) {
-				expect(summary.meetingCount).toBeGreaterThanOrEqual(1);
-				expect(summary.name).toBeTruthy();
-			}
-		});
-	});
+    it("tracks meeting counts per official", () => {
+      const officials = extractOfficials(comms);
+      // Check that officials have meeting data
+      for (const [name, summary] of officials) {
+        expect(summary.meetingCount).toBeGreaterThanOrEqual(1);
+        expect(summary.name).toBeTruthy();
+      }
+    });
+  });
 
-	describe("extractRelationships", () => {
-		it("builds lobbyist-client-institution triples", () => {
-			const rels = extractRelationships(filings);
-			expect(rels).toHaveLength(8);
-			expect(rels[0].lobbyist).toBe("Sarah Mitchell");
-			expect(rels[0].client).toBe("Lockheed Martin Canada Corp");
-			expect(rels[0].institution).toBe("National Defence");
-		});
-	});
+  describe("extractRelationships", () => {
+    it("builds lobbyist-client-institution triples", () => {
+      const rels = extractRelationships(filings);
+      expect(rels).toHaveLength(8);
+      expect(rels[0].lobbyist).toBe("Sarah Mitchell");
+      expect(rels[0].client).toBe("Lockheed Martin Canada Corp");
+      expect(rels[0].institution).toBe("National Defence");
+    });
+  });
 });
