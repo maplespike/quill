@@ -1,7 +1,7 @@
 export { parseRSS, hashString, fetchFeed, deduplicateItems, RSS_SOURCES } from './rss.js';
-export { fetchStatCanReleases, fetchCKANPackages, GOV_DATA_SOURCES } from './gov-api.js';
+export { fetchStatCanReleases, fetchCKANPackages, fetchOpenDataPortal, getGovDataSourceClient, GOV_DATA_SOURCES } from './gov-api.js';
 export type { RSSItem, RSSFeed, RSSSource, RawArticle } from './rss.js';
-export type { GovRelease, CKANPackage, StatCanRelease } from './gov-api.js';
+export type { GovRelease, CKANPackage, StatCanRelease, OpenDataPortalDataset, OpenDataPortalConfig } from './gov-api.js';
 
 // Committee evidence ingestion
 export {

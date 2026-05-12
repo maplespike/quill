@@ -10,6 +10,7 @@
 import { CURATION_PROMPT, INSIGHTS_PROMPT, BIAS_ANALYSIS_PROMPT } from './prompts.js';
 import type { CurationResult, ArticleInsights, BiasAnalysis, CurationThresholds } from './scoring.js';
 import { evaluateThresholds, defaultCurationResult, defaultInsights, defaultBiasAnalysis, calculateTrustScore } from './scoring.js';
+import type { ProviderRouter } from './provider-router.js';
 
 /* ------------------------------------------------------------------ */
 /*  Configuration                                                      */
@@ -90,10 +91,32 @@ async function chatComplete(
 export class CurationService {
   private config: AIGatewayConfig;
   private thresholds: CurationThresholds;
+  private router: ProviderRouter | null;
 
-  constructor(config: Partial<AIGatewayConfig> = {}, thresholds?: CurationThresholds) {
+  constructor(
+    config: Partial<AIGatewayConfig> = {},
+    thresholds?: CurationThresholds,
+    router?: ProviderRouter,
+  ) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.thresholds = thresholds || { canadianRelevance: 70, accountabilityValue: 60, missionAlignment: 60 };
+    this.router = router || null;
+  }
+
+  /**
+   * Send a chat completion request — uses ProviderRouter if available,
+   * otherwise falls back to the original direct endpoint call.
+   */
+  private async sendChatRequest(
+    prompt: string,
+    options: ChatCompletionOptions = {},
+  ): Promise<string> {
+    if (this.router) {
+      return this.router.chatComplete(prompt, options);
+    }
+
+    // Fallback: original direct call
+    return chatComplete(this.config, prompt, options);
   }
 
   /**
@@ -111,7 +134,7 @@ Source: ${article.source}`;
 
     for (let attempt = 0; attempt <= this.config.maxRetries!; attempt++) {
       try {
-        const content = await chatComplete(this.config, prompt, { temperature: 0.3, maxTokens: 1024 });
+        const content = await this.sendChatRequest(prompt, { temperature: 0.3, maxTokens: 1024 });
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('No JSON in AI response');
 
@@ -150,7 +173,7 @@ Source: ${article.source}
 Content: ${(article.content || '').slice(0, 3000)}`;
 
     try {
-      const content = await chatComplete(this.config, prompt, { temperature: 0.4, maxTokens: 1500 });
+      const content = await this.sendChatRequest(prompt, { temperature: 0.4, maxTokens: 1500 });
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON in AI response');
       return JSON.parse(jsonMatch[0]);
@@ -172,7 +195,7 @@ Source: ${article.source}
 Content: ${(article.content || '').slice(0, 3000)}`;
 
     try {
-      const content = await chatComplete(this.config, prompt, { temperature: 0.3, maxTokens: 1200 });
+      const content = await this.sendChatRequest(prompt, { temperature: 0.3, maxTokens: 1200 });
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON in AI response');
       return JSON.parse(jsonMatch[0]);

@@ -2,7 +2,7 @@
  * Government Data API Clients — Frostbite Data Pipeline
  *
  * Fetchers for Canadian open government data sources.
- * Implements StatCan WDS/SDMX, CKAN portals, and a Katzilla bridge placeholder.
+ * Implements StatCan WDS/SDMX and CKAN portals.
  *
  * Originally planned in: docs/plans/2026-05-10-civic-intelligence-upgrade.md
  * Gov data schema: cloudflare/schema.sql (gov_releases_cache table)
@@ -146,20 +146,190 @@ export async function fetchCKANPackages(
 }
 
 /* ------------------------------------------------------------------ */
+/*  Non-CKAN Open Data Portal Client (Socrata / ArcGIS / generic)      */
+/* ------------------------------------------------------------------ */
+
+export interface OpenDataPortalConfig {
+  baseUrl: string | null;
+  apiType: 'SOCRATA' | 'ARCGIS' | 'OTHER' | 'NONE';
+}
+
+export interface OpenDataPortalDataset {
+  source: string;
+  title: string;
+  description: string | null;
+  release_date: string | null;
+  data_url: string | null;
+  jurisdiction: string;
+}
+
+/**
+ * Fetch datasets from a non-CKAN open data portal.
+ *
+ * Handles:
+ * - Socrata portals (NS: data.novascotia.ca) via SODA catalog API
+ * - ArcGIS Hub portals (PE: data.princeedwardisland.ca) via ArcGIS REST API
+ * - Generic stats portals (NT: statsnwt.ca) with fallback extraction
+ * - Returns empty array for portals with no known API (NB, NU)
+ */
+export async function fetchOpenDataPortal(
+  source: (typeof GOV_DATA_SOURCES)[number],
+  options: { limit?: number } = {},
+): Promise<OpenDataPortalDataset[]> {
+  const { limit = 20 } = options;
+
+  if (!source.endpoint || source.api === 'NONE') {
+    return [];
+  }
+
+  switch (source.api) {
+    case 'SOCRATA':
+      return fetchSocrataDatasets(source, limit);
+    case 'ARCGIS':
+      return fetchArcGISDatasets(source, limit);
+    case 'OTHER':
+    default:
+      return fetchGenericPortal(source, limit);
+  }
+}
+
+/**
+ * Fetch datasets from a Socrata-based open data portal using
+ * its DCAT-US /data.json catalog endpoint.
+ */
+async function fetchSocrataDatasets(
+  source: (typeof GOV_DATA_SOURCES)[number],
+  limit: number,
+): Promise<OpenDataPortalDataset[]> {
+  try {
+    const catalogUrl = `${source.endpoint}/data.json`;
+    const response = await fetch(catalogUrl, {
+      headers: { Accept: 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Socrata catalog error (${source.endpoint}): ${response.status}`);
+    }
+
+    const catalog: any = await response.json();
+    const datasets = catalog.dataset || [];
+
+    return datasets.slice(0, limit).map((ds: any) => ({
+      source: source.name,
+      title: ds.title || ds.accessURL || 'Untitled',
+      description: ds.description || null,
+      release_date: ds.issued || ds.modified || null,
+      data_url: ds.accessURL || ds.landingPage || source.endpoint,
+      jurisdiction: source.jurisdiction,
+    }));
+  } catch (error) {
+    console.error(`Socrata fetch failed (${source.endpoint}):`, (error as Error).message);
+    return [];
+  }
+}
+
+/**
+ * Fetch datasets from an ArcGIS Hub-based portal using
+ * the ArcGIS REST API /search endpoint.
+ */
+async function fetchArcGISDatasets(
+  source: (typeof GOV_DATA_SOURCES)[number],
+  limit: number,
+): Promise<OpenDataPortalDataset[]> {
+  try {
+    const searchUrl = `${source.endpoint}/api/search/v1?q=*&size=${limit}`;
+    const response = await fetch(searchUrl, {
+      headers: { Accept: 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error(`ArcGIS search error (${source.endpoint}): ${response.status}`);
+    }
+
+    const data: any = await response.json();
+    const results = data.results || [];
+
+    return results.map((item: any) => ({
+      source: source.name,
+      title: item.title || item.name || 'Untitled',
+      description: item.description || item.snippet || null,
+      release_date: item.updatedAt || item.createdAt || null,
+      data_url: item.url || item.landingPage || source.endpoint,
+      jurisdiction: source.jurisdiction,
+    }));
+  } catch (error) {
+    console.error(`ArcGIS fetch failed (${source.endpoint}):`, (error as Error).message);
+    return [];
+  }
+}
+
+/**
+ * Generic fallback for portals without a standard API (stats portals, etc.).
+ * Returns an empty array by default — subclasses or future enhancements
+ * can add scraping logic for specific portals.
+ */
+async function fetchGenericPortal(
+  source: (typeof GOV_DATA_SOURCES)[number],
+  _limit: number,
+): Promise<OpenDataPortalDataset[]> {
+  // NT (statsnwt.ca) is a statistical reporting site, not a dataset portal.
+  // No automated data extraction available via REST API.
+  return [];
+}
+
+/**
+ * Returns the appropriate API client for a given government data source.
+ */
+export function getGovDataSourceClient(
+  source: (typeof GOV_DATA_SOURCES)[number],
+) {
+  if (source.api === 'CKAN') {
+    return {
+      type: 'CKAN' as const,
+      fetch: (opts?: { rows?: number; query?: string }) =>
+        fetchCKANPackages(source.endpoint!, opts),
+    };
+  }
+
+  return {
+    type: source.api as string,
+    fetch: (opts?: { limit?: number }) =>
+      fetchOpenDataPortal(source, opts),
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Source Map                                                         */
 /* ------------------------------------------------------------------ */
 
 /**
- * Reference: Katzilla (https://katzilla.dev) provides a similar API for
- * US government data (FDA, SEC, Congress, NOAA, Census, FRED, etc.).
- * Our Canadian equivalent will follow the same pattern: one API key,
- * every government dataset, citations on every response.
+ * Index of known government data sources.
+ * The goal: one API key, every Canadian government dataset,
+ * citations on every response.
  */
 export const GOV_DATA_SOURCES = [
+  // --- Federal ---
   { name: 'Statistics Canada', jurisdiction: 'federal', api: 'WDS', endpoint: STATCAN_WDS_BASE },
   { name: 'Open Government Portal', jurisdiction: 'federal', api: 'CKAN', endpoint: 'https://open.canada.ca/data/en' },
+
+  // --- Provincial CKAN portals ---
   { name: 'Ontario Data Catalogue', jurisdiction: 'ontario', api: 'CKAN', endpoint: 'https://data.ontario.ca' },
   { name: 'BC Data Catalogue', jurisdiction: 'bc', api: 'CKAN', endpoint: 'https://catalogue.data.gov.bc.ca' },
   { name: 'Alberta Open Data', jurisdiction: 'alberta', api: 'CKAN', endpoint: 'https://open.alberta.ca' },
   { name: 'Québec Données', jurisdiction: 'quebec', api: 'CKAN', endpoint: 'https://donneesquebec.ca' },
+  { name: 'Saskatchewan Open Data', jurisdiction: 'saskatchewan', api: 'CKAN', endpoint: 'https://open.saskatchewan.ca' },
+  { name: 'Manitoba Open Data', jurisdiction: 'manitoba', api: 'CKAN', endpoint: 'https://data.gov.mb.ca' },
+  { name: 'Newfoundland & Labrador Open Data', jurisdiction: 'newfoundland', api: 'CKAN', endpoint: 'https://opendata.gov.nl.ca' },
+
+  // --- Territorial CKAN portals ---
+  { name: 'Yukon Open Data', jurisdiction: 'yukon', api: 'CKAN', endpoint: 'https://open.yukon.ca' },
+
+  // --- Non-CKAN provincial portals (Socrata / ArcGIS / other) ---
+  { name: 'Nova Scotia Open Data', jurisdiction: 'nova-scotia', api: 'SOCRATA', endpoint: 'https://data.novascotia.ca' },
+  { name: 'Prince Edward Island Open Data', jurisdiction: 'pei', api: 'ARCGIS', endpoint: 'https://data.princeedwardisland.ca' },
+  { name: 'New Brunswick Open Data', jurisdiction: 'new-brunswick', api: 'OTHER', endpoint: null },
+
+  // --- Non-CKAN territorial portals ---
+  { name: 'NWT Bureau of Statistics', jurisdiction: 'northwest-territories', api: 'OTHER', endpoint: 'https://www.statsnwt.ca' },
+  { name: 'Nunavut Open Data', jurisdiction: 'nunavut', api: 'NONE', endpoint: null },
 ];

@@ -70,6 +70,12 @@ export const INFLUENCE_SOURCES = {
     USMCA_CUSMA: 'https://www.international.gc.ca/trade-commerce/trade-agreements-accords-commerciaux/agr-acc/cusma-aceum/index.aspx',
     CPTPP: 'https://www.international.gc.ca/trade-commerce/trade-agreements-accords-commerciaux/agr-acc/cptpp-ptpgp/index.aspx',
   },
+
+  /** Advocacy and civil liberties organizations */
+  ADVOCACY: {
+    JCCF: 'https://www.jccf.ca',
+    JCCF_RSS: 'https://www.jccf.ca/feed/',
+  },
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -493,6 +499,29 @@ export const TRACKED_INFLUENCE_ACTORS: InfluenceActor[] = [
   },
 
   // === Canadian NGOs / Associations ===
+  {
+    id: 'jccf',
+    name: 'Justice Centre for Constitutional Freedoms',
+    aliases: ['Justice Centre', 'JCCF', 'Justice Centre for Constitutional Freedoms'],
+    category: 'canadian-ngo',
+    priority: 'high',
+    headquarters: 'Calgary, Alberta, Canada',
+    founded: 2010,
+    annualBudgetCad: null,
+    website: 'https://www.jccf.ca',
+    wikipediaUrl: 'https://en.wikipedia.org/wiki/Justice_Centre_for_Constitutional_Freedoms',
+    isCraCharity: true,
+    craBn: '817174865RR0001',
+    keyPeople: [
+      { name: 'John Carpay', title: 'President and Founder', role: 'executive', biography: null, alsoAt: [] },
+      { name: 'Luke Neilson', title: 'Vice President and Communications Director', role: 'executive', biography: null, alsoAt: [] },
+      { name: 'Heather Lawson', title: 'Operations Director', role: 'executive', biography: null, alsoAt: [] },
+      { name: 'Peter Stock', title: 'Chairman of the Board', role: 'board', biography: null, alsoAt: [] },
+    ],
+    policyAreas: ['freedom-of-expression', 'privacy', 'surveillance', 'charter-rights', 'civil-liberties', 'constitutional-law', 'human-rights', 'religious-freedom'],
+    notes: 'Canadian legal advocacy charity litigating Charter cases. Active on Bill C-22 (surveillance), Bill C-63 (Online Harms), vaccine mandates, human rights tribunal reform, and COVID lockdown challenges. President John Carpay is a frequent media commentator. Publishes daily RSS feed of press releases, columns, and parliamentary briefs at https://www.jccf.ca/feed/. Funded entirely by voluntary donations; accepts no government funding.',
+    ingestedAt: '',
+  },
   {
     id: 'canadian-chamber',
     name: 'Canadian Chamber of Commerce',
