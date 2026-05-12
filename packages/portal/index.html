@@ -151,24 +151,33 @@
 <section class="section-alt" id="mcp-setup">
   <div class="section-alt-inner">
     <div class="section-header fade-in">
-      <h2>Use it with ChatGPT, Claude,<br>Cursor — or just your browser</h2>
-      <p>CivInt connects to the AI tools you already use. Ask questions about Canadian government data in plain English and get answers with sources you can verify.</p>
+      <h2>Use it with ChatGPT, Claude,<br>Gemini, Grok — or your own code</h2>
+      <p>CivInt connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.</p>
     </div>
 
     <div class="integration-grid">
       <div class="integration-card fade-in">
+        <div class="int-icon">💬</div>
+        <h3>ChatGPT</h3>
+        <p>Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-1">
         <div class="int-icon">🤖</div>
-        <h3>Claude / ChatGPT</h3>
-        <p>Add CivInt as a tool in your AI assistant. Ask "what did the ethics committee discuss yesterday?" and get a sourced answer.</p>
-        <div class="code-block">
-{<span class="string">"mcpServers"</span>:{<br>
-&nbsp;&nbsp;<span class="string">"civint-canada"</span>:{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"command"</span>:<span class="string">"npx"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"args"</span>:[<span class="string">"@civint/mcp-server"</span>],<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"env"</span>:{<span class="string">"CIVINT_API_KEY"</span>:<span class="string">"..."</span>}<br>
-&nbsp;&nbsp;}<br>
-}}
-        </div>
+        <h3>Claude</h3>
+        <p>Native MCP support in Claude Desktop and Claude Code. Ask "what did the ethics committee discuss?" and get a full briefing with citations.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">🔮</div>
+        <h3>Gemini</h3>
+        <p>Use CivInt as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data in one query.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">𝕏</div>
+        <h3>Grok</h3>
+        <p>Connect through xAI's function-calling API. Ask Grok to check Canadian government data and get answers with source citations.</p>
       </div>
 
       <div class="integration-card fade-in stagger-1">
