@@ -1,5 +1,0 @@
-FROM docker.io/library/alpine:3.21
-RUN apk add --no-cache darkhttpd
-COPY out/ /var/www/
-EXPOSE 8080
-ENTRYPOINT ["darkhttpd", "/var/www/", "--port", "8080", "--addr", "0.0.0.0"]
