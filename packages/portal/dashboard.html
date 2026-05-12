@@ -752,6 +752,38 @@ document.querySelectorAll('#dashNav a[data-view]').forEach(a => {
 // Load default view
 navigate('overview');
 
+// ── Real data loader ─────────────────────────────────────
+(async function loadRealData() {
+  try {
+    const resp = await fetch('assets/real-data.json?' + Date.now());
+    if (!resp.ok) return;
+    const real = await resp.json();
+    if (!real.meetings || !real.meetings.length) return;
+
+    // Merge real committee data over demo data
+    const realComm = real.meetings.map(m => ({
+      id: m.committee, name: m.name || m.committee, meeting: m.meeting,
+      date: m.date || 'Unknown', inCamera: !!m.inCamera,
+      topic: `Meeting #${m.meeting} (${m.interventionCount} interventions)`,
+      witnesses: m.witnesses || [],
+      source: m.source || '',
+    }));
+
+    DATA.committees = realComm;
+    DATA.pipeline.committees.records = real.stats?.totalInterventions || realComm.reduce((s,c) => s + c.witnesses.length, 0);
+
+    // Update sidebar badge
+    document.querySelector('.dash-nav a[data-view="committees"] .badge').textContent = realComm.length;
+
+    // Re-render if on overview or committees
+    if (currentView === 'overview' || currentView === 'committees') navigate(currentView);
+
+    console.log(`[CivInt] Loaded ${real.meetings.length} real committee meetings`);
+  } catch(e) {
+    // Silently fall back to demo data
+  }
+})();
+
 })();
 </script>
 </body>
