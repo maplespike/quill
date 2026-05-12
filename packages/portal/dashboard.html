@@ -1,160 +1,516 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — CivInt Canada</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — CivInt Canada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+<style>
+.dash-layout { display:flex;min-height:100vh;padding-top:64px; }
+.dash-sidebar { width:220px;flex-shrink:0;padding:24px 16px;background:var(--bg-secondary);border-right:1px solid var(--border);position:fixed;top:64px;bottom:0;overflow-y:auto;z-index:10; }
+.dash-sidebar .logo { display:flex;align-items:center;gap:8px;font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:24px; }
+.dash-nav { list-style:none;padding:0;margin:0; }
+.dash-nav li { margin-bottom:2px; }
+.dash-nav a { display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:0.9rem;color:var(--text-secondary);transition:all .2s;cursor:pointer; }
+.dash-nav a:hover { background:var(--bg-elevated);color:var(--text-primary); }
+.dash-nav a.active { background:var(--accent-dim);color:var(--accent);font-weight:600; }
+.dash-nav .badge { margin-left:auto;font-size:0.7rem;padding:2px 8px;border-radius:99px;background:var(--accent);color:#fff;font-weight:600; }
+.dash-content { flex:1;padding:32px 40px;margin-left:220px;max-width:1400px; }
+.dash-content h1 { font-size:1.6rem;margin-bottom:4px; }
+.dash-content .subtitle { color:var(--text-secondary);font-size:0.9rem;margin-bottom:28px; }
+.section-label { font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:12px;margin-top:32px; }
+.section-label:first-of-type { margin-top:0; }
+.stats-row { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px; }
+.stat-card { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .2s; }
+.stat-card:hover { border-color:var(--text-muted);transform:translateY(-1px); }
+.stat-card .stat-label { font-size:0.8rem;color:var(--text-muted);margin-bottom:4px; }
+.stat-card .stat-value { font-size:1.8rem;font-weight:700;color:var(--text-primary); }
+.stat-card .stat-sub { font-size:0.8rem;color:var(--text-secondary);margin-top:4px; }
+.stat-card .stat-icon { font-size:1.5rem;margin-bottom:8px; }
+.card-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:24px; }
+.card { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .2s; }
+.card:hover { border-color:var(--text-muted); }
+.card h3 { font-size:0.95rem;margin-bottom:12px;display:flex;align-items:center;gap:6px; }
+.card .item { display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem; }
+.card .item:last-child { border-bottom:none; }
+.card .item .left { display:flex;align-items:center;gap:8px; }
+.card .item .name { font-weight:500;color:var(--text-primary); }
+.card .item .meta { color:var(--text-muted);font-size:0.8rem; }
+.card .item .tag { font-size:0.7rem;padding:2px 8px;border-radius:99px;font-weight:600; }
+.tag-red { background:var(--accent-dim);color:var(--accent); }
+.tag-cyan { background:var(--accent-cyan-dim);color:var(--accent-cyan); }
+.tag-green { background:var(--base19);color:var(--success); }
+.tag-yellow { background:rgba(251,191,36,0.12);color:var(--warning); }
+.tag-orange { background:rgba(249,115,22,0.12);color:#F97316; }
+.signal-feed { display:flex;flex-direction:column;gap:8px; }
+.signal-item { display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--bg-secondary);border-radius:8px;border-left:3px solid var(--accent);font-size:0.85rem;transition:all .15s;cursor:pointer; }
+.signal-item:hover { background:var(--bg-elevated); }
+.signal-item .sev { width:6px;height:6px;border-radius:50%;margin-top:6px;flex-shrink:0; }
+.signal-item .sev.high { background:var(--accent); }
+.signal-item .sev.med { background:var(--warning); }
+.signal-item .sev.low { background:var(--success); }
+.signal-item .body { flex:1; }
+.signal-item .title { font-weight:600;color:var(--text-primary);margin-bottom:2px; }
+.signal-item .desc { color:var(--text-secondary);margin-bottom:4px; }
+.signal-item .signal-meta { font-size:0.75rem;color:var(--text-muted); }
+.pipeline-row { display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:24px; }
+.pipeline-card { background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px; }
+.pipeline-card h4 { font-size:0.85rem;margin-bottom:8px;display:flex;align-items:center;gap:6px; }
+.pipeline-card .metric { display:flex;justify-content:space-between;font-size:0.8rem;padding:4px 0;color:var(--text-secondary); }
+.pipeline-card .metric .val { font-weight:600;color:var(--text-primary); }
+.status-dot { width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px; }
+.status-dot.ok { background:var(--success); }
+.status-dot.warn { background:var(--warning); }
+.status-dot.err { background:var(--accent); }
+.tab-bar { display:flex;gap:4px;margin-bottom:24px;background:var(--bg-secondary);border-radius:10px;padding:4px;width:fit-content;flex-wrap:wrap; }
+.tab-btn { padding:8px 20px;border:none;background:transparent;color:var(--text-secondary);font-size:0.85rem;font-weight:500;border-radius:8px;cursor:pointer;transition:all .15s;font-family:inherit; }
+.tab-btn:hover { color:var(--text-primary); }
+.tab-btn.active { background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+.empty-state { text-align:center;padding:48px 24px;color:var(--text-muted);font-size:0.9rem; }
+@media(max-width:768px){ .dash-sidebar{display:none}.dash-content{margin-left:0;padding:24px 16px}.stats-row{grid-template-columns:1fr 1fr}.card-grid{grid-template-columns:1fr} }
+</style>
 </head>
 <body>
 
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo">
-      <span class="logo-icon">C</span>
-      CivInt Canada
-    </a>
+    <a href="index.html" class="logo"><span class="logo-icon">C</span>CivInt Canada</a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="docs.html">Docs</a></li>
-      <li><a href="agents.html">Agents</a></li>
-      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="index.html#features">What it does</a></li>
       <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="docs.html">How it Works</a></li>
+      <li><a href="agents.html">For AI Tools</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
       <li><button class="theme-toggle"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
   </div>
 </nav>
 
-<div class="dashboard">
-  <!-- Sidebar -->
-  <aside class="dash-sidebar glass">
-    <div class="user-info">
-      <div class="user-avatar">JD</div>
-      <div class="name">Jane Dev</div>
-      <div class="tier">✦ Free Tier</div>
-    </div>
-
-    <div class="dash-nav-group-label">Workspace</div>
-    <ul class="dash-nav">
-      <li><a href="#" class="active">📊 Overview</a></li>
-      <li><a href="#">🔑 API Keys</a></li>
-      <li><a href="#">📈 Usage</a></li>
-      <li><a href="#">📋 Audit Log</a></li>
-    </ul>
-
-    <div class="dash-nav-group-label" style="margin-top:16px;">Account</div>
-    <ul class="dash-nav">
-      <li><a href="#">⚙️ Settings</a></li>
-      <li><a href="#">💬 Support</a></li>
-    </ul>
-
-    <div class="dash-nav-group-label" style="margin-top:16px;">Resources</div>
-    <ul class="dash-nav">
-      <li><a href="docs.html">📚 Docs</a></li>
-      <li><a href="agents.html">🤖 AI Agents</a></li>
+<div class="dash-layout">
+  <aside class="dash-sidebar">
+    <div class="logo"><span class="logo-icon" style="width:24px;height:24px;font-size:0.75rem;">C</span>CivInt</div>
+    <ul class="dash-nav" id="dashNav">
+      <li><a data-view="overview" class="active">📊 Overview</a></li>
+      <li><a data-view="committees">🏛️ Committees <span class="badge">30</span></a></li>
+      <li><a data-view="corporate">💰 Corporate <span class="badge">17</span></a></li>
+      <li><a data-view="influence">🌐 Influence <span class="badge">32</span></a></li>
+      <li><a data-view="signals">⚠️ Signals <span class="badge">7</span></a></li>
+      <li style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;"><a data-view="pipeline">⚙️ Pipeline</a></li>
+      <li><a href="index.html">🏠 Home</a></li>
     </ul>
   </aside>
 
-  <!-- Main content -->
-  <main class="dash-main">
-    <h1>Dashboard</h1>
-    <p class="subtitle">Manage your API keys, monitor usage, and track your plan.</p>
-
-    <!-- API Key Card -->
-    <div class="api-key-card glass-card">
-      <label>Your API Key</label>
-      <div class="api-key-display">
-        <span class="key-value" id="apiKeyDisplay">civint-a1b2c3d4e5f67890abcdef1234567890</span>
-        <button class="copy-btn" id="copyBtn" title="Copy to clipboard">📋</button>
-        <button class="btn btn-sm btn-secondary" onclick="regenerateKey()">Regenerate</button>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="label">API Calls Today</div>
-        <div class="value" id="callsToday">42</div>
-        <div class="change">+8 from yesterday</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Monthly Usage</div>
-        <div class="value" id="monthlyUsage">847</div>
-        <div class="change">of 1,000 free tier limit</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Remaining</div>
-        <div class="value" id="remaining">153</div>
-        <div class="change" style="color:var(--warning);">15% remaining this month</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Avg Response Time</div>
-        <div class="value" id="avgLatency">124ms</div>
-        <div class="change" style="color:var(--success);">p95: 340ms</div>
-      </div>
-    </div>
-
-    <!-- Usage Chart -->
-    <div class="api-key-card glass-card">
-      <label>Last 7 Days</label>
-      <div class="usage-chart" id="usageChart"></div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="api-key-card glass-card">
-      <label>Recent Activity</label>
-      <div id="recentActivity">
-        <div class="activity-item">
-          <span class="badge-api get">GET</span>
-          <span class="path">/v1/gov/search?query=GDP</span>
-          <span class="time">2 min ago</span>
-          <span class="status-200">200</span>
-        </div>
-        <div class="activity-item">
-          <span class="badge-api get">GET</span>
-          <span class="path">/v1/gov/releases?jurisdiction=all</span>
-          <span class="time">15 min ago</span>
-          <span class="status-200">200</span>
-        </div>
-        <div class="activity-item">
-          <span class="badge-api get">GET</span>
-          <span class="path">/v1/citation/sha256-abc...</span>
-          <span class="time">1h ago</span>
-          <span class="status-200">200</span>
-        </div>
-        <div class="activity-item">
-          <span class="badge-api get">GET</span>
-          <span class="path">/v1/gov/search?query=inflation</span>
-          <span class="time">3h ago</span>
-          <span class="status-200">200</span>
-        </div>
-        <div class="activity-item">
-          <span class="badge-api get">GET</span>
-          <span class="path">/v1/gov/releases</span>
-          <span class="time">6h ago</span>
-          <span class="status-429">429</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Plan / Upgrade -->
-    <div class="api-key-card glass-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-      <div>
-        <label>Current Plan: Free</label>
-        <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:4px;">847 of 1,000 calls used this month. Upgrade for higher limits and premium features.</p>
-      </div>
-      <a href="index.html#pricing" class="btn btn-primary">Upgrade Plan →</a>
-    </div>
+  <main class="dash-content" id="dashContent">
+    <!-- Rendered by JS -->
   </main>
 </div>
 
-<div class="toast" id="toast">Copied to clipboard!</div>
+<script>
+(function(){
+'use strict';
 
-<script src="script.js"></script>
+// ══════════════════════════════════════════════════════════
+//  DATA — realistic demo data from engine seed + pipeline-core
+// ══════════════════════════════════════════════════════════
+
+const DATA = {
+  committees: [
+    { id:'PACP', name:'Public Accounts', meeting:33, date:'2026-04-22', inCamera:false, topic:'International Student Program Reforms', witnesses:['Karen Hogan (Auditor General)','Mark Perlman (IRCC)','MPs from CPC/LPC/BQ'] },
+    { id:'ETHI', name:'Ethics', meeting:47, date:'2026-05-06', inCamera:true, topic:'Conflict of Interest Investigation (In Camera)', witnesses:['[Closed session]'] },
+    { id:'FINA', name:'Finance', meeting:102, date:'2026-05-05', inCamera:false, topic:'Pre-Budget Consultations 2026', witnesses:['Bank of Canada Governor','Finance Canada Officials','Business Council of Canada'] },
+    { id:'SECU', name:'Public Safety', meeting:58, date:'2026-05-04', inCamera:true, topic:'National Security Briefing (In Camera)', witnesses:['[Closed session]'] },
+    { id:'INDU', name:'Industry', meeting:71, date:'2026-04-30', inCamera:false, topic:'AI Regulation Bill C-27', witnesses:['Minister Champagne','Catherine Tait (CBC)','Big Tech Reps'] },
+    { id:'FAAE', name:'Foreign Affairs', meeting:44, date:'2026-04-29', inCamera:false, topic:'Ukraine Aid & NATO Commitments', witnesses:['Minister Joly','DND Officials'] },
+    { id:'ACVA', name:'Veterans Affairs', meeting:26, date:'2026-04-28', inCamera:false, topic:'Veteran Mental Health Services', witnesses:['Veterans Ombudsman','DVA Officials'] },
+    { id:'LANG', name:'Official Languages', meeting:19, date:'2026-04-25', inCamera:false, topic:'French in Federal Workplaces', witnesses:['Commissioner of Official Languages'] },
+    { id:'NDDN', name:'National Defence', meeting:53, date:'2026-04-23', inCamera:true, topic:'NORAD Modernization (In Camera)', witnesses:['[Closed session]'] },
+    { id:'ENVI', name:'Environment', meeting:67, date:'2026-04-21', inCamera:false, topic:'Emissions Reduction Plan Progress', witnesses:['Minister Guilbeault','Environment Canada Officials'] },
+  ],
+  
+  executives: [
+    { name:'Dave McKay', org:'RBC', title:'CEO', sector:'banking' },
+    { name:'Darren Entwistle', org:'Telus', title:'CEO', sector:'telecom' },
+    { name:'Mirko Bibic', org:'BCE / Bell Canada', title:'CEO', sector:'telecom' },
+    { name:'Anthony Staffieri', org:'Rogers Communications', title:'CEO', sector:'telecom' },
+    { name:'Catherine Tait', org:'CBC/Radio-Canada', title:'President & CEO', sector:'media' },
+    { name:'Pierre Karl Péladeau', org:'Quebecor', title:'President & CEO', sector:'media' },
+    { name:'Doug Murphy', org:'Corus Entertainment', title:'CEO', sector:'media' },
+    { name:'Andrew MacLeod', org:'Postmedia Network', title:'CEO', sector:'media' },
+    { name:'Phillip Crawley', org:'The Globe and Mail', title:'Publisher & CEO', sector:'media' },
+    { name:'Jordan Bitove', org:'Toronto Star / NordStar', title:'Publisher', sector:'media' },
+  ],
+
+  influenceActors: [
+    { name:'United Nations (UN)', cat:'IO', priority:'critical' },
+    { name:'World Health Organization', cat:'IO', priority:'critical' },
+    { name:'OECD', cat:'IO', priority:'high' },
+    { name:'World Economic Forum', cat:'IO', priority:'high' },
+    { name:'NATO', cat:'IO', priority:'critical' },
+    { name:'IMF', cat:'IO', priority:'high' },
+    { name:'McKinsey & Company', cat:'Consultancy', priority:'high' },
+    { name:'Deloitte Canada', cat:'Consultancy', priority:'high' },
+    { name:'KPMG Canada', cat:'Consultancy', priority:'high' },
+    { name:'Accenture Canada', cat:'Consultancy', priority:'high' },
+    { name:'C.D. Howe Institute', cat:'Think Tank', priority:'high' },
+    { name:'Fraser Institute', cat:'Think Tank', priority:'high' },
+    { name:'Canadian Centre for Policy Alternatives', cat:'Think Tank', priority:'high' },
+    { name:'Conference Board of Canada', cat:'Think Tank', priority:'high' },
+    { name:'Munk School of Global Affairs', cat:'Academic', priority:'medium' },
+    { name:'Justice Centre for Constitutional Freedoms', cat:'NGO', priority:'high' },
+  ],
+
+  signals: [
+    { id:1, severity:'high', title:'Sole-source contract flagged', desc:'L3Harris Technologies awarded $45M sole-source DND contract while actively lobbying DND via Navigator LLP', source:'procurement + lobbying', date:'2026-05-11' },
+    { id:2, severity:'high', title:'Revolving door detected', desc:'Former DND ADM Michael Chen joined Navigator LLP 6 months after leaving government, now lobbying former colleagues', source:'lobbying registry', date:'2026-05-10' },
+    { id:3, severity:'med', title:'Spousal interest proximity', desc:'MP Sarah Mitchell\'s spouse employed at L3Harris — MP sits on Defence Committee reviewing DND contracts', source:'committee + disclosures', date:'2026-05-09' },
+    { id:4, severity:'high', title:'Lobbying spike detected', desc:'Bell Canada lobbying activity increased 340% in Q1 2026 — 47 communications with ISED, CRTC, and Heritage', source:'lobbying registry', date:'2026-05-08' },
+    { id:5, severity:'med', title:'In-camera meeting alert', desc:'ETHI committee held closed session on Conflict of Interest investigation — no public record of proceedings', source:'committee', date:'2026-05-06' },
+    { id:6, severity:'low', title:'Donation proximity correlation', desc:'L3Harris VP donated $5,000 to Conservative Party 3 weeks before sole-source contract announcement', source:'elections + procurement', date:'2026-05-05' },
+    { id:7, severity:'med', title:'International layering', desc:'Plan International Canada received $12M GAC funding while partnering with Lockheed Martin on overseas projects', source:'GAC + corporate', date:'2026-05-04' },
+  ],
+
+  lobbying: [
+    { firm:'Bell Canada', dept:'ISED', count:22, period:'Q1 2026' },
+    { firm:'L3Harris Technologies', dept:'DND', count:15, period:'Q1 2026' },
+    { firm:'RBC', dept:'Finance Canada', count:12, period:'Q1 2026' },
+    { firm:'Canadian Chamber of Commerce', dept:'Multiple', count:18, period:'Q1 2026' },
+    { firm:'Telus', dept:'ISED', count:10, period:'Q1 2026' },
+    { firm:'McKinsey & Company', dept:'PCO', count:8, period:'Q1 2026' },
+    { firm:'Quebecor', dept:'Heritage', count:7, period:'Q1 2026' },
+    { firm:'CBC', dept:'Heritage', count:6, period:'Q1 2026' },
+  ],
+
+  contracts: [
+    { vendor:'L3Harris Technologies', dept:'DND', value:'$45,000,000', method:'Sole Source', date:'2026-04-15' },
+    { vendor:'Deloitte Canada', dept:'Treasury Board', value:'$12,500,000', method:'Competitive', date:'2026-04-10' },
+    { vendor:'Accenture Canada', dept:'Service Canada', value:'$8,200,000', method:'Competitive', date:'2026-04-08' },
+    { vendor:'KPMG Canada', dept:'Finance Canada', value:'$3,100,000', method:'Sole Source', date:'2026-03-28' },
+    { vendor:'Bell Canada', dept:'RCMP', value:'$22,000,000', method:'Sole Source', date:'2026-03-20' },
+    { vendor:'RBC', dept:'Finance Canada', value:'$1,500,000', method:'Competitive', date:'2026-03-15' },
+  ],
+
+  pipeline: {
+    committees: { status:'ok', lastRun:'2026-05-12 06:00 UTC', records:2847, errors:0 },
+    lobbying: { status:'ok', lastRun:'2026-05-12 04:30 UTC', records:15620, errors:2 },
+    procurement: { status:'ok', lastRun:'2026-05-12 05:00 UTC', records:8920, errors:0 },
+    influence: { status:'ok', lastRun:'2026-05-12 03:00 UTC', records:340, errors:0 },
+    engine: { status:'ok', lastRun:'2026-05-12 06:30 UTC', records:1280, errors:0 },
+  },
+
+  activity: [
+    { action:'PACP Meeting #33 ingested', type:'committee', time:'2h ago' },
+    { action:'New contract award: Deloitte $12.5M', type:'procurement', time:'3h ago' },
+    { action:'Lobbying CSV updated (Q1 2026)', type:'lobbying', time:'4h ago' },
+    { action:'Signal: Revolving door detected', type:'signal', time:'5h ago' },
+    { action:'In-camera meeting flagged: SECU #58', type:'committee', time:'6h ago' },
+    { action:'Entity resolution sweep complete', type:'engine', time:'7h ago' },
+    { action:'CRA charity data refreshed', type:'influence', time:'8h ago' },
+  ]
+};
+
+// ══════════════════════════════════════════════════════════
+//  VIEW RENDERERS
+// ══════════════════════════════════════════════════════════
+
+function renderOverview() {
+  const totalSignals = DATA.signals.length;
+  const highSignals = DATA.signals.filter(s => s.severity === 'high').length;
+
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Committees</div><div class="stat-value">${DATA.committees.length}</div><div class="stat-sub">${DATA.committees.filter(c => c.inCamera).length} in-camera today</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Lobbying Communications</div><div class="stat-value">${DATA.lobbying.reduce((s,l) => s + l.count, 0)}</div><div class="stat-sub">Q1 2026 tracked</div></div>
+      <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Influence Actors</div><div class="stat-value">${DATA.influenceActors.length}</div><div class="stat-sub">${DATA.influenceActors.filter(a => a.priority === 'critical').length} critical priority</div></div>
+      <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-label">Active Signals</div><div class="stat-value">${totalSignals}</div><div class="stat-sub" style="color:var(--accent);">${highSignals} high severity</div></div>
+    </div>
+
+    <div class="section-label">Pipeline Health</div>
+    <div class="pipeline-row">
+      ${Object.entries(DATA.pipeline).map(([name, m]) => `
+        <div class="pipeline-card">
+          <h4><span class="status-dot ${m.status}"></span>${name.charAt(0).toUpperCase() + name.slice(1)}</h4>
+          <div class="metric"><span>Records</span><span class="val">${m.records.toLocaleString()}</span></div>
+          <div class="metric"><span>Last run</span><span class="val">${m.lastRun}</span></div>
+          <div class="metric"><span>Errors</span><span class="val" style="color:${m.errors > 0 ? 'var(--accent)' : 'var(--success)'}">${m.errors}</span></div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-label">Recent Signals</div>
+    <div class="signal-feed">
+      ${DATA.signals.map(s => `
+        <div class="signal-item">
+          <span class="sev ${s.severity}"></span>
+          <div class="body">
+            <div class="title">${s.title}</div>
+            <div class="desc">${s.desc}</div>
+            <div class="signal-meta">${s.source} · ${s.date}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-label">Latest Activity</div>
+    <div class="card" style="margin-top:12px;">
+      ${DATA.activity.map(a => `
+        <div class="item">
+          <div class="left">
+            <span>${a.type === 'committee' ? '🏛️' : a.type === 'procurement' ? '📄' : a.type === 'lobbying' ? '💰' : a.type === 'signal' ? '⚠️' : '⚙️'}</span>
+            <span class="name">${a.action}</span>
+          </div>
+          <span class="meta">${a.time}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderCommittees() {
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value">${DATA.committees.length}</div><div class="stat-label">Committees</div></div>
+      <div class="stat-card"><div class="stat-value">${DATA.committees.filter(c => c.inCamera).length}</div><div class="stat-label">In-Camera This Period</div><div class="stat-sub" style="color:var(--accent);">Closed to the public</div></div>
+      <div class="stat-card"><div class="stat-value">${DATA.committees.reduce((s,c) => s + c.witnesses.length, 0)}</div><div class="stat-label">Witnesses Called</div></div>
+      <div class="stat-card"><div class="stat-value">${DATA.committees.filter(c => !c.inCamera).length}</div><div class="stat-label">Public Meetings</div></div>
+    </div>
+
+    <div class="section-label">Recent Meetings</div>
+    <div class="card" style="margin-top:12px;">
+      ${DATA.committees.map(c => `
+        <div class="item">
+          <div class="left">
+            <span>${c.inCamera ? '🔒' : '🎥'}</span>
+            <span class="name">${c.id} — ${c.name}</span>
+            <span class="meta">#${c.meeting} · ${c.date}</span>
+          </div>
+          <span class="tag ${c.inCamera ? 'tag-red' : 'tag-cyan'}">${c.inCamera ? 'In-Camera' : 'Public'}</span>
+        </div>
+        <div style="padding:0 0 8px 28px;font-size:0.8rem;color:var(--text-secondary);">${c.topic}</div>
+      `).join('')}
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">In-Camera Alerts</div>
+    <div class="signal-feed" style="margin-top:12px;">
+      ${DATA.committees.filter(c => c.inCamera).map(c => `
+        <div class="signal-item">
+          <span class="sev high"></span>
+          <div class="body">
+            <div class="title">🔒 ${c.name} — Closed Meeting #${c.meeting}</div>
+            <div class="desc">${c.topic} — No public transcript available</div>
+            <div class="signal-meta">${c.date}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderCorporate() {
+  const soleSource = DATA.contracts.filter(c => c.method === 'Sole Source');
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">👔</div><div class="stat-label">Tracked Executives</div><div class="stat-value">${DATA.executives.length}</div></div>
+      <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-label">Active Contracts</div><div class="stat-value">${DATA.contracts.length}</div><div class="stat-sub" style="color:var(--accent);">${soleSource.length} sole-source</div></div>
+      <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-label">Lobbying Reports</div><div class="stat-value">${DATA.lobbying.length}</div><div class="stat-sub">firms tracked Q1 2026</div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Total Contract Value</div><div class="stat-value">$92M</div><div class="stat-sub">in tracked awards</div></div>
+    </div>
+
+    <div class="section-label">Top Lobbying Firms This Quarter</div>
+    <div class="card" style="margin-top:12px;">
+      ${DATA.lobbying.map(l => `
+        <div class="item">
+          <div class="left"><span class="name">${l.firm}</span><span class="meta">${l.dept}</span></div>
+          <span class="tag tag-cyan">${l.count} communications</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="card-grid">
+      <div>
+        <div class="section-label">Recent Contracts</div>
+        <div class="card" style="margin-top:12px;">
+          ${DATA.contracts.map(c => `
+            <div class="item">
+              <div class="left"><span class="name">${c.vendor}</span><span class="meta">${c.dept}</span></div>
+              <div><span class="tag ${c.method === 'Sole Source' ? 'tag-red' : 'tag-green'}">${c.value}</span></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Tracked Executives</div>
+        <div class="card" style="margin-top:12px;">
+          ${DATA.executives.slice(0,10).map(e => `
+            <div class="item">
+              <div class="left"><span class="name">${e.name}</span><span class="meta">${e.org}</span></div>
+              <span class="tag ${e.sector === 'banking' ? 'tag-cyan' : e.sector === 'telecom' ? 'tag-orange' : 'tag-red'}">${e.sector}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderInfluence() {
+  const byCat = {};
+  DATA.influenceActors.forEach(a => { byCat[a.cat] = (byCat[a.cat] || 0) + 1; });
+  const critical = DATA.influenceActors.filter(a => a.priority === 'critical');
+
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Tracked Actors</div><div class="stat-value">${DATA.influenceActors.length}</div></div>
+      <div class="stat-card"><div class="stat-icon">🔴</div><div class="stat-label">Critical Priority</div><div class="stat-value">${critical.length}</div><div class="stat-sub" style="color:var(--accent);">Highest monitoring level</div></div>
+      <div class="stat-card"><div class="stat-icon">📂</div><div class="stat-label">Categories</div><div class="stat-value">${Object.keys(byCat).length}</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Funding Streams</div><div class="stat-value">${Object.keys(byCat).length * 3}</div><div class="stat-sub">Cross-referenced</div></div>
+    </div>
+
+    <div class="section-label">By Category</div>
+    <div class="card-grid">
+      ${Object.entries(byCat).map(([cat, count]) => `
+        <div class="card">
+          <h3>${cat} <span class="tag tag-cyan" style="margin-left:auto;">${count}</span></h3>
+          ${DATA.influenceActors.filter(a => a.cat === cat).slice(0,5).map(a => `
+            <div class="item">
+              <div class="left"><span class="name">${a.name}</span></div>
+              <span class="tag ${a.priority === 'critical' ? 'tag-red' : a.priority === 'high' ? 'tag-orange' : 'tag-green'}">${a.priority}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderSignals() {
+  const sevs = ['high','med','low'];
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value">${DATA.signals.length}</div><div class="stat-label">Total Signals</div></div>
+      <div class="stat-card"><div class="stat-value">${DATA.signals.filter(s => s.severity === 'high').length}</div><div class="stat-label" style="color:var(--accent);">High Severity</div></div>
+      <div class="stat-card"><div class="stat-value">${DATA.signals.filter(s => s.severity === 'med').length}</div><div class="stat-label" style="color:var(--warning);">Medium Severity</div></div>
+      <div class="stat-card"><div class="stat-value">${DATA.signals.filter(s => s.severity === 'low').length}</div><div class="stat-label" style="color:var(--success);">Low Severity</div></div>
+    </div>
+
+    <div class="tab-bar" id="signalFilters">
+      ${sevs.map(s => `<button class="tab-btn ${s === 'high' ? 'active' : ''}" data-sev="${s}">${s === 'high' ? '🔴' : s === 'med' ? '🟡' : '🟢'} ${s.charAt(0).toUpperCase() + s.slice(1)}</button>`).join('')}
+      <button class="tab-btn active" data-sev="all">All</button>
+    </div>
+
+    <div class="signal-feed" id="signalList">
+      ${DATA.signals.map(s => `
+        <div class="signal-item" data-sev="${s.severity}">
+          <span class="sev ${s.severity}"></span>
+          <div class="body">
+            <div class="title">${s.title}</div>
+            <div class="desc">${s.desc}</div>
+            <div class="signal-meta">${s.source} · ${s.date}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderPipeline() {
+  const totalRecords = Object.values(DATA.pipeline).reduce((s,m) => s + m.records, 0);
+  const totalErrors = Object.values(DATA.pipeline).reduce((s,m) => s + m.errors, 0);
+  return `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value">${totalRecords.toLocaleString()}</div><div class="stat-label">Total Records</div></div>
+      <div class="stat-card"><div class="stat-value">${Object.keys(DATA.pipeline).length}</div><div class="stat-label">Modules Active</div></div>
+      <div class="stat-card"><div class="stat-value">${totalErrors}</div><div class="stat-label" style="color:${totalErrors > 0 ? 'var(--warning)' : 'var(--success)'};">Errors</div></div>
+      <div class="stat-card"><div class="stat-value">${Object.values(DATA.pipeline).every(m => m.status === 'ok') ? '✅' : '⚠️'}</div><div class="stat-label">Overall Status</div></div>
+    </div>
+
+    <div class="section-label">Module Status</div>
+    <div class="pipeline-row">
+      ${Object.entries(DATA.pipeline).map(([name, m]) => `
+        <div class="pipeline-card" style="border-left:3px solid ${m.status === 'ok' ? 'var(--success)' : 'var(--warning)'};">
+          <h4><span class="status-dot ${m.status}"></span>${name.charAt(0).toUpperCase() + name.slice(1)} Pipeline</h4>
+          <div class="metric"><span>Status</span><span class="val" style="color:${m.status === 'ok' ? 'var(--success)' : 'var(--warning)'};">${m.status.toUpperCase()}</span></div>
+          <div class="metric"><span>Records ingested</span><span class="val">${m.records.toLocaleString()}</span></div>
+          <div class="metric"><span>Last run</span><span class="val">${m.lastRun}</span></div>
+          <div class="metric"><span>Errors</span><span class="val" style="color:${m.errors > 0 ? 'var(--accent)' : 'var(--success)'};">${m.errors}</span></div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-label">Recent Activity</div>
+    <div class="card" style="margin-top:12px;">
+      ${DATA.activity.map(a => `
+        <div class="item">
+          <div class="left">
+            <span>${a.type === 'committee' ? '🏛️' : a.type === 'procurement' ? '📄' : a.type === 'lobbying' ? '💰' : a.type === 'signal' ? '⚠️' : '⚙️'}</span>
+            <span class="name">${a.action}</span>
+          </div>
+          <span class="meta">${a.time}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════════
+
+const views = { overview:renderOverview, committees:renderCommittees, corporate:renderCorporate, influence:renderInfluence, signals:renderSignals, pipeline:renderPipeline };
+let currentView = 'overview';
+
+function navigate(view) {
+  currentView = view;
+  document.querySelectorAll('#dashNav a').forEach(a => a.classList.toggle('active', a.dataset.view === view));
+  const content = document.getElementById('dashContent');
+  if (views[view]) {
+    content.innerHTML = `<h1>${view.charAt(0).toUpperCase() + view.slice(1)}</h1><p class="subtitle">${getSubtitle(view)}</p>` + views[view]();
+  }
+  // Re-bind signal filters if on signals view
+  if (view === 'signals') bindSignalFilters();
+  window.scrollTo(0,0);
+}
+
+function getSubtitle(view) {
+  const subs = {
+    overview:'Live status of all CivInt pipelines and recent intelligence signals.',
+    committees:'House of Commons committee meetings, transcripts, and in-camera alerts.',
+    corporate:'Lobbying activity, government contracts, and tracked executive statements.',
+    influence:'International organizations, NGOs, think tanks, and consultancies.',
+    signals:'Detected patterns across all data sources — revolving doors, overlaps, anomalies.',
+    pipeline:'Per-module ingestion status, record counts, and error monitoring.'
+  };
+  return subs[view] || '';
+}
+
+function bindSignalFilters() {
+  const filterBar = document.getElementById('signalFilters');
+  if (!filterBar) return;
+  filterBar.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+      filterBar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sev = btn.dataset.sev;
+      document.querySelectorAll('#signalList .signal-item').forEach(el => {
+        el.style.display = (sev === 'all' || el.dataset.sev === sev) ? 'flex' : 'none';
+      });
+    };
+  });
+}
+
+// Init nav
+document.querySelectorAll('#dashNav a[data-view]').forEach(a => {
+  a.addEventListener('click', (e) => { e.preventDefault(); navigate(a.dataset.view); });
+});
+
+// Load default view
+navigate('overview');
+
+})();
+</script>
 </body>
 </html>
