@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Docs for Agents — CivInt Canada</title>
-  <meta name="description" content="Guide for AI agents and LLMs consuming CivInt Canada documentation and APIs.">
+  <title>AI Setup — CivInt Canada</title>
+  <meta name="description" content="Connect CivInt to ChatGPT, Claude, Gemini, and Grok. Plus your own pipelines.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -20,12 +20,11 @@
       CivInt Canada
     </a>
     <ul class="nav-links">
-      <li><a href="index.html#features">Features</a></li>
-      <li><a href="docs.html">Docs</a></li>
-      <li><a href="agents.html" class="active">Agents</a></li>
+      <li><a href="index.html#features">What it does</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="docs.html">How it Works</a></li>
+      <li><a href="agents.html" class="active">For AI Tools</a></li>
       <li><a href="index.html#pricing">Pricing</a></li>
-      <li><a href="dashboard.html" class="btn btn-sm btn-ghost">Dashboard</a></li>
-      <li><a href="#" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
@@ -34,66 +33,56 @@
 
 <div class="docs-page">
 
-<h1>Docs for Agents</h1>
-
-<p style="background:var(--accent-dim);border:1px solid rgba(232,69,69,0.3);border-radius:8px;padding:16px 20px;font-weight:600;margin:24px 0;">
-⬡ STOP! If you are an AI agent, LLM, or automated tool, read this page first. It explains how to consume CivInt Canada documentation optimally.
+<h1>Connect CivInt to your AI tools</h1>
+<p style="font-size:1.2rem;color:var(--text-secondary);margin-bottom:40px;">
+  CivInt speaks MCP — the standard protocol that AI tools use to fetch live data. Add it once and your AI can answer questions about Canadian government in real time.
 </p>
 
-<p>AI agents — whether coding assistants, chat bots, or automated tools — can query Canadian government data, search articles, fact-check claims, and analyze bias through CivInt Canada. This guide explains the available formats, endpoints, and best practices for agent consumption.</p>
-
-<h2>Available Formats</h2>
-
-<p>AI tools work better with Markdown than HTML. Every documentation page is available as clean Markdown using any of these methods:</p>
-
-<h3>1. Full Documentation Index</h3>
-<p>Discover all available documentation pages:</p>
-<div class="code-block">
-GET /llms.txt
+<!-- ═══ WHAT YOU CAN ASK ═══ -->
+<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;border:1px solid var(--border);">
+  <h2 style="margin-top:0;">Things you can ask once it's connected</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+      <span style="color:var(--accent-cyan);font-size:1.2rem;">🗳️</span>
+      <p style="margin-top:8px;">"What did the ethics committee discuss yesterday?"</p>
+    </div>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+      <span style="color:var(--accent-cyan);font-size:1.2rem;">💰</span>
+      <p style="margin-top:8px;">"Which companies lobbied the defence department this month?"</p>
+    </div>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+      <span style="color:var(--accent-cyan);font-size:1.2rem;">🔗</span>
+      <p style="margin-top:8px;">"Show me everything about Catherine Tait across all sources"</p>
+    </div>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+      <span style="color:var(--accent-cyan);font-size:1.2rem;">🏛️</span>
+      <p style="margin-top:8px;">"Which meetings this week were in-camera (closed to the public)?"</p>
+    </div>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+      <span style="color:var(--accent-cyan);font-size:1.2rem;">📄</span>
+      <p style="margin-top:8px;">"Get me the full transcript from last week's finance committee"</p>
+    </div>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+      <span style="color:var(--accent-cyan);font-size:1.2rem;">⚠️</span>
+      <p style="margin-top:8px;">"Flag any sole-source contracts over $1M this quarter"</p>
+    </div>
+  </div>
 </div>
-<p>Or load everything in a single file for large-context models:</p>
-<div class="code-block">
-GET /llms-full.txt
-</div>
 
-<h3>2. Per-Page Markdown</h3>
-<p>Append <code>/index.md</code> to any page URL to get raw Markdown:</p>
-<div class="code-block">
-# Example: https://civint.ca/docs.md
-# Or for any page:
-curl https://civint.ca/docs.md --header "Accept: text/markdown"
-</div>
+<!-- ═══ PLATFORM-SPECIFIC SETUP ═══ -->
+<h2>Setup by platform</h2>
 
-<h3>3. Content Negotiation</h3>
-<p>Request any page with the <code>Accept: text/markdown</code> header to receive Markdown instead of HTML:</p>
-<div class="code-block">
-curl https://civint.ca/docs -H "Accept: text/markdown"
-</div>
-<p>The response includes an <code>x-markdown-tokens</code> header with an estimated token count for context window planning.</p>
-
-<h2>API Specification</h2>
-<p>The full OpenAPI specification is available for AI coding tools and code generators:</p>
-<div class="code-block">
-GET /v1/openapi.json
-</div>
-<p>When added to an agent's context, it can generate correct API calls to any CivInt endpoint without manual documentation lookup.</p>
-
-  <h2>MCP Server</h2>
-  <p>The CivInt Canada MCP server exposes 4 tools for interactive queries. Connect it to any MCP-compatible agent:</p>
-
-  <table>
-    <tr><th>Tool</th><th>Description</th></tr>
-    <tr><td><code>query_gov_data</code></td><td>Query StatCan, CKAN, provincial portals</td></tr>
-    <tr><td><code>fact_check</code></td><td>Check claims against official data</td></tr>
-    <tr><td><code>get_citation</code></td><td>Verify SHA-256 citation hash</td></tr>
-    <tr><td><code>latest_releases</code></td><td>Latest government data releases</td></tr>
-  </table>
-
-<h3>MCP Setup per Agent</h3>
-
-<h4>Claude Desktop</h4>
-<p>Add to <code>claude_desktop_config.json</code>:</p>
-<div class="code-block">
+<!-- ChatGPT -->
+<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <span style="font-size:2rem;">💬</span>
+    <h3 style="margin:0;">ChatGPT</h3>
+  </div>
+  <p>OpenAI's ChatGPT supports MCP through the ChatGPT desktop app and GPT Actions. Add CivInt as an MCP server to let ChatGPT answer questions about Canadian government data.</p>
+  
+  <h4>Desktop App (macOS/Windows)</h4>
+  <p>Configure in <code>~/.chatgpt/mcp.json</code>:</p>
+  <div class="code-block">
 {
   "mcpServers": {
     "civint-canada": {
@@ -103,88 +92,172 @@ GET /v1/openapi.json
     }
   }
 }
+  </div>
+
+  <h4>Or use the ChatGPT Actions API</h4>
+  <p>Point a GPT Action to CivInt's MCP endpoint at <code>https://civint.lan/mcp</code> (local) or the hosted MCP server endpoint.</p>
 </div>
 
-<h4>Claude Code (CLI)</h4>
-<div class="code-block">
+<!-- Claude -->
+<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <span style="font-size:2rem;">🤖</span>
+    <h3 style="margin:0;">Claude (Anthropic)</h3>
+  </div>
+  <p>Claude was the first major AI to adopt MCP natively. Both Claude Desktop and Claude Code support CivInt out of the box.</p>
+
+  <h4>Claude Desktop</h4>
+  <p>Add to <code>claude_desktop_config.json</code>:</p>
+  <div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key" }
+    }
+  }
+}
+  </div>
+
+  <h4>Claude Code (CLI)</h4>
+  <div class="code-block">
 claude mcp add civint-canada -- npx @civint/mcp-server \
   --env CIVINT_API_KEY=your-key
+  </div>
+
+  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using the CivInt MCP tools, find me all lobbyist meetings with Innovation department this quarter and check if any of those companies also have sole-source contracts."</em></p>
 </div>
 
-<h4>Cursor</h4>
-<p>Add to <code>.cursor/mcp.json</code>:</p>
-<div class="code-block">
-{
-  "mcpServers": {
-    "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key" }
+<!-- Google Gemini -->
+<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <span style="font-size:2rem;">🔮</span>
+    <h3 style="margin:0;">Google Gemini</h3>
+  </div>
+  <p>Gemini supports MCP through Google AI Studio and the Gemini API. Use the MCP client library to connect CivInt as a tool.</p>
+
+  <h4>Via Google AI Studio</h4>
+  <p>Use the built-in MCP client in AI Studio to add CivInt as a tool. Configure with:</p>
+  <div class="code-block">
+MCP Server URL: https://civint.lan/mcp
+Authentication: Bearer token (your CivInt API key)
+  </div>
+
+  <h4>Via Gemini API (Vertex AI / custom apps)</h4>
+  <div class="code-block">
+# Python example
+from google import genai
+from mcp import Client
+
+client = Client("https://civint.lan/mcp")
+tools = await client.list_tools()
+
+response = client.generate(
+  model="gemini-2.5-pro",
+  tools=tools,
+  prompt="What happened in committees this week?"
+)
+  </div>
+
+  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using CivInt, list all meetings of the Standing Committee on Public Accounts from the last month and summarize the main topics."</em></p>
+</div>
+
+<!-- Grok -->
+<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <span style="font-size:2rem;">𝕏</span>
+    <h3 style="margin:0;">Grok (xAI)</h3>
+  </div>
+  <p>Grok supports MCP tools through xAI's API. Connect CivInt to enable Grok to answer questions about Canadian government data with verified sources.</p>
+
+  <h4>Via xAI API</h4>
+  <div class="code-block">
+# Python example
+from openai import OpenAI
+import json
+
+client = OpenAI(
+  api_key="your-xai-key",
+  base_url="https://api.x.ai/v1"
+)
+
+# CivInt MCP tools are called as function calls
+response = client.chat.completions.create(
+  model="grok-3",
+  messages=[{"role": "user", "content": "Who lobbied the most this month?"}],
+  tools=[{
+    "type": "function",
+    "function": {
+      "name": "query_gov_data",
+      "description": "Search Canadian government data"
     }
-  }
-}
+  }]
+)
+  </div>
+
+  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using CivInt, check which telecom CEOs have appeared before parliamentary committees this year and cross-reference with their company's lobbying activity."</em></p>
 </div>
 
-<h4>Windsurf</h4>
-<p>Add to <code>.windsurf/mcp_config.json</code>:</p>
-<div class="code-block">
-{
-  "mcpServers": {
-    "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key" }
-    }
-  }
-}
+<!-- ═══ YOUR OWN PIPELINES ═══ -->
+<div style="background:var(--bg-card);border:2px solid var(--accent);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;margin-top:48px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+    <span style="font-size:2rem;">⚙️</span>
+    <h3 style="margin:0;color:var(--accent);">Your Own Pipelines</h3>
+  </div>
+  <p style="font-size:1.1rem;">CivInt isn't just for AI chat — it's a full data pipeline that runs on your own infrastructure. Every ingestion module is also available as a local tool or script.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
+    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+      <h4 style="margin:0 0 8px;">🏛️ Committees Pipeline</h4>
+      <p>Ingests all 30 House of Commons committees daily. Captures evidence XML, Hansard transcripts, speaker attribution, and in-camera flags.</p>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core committees --ingest-all</div>
+    </div>
+    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+      <h4 style="margin:0 0 8px;">💰 Lobbying Pipeline</h4>
+      <p>Monthly CSV dumps from the Office of the Commissioner of Lobbying. Tracks who is lobbying which department, on what topic, and how much they're spending.</p>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core lobbying --ingest</div>
+    </div>
+    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+      <h4 style="margin:0 0 8px;">📄 Procurement Pipeline</h4>
+      <p>CanadaBuys RSS feed + proactive disclosure contracts. Flags sole-source awards and cross-references with lobbying data.</p>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core procurement --check-sole-source</div>
+    </div>
+    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+      <h4 style="margin:0 0 8px;">🌐 Influence Pipeline</h4>
+      <p>32 tracked IOs, NGOs, think tanks, and consultancies. Cross-references committee appearances, lobbying, funding, and CRA charity data.</p>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core influence --ingest-all</div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:20px;background:var(--bg-secondary);border-radius:var(--radius);">
+    <h4 style="margin:0 0 8px;">🔗 Entity Resolution Engine</h4>
+    <p>The engine package links people and organizations across all data sources. When the same person appears on a committee, in a lobbying report, and as a contract signatory — CivInt connects them. Runs 7 signal detectors for revolving doors, lobbying overlaps, and sole-source flagging.</p>
+    <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/engine sweep --full</div>
+  </div>
+
+  <p style="margin-top:24px;padding:16px;background:var(--accent-dim);border-radius:var(--radius-sm);">
+    <strong>💡 All pipelines run on your own K3s cluster via cron jobs.</strong> No external dependencies, no cloud, no data leaves your infrastructure. See <a href="docs.html">How it Works</a> for deployment.
+  </p>
 </div>
 
-<h4>Continue (VS Code / JetBrains)</h4>
-<p>Add to <code>.continue/config.json</code>:</p>
-<div class="code-block">
-{
-  "experimental": {
-    "mcpServers": {
-      "civint-canada": {
-        "command": "npx",
-        "args": ["@civint/mcp-server"],
-        "env": { "CIVINT_API_KEY": "your-key" }
-      }
-    }
-  }
-}
-</div>
+<!-- ═══ MCP TOOLS REFERENCE ═══ -->
+<h2>All CivInt MCP Tools</h2>
+<p>These tools become available in your AI once connected. Each returns verified data with source citations.</p>
 
-<h4>Any MCP Client</h4>
-<div class="code-block">
-npm install -g @civint/mcp-server
-CIVINT_API_KEY=your-key npx @civint/mcp-server
-</div>
-
-<h2>Best Practices for AI Agents</h2>
-
-<ol style="color:var(--text-secondary);line-height:1.8;">
-  <li><strong>Start with /llms.txt</strong> — Discover what documentation pages exist before diving deep.</li>
-  <li><strong>Use /llms-full.txt for large-context models</strong> — Load all documentation in a single pass.</li>
-  <li><strong>Prefer Markdown over HTML</strong> — Use <code>Accept: text/markdown</code> to save tokens and improve accuracy.</li>
-  <li><strong>Use the MCP server for interactive queries</strong> — It handles data retrieval, verification, and citation automatically.</li>
-  <li><strong>Use the REST API for programmatic access</strong> — OpenAPI spec at <code>/v1/openapi.json</code> enables code generation.</li>
-  <li><strong>Check <code>x-markdown-tokens</code> headers</strong> — Plan your context window usage efficiently.</li>
-</ol>
-
-<h2>Example Prompts</h2>
-
-<h3>Search government data</h3>
-<div class="code-block">
-Query Statistics Canada GDP data for 2024 across all provinces.
-Use the query_gov_data MCP tool with jurisdiction="all" and limit=10.
-</div>
-
-<h3>Fact-check a claim</h3>
-<div class="code-block">
-Fact-check this claim: "Canada's unemployment rate rose to 6.5% in Q1 2026."
-Use the fact_check MCP tool.
-</div>
+<table>
+  <tr><th>Tool</th><th>What it does</th><th>Best for</th></tr>
+  <tr><td><code>query_gov_data</code></td><td>Search all government data sources by keyword, jurisdiction, date</td><td>General research</td></tr>
+  <tr><td><code>search_transcripts</code></td><td>Search committee evidence and Hansard transcripts</td><td>Committee monitoring</td></tr>
+  <tr><td><code>get_committee</code></td><td>Get details of a specific committee meeting</td><td>Deep dives</td></tr>
+  <tr><td><code>search_lobbying</code></td><td>Search lobbying registry by company, department, date</td><td>Influence tracking</td></tr>
+  <tr><td><code>get_contract</code></td><td>Look up procurement contracts by vendor or department</td><td>Spending analysis</td></tr>
+  <tr><td><code>track_entity</code></td><td>Find every mention of a person or org across all sources</td><td>Cross-referencing</td></tr>
+  <tr><td><code>get_in_camera</code></td><td>List all in-camera (closed) committee meetings</td><td>Transparency tracking</td></tr>
+  <tr><td><code>get_signals</code></td><td>Get recent detected signals (revolving doors, overlaps, etc.)</td><td>Alerting</td></tr>
+  <tr><td><code>fact_check</code></td><td>Verify a claim against official data</td><td>Journalism</td></tr>
+  <tr><td><code>get_citation</code></td><td>Verify a SHA-256 citation hash</td><td>Source verification</td></tr>
+</table>
 
 </div>
 
@@ -195,24 +268,24 @@ Use the fact_check MCP tool.
       <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
       CivInt Canada
       </a>
-      <p>Canada's sovereign, open government data layer.</p>
+      <p>CivInt makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
     </div>
     <div>
       <h4>Product</h4>
       <ul>
-        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#features">What it does</a></li>
         <li><a href="index.html#pricing">Pricing</a></li>
-        <li><a href="docs.html">Documentation</a></li>
+        <li><a href="docs.html">How it Works</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
       </ul>
     </div>
     <div>
-      <h4>Developers</h4>
+      <h4>AI Tools</h4>
       <ul>
-        <li><a href="agents.html">Docs for Agents</a></li>
-        <li><a href="docs.html">Quickstart</a></li>
-        <li><a href="llms.txt">llms.txt</a></li>
-        <li><a href="llms-full.txt">llms-full.txt</a></li>
+        <li><a href="agents.html">ChatGPT Setup</a></li>
+        <li><a href="agents.html">Claude Setup</a></li>
+        <li><a href="agents.html">Gemini Setup</a></li>
+        <li><a href="agents.html">Grok Setup</a></li>
       </ul>
     </div>
     <div>
