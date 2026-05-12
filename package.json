@@ -1,0 +1,17 @@
+{
+  "name": "civint",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Canadian sovereign data pipeline — ingestion, curation, verification, and audit for civic intelligence",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @frostbite/pipeline-core && npm run build -w @civint/mcp-server && npm run build -w @civint/api-server",
+    "test": "npm run test --workspaces",
+    "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

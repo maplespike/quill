@@ -1,0 +1,219 @@
+/**
+ * CivInt Canada — API Gateway (Worker Entry)
+ *
+ * Cloudflare Workers fetch handler + Node.js dev server compatible.
+ * Multi-tenant REST API gateway wrapping pipeline-core.
+ *
+ * Architecture:
+ *   Request → Auth middleware → Rate limit → Route dispatch → Response envelope
+ */
+
+import type { Env, RouteHandler, RouteContext } from './types.js';
+import { authenticateRequest } from './auth.js';
+import { checkRateLimit } from './rate-limit.js';
+import { buildError, jsonResponse, corsPreflight } from './response.js';
+import { loadConfig } from './config.js';
+import { D1Storage, KVCache } from './storage.js';
+import type { CivIntStorage, CivIntCache } from './types.js';
+
+/* ------------------------------------------------------------------ */
+/*  Route Table                                                        */
+/* ------------------------------------------------------------------ */
+
+interface Route {
+  pattern: RegExp;
+  method: string;
+  params: string[];
+  handler: RouteHandler;
+}
+
+import { healthHandler } from './routes/health.js';
+import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
+import { getCitationHandler } from './routes/citation.js';
+import { auditQueryHandler } from './routes/audit.js';
+import { usageHandler } from './routes/usage.js';
+import { openApiHandler } from './routes/openapi.js';
+
+const ROUTES: Route[] = [
+  { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
+  { pattern: /^\/v1\/gov\/releases\/?$/, method: 'GET', params: [], handler: listReleasesHandler },
+  { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: searchGovHandler },
+  { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: getCitationHandler },
+  { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
+  { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
+  { pattern: /^\/v1\/openapi\.json\/?$/, method: 'GET', params: [], handler: openApiHandler },
+  { pattern: /^\/v1\/?$/, method: 'GET', params: [], handler: openApiHandler }, // Root redirect to spec
+];
+
+/* ------------------------------------------------------------------ */
+/*  Request ID generator                                               */
+/* ------------------------------------------------------------------ */
+
+function generateRequestId(): string {
+  const bytes = new Uint8Array(12);
+  crypto.getRandomValues(bytes);
+  return 'civint-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* ------------------------------------------------------------------ */
+/*  Route matching                                                     */
+/* ------------------------------------------------------------------ */
+
+function matchRoute(url: string, method: string): { route: Route; params: Record<string, string> } | null {
+  const pathname = new URL(url, 'http://localhost').pathname;
+
+  for (const route of ROUTES) {
+    if (route.method !== method && method !== 'OPTIONS') continue;
+    const match = pathname.match(route.pattern);
+    if (match) {
+      const params: Record<string, string> = {};
+      route.params.forEach((name, i) => {
+        params[name] = match[i + 1] || '';
+      });
+      return { route, params };
+    }
+  }
+
+  return null;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main request handler                                               */
+/* ------------------------------------------------------------------ */
+
+export async function handleRequest(
+  request: Request,
+  env: Record<string, string | undefined>,
+  db: CivIntStorage,
+  cache: CivIntCache,
+): Promise<Response> {
+  const config = loadConfig(env);
+  const requestId = generateRequestId();
+  const startTime = Date.now();
+
+  // CORS preflight
+  if (request.method === 'OPTIONS') {
+    return corsPreflight();
+  }
+
+  // Route matching
+  const matched = matchRoute(request.url, request.method);
+  if (!matched) {
+    const ctx: RouteContext = {
+      tenant: { id: 'anon', name: 'Anonymous', tier: 'free', isActive: true, journalismMode: false },
+      apiKeyId: '',
+      requestId,
+      startTime,
+      env,
+      db,
+      cache,
+    };
+    return jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404);
+  }
+
+  const { route, params } = matched;
+
+  // Authentication (except health which is open)
+  const tenant = route.handler === healthHandler
+    ? null
+    : await authenticateRequest(request, db);
+
+  if (!tenant && route.handler !== healthHandler) {
+    const ctx: RouteContext = {
+      tenant: { id: 'anon', name: 'Anonymous', tier: 'free', isActive: true, journalismMode: false },
+      apiKeyId: '',
+      requestId,
+      startTime,
+      env,
+      db,
+      cache,
+    };
+    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://civint.ca', ctx), 401);
+  }
+
+  // Build context
+  const ctx: RouteContext = {
+    tenant: tenant?.tenant || { id: 'anon', name: 'Anonymous', tier: 'free', isActive: true, journalismMode: false },
+    apiKeyId: tenant?.apiKeyId || '',
+    requestId,
+    startTime,
+    env,
+    db,
+    cache,
+  };
+
+  // Rate limit (skip for health and spec)
+  if (route.handler !== healthHandler && route.handler !== openApiHandler) {
+    const rateCheck = await checkRateLimit(ctx.tenant, db);
+    if (!rateCheck.allowed) {
+      await db.logAudit({
+        tenantId: ctx.tenant.id,
+        apiKeyId: ctx.apiKeyId,
+        operation: 'rate_limit',
+        endpoint: route.pattern.source,
+        outputSummary: rateCheck.reason || 'Rate limited',
+        confidence: null,
+        success: false,
+        durationMs: Date.now() - startTime,
+      });
+      return jsonResponse(buildError('RATE_LIMITED', rateCheck.reason || 'Rate limit exceeded', ctx), 429);
+    }
+  }
+
+  // Track usage
+  const now = new Date();
+  await db.incrementUsage(
+    ctx.tenant.id,
+    now.toISOString().slice(0, 10),
+    now.toISOString().slice(0, 7),
+  );
+
+  // Dispatch
+  try {
+    const start = Date.now();
+    const response = await route.handler(request, ctx, params);
+    const durationMs = Date.now() - start;
+
+    // Log audit for mutations
+    if (request.method === 'POST') {
+      await db.logAudit({
+        tenantId: ctx.tenant.id,
+        apiKeyId: ctx.apiKeyId,
+        operation: 'api_call',
+        endpoint: new URL(request.url).pathname,
+        outputSummary: `${response.status} in ${durationMs}ms`,
+        confidence: null,
+        success: response.status < 500,
+        durationMs,
+      });
+    }
+
+    return response;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Internal server error';
+    console.error('[API] Unhandled error:', message);
+    return jsonResponse(buildError('INTERNAL_ERROR', message, ctx), 500);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Workers Fetch Handler                                              */
+/* ------------------------------------------------------------------ */
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const db = new D1Storage(env.DB);
+    const cache = new KVCache(env.CACHE);
+    const envVars: Record<string, string | undefined> = {
+      ENVIRONMENT: env.ENVIRONMENT,
+      CIVINT_VERSION: env.CIVINT_VERSION,
+      CIVINT_NAME: env.CIVINT_NAME,
+      FREE_LIMIT: env.FREE_LIMIT,
+      PRO_LIMIT: env.PRO_LIMIT,
+      BUSINESS_LIMIT: env.BUSINESS_LIMIT,
+      AI_ENDPOINT: env.AI_ENDPOINT,
+      AI_MODEL: env.AI_MODEL,
+    };
+    return handleRequest(request, envVars, db, cache);
+  },
+};

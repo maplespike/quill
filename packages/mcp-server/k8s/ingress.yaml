@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: civint-mcp
+  namespace: ai-inference
+  annotations:
+    # Cluster Caddy will handle routing internally
+    # Update host to match cluster's .lan domain when deployed
+    caddy.ingress.kubernetes.io/rewrite-to: "/{path}"
+spec:
+  ingressClassName: caddy
+  rules:
+    - host: civint-mcp.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: civint-mcp
+                port:
+                  number: 3001

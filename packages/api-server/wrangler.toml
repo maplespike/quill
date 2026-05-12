@@ -1,0 +1,37 @@
+# CivInt Canada — API Server (Cloudflare Workers)
+name = "civint-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+node_compat = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "civint"
+database_id = "local"
+
+# KV Namespace for caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "local"
+
+# Environment Variables
+[vars]
+ENVIRONMENT = "development"
+CIVINT_VERSION = "0.1.0"
+CIVINT_NAME = "CivInt Canada"
+
+# Rate Limits (per tier, calls/month)
+FREE_LIMIT = "1000"
+PRO_LIMIT = "50000"
+BUSINESS_LIMIT = "250000"
+
+# Default AI Gateway (local llama)
+AI_ENDPOINT = "http://127.0.0.1:8080/v1"
+AI_MODEL = "qwen3.5-27b"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# Production domain (when active)
+# route = { pattern = "api.civint.ca/*", zone_name = "civint.ca" }
