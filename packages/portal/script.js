@@ -450,6 +450,99 @@
     draw();
   }
 
+  // ── Glossary Tooltips ───────────────────────────────────
+
+  const GLOSSARY = {
+    'in-camera': 'A parliamentary committee meeting closed to the public. The <code>&lt;InCameraNote/&gt;</code> field in the evidence XML is populated when proceedings go off the public record.',
+    'influence-actor': 'An organization tracked for its ability to shape Canadian policy — international organizations (UN, NATO), think tanks (C.D. Howe, Fraser), consultancies (McKinsey, Deloitte), and NGOs (Oxfam, JCCF).',
+    'sole-source': 'A government contract awarded to a single vendor without competitive bidding. Often flagged for higher risk of conflict of interest.',
+    'signal': 'An automated detection that connects two or more data points across different sources — e.g., a company lobbying a department while holding a sole-source contract from that same department.',
+    'entity-resolution': 'The process of identifying when the same person or organization appears across different data sources (committees, lobbying, procurement) and linking those records together.',
+    'revolving-door': 'When a person moves between a government role and a lobbying or industry position, especially within a short time frame. Tracked as a conflict-of-interest signal.',
+    'mcp': 'Model Context Protocol — an open standard that lets AI tools (ChatGPT, Claude, Gemini) connect to external data sources like CivInt through a common interface.',
+    'pipeline': 'An automated data processing module that ingests, parses, and verifies records from a specific government source (e.g., the committees pipeline, lobbying pipeline).',
+    'sweep': 'A scheduled run of the ingestion engine that collects new data from all sources, runs entity resolution, detects signals, and generates briefs.',
+    'provenance': 'The verifiable chain of custody for a piece of data — from the original government source through ingestion, parsing, and citation hashing. Allows independent verification of any claim.',
+    'citation': 'A SHA-256 content hash that uniquely identifies a specific record. Anyone can recompute the hash to verify the data hasn\'t been tampered with.',
+    'cron-job': 'A scheduled task that runs automatically on the K3s cluster — e.g., daily committee ingestion runs at 6:00 AM UTC.',
+    'in-camera-alert': 'A notification generated when a parliamentary committee meeting is flagged as in-camera (closed to the public). These are high-priority signals.',
+    'lobbying': 'Communications between organizations and government officials aimed at influencing policy, legislation, or contracting decisions. Tracked by the Office of the Commissioner of Lobbying.',
+    'procurement': 'The process by which the government purchases goods and services from private companies. CivInt tracks contract awards, sole-source designations, and vendor history.',
+    'tier': 'Your CivInt subscription level (Free, Pro, Business) that determines API call limits, rate limits, and feature access.',
+  };
+
+  function setupGlossary() {
+    const terms = document.querySelectorAll('[data-term]');
+    if (!terms.length) return;
+
+    // Create tooltip container
+    let tip = document.getElementById('glossary-tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'glossary-tip';
+      tip.className = 'glossary-tip';
+      document.body.appendChild(tip);
+    }
+
+    let hideTimeout = null;
+    let activeTerm = null;
+
+    function showTip(el, term) {
+      clearTimeout(hideTimeout);
+      const def = GLOSSARY[term];
+      if (!def) return;
+      
+      tip.innerHTML = `<strong style="color:var(--accent);text-transform:capitalize;">${term.replace(/-/g,' ')}</strong><br><span style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">${def}</span>`;
+      tip.style.display = 'block';
+      tip.style.opacity = '0';
+      tip.style.transform = 'translateY(4px)';
+
+      const rect = el.getBoundingClientRect();
+      const tipW = Math.min(320, window.innerWidth - 40);
+      let left = rect.left + rect.width/2 - tipW/2;
+      if (left < 10) left = 10;
+      if (left + tipW > window.innerWidth - 10) left = window.innerWidth - tipW - 10;
+
+      tip.style.width = tipW + 'px';
+      tip.style.left = left + 'px';
+      tip.style.top = (rect.bottom + 8 + window.scrollY) + 'px';
+
+      requestAnimationFrame(() => {
+        tip.style.opacity = '1';
+        tip.style.transform = 'translateY(0)';
+      });
+      activeTerm = el;
+    }
+
+    function hideTip() {
+      hideTimeout = setTimeout(() => {
+        tip.style.opacity = '0';
+        tip.style.transform = 'translateY(4px)';
+        setTimeout(() => { tip.style.display = 'none'; }, 200);
+        activeTerm = null;
+      }, 200);
+    }
+
+    terms.forEach(el => {
+      // Style the term
+      el.style.cursor = 'help';
+      el.style.borderBottom = '1px dashed var(--accent)';
+      el.style.color = 'var(--accent)';
+
+      el.addEventListener('mouseenter', () => {
+        if (activeTerm !== el) hideTip();
+        showTip(el, el.dataset.term);
+      });
+      el.addEventListener('mouseleave', hideTip);
+      tip.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+      tip.addEventListener('mouseleave', hideTip);
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        showTip(el, el.dataset.term);
+      });
+    });
+  }
+
   // ── Init ────────────────────────────────────────────────────
 
   function init() {
@@ -459,6 +552,7 @@
     setupScrollReveal();
     setupStatCounters();
     setupHeroCanvas();
+    setupGlossary();
     setupDemoBox();
     setupCopyButtons();
     setupNavScroll();
