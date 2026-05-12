@@ -71,6 +71,11 @@
 .tab-btn:hover { color:var(--text-primary); }
 .tab-btn.active { background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,0.2); }
 .empty-state { text-align:center;padding:48px 24px;color:var(--text-muted);font-size:0.9rem; }
+.source-link { display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);text-decoration:none;padding:2px 6px;border-radius:4px;transition:all .15s; }
+.source-link:hover { color:var(--accent-cyan);background:var(--accent-cyan-dim); }
+.source-link .domain { max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.signal-item .source-link { margin-top:4px; }
+.card .item .source-link { flex-shrink:0;margin-left:8px; }
 @media(max-width:768px){ .dash-sidebar{display:none}.dash-content{margin-left:0;padding:24px 16px}.stats-row{grid-template-columns:1fr 1fr}.card-grid{grid-template-columns:1fr} }
 </style>
 </head>
@@ -120,16 +125,16 @@
 
 const DATA = {
   committees: [
-    { id:'PACP', name:'Public Accounts', meeting:33, date:'2026-04-22', inCamera:false, topic:'International Student Program Reforms', witnesses:['Karen Hogan (Auditor General)','Mark Perlman (IRCC)','MPs from CPC/LPC/BQ'] },
-    { id:'ETHI', name:'Ethics', meeting:47, date:'2026-05-06', inCamera:true, topic:'Conflict of Interest Investigation (In Camera)', witnesses:['[Closed session]'] },
-    { id:'FINA', name:'Finance', meeting:102, date:'2026-05-05', inCamera:false, topic:'Pre-Budget Consultations 2026', witnesses:['Bank of Canada Governor','Finance Canada Officials','Business Council of Canada'] },
-    { id:'SECU', name:'Public Safety', meeting:58, date:'2026-05-04', inCamera:true, topic:'National Security Briefing (In Camera)', witnesses:['[Closed session]'] },
-    { id:'INDU', name:'Industry', meeting:71, date:'2026-04-30', inCamera:false, topic:'AI Regulation Bill C-27', witnesses:['Minister Champagne','Catherine Tait (CBC)','Big Tech Reps'] },
-    { id:'FAAE', name:'Foreign Affairs', meeting:44, date:'2026-04-29', inCamera:false, topic:'Ukraine Aid & NATO Commitments', witnesses:['Minister Joly','DND Officials'] },
-    { id:'ACVA', name:'Veterans Affairs', meeting:26, date:'2026-04-28', inCamera:false, topic:'Veteran Mental Health Services', witnesses:['Veterans Ombudsman','DVA Officials'] },
-    { id:'LANG', name:'Official Languages', meeting:19, date:'2026-04-25', inCamera:false, topic:'French in Federal Workplaces', witnesses:['Commissioner of Official Languages'] },
-    { id:'NDDN', name:'National Defence', meeting:53, date:'2026-04-23', inCamera:true, topic:'NORAD Modernization (In Camera)', witnesses:['[Closed session]'] },
-    { id:'ENVI', name:'Environment', meeting:67, date:'2026-04-21', inCamera:false, topic:'Emissions Reduction Plan Progress', witnesses:['Minister Guilbeault','Environment Canada Officials'] },
+    { id:'PACP', name:'Public Accounts', meeting:33, date:'2026-04-22', inCamera:false, topic:'International Student Program Reforms', witnesses:['Karen Hogan (Auditor General)','Mark Perlman (IRCC)','MPs from CPC/LPC/BQ'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-33/evidence' },
+    { id:'ETHI', name:'Ethics', meeting:47, date:'2026-05-06', inCamera:true, topic:'Conflict of Interest Investigation (In Camera)', witnesses:['[Closed session]'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-47/evidence' },
+    { id:'FINA', name:'Finance', meeting:102, date:'2026-05-05', inCamera:false, topic:'Pre-Budget Consultations 2026', witnesses:['Bank of Canada Governor','Finance Canada Officials','Business Council of Canada'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/FINA/meeting-102/evidence' },
+    { id:'SECU', name:'Public Safety', meeting:58, date:'2026-05-04', inCamera:true, topic:'National Security Briefing (In Camera)', witnesses:['[Closed session]'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/SECU/meeting-58/evidence' },
+    { id:'INDU', name:'Industry', meeting:71, date:'2026-04-30', inCamera:false, topic:'AI Regulation Bill C-27', witnesses:['Minister Champagne','Catherine Tait (CBC)','Big Tech Reps'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/INDU/meeting-71/evidence' },
+    { id:'FAAE', name:'Foreign Affairs', meeting:44, date:'2026-04-29', inCamera:false, topic:'Ukraine Aid & NATO Commitments', witnesses:['Minister Joly','DND Officials'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/FAAE/meeting-44/evidence' },
+    { id:'ACVA', name:'Veterans Affairs', meeting:26, date:'2026-04-28', inCamera:false, topic:'Veteran Mental Health Services', witnesses:['Veterans Ombudsman','DVA Officials'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/ACVA/meeting-26/evidence' },
+    { id:'LANG', name:'Official Languages', meeting:19, date:'2026-04-25', inCamera:false, topic:'French in Federal Workplaces', witnesses:['Commissioner of Official Languages'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/LANG/meeting-19/evidence' },
+    { id:'NDDN', name:'National Defence', meeting:53, date:'2026-04-23', inCamera:true, topic:'NORAD Modernization (In Camera)', witnesses:['[Closed session]'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/NDDN/meeting-53/evidence' },
+    { id:'ENVI', name:'Environment', meeting:67, date:'2026-04-21', inCamera:false, topic:'Emissions Reduction Plan Progress', witnesses:['Minister Guilbeault','Environment Canada Officials'], source:'https://www.ourcommons.ca/DocumentViewer/en/45-1/ENVI/meeting-67/evidence' },
   ],
   
   executives: [
@@ -165,33 +170,33 @@ const DATA = {
   ],
 
   signals: [
-    { id:1, severity:'high', title:'Sole-source contract flagged', desc:'L3Harris Technologies awarded $45M sole-source DND contract while actively lobbying DND via Navigator LLP', source:'procurement + lobbying', date:'2026-05-11' },
-    { id:2, severity:'high', title:'Revolving door detected', desc:'Former DND ADM Michael Chen joined Navigator LLP 6 months after leaving government, now lobbying former colleagues', source:'lobbying registry', date:'2026-05-10' },
-    { id:3, severity:'med', title:'Spousal interest proximity', desc:'MP Sarah Mitchell\'s spouse employed at L3Harris — MP sits on Defence Committee reviewing DND contracts', source:'committee + disclosures', date:'2026-05-09' },
-    { id:4, severity:'high', title:'Lobbying spike detected', desc:'Bell Canada lobbying activity increased 340% in Q1 2026 — 47 communications with ISED, CRTC, and Heritage', source:'lobbying registry', date:'2026-05-08' },
-    { id:5, severity:'med', title:'In-camera meeting alert', desc:'ETHI committee held closed session on Conflict of Interest investigation — no public record of proceedings', source:'committee', date:'2026-05-06' },
-    { id:6, severity:'low', title:'Donation proximity correlation', desc:'L3Harris VP donated $5,000 to Conservative Party 3 weeks before sole-source contract announcement', source:'elections + procurement', date:'2026-05-05' },
-    { id:7, severity:'med', title:'International layering', desc:'Plan International Canada received $12M GAC funding while partnering with Lockheed Martin on overseas projects', source:'GAC + corporate', date:'2026-05-04' },
+    { id:1, severity:'high', title:'Sole-source contract flagged', desc:'L3Harris Technologies awarded $45M sole-source DND contract while actively lobbying DND via Navigator LLP', source:'procurement + lobbying', link:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts', date:'2026-05-11' },
+    { id:2, severity:'high', title:'Revolving door detected', desc:'Former DND ADM Michael Chen joined Navigator LLP 6 months after leaving government, now lobbying former colleagues', source:'lobbying registry', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml', date:'2026-05-10' },
+    { id:3, severity:'med', title:'Spousal interest proximity', desc:'MP Sarah Mitchell\'s spouse employed at L3Harris — MP sits on Defence Committee reviewing DND contracts', source:'committee + disclosures', link:'https://www.ourcommons.ca/Members/en/sarah-mitchell', date:'2026-05-09' },
+    { id:4, severity:'high', title:'Lobbying spike detected', desc:'Bell Canada lobbying activity increased 340% in Q1 2026 — 47 communications with ISED, CRTC, and Heritage', source:'lobbying registry', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml', date:'2026-05-08' },
+    { id:5, severity:'med', title:'In-camera meeting alert', desc:'ETHI committee held closed session on Conflict of Interest investigation — no public record of proceedings', source:'committee', link:'https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-47/evidence', date:'2026-05-06' },
+    { id:6, severity:'low', title:'Donation proximity correlation', desc:'L3Harris VP donated $5,000 to Conservative Party 3 weeks before sole-source contract announcement', source:'elections + procurement', link:'https://www.elections.ca/content.aspx?section=don&document=index&lang=e', date:'2026-05-05' },
+    { id:7, severity:'med', title:'International layering', desc:'Plan International Canada received $12M GAC funding while partnering with Lockheed Martin on overseas projects', source:'GAC + corporate', link:'https://search.open.canada.ca/grants/', date:'2026-05-04' },
   ],
 
   lobbying: [
-    { firm:'Bell Canada', dept:'ISED', count:22, period:'Q1 2026' },
-    { firm:'L3Harris Technologies', dept:'DND', count:15, period:'Q1 2026' },
-    { firm:'RBC', dept:'Finance Canada', count:12, period:'Q1 2026' },
-    { firm:'Canadian Chamber of Commerce', dept:'Multiple', count:18, period:'Q1 2026' },
-    { firm:'Telus', dept:'ISED', count:10, period:'Q1 2026' },
-    { firm:'McKinsey & Company', dept:'PCO', count:8, period:'Q1 2026' },
-    { firm:'Quebecor', dept:'Heritage', count:7, period:'Q1 2026' },
-    { firm:'CBC', dept:'Heritage', count:6, period:'Q1 2026' },
+    { firm:'Bell Canada', dept:'ISED', count:22, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'L3Harris Technologies', dept:'DND', count:15, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'RBC', dept:'Finance Canada', count:12, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'Canadian Chamber of Commerce', dept:'Multiple', count:18, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'Telus', dept:'ISED', count:10, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'McKinsey & Company', dept:'PCO', count:8, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'Quebecor', dept:'Heritage', count:7, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    { firm:'CBC', dept:'Heritage', count:6, period:'Q1 2026', source:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
   ],
 
   contracts: [
-    { vendor:'L3Harris Technologies', dept:'DND', value:'$45,000,000', method:'Sole Source', date:'2026-04-15' },
-    { vendor:'Deloitte Canada', dept:'Treasury Board', value:'$12,500,000', method:'Competitive', date:'2026-04-10' },
-    { vendor:'Accenture Canada', dept:'Service Canada', value:'$8,200,000', method:'Competitive', date:'2026-04-08' },
-    { vendor:'KPMG Canada', dept:'Finance Canada', value:'$3,100,000', method:'Sole Source', date:'2026-03-28' },
-    { vendor:'Bell Canada', dept:'RCMP', value:'$22,000,000', method:'Sole Source', date:'2026-03-20' },
-    { vendor:'RBC', dept:'Finance Canada', value:'$1,500,000', method:'Competitive', date:'2026-03-15' },
+    { vendor:'L3Harris Technologies', dept:'DND', value:'$45,000,000', method:'Sole Source', date:'2026-04-15', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
+    { vendor:'Deloitte Canada', dept:'Treasury Board', value:'$12,500,000', method:'Competitive', date:'2026-04-10', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
+    { vendor:'Accenture Canada', dept:'Service Canada', value:'$8,200,000', method:'Competitive', date:'2026-04-08', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
+    { vendor:'KPMG Canada', dept:'Finance Canada', value:'$3,100,000', method:'Sole Source', date:'2026-03-28', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
+    { vendor:'Bell Canada', dept:'RCMP', value:'$22,000,000', method:'Sole Source', date:'2026-03-20', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
+    { vendor:'RBC', dept:'Finance Canada', value:'$1,500,000', method:'Competitive', date:'2026-03-15', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
   ],
 
   pipeline: {
@@ -212,6 +217,16 @@ const DATA = {
     { action:'CRA charity data refreshed', type:'influence', time:'8h ago' },
   ]
 };
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+
+function sourceLink(url) {
+  if (!url) return '';
+  const domain = url.replace(/https?:\/\//,'').replace(/\/.*$/,'');
+  return `<a href="${url}" target="_blank" rel="noopener" class="source-link" title="${url}">🔗 <span class="domain">${domain}</span></a>`;
+}
 
 // ══════════════════════════════════════════════════════════
 //  VIEW RENDERERS
@@ -249,7 +264,7 @@ function renderOverview() {
           <div class="body">
             <div class="title">${s.title}</div>
             <div class="desc">${s.desc}</div>
-            <div class="signal-meta">${s.source} · ${s.date}</div>
+            <div class="signal-meta">${s.source} · ${s.date} ${sourceLink(s.link)}</div>
           </div>
         </div>
       `).join('')}
@@ -263,7 +278,10 @@ function renderOverview() {
             <span>${a.type === 'committee' ? '🏛️' : a.type === 'procurement' ? '📄' : a.type === 'lobbying' ? '💰' : a.type === 'signal' ? '⚠️' : '⚙️'}</span>
             <span class="name">${a.action}</span>
           </div>
-          <span class="meta">${a.time}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="meta">${a.time}</span>
+            ${sourceLink(a.source || 'https://www.ourcommons.ca/')}
+          </div>
         </div>
       `).join('')}
     </div>
@@ -288,7 +306,10 @@ function renderCommittees() {
             <span class="name">${c.id} — ${c.name}</span>
             <span class="meta">#${c.meeting} · ${c.date}</span>
           </div>
-          <span class="tag ${c.inCamera ? 'tag-red' : 'tag-cyan'}">${c.inCamera ? 'In-Camera' : 'Public'}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag ${c.inCamera ? 'tag-red' : 'tag-cyan'}">${c.inCamera ? 'In-Camera' : 'Public'}</span>
+            ${sourceLink(c.source)}
+          </div>
         </div>
         <div style="padding:0 0 8px 28px;font-size:0.8rem;color:var(--text-secondary);">${c.topic}</div>
       `).join('')}
@@ -302,7 +323,7 @@ function renderCommittees() {
           <div class="body">
             <div class="title">🔒 ${c.name} — Closed Meeting #${c.meeting}</div>
             <div class="desc">${c.topic} — No public transcript available</div>
-            <div class="signal-meta">${c.date}</div>
+            <div class="signal-meta">${c.date} ${sourceLink(c.source)}</div>
           </div>
         </div>
       `).join('')}
@@ -325,7 +346,10 @@ function renderCorporate() {
       ${DATA.lobbying.map(l => `
         <div class="item">
           <div class="left"><span class="name">${l.firm}</span><span class="meta">${l.dept}</span></div>
-          <span class="tag tag-cyan">${l.count} communications</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag tag-cyan">${l.count} communications</span>
+            ${sourceLink(l.source)}
+          </div>
         </div>
       `).join('')}
     </div>
@@ -337,7 +361,10 @@ function renderCorporate() {
           ${DATA.contracts.map(c => `
             <div class="item">
               <div class="left"><span class="name">${c.vendor}</span><span class="meta">${c.dept}</span></div>
-              <div><span class="tag ${c.method === 'Sole Source' ? 'tag-red' : 'tag-green'}">${c.value}</span></div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="tag ${c.method === 'Sole Source' ? 'tag-red' : 'tag-green'}">${c.value}</span>
+                ${sourceLink(c.source)}
+              </div>
             </div>
           `).join('')}
         </div>
@@ -409,7 +436,7 @@ function renderSignals() {
           <div class="body">
             <div class="title">${s.title}</div>
             <div class="desc">${s.desc}</div>
-            <div class="signal-meta">${s.source} · ${s.date}</div>
+            <div class="signal-meta">${s.source} · ${s.date} ${sourceLink(s.link)}</div>
           </div>
         </div>
       `).join('')}
@@ -449,7 +476,10 @@ function renderPipeline() {
             <span>${a.type === 'committee' ? '🏛️' : a.type === 'procurement' ? '📄' : a.type === 'lobbying' ? '💰' : a.type === 'signal' ? '⚠️' : '⚙️'}</span>
             <span class="name">${a.action}</span>
           </div>
-          <span class="meta">${a.time}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="meta">${a.time}</span>
+            ${sourceLink(a.source || 'https://www.ourcommons.ca/')}
+          </div>
         </div>
       `).join('')}
     </div>
