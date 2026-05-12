@@ -13,7 +13,7 @@
     "test": "node --test src/**/*.test.ts"
   },
   "dependencies": {
-    "@civint/pipeline-core": "^0.1.0"
+    "@civint/pipeline-core": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241201.0",

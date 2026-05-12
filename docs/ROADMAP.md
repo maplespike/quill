@@ -47,7 +47,7 @@
 3. **Independent journalists** — trust-scored data feeds for stories
 4. **Civic tech developers** — free tier for building apps
 
-### Pricing tiers (Katzilla-inspired)
+### Pricing tiers
 
 | Tier | Price | Calls/month | Features |
 |------|-------|-------------|----------|
@@ -91,7 +91,6 @@
 - **White-label instances** for provinces, news orgs, or federal agencies
 - **Audit & provenance packages** — Verifiable data lineage for government reporting
 - **G7 / GovAI pilots** — international gov data interoperability
-- **Katzilla bridge** — cross-border data comparisons (Canada ↔ US)
 
 ---
 
