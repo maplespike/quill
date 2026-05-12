@@ -3,9 +3,8 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM"],
-    "outDir": "dist",
-    "rootDir": ".",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -17,7 +16,11 @@
   },
   "references": [
     { "path": "packages/pipeline-core" },
-    { "path": "packages/mcp-server" }
+    { "path": "packages/core" },
+    { "path": "packages/api-server" },
+    { "path": "packages/mcp-server" },
+    { "path": "packages/pretext-civic" },
+    { "path": "packages/web" }
   ],
   "exclude": ["node_modules", "dist"]
 }
