@@ -1,0 +1,10 @@
+export { computeHash, verifyHash, generateVerifyCommand } from './hashing.js';
+export type { CitationRecord } from './hashing.js';
+export { FifthGenerationWarfareDefense, defaultFiveGWResult } from './fifth-gen-warfare.js';
+export type {
+  FiveGWDefenseConfig,
+  FiveGWThreatLevel,
+  FiveGWPattern,
+  TrackedActorMatch,
+  FiveGWAnalysisResult,
+} from './fifth-gen-warfare.js';

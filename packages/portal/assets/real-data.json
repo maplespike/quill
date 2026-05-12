@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-05-12T21:01:25.157Z",
+  "stats": {
+    "committees": 3,
+    "inCamera": 3,
+    "totalInterventions": 665
+  },
+  "meetings": [
+    {
+      "committee": "PACP",
+      "name": "Public Accounts",
+      "meeting": 33,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 232,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-33/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/PACP/Evidence/EV14048045/PACPEV33-E.XML"
+    },
+    {
+      "committee": "LANG",
+      "name": "Official Languages",
+      "meeting": 18,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 348,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/LANG/meeting-18/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/LANG/Evidence/EV13886798/LANGEV18-E.XML"
+    },
+    {
+      "committee": "LANG",
+      "name": "Official Languages",
+      "meeting": 19,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 85,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/LANG/meeting-19/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/LANG/Evidence/EV13902850/LANGEV19-E.XML"
+    }
+  ],
+  "inCameraMeetings": [
+    {
+      "committee": "PACP",
+      "name": "Public Accounts",
+      "meeting": 33,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 232,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-33/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/PACP/Evidence/EV14048045/PACPEV33-E.XML"
+    },
+    {
+      "committee": "LANG",
+      "name": "Official Languages",
+      "meeting": 18,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 348,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/LANG/meeting-18/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/LANG/Evidence/EV13886798/LANGEV18-E.XML"
+    },
+    {
+      "committee": "LANG",
+      "name": "Official Languages",
+      "meeting": 19,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 85,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/LANG/meeting-19/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/LANG/Evidence/EV13902850/LANGEV19-E.XML"
+    }
+  ],
+  "lobbyingInfo": {
+    "title": "Lobbying Registrations",
+    "resources": [
+      {
+        "format": "CSV",
+        "url": "https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip"
+      },
+      {
+        "format": "XLS",
+        "url": "https://lobbycanada.gc.ca/media/hcvmsu4e/dictionary_registrations_dictionnaire_enregistrements.xlsx"
+      }
+    ]
+  }
+}

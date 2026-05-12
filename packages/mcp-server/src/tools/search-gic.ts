@@ -1,0 +1,74 @@
+import type { ToolDefinition, ToolHandler } from './types.js';
+import { searchRecords } from './pipeline-data.js';
+
+/**
+ * Search Governor-in-Council (GiC) appointments — order-in-council appointments
+ * to federal agencies, boards, commissions, and Crown corporations.
+ */
+export const definition: ToolDefinition = {
+  name: 'search_gic',
+  description:
+    'Search Governor-in-Council (GiC) appointments to federal agencies, boards, ' +
+    'commissions, and Crown corporations. Includes order-in-council appointment data, ' +
+    'salary ranges, departmental categories, appointment types, and ' +
+    'cross-references with federal lobbying registry for lobbyists-turned-appointees.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'Search terms — appointee name, department, or body (e.g., "Bank of Canada", "CRTC")',
+      },
+      department: {
+        type: 'string',
+        description: 'Filter by department or portfolio category',
+      },
+      limit: {
+        type: 'number',
+        minimum: 1,
+        maximum: 50,
+        description: 'Maximum results to return (default: 10)',
+      },
+    },
+    required: ['query'],
+  },
+};
+
+export const handler: ToolHandler = async (args) => {
+  const query = (args.query as string) ?? '';
+  if (!query.trim()) {
+    return {
+      content: {
+        tool: 'search_gic',
+        query: '',
+        error: 'No search query provided. Please specify an appointee name, department, or body.',
+      },
+      isError: true,
+    };
+  }
+
+  const department = (args.department as string) ?? '';
+  const limit = Math.min((args.limit as number) ?? 10, 50);
+
+  const { results, total } = searchRecords(['gic'], query, limit);
+
+  // Apply department filter if provided
+  let filteredResults = results;
+  if (department) {
+    const d = department.toLowerCase();
+    filteredResults = results.filter((r: any) =>
+      JSON.stringify(r).toLowerCase().includes(d)
+    );
+  }
+
+  return {
+    content: {
+      tool: 'search_gic',
+      query,
+      department: department || undefined,
+      limit,
+      results: filteredResults,
+      totalCount: department ? filteredResults.length : total,
+    },
+  };
+};
