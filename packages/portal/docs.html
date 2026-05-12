@@ -39,30 +39,30 @@
   <h3>🏛️ Parliamentary Committees</h3>
   <p>All 34 House of Commons committees are ingested daily from <a href="https://www.ourcommons.ca">ourcommons.ca</a>. Every meeting transcript, witness list, and committee report is parsed into structured data.</p>
   <p style="background:var(--accent-dim);padding:16px 20px;border-radius:8px;border-left:3px solid var(--accent);margin-top:12px;">
-    <strong>🔒 In-camera detection:</strong> The evidence XML schema includes an <code>&lt;InCameraNote/&gt;</code> field — when a committee goes closed-door, this field is populated. CivInt flags these meetings automatically so you know which proceedings are happening off the public record.
+    <strong>🔒 <span data-term="in-camera">In-camera detection</span>:</strong> The evidence XML schema includes an <code>&lt;InCameraNote/&gt;</code> field — when a committee goes closed-door, this field is populated. CivInt flags these meetings automatically so you know which proceedings are happening off the public record.
   </p>
 
   <h3>💰 Lobbying Registry</h3>
-  <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered lobbying communication. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
+  <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered <span data-term="lobbying">lobbying</span> communication. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
 
   <h3>📄 Government Procurement</h3>
-  <p>Contract awards from <a href="https://canadabuys.canada.ca">CanadaBuys</a> and proactive disclosure datasets are fetched daily. Each contract is tagged with whether it was sole-source or competitive. Large sole-source awards are flagged for review.</p>
+  <p>Contract awards from <a href="https://canadabuys.canada.ca">CanadaBuys</a> and proactive disclosure datasets are fetched daily. Each contract is tagged with whether it was <span data-term="sole-source">sole-source</span> or competitive. Large sole-source awards are flagged for review.</p>
 
   <h3>👔 Executive Statements</h3>
   <p>We track 17 high-impact Canadian executives across banking, telecom, and media — the CEOs of RBC, Telus, Bell, Rogers, CBC, Postmedia, Globe and Mail, and more. Their public statements, press releases, and committee appearances are collected from company IR feeds and cross-referenced with our committee data.</p>
 
   <h3>🌐 Influence Actors</h3>
-  <p>34 international organizations, NGOs, think tanks, and consultancies are monitored — from the UN and WEF to McKinsey and the CCPA. We track their government funding, committee appearances, lobbying activities, and CRA charity data from <a href="https://apps.cra-arc.gc.ca">charities.gc.ca</a>.</p>
+  <p>34 <span data-term="influence-actor">influence actors</span> — international organizations, NGOs, think tanks, and consultancies — are monitored from the UN and WEF to McKinsey and the CCPA. We track their government funding, committee appearances, lobbying activities, and CRA charity data from <a href="https://apps.cra-arc.gc.ca">charities.gc.ca</a>.</p>
 
   <h2>How the pipeline works</h2>
 
   <p>Data flows through 4 stages:</p>
 
   <ol style="color:var(--text-secondary);line-height:1.9;">
-    <li><strong>Ingestion</strong> — Each module has a fetcher that downloads data from the government source (XML, CSV, RSS, JSON)</li>
+    <li><strong>Ingestion</strong> — Each module has a fetcher that downloads data from the government source (XML, CSV, RSS, JSON) and funnels it into the <span data-term="pipeline">pipeline</span></li>
     <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records (committees, lobbying records, contracts, statements)</li>
-    <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent citation verification</li>
-    <li><strong>Cross-referencing</strong> — The engine package links people and organizations across all sources, detecting patterns (revolving doors, lobbying overlaps, etc.)</li>
+    <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent <span data-term="citation">citation</span> verification and <span data-term="provenance">provenance</span> tracking</li>
+    <li><strong>Cross-referencing</strong> — The <span data-term="entity-resolution">entity resolution</span> engine links people and organizations across all sources, detecting patterns (revolving doors, lobbying overlaps, etc.) that become <span data-term="signal">signals</span></li>
   </ol>
 
   <h2>Accessing the data</h2>

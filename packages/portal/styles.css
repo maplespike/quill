@@ -1547,3 +1547,35 @@ footer {
   .stats-row { grid-template-columns: repeat(2, 1fr); padding: 24px 0; }
   .stat .number { font-size: 2rem; }
 }
+
+/* Glossary tooltip */
+.glossary-tip {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: auto;
+  backdrop-filter: blur(12px);
+  max-width: 320px;
+}
+.glossary-tip code {
+  font-size: 0.8em;
+  padding: 1px 4px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+}
+[data-term] {
+  cursor: help;
+  border-bottom: 1px dashed var(--accent);
+  color: var(--accent);
+  transition: opacity 0.15s;
+}
+[data-term]:hover { opacity: 0.8; }
