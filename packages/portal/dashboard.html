@@ -101,9 +101,9 @@
     <div class="logo"><span class="logo-icon" style="width:24px;height:24px;font-size:0.75rem;">C</span>CivInt</div>
     <ul class="dash-nav" id="dashNav">
       <li><a data-view="overview" class="active">📊 Overview</a></li>
-      <li><a data-view="committees">🏛️ Committees <span class="badge">30</span></a></li>
+      <li><a data-view="committees">🏛️ Committees <span class="badge">34</span></a></li>
       <li><a data-view="corporate">💰 Corporate <span class="badge">17</span></a></li>
-      <li><a data-view="influence">🌐 Influence <span class="badge">32</span></a></li>
+      <li><a data-view="influence">🌐 Influence <span class="badge">34</span></a></li>
       <li><a data-view="signals">⚠️ Signals <span class="badge">7</span></a></li>
       <li style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;"><a data-view="pipeline">⚙️ Pipeline</a></li>
       <li><a href="index.html">🏠 Home</a></li>
@@ -157,6 +157,8 @@ const DATA = {
     { name:'World Economic Forum', cat:'IO', priority:'high' },
     { name:'NATO', cat:'IO', priority:'critical' },
     { name:'IMF', cat:'IO', priority:'high' },
+    { name:'World Bank Group', cat:'IO', priority:'high' },
+    { name:'World Trade Organization', cat:'IO', priority:'high' },
     { name:'McKinsey & Company', cat:'Consultancy', priority:'high' },
     { name:'Deloitte Canada', cat:'Consultancy', priority:'high' },
     { name:'KPMG Canada', cat:'Consultancy', priority:'high' },
@@ -165,18 +167,34 @@ const DATA = {
     { name:'Fraser Institute', cat:'Think Tank', priority:'high' },
     { name:'Canadian Centre for Policy Alternatives', cat:'Think Tank', priority:'high' },
     { name:'Conference Board of Canada', cat:'Think Tank', priority:'high' },
+    { name:'Macdonald-Laurier Institute', cat:'Think Tank', priority:'high' },
+    { name:'Broadbent Institute', cat:'Think Tank', priority:'medium' },
+    { name:'CIGI', cat:'Think Tank', priority:'medium' },
+    { name:'Rideau Institute', cat:'Think Tank', priority:'medium' },
     { name:'Munk School of Global Affairs', cat:'Academic', priority:'medium' },
     { name:'Justice Centre for Constitutional Freedoms', cat:'NGO', priority:'high' },
+    { name:'Oxfam Canada', cat:'NGO', priority:'medium' },
+    { name:'Transparency International Canada', cat:'NGO', priority:'medium' },
+    { name:'International Crisis Group', cat:'NGO', priority:'medium' },
+    { name:'Canadian Chamber of Commerce', cat:'Association', priority:'high' },
+    { name:'Business Council of Canada', cat:'Association', priority:'high' },
+    { name:'Assembly of First Nations', cat:'Association', priority:'high' },
+    { name:'Canadian Labour Congress', cat:'Union', priority:'high' },
+    { name:'Canadian Bar Association', cat:'Professional', priority:'medium' },
+    { name:'Canadian Medical Association', cat:'Professional', priority:'medium' },
+    { name:'Trilateral Commission', cat:'Network', priority:'medium' },
+    { name:'Bilderberg Meeting', cat:'Network', priority:'medium' },
+    { name:'Open Government Partnership', cat:'Network', priority:'medium' },
   ],
 
   signals: [
-    { id:1, severity:'high', title:'Sole-source contract flagged', desc:'L3Harris Technologies awarded $45M sole-source DND contract while actively lobbying DND via Navigator LLP', source:'procurement + lobbying', link:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts', date:'2026-05-11' },
+    { id:1, severity:'high', title:'Sole-source contract flagged', desc:'L3Harris Technologies awarded $45M sole-source DND contract while actively lobbying DND via Navigator LLP', source:'procurement + lobbying', link:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b', date:'2026-05-11' },
     { id:2, severity:'high', title:'Revolving door detected', desc:'Former DND ADM Michael Chen joined Navigator LLP 6 months after leaving government, now lobbying former colleagues', source:'lobbying registry', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml', date:'2026-05-10' },
     { id:3, severity:'med', title:'Spousal interest proximity', desc:'MP Sarah Mitchell\'s spouse employed at L3Harris — MP sits on Defence Committee reviewing DND contracts', source:'committee + disclosures', link:'https://www.ourcommons.ca/Members/en/sarah-mitchell', date:'2026-05-09' },
     { id:4, severity:'high', title:'Lobbying spike detected', desc:'Bell Canada lobbying activity increased 340% in Q1 2026 — 47 communications with ISED, CRTC, and Heritage', source:'lobbying registry', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml', date:'2026-05-08' },
     { id:5, severity:'med', title:'In-camera meeting alert', desc:'ETHI committee held closed session on Conflict of Interest investigation — no public record of proceedings', source:'committee', link:'https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-47/evidence', date:'2026-05-06' },
-    { id:6, severity:'low', title:'Donation proximity correlation', desc:'L3Harris VP donated $5,000 to Conservative Party 3 weeks before sole-source contract announcement', source:'elections + procurement', link:'https://www.elections.ca/content.aspx?section=don&document=index&lang=e', date:'2026-05-05' },
-    { id:7, severity:'med', title:'International layering', desc:'Plan International Canada received $12M GAC funding while partnering with Lockheed Martin on overseas projects', source:'GAC + corporate', link:'https://search.open.canada.ca/grants/', date:'2026-05-04' },
+    { id:6, severity:'low', title:'Donation proximity correlation', desc:'L3Harris VP donated $5,000 to Conservative Party 3 weeks before sole-source contract announcement', source:'elections + procurement', link:'https://www.elections.ca/content.aspx?section=pol&document=index&lang=e', date:'2026-05-05' },
+    { id:7, severity:'med', title:'International layering', desc:'Plan International Canada received $12M GAC funding while partnering with Lockheed Martin on overseas projects', source:'GAC + corporate', link:'https://open.canada.ca/data/en/dataset/432527ab-7aac-45b5-81d6-7597107a7013', date:'2026-05-04' },
   ],
 
   lobbying: [
@@ -191,12 +209,12 @@ const DATA = {
   ],
 
   contracts: [
-    { vendor:'L3Harris Technologies', dept:'DND', value:'$45,000,000', method:'Sole Source', date:'2026-04-15', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
-    { vendor:'Deloitte Canada', dept:'Treasury Board', value:'$12,500,000', method:'Competitive', date:'2026-04-10', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
-    { vendor:'Accenture Canada', dept:'Service Canada', value:'$8,200,000', method:'Competitive', date:'2026-04-08', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
-    { vendor:'KPMG Canada', dept:'Finance Canada', value:'$3,100,000', method:'Sole Source', date:'2026-03-28', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
-    { vendor:'Bell Canada', dept:'RCMP', value:'$22,000,000', method:'Sole Source', date:'2026-03-20', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
-    { vendor:'RBC', dept:'Finance Canada', value:'$1,500,000', method:'Competitive', date:'2026-03-15', source:'https://search.open.canada.ca/api/select?q=proactive+disclosure+contracts' },
+    { vendor:'L3Harris Technologies', dept:'DND', value:'$45,000,000', method:'Sole Source', date:'2026-04-15', source:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
+    { vendor:'Deloitte Canada', dept:'Treasury Board', value:'$12,500,000', method:'Competitive', date:'2026-04-10', source:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
+    { vendor:'Accenture Canada', dept:'Service Canada', value:'$8,200,000', method:'Competitive', date:'2026-04-08', source:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
+    { vendor:'KPMG Canada', dept:'Finance Canada', value:'$3,100,000', method:'Sole Source', date:'2026-03-28', source:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
+    { vendor:'Bell Canada', dept:'RCMP', value:'$22,000,000', method:'Sole Source', date:'2026-03-20', source:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
+    { vendor:'RBC', dept:'Finance Canada', value:'$1,500,000', method:'Competitive', date:'2026-03-15', source:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
   ],
 
   pipeline: {
