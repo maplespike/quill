@@ -1,0 +1,24 @@
+{
+  "name": "@civint/api-server",
+  "version": "0.1.0",
+  "description": "CivInt Canada API Gateway — multi-tenant REST gateway wrapping pipeline-core",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "dev": "node dist/dev-server.js",
+    "dev:watch": "tsc --watch & node --watch dist/dev-server.js",
+    "test": "node --test src/**/*.test.ts"
+  },
+  "dependencies": {
+    "@civint/pipeline-core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241201.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "undici": "^8.2.0"
+  }
+}

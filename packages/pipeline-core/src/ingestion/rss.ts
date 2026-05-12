@@ -1,0 +1,240 @@
+/**
+ * RSS Ingestion Module — Frostbite Data Pipeline
+ *
+ * Extracted from Frostbite Gazette Cloudflare Worker.
+ * Provides RSS feed fetching, parsing, deduplication, and source management.
+ *
+ * Originally defined in: cloudflare/worker/src/index.ts (lines 26-71, 104-172, 1093-1101)
+ * Merged with: src/lib/ingestion/rss.ts, scripts/ingest-rss.js
+ */
+
+/* ------------------------------------------------------------------ */
+/*  Types                                                             */
+/* ------------------------------------------------------------------ */
+
+export interface RSSItem {
+  title?: string;
+  link?: string;
+  guid?: string;
+  contentSnippet?: string;
+  content?: string;
+  pubDate?: string;
+}
+
+export interface RSSFeed {
+  items?: RSSItem[];
+}
+
+export interface RSSSource {
+  name: string;
+  url: string;
+  category: string;
+}
+
+/** Canonical article shape produced by the pipeline. */
+export interface RawArticle {
+  title: string;
+  summary: string;
+  content?: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  category: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  RSS Sources                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * 43+ Canadian news outlets used by the Frostbite Gazette pipeline.
+ * Single source of truth — the Worker and ingest-rss.js both derive from this.
+ */
+export const RSS_SOURCES: RSSSource[] = [
+  // National broadcasters
+  { name: 'CBC News Top Stories', url: 'https://www.cbc.ca/webfeed/rss/rss-topstories', category: 'news' },
+  { name: 'CBC Politics', url: 'https://www.cbc.ca/webfeed/rss/rss-politics', category: 'politics' },
+  { name: 'CBC Business', url: 'https://www.cbc.ca/webfeed/rss/rss-business', category: 'business' },
+  { name: 'CBC Technology', url: 'https://www.cbc.ca/webfeed/rss/rss-technology', category: 'technology' },
+  { name: 'CBC Health', url: 'https://www.cbc.ca/webfeed/rss/rss-health', category: 'health' },
+  { name: 'CBC Indigenous', url: 'https://www.cbc.ca/webfeed/rss/rss-indigenous', category: 'indigenous' },
+  { name: 'CBC World', url: 'https://www.cbc.ca/webfeed/rss/rss-world', category: 'world' },
+
+  // National newspapers
+  { name: 'The Globe and Mail - Canada', url: 'https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/', category: 'politics' },
+  { name: 'The Globe and Mail - Politics', url: 'https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/politics/', category: 'politics' },
+  { name: 'The Globe and Mail - Business', url: 'https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/business/', category: 'business' },
+  { name: 'The Globe and Mail - Opinion', url: 'https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/opinion/', category: 'opinion' },
+  { name: 'National Post', url: 'https://nationalpost.com/feed', category: 'news' },
+  { name: 'National Post - Politics', url: 'https://nationalpost.com/category/politics/feed', category: 'politics' },
+  { name: 'Toronto Star', url: 'https://www.thestar.com/content/feed?category=news', category: 'news' },
+  { name: 'Toronto Star - Politics', url: 'https://www.thestar.com/content/feed?category=politics', category: 'politics' },
+
+  // Regional newspapers - Ontario
+  { name: 'Toronto Sun', url: 'https://torontosun.com/feed', category: 'news' },
+  { name: 'Ottawa Citizen', url: 'https://ottawacitizen.com/feed', category: 'news' },
+  { name: 'Hamilton Spectator', url: 'https://thespec.com/feed', category: 'news' },
+  { name: 'Windsor Star', url: 'https://windsorstar.com/feed', category: 'news' },
+  { name: 'London Free Press', url: 'https://lfpress.com/feed', category: 'news' },
+  { name: 'Waterloo Region Record', url: 'https://therecord.com/feed', category: 'news' },
+
+  // Regional newspapers - Quebec
+  { name: 'Montreal Gazette', url: 'https://montrealgazette.com/feed', category: 'news' },
+  { name: 'Le Devoir', url: 'https://www.ledevoir.com/rss', category: 'news' },
+
+  // Regional newspapers - West
+  { name: 'Vancouver Sun', url: 'https://vancouversun.com/feed', category: 'news' },
+  { name: 'The Province', url: 'https://theprovince.com/feed', category: 'news' },
+  { name: 'Calgary Herald', url: 'https://calgaryherald.com/feed', category: 'news' },
+  { name: 'Edmonton Journal', url: 'https://edmontonjournal.com/feed', category: 'news' },
+  { name: 'Winnipeg Free Press', url: 'https://www.winnipegfreepress.com/feed', category: 'news' },
+  { name: 'Saskatoon StarPhoenix', url: 'https://thestarphoenix.com/feed', category: 'news' },
+  { name: 'Regina Leader-Post', url: 'https://leaderpost.com/feed', category: 'news' },
+
+  // Regional newspapers - Atlantic
+  { name: 'Chronicle Herald', url: 'https://chronicleherald.ca/feed', category: 'news' },
+  { name: 'Telegraph-Journal', url: 'https://telegraphjournal.com/feed', category: 'news' },
+
+  // Digital-first outlets
+  { name: 'The Narwhal', url: 'https://www.thenarwhal.ca/feed/', category: 'environment' },
+  { name: "Canada's National Observer", url: 'https://www.nationalobserver.com/rss', category: 'environment' },
+  { name: 'Tyee', url: 'https://thetyee.ca/RSS', category: 'news' },
+  { name: 'PressProgress', url: 'https://pressprogress.ca/feed/', category: 'politics' },
+
+  // Business publications
+  { name: 'Financial Post', url: 'https://financialpost.com/feed', category: 'business' },
+  { name: 'Canadian Business', url: 'https://www.canadianbusiness.com/feed/', category: 'business' },
+  { name: 'Bloomberg News - Canada', url: 'https://www.bnnbloomberg.ca/rss', category: 'business' },
+
+  // Policy and think tanks
+  { name: "Maclean's", url: 'https://www.macleans.ca/feed/', category: 'news' },
+  { name: 'Policy Options', url: 'https://policyoptions.irpp.org/feed/', category: 'policy' },
+  { name: 'The Hill Times', url: 'https://hilltimes.com/feed/', category: 'politics' },
+
+  // Wire services
+  { name: 'The Canadian Press', url: 'https://www.cp.org/feed/', category: 'news' },
+
+  // Specialized coverage
+  { name: 'First Nations Drum', url: 'https://www.firstnationsdrum.com/feed/', category: 'indigenous' },
+  { name: 'Open Canada', url: 'https://www.opencanada.org/feed/', category: 'policy' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  RSS Parser (regex-based, no external deps)                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Parse RSS XML text using regex extraction.
+ * No external dependencies — works in Workers, Node, and edge runtimes.
+ */
+export function parseRSS(xmlText: string): RSSFeed {
+  const items: RSSItem[] = [];
+
+  const itemMatches = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || [];
+
+  for (const itemBlock of itemMatches) {
+    const item: RSSItem = {};
+
+    const titleMatch = itemBlock.match(/<title[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/i);
+    if (titleMatch) item.title = titleMatch[1].trim();
+
+    const linkMatch = itemBlock.match(/<link[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/link>/i);
+    if (linkMatch) item.link = linkMatch[1].trim();
+
+    const guidMatch = itemBlock.match(/<guid[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/guid>/i);
+    if (guidMatch) item.guid = guidMatch[1].trim();
+
+    const pubDateMatch = itemBlock.match(/<pubDate[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/pubDate>/i);
+    if (pubDateMatch) item.pubDate = pubDateMatch[1].trim();
+
+    const descMatch = itemBlock.match(/<description[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
+    if (descMatch) {
+      item.contentSnippet = descMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      item.content = descMatch[1];
+    }
+
+    const contentMatch = itemBlock.match(/<content:encoded[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content:encoded>/i);
+    if (contentMatch) {
+      item.content = contentMatch[1];
+    }
+
+    if (item.title || item.link) {
+      items.push(item);
+    }
+  }
+
+  return { items };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hash / Deduplication                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Simple stable hash for URL deduplication.
+ * Produces consistent base-36 strings — compatible with existing D1 indices.
+ */
+export function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fetch & Process                                                    */
+/* ------------------------------------------------------------------ */
+
+export interface FetchOptions {
+  userAgent?: string;
+  timeout?: number;
+}
+
+/**
+ * Fetch a single RSS feed, parse it, and return items.
+ * Throws on HTTP errors or timeouts.
+ */
+export async function fetchFeed(
+  url: string,
+  options: FetchOptions = {},
+): Promise<RSSFeed> {
+  const { userAgent = 'CivInt-Canada/1.0 (+https://github.com/reverb256/civint)', timeout = 30_000 } = options;
+
+  // Use global fetch (available in Workers, Node 18+, Bun, Deno)
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      headers: { 'User-Agent': userAgent },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} for ${url}`);
+    }
+
+    const xmlText = await response.text();
+    return parseRSS(xmlText);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Deduplicate items against a set of known hashes.
+ * Returns only items whose URLs have not been seen.
+ */
+export function deduplicateItems(
+  items: RSSItem[],
+  existingHashes: Set<string>,
+): RSSItem[] {
+  return items.filter((item) => {
+    const url = item.link || item.guid || '';
+    if (!url) return false;
+    return !existingHashes.has(hashString(url));
+  });
+}
