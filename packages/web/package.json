@@ -1,5 +1,5 @@
 {
-  "name": "@civic-intel/web",
+  "name": "@civint/web",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -13,8 +13,8 @@
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@civic-intel/core": "workspace:*",
-    "@civic-intel/pretext-civic": "workspace:*",
+    "@civint/engine": "workspace:*",
+    "@civint/pretext-civic": "workspace:*",
     "zustand": "^5.0.0",
     "tailwindcss": "^4.0.0",
     "@tailwindcss/postcss": "^4.0.0"
