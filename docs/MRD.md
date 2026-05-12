@@ -32,7 +32,7 @@ CivInt fills this gap with a sovereign, Canadian-first solution.
 The timing is favorable:
 
 - **MCP is standardizing**: GPO (US Government Publishing Office) and Census Bureau already ship public MCP servers. Claude Desktop, Cursor, and VS Code Copilot all support MCP. The "MCP for government data" pattern is emerging.
-- **Katzilla proved the model**: katzilla.dev validates that developers + journalists will pay for unified government data APIs, especially with MCP support.
+- **Unified gov data APIs are proven**: The market validates that developers + journalists will pay for unified government data APIs, especially with MCP support.
 - **Provenance pressure**: Bill C-27 / AIDA creates compliance pressure for government data users. Audit trails become mandatory. We already have them.
 - **AI agents need data**: Every Canadian AI agent needs government data context. With MCP, CivInt becomes the canonical source.
 
@@ -44,10 +44,9 @@ The timing is favorable:
 
 | Competitor | Strengths | Weaknesses | Our Advantage |
 |------------|-----------|------------|---------------|
-| **mcp-canada** (ReyemTech) | 193 bilingual StatCan tools, open-source MIT | Self-hosted only, no SLA, no curation, experimental | Hosted + curated + verified + audited |
-| **Katzilla (katzilla.dev)** | 100+ US gov APIs, MCP support, proven pricing | US-only, no curation/AI layer, no Canada data | Canadian sovereignty, AI curation, 5GW defense |
-| **OpenGov / Socrata** | Enterprise contracts, dashboard UX | US-focus, expensive, no MCP, no AI curation | Zero-cost entry, MCP-native, AGPL core |
-| **Raw government portals** | Free, authoritative | 6+ different APIs, no caching, no SLA, no structure | One key, cached, curated, verified |
+|| **mcp-canada** (ReyemTech) | 193 bilingual StatCan tools, open-source MIT | Self-hosted only, no SLA, no curation, experimental | Hosted + curated + verified + audited |
+|| **OpenGov / Socrata** | Enterprise contracts, dashboard UX | US-focus, expensive, no MCP, no AI curation | Zero-cost entry, MCP-native, AGPL core |
+|| **Raw government portals** | Free, authoritative | 6+ different APIs, no caching, no SLA, no structure | One key, cached, curated, verified |
 
 ### Indirect Competitors
 
@@ -113,7 +112,7 @@ The timing is favorable:
 
 ## 4. Pricing Strategy
 
-### Tiers (Katzilla-inspired, adjusted for Canadian market)
+### Tiers
 
 | Tier | Monthly | Annual (20% off) | Calls/mo | Overage | Target persona |
 |------|---------|-------------------|----------|---------|----------------|
@@ -125,14 +124,14 @@ The timing is favorable:
 ### Why this pricing works
 
 - **Free tier** drives adoption and SEO (GitHub repos, blog posts referencing CivInt)
-- **Pro at $49** is a business-expense-approvable price point (same as Katzilla, ChatGPT Plus)
+- **Pro at $49** is a business-expense-approvable price point (same as ChatGPT Plus)
 - **Business at $199** undercuts traditional data services (Socrata starts at $1k/mo); soft overage at $0.01/call prevents hard blocks
 - **Enterprise custom** opens procurement paths for government buyers
 
 ### Overage & billing model
 
 - Free / Pro: hard cap at tier limit (no surprise bills)
-- Business: soft cap with $0.01/call overage (like Katzilla's $1/1k calls)
+- Business: soft cap with $0.01/call overage (industry-standard usage-based pricing)
 - Annual billing: 20% discount on all paid tiers (standard SaaS pattern)
 
 ---
@@ -164,7 +163,6 @@ The timing is favorable:
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
-| Katzilla expands to Canada | Medium | High | Beat them on Canadian datasets + 5GW defense + sovereign routing |
 | mcp-canada goes production | Low | Medium | We're already production-grade with multi-tenancy, audit, billing |
 | Government APIs change | Medium | Low | CKAN is standardized, StatCan WDS is stable; we can adapt pipeline-core |
 | AIDA regulations increase compliance cost | Low | Medium | Our audit logger already exceeds requirements |

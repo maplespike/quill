@@ -89,7 +89,6 @@ Usage-based billing with Stripe or Paddle.
 | Python SDK | Nice-to-have, TS first | Phase 3 |
 | Real-time alerts / webhooks | Complex, not needed for MVP | Phase 3 |
 | White-label self-hosted | Enterprise-only feature | Phase 4 |
-| Katzilla bridge (US cross-border) | Requires integration work | Phase 4 |
 | Mobile app | Not a developer tool | Phase 4 |
 | Natural language "Ask" endpoint | Requires NL query engine | Phase 3 |
 | Federal/provincial API compliance packages | Enterprise feature | Phase 4 |

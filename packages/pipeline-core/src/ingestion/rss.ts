@@ -117,6 +117,9 @@ export const RSS_SOURCES: RSSSource[] = [
   // Specialized coverage
   { name: 'First Nations Drum', url: 'https://www.firstnationsdrum.com/feed/', category: 'indigenous' },
   { name: 'Open Canada', url: 'https://www.opencanada.org/feed/', category: 'policy' },
+
+  // Advocacy / legal
+  { name: 'Justice Centre for Constitutional Freedoms', url: 'https://www.jccf.ca/feed/', category: 'policy' },
 ];
 
 /* ------------------------------------------------------------------ */

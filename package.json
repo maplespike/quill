@@ -2,19 +2,16 @@
   "name": "civint",
   "version": "0.1.0",
   "private": true,
-  "description": "CivInt Canada — civilian intelligence data platform",
+  "description": "Canadian sovereign data pipeline — ingestion, curation, verification, and audit for civic intelligence",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -r build",
-    "build:pipeline": "pnpm --filter @civint/pipeline-core build",
-    "build:engine": "pnpm --filter @civic-intel/core build",
-    "build:web": "pnpm --filter @civic-intel/web build",
-    "build:mcp": "pnpm --filter @civint/mcp-server build",
-    "build:api": "pnpm --filter @civint/api-server build",
-    "dev:web": "pnpm --filter @civic-intel/web dev",
-    "test": "pnpm -r test",
+    "build": "npm run build -w @frostbite/pipeline-core && npm run build -w @civint/mcp-server && npm run build -w @civint/api-server && npm run build -w @civint/engine",
+    "build:mcp": "npm run build -w @civint/mcp-server",
+    "build:api": "npm run build -w @civint/api-server",
+    "build:pipeline": "npm run build -w @frostbite/pipeline-core",
+    "test": "npm run test --workspaces",
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo"
   },
   "engines": {
