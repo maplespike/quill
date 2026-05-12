@@ -19,12 +19,11 @@
       CivInt Canada
     </a>
     <ul class="nav-links">
-      <li><a href="index.html#features">Features</a></li>
-      <li><a href="docs.html" class="active">Docs</a></li>
-      <li><a href="agents.html">Agents</a></li>
+      <li><a href="index.html#features">What it does</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="docs.html" class="active">How it Works</a></li>
+      <li><a href="agents.html">For AI Tools</a></li>
       <li><a href="index.html#pricing">Pricing</a></li>
-      <li><a href="dashboard.html" class="btn btn-sm btn-ghost">Dashboard</a></li>
-      <li><a href="#" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
@@ -32,255 +31,128 @@
 </nav>
 
 <div class="docs-page">
-  <h1>Documentation</h1>
-  <p>Get started with the CivInt Canada API and MCP server in minutes.</p>
+  <h1>How CivInt Canada works</h1>
+  <p>CivInt is a data pipeline that collects Canadian government information from official public sources every day — committee meetings, lobbying reports, procurement contracts — and connects the dots so you can see the full picture.</p>
 
-  <h2>Quickstart</h2>
+  <h2>What we track</h2>
 
-  <h3>1. Get your API key</h3>
-  <p>Sign up for a free account and get your API key from the dashboard. Your key is a Bearer token that authenticates all requests.</p>
+  <h3>🏛️ Parliamentary Committees</h3>
+  <p>All 34 House of Commons committees are ingested daily from <a href="https://www.ourcommons.ca">ourcommons.ca</a>. Every meeting transcript, witness list, and committee report is parsed into structured data. We track which meetings go in-camera (closed to the public) — those are flagged automatically.</p>
 
-  <div class="code-block">$ <span style="color:#fff;">export CIVINT_KEY="civint-xxxxxxxxxxxx"</span></div>
+  <h3>💰 Lobbying Registry</h3>
+  <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered lobbying communication. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
 
-  <h3>2. Make your first API call</h3>
-  <p>Query Canadian government datasets with a single curl command:</p>
+  <h3>📄 Government Procurement</h3>
+  <p>Contract awards from <a href="https://canadabuys.canada.ca">CanadaBuys</a> and proactive disclosure datasets are fetched daily. Each contract is tagged with whether it was sole-source or competitive. Large sole-source awards are flagged for review.</p>
 
+  <h3>👔 Executive Statements</h3>
+  <p>We track 17 high-impact Canadian executives across banking, telecom, and media — the CEOs of RBC, Telus, Bell, Rogers, CBC, Postmedia, Globe and Mail, and more. Their public statements, press releases, and committee appearances are collected from company IR feeds and cross-referenced with our committee data.</p>
+
+  <h3>🌐 Influence Actors</h3>
+  <p>34 international organizations, NGOs, think tanks, and consultancies are monitored — from the UN and WEF to McKinsey and the CCPA. We track their government funding, committee appearances, lobbying activities, and CRA charity data from <a href="https://apps.cra-arc.gc.ca">charities.gc.ca</a>.</p>
+
+  <h2>How the pipeline works</h2>
+
+  <p>Data flows through 4 stages:</p>
+
+  <ol style="color:var(--text-secondary);line-height:1.9;">
+    <li><strong>Ingestion</strong> — Each module has a fetcher that downloads data from the government source (XML, CSV, RSS, JSON)</li>
+    <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records (committees, lobbying records, contracts, statements)</li>
+    <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent citation verification</li>
+    <li><strong>Cross-referencing</strong> — The engine package links people and organizations across all sources, detecting patterns (revolving doors, lobbying overlaps, etc.)</li>
+  </ol>
+
+  <h2>Accessing the data</h2>
+
+  <h3>Dashboard</h3>
+  <p>The <a href="dashboard.html">CivInt Dashboard</a> gives you a live view of all pipelines, recent signals, and searchable data across all sources. No account needed — it's open to anyone on the local network.</p>
+
+  <h3>MCP Server (for AI tools)</h3>
+  <p>CivInt speaks the MCP protocol, which means you can connect it to ChatGPT, Claude, Gemini, Grok, or any MCP-compatible client. See the <a href="agents.html">AI Tools page</a> for setup instructions per platform.</p>
+
+  <h3>CLI</h3>
+  <p>Each ingestion module has a command-line interface for manual runs and scripting:</p>
   <div class="code-block">
-<span class="comment"># Search for GDP data from Statistics Canada</span>
-<span class="accent">curl</span> https://api.civint.ca/v1/gov/search <span class="keyword">\</span>
-  -H <span class="string">"Authorization: Bearer $CIVINT_KEY"</span> <span class="keyword">\</span>
-  -G -d <span class="string">'query=GDP&jurisdiction=federal&limit=3'</span>
+pnpm --filter @civint/pipeline-core committees --ingest-all<br>
+pnpm --filter @civint/pipeline-core lobbying --ingest<br>
+pnpm --filter @civint/pipeline-core procurement --check-sole-source<br>
+pnpm --filter @civint/pipeline-core influence --ingest-all<br>
+pnpm --filter @civint/engine sweep --full
   </div>
 
-  <p>Response:</p>
+  <h3>REST API</h3>
+  <p>The API server exposes data over HTTP at <code>https://civint.lan/api/v1/</code> (internal network). OpenAPI spec available.</p>
 
-  <div class="code-block">
-{
-  "tool": "query_gov_data",
-  "query": "GDP",
-  "results": [
-    {
-      "source": "Statistics Canada",
-      "title": "Gross domestic product, ...",
-      "url": "https://www.statcan.gc.ca/..."
-    }
-  ],
-  "totalCount": 1,
-  "citation": {
-    "hash": "sha256-abc123...",
-    "license": "OGL-C",
-    "verified": true
-  }
-}
-  </div>
-
-  <h3>3. Set up MCP for AI agents</h3>
-  <p>Add the CivInt Canada MCP server to your AI agent for natural-language queries against Canadian government data.</p>
-
-  <h4>Claude Desktop</h4>
-  <p>Add to your <code>claude_desktop_config.json</code>:</p>
-  <div class="code-block">
-{
-  "mcpServers": {
-    "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key-here" }
-    }
-  }
-}
-  </div>
-
-  <h4>Claude Code (CLI)</h4>
-  <div class="code-block">
-claude mcp add civint-canada -- npx @civint/mcp-server \
-  --env CIVINT_API_KEY=your-key-here
-  </div>
-
-  <h4>Cursor</h4>
-  <p>Add to your project's <code>.cursor/mcp.json</code>:</p>
-  <div class="code-block">
-{
-  "mcpServers": {
-    "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key-here" }
-    }
-  }
-}
-  </div>
-
-  <h4>Windsurf</h4>
-  <p>Add to <code>.windsurf/mcp_config.json</code>:</p>
-  <div class="code-block">
-{
-  "mcpServers": {
-    "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key-here" }
-    }
-  }
-}
-  </div>
-
-  <h4>Continue (VS Code / JetBrains)</h4>
-  <p>Add to <code>.continue/config.json</code>:</p>
-  <div class="code-block">
-{
-  "experimental": {
-    "mcpServers": {
-      "civint-canada": {
-        "command": "npx",
-        "args": ["@civint/mcp-server"],
-        "env": { "CIVINT_API_KEY": "your-key-here" }
-      }
-    }
-  }
-}
-  </div>
-
-  <h4>Any MCP client</h4>
-  <p>Or install globally and run as a subprocess:</p>
-  <div class="code-block">
-<span class="comment"># Install</span>
-npm install -g @civint/mcp-server
-
-<span class="comment"># Run</span>
-CIVINT_API_KEY=your-key npx @civint/mcp-server
-  </div>
-
-  <h2>MCP Tools Reference</h2>
-  <p>The MCP server exposes 6 tools for AI agents to query Canadian government data:</p>
+  <h2>Data sources</h2>
 
   <table>
-    <tr><th>Tool</th><th>Description</th><th>Input</th></tr>
-    <tr>
-      <td><code>query_gov_data</code></td>
-      <td>Query StatCan, CKAN, provincial data portals, and federal spending records</td>
-      <td>query (string), jurisdiction, category, limit</td>
-    </tr>
-    <tr>
-      <td><code>fact_check</code></td>
-      <td>Check a claim against official government data with confidence scoring</td>
-      <td>claim (string)</td>
-    </tr>
-    <tr>
-      <td><code>get_citation</code></td>
-      <td>Retrieve and verify a SHA-256 citation hash</td>
-      <td>hash (string)</td>
-    </tr>
-    <tr>
-      <td><code>latest_releases</code></td>
-      <td>Latest government data releases and economic indicators</td>
-      <td>jurisdiction, category, limit</td>
-    </tr>
+    <tr><th>Source</th><th>Format</th><th>Update frequency</th><th>Link</th></tr>
+    <tr><td>House of Commons committees</td><td>XML</td><td>Daily</td><td><a href="https://www.ourcommons.ca">ourcommons.ca</a></td></tr>
+    <tr><td>Lobbying Registry</td><td>CSV</td><td>Monthly</td><td><a href="https://lobbycanada.gc.ca">lobbycanada.gc.ca</a></td></tr>
+    <tr><td>Procurement contracts</td><td>JSON/CSV</td><td>Daily</td><td><a href="https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b">open.canada.ca</a></td></tr>
+    <tr><td>CanadaBuys tenders</td><td>RSS</td><td>Real-time</td><td><a href="https://canadabuys.canada.ca">canadabuys.canada.ca</a></td></tr>
+    <tr><td>CRA Charities</td><td>HTML/CSV</td><td>Weekly</td><td><a href="https://apps.cra-arc.gc.ca">cra-arc.gc.ca</a></td></tr>
+    <tr><td>Statistics Canada</td><td>SDMX</td><td>Varies</td><td><a href="https://www.statcan.gc.ca">statcan.gc.ca</a></td></tr>
+    <tr><td>Provincial portals (ON, BC, AB, QC)</td><td>CKAN</td><td>Varies</td><td><a href="https://open.canada.ca/data/en/dataset">open.canada.ca</a></td></tr>
+    <tr><td>Grants and contributions</td><td>JSON</td><td>Quarterly</td><td><a href="https://open.canada.ca/data/en/dataset/432527ab-7aac-45b5-81d6-7597107a7013">open.canada.ca</a></td></tr>
   </table>
 
-  <h2>REST API Reference</h2>
-  <p>All endpoints are available under <code>https://api.civint.ca/v1/</code>.</p>
+  <h2>Architecture</h2>
 
-  <table>
-    <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr>
-    <tr><td>GET</td><td><code>/v1/health</code></td><td>Health check</td><td>None</td></tr>
-    <tr><td>GET</td><td><code>/v1/gov/releases</code></td><td>Government data releases</td><td>API key</td></tr>
-    <tr><td>GET</td><td><code>/v1/gov/search</code></td><td>Search government datasets</td><td>API key</td></tr>
-    <tr><td>GET</td><td><code>/v1/citation/:hash</code></td><td>Verify SHA-256 citation hash</td><td>API key</td></tr>
-    <tr><td>GET</td><td><code>/v1/usage</code></td><td>View your current usage and quota</td><td>API key</td></tr>
-    <tr><td>POST</td><td><code>/v1/audit/query</code></td><td>Query audit logs (Business tier+)</td><td>API key</td></tr>
-  </table>
-
-  <h3>Authentication</h3>
-  <p>All requests (except <code>/v1/health</code>) require a Bearer token in the Authorization header:</p>
+  <p>CivInt runs on your own K3s cluster. The data never leaves your infrastructure. All code is open source under AGPL-3.0 / MIT.</p>
 
   <div class="code-block">
-Authorization: Bearer civint-xxxxxxxxxxxx
+civint/<br>
+├── packages/<br>
+│   ├── pipeline-core/    # Data ingestion, verification, audit<br>
+│   ├── engine/            # Entity resolution, graph, signals, briefs<br>
+│   ├── api-server/        # REST API gateway<br>
+│   ├── mcp-server/        # MCP protocol server for AI tools<br>
+│   ├── portal/            # This website (static HTML)<br>
+│   └── pretext-civic/     # Chart component library<br>
+├── flake.nix              # Nix build for container deployment<br>
+└── ROADMAP.md             # Full development roadmap
   </div>
 
-  <h3>Response Envelope</h3>
-  <p>Every response follows a consistent envelope with provenance metadata:</p>
+  <p>The pipeline runs via cron jobs on the K3s cluster, orchestrated through the engine's sweep scheduler. Each module is independent — you can run committees without procurement, or influence without lobbying.</p>
 
+  <h2>For developers</h2>
+
+  <p>CivInt is open source and self-hosted. The entire stack runs on your own infrastructure.</p>
+
+  <h3>Repository</h3>
+  <p><a href="https://github.com/reverb256/civint">github.com/reverb256/civint</a> — monorepo with all packages.</p>
+
+  <h3>Quick start</h3>
   <div class="code-block">
-{
-  "data": { ... },
-  "meta": {
-    "requestId": "civint-a1b2c3d4e5f6",
-    "timestamp": "2026-05-12T04:00:00Z",
-    "tier": "free",
-    "callsUsed": 42,
-    "callsLimit": 1000
-  },
-  "citation": {
-    "hash": "sha256-abc...",
-    "source": "Statistics Canada",
-    "license": "OGL-C",
-    "verified": true,
-    "verifyCommand": "echo -n ... | sha256sum"
-  }
-}
+git clone https://github.com/reverb256/civint<br>
+cd civint<br>
+pnpm install<br>
+pnpm run build
   </div>
 
-  <h2>Pricing</h2>
+  <h3>Run an ingestion module</h3>
+  <div class="code-block">
+pnpm --filter @civint/pipeline-core build<br>
+node -e "import { ingestAllCommittees } from '@civint/pipeline-core';<br>
+&nbsp;&nbsp;ingestAllCommittees(null, { onProgress: console.log });"
+  </div>
 
-  <table>
-    <tr><th>Tier</th><th>Monthly</th><th>Annual</th><th>Rate limit</th><th>Burst</th></tr>
-    <tr>
-      <td>Free</td>
-      <td>$0</td>
-      <td>$0</td>
-      <td>10 req/s</td>
-      <td>20</td>
-    </tr>
-    <tr>
-      <td>Pro</td>
-      <td>$49/mo</td>
-      <td>$499/yr <span class="save-badge" style="display:inline;margin-left:6px;">Save $89</span></td>
-      <td>100 req/s</td>
-      <td>200</td>
-    </tr>
-    <tr>
-      <td>Business</td>
-      <td>$199/mo</td>
-      <td>$1,999/yr <span class="save-badge" style="display:inline;margin-left:6px;">Save $389</span></td>
-      <td>500 req/s</td>
-      <td>1000</td>
-    </tr>
-    <tr>
-      <td>Enterprise</td>
-      <td>Custom</td>
-      <td>Custom</td>
-      <td>Custom</td>
-      <td>Custom</td>
-    </tr>
-  </table>
+  <h3>MCP server (standalone)</h3>
+  <div class="code-block">
+cd packages/mcp-server<br>
+pnpm start
+  </div>
 
-  <h3>Rate Limits</h3>
+  <h3>Engine sweep</h3>
+  <div class="code-block">
+pnpm --filter @civint/engine build<br>
+pnpm --filter @civint/engine sweep --full
+  </div>
 
-  <table>
-    <tr><th>Tier</th><th>Calls/month</th><th>Rate limit</th><th>Burst</th></tr>
-    <tr><td>Free</td><td>1,000</td><td>10 req/s</td><td>20</td></tr>
-    <tr><td>Pro</td><td>50,000</td><td>100 req/s</td><td>200</td></tr>
-    <tr><td>Business</td><td>250,000</td><td>500 req/s</td><td>1000</td></tr>
-    <tr><td>Enterprise</td><td>Unlimited</td><td>Custom</td><td>Custom</td></tr>
-  </table>
+  <h3>License</h3>
+  <p>Core pipeline: AGPL-3.0. MCP server, engine, portal: MIT. Government data retains its original license (primarily OGL-C).</p>
 
-  <h2>FAQ</h2>
-
-  <h3>What data sources are included?</h3>
-  <p>Statistics Canada (WDS/SDMX), open.canada.ca (CKAN), LODE geospatial portal, provincial open data portals (Ontario, British Columbia, Alberta, Quebec), and federal spending and procurement data via BuildCanada integration. RSS/Atom feeds from government agencies are supported where available.</p>
-
-  <h3>Is the API Canadian-hosted?</h3>
-  <p>Yes. All infrastructure runs on Canadian sovereign infrastructure. No data leaves Canada for processing. Foreign cloud providers are never used unless explicitly opted-in for specific use cases.</p>
-
-  <h3>What are provenance audit trails?</h3>
-  <p>Every API response includes a SHA-256 content hash, source attribution, timestamp, and machine-readable license metadata. You can independently verify any data point using the hash. This gives you a complete, auditable chain from raw government source to delivered response — ready-made for transparency reporting, fact-checking, and regulatory documentation.</p>
-
-  <h3>Can I self-host?</h3>
-  <p>Enterprise tier includes self-hosted options. The core pipeline library is open-source (AGPL-3.0) so you can run the data processing layer yourself.</p>
-
-  <h3>How is the data licensed?</h3>
-  <p>All government data retains its original license (primarily OGL-C — Open Government Licence – Canada). Our AI curation and analysis layers are our own IP but we provide full attribution and citation chains so you can always verify at the source.</p>
 </div>
 
 <footer>
@@ -290,24 +162,24 @@ Authorization: Bearer civint-xxxxxxxxxxxx
       <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
       CivInt Canada
       </a>
-      <p>Canada's sovereign, open government data layer. Built by Canadians for Canadian civic infrastructure.</p>
+      <p>CivInt makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
     </div>
     <div>
       <h4>Product</h4>
       <ul>
-        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#features">What it does</a></li>
         <li><a href="index.html#pricing">Pricing</a></li>
-        <li><a href="docs.html">Documentation</a></li>
+        <li><a href="docs.html">How it Works</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
       </ul>
     </div>
     <div>
-      <h4>Developers</h4>
+      <h4>AI Tools</h4>
       <ul>
-        <li><a href="docs.html">Quickstart</a></li>
-        <li><a href="agents.html">Docs for Agents</a></li>
-        <li><a href="llms.txt">llms.txt</a></li>
-        <li><a href="llms-full.txt">llms-full.txt</a></li>
+        <li><a href="agents.html">ChatGPT Setup</a></li>
+        <li><a href="agents.html">Claude Setup</a></li>
+        <li><a href="agents.html">Gemini Setup</a></li>
+        <li><a href="agents.html">Grok Setup</a></li>
       </ul>
     </div>
     <div>
