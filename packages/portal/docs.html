@@ -37,7 +37,10 @@
   <h2>What we track</h2>
 
   <h3>🏛️ Parliamentary Committees</h3>
-  <p>All 34 House of Commons committees are ingested daily from <a href="https://www.ourcommons.ca">ourcommons.ca</a>. Every meeting transcript, witness list, and committee report is parsed into structured data. We track which meetings go in-camera (closed to the public) — those are flagged automatically.</p>
+  <p>All 34 House of Commons committees are ingested daily from <a href="https://www.ourcommons.ca">ourcommons.ca</a>. Every meeting transcript, witness list, and committee report is parsed into structured data.</p>
+  <p style="background:var(--accent-dim);padding:16px 20px;border-radius:8px;border-left:3px solid var(--accent);margin-top:12px;">
+    <strong>🔒 In-camera detection:</strong> The evidence XML schema includes an <code>&lt;InCameraNote/&gt;</code> field — when a committee goes closed-door, this field is populated. CivInt flags these meetings automatically so you know which proceedings are happening off the public record.
+  </p>
 
   <h3>💰 Lobbying Registry</h3>
   <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered lobbying communication. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
