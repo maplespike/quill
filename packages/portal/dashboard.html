@@ -256,7 +256,7 @@ function renderOverview() {
 
   return `
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Committees</div><div class="stat-value">${DATA.committees.length}</div><div class="stat-sub">${DATA.committees.filter(c => c.inCamera).length} in-camera today</div></div>
+      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Committees</div><div class="stat-value">${DATA.committees.length}</div><div class="stat-sub" style="color:var(--accent);">${DATA.committees.filter(c => c.inCamera).length} in-camera 🔒</div></div>
       <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Lobbying Communications</div><div class="stat-value">${DATA.lobbying.reduce((s,l) => s + l.count, 0)}</div><div class="stat-sub">Q1 2026 tracked</div></div>
       <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Influence Actors</div><div class="stat-value">${DATA.influenceActors.length}</div><div class="stat-sub">${DATA.influenceActors.filter(a => a.priority === 'critical').length} critical priority</div></div>
       <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-label">Active Signals</div><div class="stat-value">${totalSignals}</div><div class="stat-sub" style="color:var(--accent);">${highSignals} high severity</div></div>
@@ -270,6 +270,20 @@ function renderOverview() {
           <div class="metric"><span>Records</span><span class="val">${m.records.toLocaleString()}</span></div>
           <div class="metric"><span>Last run</span><span class="val">${m.lastRun}</span></div>
           <div class="metric"><span>Errors</span><span class="val" style="color:${m.errors > 0 ? 'var(--accent)' : 'var(--success)'}">${m.errors}</span></div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-label">🔒 In-Camera Alerts</div>
+    <div class="signal-feed" style="margin-bottom:24px;">
+      ${DATA.committees.filter(c => c.inCamera).map(c => `
+        <div class="signal-item" style="border-left-color:var(--accent);">
+          <span class="sev high"></span>
+          <div class="body">
+            <div class="title">${c.name} — Closed Meeting #${c.meeting}</div>
+            <div class="desc">${c.topic} — No public transcript available</div>
+            <div class="signal-meta">${c.date} ${sourceLink(c.source)}</div>
+          </div>
         </div>
       `).join('')}
     </div>
