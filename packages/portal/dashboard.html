@@ -71,6 +71,38 @@
 .tab-btn:hover { color:var(--text-primary); }
 .tab-btn.active { background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,0.2); }
 .empty-state { text-align:center;padding:48px 24px;color:var(--text-muted);font-size:0.9rem; }
+
+/* Live search & ticker */
+.dash-topbar { display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap; }
+.dash-search { flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;transition:all .2s; }
+.dash-search:focus-within { border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim); }
+.dash-search input { flex:1;background:transparent;border:none;outline:none;color:var(--text-primary);font-size:0.85rem;font-family:inherit; }
+.dash-search input::placeholder { color:var(--text-muted); }
+.live-ticker { display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:0.8rem;color:var(--text-secondary);overflow:hidden;max-width:360px; }
+.live-ticker .pulse { width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0; }
+@keyframes pulse { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
+.live-ticker .ticker-text { white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+/* Entity spotlight */
+.spotlight-card { display:grid;grid-template-columns:auto 1fr;gap:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;transition:all .3s; }
+.spotlight-card:hover { border-color:var(--accent); }
+.spotlight-card .avatar { width:48px;height:48px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:var(--accent); }
+.spotlight-card .s-name { font-weight:700;font-size:1rem;color:var(--text-primary); }
+.spotlight-card .s-org { font-size:0.85rem;color:var(--text-secondary); }
+.spotlight-card .s-tags { display:flex;gap:6px;flex-wrap:wrap;margin-top:6px; }
+.spotlight-card .s-tag { font-size:0.7rem;padding:2px 8px;border-radius:99px;font-weight:600; }
+.spotlight-card .s-links { margin-top:8px;display:flex;gap:6px;flex-wrap:wrap; }
+.spotlight-card .s-link { font-size:0.78rem;color:var(--accent-cyan);text-decoration:none;padding:2px 8px;border-radius:4px;background:var(--accent-cyan-dim); }
+.spotlight-card .s-link:hover { color:var(--text-primary); }
+
+/* Animated counter */
+.stat-card .stat-value .counter-suffix { font-size:0.7em;color:var(--text-muted); }
+
+/* Cross-reference entity */
+.crossref { background:var(--bg-secondary);border-radius:8px;padding:12px 16px;margin-bottom:8px;border-left:3px solid var(--accent-cyan);font-size:0.85rem; }
+.crossref .cr-title { font-weight:600;color:var(--text-primary);margin-bottom:2px; }
+.crossref .cr-desc { color:var(--text-secondary);font-size:0.82rem; }
+.crossref .cr-source { font-size:0.75rem;color:var(--text-muted);margin-top:4px; }
 .source-link { display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);text-decoration:none;padding:2px 6px;border-radius:4px;transition:all .15s; }
 .source-link:hover { color:var(--accent-cyan);background:var(--accent-cyan-dim); }
 .source-link .domain { max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
@@ -233,7 +265,24 @@ const DATA = {
     { action:'In-camera meeting flagged: SECU #58', type:'committee', time:'6h ago' },
     { action:'Entity resolution sweep complete', type:'engine', time:'7h ago' },
     { action:'CRA charity data refreshed', type:'influence', time:'8h ago' },
-  ]
+  ],
+
+  // Cross-references — same entity appearing across multiple sources
+  crossrefs: [
+    { name:'Catherine Tait', org:'CBC/Radio-Canada', title:'President & CEO', apps:[
+      { source:'committee', label:'INDU Committee — AI Regulation Bill C-27', link:'https://www.ourcommons.ca/DocumentViewer/en/45-1/INDU/meeting-71/evidence' },
+      { source:'executive', label:'Tracked as media executive', link:'https://www.cbc.ca/mediacentre/' },
+    ]},
+    { name:'L3Harris Technologies', org:'Defence Contractor', title:'', apps:[
+      { source:'contract', label:'$45M sole-source DND contract', link:'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b' },
+      { source:'signal', label:'Lobbying DND via Navigator LLP (15 communications)', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+      { source:'signal', label:'VP donation to Conservatives before award', link:'https://www.elections.ca/content.aspx?section=pol&document=index&lang=e' },
+    ]},
+    { name:'Michael Chen', org:'Navigator LLP', title:'Former DND ADM', apps:[
+      { source:'signal', label:'Revolving door: DND → Navigator LLP (6mo gap)', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+      { source:'lobbying', label:'Lobbying former DND colleagues', link:'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/communicationscsv.shtml' },
+    ]},
+  ],
 };
 
 // ══════════════════════════════════════════════════════════
@@ -253,13 +302,37 @@ function sourceLink(url) {
 function renderOverview() {
   const totalSignals = DATA.signals.length;
   const highSignals = DATA.signals.filter(s => s.severity === 'high').length;
+  const totalRecords = Object.values(DATA.pipeline).reduce((s,m) => s + m.records, 0);
 
   return `
+    <!-- Search + Live Ticker -->
+    <div class="dash-topbar">
+      <div class="dash-search">
+        <span style="color:var(--text-muted);font-size:0.9rem;">🔍</span>
+        <input type="text" id="dashSearch" placeholder="Search committees, lobbyists, contracts..." oninput="window.searchDashboard(this.value)">
+      </div>
+      <div class="live-ticker">
+        <span class="pulse"></span>
+        <span class="ticker-text" id="tickerText">Pipeline running — ${totalRecords.toLocaleString()} records ingested</span>
+      </div>
+    </div>
+
+    <!-- Entity Spotlight -->
+    <div class="spotlight-card" id="spotlightCard">
+      ${renderSpotlight(DATA.crossrefs[0])}
+    </div>
+
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Committees</div><div class="stat-value">${DATA.committees.length}</div><div class="stat-sub" style="color:var(--accent);">${DATA.committees.filter(c => c.inCamera).length} in-camera 🔒</div></div>
-      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Lobbying Communications</div><div class="stat-value">${DATA.lobbying.reduce((s,l) => s + l.count, 0)}</div><div class="stat-sub">Q1 2026 tracked</div></div>
-      <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Influence Actors</div><div class="stat-value">${DATA.influenceActors.length}</div><div class="stat-sub">${DATA.influenceActors.filter(a => a.priority === 'critical').length} critical priority</div></div>
-      <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-label">Active Signals</div><div class="stat-value">${totalSignals}</div><div class="stat-sub" style="color:var(--accent);">${highSignals} high severity</div></div>
+      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Committees</div><div class="stat-value" data-count="${DATA.committees.length}">0</div><div class="stat-sub" style="color:var(--accent);">${DATA.committees.filter(c => c.inCamera).length} in-camera 🔒</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Lobbying Communications</div><div class="stat-value" data-count="${DATA.lobbying.reduce((s,l) => s + l.count, 0)}">0</div><div class="stat-sub">Q1 2026 tracked</div></div>
+      <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Influence Actors</div><div class="stat-value" data-count="${DATA.influenceActors.length}">0</div><div class="stat-sub">${DATA.influenceActors.filter(a => a.priority === 'critical').length} critical priority</div></div>
+      <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-label">Active Signals</div><div class="stat-value" data-count="${totalSignals}">0</div><div class="stat-sub" style="color:var(--accent);">${highSignals} high severity</div></div>
+    </div>
+
+    <!-- Cross-Reference Spotlight -->
+    <div class="section-label">🔗 Cross-Source Connections</div>
+    <div id="crossrefSection">
+      ${DATA.crossrefs.map(x => renderCrossref(x)).join('')}
     </div>
 
     <div class="section-label">Pipeline Health</div>
@@ -314,6 +387,38 @@ function renderOverview() {
             <span class="meta">${a.time}</span>
             ${sourceLink(a.source || 'https://www.ourcommons.ca/')}
           </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderSpotlight(entity) {
+  if (!entity) return '';
+  return `
+    <div class="avatar">${entity.name.charAt(0)}</div>
+    <div>
+      <div class="s-name">${entity.name}</div>
+      <div class="s-org">${entity.org}${entity.title ? ' · ' + entity.title : ''}</div>
+      <div class="s-tags">
+        ${entity.apps.map(a => `<span class="s-tag" style="background:var(--accent-cyan-dim);color:var(--accent-cyan);">${a.source}</span>`).join('')}
+      </div>
+      <div class="s-links">
+        ${entity.apps.map(a => `<a href="${a.link}" target="_blank" class="s-link">${a.label}</a>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderCrossref(x) {
+  return `
+    <div class="crossref">
+      <div class="cr-title">${x.name} <span style="font-weight:400;color:var(--text-muted);font-size:0.8rem;">${x.org}</span></div>
+      <div class="cr-desc">Appears in ${x.apps.length} sources:</div>
+      ${x.apps.map(a => `
+        <div style="margin-top:4px;font-size:0.82rem;display:flex;align-items:center;gap:6px;">
+          <span style="color:var(--text-muted);font-size:0.7rem;">${a.source === 'committee' ? '🏛️' : a.source === 'contract' ? '📄' : a.source === 'signal' ? '⚠️' : a.source === 'executive' ? '👔' : '💰'}</span>
+          <a href="${a.link}" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">${a.label}</a>
         </div>
       `).join('')}
     </div>
@@ -519,6 +624,76 @@ function renderPipeline() {
 }
 
 // ══════════════════════════════════════════════════════════
+//  LIVE FEATURES — counters, spotlight, ticker, search
+// ══════════════════════════════════════════════════════════
+
+function animateCounters() {
+  document.querySelectorAll('.stat-value[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    if (isNaN(target) || target === 0) { el.textContent = target; return; }
+    const duration = 1200;
+    const start = performance.now();
+    function update(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target).toLocaleString();
+      if (p < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+let spotlightInterval = null;
+function startSpotlightRotation() {
+  if (spotlightInterval) clearInterval(spotlightInterval);
+  let idx = 0;
+  const card = document.getElementById('spotlightCard');
+  if (!card || !DATA.crossrefs.length) return;
+  spotlightInterval = setInterval(() => {
+    idx = (idx + 1) % DATA.crossrefs.length;
+    card.innerHTML = renderSpotlight(DATA.crossrefs[idx]);
+  }, 6000);
+}
+
+let tickerInterval = null;
+function startTicker() {
+  if (tickerInterval) clearInterval(tickerInterval);
+  const ticker = document.getElementById('tickerText');
+  if (!ticker) return;
+  const msgs = [
+    'Pipeline running — 29,007 records ingested',
+    '🔒 3 in-camera meetings detected today',
+    '⚠️ 7 active signals — 3 high severity',
+    '💰 Top lobbyist: Bell Canada (22 communications)',
+    '🔗 Entity resolution: 1280 entities cross-referenced',
+  ];
+  let idx = 0;
+  tickerInterval = setInterval(() => {
+    idx = (idx + 1) % msgs.length;
+    ticker.style.opacity = '0';
+    setTimeout(() => {
+      ticker.textContent = msgs[idx];
+      ticker.style.opacity = '1';
+    }, 300);
+  }, 5000);
+  ticker.style.transition = 'opacity 0.3s';
+}
+
+window.searchDashboard = function(query) {
+  const q = query.toLowerCase().trim();
+  // Highlight cross-refs that match
+  document.querySelectorAll('.crossref').forEach(el => {
+    if (!q) { el.style.display = 'block'; return; }
+    el.style.display = el.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+  });
+  // Signal items
+  document.querySelectorAll('.signal-item').forEach(el => {
+    if (!q) { el.style.display = 'flex'; return; }
+    el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+  });
+};
+
+// ══════════════════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════════════════
 
@@ -532,7 +707,12 @@ function navigate(view) {
   if (views[view]) {
     content.innerHTML = `<h1>${view.charAt(0).toUpperCase() + view.slice(1)}</h1><p class="subtitle">${getSubtitle(view)}</p>` + views[view]();
   }
-  // Re-bind signal filters if on signals view
+  // Post-render hooks
+  if (view === 'overview') {
+    animateCounters();
+    startSpotlightRotation();
+    startTicker();
+  }
   if (view === 'signals') bindSignalFilters();
   window.scrollTo(0,0);
 }
