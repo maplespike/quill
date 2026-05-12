@@ -13,8 +13,8 @@
     "noEmit": true,
     "paths": {
       "@/*": ["./app/*"],
-      "@civic-intel/core": ["../core/src"],
-      "@civic-intel/pretext-civic": ["../pretext-civic/src"]
+      "@civint/engine": ["../engine/src"],
+      "@civint/pretext-civic": ["../pretext-civic/src"]
     },
     "allowJs": true,
     "incremental": true,

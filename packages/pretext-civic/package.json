@@ -1,5 +1,5 @@
 {
-  "name": "@civic-intel/pretext-civic",
+  "name": "@civint/pretext-civic",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@civic-intel/core": "workspace:*",
+    "@civint/engine": "workspace:*",
     "@chenglou/pretext": "^0.0.5",
     "@types/d3-sankey": "^0.12.5",
     "d3": "^7.9.0",
