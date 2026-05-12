@@ -26,8 +26,13 @@ Every record includes SHA-256 citation hashes, source provenance, and audit trai
 ```
 civint/
 ├── packages/
-│   ├── pipeline-core/    # Core: ingestion, verification, audit (shared library)
+│   ├── pipeline-core/    # Ingestion, verification, audit (shared library)
+│   ├── engine/           # Entity resolution, graph building, signals, briefs
+│   ├── web/              # Next.js dashboard UI
+│   ├── pretext-civic/    # React component library (charts, geo)
+│   ├── api-server/       # REST API gateway (multi-tenant)
 │   └── mcp-server/       # MCP protocol server for AI agent access
+├── packages/portal/      # Developer portal & documentation site
 ├── docs/                 # PRD, MRD, Roadmap
 ├── schema/               # D1 SQLite schema (unified)
 ├── flake.nix             # Nix build for OCI image deployment

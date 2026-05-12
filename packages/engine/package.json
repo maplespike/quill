@@ -1,5 +1,5 @@
 {
-  "name": "@civic-intel/core",
+  "name": "@civint/engine",
   "version": "0.0.1",
   "private": true,
   "type": "module",
