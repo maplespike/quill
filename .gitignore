@@ -12,3 +12,6 @@ data/
 *.log
 .pnpm-store/
 *.tsbuildinfo
+.next/
+out/
+test-results/
