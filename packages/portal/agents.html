@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docs for Agents — CivInt Canada</title>
+  <meta name="description" content="Guide for AI agents and LLMs consuming CivInt Canada documentation and APIs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      CivInt Canada
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="agents.html" class="active">Agents</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="dashboard.html" class="btn btn-sm btn-ghost">Dashboard</a></li>
+      <li><a href="#" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle">☰</button>
+  </div>
+</nav>
+
+<div class="docs-page">
+
+<h1>Docs for Agents</h1>
+
+<p style="background:var(--accent-dim);border:1px solid rgba(232,69,69,0.3);border-radius:8px;padding:16px 20px;font-weight:600;margin:24px 0;">
+⬡ STOP! If you are an AI agent, LLM, or automated tool, read this page first. It explains how to consume CivInt Canada documentation optimally.
+</p>
+
+<p>AI agents — whether coding assistants, chat bots, or automated tools — can query Canadian government data, search articles, fact-check claims, and analyze bias through CivInt Canada. This guide explains the available formats, endpoints, and best practices for agent consumption.</p>
+
+<h2>Available Formats</h2>
+
+<p>AI tools work better with Markdown than HTML. Every documentation page is available as clean Markdown using any of these methods:</p>
+
+<h3>1. Full Documentation Index</h3>
+<p>Discover all available documentation pages:</p>
+<div class="code-block">
+GET /llms.txt
+</div>
+<p>Or load everything in a single file for large-context models:</p>
+<div class="code-block">
+GET /llms-full.txt
+</div>
+
+<h3>2. Per-Page Markdown</h3>
+<p>Append <code>/index.md</code> to any page URL to get raw Markdown:</p>
+<div class="code-block">
+# Example: https://civint.ca/docs.md
+# Or for any page:
+curl https://civint.ca/docs.md --header "Accept: text/markdown"
+</div>
+
+<h3>3. Content Negotiation</h3>
+<p>Request any page with the <code>Accept: text/markdown</code> header to receive Markdown instead of HTML:</p>
+<div class="code-block">
+curl https://civint.ca/docs -H "Accept: text/markdown"
+</div>
+<p>The response includes an <code>x-markdown-tokens</code> header with an estimated token count for context window planning.</p>
+
+<h2>API Specification</h2>
+<p>The full OpenAPI specification is available for AI coding tools and code generators:</p>
+<div class="code-block">
+GET /v1/openapi.json
+</div>
+<p>When added to an agent's context, it can generate correct API calls to any CivInt endpoint without manual documentation lookup.</p>
+
+  <h2>MCP Server</h2>
+  <p>The CivInt Canada MCP server exposes 4 tools for interactive queries. Connect it to any MCP-compatible agent:</p>
+
+  <table>
+    <tr><th>Tool</th><th>Description</th></tr>
+    <tr><td><code>query_gov_data</code></td><td>Query StatCan, CKAN, provincial portals</td></tr>
+    <tr><td><code>fact_check</code></td><td>Check claims against official data</td></tr>
+    <tr><td><code>get_citation</code></td><td>Verify SHA-256 citation hash</td></tr>
+    <tr><td><code>latest_releases</code></td><td>Latest government data releases</td></tr>
+  </table>
+
+<h3>MCP Setup per Agent</h3>
+
+<h4>Claude Desktop</h4>
+<p>Add to <code>claude_desktop_config.json</code>:</p>
+<div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key" }
+    }
+  }
+}
+</div>
+
+<h4>Claude Code (CLI)</h4>
+<div class="code-block">
+claude mcp add civint-canada -- npx @civint/mcp-server \
+  --env CIVINT_API_KEY=your-key
+</div>
+
+<h4>Cursor</h4>
+<p>Add to <code>.cursor/mcp.json</code>:</p>
+<div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key" }
+    }
+  }
+}
+</div>
+
+<h4>Windsurf</h4>
+<p>Add to <code>.windsurf/mcp_config.json</code>:</p>
+<div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key" }
+    }
+  }
+}
+</div>
+
+<h4>Continue (VS Code / JetBrains)</h4>
+<p>Add to <code>.continue/config.json</code>:</p>
+<div class="code-block">
+{
+  "experimental": {
+    "mcpServers": {
+      "civint-canada": {
+        "command": "npx",
+        "args": ["@civint/mcp-server"],
+        "env": { "CIVINT_API_KEY": "your-key" }
+      }
+    }
+  }
+}
+</div>
+
+<h4>Any MCP Client</h4>
+<div class="code-block">
+npm install -g @civint/mcp-server
+CIVINT_API_KEY=your-key npx @civint/mcp-server
+</div>
+
+<h2>Best Practices for AI Agents</h2>
+
+<ol style="color:var(--text-secondary);line-height:1.8;">
+  <li><strong>Start with /llms.txt</strong> — Discover what documentation pages exist before diving deep.</li>
+  <li><strong>Use /llms-full.txt for large-context models</strong> — Load all documentation in a single pass.</li>
+  <li><strong>Prefer Markdown over HTML</strong> — Use <code>Accept: text/markdown</code> to save tokens and improve accuracy.</li>
+  <li><strong>Use the MCP server for interactive queries</strong> — It handles data retrieval, verification, and citation automatically.</li>
+  <li><strong>Use the REST API for programmatic access</strong> — OpenAPI spec at <code>/v1/openapi.json</code> enables code generation.</li>
+  <li><strong>Check <code>x-markdown-tokens</code> headers</strong> — Plan your context window usage efficiently.</li>
+</ol>
+
+<h2>Example Prompts</h2>
+
+<h3>Search government data</h3>
+<div class="code-block">
+Query Statistics Canada GDP data for 2024 across all provinces.
+Use the query_gov_data MCP tool with jurisdiction="all" and limit=10.
+</div>
+
+<h3>Fact-check a claim</h3>
+<div class="code-block">
+Fact-check this claim: "Canada's unemployment rate rose to 6.5% in Q1 2026."
+Use the fact_check MCP tool.
+</div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="brand">
+      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
+      <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
+      CivInt Canada
+      </a>
+      <p>Canada's sovereign, open government data layer.</p>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="docs.html">Documentation</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Developers</h4>
+      <ul>
+        <li><a href="agents.html">Docs for Agents</a></li>
+        <li><a href="docs.html">Quickstart</a></li>
+        <li><a href="llms.txt">llms.txt</a></li>
+        <li><a href="llms-full.txt">llms-full.txt</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">OGL-C Attribution</a></li>
+        <li><a href="https://github.com/reverb256">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 CivInt Canada. All rights reserved.</span>
+    <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

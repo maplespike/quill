@@ -1,0 +1,52 @@
+# CivInt Canada — API & Documentation Index
+
+> CivInt Canada is Canada's sovereign, AI-native government data layer: one REST + MCP API for
+> government datasets (StatCan, open.canada.ca, federal spending, provincial portals) with built-in
+> AI curation, SHA-256 verification, and provenance audit trails.
+
+- **Base URL:** https://api.civint.ca/v1/
+- **OpenAPI Spec:** /v1/openapi.json
+- **MCP Server:** `npx @civint/mcp-server` (stdio/SSE transport)
+- **GitHub:** https://github.com/reverb256/frostbite-data-pipeline
+- **License:** Attribution required. Government data under OGL-C.
+
+---
+
+## API Endpoints
+
+- `/v1/health` — Health check
+- `/v1/gov/releases` — Government data releases
+- `/v1/gov/search` — Search datasets by keyword/jurisdiction
+- `/v1/citation/:hash` — Verify SHA-256 citation hash
+- `/v1/usage` — View usage/quotas
+- `/v1/audit/query` — Query audit logs (Business tier+)
+
+## MCP Tools
+
+- `query_gov_data` — Query government data (query, jurisdiction, category, limit)
+- `fact_check` — Check a claim against government data (claim)
+- `get_citation` — Retrieve/verify citation hash (hash)
+- `latest_releases` — Latest government data releases (jurisdiction, category, limit)
+
+## Documentation
+
+- [Docs](/docs.html) — Full documentation
+- [Quickstart](/docs.html#quickstart) — Get started in 3 steps
+- [Dashboard](/dashboard.html) — Developer portal
+
+## Plans & Pricing
+
+| Tier | Monthly | Annual | Rate Limit |
+|------|---------|--------|------------|
+| Free | $0 | $0 | 10 req/s |
+| Pro | $49/mo | $499/yr | 100 req/s |
+| Business | $199/mo | $1,999/yr | 500 req/s |
+| Enterprise | Custom | Custom | Custom |
+
+## Full documentation
+
+All documentation is available as single-file Markdown at /llms-full.txt, or browse individual pages:
+
+- /docs.html — Quickstart, MCP setup, API reference, FAQ
+- /dashboard.html — Developer dashboard
+- /index.html — Landing page, features, pricing

@@ -1,0 +1,21 @@
+{
+  "name": "@civint/pipeline-core",
+  "version": "0.1.0",
+  "description": "Core data pipeline: ingestion, curation, verification, and audit for Canadian civic data",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "test": "node --test src/**/*.test.ts"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.8.0",
+    "undici": "^8.2.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}

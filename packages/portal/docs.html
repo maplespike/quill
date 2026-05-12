@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docs — CivInt Canada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      CivInt Canada
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="docs.html" class="active">Docs</a></li>
+      <li><a href="agents.html">Agents</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="dashboard.html" class="btn btn-sm btn-ghost">Dashboard</a></li>
+      <li><a href="#" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle">☰</button>
+  </div>
+</nav>
+
+<div class="docs-page">
+  <h1>Documentation</h1>
+  <p>Get started with the CivInt Canada API and MCP server in minutes.</p>
+
+  <h2>Quickstart</h2>
+
+  <h3>1. Get your API key</h3>
+  <p>Sign up for a free account and get your API key from the dashboard. Your key is a Bearer token that authenticates all requests.</p>
+
+  <div class="code-block">$ <span style="color:#fff;">export CIVINT_KEY="civint-xxxxxxxxxxxx"</span></div>
+
+  <h3>2. Make your first API call</h3>
+  <p>Query Canadian government datasets with a single curl command:</p>
+
+  <div class="code-block">
+<span class="comment"># Search for GDP data from Statistics Canada</span>
+<span class="accent">curl</span> https://api.civint.ca/v1/gov/search <span class="keyword">\</span>
+  -H <span class="string">"Authorization: Bearer $CIVINT_KEY"</span> <span class="keyword">\</span>
+  -G -d <span class="string">'query=GDP&jurisdiction=federal&limit=3'</span>
+  </div>
+
+  <p>Response:</p>
+
+  <div class="code-block">
+{
+  "tool": "query_gov_data",
+  "query": "GDP",
+  "results": [
+    {
+      "source": "Statistics Canada",
+      "title": "Gross domestic product, ...",
+      "url": "https://www.statcan.gc.ca/..."
+    }
+  ],
+  "totalCount": 1,
+  "citation": {
+    "hash": "sha256-abc123...",
+    "license": "OGL-C",
+    "verified": true
+  }
+}
+  </div>
+
+  <h3>3. Set up MCP for AI agents</h3>
+  <p>Add the CivInt Canada MCP server to your AI agent for natural-language queries against Canadian government data.</p>
+
+  <h4>Claude Desktop</h4>
+  <p>Add to your <code>claude_desktop_config.json</code>:</p>
+  <div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key-here" }
+    }
+  }
+}
+  </div>
+
+  <h4>Claude Code (CLI)</h4>
+  <div class="code-block">
+claude mcp add civint-canada -- npx @civint/mcp-server \
+  --env CIVINT_API_KEY=your-key-here
+  </div>
+
+  <h4>Cursor</h4>
+  <p>Add to your project's <code>.cursor/mcp.json</code>:</p>
+  <div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key-here" }
+    }
+  }
+}
+  </div>
+
+  <h4>Windsurf</h4>
+  <p>Add to <code>.windsurf/mcp_config.json</code>:</p>
+  <div class="code-block">
+{
+  "mcpServers": {
+    "civint-canada": {
+      "command": "npx",
+      "args": ["@civint/mcp-server"],
+      "env": { "CIVINT_API_KEY": "your-key-here" }
+    }
+  }
+}
+  </div>
+
+  <h4>Continue (VS Code / JetBrains)</h4>
+  <p>Add to <code>.continue/config.json</code>:</p>
+  <div class="code-block">
+{
+  "experimental": {
+    "mcpServers": {
+      "civint-canada": {
+        "command": "npx",
+        "args": ["@civint/mcp-server"],
+        "env": { "CIVINT_API_KEY": "your-key-here" }
+      }
+    }
+  }
+}
+  </div>
+
+  <h4>Any MCP client</h4>
+  <p>Or install globally and run as a subprocess:</p>
+  <div class="code-block">
+<span class="comment"># Install</span>
+npm install -g @civint/mcp-server
+
+<span class="comment"># Run</span>
+CIVINT_API_KEY=your-key npx @civint/mcp-server
+  </div>
+
+  <h2>MCP Tools Reference</h2>
+  <p>The MCP server exposes 6 tools for AI agents to query Canadian government data:</p>
+
+  <table>
+    <tr><th>Tool</th><th>Description</th><th>Input</th></tr>
+    <tr>
+      <td><code>query_gov_data</code></td>
+      <td>Query StatCan, CKAN, provincial data portals, and federal spending records</td>
+      <td>query (string), jurisdiction, category, limit</td>
+    </tr>
+    <tr>
+      <td><code>fact_check</code></td>
+      <td>Check a claim against official government data with confidence scoring</td>
+      <td>claim (string)</td>
+    </tr>
+    <tr>
+      <td><code>get_citation</code></td>
+      <td>Retrieve and verify a SHA-256 citation hash</td>
+      <td>hash (string)</td>
+    </tr>
+    <tr>
+      <td><code>latest_releases</code></td>
+      <td>Latest government data releases and economic indicators</td>
+      <td>jurisdiction, category, limit</td>
+    </tr>
+  </table>
+
+  <h2>REST API Reference</h2>
+  <p>All endpoints are available under <code>https://api.civint.ca/v1/</code>.</p>
+
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr>
+    <tr><td>GET</td><td><code>/v1/health</code></td><td>Health check</td><td>None</td></tr>
+    <tr><td>GET</td><td><code>/v1/gov/releases</code></td><td>Government data releases</td><td>API key</td></tr>
+    <tr><td>GET</td><td><code>/v1/gov/search</code></td><td>Search government datasets</td><td>API key</td></tr>
+    <tr><td>GET</td><td><code>/v1/citation/:hash</code></td><td>Verify SHA-256 citation hash</td><td>API key</td></tr>
+    <tr><td>GET</td><td><code>/v1/usage</code></td><td>View your current usage and quota</td><td>API key</td></tr>
+    <tr><td>POST</td><td><code>/v1/audit/query</code></td><td>Query audit logs (Business tier+)</td><td>API key</td></tr>
+  </table>
+
+  <h3>Authentication</h3>
+  <p>All requests (except <code>/v1/health</code>) require a Bearer token in the Authorization header:</p>
+
+  <div class="code-block">
+Authorization: Bearer civint-xxxxxxxxxxxx
+  </div>
+
+  <h3>Response Envelope</h3>
+  <p>Every response follows a consistent envelope with provenance metadata:</p>
+
+  <div class="code-block">
+{
+  "data": { ... },
+  "meta": {
+    "requestId": "civint-a1b2c3d4e5f6",
+    "timestamp": "2026-05-12T04:00:00Z",
+    "tier": "free",
+    "callsUsed": 42,
+    "callsLimit": 1000
+  },
+  "citation": {
+    "hash": "sha256-abc...",
+    "source": "Statistics Canada",
+    "license": "OGL-C",
+    "verified": true,
+    "verifyCommand": "echo -n ... | sha256sum"
+  }
+}
+  </div>
+
+  <h2>Pricing</h2>
+
+  <table>
+    <tr><th>Tier</th><th>Monthly</th><th>Annual</th><th>Rate limit</th><th>Burst</th></tr>
+    <tr>
+      <td>Free</td>
+      <td>$0</td>
+      <td>$0</td>
+      <td>10 req/s</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>Pro</td>
+      <td>$49/mo</td>
+      <td>$499/yr <span class="save-badge" style="display:inline;margin-left:6px;">Save $89</span></td>
+      <td>100 req/s</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <td>Business</td>
+      <td>$199/mo</td>
+      <td>$1,999/yr <span class="save-badge" style="display:inline;margin-left:6px;">Save $389</span></td>
+      <td>500 req/s</td>
+      <td>1000</td>
+    </tr>
+    <tr>
+      <td>Enterprise</td>
+      <td>Custom</td>
+      <td>Custom</td>
+      <td>Custom</td>
+      <td>Custom</td>
+    </tr>
+  </table>
+
+  <h3>Rate Limits</h3>
+
+  <table>
+    <tr><th>Tier</th><th>Calls/month</th><th>Rate limit</th><th>Burst</th></tr>
+    <tr><td>Free</td><td>1,000</td><td>10 req/s</td><td>20</td></tr>
+    <tr><td>Pro</td><td>50,000</td><td>100 req/s</td><td>200</td></tr>
+    <tr><td>Business</td><td>250,000</td><td>500 req/s</td><td>1000</td></tr>
+    <tr><td>Enterprise</td><td>Unlimited</td><td>Custom</td><td>Custom</td></tr>
+  </table>
+
+  <h2>FAQ</h2>
+
+  <h3>What data sources are included?</h3>
+  <p>Statistics Canada (WDS/SDMX), open.canada.ca (CKAN), LODE geospatial portal, provincial open data portals (Ontario, British Columbia, Alberta, Quebec), and federal spending and procurement data via BuildCanada integration. RSS/Atom feeds from government agencies are supported where available.</p>
+
+  <h3>Is the API Canadian-hosted?</h3>
+  <p>Yes. All infrastructure runs on Canadian sovereign infrastructure. No data leaves Canada for processing. Foreign cloud providers are never used unless explicitly opted-in for specific use cases.</p>
+
+  <h3>What are provenance audit trails?</h3>
+  <p>Every API response includes a SHA-256 content hash, source attribution, timestamp, and machine-readable license metadata. You can independently verify any data point using the hash. This gives you a complete, auditable chain from raw government source to delivered response — ready-made for transparency reporting, fact-checking, and regulatory documentation.</p>
+
+  <h3>Can I self-host?</h3>
+  <p>Enterprise tier includes self-hosted options. The core pipeline library is open-source (AGPL-3.0) so you can run the data processing layer yourself.</p>
+
+  <h3>How is the data licensed?</h3>
+  <p>All government data retains its original license (primarily OGL-C — Open Government Licence – Canada). Our AI curation and analysis layers are our own IP but we provide full attribution and citation chains so you can always verify at the source.</p>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="brand">
+      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
+      <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
+      CivInt Canada
+      </a>
+      <p>Canada's sovereign, open government data layer. Built by Canadians for Canadian civic infrastructure.</p>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="docs.html">Documentation</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Developers</h4>
+      <ul>
+        <li><a href="docs.html">Quickstart</a></li>
+        <li><a href="agents.html">Docs for Agents</a></li>
+        <li><a href="llms.txt">llms.txt</a></li>
+        <li><a href="llms-full.txt">llms-full.txt</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">OGL-C Attribution</a></li>
+        <li><a href="https://github.com/reverb256">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 CivInt Canada. All rights reserved.</span>
+    <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

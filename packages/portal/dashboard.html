@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — CivInt Canada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      CivInt Canada
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="agents.html">Agents</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><button class="theme-toggle"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle">☰</button>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar glass">
+    <div class="user-info">
+      <div class="user-avatar">JD</div>
+      <div class="name">Jane Dev</div>
+      <div class="tier">✦ Free Tier</div>
+    </div>
+
+    <div class="dash-nav-group-label">Workspace</div>
+    <ul class="dash-nav">
+      <li><a href="#" class="active">📊 Overview</a></li>
+      <li><a href="#">🔑 API Keys</a></li>
+      <li><a href="#">📈 Usage</a></li>
+      <li><a href="#">📋 Audit Log</a></li>
+    </ul>
+
+    <div class="dash-nav-group-label" style="margin-top:16px;">Account</div>
+    <ul class="dash-nav">
+      <li><a href="#">⚙️ Settings</a></li>
+      <li><a href="#">💬 Support</a></li>
+    </ul>
+
+    <div class="dash-nav-group-label" style="margin-top:16px;">Resources</div>
+    <ul class="dash-nav">
+      <li><a href="docs.html">📚 Docs</a></li>
+      <li><a href="agents.html">🤖 AI Agents</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main content -->
+  <main class="dash-main">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Manage your API keys, monitor usage, and track your plan.</p>
+
+    <!-- API Key Card -->
+    <div class="api-key-card glass-card">
+      <label>Your API Key</label>
+      <div class="api-key-display">
+        <span class="key-value" id="apiKeyDisplay">civint-a1b2c3d4e5f67890abcdef1234567890</span>
+        <button class="copy-btn" id="copyBtn" title="Copy to clipboard">📋</button>
+        <button class="btn btn-sm btn-secondary" onclick="regenerateKey()">Regenerate</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">API Calls Today</div>
+        <div class="value" id="callsToday">42</div>
+        <div class="change">+8 from yesterday</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Monthly Usage</div>
+        <div class="value" id="monthlyUsage">847</div>
+        <div class="change">of 1,000 free tier limit</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Remaining</div>
+        <div class="value" id="remaining">153</div>
+        <div class="change" style="color:var(--warning);">15% remaining this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Avg Response Time</div>
+        <div class="value" id="avgLatency">124ms</div>
+        <div class="change" style="color:var(--success);">p95: 340ms</div>
+      </div>
+    </div>
+
+    <!-- Usage Chart -->
+    <div class="api-key-card glass-card">
+      <label>Last 7 Days</label>
+      <div class="usage-chart" id="usageChart"></div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="api-key-card glass-card">
+      <label>Recent Activity</label>
+      <div id="recentActivity">
+        <div class="activity-item">
+          <span class="badge-api get">GET</span>
+          <span class="path">/v1/gov/search?query=GDP</span>
+          <span class="time">2 min ago</span>
+          <span class="status-200">200</span>
+        </div>
+        <div class="activity-item">
+          <span class="badge-api get">GET</span>
+          <span class="path">/v1/gov/releases?jurisdiction=all</span>
+          <span class="time">15 min ago</span>
+          <span class="status-200">200</span>
+        </div>
+        <div class="activity-item">
+          <span class="badge-api get">GET</span>
+          <span class="path">/v1/citation/sha256-abc...</span>
+          <span class="time">1h ago</span>
+          <span class="status-200">200</span>
+        </div>
+        <div class="activity-item">
+          <span class="badge-api get">GET</span>
+          <span class="path">/v1/gov/search?query=inflation</span>
+          <span class="time">3h ago</span>
+          <span class="status-200">200</span>
+        </div>
+        <div class="activity-item">
+          <span class="badge-api get">GET</span>
+          <span class="path">/v1/gov/releases</span>
+          <span class="time">6h ago</span>
+          <span class="status-429">429</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan / Upgrade -->
+    <div class="api-key-card glass-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+      <div>
+        <label>Current Plan: Free</label>
+        <p style="color:var(--text-secondary);font-size:0.85rem;margin-top:4px;">847 of 1,000 calls used this month. Upgrade for higher limits and premium features.</p>
+      </div>
+      <a href="index.html#pricing" class="btn btn-primary">Upgrade Plan →</a>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script src="script.js"></script>
+</body>
+</html>
