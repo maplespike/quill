@@ -1040,3 +1040,336 @@ CREATE INDEX IF NOT EXISTS idx_lmia_quarter ON lmia_records(quarter);
 CREATE INDEX IF NOT EXISTS idx_lmia_quarter_outcome ON lmia_records(quarter, outcome);
 CREATE INDEX IF NOT EXISTS idx_lmia_employer_quarter ON lmia_records(employer, quarter);
 CREATE INDEX IF NOT EXISTS idx_lmia_employer_outcome ON lmia_records(employer, outcome);
+
+-- Proactive Disclosure Records — federal contracts over $10K, travel, hospitality, reclassification
+--
+-- Every Canadian federal department is required to proactively disclose:
+--   - Contracts over $10,000 (including amendments)
+--   - Travel expenses of senior officials
+--   - Hospitality expenses
+--   - Reclassification of public service positions
+--
+-- Data is published on open.canada.ca via CKAN with varying schema formats
+-- across departments. This table normalises them into a unified structure.
+--
+-- Cross-reference opportunities:
+--   - Corporate module: match vendor names to known corporate entities
+--   - Lobbying: identify contractors that lobby the departments they sell to
+--   - Influence tracking: trace government contract funding flows
+--
+CREATE TABLE IF NOT EXISTS proactive_disclosure (
+  id TEXT PRIMARY KEY,
+
+  -- Department information
+  department TEXT NOT NULL,
+  department_acronym TEXT,
+
+  -- Vendor / supplier
+  vendor_name TEXT NOT NULL,
+
+  -- Contract financials
+  contract_value REAL,
+  currency TEXT DEFAULT 'CAD',
+
+  -- Dates
+  award_date TEXT,
+  contract_period_start TEXT,
+  contract_period_end TEXT,
+
+  -- Classification
+  goods_or_services TEXT,
+  procurement_method TEXT,
+
+  -- Description
+  description TEXT,
+  comments TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+
+  -- Fiscal year
+  fiscal_year TEXT,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  -- Deduplication constraint
+  UNIQUE(vendor_name, department, award_date, contract_value)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pd_vendor ON proactive_disclosure(vendor_name);
+CREATE INDEX IF NOT EXISTS idx_pd_department ON proactive_disclosure(department);
+CREATE INDEX IF NOT EXISTS idx_pd_award_date ON proactive_disclosure(award_date DESC);
+CREATE INDEX IF NOT EXISTS idx_pd_contract_value ON proactive_disclosure(contract_value DESC);
+CREATE INDEX IF NOT EXISTS idx_pd_fiscal_year ON proactive_disclosure(fiscal_year);
+CREATE INDEX IF NOT EXISTS idx_pd_procurement_method ON proactive_disclosure(procurement_method);
+CREATE INDEX IF NOT EXISTS idx_pd_goods_services ON proactive_disclosure(goods_or_services);
+CREATE INDEX IF NOT EXISTS idx_pd_dept_date ON proactive_disclosure(department, award_date DESC);
+CREATE INDEX IF NOT EXISTS idx_pd_vendor_dept ON proactive_disclosure(vendor_name, department);
+CREATE INDEX IF NOT EXISTS idx_pd_ingested ON proactive_disclosure(ingested_at DESC);
+
+-- Provincial Legislatures — Hansard, committees, and bills across all 10 provinces
+--
+-- Tracks legislative activity at the provincial level: Hansard transcripts,
+-- committee hearings, and bill progress. Each province publishes data in
+-- a different format — this table normalises across all of them.
+--
+-- Sources:
+--   - Ontario: ola.org (XML Hansard, committees API)
+--   - BC: leg.bc.ca (Hansard XML, committee pages)
+--   - Alberta: assembly.ab.ca (Hansard HTML, committee hearings)
+--   - Quebec: assnat.qc.ca (Hansard XML, French + English)
+--   - Others: various HTML/PDF formats
+--
+-- Cross-reference opportunities:
+--   - Provincial lobbying: match speakers/lobbyists to lobbying records
+--   - Federal committees: connect provincial legislative activity to federal
+--   - Legislative agenda tracking: monitor bill progress across provinces
+--
+CREATE TABLE IF NOT EXISTS provincial_legislatures (
+  id TEXT PRIMARY KEY,
+
+  -- Jurisdiction
+  province TEXT NOT NULL CHECK(province IN ('ON','BC','AB','QC','SK','MB','NS','NB','NL','PE','NT','YT','NU')),
+  record_type TEXT NOT NULL CHECK(record_type IN ('hansard','committee','bill')),
+  chamber TEXT NOT NULL DEFAULT 'legislative-assembly',
+
+  -- Date
+  sitting_date TEXT,
+
+  -- Hansard / transcript
+  hansard_url TEXT,
+  topic TEXT,
+  speaker TEXT,
+  party TEXT,
+  riding TEXT,
+  text_excerpt TEXT,
+
+  -- Bill reference
+  bill_reference TEXT,
+  bill_number TEXT,
+  bill_title TEXT,
+  bill_status TEXT,
+  bill_date TEXT,
+
+  -- Committee info
+  committee_name TEXT,
+  meeting_number INTEGER,
+  meeting_start_time TEXT,
+  meeting_end_time TEXT,
+  intervention_count INTEGER,
+
+  -- Language
+  language TEXT DEFAULT 'en',
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_record_id TEXT,
+  source_system TEXT NOT NULL,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  -- Deduplication constraint
+  UNIQUE(province, source_url, source_record_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pl_province ON provincial_legislatures(province);
+CREATE INDEX IF NOT EXISTS idx_pl_record_type ON provincial_legislatures(record_type);
+CREATE INDEX IF NOT EXISTS idx_pl_sitting_date ON provincial_legislatures(sitting_date DESC);
+CREATE INDEX IF NOT EXISTS idx_pl_speaker ON provincial_legislatures(speaker);
+CREATE INDEX IF NOT EXISTS idx_pl_party ON provincial_legislatures(party);
+CREATE INDEX IF NOT EXISTS idx_pl_bill_number ON provincial_legislatures(bill_number);
+CREATE INDEX IF NOT EXISTS idx_pl_committee ON provincial_legislatures(committee_name);
+CREATE INDEX IF NOT EXISTS idx_pl_topic ON provincial_legislatures(topic);
+CREATE INDEX IF NOT EXISTS idx_pl_language ON provincial_legislatures(language);
+CREATE INDEX IF NOT EXISTS idx_pl_source_system ON provincial_legislatures(source_system);
+CREATE INDEX IF NOT EXISTS idx_pl_province_type ON provincial_legislatures(province, record_type);
+CREATE INDEX IF NOT EXISTS idx_pl_province_date ON provincial_legislatures(province, sitting_date DESC);
+CREATE INDEX IF NOT EXISTS idx_pl_speaker_party ON provincial_legislatures(speaker, party);
+CREATE INDEX IF NOT EXISTS idx_pl_bill_status ON provincial_legislatures(bill_status);
+CREATE INDEX IF NOT EXISTS idx_pl_ingested ON provincial_legislatures(ingested_at DESC);
+
+-- Crown Corporations — annual reports, quarterly financials, governance data
+--
+-- Tracks reports, financials, and governance data from Canada's crown
+-- corporations — government-owned enterprises operating at arm's length
+-- from the federal government.
+--
+-- Tracked orgs: CBC, Canada Post, CN Rail (privatized, legacy), Via Rail,
+-- EDC, BDC, CMHC, Canada Council for the Arts, National Arts Centre,
+-- Farm Credit Canada, PSP Investments.
+--
+-- Each crown corporation publishes annual reports (with audited financial
+-- statements), quarterly financials, corporate plans, board minutes, and
+-- executive compensation disclosures.
+--
+-- Cross-reference opportunities:
+--   - Corporate module: crown corp procurement spending
+--   - GIC appointments: board members are GIC appointees
+--   - Influence tracking: funding flows to NGOs/consultancies
+--   - Oversight: OAG/PBO audits of crown corporations
+--
+CREATE TABLE IF NOT EXISTS crown_corporations (
+  id TEXT PRIMARY KEY,
+
+  -- Organization
+  org TEXT NOT NULL CHECK(org IN ('CBC','CPC','CN','VIA','EDC','BDC','CMHC','CCC','NAC','NRC','CBCL','FCC','PBC','C.D.C.','OTHER')),
+  org_name TEXT NOT NULL,
+
+  -- Report metadata
+  report_type TEXT NOT NULL CHECK(report_type IN ('annual-report','quarterly-financials','corporate-plan','board-minutes','executive-compensation','sustainability-report','diversity-report','other')),
+  fiscal_year TEXT NOT NULL,
+  fiscal_quarter TEXT,
+  title TEXT,
+  summary TEXT,
+
+  -- Financial data
+  revenue REAL,
+  expenses REAL,
+  net_income REAL,
+  government_funding REAL,
+  total_assets REAL,
+  total_liabilities REAL,
+  employee_count INTEGER,
+
+  -- Governance
+  executive_compensation TEXT,
+  board_members TEXT,
+  board_chair TEXT,
+  ceo_name TEXT,
+
+  -- Document references
+  report_url TEXT,
+  published_date TEXT,
+  language TEXT DEFAULT 'en',
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  -- Deduplication constraint
+  UNIQUE(org, fiscal_year, report_type, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cc_org ON crown_corporations(org);
+CREATE INDEX IF NOT EXISTS idx_cc_report_type ON crown_corporations(report_type);
+CREATE INDEX IF NOT EXISTS idx_cc_fiscal_year ON crown_corporations(fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_cc_published_date ON crown_corporations(published_date DESC);
+CREATE INDEX IF NOT EXISTS idx_cc_org_fiscal ON crown_corporations(org, fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_cc_org_type ON crown_corporations(org, report_type);
+CREATE INDEX IF NOT EXISTS idx_cc_revenue ON crown_corporations(revenue DESC);
+CREATE INDEX IF NOT EXISTS idx_cc_net_income ON crown_corporations(net_income DESC);
+CREATE INDEX IF NOT EXISTS idx_cc_gov_funding ON crown_corporations(government_funding DESC);
+CREATE INDEX IF NOT EXISTS idx_cc_ceo ON crown_corporations(ceo_name);
+CREATE INDEX IF NOT EXISTS idx_cc_org_fiscal_type ON crown_corporations(org, fiscal_year, report_type);
+CREATE INDEX IF NOT EXISTS idx_cc_ingested ON crown_corporations(ingested_at DESC);
+
+-- Federal Budget — budget, public accounts, fiscal monitor, departmental plans
+--
+-- Tracks the Canadian federal government's fiscal position over time.
+-- Includes annual budget documents, audited public accounts, monthly
+-- fiscal monitor updates, departmental plans, and fiscal projections.
+--
+-- Sources:
+--   - Federal budget:        https://www.budget.canada.ca
+--   - Public accounts:       https://www.tpsgc-pwgsc.gc.ca/recgen/txt/72-eng.html
+--   - Fiscal monitor:        https://www.fin.gc.ca/fm-mf/index-eng.asp
+--   - Departmental plans:    https://www.canada.ca/en/government/system/departmental-plans.html
+--   - Open Canada CKAN:      https://open.canada.ca/data
+--
+-- Cross-reference opportunities:
+--   - Crown corporations: match budget allocations to crown corp funding
+--   - Oversight: OAG audits of public accounts, PBO analysis of budget
+--   - Procurement: track budget vs. actual spending on contracts
+--   - Influence: government funding flows to tracked actors
+--
+CREATE TABLE IF NOT EXISTS federal_budget (
+  id TEXT PRIMARY KEY,
+
+  -- Fiscal context
+  fiscal_year TEXT NOT NULL,
+  record_type TEXT NOT NULL CHECK(record_type IN (
+    'budget',
+    'public_accounts',
+    'fiscal_monitor',
+    'departmental_plan',
+    'fiscal_projections',
+    'supplementary_estimates',
+    'main_estimates',
+    'other'
+  )),
+
+  -- Department / organization
+  department TEXT,
+  department_acronym TEXT,
+
+  -- Financial data
+  category TEXT NOT NULL CHECK(category IN (
+    'revenue',
+    'expense',
+    'debt-service',
+    'transfer',
+    'capital',
+    'operating',
+    'defense',
+    'healthcare',
+    'social',
+    'education',
+    'infrastructure',
+    'indigenous',
+    'climate',
+    'innovation',
+    'immigration',
+    'public-safety',
+    'culture',
+    'pension',
+    'other-revenue',
+    'other-expense',
+    'total',
+    'deficit',
+    'debt',
+    'gdp',
+    'unallocated'
+  )),
+  amount REAL,
+  currency TEXT DEFAULT 'CAD',
+
+  -- Description
+  description TEXT,
+  title TEXT,
+
+  -- Temporal
+  published_date TEXT,
+  fiscal_quarter TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+  language TEXT DEFAULT 'en',
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  -- Deduplication constraint
+  UNIQUE(fiscal_year, record_type, category, source_url, amount)
+);
+
+CREATE INDEX IF NOT EXISTS idx_fb_fiscal_year ON federal_budget(fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_fb_record_type ON federal_budget(record_type);
+CREATE INDEX IF NOT EXISTS idx_fb_category ON federal_budget(category);
+CREATE INDEX IF NOT EXISTS idx_fb_department ON federal_budget(department);
+CREATE INDEX IF NOT EXISTS idx_fb_published_date ON federal_budget(published_date DESC);
+CREATE INDEX IF NOT EXISTS idx_fb_amount ON federal_budget(amount DESC);
+CREATE INDEX IF NOT EXISTS idx_fb_fiscal_type ON federal_budget(fiscal_year, record_type);
+CREATE INDEX IF NOT EXISTS idx_fb_dept_fiscal ON federal_budget(department, fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_fb_category_fiscal ON federal_budget(category, fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_fb_source_system ON federal_budget(source_system);
+CREATE INDEX IF NOT EXISTS idx_fb_ingested ON federal_budget(ingested_at DESC);
