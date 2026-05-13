@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: civint-api
+  namespace: ai-inference
+  labels:
+    app: civint-api
+    component: api-server
+    tier: backend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: civint-api
+  template:
+    metadata:
+      labels:
+        app: civint-api
+        component: api-server
+        tier: backend
+    spec:
+      nodeName: nexus
+      containers:
+        - name: civint-api
+          image: nexus:5000/civint-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8082"
+            - name: NODE_ENV
+              value: "production"
+            - name: CIVINT_STORAGE
+              value: "sqlite"
+            - name: CIVINT_DB_PATH
+              value: "/data/civint.db"
+            - name: AI_ENDPOINT
+              value: "http://ai-inference-gateway:8080/v1"
+            - name: AI_MODEL
+              value: "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8082
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8082
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}

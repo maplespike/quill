@@ -1,8 +1,17 @@
 // Self-contained real data fetcher — no pipeline-core dependencies
 // Uses node fetch and simple XML parsing
-import { writeFileSync } from 'fs';
+//
+// This script generates real-data.json (legacy) and then delegates
+// to generate-pipeline-data.mjs for the full 13-source dataset.
 
+import { writeFileSync } from 'fs';
+import { execSync } from 'child_process';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE = 'https://www.ourcommons.ca';
+const CKAN_API = 'https://open.canada.ca/data/api/3/action';
 
 async function fetchRealCommittees() {
   const results = [];
@@ -78,7 +87,7 @@ const inCamera = meetings.filter(r => r.inCamera);
 // Also fetch lobbying dataset info
 let lobbyingInfo = null;
 try {
-  const ckanResp = await fetch('https://open.canada.ca/data/api/3/action/package_show?id=70ef2117-1095-4d77-80eb-b87f2bada2a4', { signal: AbortSignal.timeout(10000) });
+  const ckanResp = await fetch(`${CKAN_API}/package_show?id=70ef2117-1095-4d77-80eb-b87f2bada2a4`, { signal: AbortSignal.timeout(10000) });
   const ckanData = await ckanResp.json();
   if (ckanData.success) {
     lobbyingInfo = {
@@ -103,3 +112,12 @@ const output = {
 writeFileSync('assets/real-data.json', JSON.stringify(output, null, 2));
 console.log(`\n✅ ${meetings.length} meetings, ${inCamera.length} in-camera, ${output.stats.totalInterventions} total interventions`);
 console.log('Saved to assets/real-data.json');
+
+// Delegate to the full pipeline data generator
+console.log('\n--- Delegating to generate-pipeline-data.mjs ---');
+try {
+  const scriptPath = resolve(__dirname, 'generate-pipeline-data.mjs');
+  execSync(`node "${scriptPath}"`, { cwd: resolve(__dirname, '..'), stdio: 'inherit' });
+} catch (e) {
+  console.error('Pipeline data generation had errors (check above for details)');
+}

@@ -195,4 +195,10 @@ export interface InfluenceIngestionResult {
   fundingFlowsFound: number;
   errors: string[];
   durationMs: number;
+  /** Enriched actor records (populated when db is not provided) */
+  enrichedActors?: InfluenceActor[];
+  /** Generated connections from real data (populated when db is not provided) */
+  connections?: InfluenceConnection[];
+  /** Detected government funding records (populated when db is not provided) */
+  fundingFlows?: GovernmentFunding[];
 }

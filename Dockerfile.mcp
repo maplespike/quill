@@ -1,0 +1,55 @@
+# =============================================================================
+# CivInt Canada — MCP Server Dockerfile
+# Multi-stage build for packages/mcp-server
+# =============================================================================
+
+# ---- Stage 1: Build ----
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/mcp-server/package.json packages/mcp-server/package.json
+COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+
+# Install all dependencies (including devDependencies for build)
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/mcp-server/ packages/mcp-server/
+COPY packages/pipeline-core/ packages/pipeline-core/
+
+# Build pipeline-core first (dependency), then mcp-server
+RUN pnpm --filter @civint/pipeline-core run build
+RUN pnpm --filter @civint/mcp-server run build
+
+# ---- Stage 2: Production ----
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install pnpm (needed for workspace dependency resolution)
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/mcp-server/package.json packages/mcp-server/package.json
+COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+
+# Install production dependencies only
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy compiled output
+COPY --from=builder /app/packages/mcp-server/dist packages/mcp-server/dist
+COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
+
+# Expose the MCP port
+EXPOSE 3001
+
+ENV NODE_ENV=production
+
+CMD ["node", "packages/mcp-server/dist/index.js"]
