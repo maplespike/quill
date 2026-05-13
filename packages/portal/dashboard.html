@@ -109,6 +109,19 @@
 .spotlight-banner .sb-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
 .spotlight-banner .sb-btn { flex-shrink: 0; }
 
+/* ── Developer Console ── */
+#dev-console .usage-bar { width:100%; border-radius:4px 4px 0 0; min-height:4px; background: var(--accent-cyan); position:relative; transition: height 0.6s cubic-bezier(0.4,0,0.2,1); cursor:pointer; animation: barGrow 0.8s ease-out forwards; transform-origin: bottom; }
+#dev-console .usage-bar.today { background: var(--accent); }
+#dev-console .usage-bar .bar-label { position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:0.6rem; color:var(--text-muted); white-space:nowrap; }
+@keyframes barGrow { 0% { transform:scaleY(0); } 100% { transform:scaleY(1); } }
+#dev-console .toast { position:fixed; bottom:24px; right:24px; background:var(--success); color:#fff; padding:10px 20px; border-radius:var(--radius); font-size:0.82rem; opacity:0; transform:translateY(10px); transition:all var(--transition); pointer-events:none; z-index:999; }
+#dev-console .toast.show { opacity:1; transform:translateY(0); }
+#dev-console .key-item { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
+#dev-console .key-item .key-prefix { color:var(--text-muted); }
+#dev-console .key-item .key-value { color:var(--accent-cyan); }
+#dev-console .key-item .key-status { font-size:0.65rem; padding:2px 8px; border-radius:99px; }
+#dev-console .key-item .key-status.active { background:var(--base19); color:var(--success); }
+
 /* ── Responsive ── */
 @media(max-width:768px) {
   .dash { padding: 20px 16px 60px; }
@@ -179,7 +192,7 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
   <!-- Header -->
   <div class="dash-header">
     <h1 data-i18n="dashboard.header">🇨🇦 Civic Pulse</h1>
-    <span style="font-size:0.82rem;color:var(--text-muted);" data-i18n="dashboard.headerMeta">Live from official government sources · Updated every 6 hours</span>
+    <span style="font-size:0.82rem;color:var(--text-muted);" data-i18n="dashboard.headerMeta" id="dash-header-meta">Live from official government sources · Updated every 6 hours</span>
   </div>
 
   <!-- Search hero -->
@@ -315,6 +328,51 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
     <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
   </div>
 
+  <!-- Developer Console -->
+  <div class="section-head">
+    <h2>🔧 Developer Console</h2>
+    <a href="#" class="see-all">API Documentation →</a>
+  </div>
+  <div id="dev-console" class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:32px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <!-- API Key -->
+      <div>
+        <h3 style="font-size:0.9rem;font-weight:600;margin:0 0 12px;">🔑 Your API Key</h3>
+        <div style="display:flex;align-items:center;gap:8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
+          <code id="apiKeyDisplay" style="flex:1;color:var(--accent-cyan);">loading...</code>
+          <button id="copyBtn" class="btn btn-sm btn-ghost" style="border:none;padding:4px 8px;cursor:pointer;" title="Copy to clipboard">📋</button>
+        </div>
+        <div id="toast" class="toast">Copied to clipboard!</div>
+        <button onclick="regenerateKey()" class="btn btn-sm" style="margin-top:12px;border-color:var(--accent);color:var(--accent);background:transparent;border:1px solid;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:0.82rem;">🔄 Regenerate Key</button>
+      </div>
+      <!-- Usage Stats -->
+      <div>
+        <h3 style="font-size:0.9rem;font-weight:600;margin:0 0 12px;">📊 API Usage</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:12px;text-align:center;">
+            <div style="font-size:1.2rem;font-weight:700;color:var(--accent-cyan);" id="callsToday">--</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Calls Today</div>
+          </div>
+          <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:12px;text-align:center;">
+            <div style="font-size:1.2rem;font-weight:700;color:var(--text-primary);" id="monthlyUsage">--</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Monthly</div>
+          </div>
+          <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:12px;text-align:center;">
+            <div style="font-size:1.2rem;font-weight:700;color:var(--success);" id="remaining">--</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Quota Remaining</div>
+          </div>
+        </div>
+        <!-- Usage bar chart -->
+        <div id="usageChart" style="display:flex;align-items:flex-end;height:80px;gap:6px;"></div>
+      </div>
+    </div>
+    <!-- API Keys List -->
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+      <h3 style="font-size:0.9rem;font-weight:600;margin:0 0 12px;">🔐 Active API Keys</h3>
+      <div id="apiKeysList" style="font-size:0.82rem;color:var(--text-secondary);">Loading keys...</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Subtle particle data stream background -->
@@ -393,23 +451,197 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 </script>
 
 <script>
-// ─── Load pipeline data ───
-fetch('assets/pipeline-data.json?t=' + Date.now())
-  .then(r => r.json())
-  .then(data => {
-    const s = data.sources || {};
-    renderStats(s);
-    renderAlerts(s);
-    renderCommittees(s);
-    renderEntities(s);
-    renderMoney(s);
-    renderTrending(s);
-  })
-  .catch(() => {
-    // Render with empty data on error
-    renderStats({});
-    document.querySelectorAll('.shimmer').forEach(el => el.classList.remove('shimmer'));
+// ─── API configuration ───
+const API_BRIDGE = 'http://127.0.0.1:8084/v1/';
+const DEV_API_KEY = 'maplespike-dev-key';
+
+// ─── Load dashboard data from live API ───
+async function loadDashboardData() {
+  try {
+    // Public endpoints (no auth needed)
+    const [healthRes, releasesRes] = await Promise.allSettled([
+      fetch(API_BRIDGE + 'health').then(r => r.json()),
+      fetch(API_BRIDGE + 'gov/releases').then(r => r.json()),
+    ]);
+
+    // Health
+    let healthData = null;
+    if (healthRes.status === 'fulfilled' && healthRes.value?.success) {
+      healthData = healthRes.value.data;
+      const statusEl = document.getElementById('dash-header-meta');
+      if (statusEl && healthData) {
+        statusEl.textContent = healthData.service + ' · Status: ' + healthData.status;
+        statusEl.style.color = healthData.status === 'ok' ? 'var(--success)' : 'var(--accent)';
+      }
+    }
+
+    // Releases → populate activity feed / alerts
+    let releases = [];
+    if (releasesRes.status === 'fulfilled' && releasesRes.value?.success) {
+      releases = releasesRes.value.data?.releases || releasesRes.value.data || [];
+    }
+    renderAlertsFromReleases(releases);
+
+    // Auth'd endpoints (keys, usage)
+    const [keysRes, usageRes] = await Promise.allSettled([
+      fetch(API_BRIDGE + 'keys', { headers: { 'Authorization': 'Bearer ' + DEV_API_KEY } }).then(r => r.json()),
+      fetch(API_BRIDGE + 'usage', { headers: { 'Authorization': 'Bearer ' + DEV_API_KEY } }).then(r => r.json()),
+    ]);
+
+    // Keys
+    if (keysRes.status === 'fulfilled' && keysRes.value?.success) {
+      const keysData = keysRes.value.data;
+      renderApiKeys(keysData.keys || []);
+    }
+
+    // Usage
+    if (usageRes.status === 'fulfilled' && usageRes.value?.success) {
+      const usageData = usageRes.value.data;
+      renderUsageStats(usageData);
+    }
+  } catch (err) {
+    console.warn('[Dashboard] API error:', err);
+  }
+
+  // Always render mock data for sections without API equivalents
+  renderStats({});
+  renderCommittees({});
+  renderEntities({});
+  renderMoney({});
+  renderTrending({});
+  document.querySelectorAll('.shimmer').forEach(el => el.classList.remove('shimmer'));
+
+  // If health or releases failed, use defaults
+  const metaEl = document.getElementById('dash-header-meta');
+  if (metaEl && metaEl.textContent === 'Live from official government sources · Updated every 6 hours') {
+    metaEl.textContent = '⚠️ API unreachable — showing cached data';
+    metaEl.style.color = 'var(--accent)';
+  }
+}
+
+// ─── Render alerts from gov releases ───
+function renderAlertsFromReleases(releases) {
+  const feed = document.getElementById('alerts-feed');
+  if (!feed) return;
+
+  if (!releases || releases.length === 0) {
+    // Fall back to mock data
+    renderAlerts({});
+    return;
+  }
+
+  const bars = ['blue', 'green', 'purple', 'amber', 'red'];
+  const tags = ['tag-regulation', 'tag-parliament', 'tag-influence', 'tag-money', 'tag-court'];
+  const icons = ['📜', '🏛️', '💼', '⚠️', '⚖️'];
+
+  feed.innerHTML = releases.slice(0, 6).map((r, i) => {
+    const idx = i % bars.length;
+    const title = r.title || r.name || 'Release';
+    const desc = r.summary || r.description || r.abstract || (r.text ? r.text.substring(0, 200) : '');
+    const tag = r.type || r.category || 'Release';
+    return '<div class="alert-card">'
+      + '<div class="bar ' + bars[idx] + '"></div>'
+      + '<div class="card-head">'
+      + '<div class="card-icon">' + (r.icon || icons[idx]) + '</div>'
+      + '<div class="card-body">'
+      + '<div class="card-title">' + title + '</div>'
+      + '<div class="card-desc">' + desc + '</div>'
+      + '<div class="card-meta">'
+      + '<span class="tag ' + tags[idx] + '">' + tag + '</span>'
+      + '<span>' + (r.date ? new Date(r.date).toLocaleDateString() : 'Recent') + '</span>'
+      + '</div></div></div></div>';
+  }).join('');
+}
+
+// ─── Render API keys list ───
+function renderApiKeys(keys) {
+  const listEl = document.getElementById('apiKeysList');
+  const keyDisplayEl = document.getElementById('apiKeyDisplay');
+  if (!listEl) return;
+
+  if (!keys || keys.length === 0) {
+    listEl.textContent = 'No API keys found.';
+    return;
+  }
+
+  // Show the first key in the display box
+  if (keyDisplayEl && keys[0].key) {
+    keyDisplayEl.textContent = keys[0].key;
+  }
+
+  listEl.innerHTML = keys.map(k => {
+    const label = k.name || k.label || 'API Key';
+    const val = k.key || k.value || k.id || '••••';
+    const status = k.status || k.is_active ? 'active' : 'inactive';
+    return '<div class="key-item">'
+      + '<span><span class="key-prefix">' + label + ': </span><span class="key-value">' + val + '</span></span>'
+      + '<span class="key-status ' + status + '">' + status + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+// ─── Render usage stats ───
+function renderUsageStats(usage) {
+  if (!usage) return;
+
+  const daily = usage.daily || {};
+  const monthly = usage.monthly || {};
+  const callsToday = daily.calls || 0;
+  const monthlyTotal = monthly.calls || daily.calls || 0;
+  const limit = daily.limit || monthly.limit || 1700;
+  const remaining = daily.remaining || monthly.remaining || (limit - callsToday);
+
+  const callsEl = document.getElementById('callsToday');
+  const monthEl = document.getElementById('monthlyUsage');
+  const remainEl = document.getElementById('remaining');
+  if (callsEl) callsEl.textContent = callsToday;
+  if (monthEl) monthEl.textContent = monthlyTotal;
+  if (remainEl) remainEl.textContent = remaining;
+
+  // Build usage bar chart (7-day if available, else mock from daily total)
+  buildUsageChart(usage.history || usage.daily_history || null, callsToday, limit);
+}
+
+// ─── Build usage bar chart ───
+function buildUsageChart(history, todayCalls, limit) {
+  const chart = document.getElementById('usageChart');
+  if (!chart) return;
+
+  let data;
+  if (history && Array.isArray(history) && history.length > 0) {
+    data = history.slice(-7);
+  } else {
+    // Generate mock 7-day data with today's actual count
+    const base = Math.max(Math.round(todayCalls / 2), 1);
+    data = [];
+    for (let i = 6; i >= 0; i--) {
+      if (i === 0) data.push(todayCalls);
+      else data.push(Math.max(1, base + Math.floor(Math.random() * 20 - 10)));
+    }
+  }
+
+  const max = Math.max(...data, 1);
+  const dayLabels = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dayLabels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+  }
+
+  chart.innerHTML = '';
+  data.forEach((val, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'usage-bar' + (i === 6 ? ' today' : '');
+    const pct = Math.max((val / max) * 100, 4);
+    bar.style.height = pct + '%';
+    bar.style.animationDelay = (i * 0.08) + 's';
+    bar.title = dayLabels[i] + ': ' + val + ' calls';
+    bar.innerHTML = '<span class="bar-label">' + dayLabels[i] + '</span>';
+    chart.appendChild(bar);
   });
+}
+
+loadDashboardData();
 
 // ─── Render stat cards ───
 function renderStats(s) {
@@ -571,9 +803,7 @@ function renderTrending(s) {
   `).join('');
 }
 
-// ─── Search via API Bridge ───
-const API_BRIDGE = 'http://10.1.1.110:3004';  // Change to relative URL in production
-
+// ─── Search event listeners ───
 document.getElementById('dash-search-input')?.addEventListener('keydown', async e => {
   if (e.key === 'Enter') {
     const q = e.target.value.trim();
@@ -596,48 +826,31 @@ async function doLiveSearch(q) {
   status.textContent = '🔍 searching...';
 
   try {
-    // Search across multiple tools in parallel
-    const [committees, corporate, influence, oversight, canlii] = await Promise.allSettled([
-      fetch(`${API_BRIDGE}/api/search-committees?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
-      fetch(`${API_BRIDGE}/api/search-corporate?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
-      fetch(`${API_BRIDGE}/api/search-influence?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
-      fetch(`${API_BRIDGE}/api/search-oversight?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
-    ]);
+    const resp = await fetch(API_BRIDGE + 'gov/search?q=' + encodeURIComponent(q));
+    const data = await resp.json();
 
-    let html = `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:10px;">Results for "<strong>${q}</strong>"</div>`;
+    let html = '<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:10px;">Results for "<strong>' + q + '</strong>"</div>';
     let total = 0;
 
-    const sections = [
-      { label: '🏛️ Committees', result: committees, key: 'results' },
-      { label: '💼 Corporate', result: corporate, key: 'results' },
-      { label: '🌐 Influence', result: influence, key: 'results' },
-      { label: '📋 Oversight', result: oversight, key: 'results' },
-    ];
+    const results = data?.data?.results || data?.data || data?.results || [];
+    const items = Array.isArray(results) ? results : [];
 
-    for (const sec of sections) {
-      const data = sec.result.status === 'fulfilled' ? sec.result.value : null;
-      const results = data ? (Array.isArray(data) ? data : data[sec.key] || data.results || []) : [];
-      if (results.length > 0) {
-        total += results.length;
-        html += `<div style="margin:8px 0 4px;font-weight:600;font-size:0.85rem;">${sec.label}</div>`;
-        results.slice(0, 3).forEach(r => {
-          const title = r.title || r.name || r.executive_name || r.client_name || r.query || 'Item';
-          const desc = r.description || r.text || r.subject_matter || '';
-          html += `<div class="crossref"><div class="cr-title">${title}</div><div class="cr-desc">${(desc+'').substring(0,120)}</div></div>`;
-        });
-      }
-    }
-
-    if (total === 0) {
-      html += `<div class="empty-state">No results found for "${q}". Try a different search term.</div>`;
+    if (items.length > 0) {
+      total = items.length;
+      html += '<div style="margin:8px 0 4px;font-weight:600;font-size:0.85rem;">📋 Search Results</div>';
+      items.slice(0, 10).forEach(r => {
+        const title = r.title || r.name || r.headline || 'Result';
+        const desc = r.summary || r.description || r.abstract || r.text || '';
+        html += '<div class="crossref"><div class="cr-title">' + title + '</div><div class="cr-desc">' + (desc+'').substring(0, 200) + '</div></div>';
+      });
     } else {
-      html += `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">${total} result(s) found</div>`;
+      html += '<div class="empty-state">No results found for "' + q + '". Try a different search term.</div>';
     }
 
     resultsDiv.innerHTML = html;
-    status.textContent = `✅ ${total} results`;
+    status.textContent = '✅ ' + total + ' results';
   } catch (err) {
-    resultsDiv.innerHTML = `<div class="empty-state">Search error: ${err.message}</div>`;
+    resultsDiv.innerHTML = '<div class="empty-state">Search error: ' + err.message + '</div>';
     status.textContent = '⚠️ error';
   }
 }
@@ -667,13 +880,7 @@ document.getElementById('slc-view')?.addEventListener('click', e => {
   e.preventDefault();
   document.getElementById('since-last-checked').scrollIntoView({ behavior: 'smooth' });
   // Refresh data
-  fetch('assets/pipeline-data.json?t=' + Date.now())
-    .then(r => r.json())
-    .then(data => {
-      renderStats(data.sources || {});
-      // Re-render other sections
-    })
-    .catch(() => {});
+  loadDashboardData();
 });
 
 // ─── D3 Network Graph (force-directed) ───

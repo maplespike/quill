@@ -287,9 +287,10 @@
   // ── Usage Chart (dashboard) ─────────────────────────────────
 
   function setupUsageChart() {
+    // Skip if the inline script already rendered the chart
     const chart = document.getElementById('usageChart');
-    if (!chart) return;
-
+    if (!chart || chart.children.length > 0) return;
+    // Fallback: generate sample bars if inline script didn't fire
     const data = [23, 45, 38, 52, 41, 67, 42];
     const max = Math.max(...data);
 
@@ -324,15 +325,32 @@
     const callsEl = document.getElementById('callsToday');
     const monthEl = document.getElementById('monthlyUsage');
     const remainEl = document.getElementById('remaining');
-    if (!callsEl || !monthEl || !remainEl) return;
+    if (!callsEl && !monthEl && !remainEl) return;
 
-    setInterval(() => {
-      const calls = parseInt(callsEl.textContent) + 1;
-      callsEl.textContent = calls;
-      const month = parseInt(monthEl.textContent) + 1;
-      monthEl.textContent = month;
-      remainEl.textContent = Math.max(0, 1000 - month);
-    }, 8000);
+    // Fetch live stats from the API every 30 seconds
+    async function fetchLiveStats() {
+      try {
+        const resp = await fetch('http://127.0.0.1:8084/v1/usage', {
+          headers: { 'Authorization': 'Bearer maplespike-dev-key' }
+        });
+        const data = await resp.json();
+        if (data?.success && data?.data) {
+          const usage = data.data;
+          const daily = usage.daily || {};
+          const monthly = usage.monthly || {};
+          if (callsEl) callsEl.textContent = daily.calls || 0;
+          if (monthEl) monthEl.textContent = monthly.calls || daily.calls || 0;
+          const limit = daily.limit || monthly.limit || 1700;
+          const remaining = daily.remaining || monthly.remaining || (limit - (daily.calls || 0));
+          if (remainEl) remainEl.textContent = remaining;
+        }
+      } catch (err) {
+        // Silently fall back — inline renderUsageStats handles initial load
+      }
+    }
+
+    fetchLiveStats();
+    setInterval(fetchLiveStats, 30000);
   }
 
   // ── Dashboard Copy Key ──────────────────────────────────────
@@ -390,20 +408,41 @@
 
   // ── Regenerate Key (dashboard) ──────────────────────────────
 
-  window.regenerateKey = function() {
+  window.regenerateKey = async function() {
     if (!confirm('Regenerating your API key will invalidate the current one. All services using the old key will stop working. Continue?')) return;
-    const chars = 'abcdef0123456789';
-    let key = 'maplespike-';
-    for (let i = 0; i < 32; i++) key += chars[Math.floor(Math.random() * chars.length)];
-    const keyEl = document.getElementById('apiKeyDisplay');
-    if (keyEl) keyEl.textContent = key;
-    const callsEl = document.getElementById('callsToday');
-    const monthEl = document.getElementById('monthlyUsage');
-    const remainEl = document.getElementById('remaining');
-    if (callsEl) callsEl.textContent = '0';
-    if (monthEl) monthEl.textContent = '0';
-    if (remainEl) remainEl.textContent = '1000';
-    alert('API key regenerated. Update any services using the old key.');
+
+    const btn = document.querySelector('[onclick="regenerateKey()"]');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Regenerating...'; }
+
+    try {
+      const resp = await fetch('http://127.0.0.1:8084/v1/keys', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer maplespike-dev-key' }
+      });
+      const data = await resp.json();
+
+      if (data?.success && data?.data?.key) {
+        const keyEl = document.getElementById('apiKeyDisplay');
+        if (keyEl) keyEl.textContent = data.data.key;
+        // Refresh the keys list
+        if (window.renderApiKeys && data.data.keys) {
+          window.renderApiKeys(data.data.keys);
+        }
+        alert('API key regenerated successfully. Update any services using the old key.');
+      } else {
+        alert('Failed to regenerate key: ' + (data?.error || 'unknown error'));
+      }
+    } catch (err) {
+      // Fallback: generate a client-side key if API is unreachable
+      const chars = 'abcdef0123456789';
+      let key = 'maplespike-';
+      for (let i = 0; i < 32; i++) key += chars[Math.floor(Math.random() * chars.length)];
+      const keyEl = document.getElementById('apiKeyDisplay');
+      if (keyEl) keyEl.textContent = key;
+      alert('API unreachable — generated temporary key: ' + key + '\nRegenerate again when the API is available.');
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Regenerate Key'; }
   };
 
   // ── Glossary Tooltips ───────────────────────────────────
