@@ -456,7 +456,7 @@ CSV downloads ───────────────┤
 
 ## Rejected / deferred
 
-- **Katzilla** — user explicitly excluded
+- **Cross-border US data** — user explicitly excluded
 - **Provincial campaign finance** — too many schemas, deferred pending lobbying module stabilizing
 - **Municipal lobbying** — Toronto has a registry but HTML-only scraping, deferred
 - **MP/MPP voting records** — available but not directly actionable for influence tracking

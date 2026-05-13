@@ -1,32 +1,58 @@
 # CivInt Canada — API & Documentation Index
 
 > CivInt Canada is Canada's sovereign, AI-native government data layer: one REST + MCP API for
-> government datasets (StatCan, open.canada.ca, federal spending, provincial portals) with built-in
-> AI curation, SHA-256 verification, and provenance audit trails.
+> government datasets (Parliamentary committees, Lobbying Registry, Canada Gazette, CanadaBuys,
+> federal/provincial data portals) with built-in SHA-256 verification and provenance audit trails.
 
-- **Base URL:** https://api.civint.ca/v1/
+- **Pipeline Source:** https://github.com/reverb256/civint
+- **API Base URL:** https://civint.lan/api/v1/ (internal network)
+- **MCP Endpoint:** https://civint.lan/mcp (SSE transport, internal network)
 - **OpenAPI Spec:** /v1/openapi.json
-- **MCP Server:** `npx @civint/mcp-server` (stdio/SSE transport)
-- **GitHub:** https://github.com/reverb256/frostbite-data-pipeline
+- **GitHub:** https://github.com/reverb256/civint
 - **License:** Attribution required. Government data under OGL-C.
 
 ---
 
-## API Endpoints
+## Pipeline Modules
 
-- `/v1/health` — Health check
-- `/v1/gov/releases` — Government data releases
-- `/v1/gov/search` — Search datasets by keyword/jurisdiction
-- `/v1/citation/:hash` — Verify SHA-256 citation hash
-- `/v1/usage` — View usage/quotas
-- `/v1/audit/query` — Query audit logs (Business tier+)
+CivInt runs 13 data ingestion modules on your K3s cluster via cron jobs:
 
-## MCP Tools
+| Module | Source | Schedule |
+|--------|--------|----------|
+| Committees (HoC) | ourcommons.ca XML | Daily |
+| Senate Committees | sencanada.ca XML | Daily |
+| Lobbying Registry | lobbycanada.gc.ca CSV | Monthly |
+| Ontario Lobbying | lobbying.ontario.ca CSV | Daily |
+| Procurement | open.canada.ca / CanadaBuys | Daily |
+| Canada Gazette | gazette.gc.ca | Daily |
+| GIC Appointments | open.canada.ca | Weekly |
+| Election Advertising | elections.ca | Per election |
+| Oversight Bodies | OAG, PBO, Ethics, CRTC | Varies |
+| Court Decisions | canlii.ca API | Daily |
+| LMIA Data | open.canada.ca | Quarterly |
+| Influence Actors | CRA charities, committee data | Weekly |
+| Entity Resolution | Cross-source engine | On sweep |
 
-- `query_gov_data` — Query government data (query, jurisdiction, category, limit)
-- `fact_check` — Check a claim against government data (claim)
-- `get_citation` — Retrieve/verify citation hash (hash)
-- `latest_releases` — Latest government data releases (jurisdiction, category, limit)
+---
+
+## MCP Tools (14 tools)
+
+- `query_gov_data` — Query government data (StatCan, CKAN, provincial portals)
+- `fact_check` — Check a claim against government data
+- `get_citation` — Retrieve/verify SHA-256 citation hash
+- `latest_releases` — Latest government data releases and indicators
+- `search_committees` — House and Senate committee evidence, transcripts, proceedings
+- `search_corporate` — Lobbying registry, procurement contracts, executive statements
+- `search_influence` — Influence actors, CRA charities, think tanks, funding flows
+- `search_gazette` — Canada Gazette proposed and enacted regulations
+- `search_gic` — Governor-in-Council appointments, salary ranges
+- `search_elections` — Elections Canada third-party advertiser registry
+- `search_provincial_lobbying` — Ontario, BC, Quebec lobbying registries
+- `search_oversight` — OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
+- `search_canlii` — Federal and provincial court decisions, citation graphs
+- `search_lmia` — LMIA employer data, TFW program usage by employer
+
+---
 
 ## Documentation
 

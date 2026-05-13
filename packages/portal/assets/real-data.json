@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-12T20:59:30.140Z",
+  "generatedAt": "2026-05-12T21:01:25.157Z",
   "stats": {
     "committees": 3,
     "inCamera": 3,
@@ -11,7 +11,7 @@
       "name": "Public Accounts",
       "meeting": 33,
       "date": "Unknown",
-      "inCamera": false,
+      "inCamera": true,
       "witnesses": [],
       "interventionCount": 232,
       "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-33/evidence",
@@ -41,6 +41,17 @@
     }
   ],
   "inCameraMeetings": [
+    {
+      "committee": "PACP",
+      "name": "Public Accounts",
+      "meeting": 33,
+      "date": "Unknown",
+      "inCamera": true,
+      "witnesses": [],
+      "interventionCount": 232,
+      "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/PACP/meeting-33/evidence",
+      "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/PACP/Evidence/EV14048045/PACPEV33-E.XML"
+    },
     {
       "committee": "LANG",
       "name": "Official Languages",

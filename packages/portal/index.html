@@ -10,6 +10,47 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
+  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
+  <meta property="og:title" content="CivInt Canada — See how your government really works">
+  <meta property="og:description" content="Track what Parliament is doing, who's influencing decisions, and how public money is spent — all in one place.">
+  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://civint.ca">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CivInt Canada — See how your government really works">
+  <meta name="twitter:description" content="Track what Parliament is doing, who's influencing decisions, and how public money is spent.">
+  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "CivInt Canada",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://civint.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "CivInt Canada",
+    "url": "https://civint.ca",
+    "description": "Track what Parliament is doing, who's influencing decisions, and how public money is spent.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://civint.ca/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -37,26 +78,33 @@
   <canvas id="hero-canvas"></canvas>
   <div class="badge-row fade-in">
     <span class="badge badge-red">🔒 In-camera meeting detection</span>
-    <span class="badge badge-cyan">💰 Track who's lobbying who</span>
-    <span class="badge badge-cyan">🏛️ Follow the decision-makers</span>
+    <span class="badge badge-cyan">📜 Proposed regulations (Gazette)</span>
+    <span class="badge badge-cyan">🏛️ Senate committees</span>
+    <span class="badge badge-cyan">⚖️ Court decisions</span>
+    <span class="badge badge-cyan">📋 Oversight reports</span>
+    <span class="badge badge-cyan">👷 LMIA employer data</span>
   </div>
 
   <h1 class="fade-in stagger-1">
-    Ever wonder what's really<br>
-    happening in <span class="accent-text">Ottawa</span>?
+    Ever wonder what's really happening<br>
+    across <span class="accent-text">Canada</span>?
   </h1>
 
-  <p class="fade-in stagger-2">
-    CivInt collects thousands of public documents every day — committee meetings, <span data-term="lobbying">lobbying</span> reports, government <span data-term="procurement">contracts</span> — and connects the dots so you can see who's making decisions, who's influencing them, and how public money flows. No jargon. No spin. Just what's publicly available, made sense of.
+  <p class="fade-in stagger-2 hero-subtitle">
+    Ottawa, Edmonton, Toronto — and every committee room, courtroom, and boardroom in between.
   </p>
 
-  <div class="hero-actions fade-in stagger-3">
+  <p class="fade-in stagger-3">
+    CivInt tracks parliamentary committees, <span data-term="lobbying">lobbying</span> registrations, proposed regulations, Government of Canada contracts and grants, court decisions, oversight audits, and labour market data from official public sources — and connects the dots so you can see who's making decisions, who's influencing them, and how public money flows. No jargon. No spin. Just what's publicly available, made sense of.
+  </p>
+
+  <div class="hero-actions fade-in stagger-4">
     <a href="dashboard.html" class="btn btn-primary">See the Dashboard →</a>
     <a href="docs.html" class="btn btn-secondary">How it Works</a>
   </div>
 
   <!-- Interactive Demo -->
-  <div class="hero-demo fade-in stagger-4">
+  <div class="hero-demo fade-in stagger-5">
     <div class="demo-header">
       <div class="demo-dots">
         <span class="demo-dot"></span>
@@ -70,8 +118,16 @@
       <span class="accent">civint</span> committees --recent<br><br>
       <span class="comment"># Who's been lobbying the government this month?</span><br>
       <span class="accent">civint</span> lobbying --recent<br><br>
+      <span class="comment"># Latest proposed regulations from the Gazette</span><br>
+      <span class="accent">civint</span> gazette --recent<br><br>
       <span class="comment"># Track a specific person across all data</span><br>
-      <span class="accent">civint</span> search "Catherine Tait"
+      <span class="accent">civint</span> search "Catherine Tait"<br><br>
+      <span class="comment"># Senate human rights committee (SOCI)</span><br>
+      <span class="accent">civint</span> senate --committee SOCI<br><br>
+      <span class="comment"># Federal Court decisions since January</span><br>
+      <span class="accent">civint</span> cases --court "Federal Court" --since 2026-01<br><br>
+      <span class="comment"># Latest audits from the Auditor General</span><br>
+      <span class="accent">civint</span> oversight --body OAG
     </div>
   </div>
 </section>
@@ -102,9 +158,9 @@
 <!-- ═══ Stats ═══ -->
 <section class="section" style="padding-top:40px;padding-bottom:40px;">
   <div class="stats-row">
-      <div class="stat fade-in">
-      <div class="number">34</div>
-      <div class="label">Committees Tracked</div>
+    <div class="stat fade-in">
+      <div class="number">54</div>
+      <div class="label">Committees Tracked (34 HoC + 20 Senate)</div>
     </div>
     <div class="stat fade-in stagger-1">
       <div class="number">17</div>
@@ -115,6 +171,10 @@
       <div class="label">Influence Actors</div>
     </div>
     <div class="stat fade-in stagger-3">
+      <div class="number">13</div>
+      <div class="label">Data Sources</div>
+    </div>
+    <div class="stat fade-in stagger-4">
       <div class="number">$0</div>
       <div class="label">to Start (Free Tier)</div>
     </div>
@@ -124,39 +184,57 @@
 <!-- ═══ Features (Bento Grid) ═══ -->
 <section class="section" id="features">
   <div class="section-header fade-in">
-    <h2>Three ways to keep tabs<br>on your government</h2>
+    <h2>Every corner of Canadian governance<br>tracked and connected</h2>
     <p>Think of CivInt like a newsroom that never sleeps — it reads every public document so you don't have to, and shows you what matters.</p>
   </div>
 
   <div class="bento-grid">
     <div class="bento-card fade-in">
       <div class="card-icon" style="background:rgba(16,185,129,0.12);">🏛️</div>
-      <h3>What's happening in Parliament</h3>
-      <p>Every House of Commons committee meeting, every witness, every question. See who spoke, what they said, and which meetings happen behind closed doors (in-camera) — the ones they don't want you to see.</p>
+      <h3>Parliament — HoC &amp; Senate</h3>
+      <p>Every House of Commons and Senate committee meeting, every witness, every question. Detects in-camera sessions across both chambers so you know when debate goes behind closed doors.</p>
     </div>
 
     <div class="bento-card fade-in stagger-1">
-      <div class="card-icon" style="background:rgba(59,130,246,0.12);">💰</div>
-      <h3>Who's talking to the government</h3>
-      <p>Lobbying reports, government contracts, and CEO statements from Canada's biggest banks, telecoms, and media companies. See which companies are meeting with which departments, and which contracts go to single bidders.</p>
+      <div class="card-icon" style="background:rgba(59,130,246,0.12);">📜</div>
+      <h3>Regulations — Canada Gazette</h3>
+      <p>Proposed and final regulations from Canada Gazette Parts I+II. See what rules the government is planning before they become law — from environmental assessments to banking regulations.</p>
     </div>
 
     <div class="bento-card fade-in stagger-2">
-      <div class="card-icon" style="background:rgba(251,191,36,0.12);">🌐</div>
-      <h3>Who's shaping the rules</h3>
-      <p>From the UN to the WEF, from McKinsey to the Canadian Chamber of Commerce — 32 major organizations that influence Canadian policy. Track their government funding, their lobbying, and their connections to decision-makers.</p>
+      <div class="card-icon" style="background:rgba(251,191,36,0.12);">💰</div>
+      <h3>Corporate influence</h3>
+      <p>Lobbying reports, government contracts, and executive statements from Canada's biggest banks, telecoms, and media companies. See which companies meet with which departments and which contracts go to single bidders.</p>
     </div>
 
     <div class="bento-card fade-in stagger-3">
-      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🔗</div>
-      <h3>Connect the dots</h3>
-      <p>The same people show up everywhere — sitting on committees, lobbying departments, winning contracts. CivInt links them together so you can see the full picture. Our 7 signal detectors flag things like revolving doors and lobbying overlaps automatically.</p>
+      <div class="card-icon" style="background:rgba(139,92,246,0.12);">🗳️</div>
+      <h3>Elections &amp; Lobbying</h3>
+      <p>Third-party election advertising, political financing, and Ontario provincial lobbying. Track who's spending to influence voters and which organizations are lobbying at the provincial level.</p>
     </div>
 
-    <div class="bento-card span-2 highlight fade-in stagger-4">
+    <div class="bento-card fade-in stagger-4">
+      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🌐</div>
+      <h3>Influence networks</h3>
+      <p>From the UN to the WEF, from think tanks to NGOs — track organizations that shape Canadian policy. Monitor their government funding, their lobbying, and their connections to decision-makers.</p>
+    </div>
+
+    <div class="bento-card fade-in stagger-5">
+      <div class="card-icon" style="background:rgba(232,69,69,0.12);">🔍</div>
+      <h3>Oversight &amp; Courts</h3>
+      <p>Audits from the OAG and PBO, Ethics Commissioner investigations, Competition Bureau actions, CRTC decisions, and CanLII court rulings. Full judicial and accountability tracking.</p>
+    </div>
+
+    <div class="bento-card span-2 fade-in stagger-6">
+      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🔗</div>
+      <h3>Connect the dots</h3>
+      <p>The same people show up everywhere — sitting on committees, lobbying departments, winning contracts, appearing in court cases. CivInt links them together so you can see the full picture. Our signal detectors flag revolving doors, lobbying overlaps, and cross-jurisdictional connections automatically.</p>
+    </div>
+
+    <div class="bento-card span-2 highlight fade-in stagger-7">
       <div class="card-icon" style="background:rgba(232,69,69,0.2);">🍁</div>
       <h3>Built for Canadians, running in Canada</h3>
-      <p>Every piece of information comes from official public sources — Parliament, the Lobbying Registry, open government data. Everything is verified and citable. No spin, no opinion, just the facts that are already public, organized so you can actually use them.</p>
+      <p>Every piece of information comes from official public sources — Parliament, the Lobbying Registry, the Canada Gazette, open court data, oversight bodies. Everything is verified and citable. No spin, no opinion, just the facts that are already public, organized so you can actually use them.</p>
     </div>
   </div>
 </section>
@@ -197,14 +275,12 @@
       <div class="integration-card fade-in stagger-1">
         <div class="int-icon">✏️</div>
         <h3>Cursor &amp; Windsurf</h3>
-        <p>Add to <code>.cursor/mcp.json</code> or <code>.windsurf/mcp_config.json</code>.</p>
+        <p>Add the MCP endpoint URL to <code>.cursor/mcp.json</code> or <code>.windsurf/mcp_config.json</code>.</p>
         <div class="code-block">
 {<br>
 &nbsp;&nbsp;<span class="string">"mcpServers"</span>:{<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"civint-canada"</span>:{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"command"</span>:<span class="string">"npx"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"args"</span>:[<span class="string">"@civint/mcp-server"</span>],<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"env"</span>:{<span class="string">"CIVINT_API_KEY"</span>:<span class="string">"..."</span>}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>:<span class="string">"https://civint.lan/mcp"</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;}<br>
 }
@@ -223,7 +299,7 @@
 <span class="comment"># Response with SHA-256 citation</span><br>
 { <span class="string">"citation"</span>: {<br>
 &nbsp;&nbsp;<span class="string">"verified"</span>: <span class="keyword">true</span><br>
-} }
+|} }
         </div>
       </div>
     </div>
@@ -259,7 +335,7 @@
           <li>Attribution required</li>
           <li>Rate-limited (10 req/s)</li>
         </ul>
-        <a href="#" class="btn btn-secondary">Get Started</a>
+        <a href="dashboard.html" class="btn btn-secondary">Get Started</a>
       </div>
 
       <div class="pricing-card featured fade-in stagger-1">
@@ -274,7 +350,7 @@
           <li>SHA-256 citation hashes</li>
           <li>Email support (48h SLA)</li>
         </ul>
-        <a href="#" class="btn btn-primary">Subscribe →</a>
+        <a href="mailto:civint@reverb256.ca" class="btn btn-primary">Subscribe →</a>
       </div>
 
       <div class="pricing-card fade-in stagger-2">
@@ -288,14 +364,14 @@
           <li>Custom MCP tool definitions</li>
           <li>SLA with 24h support</li>
         </ul>
-        <a href="#" class="btn btn-secondary">Subscribe →</a>
+        <a href="mailto:civint@reverb256.ca" class="btn btn-secondary">Subscribe →</a>
       </div>
     </div>
 
   <div class="pricing-enterprise fade-in">
     <h3>Need more?</h3>
     <p>Enterprise tier for government agencies and large organizations. Self-hosted option, unlimited calls, dedicated MCP server, full audit and provenance package with SLA.</p>
-    <a href="#" class="btn btn-primary">Contact Sales</a>
+    <a href="mailto:civint@reverb256.ca" class="btn btn-primary">Contact Sales</a>
   </div>
 </section>
 
@@ -371,9 +447,9 @@
     <div>
       <h4>Legal</h4>
       <ul>
-        <li><a href="#">Terms of Service</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">OGL-C Attribution</a></li>
+        <li>Terms of Service</li>
+        <li>Privacy Policy</li>
+        <li>OGL-C Attribution</li>
         <li><a href="https://github.com/reverb256">GitHub</a></li>
       </ul>
     </div>
@@ -385,5 +461,28 @@
 </footer>
 
 <script src="script.js"></script>
+<script>
+// Override static stats with real pipeline data
+fetch('assets/pipeline-data.json?t=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    const sources = data.sources || {};
+    document.querySelectorAll('.stat .number').forEach(el => {
+      const label = el.closest('.stat')?.querySelector('.label')?.textContent || '';
+      if (label.includes('Committees')) {
+        const hoc = sources.hoc?.records || 0;
+        const senate = sources.senate?.records || 0;
+        el.textContent = hoc + senate || '54';
+      } else if (label.includes('Executives')) {
+        el.textContent = sources.corporate?.records || '17';
+      } else if (label.includes('Influence')) {
+        el.textContent = sources.influence?.records || '34';
+      } else if (label.includes('Data Sources')) {
+        el.textContent = Object.keys(sources).filter(k => sources[k]?.status === 'ok').length || '13';
+      }
+    });
+  })
+  .catch(() => {}); // Keep hardcoded defaults on error
+</script>
 </body>
 </html>

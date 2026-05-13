@@ -5,11 +5,8 @@
  * Uses the same D1 API pattern as the existing Frostbite-Gazette schema.
  */
 
-import type { CommitteeMeeting, Intervention, CommitteeSpeaker } from './types.js';
+import type { Chamber, CommitteeMeeting, Intervention, CommitteeSpeaker } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  D1 Database Interface (compatible with @cloudflare/d1)             */
-/* ------------------------------------------------------------------ */
 
 export interface D1Database {
   prepare(sql: string): D1PreparedStatement;
@@ -24,15 +21,13 @@ export interface D1PreparedStatement {
   run(): Promise<{ success: boolean; meta?: { changes: number } }>;
 }
 
-/* ------------------------------------------------------------------ */
-/*  DDL — Create tables if they don't exist                           */
-/* ------------------------------------------------------------------ */
 
 export const COMMITTEE_DDL = `
 CREATE TABLE IF NOT EXISTS committee_meetings (
   id TEXT PRIMARY KEY,
   committee_acronym TEXT NOT NULL,
   committee_name TEXT NOT NULL,
+  chamber TEXT NOT NULL DEFAULT 'commons',
   parliament INTEGER NOT NULL,
   session INTEGER NOT NULL,
   meeting_number INTEGER NOT NULL,
@@ -45,7 +40,7 @@ CREATE TABLE IF NOT EXISTS committee_meetings (
   xml_url TEXT NOT NULL,
   subject TEXT,
   ingested_at TEXT NOT NULL,
-  UNIQUE(parliament, session, committee_acronym, meeting_number)
+  UNIQUE(chamber, parliament, session, committee_acronym, meeting_number)
 );
 
 CREATE INDEX IF NOT EXISTS idx_cm_committee ON committee_meetings(committee_acronym);
@@ -85,24 +80,19 @@ CREATE TABLE IF NOT EXISTS committee_speakers (
 CREATE INDEX IF NOT EXISTS idx_cs_party ON committee_speakers(latest_party);
 `;
 
-/* ------------------------------------------------------------------ */
-/*  CRUD                                                              */
-/* ------------------------------------------------------------------ */
 
-/**
- * Insert or ignore a committee meeting.
- */
 export async function upsertMeeting(db: D1Database, meeting: CommitteeMeeting): Promise<boolean> {
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO committee_meetings
-      (id, committee_acronym, committee_name, parliament, session, meeting_number,
+      (id, committee_acronym, committee_name, chamber, parliament, session, meeting_number,
        date, start_time, end_time, in_camera, in_camera_note,
        evidence_url, xml_url, subject, ingested_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     meeting.id,
     meeting.committeeAcronym,
     meeting.committeeName,
+    meeting.chamber,
     meeting.parliament,
     meeting.session,
     meeting.meetingNumber,
@@ -121,9 +111,6 @@ export async function upsertMeeting(db: D1Database, meeting: CommitteeMeeting): 
   return result.success;
 }
 
-/**
- * Insert an intervention (with conflict handling).
- */
 export async function insertIntervention(
   db: D1Database,
   intervention: Intervention,
@@ -150,9 +137,6 @@ export async function insertIntervention(
   return result.success;
 }
 
-/**
- * Upsert a speaker profile.
- */
 export async function upsertSpeaker(
   db: D1Database,
   speakerName: string,
@@ -165,7 +149,6 @@ export async function upsertSpeaker(
   ).bind(speakerName).first<CommitteeSpeaker>();
 
   if (existing) {
-    // Update with latest info
     const stmt = db.prepare(`
       UPDATE committee_speakers
       SET latest_affiliation = COALESCE(?, latest_affiliation),
@@ -176,7 +159,6 @@ export async function upsertSpeaker(
     `).bind(affiliation, party, meetingDate, speakerName);
     await stmt.run();
   } else {
-    // Insert new
     const stmt = db.prepare(`
       INSERT INTO committee_speakers
         (name, latest_affiliation, latest_party, total_appearances, first_seen, last_seen)
@@ -188,23 +170,18 @@ export async function upsertSpeaker(
   return true;
 }
 
-/**
- * Check if a meeting already exists in the database.
- */
 export async function meetingExists(
   db: D1Database,
   acronym: string,
   meetingNumber: number,
+  chamber: Chamber = 'commons',
 ): Promise<boolean> {
   const row = await db.prepare(
-    'SELECT 1 FROM committee_meetings WHERE committee_acronym = ? AND meeting_number = ? LIMIT 1',
-  ).bind(acronym, meetingNumber).first();
+    'SELECT 1 FROM committee_meetings WHERE committee_acronym = ? AND meeting_number = ? AND chamber = ? LIMIT 1',
+  ).bind(acronym, meetingNumber, chamber).first();
   return row !== null;
 }
 
-/**
- * Get the latest meeting number for a committee.
- */
 export async function getLatestMeetingNumber(
   db: D1Database,
   acronym: string,
@@ -215,9 +192,6 @@ export async function getLatestMeetingNumber(
   return row?.meeting_number ?? null;
 }
 
-/**
- * Search committee transcripts by keyword.
- */
 export async function searchTranscripts(
   db: D1Database,
   query: string,
@@ -265,9 +239,6 @@ export async function searchTranscripts(
   return result.results ?? [];
 }
 
-/**
- * Get in-camera meetings count.
- */
 export async function getInCameraCount(db: D1Database): Promise<number> {
   const row = await db.prepare(
     'SELECT COUNT(*) as cnt FROM committee_meetings WHERE in_camera = 1',
@@ -275,9 +246,6 @@ export async function getInCameraCount(db: D1Database): Promise<number> {
   return row?.cnt ?? 0;
 }
 
-/**
- * Drop and recreate committee tables (for testing).
- */
 export async function resetCommitteeTables(db: D1Database): Promise<void> {
   await db.exec('DROP TABLE IF EXISTS committee_interventions');
   await db.exec('DROP TABLE IF EXISTS committee_meetings');

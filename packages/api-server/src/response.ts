@@ -64,10 +64,34 @@ function buildMeta(ctx: { tenant: Tenant; requestId: string; startTime: number }
 }
 
 /* ------------------------------------------------------------------ */
+/*  Rate Limit Reset Calculation                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Calculate the Unix timestamp (seconds) when the current rate-limit period resets.
+ * For daily: next midnight UTC. For monthly: first day of next month UTC.
+ */
+export function calcRateLimitReset(period: 'daily' | 'monthly'): number {
+  const now = new Date();
+  if (period === 'daily') {
+    // Midnight UTC tonight
+    const reset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0, 0));
+    return Math.floor(reset.getTime() / 1000);
+  }
+  // First day of next month UTC
+  const reset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+  return Math.floor(reset.getTime() / 1000);
+}
+
+/* ------------------------------------------------------------------ */
 /*  HTTP Response Helpers                                              */
 /* ------------------------------------------------------------------ */
 
-export function jsonResponse<T>(body: ApiResponse<T>, status = 200): Response {
+export function jsonResponse<T>(
+  body: ApiResponse<T>,
+  status = 200,
+  extraHeaders: Record<string, string> = {},
+): Response {
   return new Response(JSON.stringify(body, null, 2), {
     status,
     headers: {
@@ -76,7 +100,32 @@ export function jsonResponse<T>(body: ApiResponse<T>, status = 200): Response {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CivInt-Mode',
+      ...extraHeaders,
     },
+  });
+}
+
+/**
+ * Attach rate-limit headers to an existing Response.
+ * Returns a new Response (headers are immutable after construction).
+ */
+export function addRateLimitHeaders(
+  response: Response,
+  rateInfo: {
+    dailyCalls: number;
+    monthlyCalls: number;
+    dailyLimit: number;
+    monthlyLimit: number;
+  },
+): Response {
+  const headers = new Headers(response.headers);
+  headers.set('X-RateLimit-Limit', String(rateInfo.monthlyLimit));
+  headers.set('X-RateLimit-Remaining', String(Math.max(0, rateInfo.monthlyLimit - rateInfo.monthlyCalls)));
+  headers.set('X-RateLimit-Reset', String(calcRateLimitReset('monthly')));
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
 

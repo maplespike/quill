@@ -18,7 +18,13 @@
 
 import { fetchEvidenceXml, fetchMeetingList, CommitteeFetchError } from './fetcher.js';
 import { parseEvidenceXml } from './parser.js';
-import { COMMITTEES, COMMITTEE_MAP, evidenceHtmlUrl } from './constants.js';
+import {
+  COMMITTEES,
+  COMMITTEE_MAP,
+  SENATE_COMMITTEES,
+  evidenceHtmlUrl,
+  getBaseUrl,
+} from './constants.js';
 import {
   type D1Database,
   upsertMeeting,
@@ -27,11 +33,8 @@ import {
   meetingExists,
   getLatestMeetingNumber,
 } from './db.js';
-import type { CommitteeIngestionResult, CommitteeMeeting, Intervention } from './types.js';
+import type { Chamber, CommitteeIngestionResult, CommitteeMeeting, Intervention } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  Meeting list HTML scraper (simple regex-based)                     */
-/* ------------------------------------------------------------------ */
 
 interface ScrapedMeetingLink {
   meetingNumber: number;
@@ -84,9 +87,6 @@ function scrapeMeetingList(html: string, acronym: string): ScrapedMeetingLink[] 
   return meetings;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Single-committee ingestion pipeline                                */
-/* ------------------------------------------------------------------ */
 
 /**
  * Ingest all new evidence for a given committee into the database.
@@ -105,6 +105,8 @@ export async function ingestCommittee(
     parliament?: number;
     /** Override session number (default: 1) */
     session?: number;
+    /** Chamber (default: 'commons') */
+    chamber?: Chamber;
     /** Only fetch the most recent N meetings */
     limit?: number;
     /** Include already-ingested meetings (re-parse) */
@@ -129,14 +131,16 @@ export async function ingestCommittee(
     durationMs: 0,
   };
 
+  const chamber = options.chamber ?? 'commons';
   const p = options.parliament ?? 45;
   const s = options.session ?? 1;
+  const baseUrl = getBaseUrl(chamber);
   const log = options.onProgress ?? (() => {});
 
   try {
     // Phase 1: Fetch meeting list
     log(`[${acronym}] Fetching meeting list...`);
-    const html = await fetchMeetingList(acronym);
+    const html = await fetchMeetingList(acronym, { baseUrl });
     const allMeetings = scrapeMeetingList(html, acronym)
       .filter(m => m.meetingNumber > 0);
 
@@ -168,11 +172,11 @@ export async function ingestCommittee(
     // Phase 3: Fetch and parse each meeting
     for (const meeting of toIngest) {
       try {
-        const xmlUrl = evidenceHtmlUrl(p, s, acronym, meeting.meetingNumber);
+        const xmlUrl = evidenceHtmlUrl(p, s, acronym, meeting.meetingNumber, baseUrl);
         log(`[${acronym}] Fetching meeting #${meeting.meetingNumber}...`);
 
         const xml = await fetchEvidenceXml(xmlUrl);
-        const parsed = await parseEvidenceXml(xml, p, s);
+        const parsed = await parseEvidenceXml(xml, p, s, chamber);
 
         const cm = parsed.meeting;
 
@@ -188,18 +192,16 @@ export async function ingestCommittee(
 
         // Skip if already exists (unless force)
         if (!options.force) {
-          const exists = await meetingExists(db, acronym, cm.meetingNumber);
+          const exists = await meetingExists(db, acronym, cm.meetingNumber, chamber);
           if (exists) {
             log(`[${acronym}] Meeting #${meeting.meetingNumber} already ingested, skipping`);
             continue;
           }
         }
 
-        // Persist meeting
         await upsertMeeting(db, cm);
         result.meetingsIngested++;
 
-        // Persist interventions
         const seenSpeakers = new Set<string>();
         for (const inv of parsed.interventions) {
           await insertIntervention(db, inv);
@@ -238,14 +240,61 @@ export async function ingestCommittee(
   return result;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Bulk operations                                                    */
-/* ------------------------------------------------------------------ */
 
 /**
- * Ingest ALL committees.
+ * Ingest committees for a specific chamber.
  * Returns results keyed by committee acronym.
  */
+async function ingestChamberCommittees(
+  db: D1Database,
+  chamber: Chamber,
+  options: {
+    parliament?: number;
+    session?: number;
+    limit?: number;
+    force?: boolean;
+    includeInCamera?: boolean;
+    inCameraOnly?: boolean;
+    /** Only these committees (default: all for the chamber) */
+    committees?: string[];
+    /** Concurrency limit (default: 3) */
+    concurrency?: number;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<Record<string, CommitteeIngestionResult>> {
+  const committeeList = chamber === 'senate' ? SENATE_COMMITTEES : COMMITTEES;
+  const targets = options.committees
+    ? committeeList.filter(c => options.committees!.includes(c.acronym))
+    : committeeList;
+
+  const results: Record<string, CommitteeIngestionResult> = {};
+  const concurrency = options.concurrency ?? 3;
+  const log = options.onProgress ?? (() => {});
+
+  log(`[${chamber}] Ingesting ${targets.length} committees (concurrency: ${concurrency})...`);
+
+  // Process in batches
+  for (let i = 0; i < targets.length; i += concurrency) {
+    const batch = targets.slice(i, i + concurrency);
+    const batchResults = await Promise.all(
+      batch.map(c => ingestCommittee(db, c.acronym, { ...options, chamber })),
+    );
+
+    for (let j = 0; j < batch.length; j++) {
+      results[batch[j].acronym] = batchResults[j];
+    }
+  }
+
+  // Summary
+  const totalMeetings = Object.values(results).reduce((s, r) => s + r.meetingsIngested, 0);
+  const totalInterventions = Object.values(results).reduce((s, r) => s + r.interventionsIngested, 0);
+  const totalInCamera = Object.values(results).reduce((s, r) => s + r.inCameraCount, 0);
+  const totalErrors = Object.values(results).reduce((s, r) => s + r.errors.length, 0);
+  log(`[${chamber}] Summary: ${targets.length} committees, ${totalMeetings} meetings, ${totalInterventions} interventions, ${totalInCamera} in-camera, ${totalErrors} errors`);
+
+  return results;
+}
+
 export async function ingestAllCommittees(
   db: D1Database,
   options: {
@@ -259,40 +308,54 @@ export async function ingestAllCommittees(
     committees?: string[];
     /** Concurrency limit (default: 3) */
     concurrency?: number;
+    /** Also include Senate committees (default: false) */
+    includeSenate?: boolean;
     onProgress?: (msg: string) => void;
   } = {},
 ): Promise<Record<string, CommitteeIngestionResult>> {
-  const targets = options.committees
-    ? COMMITTEES.filter(c => options.committees!.includes(c.acronym))
-    : COMMITTEES;
-
-  const results: Record<string, CommitteeIngestionResult> = {};
-  const concurrency = options.concurrency ?? 3;
   const log = options.onProgress ?? (() => {});
 
-  log(`Ingesting ${targets.length} committees (concurrency: ${concurrency})...`);
+  const results: Record<string, CommitteeIngestionResult> = {};
 
-  // Process in batches
-  for (let i = 0; i < targets.length; i += concurrency) {
-    const batch = targets.slice(i, i + concurrency);
-    const batchResults = await Promise.all(
-      batch.map(c => ingestCommittee(db, c.acronym, options)),
-    );
+  // House of Commons
+  const commonsResults = await ingestChamberCommittees(db, 'commons', options);
+  Object.assign(results, commonsResults);
 
-    for (let j = 0; j < batch.length; j++) {
-      results[batch[j].acronym] = batchResults[j];
-    }
+  // Senate (if requested)
+  if (options.includeSenate) {
+    const senateResults = await ingestChamberCommittees(db, 'senate', options);
+    Object.assign(results, senateResults);
   }
 
-  // Summary
+  // Overall summary
   const totalMeetings = Object.values(results).reduce((s, r) => s + r.meetingsIngested, 0);
   const totalInterventions = Object.values(results).reduce((s, r) => s + r.interventionsIngested, 0);
   const totalInCamera = Object.values(results).reduce((s, r) => s + r.inCameraCount, 0);
   const totalErrors = Object.values(results).reduce((s, r) => s + r.errors.length, 0);
-  log(`\n=== Summary ===`);
-  log(`Committees: ${targets.length}, Meetings: ${totalMeetings}, Interventions: ${totalInterventions}, In-Camera: ${totalInCamera}, Errors: ${totalErrors}`);
+  const chamberCount = options.includeSenate ? 2 : 1;
+  log(`\n=== Overall Summary ===`);
+  log(`Chambers: ${chamberCount}, Committees: ${Object.keys(results).length}, Meetings: ${totalMeetings}, Interventions: ${totalInterventions}, In-Camera: ${totalInCamera}, Errors: ${totalErrors}`);
 
   return results;
+}
+
+export async function ingestSenateCommittees(
+  db: D1Database,
+  options: {
+    parliament?: number;
+    session?: number;
+    limit?: number;
+    force?: boolean;
+    includeInCamera?: boolean;
+    inCameraOnly?: boolean;
+    /** Only these committees (default: all Senate) */
+    committees?: string[];
+    /** Concurrency limit (default: 3) */
+    concurrency?: number;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<Record<string, CommitteeIngestionResult>> {
+  return ingestChamberCommittees(db, 'senate', options);
 }
 
 /**

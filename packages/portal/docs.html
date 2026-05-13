@@ -4,11 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Docs — CivInt Canada</title>
+  <meta name="description" content="CivInt Canada documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, pricing, and FAQ.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
+  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
+  <meta property="og:title" content="Docs — CivInt Canada">
+  <meta property="og:description" content="CivInt Canada documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, and pricing.">
+  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://civint.ca/docs.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Docs — CivInt Canada">
+  <meta name="twitter:description" content="CivInt Canada documentation — quickstart, MCP setup, API reference, pricing.">
+  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "CivInt Canada",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://civint.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
 </head>
 <body>
 
@@ -54,15 +79,42 @@
   <h3>🌐 Influence Actors</h3>
   <p>34 <span data-term="influence-actor">influence actors</span> — international organizations, NGOs, think tanks, and consultancies — are monitored from the UN and WEF to McKinsey and the CCPA. We track their government funding, committee appearances, lobbying activities, and CRA charity data from <a href="https://apps.cra-arc.gc.ca">charities.gc.ca</a>.</p>
 
+  <h3>📜 Canada Gazette</h3>
+  <p>Regulatory activity from <a href="https://www.gazette.gc.ca">gazette.gc.ca</a> is ingested daily. Part I captures proposed regulations open for public comment; Part II contains enacted regulations and orders-in-council. Each entry is parsed for the regulating department, legal authority, and comment deadlines so you can track regulatory changes before they take effect.</p>
+
+  <h3>🏛️ Senate Committees</h3>
+  <p>All 20 standing Senate committees are ingested from <a href="https://sencanada.ca">sencanada.ca</a> using the same XML evidence schema as the House. Meeting transcripts, witness lists, and reports are normalized to the same committee data model, enabling cross-chamber analysis of witness appearances and policy topics.</p>
+
+  <h3>👑 GIC Appointments</h3>
+  <p>Governor-in-Council appointments — the federal patronage system — are collected from the <a href="https://open.canada.ca/data/en/dataset/governor-in-council-appointments">open.canada.ca GIC dataset</a>. Every order-in-council appointment to boards, commissions, tribunals, and Crown corporations is tracked, including position, term length, remuneration, and location data for patronage mapping.</p>
+
+  <h3>🗳️ Election Advertising</h3>
+  <p>Third-party election advertising spending is collected from <a href="https://www.elections.ca">Elections Canada</a>. The module tracks registered third parties, their advertising expenses during election periods, and donor contributions — shedding light on <span data-term="dark-money">dark money</span> in Canadian federal elections.</p>
+
+  <h3>🏢 Provincial Lobbying</h3>
+  <p>The Ontario lobbying registry is ingested daily from <a href="https://lobbying.ontario.ca">lobbying.ontario.ca</a> and normalized to the federal lobbying schema. This gives a combined federal-provincial lobbying view, with entity resolution linking lobbyists and organizations across both jurisdictions.</p>
+
+  <h3>📋 Oversight Bodies</h3>
+  <p>Five oversight streams are monitored: <a href="https://www.oag-bvg.gc.ca">Office of the Auditor General (OAG)</a> performance audits, <a href="https://www.pbo-dpb.gc.ca">Parliamentary Budget Officer (PBO)</a> cost estimates, <a href="https://ciec-ccie.gc.ca">Ethics Commissioner</a> investigation reports and compliance agreements, <a href="https://www.competitionbureau.gc.ca">Competition Bureau</a> merger reviews and enforcement actions, and <a href="https://crtc.gc.ca">CRTC</a> decisions and policy rulings. Each is fetched from the respective body's publications feed.</p>
+
+  <h3>⚖️ Court Decisions</h3>
+  <p>Federal Court, Supreme Court of Canada, and Tax Court decisions are ingested via the <a href="https://canlii.ca">CanLII API</a>. Every decision is parsed for case metadata (docket number, court, judge, parties) and full-text content, enabling cross-referencing of legal challenges against government actions, regulations, and procurement disputes.</p>
+
+  <h3>👷 Labour Market Impact Assessments (LMIA)</h3>
+  <p>Employment and Social Development Canada publishes quarterly lists of every employer who received a positive or negative LMIA through the Temporary Foreign Worker Program. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/90fed587-1364-4f33-a9ee-208181dc0b97">open.canada.ca CKAN portal</a> — showing which companies are hiring foreign workers, in which occupations, at what wage levels, and in what regions. Data available from 2014 to present.</p>
+  <p style="background:var(--accent-dim);padding:12px 16px;border-radius:6px;border-left:3px solid var(--accent);margin-top:8px;">
+    <strong>Cross-reference:</strong> LMIA records can be matched against the corporate module (which tracked companies are using TFW programs?) and procurement (companies with government contracts AND LMIA approvals — a potential labour cost story).
+  </p>
+
   <h2>How the pipeline works</h2>
 
-  <p>Data flows through 4 stages:</p>
+  <p>All 13 data source modules feed into a unified 4-stage pipeline:</p>
 
   <ol style="color:var(--text-secondary);line-height:1.9;">
-    <li><strong>Ingestion</strong> — Each module has a fetcher that downloads data from the government source (XML, CSV, RSS, JSON) and funnels it into the <span data-term="pipeline">pipeline</span></li>
-    <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records (committees, lobbying records, contracts, statements)</li>
+    <li><strong>Ingestion</strong> — Each of the 13 modules has a dedicated fetcher that downloads data from its government source (XML, CSV, RSS, JSON, HTML, API) and funnels it into the <span data-term="pipeline">pipeline</span></li>
+    <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records (committees, lobbying records, contracts, statements, regulations, appointments, court decisions, etc.)</li>
     <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent <span data-term="citation">citation</span> verification and <span data-term="provenance">provenance</span> tracking</li>
-    <li><strong>Cross-referencing</strong> — The <span data-term="entity-resolution">entity resolution</span> engine links people and organizations across all sources, detecting patterns (revolving doors, lobbying overlaps, etc.) that become <span data-term="signal">signals</span></li>
+    <li><strong>Cross-referencing</strong> — The <span data-term="entity-resolution">entity resolution</span> engine links people and organizations across all 13 sources, detecting patterns (revolving doors, lobbying overlaps, regulatory capture, etc.) that become <span data-term="signal">signals</span></li>
   </ol>
 
   <h2>Accessing the data</h2>
@@ -77,8 +129,15 @@
   <p>Each ingestion module has a command-line interface for manual runs and scripting:</p>
   <div class="code-block">
 pnpm --filter @civint/pipeline-core committees --ingest-all<br>
+pnpm --filter @civint/pipeline-core senate --ingest-all<br>
+pnpm --filter @civint/pipeline-core gazette --ingest-all<br>
 pnpm --filter @civint/pipeline-core lobbying --ingest<br>
+pnpm --filter @civint/pipeline-core provincial-lobbying --ingest<br>
 pnpm --filter @civint/pipeline-core procurement --check-sole-source<br>
+pnpm --filter @civint/pipeline-core gic-appointments --ingest<br>
+pnpm --filter @civint/pipeline-core election-ads --ingest<br>
+pnpm --filter @civint/pipeline-core oversight --ingest-all<br>
+pnpm --filter @civint/pipeline-core courts --ingest<br>
 pnpm --filter @civint/pipeline-core influence --ingest-all<br>
 pnpm --filter @civint/engine sweep --full
   </div>
@@ -91,12 +150,21 @@ pnpm --filter @civint/engine sweep --full
   <table>
     <tr><th>Source</th><th>Format</th><th>Update frequency</th><th>Link</th></tr>
     <tr><td>House of Commons committees</td><td>XML</td><td>Daily</td><td><a href="https://www.ourcommons.ca">ourcommons.ca</a></td></tr>
-    <tr><td>Lobbying Registry</td><td>CSV</td><td>Monthly</td><td><a href="https://lobbycanada.gc.ca">lobbycanada.gc.ca</a></td></tr>
+    <tr><td>Senate committees</td><td>XML</td><td>Daily</td><td><a href="https://sencanada.ca">sencanada.ca</a></td></tr>
+    <tr><td>Canada Gazette (Part I & II)</td><td>XML/HTML</td><td>Daily</td><td><a href="https://www.gazette.gc.ca">gazette.gc.ca</a></td></tr>
+    <tr><td>GIC Appointments</td><td>JSON/CSV</td><td>Weekly</td><td><a href="https://open.canada.ca/data/en/dataset/governor-in-council-appointments">open.canada.ca</a></td></tr>
+    <tr><td>Federal Lobbying Registry</td><td>CSV</td><td>Monthly</td><td><a href="https://lobbycanada.gc.ca">lobbycanada.gc.ca</a></td></tr>
+    <tr><td>Ontario Lobbying Registry</td><td>CSV/JSON</td><td>Daily</td><td><a href="https://lobbying.ontario.ca">lobbying.ontario.ca</a></td></tr>
     <tr><td>Procurement contracts</td><td>JSON/CSV</td><td>Daily</td><td><a href="https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b">open.canada.ca</a></td></tr>
     <tr><td>CanadaBuys tenders</td><td>RSS</td><td>Real-time</td><td><a href="https://canadabuys.canada.ca">canadabuys.canada.ca</a></td></tr>
+    <tr><td>Elections Canada (3rd-party advertising)</td><td>CSV</td><td>Per election period</td><td><a href="https://www.elections.ca">elections.ca</a></td></tr>
+    <tr><td>Office of the Auditor General</td><td>PDF/HTML</td><td>Weekly</td><td><a href="https://www.oag-bvg.gc.ca">oag-bvg.gc.ca</a></td></tr>
+    <tr><td>Parliamentary Budget Officer</td><td>PDF/HTML</td><td>Varies</td><td><a href="https://www.pbo-dpb.gc.ca">pbo-dpb.gc.ca</a></td></tr>
+    <tr><td>Ethics Commissioner</td><td>HTML</td><td>Varies</td><td><a href="https://ciec-ccie.gc.ca">ciec-ccie.gc.ca</a></td></tr>
+    <tr><td>Competition Bureau</td><td>HTML</td><td>Weekly</td><td><a href="https://www.competitionbureau.gc.ca">competitionbureau.gc.ca</a></td></tr>
+    <tr><td>CRTC decisions</td><td>HTML/XML</td><td>Daily</td><td><a href="https://crtc.gc.ca">crtc.gc.ca</a></td></tr>
+    <tr><td>Court decisions (CanLII)</td><td>API (JSON)</td><td>Daily</td><td><a href="https://canlii.ca">canlii.ca</a></td></tr>
     <tr><td>CRA Charities</td><td>HTML/CSV</td><td>Weekly</td><td><a href="https://apps.cra-arc.gc.ca">cra-arc.gc.ca</a></td></tr>
-    <tr><td>Statistics Canada</td><td>SDMX</td><td>Varies</td><td><a href="https://www.statcan.gc.ca">statcan.gc.ca</a></td></tr>
-    <tr><td>Provincial portals (ON, BC, AB, QC)</td><td>CKAN</td><td>Varies</td><td><a href="https://open.canada.ca/data/en/dataset">open.canada.ca</a></td></tr>
     <tr><td>Grants and contributions</td><td>JSON</td><td>Quarterly</td><td><a href="https://open.canada.ca/data/en/dataset/432527ab-7aac-45b5-81d6-7597107a7013">open.canada.ca</a></td></tr>
   </table>
 
@@ -188,9 +256,9 @@ pnpm --filter @civint/engine sweep --full
     <div>
       <h4>Legal</h4>
       <ul>
-        <li><a href="#">Terms of Service</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">OGL-C Attribution</a></li>
+        <li>Terms of Service</li>
+        <li>Privacy Policy</li>
+        <li>OGL-C Attribution</li>
         <li><a href="https://github.com/reverb256">GitHub</a></li>
       </ul>
     </div>

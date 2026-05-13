@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: civint-ingest-oversight
+  namespace: ai-inference
+  labels:
+    app: civint-ingest
+    pipeline: oversight
+    tier: backend
+spec:
+  schedule: "0 6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: civint-ingest
+            pipeline: oversight
+            tier: backend
+        spec:
+          restartPolicy: OnFailure
+          nodeName: nexus
+          containers:
+            - name: civint-ingest
+              image: nexus:5000/civint-mcp:latest
+              imagePullPolicy: Always
+              env:
+                - name: NODE_ENV
+                  value: "production"
+                - name: CIVINT_PIPELINE
+                  value: "oversight"
+                - name: CIVINT_AI_ENDPOINT
+                  value: "http://ai-inference-gateway:8080/v1"
+                - name: CIVINT_AI_MODEL
+                  value: "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "512Mi"

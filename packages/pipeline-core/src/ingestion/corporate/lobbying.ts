@@ -16,14 +16,11 @@
  * Primary CSV URL: https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip
  */
 
-import { request } from 'undici';
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { OURCOMMONS_BASE } from '../committees/constants.js';
 import type { LobbyingRecord } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  Errors                                                             */
-/* ------------------------------------------------------------------ */
 
 export class LobbyingFetchError extends Error {
   constructor(
@@ -35,9 +32,6 @@ export class LobbyingFetchError extends Error {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  CKAN-based full dataset fetch                                     */
-/* ------------------------------------------------------------------ */
 
 /**
  * Fetch the lobbying registry dataset info from CKAN.
@@ -47,15 +41,14 @@ export async function fetchCkanDataset(): Promise<{
   title: string;
   resources: { name: string; format: string; url: string }[];
 }> {
-  const resp = await request(
+  const resp = await httpGet(
     'https://open.canada.ca/data/api/3/action/package_show?id=70ef2117-1095-4d77-80eb-b87f2bada2a4',
     {
-      method: 'GET',
       headers: { Accept: 'application/json' },
-    } as any,
+    },
   );
 
-  const body = await resp.body.json() as any;
+  const body: any = resp.body ? JSON.parse(resp.body) : {};
   if (!body.success) {
     throw new LobbyingFetchError('CKAN API error: ' + (body.error?.message ?? 'unknown'));
   }
@@ -81,25 +74,21 @@ export async function fetchCkanDataset(): Promise<{
 export async function fetchRegistrationsCsv(): Promise<string> {
   const url = 'https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip';
   
-  const resp = await request(url, {
-    method: 'GET',
+  const resp = await httpGet(url, {
     headers: { Accept: 'application/zip,*/*' },
-  } as any);
+  });
 
   if (resp.statusCode >= 400) {
     throw new LobbyingFetchError(`HTTP ${resp.statusCode} fetching CSV`, url);
   }
 
   // Return raw bytes — caller handles unzipping
-  const buffer = await resp.body.arrayBuffer();
+  const buffer = new TextEncoder().encode(resp.body);
   // For now, we just return the URL and metadata; actual CSV parsing
   // will be done when the data is needed by the ingestion pipeline
   return `ZIP:${url}:${buffer.byteLength}bytes`;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Search-based lookup (real-time)                                   */
-/* ------------------------------------------------------------------ */
 
 /**
  * Search lobbying registry for a specific organization or individual.
@@ -110,12 +99,11 @@ export async function searchLobbying(
 ): Promise<Partial<LobbyingRecord>[]> {
   const searchUrl = `https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=${encodeURIComponent(query)}`;
   
-  const resp = await request(searchUrl, {
-    method: 'GET',
+  const resp = await httpGet(searchUrl, {
     headers: { Accept: 'text/html' },
-  } as any);
+  });
 
-  const html = await resp.body.text();
+  const html = resp.body;
   
   // Parse search results from HTML table
   const results: Partial<LobbyingRecord>[] = [];
@@ -166,16 +154,15 @@ export async function fetchMonthlyCommunicationReports(): Promise<{
 }[]> {
   const url = 'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/monthlyCommunicationReportsCSV.shtml';
   
-  const resp = await request(url, {
-    method: 'GET',
+  const resp = await httpGet(url, {
     headers: { Accept: 'text/html' },
-  } as any);
+  });
 
   if (resp.statusCode >= 400) {
     throw new LobbyingFetchError(`HTTP ${resp.statusCode} fetching monthly reports`, url);
   }
 
-  const html = await resp.body.text();
+  const html = resp.body;
   const reports: { year: number; month: number; csvUrl: string }[] = [];
 
   // Parse links to monthly CSV files
