@@ -53,7 +53,7 @@ export DEVENV_RUNTIME
 declare -a envBuildBuildHooks=('addPythonPath' 'sysconfigdataHook' )
 NIX_HARDENING_ENABLE='bindnow format fortify fortify3 libcxxhardeningextensive libcxxhardeningfast pic relro stackclashprotection stackprotector strictoverflow zerocallusedregs'
 export NIX_HARDENING_ENABLE
-PREK_HOME='/data/projects/own/civint/.devenv/state/prek'
+PREK_HOME='/data/projects/own/maplespike/.devenv/state/prek'
 export PREK_HOME
 declare -a envHostTargetHooks=('pkgConfigWrapper_addPkgConfigPath' 'ccWrapper_addCVars' 'bintoolsWrapper_addLDVars' )
 initialPath='/nix/store/hlxw2q9qansq7bn52xvlb5badw3z1v8s-coreutils-9.10 /nix/store/b3rx5wac9hhfxn9120xkcvdwj51mc9z2-findutils-4.10.0 /nix/store/icrrz26xbyp293kagrlkab1bhc6gra0r-diffutils-3.12 /nix/store/wv7qq5yb8plyhxji9x3r5gpkyfm2kf29-gnused-4.9 /nix/store/8laf6k81j9ckylrigj3xsk76j69knhvl-gnugrep-3.12 /nix/store/gf7b4yz4vhd0y2hnnrimhh875ghwzzzj-gawk-5.3.2 /nix/store/isva9q9zx3frx6hh6cnpihh1kd2bx6bk-gnutar-1.35 /nix/store/w1n7yp2vnldr395hbwbcaw9sflh413bm-gzip-1.14 /nix/store/x8l7qzpab2gpdrp89g48mxlrsiz4f0gm-bzip2-1.0.8-bin /nix/store/0xw6y53ijaqwfd9c99wyaqiinychzv1f-gnumake-4.4.1 /nix/store/2hjsch59amjs3nbgh7ahcfzm2bfwl8zi-bash-5.3p9 /nix/store/8y5jm97n4lyw80gh71yihghbhqc11fdz-patch-2.8 /nix/store/27fx8p4k6098wan3zahdbyj79ndcn03z-xz-5.8.2-bin /nix/store/p3j7lphwlci13f9w2v4rav6rbvpi80li-file-5.45'
@@ -123,7 +123,7 @@ export depsBuildBuildPropagated
 HOSTTYPE='x86_64'
 PKG_CONFIG='pkg-config'
 export PKG_CONFIG
-DEVENV_DOTFILE='/data/projects/own/civint/.devenv'
+DEVENV_DOTFILE='/data/projects/own/maplespike/.devenv'
 export DEVENV_DOTFILE
 NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu='1'
 export NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu
@@ -142,7 +142,7 @@ export RANLIB
 IN_NIX_SHELL='impure'
 export IN_NIX_SHELL
 outputBin='out'
-DEVENV_ROOT='/data/projects/own/civint'
+DEVENV_ROOT='/data/projects/own/maplespike'
 export DEVENV_ROOT
 __structuredAttrs=''
 export __structuredAttrs
@@ -161,7 +161,7 @@ export hardeningDisable
 PS4='+ '
 depsTargetTargetPropagated=''
 export depsTargetTargetPropagated
-DEVENV_STATE='/data/projects/own/civint/.devenv/state'
+DEVENV_STATE='/data/projects/own/maplespike/.devenv/state'
 export DEVENV_STATE
 cmakeFlags=''
 export cmakeFlags
@@ -258,7 +258,7 @@ fi
 unset HOST_PATH NIX_BUILD_CORES __structuredAttrs buildInputs buildPhase builder depsBuildBuild depsBuildBuildPropagated depsBuildTarget depsBuildTargetPropagated depsHostHost depsHostHostPropagated depsTargetTarget depsTargetTargetPropagated dontAddDisableDepTrack doCheck doInstallCheck nativeBuildInputs out outputs patches phases preferLocalBuild propagatedBuildInputs propagatedNativeBuildInputs shell shellHook stdenv strictDeps
 
 mkdir -p /run/user/1000/devenv-6b1d69e
-ln -snf /run/user/1000/devenv-6b1d69e /data/projects/own/civint/.devenv/run
+ln -snf /run/user/1000/devenv-6b1d69e /data/projects/own/maplespike/.devenv/run
 
 
 export PATH="node_modules/.bin:$PATH"
@@ -267,7 +267,7 @@ export PATH="node_modules/.bin:$PATH"
 
 # Check whether the direnv integration is out of date.
 {
-  if [[ ":${DIRENV_ACTIVE-}:" == *":/data/projects/own/civint:"* ]]; then
+  if [[ ":${DIRENV_ACTIVE-}:" == *":/data/projects/own/maplespike:"* ]]; then
     if [[ ! "${DEVENV_NO_DIRENVRC_OUTDATED_WARNING-}" == 1 && ! "${DEVENV_DIRENVRC_ROLLING_UPGRADE-}" == 1 ]]; then
       if [[ ${DEVENV_DIRENVRC_VERSION:-0} -lt 2 ]]; then
         direnv_line=$(grep --color=never -E "source_url.*cachix/devenv" .envrc || echo "")

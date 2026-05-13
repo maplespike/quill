@@ -13,6 +13,9 @@ export const definition: ToolDefinition = {
     'including approval/denial rates, streams (high-wage, low-wage, agriculture, etc.), ' +
     'occupations, provinces, and top employers. Cross-references with corporate data and ' +
     'procurement records for comprehensive TFW program oversight.',
+  descriptions: {
+    "fr-CA": "Rechercher les données trimestrielles sur les études d’impact sur le marché du travail (EIMT). Retourne les données par employeur, profession, province et résultats (approuvé/refusé). Utile pour le suivi du Programme des travailleurs étrangers temporaires.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

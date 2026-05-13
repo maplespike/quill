@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — API Server Types
+ * MapleSpike Canada — API Server Types
  *
  * Shared types for the multi-tenant API gateway.
  */
@@ -86,15 +86,15 @@ export interface RouteContext {
   requestId: string;
   startTime: number;
   env: Record<string, string | undefined>;
-  db: CivIntStorage;
-  cache: CivIntCache;
+  db: MapleSpikeStorage;
+  cache: MapleSpikeCache;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Storage Abstraction (D1 / local)                                   */
 /* ------------------------------------------------------------------ */
 
-export interface CivIntStorage {
+export interface MapleSpikeStorage {
   /** Look up tenant + API key by raw key value. Returns null if invalid. */
   authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null>;
   /** Get current daily call count for a tenant. */
@@ -109,7 +109,7 @@ export interface CivIntStorage {
   queryAudit(filter: AuditQueryParams): Promise<AuditEntry[]>;
 }
 
-export interface CivIntCache {
+export interface MapleSpikeCache {
   get(key: string): Promise<string | null>;
   put(key: string, value: string, ttlSeconds?: number): Promise<void>;
 }

@@ -1,5 +1,5 @@
 /**
- * LMIA Ingestion — CivInt Pipeline
+ * LMIA Ingestion — MapleSpike Pipeline
  *
  * Orchestrates the LMIA data ingestion pipeline:
  *   1. Discover latest quarter from CKAN metadata (or use specified quarter)

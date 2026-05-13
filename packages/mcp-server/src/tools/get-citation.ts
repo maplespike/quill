@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { computeHash, generateVerifyCommand } from '@civint/pipeline-core';
+import { computeHash, generateVerifyCommand } from '@maplespike/pipeline-core';
 
 /**
  * In-memory citation store.
@@ -49,6 +49,9 @@ export const definition: ToolDefinition = {
     'Retrieve a citation record by its SHA-256 content hash. Returns the original data, timestamp, ' +
     'source attribution, and a ready-to-run shell command for independent hash verification. ' +
     'Use this to verify that content has not been altered since publication.',
+  descriptions: {
+    "fr-CA": "Récupérer et vérifier un hachage de citation SHA-256 pour un enregistrement de données spécifique. Permet de vérifier l’intégrité des données en recomputant le hachage à partir de la source originale.",
+  },
   inputSchema: {
     type: 'object',
     properties: {
@@ -99,7 +102,7 @@ export const handler: ToolHandler = async (args) => {
             ? record.content.slice(0, 500) + '... [truncated — use verify command for full verification]'
             : record.content,
         },
-        verifyCommand: generateVerifyCommand(`https://api.civint.ca/v1/citation/${hash}`),
+        verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${hash}`),
         message: verified
           ? 'Citation verified — content hash matches stored record.'
           : 'Citation found but content hash could not be independently verified (stored hash differs or no content store).',
@@ -120,7 +123,7 @@ export const handler: ToolHandler = async (args) => {
         verified: false,
         data: null,
       },
-      verifyCommand: generateVerifyCommand(`https://api.civint.ca/v1/citation/${hash}`),
+      verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${hash}`),
       message:
         'Citation not found in current session store. ' +
         'This hash may correspond to data ingested in a previous session or by the Frostbite Gazette pipeline. ' +

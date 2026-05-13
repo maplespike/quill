@@ -1,4 +1,4 @@
-# CivInt Canada
+# MapleSpike Canada
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
@@ -8,7 +8,7 @@
 
 ## What it is
 
-CivInt Canada ingests, verifies, and surfaces **16 data modules** of Canadian public-domain government data:
+MapleSpike Canada ingests, verifies, and surfaces **16 data modules** of Canadian public-domain government data:
 
 | # | Module | What it tracks | Connectors | DB Persist | MCP Tool |
 |---|--------|----------------|-----------|------------|----------|
@@ -38,7 +38,7 @@ Every record includes SHA-256 citation hashes, source provenance, and audit trai
 ## Repository structure
 
 ```
-civint/
+maplespike/
 ├── packages/
 │   ├── pipeline-core/    # Ingestion, verification, audit (shared library)
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
@@ -141,8 +141,8 @@ See [ROADMAP.md](./ROADMAP.md) for the full phased plan.
 
 ## Related projects
 
-- [Frostbite Gazette](https://github.com/reverb256/Frostbite-Gazette) — AI-curated Canadian political journalism (first-class civint consumer)
-- [mcp-canada](https://github.com/reverb256/mcp-canada) — Canadian government MCP tools (precursor to CivInt)
+- [Frostbite Gazette](https://github.com/reverb256/Frostbite-Gazette) — AI-curated Canadian political journalism (first-class maplespike consumer)
+- [mcp-canada](https://github.com/reverb256/mcp-canada) — Canadian government MCP tools (precursor to MapleSpike)
 
 ---
 

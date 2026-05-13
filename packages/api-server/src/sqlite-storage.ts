@@ -1,20 +1,20 @@
 /**
- * CivInt Canada — SQLite Storage Backend
+ * MapleSpike Canada — SQLite Storage Backend
  *
- * Implements CivIntStorage using better-sqlite3 for local/container deployments.
+ * Implements MapleSpikeStorage using better-sqlite3 for local/container deployments.
  * Table schemas match the D1 schema from schema.sql exactly.
  */
 
 import Database from 'better-sqlite3';
-import type { CivIntStorage, CivIntCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
 import { hashApiKey } from './auth.js';
 
 
-export class SqliteStorage implements CivIntStorage {
+export class SqliteStorage implements MapleSpikeStorage {
   private db: Database.Database;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.CIVINT_DB_PATH || './civint.db';
+    const path = dbPath || process.env.CIVINT_DB_PATH || './maplespike.db';
     this.db = new Database(path);
 
     // Enable WAL mode for better concurrent read performance
@@ -123,12 +123,12 @@ export class SqliteStorage implements CivIntStorage {
         // Anonymous/unauth tenant for health checks
         insertTenant.run('anon', 'Anonymous', 'free', 0);
 
-    // Dev/test API key (SHA-256 of "civint-dev-key")
+    // Dev/test API key (SHA-256 of "maplespike-dev-key")
     const insertKey = this.db.prepare(`
       INSERT OR IGNORE INTO api_keys (id, tenant_id, key_hash, name)
       VALUES (?, ?, ?, ?)
     `);
-    // Pre-computed SHA-256 of "civint-dev-key"
+    // Pre-computed SHA-256 of "maplespike-dev-key"
     insertKey.run(
       'dev-key-1',
       'fg-internal',
@@ -137,7 +137,7 @@ export class SqliteStorage implements CivIntStorage {
     );
   }
 
-  /*  CivIntStorage Interface                                          */
+  /*  MapleSpikeStorage Interface                                          */
 
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
     const keyHash = await hashApiKey(rawKey);
@@ -281,7 +281,7 @@ export class SqliteStorage implements CivIntStorage {
 }
 
 
-export class SqliteStorageCache implements CivIntCache {
+export class SqliteStorageCache implements MapleSpikeCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {

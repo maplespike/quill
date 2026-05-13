@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchCKANPackages } from '@civint/pipeline-core';
+import { fetchCKANPackages } from '@maplespike/pipeline-core';
 
 /**
  * CKAN portal URLs keyed by MCP jurisdiction value.
@@ -23,6 +23,9 @@ export const definition: ToolDefinition = {
     'Query Canadian government data releases, datasets, and records. Searches across Statistics Canada (StatCan), ' +
     'open.canada.ca (CKAN), provincial data portals, and federal spending/procurement data. ' +
     'Returns machine-readable data with OGL-C attribution and citation hashes.',
+  descriptions: {
+    "fr-CA": "Interroger les données gouvernementales provenant de multiples sources canadiennes, dont Statistique Canada, le portail CKAN ouvert.canada.ca et les portails de données ouvertes provinciaux (ON, BC, AB, QC). Prend en charge la recherche par mot-clé, juridiction et catégorie. Chaque résultat inclut un hachage de citation SHA-256 pour vérification.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

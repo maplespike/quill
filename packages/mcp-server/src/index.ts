@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * CivInt MCP Server — SSE transport (hosted)
+ * MapleSpike MCP Server — SSE transport (hosted)
  *
  * Serves the MCP protocol over HTTP Server-Sent Events.
  * Clients connect to /sse for events and POST to /messages for commands.
@@ -28,11 +28,12 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
-console.error(`[civint-mcp] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
+console.error(`[maplespike-mcp] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
 
 interface SseClient {
   id: string;
   res: ServerResponse;
+  locale: string;
 }
 
 let clientIdCounter = 0;
@@ -67,6 +68,8 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     }
 
     const clientId = `client-${++clientIdCounter}`;
+    const acceptLang = req.headers['accept-language'] || '';
+    const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
 
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -78,9 +81,9 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     // Send initial endpoint event so client knows where to POST messages
     sendSse(res, 'endpoint', { endpoint: `/messages?clientId=${clientId}` });
 
-    clients.set(clientId, { id: clientId, res });
+    clients.set(clientId, { id: clientId, res, locale });
 
-    console.error(`[civint-mcp] SSE client connected: ${clientId} (total: ${clients.size})`);
+    console.error(`[maplespike-mcp] SSE client connected: ${clientId} (total: ${clients.size})`);
 
     // Heartbeat every 30s to keep connection alive
     const heartbeat = setInterval(() => {
@@ -94,7 +97,7 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     req.on('close', () => {
       clearInterval(heartbeat);
       clients.delete(clientId);
-      console.error(`[civint-mcp] SSE client disconnected: ${clientId} (total: ${clients.size})`);
+      console.error(`[maplespike-mcp] SSE client disconnected: ${clientId} (total: ${clients.size})`);
     });
 
     return;
@@ -125,10 +128,10 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       }
 
       // Send response back through the client's SSE stream
-      server.handleMessage(parsed, (response) => {
+      server.handleMessage(parsed, client.locale, (response) => {
         // Responses with an id go to the specific client
         sendSse(client.res, 'message', response);
-      }).catch((err: unknown) => console.error('[civint-mcp] Error handling message:', err));
+      }).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
@@ -142,14 +145,14 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`[civint-mcp] Hosted SSE server running on http://0.0.0.0:${PORT}`);
-  console.log(`[civint-mcp] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
-  console.log(`[civint-mcp] Health check: http://0.0.0.0:${PORT}/health`);
-  console.log(`[civint-mcp] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
+  console.log(`[maplespike-mcp] Hosted SSE server running on http://0.0.0.0:${PORT}`);
+  console.log(`[maplespike-mcp] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
+  console.log(`[maplespike-mcp] Health check: http://0.0.0.0:${PORT}/health`);
+  console.log(`[maplespike-mcp] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
 });
 
 process.on('SIGINT', () => {
-  console.error('[civint-mcp] SIGINT received, closing SSE connections');
+  console.error('[maplespike-mcp] SIGINT received, closing SSE connections');
   for (const { res } of clients.values()) {
     res.end();
   }
@@ -157,6 +160,6 @@ process.on('SIGINT', () => {
 });
 
 process.on('SIGTERM', () => {
-  console.error('[civint-mcp] SIGTERM received, shutting down');
+  console.error('[maplespike-mcp] SIGTERM received, shutting down');
   httpServer.close(() => process.exit(0));
 });

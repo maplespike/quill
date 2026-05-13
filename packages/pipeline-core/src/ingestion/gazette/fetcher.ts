@@ -1,5 +1,5 @@
 /**
- * Gazette Fetcher — CivInt Pipeline
+ * Gazette Fetcher — MapleSpike Pipeline
  *
  * HTTP fetcher for Canada Gazette RSS feeds and regulation detail pages.
  * Uses undici for cross-platform HTTP (Node, Workers, Bun).
@@ -28,7 +28,7 @@ export class GazetteFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'CivInt/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'application/rss+xml,application/xml,text/html,text/xml,*/*',
 } as const;
 

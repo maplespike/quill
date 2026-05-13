@@ -10,12 +10,12 @@
 ### Infrastructure
 | Item | Detail |
 |------|--------|
-| Repo merged | `civic-intel` → `civint/` at `/data/projects/own/civint` |
-| Git pushed | github.com/reverb256/civint (private, 38 commits across both repos) |
+| Repo merged | `civic-intel` → `maplespike/` at `/data/projects/own/maplespike` |
+| Git pushed | github.com/reverb256/maplespike (private, 38 commits across both repos) |
 | Packages merged | pipeline-core + engine + web + pretext-civic + api-server + mcp-server + portal |
-| Namespace renames | `@civic-intel/core` → `@civint/engine`, `@civic-intel/web` → `@civint/web` |
-| K8s deploy | civint-web pod on nexus:30964, Next.js dashboard live |
-| NixOS config | caddy-routes.nix (civint.lan), cluster-dns.nix (A record), cluster-ca.nix (SAN cert) |
+| Namespace renames | `@civic-intel/core` → `@maplespike/engine`, `@civic-intel/web` → `@maplespike/web` |
+| K8s deploy | maplespike-web pod on nexus:30964, Next.js dashboard live |
+| NixOS config | caddy-routes.nix (maplespike.lan), cluster-dns.nix (A record), cluster-ca.nix (SAN cert) |
 
 ### Ingestion Layer (3 new modules)
 | Module | Files | Lines | What it tracks |
@@ -27,7 +27,7 @@
 ### Frontend (Two Deployments)
 | URL | Platform | Content | Status |
 |-----|----------|---------|--------|
-| https://civint.lan/ | Caddy → K8s | Next.js CivicIntel dashboard | ✅ User confirmed working |
+| https://maplespike.lan/ | Caddy → K8s | Next.js CivicIntel dashboard | ✅ User confirmed working |
 | http://10.1.1.110:3000/ | Python http.server | Portal landing page (index.html, dashboard.html, docs.html, agents.html) | 🟡 User says "broken" |
 
 ### Purged
@@ -65,7 +65,7 @@ All seven resources converged on the same core themes:
 6. **Video & Interactive Content** — 30-60 second demos
 7. **Free Trials** — try before buying, no credit card
 
-**What's missing from CivInt against these patterns:**
+**What's missing from MapleSpike against these patterns:**
 - No user accounts/auth at all → no multi-tenancy, no trial, no CTA flow
 - No analytics → no conversion optimization, no A/B testing
 - No social proof → no testimonials, no case studies (no real users yet)
@@ -93,7 +93,7 @@ The portal CSS has already been partially upgraded based on earlier work:
 - Mobile hamburger toggle wired (CSS has `.nav-mobile-toggle` but may not be in HTML)
 - Scroll-reveal `data-animate` attributes not applied to sections (CSS has the `@keyframes` and visibility classes)
 - Stat counter animation not wired (CSS has the keyframes, HTML likely has static numbers)
-- Some images reference absolute URLs (`https://civint.ca/assets/...`) that don't resolve on LAN
+- Some images reference absolute URLs (`https://maplespike.ca/assets/...`) that don't resolve on LAN
 
 ---
 
@@ -102,7 +102,7 @@ The portal CSS has already been partially upgraded based on earlier work:
 ### Phase 0 — Fix What's Broken (now)
 | # | Task | Detail |
 |---|------|--------|
-| 0.1 | Fix logo references | Change `https://civint.ca/assets/...` → `assets/...` (relative paths) |
+| 0.1 | Fix logo references | Change `https://maplespike.ca/assets/...` → `assets/...` (relative paths) |
 | 0.2 | Check dashboard data loading | Ensure `assets/pipeline-data.json` loads and populates cards/ticker |
 | 0.3 | Wire dark mode toggle | Add theme toggle button to nav, verify localStorage persistence |
 | 0.4 | Wire mobile hamburger | Add hamburger button, verify overlay + menu slide-in works |
@@ -132,7 +132,7 @@ The portal CSS has already been partially upgraded based on earlier work:
 | # | Task | Detail |
 |---|------|--------|
 | 3.1 | Video demo | 30-60 second screen recording showing API query → JSON response flow |
-| 3.2 | Case studies | "How Frostbite Gazette uses CivInt to track in-camera meetings" |
+| 3.2 | Case studies | "How Frostbite Gazette uses MapleSpike to track in-camera meetings" |
 | 3.3 | Open source showcase | GitHub stars badge, contribution guide link |
 | 3.4 | Live data ticker animation | Ensure ticker at top of page smoothly scrolls through real pipeline alerts |
 | 3.5 | AIDA/bill C-27 compliance badges | "AIDA-compliant audit trails" badge on pricing and footer |
@@ -141,7 +141,7 @@ The portal CSS has already been partially upgraded based on earlier work:
 | # | Task | Detail |
 |---|------|--------|
 | 4.1 | CI/CD for frontend | GitHub Actions → build → push image → rollout restart K8s pod |
-| 4.2 | CDN for static assets | Serve portal static files from civint.lan (Caddy) instead of port 3000 Python server |
+| 4.2 | CDN for static assets | Serve portal static files from maplespike.lan (Caddy) instead of port 3000 Python server |
 | 4.3 | Database provisioning | Run engine schema migrations on Postgres (currently seed-data only) |
 | 4.4 | Sweep scheduler CronJob | Deploy engine sweep as K8s CronJob for regular ingestion |
 | 4.5 | Rate limiting in Caddy | Per-IP rate limiting at reverse proxy level for API calls |
@@ -180,7 +180,7 @@ The portal CSS has already been partially upgraded based on earlier work:
 | No `data-animate` attributes | Scroll animations don't fire | Add `data-animate="fade-in-up"` to hero, features, pricing, etc. |
 | Stats are static HTML numbers | Counter animation can't trigger | Add `data-count="54"` etc. to stat elements |
 | No `id="features"` etc. on sections | Anchor links scroll to wrong offset | Add semantic `id` attributes matching CSS selectors |
-| Logo references `https://civint.ca/` | Broken image on LAN | Change to relative path `assets/civint_logo_v2_00002_.png` |
+| Logo references `https://maplespike.ca/` | Broken image on LAN | Change to relative path `assets/maplespike_logo_v2_00002_.png` |
 | Pricing has no annual/monthly toggle wiring | Toggle CSS exists but no JS | Add simple show/hide toggle for pricing values |
 
 ---
@@ -189,8 +189,8 @@ The portal CSS has already been partially upgraded based on earlier work:
 
 | Question | Options | Recommendation |
 |----------|---------|----------------|
-| Which frontend is the "real" one? | civint.lan (Next.js dashboard) vs portal (static HTML landing) | **Both** — portal is marketing, civint.lan is the product. Keep them distinct. |
-| Should portal assets be served through Caddy? | Port 3000 Python vs Caddy reverse proxy | **Yes** — serve `civint.lan` → Next.js (existing), add `civint.lan/marketing` → portal static files |
+| Which frontend is the "real" one? | maplespike.lan (Next.js dashboard) vs portal (static HTML landing) | **Both** — portal is marketing, maplespike.lan is the product. Keep them distinct. |
+| Should portal assets be served through Caddy? | Port 3000 Python vs Caddy reverse proxy | **Yes** — serve `maplespike.lan` → Next.js (existing), add `maplespike.lan/marketing` → portal static files |
 | Accounts before visual polish? | Missing both | **Visual polish first** (can be done solo, no infra changes) then accounts (requires database/backend) |
 | What's "broken" on landing page? | Logo URL, missing theme/hamburger wiring, no scroll animations | Ask user what specifically looks wrong — could be one thing |
 

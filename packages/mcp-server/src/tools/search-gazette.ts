@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'Covers Part I (notices, proposed regulations), Part II (enacted regulations), ' +
     'and Part III (Acts of Parliament). Includes Regulatory Impact Analysis Statements ' +
     '(RIAS) with department attribution and effective dates.',
+  descriptions: {
+    "fr-CA": "Rechercher les règlements proposés et définitifs dans la Gazette du Canada (Parties I et II). Retourne les détails des règlements, les analyses d’impact et les ministères responsables. Couvre tous les ministères et organismes fédéraux.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

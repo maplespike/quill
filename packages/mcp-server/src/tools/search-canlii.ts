@@ -13,6 +13,9 @@ export const definition: ToolDefinition = {
     'provincial superior courts, and provincial appeal courts. Returns decision summaries, ' +
     'citations, party information, case history, and government relevance assessments. ' +
     'Tracks legislation citations and cross-references with tracked government departments.',
+  descriptions: {
+    "fr-CA": "Rechercher des décisions judiciaires canadiennes via CanLII. Couvre les cours fédérales et provinciales, y compris la Cour suprême, les cours d’appel et les cours supérieures. Retourne des extraits de décisions avec métadonnées et renvois.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

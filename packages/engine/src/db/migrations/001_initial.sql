@@ -1,5 +1,5 @@
 -- 001_initial.sql
--- Core tables for CivInt Canada
+-- Core tables for MapleSpike Canada
 
 CREATE TABLE IF NOT EXISTS organizations (
     id TEXT PRIMARY KEY,

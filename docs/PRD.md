@@ -1,4 +1,4 @@
-# CivInt Canada — Engineering Architecture Document
+# MapleSpike Canada — Engineering Architecture Document
 
 **Version:** v6
 **Status:** Active
@@ -9,7 +9,7 @@
 
 ## 1. Product Overview
 
-CivInt Canada is Canada's sovereign, AI-native government data pipeline. It wraps the `@civint/pipeline-core` library into a hosted, multi-module data pipeline that provides a unified REST + MCP API for Canadian government data — including Statistics Canada cubes, open.canada.ca CKAN portals, provincial data, citation verification (SHA-256), trust-scored responses, and immutable audit trails.
+MapleSpike Canada is Canada's sovereign, AI-native government data pipeline. It wraps the `@maplespike/pipeline-core` library into a hosted, multi-module data pipeline that provides a unified REST + MCP API for Canadian government data — including Statistics Canada cubes, open.canada.ca CKAN portals, provincial data, citation verification (SHA-256), trust-scored responses, and immutable audit trails.
 
 One API key grants access to every major Canadian government dataset, packaged with machine-readable citations, provenance metadata, and trust scores.
 
@@ -44,7 +44,7 @@ One API key grants access to every major Canadian government dataset, packaged w
 
 - Not a newsroom — no editorial content, journalism is Frostbite Gazette's role
 - Not a CKAN replacement — we're an aggregation/curation layer, not a data portal
-- Not a general-purpose AI platform — CivInt only curates Canadian government data
+- Not a general-purpose AI platform — MapleSpike only curates Canadian government data
 - Not a social network — no user profiles, comments, or community features
 
 ---
@@ -54,7 +54,7 @@ One API key grants access to every major Canadian government dataset, packaged w
 ### System Diagram
 
 ```
-GitHub Pages (civint.ca)
+GitHub Pages (maplespike.ca)
   └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
 
 K3s Cluster (nexus)
@@ -177,7 +177,7 @@ Module/
 
 ## 5. MCP Server Architecture
 
-The MCP server exposes CivInt data as tools via JSON-RPC 2.0.
+The MCP server exposes MapleSpike data as tools via JSON-RPC 2.0.
 
 **Transport:** stdio (sidecar) + SSE (hosted, port 3001)
 **Deployment:** K8s Deployment, Nix-OCI image
@@ -215,7 +215,7 @@ Each tool follows a consistent pattern:
 
 ### Phase 2a: API Gateway ✅ DONE
 
-- [x] CivInt monorepo structure with api-server package
+- [x] MapleSpike monorepo structure with api-server package
 - [x] Auth middleware with API key validation
 - [x] Basic routing: health, releases, search endpoints
 - [x] OpenAPI spec generation

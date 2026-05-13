@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — API Key Authentication
+ * MapleSpike Canada — API Key Authentication
  *
  * Multi-tenant API key auth using an in-memory Map.
  * Supports at least two keys: demo and internal.
@@ -15,8 +15,8 @@ import type { Tenant } from './types.js';
 const apiKeyMap = new Map<string, { tenantId: string; name: string }>();
 
 // Seed with demo and internal keys
-apiKeyMap.set('civint-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
-apiKeyMap.set('civint-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
+apiKeyMap.set('maplespike-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
+apiKeyMap.set('maplespike-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
 
 const tenantDetails: Record<string, Tenant> = {
   'demo-tenant': {
@@ -83,14 +83,14 @@ export async function authenticateRequest(
 }
 
 /**
- * Generate a new API key (civint_ prefix + 32 random hex chars).
+ * Generate a new API key (maplespike_ prefix + 32 random hex chars).
  * Returns both the raw key (shown once) and the hash (stored).
  */
 export async function generateApiKey(): Promise<{ rawKey: string; keyHash: string }> {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
   const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
-  const rawKey = `civint_${hex}`;
+  const rawKey = `maplespike_${hex}`;
   const keyHash = await hashApiKey(rawKey);
   return { rawKey, keyHash };
 }

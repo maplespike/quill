@@ -1,7 +1,7 @@
-# CivInt Canada Pipeline — Master Roadmap
+# MapleSpike Canada Pipeline — Master Roadmap
 
 > **Updated:** 2026-05-13 (portal visual uplift, docs refresh)
-> **Repository:** `/data/projects/own/civint`
+> **Repository:** `/data/projects/own/maplespike`
 > **Working branch:** main
 > **Deployment target:** GitHub Pages (portal) + K3s cluster (backend)
 
@@ -25,7 +25,7 @@
 |------|--------|-------|
 | ✅ Monorepo structure (pnpm workspace) | DONE | 6 packages: pipeline-core, engine, mcp-server, api-server, portal, pretext-civic |
 | ✅ TypeScript + strict mode | DONE | ES2022 target, bundler resolution |
-| ✅ Pipeline core barrel exports | DONE | Single `@civint/pipeline-core` entry point |
+| ✅ Pipeline core barrel exports | DONE | Single `@maplespike/pipeline-core` entry point |
 | ✅ Build compilation | DONE | `tsc -b` clean across all packages |
 | ✅ Core ingestion: RSS feeds | DONE | Parse, hash, deduplicate |
 | ✅ Core ingestion: StatCan/CKAN | DONE | `fetchStatCanReleases`, `fetchCKANPackages` |
@@ -93,7 +93,7 @@
 | ✅ MCP protocol (JSON-RPC 2.0) | DONE | stdio + SSE transports |
 | ✅ SSE HTTP server | DONE | Port 3001, health endpoint, auth |
 | ✅ Nix-OCI container image | DONE | `dockerTools.buildImage`, pushed to nexus:5000 |
-| ✅ K8s deployment | DONE | `civint-mcp` pod running, health: `{"status":"ok","tools":14}` |
+| ✅ K8s deployment | DONE | `maplespike-mcp` pod running, health: `{"status":"ok","tools":14}` |
 | ✅ Pure nix build | DONE | No `--impure` flags |
 | ✅ Tool: `query_gov_data` | DONE | CKAN search across federal + provincial portals |
 | ✅ Tool: `fact_check` | DONE | Basic verification tool |
@@ -116,8 +116,8 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| ✅ K8s deployment manifests | DONE | `civint-mcp` in `ai-inference` namespace |
-| ✅ NixOS overlay registration | DONE | `civint-mcp-image` in overlay |
+| ✅ K8s deployment manifests | DONE | `maplespike-mcp` in `ai-inference` namespace |
+| ✅ NixOS overlay registration | DONE | `maplespike-mcp-image` in overlay |
 | ✅ Pure nix build pipeline | DONE | Flake input -> dockerTools -> push. Local flake.nix is 13-line stub delegating to nixos-config |
 | 🔴 CI: GitHub Actions workflow | TODO | No `.github/` directory exists at all |
 | 🔴 Cron: committee ingestion | TODO | Daily K8s CronJob: `ingestAllCommittees()` |
@@ -157,7 +157,7 @@
 
 | Item | Priority | Effort | Notes |
 |------|----------|--------|-------|
-| 🔴 FG uses pipeline-core as dependency | HIGH | Low | Replace direct API calls with `@civint/pipeline-core` |
+| 🔴 FG uses pipeline-core as dependency | HIGH | Low | Replace direct API calls with `@maplespike/pipeline-core` |
 | 🔴 "Journalism mode" (editorial overrides) | HIGH | Medium | Allow journalists to override trust scores, add context |
 | 🔴 Committee evidence -> story pipeline | HIGH | Medium | Auto-detect newsworthy testimony and create article drafts |
 | 🔴 In-camera meeting alerts | HIGH | Low | Push notification when a committee meets in camera |
@@ -166,7 +166,7 @@
 | 🔴 Sole-source contract flagging | MEDIUM | Low | Notify when non-competitive contracts are awarded |
 | 🔴 Influence actor investigation brief | MEDIUM | Low | Auto-generate a journalist's briefing on an actor |
 
-> Note: Frostbite Gazette is a separate project. These items track integration points, not CivInt core features.
+> Note: Frostbite Gazette is a separate project. These items track integration points, not MapleSpike core features.
 
 ---
 
@@ -189,7 +189,7 @@
 
 ### Console Features (Katzilla Parity Target)
 
-| Feature | Katzilla | CivInt | Effort |
+| Feature | Katzilla | MapleSpike | Effort |
 |---------|----------|--------|--------|
 | API key management (create/rotate/revoke in UI) | ✅ | 🔴 Static key in env | 2 days |
 | Usage counter dashboard | ✅ "170K req/30d" | 🔴 API tracks it, no UI | 3 days |
@@ -215,7 +215,7 @@ Payment methods: **Stripe** (credit cards), **Crypto** (BTC/ETH via BTCPay Serve
 
 **vs. Katzilla.dev (primary competitor):**
 
-| Dimension | Katzilla | CivInt Canada |
+| Dimension | Katzilla | MapleSpike Canada |
 |-----------|----------|--------------|
 | Focus | US-first, 300+ global sources | Canada-only, deep parliamentary/corporate |
 | Canadian data | open.canada.ca + weather (surface) | 16 deep modules — committees, lobbying, courts, Gazette, procurement, elections, oversight |
@@ -227,7 +227,7 @@ Payment methods: **Stripe** (credit cards), **Crypto** (BTC/ETH via BTCPay Serve
 | Pricing | $0-$4,999/mo | $0-$199/mo |
 | Citation | SHA-256 hash | SHA-256 + audit trail + provenance chain |
 
-**CivInt advantages:** Deeper Canadian data, parliamentary tracking, lobbying/corporate influence, oversight bodies, 5GW analysis, AIDA-compliant audit trails.
+**MapleSpike advantages:** Deeper Canadian data, parliamentary tracking, lobbying/corporate influence, oversight bodies, 5GW analysis, AIDA-compliant audit trails.
 
 **Katzilla advantages:** Polished developer console, broader global data (300+ sources), more mature MCP/API surface, Ask/Signal products, established user base.
 
@@ -393,7 +393,7 @@ Deployment:
                 → Engine (CronJobs for ingestion)
 
 NixOS (nexus):
-  /etc/nixos/packages/civint-mcp-image.nix         — OCI image build
+  /etc/nixos/packages/maplespike-mcp-image.nix         — OCI image build
   /etc/nixos/overlay.nix                             — Package registration
   /etc/nixos/flake.nix                               — Flake inputs + outputs
 ```
@@ -436,3 +436,4 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — SaaS console priorities
 | 2026-05-13 | Katzilla.dev identified as primary competitor | Feature-by-feature comparison added to Phase 6. Strategy: win on Canadian depth, match on console UX, compete on price |
 | 2026-05-13 | SaaS confirmed as business model | "Not a SaaS" removed from PRD non-goals. Phase 6 expanded with console features and build order |
 | 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs, and package READMEs updated to reflect current state |
+| 2026-05-13 | Infrastructure overhaul: Nix + Docker + K8s | flake.nix fixed (4 images: mcp, api, ingest, engine). Dockerfiles created for ingest + engine. Stale k8s.yaml removed. API Service + Ingress added. 9 CronJobs fixed to use maplespike-ingest image. Ingestion CLI entrypoint created. Portal K8s manifest removed (moved to GitHub Pages) |

@@ -204,7 +204,7 @@ export async function fetchFeed(
   url: string,
   options: FetchOptions = {},
 ): Promise<RSSFeed> {
-  const { userAgent = 'CivInt-Canada/1.0 (+https://github.com/reverb256/civint)', timeout = 30_000 } = options;
+  const { userAgent = 'MapleSpike-Canada/1.0 (+https://github.com/reverb256/maplespike)', timeout = 30_000 } = options;
 
   // Use global fetch (available in Workers, Node 18+, Bun, Deno)
   const controller = new AbortController();

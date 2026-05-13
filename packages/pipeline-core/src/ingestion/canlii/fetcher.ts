@@ -1,5 +1,5 @@
 /**
- * CanLII Fetcher — CivInt Pipeline
+ * CanLII Fetcher — MapleSpike Pipeline
  *
  * HTTP fetcher for the CanLII REST API v1 at https://api.canlii.org/v1/.
  *
@@ -68,7 +68,7 @@ function getApiKey(): string | null {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'CivInt/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'application/json',
 } as const;
 

@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — Registration / Self-Service Routes
+ * MapleSpike Canada — Registration / Self-Service Routes
  *
  * POST /v1/register — Creates a new tenant + API key
  * GET  /v1/me      — Returns current tenant info + usage (requires auth)
@@ -9,7 +9,7 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { TIER_LIMITS } from '../types.js';
-import type { CivIntStorage } from '../types.js';
+import type { MapleSpikeStorage } from '../types.js';
 
 
 interface RegisterBody {
@@ -128,7 +128,7 @@ function generateId(prefix: string): string {
 }
 
 async function persistRegistration(
-  db: CivIntStorage,
+  db: MapleSpikeStorage,
   tenant: { id: string; name: string; email?: string; tier: 'free'; isActive: boolean; journalismMode: boolean },
   keyHash: string,
   keyId: string,

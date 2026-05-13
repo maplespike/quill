@@ -111,7 +111,7 @@ fi
 unset HOST_PATH NIX_BUILD_CORES __structuredAttrs buildInputs buildPhase builder depsBuildBuild depsBuildBuildPropagated depsBuildTarget depsBuildTargetPropagated depsHostHost depsHostHostPropagated depsTargetTarget depsTargetTargetPropagated dontAddDisableDepTrack doCheck doInstallCheck nativeBuildInputs out outputs patches phases preferLocalBuild propagatedBuildInputs propagatedNativeBuildInputs shell shellHook stdenv strictDeps
 
 mkdir -p /run/user/1000/devenv-6b1d69e
-ln -snf /run/user/1000/devenv-6b1d69e /data/projects/own/civint/.devenv/run
+ln -snf /run/user/1000/devenv-6b1d69e /data/projects/own/maplespike/.devenv/run
 
 
 export PATH="node_modules/.bin:$PATH"
@@ -120,7 +120,7 @@ export PATH="node_modules/.bin:$PATH"
 
 # Check whether the direnv integration is out of date.
 {
-  if [[ ":${DIRENV_ACTIVE-}:" == *":/data/projects/own/civint:"* ]]; then
+  if [[ ":${DIRENV_ACTIVE-}:" == *":/data/projects/own/maplespike:"* ]]; then
     if [[ ! "${DEVENV_NO_DIRENVRC_OUTDATED_WARNING-}" == 1 && ! "${DEVENV_DIRENVRC_ROLLING_UPGRADE-}" == 1 ]]; then
       if [[ ${DEVENV_DIRENVRC_VERSION:-0} -lt 2 ]]; then
         direnv_line=$(grep --color=never -E "source_url.*cachix/devenv" .envrc || echo "")
@@ -178,7 +178,7 @@ mkdir -p "$PREK_HOME"
 
 '
 export shellHook
-PREK_HOME='/data/projects/own/civint/.devenv/state/prek'
+PREK_HOME='/data/projects/own/maplespike/.devenv/state/prek'
 export PREK_HOME
 stdenv='/nix/store/zkiy4zv8wz3v95bj6fdmkqwql8x1vnhb-stdenv-linux'
 export stdenv
@@ -201,7 +201,7 @@ export NIX_ENFORCE_NO_NATIVE
 nativeBuildInputs='/nix/store/pg04l21ca5xaif9hplyi09lhqxbipkcx-bash-interactive-5.3p9-dev /nix/store/716f9vxn5aan1g1pfv1pmn5jiks4gnhi-typescript-5.9.3 /nix/store/jn9wngbhqmijdw4m2czilnhl4pw4jcdp-typescript-language-server-5.1.3 /nix/store/gi0p7azcixb20pddx39k5mwnkj6xl4bz-nodejs-22.22.1 /nix/store/kvwgv6pwlwkyjvd7jzsa7x7infjb3d9i-pnpm-10.32.1 /nix/store/jn9wngbhqmijdw4m2czilnhl4pw4jcdp-typescript-language-server-5.1.3 /nix/store/k13ksp4yvypizb54dq0j2l8wx8w86ks6-build /nix/store/pgdl4vvm2vj6c07yw3ph9g1warkvy081-clean /nix/store/pb48phjrm1bzrfi1j9hf1yzqhsps5inp-dev /nix/store/5shrr3py4a2zldhgjfq7rmjndqh9c029-lint /nix/store/1rkjilwwalc4f1y29swgrmqk4fjjq0js-test /nix/store/bsp211nji52942v49lj327zi21dwshzr-typecheck /nix/store/m1fw8l8y9ycxh5dzispbb7cwl6rra14l-python3-3.13.12 /nix/store/sca0pf46jmxva40qahkcwys5c1lvk6n2-gcc-15.2.0 /nix/store/8x49w8i0vafv34rlc6h4a0f7z0z2qpb5-git-2.53.0 /nix/store/1m6s8nd3x7s7jddjdgydq10c5wj4dj4h-jq-1.8.1-dev /nix/store/mxylb81fv1n7skrdlrxnpbzf344mkhy4-curl-8.18.0-dev /nix/store/1nv3i8mpypy3d516f4pd95m0w72r73jy-pkg-config-wrapper-0.29.2 /nix/store/yz3z6c8cyakkixhrxhn73nzfzj7202jm-prek-0.3.5 /nix/store/bzhiblbfywbrip7g9znys0d6prsq8f7m-python3.13-pre-commit-hooks-6.0.0 /nix/store/bzhiblbfywbrip7g9znys0d6prsq8f7m-python3.13-pre-commit-hooks-6.0.0 /nix/store/bzhiblbfywbrip7g9znys0d6prsq8f7m-python3.13-pre-commit-hooks-6.0.0 /nix/store/bzhiblbfywbrip7g9znys0d6prsq8f7m-python3.13-pre-commit-hooks-6.0.0'
 export nativeBuildInputs
 outputDev='out'
-DEVENV_ROOT='/data/projects/own/civint'
+DEVENV_ROOT='/data/projects/own/maplespike'
 export DEVENV_ROOT
 outputs='out'
 export outputs
@@ -282,7 +282,7 @@ depsHostHostPropagated=''
 export depsHostHostPropagated
 PYTHONHASHSEED='0'
 export PYTHONHASHSEED
-DEVENV_STATE='/data/projects/own/civint/.devenv/state'
+DEVENV_STATE='/data/projects/own/maplespike/.devenv/state'
 export DEVENV_STATE
 DEVENV_RUNTIME='/run/user/1000/devenv-6b1d69e'
 export DEVENV_RUNTIME
@@ -311,7 +311,7 @@ outputInclude='out'
 doCheck=''
 export doCheck
 OPTERR='1'
-DEVENV_DOTFILE='/data/projects/own/civint/.devenv'
+DEVENV_DOTFILE='/data/projects/own/maplespike/.devenv'
 export DEVENV_DOTFILE
 NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu='1'
 export NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu

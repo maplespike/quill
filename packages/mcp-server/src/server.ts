@@ -1,5 +1,5 @@
 /**
- * CivInt MCP Server — core protocol implementation
+ * MapleSpike MCP Server — core protocol implementation
  *
  * Implements the Model Context Protocol (MCP) over stdio and SSE transports.
  * JSON-RPC 2.0 based, supporting tools/list and tools/call methods.
@@ -34,7 +34,7 @@ interface ServerCapabilities {
 
 function log(level: 'info' | 'warn' | 'error', msg: string, ...args: unknown[]) {
   // stderr so it doesn't interfere with stdio transport
-  console.error(`[civint-mcp] ${level}: ${msg}`, ...args.map(a => typeof a === 'string' ? a : JSON.stringify(a)));
+  console.error(`[maplespike-mcp] ${level}: ${msg}`, ...args.map(a => typeof a === 'string' ? a : JSON.stringify(a)));
 }
 
 // ─── MCP Server ─────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ export class McpServer {
   private initialized = false;
   private clientCapabilities: Record<string, unknown> = {};
   private serverVersion = '0.1.0';
-  private serverName = 'civint-canada-mcp';
+  private serverName = 'maplespike-canada-mcp';
 
   // ── Tool registration ─────────────────────────────────────────────────
 
@@ -57,6 +57,7 @@ export class McpServer {
 
   async handleMessage(
     raw: unknown,
+    locale: string,
     send: (response: JsonRpcResponse) => void,
   ): Promise<void> {
     const msg = this.parseMessage(raw, send);
@@ -74,7 +75,7 @@ export class McpServer {
         // Notifications don't have an id — no response
         break;
       case 'tools/list':
-        this.handleToolsList(id, send);
+        this.handleToolsList(id, locale, send);
         break;
       case 'tools/call':
         await this.handleToolCall(id, params, send);
@@ -141,11 +142,17 @@ export class McpServer {
 
   private handleToolsList(
     id: string | number | undefined,
+    locale: string,
     send: (r: JsonRpcResponse) => void,
   ): void {
     const definitions: ToolDefinition[] = [];
     for (const { definition } of this.tools.values()) {
-      definitions.push(definition);
+      const localized = { ...definition };
+      if (localized.descriptions?.[locale]) {
+        localized.description = localized.descriptions[locale];
+      }
+      delete (localized as any).descriptions;
+      definitions.push(localized);
     }
 
     send(this.result(id ?? null, { tools: definitions }));

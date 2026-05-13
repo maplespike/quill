@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'Tracks advertising spending, platforms used, election periods, and third-party ' +
     'organizations registered with Elections Canada. Cross-references with corporate ' +
     'and influence data to identify connected actors.',
+  descriptions: {
+    "fr-CA": "Rechercher les données d’Élections Canada, y compris le registre des publicités électorales par des tiers. Retourne les dépenses, les catégories d’annonceurs et les références croisées avec les données de lobbying et d’entreprises.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

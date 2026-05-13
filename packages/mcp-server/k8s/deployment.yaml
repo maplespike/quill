@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: civint-mcp
+  name: maplespike-mcp
   namespace: ai-inference
   labels:
-    app: civint-mcp
+    app: maplespike-mcp
     component: mcp-server
     tier: backend
 spec:
@@ -16,19 +16,19 @@ spec:
       maxSurge: 1
   selector:
     matchLabels:
-      app: civint-mcp
+      app: maplespike-mcp
   template:
     metadata:
       labels:
-        app: civint-mcp
+        app: maplespike-mcp
         component: mcp-server
         tier: backend
     spec:
       # Pin to nexus — no GPU needed, just keep traffic local
       nodeName: nexus
       containers:
-        - name: civint-mcp
-          image: nexus:5000/civint-mcp:latest
+        - name: maplespike-mcp
+          image: nexus:5000/maplespike-mcp:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

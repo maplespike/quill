@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en-CA" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Docs — CivInt Canada</title>
-  <meta name="description" content="CivInt Canada documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, pricing, and FAQ.">
+  <title>Docs — MapleSpike Canada</title>
+  <meta name="description" content="MapleSpike Canada documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, pricing, and FAQ.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
-  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
-  <meta property="og:title" content="Docs — CivInt Canada">
-  <meta property="og:description" content="CivInt Canada documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, and pricing.">
-  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo_v2_00002_.png">
+  <link rel="apple-touch-icon" href="assets/maplespike_logo_v2_00002_.png">
+  <meta property="og:title" content="Docs — MapleSpike Canada">
+  <meta property="og:description" content="MapleSpike Canada documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, and pricing.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo_v2_00002_.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://civint.ca/docs.html">
+  <meta property="og:url" content="https://maplespike.ca/docs.html">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Docs — CivInt Canada">
-  <meta name="twitter:description" content="CivInt Canada documentation — quickstart, MCP setup, API reference, pricing.">
-  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <meta name="twitter:title" content="Docs — MapleSpike Canada">
+  <meta name="twitter:description" content="MapleSpike Canada documentation — quickstart, MCP setup, API reference, pricing.">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo_v2_00002_.png">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "CivInt Canada",
+    "name": "MapleSpike Canada",
     "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
-    "url": "https://civint.ca",
+    "url": "https://maplespike.ca",
     "foundingDate": "2025",
     "funder": { "@type": "Organization", "name": "Reverb256" }
   }
@@ -41,14 +41,15 @@
   <div class="nav-inner">
     <a href="index.html" class="logo">
       <span class="logo-icon">C</span>
-      CivInt Canada
+      MapleSpike Canada
     </a>
     <ul class="nav-links">
-      <li><a href="index.html#features">What it does</a></li>
-      <li><a href="docs.html" class="active">How it Works</a></li>
-      <li><a href="agents.html">For AI Tools</a></li>
-      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
+      <li><a href="docs.html" class="active" data-i18n="nav.howItWorks">How it Works</a></li>
+      <li><a href="agents.html" data-i18n="nav.forAiTools">For AI Tools</a></li>
+      <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
       <li><a href="dashboard.html" class="btn btn-sm btn-primary">Dashboard</a></li>
+      <li><button class="lang-toggle" data-lang="fr-CA">FR</button></li>
       <li><button class="theme-toggle"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
@@ -58,19 +59,19 @@
 <div class="nav-mobile-overlay"></div>
 
 <div class="docs-page">
-  <h1>How CivInt Canada works</h1>
-  <p>CivInt is a data pipeline that collects Canadian government information from official public sources every day — committee meetings, lobbying reports, procurement contracts — and connects the dots so you can see the full picture.</p>
+  <h1>How MapleSpike Canada works</h1>
+  <p>MapleSpike is a data pipeline that collects Canadian government information from official public sources every day — committee meetings, lobbying reports, procurement contracts — and connects the dots so you can see the full picture.</p>
 
   <h2>What we track</h2>
 
   <h3>🏛️ Parliamentary Committees</h3>
   <p>All 34 House of Commons committees are ingested daily from <a href="https://www.ourcommons.ca">ourcommons.ca</a>. Every meeting transcript, witness list, and committee report is parsed into structured data.</p>
   <p style="background:var(--accent-dim);padding:16px 20px;border-radius:8px;border-left:3px solid var(--accent);margin-top:12px;">
-    <strong>🔒 <span data-term="in-camera">In-camera detection</span>:</strong> The evidence XML schema includes an <code>&lt;InCameraNote/&gt;</code> field — when a committee goes closed-door, this field is populated. CivInt flags these meetings automatically so you know which proceedings are happening off the public record.
+    <strong>🔒 <span data-term="in-camera">In-camera detection</span>:</strong> The evidence XML schema includes an <code>&lt;InCameraNote/&gt;</code> field — when a committee goes closed-door, this field is populated. MapleSpike flags these meetings automatically so you know which proceedings are happening off the public record.
   </p>
 
   <h3>💰 Lobbying Registry</h3>
-  <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered <span data-term="lobbying">lobbying</span> communication. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
+  <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered <span data-term="lobbying">lobbying</span> communication. MapleSpike ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
 
   <h3>📄 Government Procurement</h3>
   <p>Contract awards from <a href="https://canadabuys.canada.ca">CanadaBuys</a> and proactive disclosure datasets are fetched daily. Each contract is tagged with whether it was <span data-term="sole-source">sole-source</span> or competitive. Large sole-source awards are flagged for review.</p>
@@ -103,7 +104,7 @@
   <p>Federal Court, Supreme Court of Canada, and Tax Court decisions are ingested via the <a href="https://canlii.ca">CanLII API</a>. Every decision is parsed for case metadata (docket number, court, judge, parties) and full-text content, enabling cross-referencing of legal challenges against government actions, regulations, and procurement disputes.</p>
 
   <h3>👷 Labour Market Impact Assessments (LMIA)</h3>
-  <p>Employment and Social Development Canada publishes quarterly lists of every employer who received a positive or negative LMIA through the Temporary Foreign Worker Program. CivInt ingests these from the <a href="https://open.canada.ca/data/en/dataset/90fed587-1364-4f33-a9ee-208181dc0b97">open.canada.ca CKAN portal</a> — showing which companies are hiring foreign workers, in which occupations, at what wage levels, and in what regions. Data available from 2014 to present.</p>
+  <p>Employment and Social Development Canada publishes quarterly lists of every employer who received a positive or negative LMIA through the Temporary Foreign Worker Program. MapleSpike ingests these from the <a href="https://open.canada.ca/data/en/dataset/90fed587-1364-4f33-a9ee-208181dc0b97">open.canada.ca CKAN portal</a> — showing which companies are hiring foreign workers, in which occupations, at what wage levels, and in what regions. Data available from 2014 to present.</p>
   <p style="background:var(--accent-dim);padding:12px 16px;border-radius:6px;border-left:3px solid var(--accent);margin-top:8px;">
     <strong>Cross-reference:</strong> LMIA records can be matched against the corporate module (which tracked companies are using TFW programs?) and procurement (companies with government contracts AND LMIA approvals — a potential labour cost story).
   </p>
@@ -122,30 +123,30 @@
   <h2>Accessing the data</h2>
 
   <h3>Dashboard</h3>
-  <p>The <a href="dashboard.html">CivInt Dashboard</a> gives you a live view of all pipelines, recent signals, and searchable data across all sources. No account needed — it's open to anyone on the local network.</p>
+  <p>The <a href="dashboard.html">MapleSpike Dashboard</a> gives you a live view of all pipelines, recent signals, and searchable data across all sources. No account needed — it's open to anyone on the local network.</p>
 
   <h3>MCP Server (for AI tools)</h3>
-  <p>CivInt speaks the MCP protocol, which means you can connect it to ChatGPT, Claude, Gemini, Grok, or any MCP-compatible client. See the <a href="agents.html">AI Tools page</a> for setup instructions per platform.</p>
+  <p>MapleSpike speaks the MCP protocol, which means you can connect it to ChatGPT, Claude, Gemini, Grok, or any MCP-compatible client. See the <a href="agents.html">AI Tools page</a> for setup instructions per platform.</p>
 
   <h3>CLI</h3>
   <p>Each ingestion module has a command-line interface for manual runs and scripting:</p>
   <div class="code-block">
-pnpm --filter @civint/pipeline-core committees --ingest-all<br>
-pnpm --filter @civint/pipeline-core senate --ingest-all<br>
-pnpm --filter @civint/pipeline-core gazette --ingest-all<br>
-pnpm --filter @civint/pipeline-core lobbying --ingest<br>
-pnpm --filter @civint/pipeline-core provincial-lobbying --ingest<br>
-pnpm --filter @civint/pipeline-core procurement --check-sole-source<br>
-pnpm --filter @civint/pipeline-core gic-appointments --ingest<br>
-pnpm --filter @civint/pipeline-core election-ads --ingest<br>
-pnpm --filter @civint/pipeline-core oversight --ingest-all<br>
-pnpm --filter @civint/pipeline-core courts --ingest<br>
-pnpm --filter @civint/pipeline-core influence --ingest-all<br>
-pnpm --filter @civint/engine sweep --full
+pnpm --filter @maplespike/pipeline-core committees --ingest-all<br>
+pnpm --filter @maplespike/pipeline-core senate --ingest-all<br>
+pnpm --filter @maplespike/pipeline-core gazette --ingest-all<br>
+pnpm --filter @maplespike/pipeline-core lobbying --ingest<br>
+pnpm --filter @maplespike/pipeline-core provincial-lobbying --ingest<br>
+pnpm --filter @maplespike/pipeline-core procurement --check-sole-source<br>
+pnpm --filter @maplespike/pipeline-core gic-appointments --ingest<br>
+pnpm --filter @maplespike/pipeline-core election-ads --ingest<br>
+pnpm --filter @maplespike/pipeline-core oversight --ingest-all<br>
+pnpm --filter @maplespike/pipeline-core courts --ingest<br>
+pnpm --filter @maplespike/pipeline-core influence --ingest-all<br>
+pnpm --filter @maplespike/engine sweep --full
   </div>
 
   <h3>REST API</h3>
-  <p>The API server exposes data over HTTP at <code>https://civint.lan/api/v1/</code> (internal network). OpenAPI spec available.</p>
+  <p>The API server exposes data over HTTP at <code>https://maplespike.lan/api/v1/</code> (internal network). OpenAPI spec available.</p>
 
   <h2>Data sources</h2>
 
@@ -172,10 +173,10 @@ pnpm --filter @civint/engine sweep --full
 
   <h2>Architecture</h2>
 
-  <p>CivInt runs on your own K3s cluster. The data never leaves your infrastructure. All code is open source under AGPL-3.0 / MIT.</p>
+  <p>MapleSpike runs on your own K3s cluster. The data never leaves your infrastructure. All code is open source under AGPL-3.0 / MIT.</p>
 
   <div class="code-block">
-civint/<br>
+maplespike/<br>
 ├── packages/<br>
 │   ├── pipeline-core/    # Data ingestion, verification, audit<br>
 │   ├── engine/            # Entity resolution, graph, signals, briefs<br>
@@ -191,23 +192,23 @@ civint/<br>
 
   <h2>For developers</h2>
 
-  <p>CivInt is open source and self-hosted. The entire stack runs on your own infrastructure.</p>
+  <p>MapleSpike is open source and self-hosted. The entire stack runs on your own infrastructure.</p>
 
   <h3>Repository</h3>
-  <p><a href="https://github.com/reverb256/civint">github.com/reverb256/civint</a> — monorepo with all packages.</p>
+  <p><a href="https://github.com/reverb256/maplespike">github.com/reverb256/maplespike</a> — monorepo with all packages.</p>
 
   <h3>Quick start</h3>
   <div class="code-block">
-git clone https://github.com/reverb256/civint<br>
-cd civint<br>
+git clone https://github.com/reverb256/maplespike<br>
+cd maplespike<br>
 pnpm install<br>
 pnpm run build
   </div>
 
   <h3>Run an ingestion module</h3>
   <div class="code-block">
-pnpm --filter @civint/pipeline-core build<br>
-node -e "import { ingestAllCommittees } from '@civint/pipeline-core';<br>
+pnpm --filter @maplespike/pipeline-core build<br>
+node -e "import { ingestAllCommittees } from '@maplespike/pipeline-core';<br>
 &nbsp;&nbsp;ingestAllCommittees(null, { onProgress: console.log });"
   </div>
 
@@ -219,8 +220,8 @@ pnpm start
 
   <h3>Engine sweep</h3>
   <div class="code-block">
-pnpm --filter @civint/engine build<br>
-pnpm --filter @civint/engine sweep --full
+pnpm --filter @maplespike/engine build<br>
+pnpm --filter @maplespike/engine sweep --full
   </div>
 
   <h3>License</h3>
@@ -233,15 +234,15 @@ pnpm --filter @civint/engine sweep --full
     <div class="brand">
       <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
       <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
-      CivInt Canada
+      MapleSpike Canada
       </a>
-      <p>CivInt makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
+      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
     </div>
     <div>
       <h4>Product</h4>
       <ul>
-        <li><a href="index.html#features">What it does</a></li>
-        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
+        <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
         <li><a href="docs.html">How it Works</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
       </ul>
@@ -266,7 +267,7 @@ pnpm --filter @civint/engine sweep --full
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 CivInt Canada. All rights reserved.</span>
+    <span>© 2026 MapleSpike Canada. All rights reserved.</span>
     <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
   </div>
 </footer>

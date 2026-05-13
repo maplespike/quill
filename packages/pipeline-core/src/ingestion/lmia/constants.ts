@@ -1,5 +1,5 @@
 /**
- * LMIA Constants — CivInt Pipeline
+ * LMIA Constants — MapleSpike Pipeline
  *
  * CKAN package IDs, base URLs, URL builders, and DDL for LMIA data
  * published by ESDC on open.canada.ca.

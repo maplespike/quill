@@ -1,4 +1,4 @@
-# CivInt Canada — Pipeline Modules
+# MapleSpike Canada — Pipeline Modules
 
 > **Quick reference:** See [README.md](./README.md) for the module inventory and [ROADMAP.md](./ROADMAP.md) for the development plan.
 

@@ -1,8 +1,9 @@
-/** Shared types for CivInt MCP server tools */
+/** Shared types for MapleSpike MCP server tools */
 
 export interface ToolDefinition {
   name: string;
   description: string;
+  descriptions?: Record<string, string>;
   inputSchema: {
     type: 'object';
     properties?: Record<string, unknown>;

@@ -34,7 +34,7 @@ async function main(): Promise<void> {
   const pool = new pg.Pool({
     host: process.env.PGHOST || "localhost",
     port: parseInt(process.env.PGPORT || "5432", 10),
-    database: process.env.PGDATABASE || "civint",
+    database: process.env.PGDATABASE || "maplespike",
     user: process.env.PGUSER || "postgres",
     password: process.env.PGPASSWORD || "postgres",
   });
