@@ -1,503 +1,544 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en" data-theme="dark">
-     3|<head>
-     4|  <meta charset="UTF-8">
-     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|  <title>CivInt Canada — See how your government really works</title>
-     7|  <meta name="description" content="CivInt makes Canadian government data easy to understand. Track what Parliament is doing, who's influencing decisions, and how public money is spent — all in one place.">
-     8|  <link rel="preconnect" href="https://fonts.googleapis.com">
-     9|  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    10|  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    11|  <link rel="stylesheet" href="styles.css">
-    12|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-    13|  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
-    14|  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
-    15|  <meta property="og:title" content="CivInt Canada — See how your government really works">
-    16|  <meta property="og:description" content="Track what Parliament is doing, who's influencing decisions, and how public money is spent — all in one place.">
-    17|  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
-    18|  <meta property="og:image:width" content="1200">
-    19|  <meta property="og:image:height" content="630">
-    20|  <meta property="og:url" content="https://civint.ca">
-    21|  <meta property="og:type" content="website">
-    22|  <meta name="twitter:card" content="summary_large_image">
-    23|  <meta name="twitter:title" content="CivInt Canada — See how your government really works">
-    24|  <meta name="twitter:description" content="Track what Parliament is doing, who's influencing decisions, and how public money is spent.">
-    25|  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
-    26|  <script type="application/ld+json">
-    27|  {
-    28|    "@context": "https://schema.org",
-    29|    "@type": "Organization",
-    30|    "name": "CivInt Canada",
-    31|    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
-    32|    "url": "https://civint.ca",
-    33|    "foundingDate": "2025",
-    34|    "funder": { "@type": "Organization", "name": "Reverb256" }
-    35|  }
-    36|  </script>
-    37|  <script type="application/ld+json">
-    38|  {
-    39|    "@context": "https://schema.org",
-    40|    "@type": "WebSite",
-    41|    "name": "CivInt Canada",
-    42|    "url": "https://civint.ca",
-    43|    "description": "Track what Parliament is doing, who's influencing decisions, and how public money is spent.",
-    44|    "potentialAction": {
-    45|      "@type": "SearchAction",
-    46|      "target": {
-    47|        "@type": "EntryPoint",
-    48|        "urlTemplate": "https://civint.ca/search?q={search_term_string}"
-    49|      },
-    50|      "query-input": "required name=search_term_string"
-    51|    }
-    52|  }
-    53|  </script>
-    54|</head>
-    55|<body>
-    56|
-    57|<!-- ═══ Ticker ═══ -->
-    58|<div style="position:fixed;top:0;left:0;right:0;height:20px;z-index:1001;background:rgba(11,17,32,0.9);border-bottom:1px solid rgba(232,69,69,0.1);overflow:hidden;pointer-events:none;">
-    59|  <div style="display:flex;white-space:nowrap;animation:ciScroll 35s linear infinite;height:20px;align-items:center;">
-    60|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> Committees: 54 active</span>
-    61|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Lobbying spike detected</span>
-    62|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Canada Gazette updated</span>
-    63|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> OAG audit published</span>
-    64|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> In-camera meeting flagged</span>
-    65|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Sole-source contract found</span>
-    66|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Ethics investigation opened</span>
-    67|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> Senate report released</span>
-    68|    <!-- Duplicate for seamless scroll -->
-    69|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> Committees: 54 active</span>
-    70|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Lobbying spike detected</span>
-    71|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Canada Gazette updated</span>
-    72|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> OAG audit published</span>
-    73|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> In-camera meeting flagged</span>
-    74|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Sole-source contract found</span>
-    75|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Ethics investigation opened</span>
-    76|    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> Senate report released</span>
-    77|  </div>
-    78|  <style>@keyframes ciScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }</style>
-    79|</div>
-    80|
-    81|<!-- ═══ Navigation (below ticker) ═══ -->
-    82|<style>
-    83|nav { top: 20px !important; }
-    84|body { padding-top: calc(20px + var(--nav-height, 64px)); }
-    85|</style>
-    86|<nav>
-    87|  <div class="nav-inner">
-    88|    <a href="index.html" class="logo">
-    89|      <span class="logo-icon">C</span>
-    90|      CivInt Canada
-    91|    </a>
-    92|    <ul class="nav-links">
-    93|      <li><a href="#features">What it does</a></li>
-    94|      <li><a href="docs.html">How it Works</a></li>
-    95|      <li><a href="agents.html">For AI Tools</a></li>
-    96|      <li><a href="#pricing">Pricing</a></li>
-    97|      <li><a href="dashboard.html" class="btn btn-sm btn-primary">Dashboard</a></li>
-    98|      <li><button class="theme-toggle"></button></li>
-    99|    </ul>
-   100|    <button class="nav-mobile-toggle">☰</button>
-   101|  </div>
-   102|</nav>
-   103|
-   104|<!-- ═══ Hero ═══ -->
-   105|<section class="hero">
-   106|  <div class="badge-row fade-in">
-   107|    <span class="badge badge-red">🔒 In-camera meeting detection</span>
-   108|    <span class="badge badge-cyan">📜 Proposed regulations (Gazette)</span>
-   109|    <span class="badge badge-cyan">🏛️ Senate committees</span>
-   110|    <span class="badge badge-cyan">⚖️ Court decisions</span>
-   111|    <span class="badge badge-cyan">📋 Oversight reports</span>
-   112|  </div>
-   113|
-   114|  <h1 class="fade-in stagger-1">
-   115|    Every decision your government makes,<br>
-   116|    tracked and connected.
-   117|  </h1>
-   118|
-   119|  <p class="fade-in stagger-2 hero-subtitle">
-   120|    Parliament, lobbying, contracts, regulations, courts — CivInt monitors <strong>54 committees</strong>, <strong>17 executives</strong>, and <strong>34 influence actors</strong> from official sources. All in one place. No spin.
-   121|  </p>
-   122|
-   123|  <!-- Live activity bar -->
-   124|  <div class="live-activity-bar fade-in stagger-2" style="display:flex;align-items:center;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:99px;padding:8px 20px;margin:20px auto 0;width:fit-content;max-width:100%;font-size:0.82rem;">
-   125|    <span class="pulse-dot" style="width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0;"></span>
-   126|    <span style="color:var(--text-secondary);">Now tracking</span>
-   127|    <span style="color:var(--text-primary);font-weight:600;" id="live-committees">54</span><span style="color:var(--text-muted);"> committees</span>
-   128|    <span style="color:var(--text-muted);">·</span>
-   129|    <span style="color:var(--text-primary);font-weight:600;" id="live-execs">17</span><span style="color:var(--text-muted);"> execs</span>
-   130|    <span style="color:var(--text-muted);">·</span>
-   131|    <span style="color:var(--text-primary);font-weight:600;" id="live-actors">34</span><span style="color:var(--text-muted);"> actors</span>
-   132|    <span style="color:var(--text-muted);">·</span>
-   133|    <span style="color:var(--text-primary);font-weight:600;" id="live-sources">13</span><span style="color:var(--text-muted);"> sources</span>
-   134|    <span style="color:var(--text-muted);">·</span>
-   135|    <span style="color:var(--accent);font-weight:600;"><a href="dashboard.html" style="color:inherit;">Live dashboard →</a></span>
-   136|  </div>
-   137|
-   138|  <div class="hero-actions fade-in stagger-3" style="margin-top:28px;">
-   139|    <a href="dashboard.html" class="btn btn-primary" style="font-size:1.05rem;padding:14px 32px;">Explore the live dashboard →</a>
-   140|    <a href="docs.html" class="btn btn-secondary">How it works</a>
-   141|  </div>
-   142|
-   143|  <!-- Live data preview cards -->
-   144|  <div class="hero-preview fade-in stagger-4" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:40px;max-width:800px;margin-left:auto;margin-right:auto;">
-   145|    <div class="preview-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:left;transition:all var(--transition);">
-   146|      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-   147|        <span style="font-size:1.1rem;">🔒</span>
-   148|        <span style="font-size:0.72rem;color:var(--accent);background:var(--accent-dim);padding:2px 10px;border-radius:99px;font-weight:600;">IN-CAMERA</span>
-   149|      </div>
-   150|      <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">PACP — Public Accounts</div>
-   151|      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;">April 22, 2026 — Closed session on sensitive audit report</div>
-   152|    </div>
-   153|    <div class="preview-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:left;transition:all var(--transition);">
-   154|      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-   155|        <span style="font-size:1.1rem;">💼</span>
-   156|        <span style="font-size:0.72rem;color:var(--accent-cyan);background:var(--accent-cyan-dim);padding:2px 10px;border-radius:99px;font-weight:600;">LOBBYING</span>
-   157|      </div>
-   158|      <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">RBC × Finance Canada</div>
-   159|      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;">CEO Dave McKay's team met with the Deputy Minister on banking regulation</div>
-   160|    </div>
-   161|    <div class="preview-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:left;transition:all var(--transition);">
-   162|      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-   163|        <span style="font-size:1.1rem;">📜</span>
-   164|        <span style="font-size:0.72rem;color:var(--success);background:var(--base19);padding:2px 10px;border-radius:99px;font-weight:600;">REGULATION</span>
-   165|      </div>
-   166|      <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">Canada Gazette — Telecom Rules</div>
-   167|      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;">Proposed internet pricing regulations. Comment period open until June 15.</div>
-   168|    </div>
-   169|  </div>
-   170|</section>
-   171|
-   172|<!-- ═══ Official Sources / Trust Bar ═══ -->
-   173|<div class="featured-bar">
-   174|  <span>Data from official Canadian government sources</span>
-   175|  <span class="dot-sep" style="opacity:0.2;">✦</span>
-   176|  <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.04em;">open.canada.ca</span>
-   177|  <span style="opacity:0.2;">·</span>
-   178|  <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.04em;">ourcommons.ca</span>
-   179|  <span style="opacity:0.2;">·</span>
-   180|  <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.04em;">lobbycanada.gc.ca</span>
-   181|  <span style="opacity:0.2;">·</span>
-   182|  <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.04em;">sencanada.ca</span>
-   183|  <span style="opacity:0.2;">·</span>
-   184|  <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.04em;">canlii.org</span>
-   185|  <span class="dot-sep" style="opacity:0.2;">✦</span>
-   186|  <span>Free to start — no account needed</span>
-   187|</div>
-   188|
-   189|<!-- ═══ In-Camera Spotlight ═══ -->
-   190|<div style="max-width:var(--max-width);margin:0 auto;padding:0 24px 0;">
-   191|  <div style="background:var(--bg-card);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:0;">
-   192|    <div style="font-size:2.5rem;">🔒</div>
-   193|    <div style="flex:1;min-width:200px;">
-   194|      <strong style="color:var(--accent);font-size:1.1rem;">In-camera meeting detection</strong>
-   195|      <p style="color:var(--text-secondary);font-size:0.9rem;margin:4px 0 0;">
-   196|        When parliamentary committees go closed-door, CivInt flags it automatically. Know which meetings are happening in secret, who's involved, and what topics are being discussed off the public record.
-   197|      </p>
-   198|    </div>
-   199|    <a href="dashboard.html" class="btn btn-primary" style="flex-shrink:0;">See recent alerts →</a>
-   200|  </div>
-   201|</div>
-   202|
-   203|<!-- ═══ Stats ═══ -->
-   204|<section class="section" style="padding-top:40px;padding-bottom:40px;">
-   205|  <div class="stats-row">
-   206|    <div class="stat fade-in">
-   207|      <div class="number">54</div>
-   208|      <div class="label">Committees Tracked (34 HoC + 20 Senate)</div>
-   209|    </div>
-   210|    <div class="stat fade-in stagger-1">
-   211|      <div class="number">17</div>
-   212|      <div class="label">Executives Monitored</div>
-   213|    </div>
-   214|    <div class="stat fade-in stagger-2">
-   215|      <div class="number">34</div>
-   216|      <div class="label">Influence Actors</div>
-   217|    </div>
-   218|    <div class="stat fade-in stagger-3">
-   219|      <div class="number">13</div>
-   220|      <div class="label">Data Sources</div>
-   221|    </div>
-   222|    <div class="stat fade-in stagger-4">
-   223|      <div class="number">$0</div>
-   224|      <div class="label">to Start (Free Tier)</div>
-   225|    </div>
-   226|  </div>
-   227|</section>
-   228|
-   229|<!-- ═══ Features (Bento Grid) ═══ -->
-   230|<section class="section" id="features">
-   231|  <div class="section-header fade-in">
-   232|    <h2>Every corner of Canadian governance<br>tracked and connected</h2>
-   233|    <p>Think of CivInt like a newsroom that never sleeps — it reads every public document so you don't have to, and shows you what matters.</p>
-   234|  </div>
-   235|
-   236|  <div class="bento-grid">
-   237|    <div class="bento-card fade-in">
-   238|      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🏛️</div>
-   239|      <h3>Parliament — HoC &amp; Senate</h3>
-   240|      <p>Every House of Commons and Senate committee meeting, every witness, every question. Detects in-camera sessions across both chambers so you know when debate goes behind closed doors.</p>
-   241|    </div>
-   242|
-   243|    <div class="bento-card fade-in stagger-1">
-   244|      <div class="card-icon" style="background:rgba(59,130,246,0.12);">📜</div>
-   245|      <h3>Regulations — Canada Gazette</h3>
-   246|      <p>Proposed and final regulations from Canada Gazette Parts I+II. See what rules the government is planning before they become law — from environmental assessments to banking regulations.</p>
-   247|    </div>
-   248|
-   249|    <div class="bento-card fade-in stagger-2">
-   250|      <div class="card-icon" style="background:rgba(251,191,36,0.12);">💰</div>
-   251|      <h3>Corporate influence</h3>
-   252|      <p>Lobbying reports, government contracts, and executive statements from Canada's biggest banks, telecoms, and media companies. See which companies meet with which departments and which contracts go to single bidders.</p>
-   253|    </div>
-   254|
-   255|    <div class="bento-card fade-in stagger-3">
-   256|      <div class="card-icon" style="background:rgba(139,92,246,0.12);">🗳️</div>
-   257|      <h3>Elections &amp; Lobbying</h3>
-   258|      <p>Third-party election advertising, political financing, and Ontario provincial lobbying. Track who's spending to influence voters and which organizations are lobbying at the provincial level.</p>
-   259|    </div>
-   260|
-   261|    <div class="bento-card fade-in stagger-4">
-   262|      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🌐</div>
-   263|      <h3>Influence networks</h3>
-   264|      <p>From the UN to the WEF, from think tanks to NGOs — track organizations that shape Canadian policy. Monitor their government funding, their lobbying, and their connections to decision-makers.</p>
-   265|    </div>
-   266|
-   267|    <div class="bento-card fade-in stagger-5">
-   268|      <div class="card-icon" style="background:rgba(232,69,69,0.12);">🔍</div>
-   269|      <h3>Oversight &amp; Courts</h3>
-   270|      <p>Audits from the OAG and PBO, Ethics Commissioner investigations, Competition Bureau actions, CRTC decisions, and CanLII court rulings. Full judicial and accountability tracking.</p>
-   271|    </div>
-   272|
-   273|    <div class="bento-card span-2 fade-in stagger-6">
-   274|      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🔗</div>
-   275|      <h3>Connect the dots</h3>
-   276|      <p>The same people show up everywhere — sitting on committees, lobbying departments, winning contracts, appearing in court cases. CivInt links them together so you can see the full picture. Our signal detectors flag revolving doors, lobbying overlaps, and cross-jurisdictional connections automatically.</p>
-   277|    </div>
-   278|
-   279|    <div class="bento-card span-2 highlight fade-in stagger-7">
-   280|      <div class="card-icon" style="background:rgba(232,69,69,0.2);">🍁</div>
-   281|      <h3>Built for Canadians, running in Canada</h3>
-   282|      <p>Every piece of information comes from official public sources — Parliament, the Lobbying Registry, the Canada Gazette, open court data, oversight bodies. Everything is verified and citable. No spin, no opinion, just the facts that are already public, organized so you can actually use them.</p>
-   283|    </div>
-   284|  </div>
-   285|</section>
-   286|
-   287|<!-- ═══ AI Integration ═══ -->
-   288|<section class="section-alt" id="mcp-setup">
-   289|  <div class="section-alt-inner">
-   290|    <div class="section-header fade-in">
-   291|      <h2>Use it with ChatGPT, Claude,<br>Gemini, Grok — or your own code</h2>
-   292|      <p>CivInt connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.</p>
-   293|    </div>
-   294|
-   295|    <div class="integration-grid">
-   296|      <div class="integration-card fade-in">
-   297|        <div class="int-icon">💬</div>
-   298|        <h3>ChatGPT</h3>
-   299|        <p>Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers.</p>
-   300|      </div>
-   301|
-   302|      <div class="integration-card fade-in stagger-1">
-   303|        <div class="int-icon">🤖</div>
-   304|        <h3>Claude</h3>
-   305|        <p>Native MCP support in Claude Desktop and Claude Code. Ask "what did the ethics committee discuss?" and get a full briefing with citations.</p>
-   306|      </div>
-   307|
-   308|      <div class="integration-card fade-in stagger-2">
-   309|        <div class="int-icon">🔮</div>
-   310|        <h3>Gemini</h3>
-   311|        <p>Use CivInt as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data in one query.</p>
-   312|      </div>
-   313|
-   314|      <div class="integration-card fade-in stagger-2">
-   315|        <div class="int-icon">𝕏</div>
-   316|        <h3>Grok</h3>
-   317|        <p>Connect through xAI's function-calling API. Ask Grok to check Canadian government data and get answers with source citations.</p>
-   318|      </div>
-   319|
-   320|      <div class="integration-card fade-in stagger-1">
-   321|        <div class="int-icon">✏️</div>
-   322|        <h3>Cursor &amp; Windsurf</h3>
-   323|        <p>Add the MCP endpoint URL to <code>.cursor/mcp.json</code> or <code>.windsurf/mcp_config.json</code>.</p>
-   324|        <div class="code-block">
-   325|{<br>
-   326|&nbsp;&nbsp;<span class="string">"mcpServers"</span>:{<br>
-   327|&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"civint-canada"</span>:{<br>
-   328|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>:<span class="string">"https://civint.lan/mcp"</span><br>
-   329|&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-   330|&nbsp;&nbsp;}<br>
-   331|}
-   332|        </div>
-   333|      </div>
-   334|
-   335|      <div class="integration-card fade-in stagger-2">
-   336|        <div class="int-icon">🌐</div>
-   337|        <h3>REST API</h3>
-   338|        <p>Direct HTTP access for backends, dashboards, and traditional apps.</p>
-   339|        <div class="code-block">
-   340|<span class="comment"># curl, fetch, axios, requests...</span><br>
-   341|<span class="accent">GET</span> /v1/gov/search<br>
-   342|&nbsp;&nbsp;?query=<span class="string">housing</span><br>
-   343|&nbsp;&nbsp;&amp;jurisdiction=<span class="string">federal</span><br><br>
-   344|<span class="comment"># Response with SHA-256 citation</span><br>
-   345|{ <span class="string">"citation"</span>: {<br>
-   346|&nbsp;&nbsp;<span class="string">"verified"</span>: <span class="keyword">true</span><br>
-   347||} }
-   348|        </div>
-   349|      </div>
-   350|    </div>
-   351|
-   352|    <div style="text-align:center;margin-top:40px;">
-   353|      <a href="agents.html" class="btn btn-cyan">See All Agent Setups →</a>
-   354|    </div>
-   355|  </div>
-   356|</section>
-   357|
-   358|<!-- ═══ For Developers ═══ -->
-   424|<section class="section" id="api-ref">
-   425|  <div class="section-header fade-in">
-   426|    <h2>For developers and data nerds</h2>
-   427|    <p>Full API access with verified citations on every response. Every piece of data includes a source you can check.</p>
-   428|  </div>
-   429|
-   430|  <div class="api-explorer fade-in">
-   431|    <div class="api-endpoint">
-   432|      <span class="method get">GET</span>
-   433|      <span class="path">/v1/health</span>
-   434|      <span class="desc">Is the system running?</span>
-   435|    </div>
-   436|    <div class="api-endpoint">
-   437|      <span class="method get">GET</span>
-   438|      <span class="path">/v1/gov/releases</span>
-   439|      <span class="desc">Latest government data</span>
-   440|    </div>
-   441|    <div class="api-endpoint">
-   442|      <span class="method get">GET</span>
-   443|      <span class="path">/v1/gov/search</span>
-   444|      <span class="desc">Search all government sources</span>
-   445|    </div>
-   446|    <div class="api-endpoint">
-   447|      <span class="method get">GET</span>
-   448|      <span class="path">/v1/citation/:hash</span>
-   449|      <span class="desc">Verify a specific data point</span>
-   450|    </div>
-   451|    <div class="api-endpoint">
-   452|      <span class="method get">GET</span>
-   453|      <span class="path">/v1/usage</span>
-   454|      <span class="desc">Check your usage and quota</span>
-   455|    </div>
-   456|    <div class="api-endpoint">
-   457|      <span class="method post">POST</span>
-   458|      <span class="path">/v1/audit/query</span>
-   459|      <span class="desc">Full audit trail (Pro+)</span>
-   460|    </div>
-   461|  </div>
-   462|</section>
-   463|
-   464|
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivInt Canada — See how your government really works</title>
+  <meta name="description" content="CivInt makes Canadian government data easy to understand. Track what Parliament is doing, who's influencing decisions, and how public money is spent — all in one place.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
+  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
+  <meta property="og:title" content="CivInt Canada — See how your government really works">
+  <meta property="og:description" content="Track what Parliament is doing, who's influencing decisions, and how public money is spent — all in one place.">
+  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://civint.ca">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CivInt Canada — See how your government really works">
+  <meta name="twitter:description" content="Track what Parliament is doing, who's influencing decisions, and how public money is spent.">
+  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "CivInt Canada",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://civint.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "CivInt Canada",
+    "url": "https://civint.ca",
+    "description": "Track what Parliament is doing, who's influencing decisions, and how public money is spent.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://civint.ca/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+<body>
+
+<!-- ═══ Ticker ═══ -->
+<div style="position:fixed;top:0;left:0;right:0;height:20px;z-index:1001;background:rgba(20,20,32,0.9);border-bottom:1px solid rgba(194,48,48,0.1);overflow:hidden;pointer-events:none;">
+  <div style="display:flex;white-space:nowrap;animation:ciScroll 35s linear infinite;height:20px;align-items:center;">
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> Committees: 54 active</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#C23030;display:inline-block;"></span> Lobbying spike detected</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#0891B2;display:inline-block;"></span> Canada Gazette updated</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#D4A017;display:inline-block;"></span> OAG audit published</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> In-camera meeting flagged</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#C23030;display:inline-block;"></span> Sole-source contract found</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#0891B2;display:inline-block;"></span> Ethics investigation opened</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#D4A017;display:inline-block;"></span> Senate report released</span>
+    <!-- Duplicate for seamless scroll -->
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> Committees: 54 active</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#C23030;display:inline-block;"></span> Lobbying spike detected</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#0891B2;display:inline-block;"></span> Canada Gazette updated</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#D4A017;display:inline-block;"></span> OAG audit published</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> In-camera meeting flagged</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#C23030;display:inline-block;"></span> Sole-source contract found</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#0891B2;display:inline-block;"></span> Ethics investigation opened</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#D4A017;display:inline-block;"></span> Senate report released</span>
+  </div>
+  <style>@keyframes ciScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }</style>
+</div>
+
+<!-- ═══ Navigation (below ticker) ═══ -->
+<style>
+nav { top: 20px !important; }
+body { padding-top: calc(20px + var(--nav-height, 64px)); }
+</style>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <svg class="logo-svg" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="seal-ring" cx="17" cy="17" r="15.5"/>
+        <circle class="seal-ring" cx="17" cy="17" r="11.5" stroke-dasharray="3 3"/>
+        <path class="seal-c" d="M13 10h8v2h-6v4h5v2h-5v4h6v2h-8V10z"/>
+        <path class="seal-data" d="M8 22c0-5 18-5 18 0M8 26c0-5 18-5 18 0M10 12l14-2M10 20l14-2" stroke-dasharray="2 3"/>
+        <circle class="seal-leaf" cx="17" cy="5" r="1.5"/>
+        <circle class="seal-leaf" cx="17" cy="29" r="1.5"/>
+      </svg>
+      CivInt Canada
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">What it does</a></li>
+      <li><a href="docs.html">How it Works</a></li>
+      <li><a href="agents.html">For AI Tools</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="dashboard.html" class="btn btn-sm btn-primary">Dashboard</a></li>
+      <li><button class="theme-toggle"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle">☰</button>
+  </div>
+</nav>
+
+<div class="nav-mobile-overlay"></div>
+
+<!-- ═══ Hero ═══ -->
+<section class="hero">
+  <!-- Government document watermark background -->
+  <div class="hero-watermark"></div>
+  <div class="badge-row fade-in visible">
+    <span class="badge badge-red">🔒 In-camera meeting detection</span>
+    <span class="badge badge-cyan">📜 Proposed regulations (Gazette)</span>
+    <span class="badge badge-cyan">🏛️ Senate committees</span>
+    <span class="badge badge-cyan">⚖️ Court decisions</span>
+    <span class="badge badge-cyan">📋 Oversight reports</span>
+  </div>
+
+  <h1 class="fade-in stagger-1 visible">
+    Every government decision,<br>
+    tracked and connected.
+  </h1>
+
+  <p class="fade-in stagger-2 hero-subtitle visible">
+    Parliament, lobbying, contracts, regulations, courts — CivInt monitors <strong>54 committees</strong>, <strong>17 executives</strong>, and <strong>34 influence actors</strong> from official sources. All in one place. No spin.
+  </p>
+
+  <!-- Live activity bar -->
+  <div class="live-activity-bar fade-in stagger-2 visible" style="display:flex;align-items:center;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:99px;padding:8px 20px;margin:20px auto 0;width:fit-content;max-width:100%;font-size:0.82rem;">
+    <span class="pulse-dot" style="width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0;"></span>
+    <span style="color:var(--text-secondary);">Now tracking</span>
+    <span style="color:var(--text-primary);font-weight:600;" id="live-committees">54</span><span style="color:var(--text-muted);"> committees</span>
+    <span style="color:var(--text-muted);">·</span>
+    <span style="color:var(--text-primary);font-weight:600;" id="live-execs">17</span><span style="color:var(--text-muted);"> execs</span>
+    <span style="color:var(--text-muted);">·</span>
+    <span style="color:var(--text-primary);font-weight:600;" id="live-actors">34</span><span style="color:var(--text-muted);"> actors</span>
+    <span style="color:var(--text-muted);">·</span>
+    <span style="color:var(--text-primary);font-weight:600;" id="live-sources">13</span><span style="color:var(--text-muted);"> sources</span>
+    <span style="color:var(--text-muted);">·</span>
+    <span style="color:var(--accent);font-weight:600;"><a href="dashboard.html" style="color:inherit;">Live dashboard →</a></span>
+  </div>
+
+  <div class="hero-actions fade-in stagger-3 visible" style="margin-top:28px;">
+    <a href="dashboard.html" class="btn btn-primary" style="font-size:1.05rem;padding:14px 32px;">Explore the live dashboard →</a>
+    <a href="docs.html" class="btn btn-secondary">How it works</a>
+  </div>
+
+  <!-- Live data preview cards -->
+  <div class="hero-preview fade-in stagger-4 visible" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:40px;max-width:800px;margin-left:auto;margin-right:auto;">
+    <div class="preview-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:left;transition:all var(--transition);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:1.1rem;">🔒</span>
+        <span class="badge badge-red" style="font-size:0.72rem;padding:2px 10px;">IN-CAMERA</span>
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">PACP — Public Accounts Committee</div>
+      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;">May 12, 2026 — Closed session on sensitive audit report. 3 witnesses in camera.</div>
+    </div>
+    <div class="preview-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:left;transition:all var(--transition);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:1.1rem;">💼</span>
+        <span class="badge badge-cyan" style="font-size:0.72rem;padding:2px 10px;">LOBBYING</span>
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">RBC × Finance Canada</div>
+      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;">CEO Dave McKay's team met with Deputy Minister on proposed banking regulations under Bill C-68.</div>
+    </div>
+    <div class="preview-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:left;transition:all var(--transition);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="font-size:1.1rem;">📜</span>
+        <span class="badge" style="font-size:0.72rem;padding:2px 10px;background:rgba(212,160,23,0.12);color:var(--accent-gold);font-weight:600;">REGULATION</span>
+      </div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">Canada Gazette — Internet Pricing</div>
+      <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;">CRTC proposed wholesale internet rates regulation. Comment period open until June 15, 2026.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Official Sources / Trust Bar ═══ -->
+<div class="featured-bar">
+  <span style="font-size:0.82rem;opacity:0.7;">Verified government sources:</span>
+  <span class="source-badge"><span class="badge-dot" style="background:#C23030;"></span>open.canada.ca</span>
+  <span class="source-badge"><span class="badge-dot" style="background:#C23030;"></span>ourcommons.ca</span>
+  <span class="source-badge"><span class="badge-dot" style="background:#C23030;"></span>lobbycanada.gc.ca</span>
+  <span class="source-badge"><span class="badge-dot" style="background:#C23030;"></span>sencanada.ca</span>
+  <span class="source-badge"><span class="badge-dot" style="background:#C23030;"></span>canlii.org</span>
+  <span class="dot-sep" style="opacity:0.2;">✦</span>
+  <span style="font-size:0.82rem;opacity:0.7;">Free to start — no account needed</span>
+</div>
+
+<!-- ═══ In-Camera Spotlight ═══ -->
+<div style="max-width:var(--max-width);margin:0 auto;padding:0 24px 0;">
+  <div style="background:var(--bg-card);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:24px 32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:0;">
+    <div style="font-size:2.5rem;">🔒</div>
+    <div style="flex:1;min-width:200px;">
+      <strong style="color:var(--accent);font-size:1.1rem;">In-camera meeting detection</strong>
+      <p style="color:var(--text-secondary);font-size:0.9rem;margin:4px 0 0;">
+        When parliamentary committees go closed-door, CivInt flags it automatically. Know which meetings are happening in secret, who's involved, and what topics are being discussed off the public record.
+      </p>
+    </div>
+    <a href="dashboard.html" class="btn btn-primary" style="flex-shrink:0;">See recent alerts →</a>
+  </div>
+</div>
+
+<!-- ═══ Stats ═══ -->
+<section class="section" style="padding-top:40px;padding-bottom:40px;">
+  <div class="stats-row">
+    <div class="stat fade-in">
+      <div class="number">54</div>
+      <div class="label">Committees Tracked (34 HoC + 20 Senate)</div>
+    </div>
+    <div class="stat fade-in stagger-1">
+      <div class="number">17</div>
+      <div class="label">Executives Monitored</div>
+    </div>
+    <div class="stat fade-in stagger-2">
+      <div class="number">34</div>
+      <div class="label">Influence Actors</div>
+    </div>
+    <div class="stat fade-in stagger-3">
+      <div class="number">13</div>
+      <div class="label">Data Sources</div>
+    </div>
+    <div class="stat fade-in stagger-4">
+      <div class="number">$0</div>
+      <div class="label">to Start (Public Tier)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Features (Bento Grid) ═══ -->
+<section class="section" id="features">
+  <div class="section-header fade-in">
+    <h2>Every corner of Canadian governance<br>tracked and connected</h2>
+    <p>Think of CivInt like a newsroom that never sleeps — it reads every public document so you don't have to, and shows you what matters.</p>
+  </div>
+
+  <div class="bento-grid">
+    <div class="bento-card fade-in">
+      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🏛️</div>
+      <h3>Parliament — HoC &amp; Senate</h3>
+      <p>Every House of Commons and Senate committee meeting, every witness, every question. Detects in-camera sessions across both chambers so you know when debate goes behind closed doors.</p>
+    </div>
+
+    <div class="bento-card fade-in stagger-1">
+      <div class="card-icon" style="background:rgba(59,130,246,0.12);">📜</div>
+      <h3>Regulations — Canada Gazette</h3>
+      <p>Proposed and final regulations from Canada Gazette Parts I+II. See what rules the government is planning before they become law — from environmental assessments to banking regulations.</p>
+    </div>
+
+    <div class="bento-card fade-in stagger-2">
+      <div class="card-icon" style="background:rgba(251,191,36,0.12);">💰</div>
+      <h3>Corporate influence</h3>
+      <p>Lobbying reports, government contracts, and executive statements from Canada's biggest banks, telecoms, and media companies. See which companies meet with which departments and which contracts go to single bidders.</p>
+    </div>
+
+    <div class="bento-card fade-in stagger-3">
+      <div class="card-icon" style="background:rgba(139,92,246,0.12);">🗳️</div>
+      <h3>Elections &amp; Lobbying</h3>
+      <p>Third-party election advertising, political financing, and Ontario provincial lobbying. Track who's spending to influence voters and which organizations are lobbying at the provincial level.</p>
+    </div>
+
+    <div class="bento-card fade-in stagger-4">
+      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🌐</div>
+      <h3>Influence networks</h3>
+      <p>From the UN to the WEF, from think tanks to NGOs — track organizations that shape Canadian policy. Monitor their government funding, their lobbying, and their connections to decision-makers.</p>
+    </div>
+
+    <div class="bento-card fade-in stagger-5">
+      <div class="card-icon" style="background:rgba(232,69,69,0.12);">🔍</div>
+      <h3>Oversight &amp; Courts</h3>
+      <p>Audits from the OAG and PBO, Ethics Commissioner investigations, Competition Bureau actions, CRTC decisions, and CanLII court rulings. Full judicial and accountability tracking.</p>
+    </div>
+
+    <div class="bento-card span-2 fade-in stagger-6">
+      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🔗</div>
+      <h3>Connect the dots</h3>
+      <p>The same people show up everywhere — sitting on committees, lobbying departments, winning contracts, appearing in court cases. CivInt links them together so you can see the full picture. Our signal detectors flag revolving doors, lobbying overlaps, and cross-jurisdictional connections automatically.</p>
+    </div>
+
+    <div class="bento-card span-2 highlight fade-in stagger-7">
+      <div class="card-icon" style="background:rgba(232,69,69,0.2);">🍁</div>
+      <h3>Built for Canadians, running in Canada</h3>
+      <p>Every piece of information comes from official public sources — Parliament, the Lobbying Registry, the Canada Gazette, open court data, oversight bodies. Everything is verified and citable. No spin, no opinion, just the facts that are already public, organized so you can actually use them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI Integration ═══ -->
+<section class="section-alt" id="mcp-setup">
+  <div class="section-alt-inner">
+    <div class="section-header fade-in">
+      <h2>Use it with ChatGPT, Claude,<br>Gemini, Grok — or your own code</h2>
+      <p>CivInt connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.</p>
+    </div>
+
+    <div class="integration-grid">
+      <div class="integration-card fade-in">
+        <div class="int-icon">💬</div>
+        <h3>ChatGPT</h3>
+        <p>Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-1">
+        <div class="int-icon">🤖</div>
+        <h3>Claude</h3>
+        <p>Native MCP support in Claude Desktop and Claude Code. Ask "what did the ethics committee discuss?" and get a full briefing with citations.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">🔮</div>
+        <h3>Gemini</h3>
+        <p>Use CivInt as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data in one query.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">𝕏</div>
+        <h3>Grok</h3>
+        <p>Connect through xAI's function-calling API. Ask Grok to check Canadian government data and get answers with source citations.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-1">
+        <div class="int-icon">✏️</div>
+        <h3>Cursor &amp; Windsurf</h3>
+        <p>Add the MCP endpoint URL to <code>.cursor/mcp.json</code> or <code>.windsurf/mcp_config.json</code>.</p>
+        <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>:{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"civint-canada"</span>:{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>:<span class="string">"https://civint.lan/mcp"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">🌐</div>
+        <h3>REST API</h3>
+        <p>Direct HTTP access for backends, dashboards, and traditional apps.</p>
+        <div class="code-block">
+<span class="comment"># curl, fetch, axios, requests...</span><br>
+<span class="accent">GET</span> /v1/gov/search<br>
+&nbsp;&nbsp;?query=<span class="string">housing</span><br>
+&nbsp;&nbsp;&amp;jurisdiction=<span class="string">federal</span><br><br>
+<span class="comment"># Response with SHA-256 citation</span><br>
+{ <span class="string">"citation"</span>: {<br>
+&nbsp;&nbsp;<span class="string">"verified"</span>: <span class="keyword">true</span><br>
+} }
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:40px;">
+      <a href="agents.html" class="btn btn-cyan">See All Agent Setups →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ For Developers ═══ -->
+<section class="section" id="api-ref">
+  <div class="section-header fade-in">
+    <h2>For developers and data nerds</h2>
+    <p>Full API access with verified citations on every response. Every piece of data includes a source you can check.</p>
+  </div>
+
+  <div class="api-explorer fade-in">
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/health</span>
+      <span class="desc">Is the system running?</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/gov/releases</span>
+      <span class="desc">Latest government data</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/gov/search</span>
+      <span class="desc">Search all government sources</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/citation/:hash</span>
+      <span class="desc">Verify a specific data point</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/usage</span>
+      <span class="desc">Check your usage and quota</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method post">POST</span>
+      <span class="path">/v1/audit/query</span>
+      <span class="desc">Full audit trail (Pro+)</span>
+    </div>
+  </div>
+
+  <!-- Interactive API Demo -->
+  <div class="api-demo-box fade-in">
+    <div class="demo-header">
+      <div class="demo-dots">
+        <span class="demo-dot"></span>
+        <span class="demo-dot"></span>
+        <span class="demo-dot"></span>
+      </div>
+      <span>API Response Preview</span>
+    </div>
+    <div class="demo-body">
+      <button class="run-btn">▶ Run</button>
+      <div class="output-section">
+        <div class="output-label">Response</div>
+        <div class="demo-output" style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;white-space:pre-wrap;color:var(--text-secondary);">Click "▶ Run" to see a sample response</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ═══ Pricing ═══ -->
-   359|<section class="section" id="pricing">
-   360|  <div class="section-header fade-in">
-   361|    <h2>Simple, transparent pricing</h2>
-   362|    <p>Start for free. Scale as you grow. No hidden fees, no contracts, no surprise bills.</p>
-   363|  </div>
-   364|
-   365|    <div class="pricing-toggle fade-in">
-   366|      <span class="toggle-label" data-off>Monthly</span>
-   367|      <div class="toggle-track" role="button" tabindex="0" aria-label="Toggle annual pricing"></div>
-   368|      <span class="toggle-label" data-on>Annual <span class="save-badge">Save ~15%</span></span>
-   369|    </div>
-   370|
-   371|    <div class="pricing-grid">
-   372|      <div class="pricing-card fade-in">
-   373|        <div class="plan-name">Free</div>
-   374|        <div class="price" data-monthly="$0" data-yearly="$0"><span class="amount">$0</span> <span class="period">/mo</span></div>
-   375|        <div class="description">For curious Canadians, hobbyists, and trying it out.</div>
-   376|        <ul class="features">
-   377|          <li>1,000 API calls/month</li>
-   378|          <li>REST + MCP access</li>
-   379|          <li>Community support</li>
-   380|          <li>Attribution required</li>
-   381|          <li>Rate-limited (10 req/s)</li>
-   382|        </ul>
-   383|        <a href="dashboard.html" class="btn btn-secondary">Get Started</a>
-   384|      </div>
-   385|
-   386|      <div class="pricing-card featured fade-in stagger-1">
-   387|        <div class="popular-badge">Popular</div>
-   388|        <div class="plan-name">Pro</div>
-   389|        <div class="price" data-monthly="$49" data-yearly="$499" data-months-free="2"><span class="amount">$49</span> <span class="period">/mo</span></div>
-   390|        <div class="description">For journalists, researchers, and small dev teams.</div>
-   391|        <ul class="features">
-   392|          <li>50,000 API calls/month</li>
-   393|          <li>Priority rate limits (100 req/s)</li>
-   394|          <li>Bias analysis &amp; trust scores</li>
-   395|          <li>SHA-256 citation hashes</li>
-   396|          <li>Email support (48h SLA)</li>
-   397|        </ul>
-   398|        <a href="mailto:civint@reverb256.ca" class="btn btn-primary">Subscribe →</a>
-   399|      </div>
-   400|
-   401|      <div class="pricing-card fade-in stagger-2">
-   402|        <div class="plan-name">Business</div>
-   403|        <div class="price" data-monthly="$199" data-yearly="$1,999" data-months-free="2"><span class="amount">$199</span> <span class="period">/mo</span></div>
-   404|        <div class="description">For newsrooms, civic orgs, and production apps.</div>
-   405|        <ul class="features">
-   406|          <li>250,000 API calls/month</li>
-   407|          <li>Custom rate limits (500 req/s)</li>
-   408|          <li>Audit log export &amp; provenance chain</li>
-   409|          <li>Custom MCP tool definitions</li>
-   410|          <li>SLA with 24h support</li>
-   411|        </ul>
-   412|        <a href="mailto:civint@reverb256.ca" class="btn btn-secondary">Subscribe →</a>
-   413|      </div>
-   414|    </div>
-   415|
-   416|  <div class="pricing-enterprise fade-in">
-   417|    <h3>Need more?</h3>
-   418|    <p>Enterprise tier for government agencies and large organizations. Self-hosted option, unlimited calls, dedicated MCP server, full audit and provenance package with SLA.</p>
-   419|    <a href="mailto:civint@reverb256.ca" class="btn btn-primary">Contact Sales</a>
-   420|  </div>
-   421|</section>
-   422|
-   423|
+<section class="section" id="pricing">
+  <div class="section-header fade-in">
+    <h2>Simple, transparent pricing</h2>
+    <p>Start for free. Scale as you grow. No hidden fees, no contracts, no surprise bills.</p>
+  </div>
+
+    <div class="pricing-toggle fade-in">
+      <span class="toggle-label" data-off>Monthly</span>
+      <div class="toggle-track" role="button" tabindex="0" aria-label="Toggle annual pricing"></div>
+      <span class="toggle-label" data-on>Annual <span class="save-badge">Save ~15%</span></span>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card fade-in">
+        <div class="plan-name">Public</div>
+        <div class="price" data-monthly="$0" data-yearly="$0"><span class="amount">$0</span> <span class="period">/mo</span></div>
+        <div class="description">Free civic access for all Canadians. Transparency for everyone.</div>
+        <ul class="features">
+          <li>1,000 API calls/month</li>
+          <li>REST + MCP access</li>
+          <li>Community support</li>
+          <li>Attribution required</li>
+          <li>Rate-limited (10 req/s)</li>
+        </ul>
+        <a href="dashboard.html" class="btn btn-secondary">Get Started</a>
+      </div>
+
+      <div class="pricing-card featured fade-in stagger-1">
+        <div class="popular-badge">Popular</div>
+        <div class="plan-name">Civic</div>
+        <div class="price" data-monthly="$49" data-yearly="$499" data-months-free="2"><span class="amount">$49</span> <span class="period">/mo</span></div>
+        <div class="description">For journalists, researchers, and civic tech teams.</div>
+        <ul class="features">
+          <li>50,000 API calls/month</li>
+          <li>Priority rate limits (100 req/s)</li>
+          <li>Bias analysis &amp; trust scores</li>
+          <li>SHA-256 citation hashes</li>
+          <li>Email support (48h SLA)</li>
+        </ul>
+        <a href="mailto:civint@reverb256.ca" class="btn btn-primary">Subscribe →</a>
+      </div>
+
+      <div class="pricing-card fade-in stagger-2">
+        <div class="plan-name">Enterprise</div>
+        <div class="price" data-monthly="$199" data-yearly="$1,999" data-months-free="2"><span class="amount">$199</span> <span class="period">/mo</span></div>
+        <div class="description">For newsrooms, civic orgs, and production apps.</div>
+        <ul class="features">
+          <li>250,000 API calls/month</li>
+          <li>Custom rate limits (500 req/s)</li>
+          <li>Audit log export &amp; provenance chain</li>
+          <li>Custom MCP tool definitions</li>
+          <li>SLA with 24h support</li>
+        </ul>
+        <a href="mailto:civint@reverb256.ca" class="btn btn-secondary">Subscribe →</a>
+      </div>
+    </div>
+
+  <div class="pricing-enterprise fade-in">
+    <h3>Need more?</h3>
+    <p>Enterprise tier for government agencies and large organizations. Self-hosted option, unlimited calls, dedicated MCP server, full audit and provenance package with SLA.</p>
+    <a href="mailto:civint@reverb256.ca" class="btn btn-primary">Contact Sales</a>
+  </div>
+
+  <div class="pricing-footer fade-in" style="text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--border);">
+    <span class="badge badge-green">&#x2713; AIDA-compliant audit trails</span>
+    <span class="badge badge-cyan" style="margin-left:8px;">Bill C-27 ready</span>
+  </div>
+</section>
+
+
 <!-- ═══ Footer ═══ -->
-   465|<footer>
-   466|  <div class="footer-inner">
-   467|    <div class="brand">
-   468|      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
-   469|      <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
-   470|      CivInt Canada
-   471|      </a>
-   472|      <p>CivInt makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing. All data sourced from official government portals under the Open Government Licence – Canada.</p>
-   473|    </div>
-   474|    <div>
-   475|      <h4>Product</h4>
-   476|      <ul>
-   477|        <li><a href="#features">What it does</a></li>
-   478|        <li><a href="#pricing">Pricing</a></li>
-   479|        <li><a href="docs.html">How it Works</a></li>
-   480|        <li><a href="dashboard.html">Dashboard</a></li>
-   481|      </ul>
-   482|    </div>
-   483|    <div>
-   484|      <h4>AI Tools</h4>
-   485|      <ul>
-   486|        <li><a href="agents.html">ChatGPT Setup</a></li>
-   487|        <li><a href="agents.html">Claude Setup</a></li>
-   488|        <li><a href="agents.html">Gemini Setup</a></li>
-   489|        <li><a href="agents.html">Grok Setup</a></li>
-   490|      </ul>
-   491|    </div>
-   492|    <div>
-   493|      <h4>Legal</h4>
-   494|      <ul>
-   495|        <li>Terms of Service</li>
-   496|        <li>Privacy Policy</li>
-   497|        <li>OGL-C Attribution</li>
-   498|        <li><a href="https://github.com/reverb256">GitHub</a></li>
-   499|      </ul>
-   500|    </div>
-   501|
+<footer>
+  <div class="footer-inner">
+    <div class="brand">
+      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
+        <svg class="logo-svg" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
+          <circle class="seal-ring" cx="17" cy="17" r="15.5"/>
+          <circle class="seal-ring" cx="17" cy="17" r="11.5" stroke-dasharray="3 3"/>
+          <path class="seal-c" d="M13 10h8v2h-6v4h5v2h-5v4h6v2h-8V10z"/>
+          <path class="seal-data" d="M8 22c0-5 18-5 18 0M8 26c0-5 18-5 18 0M10 12l14-2M10 20l14-2" stroke-dasharray="2 3"/>
+          <circle class="seal-leaf" cx="17" cy="5" r="1.5"/>
+          <circle class="seal-leaf" cx="17" cy="29" r="1.5"/>
+        </svg>
+        CivInt Canada
+      </a>
+      <p>CivInt makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing. All data sourced from official government portals under the Open Government Licence – Canada.</p>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#features">What it does</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="docs.html">How it Works</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>AI Tools</h4>
+      <ul>
+        <li><a href="agents.html">ChatGPT Setup</a></li>
+        <li><a href="agents.html">Claude Setup</a></li>
+        <li><a href="agents.html">Gemini Setup</a></li>
+        <li><a href="agents.html">Grok Setup</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li>Terms of Service</li>
+        <li>Privacy Policy</li>
+        <li>OGL-C Attribution</li>
+              </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js" defer></script>
+</body>
+</html>
