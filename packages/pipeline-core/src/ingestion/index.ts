@@ -727,3 +727,223 @@ export type {
   RawFiscalMonitorRow,
   RawDepartmentalPlanRow,
 } from './federal-budget/types.js';
+
+// CRTC — Canadian Radio-television and Telecommunications Commission
+// Broadcasting/telecom decisions, ownership tracking, regulatory data
+export {
+  ingestCrtc,
+  initializeCrtcTables,
+  crtcTablesExist,
+  searchDecisions as crtcSearchDecisions,
+  getRecentDecisions as crtcGetRecentDecisions,
+  getOwnershipChangeDecisions,
+  getDecisionsByApplicant as crtcGetDecisionsByApplicant,
+  getNetNeutralityDecisions,
+  searchOwnershipRecords,
+  getOwnershipByOwner,
+  CRTC_DECISIONS_DDL,
+  CRTC_OWNERSHIP_DDL,
+  CRTC_DDL,
+} from './crtc/index.js';
+export {
+  fetchAllCrtcDecisions,
+  fetchCrtcRSSFeed,
+  fetchRecentBroadcastingDecisions,
+  fetchRecentTelecomDecisions,
+  fetchRecentNoticesOfConsultation,
+  fetchCrtcArchiveYear,
+  fetchCrtcMainArchivePage,
+  fetchDecisionDetail as fetchCrtcDecisionDetail,
+  fetchCrtcOwnershipPage,
+  fetchOwnershipDetail,
+  searchCrtcCkanDatasets,
+  fetchCrtcCkanPackage,
+  CrtcFetchError,
+} from './crtc/fetcher.js';
+export {
+  parseCrtcDecision,
+  parseCrtcDecisionList,
+  parseCrtcOwnershipRecord,
+  parseOwnershipPageHtml,
+  createIngestionResult,
+} from './crtc/parser.js';
+export {
+  // Constants that do NOT overlap with oversight/constants.ts exports
+  CRTC_RSS_FEEDS,
+  CRTC_CKAN_BASE,
+  CRTC_CKAN_SEARCH,
+  CRTC_CKAN_PACKAGE_SHOW,
+  CRTC_CKAN_PACKAGE_IDS,
+  ckanPackageUrl as crtcCkanPackageUrl,
+  ckanSearchUrl as crtcCkanSearchUrl,
+  crtcDecisionPdfUrl,
+  extractYearFromDecisionNumber,
+  CRTC_DECISION_TYPE_PATTERNS,
+  CRTC_TYPE_TO_SEGMENT,
+  CRTC_SUBJECT_KEYWORDS,
+  DEFAULT_TIMEOUT_MS as CRTC_DEFAULT_TIMEOUT_MS,
+  MAX_ARCHIVE_PAGES as CRTC_MAX_ARCHIVE_PAGES,
+  MAX_RSS_ITEMS as CRTC_MAX_RSS_ITEMS,
+  HISTORICAL_YEARS_BACK as CRTC_HISTORICAL_YEARS_BACK,
+} from './crtc/constants.js';
+export type {
+  CrtcDecision,
+  CrtcDecisionType,
+  CrtcDecisionOutcome,
+  CrtcSubjectMatter,
+  CrtcOwnershipRecord,
+  OwnershipRecordType,
+  CrtcIngestionResult,
+  RawCrtcDecisionItem,
+  RawCrtcOwnershipItem,
+} from './crtc/types.js';
+
+// SEDI Insider Trading Reports — C-Suite executive stock trades at Canadian public companies
+export {
+  ingestSedi,
+  ingestSediByIssuer,
+  ingestSediRecent,
+  initializeSediTable,
+  getLatestTransactionDate,
+  searchInsiderTransactions,
+  transactionExistsBySource,
+  getTrackedOrgs,
+  getMajorIssuers,
+} from './sedi/index.js';
+export {
+  fetchInsiderTransactions,
+  fetchSediByIssuer,
+  fetchSediByInsider,
+  fetchSediFrontPage,
+  fetchSediReportDetail,
+  fetchSedarpPlus,
+  extractSediTableRows,
+  SediFetchError,
+} from './sedi/fetcher.js';
+export {
+  parseSediReport,
+  parseSediReportDetail,
+  parseSediDate,
+  parseSediNumber,
+  classifyTransactionType,
+  normalizeSediRow,
+  deduplicateTransactions,
+} from './sedi/parser.js';
+export {
+  SEDI_BASE_URL,
+  SEDI_SEARCH_URL,
+  SEDI_DDL,
+  INSIDER_SOURCES,
+  MAJOR_TSX_ISSUERS,
+  TRACKED_EXEC_ORGS,
+  findIssuerByTicker,
+  findIssuerByName,
+} from './sedi/constants.js';
+export type {
+  SediIngestionResult,
+  SediSearchParams,
+  RawSediRow,
+  InsiderDataSource,
+} from './sedi/types.js';
+
+// Bank of Canada — rate decisions, monetary policy reports, financial system reviews, executive speeches
+export {
+  ingestBankOfCanada,
+  initializeBocTable,
+  bocTableExists,
+  getLatestBocDate,
+  searchBocDecisions,
+  getRecentBocDecisions,
+  getBocRateChanges,
+  getBocByDateRange,
+  getBocSpeechesBySpeaker,
+  BOC_DECISIONS_DDL,
+} from './bank-of-canada/index.js';
+export {
+  fetchAllBocData,
+  fetchAllBocRateDecisions,
+  fetchAllBocPublications,
+  fetchAllBocSpeeches,
+  fetchBocRateRSSFeed,
+  fetchBocMPRList,
+  fetchBocFSRList,
+  fetchBocSpeeches,
+  fetchDetailPage,
+  fetchDetailPages,
+  BocFetchError,
+} from './bank-of-canada/fetcher.js';
+export {
+  parseBocDecision,
+  parseBocDecisionList,
+  createIngestionResult as createBocIngestionResult,
+} from './bank-of-canada/parser.js';
+export {
+  BOC_SOURCES,
+  BOC_RATE_SCHEDULE,
+  BOC_RATE_HISTORY,
+  BOC_BASE_URL,
+  BOC_RATES_URL,
+  BOC_RATES_RSS_URL,
+  BOC_MPR_URL,
+  BOC_FSR_URL,
+  VALA_BASE_URL,
+  bocRateUrl,
+  bocPublicationUrl,
+  findRateByDate,
+  findScheduleByDate,
+  DEFAULT_TIMEOUT_MS as BOC_DEFAULT_TIMEOUT_MS,
+  MAX_RSS_ITEMS as BOC_MAX_RSS_ITEMS,
+  HISTORICAL_YEARS_BACK as BOC_HISTORICAL_YEARS_BACK,
+} from './bank-of-canada/constants.js';
+export type {
+  BocDecision,
+  BocDecisionType,
+  BocSourceConfig,
+  BocIngestionResult,
+  RawBocItem,
+  RawBocPage,
+  BocRateScheduleEntry,
+  BocRateHistoryEntry,
+} from './bank-of-canada/types.js';
+
+// ATI (Access to Information) — completed ATI requests published by federal departments
+export {
+  ingestAti,
+  ingestAllAti,
+  initializeAtiTable,
+  atiTableExists,
+  atiRecordExists,
+  getLatestAtiIngestionDate,
+  searchAtiRecords,
+  getAtiByDepartment,
+  getAtiByDisposition,
+  getAtiDepartmentStats,
+  ATI_RECORDS_DDL,
+  ATI_DEPARTMENTS,
+  ATI_DEPARTMENT_ACRONYM_MAP,
+  ATI_SOURCES,
+  ATI_CKAN_PACKAGE_IDS,
+  RECENT_FISCAL_YEARS as ATI_RECENT_FISCAL_YEARS,
+  AtiError,
+} from './ati/index.js';
+export {
+  fetchAtiReleases,
+  fetchAllAtiReleases,
+  searchAtiCkanPackages,
+  fetchAtiCkanPackage,
+  fetchAtiResource,
+} from './ati/fetcher.js';
+export {
+  parseAtiRecord,
+  parseAtiBatch,
+  parseAtiCkanPackage,
+  normalizeDisposition as normalizeAtiDisposition,
+} from './ati/parser.js';
+export type {
+  AtiRecord,
+  AtiDisposition,
+  AtiIngestionOptions,
+  AtiIngestionResult,
+  RawAtiRecord,
+  RawAtiCkanPackage,
+} from './ati/types.js';
