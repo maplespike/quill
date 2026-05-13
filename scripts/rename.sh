@@ -24,19 +24,17 @@ echo ""
 
 cd "$REPO"
 
-# Files to rename (exclude node_modules, .git, dist)
-FILES=$(grep -rl "$OLD_NAME\|$OLD_TITLE\|$OLD_FULL" \
-  --include='*.ts' --include='*.tsx' --include='*.json' \
-  --include='*.md' --include='*.html' --include='*.css' \
-  --include='*.js' --include='*.yaml' --include='*.yml' \
-  --include='*.nix' --include='*.sh' --include='*.sql' . \
-  2>/dev/null | grep -v node_modules | grep -v '.git' | grep -v dist | grep -v pnpm-lock || true)
-
-COUNT=$(echo "$FILES" | wc -l)
-
 if [ "$DRY" = "--dry" ]; then
-  echo "Would rename in $COUNT files:"
-  echo "$FILES"
+  echo "Files that would be modified:"
+  grep -rl "$OLD_NAME\|$OLD_TITLE\|$OLD_FULL" \
+    --include='*.ts' --include='*.tsx' --include='*.json' \
+    --include='*.md' --include='*.html' --include='*.css' \
+    --include='*.js' --include='*.yaml' --include='*.yml' \
+    --include='*.nix' --include='*.sh' --include='*.sql' . \
+    2>/dev/null | grep -v node_modules | grep -v '.git' | grep -v dist | grep -v pnpm-lock || echo "(none)"
+  echo ""
+  echo "Also need to rename directory:"
+  echo "  sudo mv \"$REPO\" \"\$(dirname \"$REPO\")/\$NEW_NAME\""
   exit 0
 fi
 
