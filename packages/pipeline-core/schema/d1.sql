@@ -747,6 +747,39 @@ CREATE INDEX IF NOT EXISTS idx_crtc_pricing ON crtc_decisions(is_telecom_pricing
 CREATE INDEX IF NOT EXISTS idx_crtc_number ON crtc_decisions(decision_number);
 CREATE INDEX IF NOT EXISTS idx_crtc_type_date ON crtc_decisions(decision_type, date DESC);
 
+-- CRTC media ownership records
+-- Tracks ownership of broadcasting and telecom undertakings, including
+-- ownership percentages, parent companies, and transfers of control.
+-- Key for media consolidation monitoring: Bell, Rogers, Quebecor, Shaw, etc.
+CREATE TABLE IF NOT EXISTS crtc_ownership (
+  id TEXT PRIMARY KEY,
+  record_type TEXT NOT NULL CHECK(record_type IN ('broadcasting-undertaking','telecom-undertaking','media-ownership-group','transfer-of-control','transfer-of-ownership')),
+  undertaking_name TEXT NOT NULL,
+  undertaking_type TEXT NOT NULL,
+  service_area TEXT,
+  licence_number TEXT,
+  owner_name TEXT NOT NULL,
+  parent_company TEXT,
+  ownership_percentage REAL,
+  effective_date TEXT,
+  published_date TEXT,
+  transaction_value REAL,
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(undertaking_name, owner_name, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_crtc_own_undertaking ON crtc_ownership(undertaking_name);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_owner ON crtc_ownership(owner_name);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_parent ON crtc_ownership(parent_company);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_type ON crtc_ownership(record_type);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_area ON crtc_ownership(service_area);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_effective_date ON crtc_ownership(effective_date);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_published_date ON crtc_ownership(published_date);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_undertaker_owner ON crtc_ownership(undertaking_name, owner_name);
+CREATE INDEX IF NOT EXISTS idx_crtc_own_parent_owner ON crtc_ownership(parent_company, owner_name);
+
 -- Oversight body investigations (Ethics Commissioner, Lobbying Commissioner)
 --
 -- Tracks investigations conducted by ethics and lobbying commissioners.
@@ -1373,3 +1406,95 @@ CREATE INDEX IF NOT EXISTS idx_fb_dept_fiscal ON federal_budget(department, fisc
 CREATE INDEX IF NOT EXISTS idx_fb_category_fiscal ON federal_budget(category, fiscal_year DESC);
 CREATE INDEX IF NOT EXISTS idx_fb_source_system ON federal_budget(source_system);
 CREATE INDEX IF NOT EXISTS idx_fb_ingested ON federal_budget(ingested_at DESC);
+
+-- Bank of Canada decisions and publications
+CREATE TABLE IF NOT EXISTS boc_decisions (
+  id TEXT PRIMARY KEY,
+  date TEXT NOT NULL,
+  type TEXT NOT NULL CHECK(type IN ('rate','mpr','fsr','speech')),
+  title TEXT NOT NULL,
+  summary TEXT,
+  url TEXT NOT NULL,
+  key_rate TEXT,
+  effective_date TEXT,
+  speaker TEXT,
+  speaker_title TEXT,
+  event TEXT,
+  pdf_url TEXT,
+  language TEXT DEFAULT 'en',
+  ingested_at TEXT NOT NULL,
+  UNIQUE(url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_boc_date ON boc_decisions(date DESC);
+CREATE INDEX IF NOT EXISTS idx_boc_type ON boc_decisions(type);
+CREATE INDEX IF NOT EXISTS idx_boc_type_date ON boc_decisions(type, date DESC);
+CREATE INDEX IF NOT EXISTS idx_boc_key_rate ON boc_decisions(key_rate);
+CREATE INDEX IF NOT EXISTS idx_boc_speaker ON boc_decisions(speaker);
+CREATE INDEX IF NOT EXISTS idx_boc_ingested ON boc_decisions(ingested_at DESC);
+
+-- ATI (Access to Information) Completed Requests
+--
+-- Tracks completed Access to Information requests published by federal
+-- government departments on open.canada.ca. Each record represents a
+-- single completed ATI request, showing what was requested, how the
+-- department responded (disposition), and how many pages were released
+-- or withheld.
+--
+-- Sources:
+--   - open.canada.ca ATI portal (CKAN): https://open.canada.ca/en/ati
+--   - Individual department ATI completion pages
+--
+CREATE TABLE IF NOT EXISTS ati_records (
+  id TEXT PRIMARY KEY,
+
+  -- Department / institution
+  department TEXT NOT NULL,
+  department_acronym TEXT,
+
+  -- Request details
+  request_number TEXT NOT NULL,
+  summary TEXT,
+
+  -- Outcome
+  disposition TEXT NOT NULL CHECK(disposition IN (
+    'disclosed',
+    'disclosed-part',
+    'exempted',
+    'excluded',
+    'no-records',
+    'transferred',
+    'abandoned',
+    'pending',
+    'unknown'
+  )),
+
+  -- Page counts
+  pages_released INTEGER,
+  pages_withheld INTEGER,
+
+  -- Temporal
+  date_completed TEXT,
+  fiscal_year TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+  source_system TEXT NOT NULL DEFAULT 'open-canada-ckan',
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(request_number, department, disposition, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ati_department ON ati_records(department);
+CREATE INDEX IF NOT EXISTS idx_ati_disposition ON ati_records(disposition);
+CREATE INDEX IF NOT EXISTS idx_ati_date ON ati_records(date_completed DESC);
+CREATE INDEX IF NOT EXISTS idx_ati_fiscal_year ON ati_records(fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_ati_request_number ON ati_records(request_number);
+CREATE INDEX IF NOT EXISTS idx_ati_source_system ON ati_records(source_system);
+CREATE INDEX IF NOT EXISTS idx_ati_department_disposition ON ati_records(department, disposition);
+CREATE INDEX IF NOT EXISTS idx_ati_department_fiscal ON ati_records(department, fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_ati_ingested ON ati_records(ingested_at DESC);
