@@ -19,14 +19,11 @@
  *   - Committee evidence (already indexed)
  */
 
-import { request } from 'undici';
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { TRACKED_EXECUTIVES, CORPORATE_SOURCES } from './constants.js';
 import type { ExecutiveStatement } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  Tracked Executive Lookup                                           */
-/* ------------------------------------------------------------------ */
 
 /**
  * Find a tracked executive by name (fuzzy match).
@@ -48,9 +45,6 @@ export function getTrackedOrganizations(): string[] {
   return Array.from(new Set(TRACKED_EXECUTIVES.map(e => e.organization)));
 }
 
-/* ------------------------------------------------------------------ */
-/*  Press Release Collector                                            */
-/* ------------------------------------------------------------------ */
 
 export interface PressRelease {
   id: string;
@@ -101,15 +95,14 @@ export async function fetchCompanyPressReleases(
     let releases: PressRelease[] = [];
 
     try {
-      const resp = await request(feedUrl, {
-        method: 'GET',
+      const resp = await httpGet(feedUrl, {
         headers: { Accept: 'application/rss+xml,application/xml' },
-        timeout: 10_000,
-      } as any);
+        timeoutMs: 10_000,
+      });
 
       if (resp.statusCode >= 400) continue;
 
-      const xml = await resp.body.text();
+      const xml = resp.body;
 
       const itemPattern = /<item>([\s\S]*?)<\/item>/gi;
       let m: RegExpExecArray | null;
@@ -197,9 +190,6 @@ export function extractExecutiveStatements(
   return statements;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Committee Testimony Cross-Reference                                */
-/* ------------------------------------------------------------------ */
 
 /**
  * Check if a tracked executive has appeared before a parliamentary

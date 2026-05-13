@@ -1,119 +1,158 @@
-# CivInt Canada — MVP Scope
+# CivInt Canada — Current Capabilities
 
-> **Version:** v1
-> **Status:** Draft
+> **Version:** v2
+> **Status:** Active
 > **Owner:** j_kro
-> **Target launch:** Q3 2026
 
 ---
 
-## What's IN the MVP
+## What's Currently Built
 
-### 1. Multi-Tenant API Gateway (Cloudflare Workers)
+### 1. Data Ingestion Pipeline (pipeline-core)
 
-The public face of CivInt. Handles auth, rate limiting, usage tracking, and proxies requests to the data pipeline.
+The core library ingests, verifies, and surfaces Canadian government data. 13 ingestion modules:
 
-- [ ] API key authentication (Bearer token via Workers)
-- [ ] Tenant isolation via JWT claims + row-level security in D1
-- [ ] Rate limiting per tier (free: 1k/day, pro: 50k/day, business: 250k/day)
-- [ ] Usage tracking (per-tenant request counters stored in D1)
-- [ ] Consistent response envelope with citations, timestamps, and quality metadata
+| Module | Status | Details |
+|--------|--------|---------|
+| House of Commons Committees | ✅ DONE | 30 committees, evidence XML, Hansard, in-camera detection — full fetch→parse→persist→search |
+| Senate Committees | ✅ DONE | 20 committees via sencanada.ca — full pipeline |
+| Corporate Lobbying | ✅ DONE | Full pipeline: CKAN, CSV URLs, HTML search with DB persistence to `lobbying_records`. |
+| Procurement & Contracts | ✅ DONE | Full pipeline: CanadaBuys RSS + proactive disclosure with DB persistence to `contract_awards`. |
+| Executive Statements | ✅ DONE | Full pipeline: 17 tracked execs, press release extraction with DB persistence to `executive_statements`. |
+| Influence Actors | ✅ DONE | Full pipeline: 32 tracked actors, CRA search, funding URLs with real queries against persisted DB. |
+| Canada Gazette | ✅ DONE | Parts I (proposed) and II (enacted). Full ingest→persist→search pipeline. **Part III (Acts) deferred.** |
+| GIC Appointments | ✅ DONE | Full ingest→persist→search pipeline. |
+| Provincial Lobbying | 🟡 PARTIAL | **Ontario only.** BC/QC/AB registries are commented-out stubs. |
+| Elections Canada | ✅ DONE | Third-party advertiser registry, spending reports. |
+| Oversight Bodies | ✅ DONE | OAG, PBO, Ethics Commissioner, Lobbying Commissioner, Competition Bureau, CRTC. |
+| CanLII Court Decisions | 🟡 PARTIAL | Metadata + citation graphs work. **Full text indexing deferred.** |
+| LMIA Data | ✅ DONE | Quarterly data, employer/occupation/province search. |
 
-### 2. REST API Endpoints
+Plus RSS feed ingestion, StatCan/CKAN API integration, verification hashing, audit logging, and trust scoring.
 
-Exposes the pipeline-core's data through a clean REST surface.
+### 2. Hosted MCP Server — ✅ ALL 14 TOOLS REAL
 
-| Endpoint | Method | Description | Pipeline-core module |
-|----------|--------|-------------|---------------------|
+An MCP server deployed on the K3s cluster, exposing CivInt data as tools for AI agents.
+
+- [x] MCP stdio transport (for sidecar usage) + SSE transport (for hosted usage)
+- [x] All 14 MCP tool definitions and handlers — all wired to pipeline-core database queries
+- [x] Deployed as K8s Deployment on nexus with Caddy .lan route
+
+**MCP tools:**
+
+| Tool | Status | Description |
+|------|--------|-------------|
+| `query_gov_data` | ✅ REAL | Query government data by keyword/jurisdiction |
+| `fact_check` | ✅ REAL | Check a claim against official government data |
+| `get_citation` | ✅ REAL | Retrieve and verify citation hash |
+| `latest_releases` | ✅ REAL | Latest government data releases |
+| `search_committees` | ✅ REAL | Full DB-backed search over House and Senate committees |
+| `search_corporate` | ✅ REAL | Full DB-backed search over lobbying records |
+| `search_influence` | ✅ REAL | Full DB-backed search over influence actors |
+| `search_gazette` | ✅ REAL | Full DB-backed search over Canada Gazette |
+| `search_gic` | ✅ REAL | Full DB-backed search over GIC appointments |
+| `search_elections` | ✅ REAL | Full DB-backed search over Elections Canada data |
+| `search_provincial_lobbying` | ✅ REAL | Full DB-backed search over provincial lobbying |
+| `search_oversight` | ✅ REAL | Full DB-backed search over oversight body reports |
+| `search_canlii` | ✅ REAL | Full DB-backed search over CanLII court decisions |
+| `search_lmia` | ✅ REAL | Full DB-backed search over LMIA data |
+
+### 3. REST API Server (api-server)
+
+A REST API gateway with 8 endpoints. Auth, rate limiting, usage tracking all work.
+
+| Endpoint | Method | Description | Module |
+|----------|--------|-------------|--------|
 | `GET /v1/health` | GET | Health check | — |
-| `GET /v1/gov/releases` | GET | Government data releases (StatCan/CKAN) | ingestion/gov-api |
-| `GET /v1/gov/search` | GET | Search across all gov data sources | ingestion/gov-api |
+| `GET /v1/gov/releases` | GET | Government data releases (StatCan/CKAN) | gov-api |
+| `GET /v1/gov/search` | GET | Search across all gov data sources | gov-api |
 | `GET /v1/citation/:id` | GET | SHA-256 citation verification | verification |
 | `GET /v1/usage` | GET | View current usage and quota | — |
-| `POST /v1/audit/query` | POST | Query audit log (Business tier+) | audit |
+| `POST /v1/audit/query` | POST | Query audit log | audit |
 
-### 3. Hosted MCP Server (K8s cluster)
+### 4. Developer Portal (Portal)
 
-An MCP (Model Context Protocol) server deployed on the K8s cluster, exposing CivInt data as tools for AI agents.
+A lightweight static site for documentation.
 
-- [ ] MCP stdio transport (for sidecar usage) + SSE transport (for hosted usage)
-- [ ] MCP tools:
-  - `query_gov_data` — Query government data by keyword/jurisdiction
-  - `fact_check` — Check a claim against official government data
-  - `get_citation` — Retrieve and verify citation hash
-  - `latest_releases` — Latest government data releases
-- [ ] MCP auth via API key (for hosted mode)
-- [ ] Deployed as K8s Deployment on nexus with Caddy .lan route
-
-### 4. Developer Portal (GitHub Pages)
-
-A lightweight static site for developers to manage their account.
-
-- [ ] Astro/React site deployed to GitHub Pages
-- [ ] API key generation and management
-- [ ] Usage dashboard (requests/day, remaining quota)
-- [ ] Interactive API explorer (OpenAPI / Swagger UI)
-- [ ] Quickstart guide and documentation
-- [ ] Tier comparison and upgrade flow
-
-### 5. BuildCanada Integration
-
-Fork/enhance the CanadaSpends visualization as a CivInt data product.
-
-- [ ] Contract/spending data via CivInt API
-- [ ] Searchable, filterable spending records
-- [ ] Cross-referenced with AI curation scores
-
-### 6. Billing (Freemium)
-
-Usage-based billing with Stripe or Paddle.
-
-- [ ] Free tier (1,000 calls/month, no credit card)
-- [ ] Pro tier ($49/mo, 50k calls) — Stripe subscription
-- [ ] Business tier ($199/mo, 250k calls) — Stripe subscription
-- [ ] Usage enforcement (block or warn when over limit)
-- [ ] Billing portal (manage subscription, view invoices)
-
-### 7. Frostbite Gazette Internal Integration
-
-- [ ] FG gets an internal API key with Business-tier privileges
-- [ ] Journalism mode (editorial override flag in requests)
-- [ ] Migrate FG Worker's internal calls to CivInt API (dogfooding)
+- [x] Static HTML/CSS site served from cluster
+- [x] Documentation and quickstart guides
+- [x] OpenAPI spec reference
+- [ ] No API key management UI
+- [ ] No usage dashboard
+- [ ] No Swagger UI integration
 
 ---
 
-## What's NOT in the MVP (Phase 3+)
+## The Core Integration Gap (Resolved)
 
-| Feature | Reason | Target |
-|---------|--------|--------|
-| Python SDK | Nice-to-have, TS first | Phase 3 |
-| Real-time alerts / webhooks | Complex, not needed for MVP | Phase 3 |
-| White-label self-hosted | Enterprise-only feature | Phase 4 |
-| Mobile app | Not a developer tool | Phase 4 |
-| Natural language "Ask" endpoint | Requires NL query engine | Phase 3 |
-| Federal/provincial API compliance packages | Enterprise feature | Phase 4 |
+The stack had a foundational gap in the data flow which has now been closed:
+
+```
+FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
+ ✅       ✅        ✅          ✅          🟡
+```
+
+**What was fixed:**
+
+1. **Shared runtime database implemented** — `better-sqlite3` wrapper with full schema migration. Committees, GIC, Gazette, lobbying, procurement, executive statements, and influence actors all persist and search against a shared DB.
+2. **Corporate + Influence now persist** — `ingestLobbying`, `ingestProcurement`, `ingestExecutiveStatements`, and influence actor ingestion all write to their respective tables.
+3. **All 14 MCP tools wired** — every search tool performs real DB queries against persisted data.
+4. **Remaining gap** — `engine` (entity resolution, signal detection, 60+ files, vitest tests) and `pretext-civic` (React chart library, 14 chart types) still compile but nothing imports them.
 
 ---
 
-## Prerequisites
+## Build Plan: 7 Phases
 
-### Infrastructure
-- [ ] Cloudflare Workers account (free tier, existing)
-- [ ] D1 database for usage tracking and tenant data (existing)
-- [ ] KV namespace for caching (existing)
-- [ ] K8s namespace for MCP server (nexus, existing)
-- [ ] GitHub Pages for dev portal (free tier)
-- [ ] Custom domain (civint.ca) — needs DNS + Cloudflare
+| Phase | What | Why | Status |
+|-------|------|-----|--------|
+| 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | Gates everything — no data can flow without it | ✅ DONE |
+| 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries, deploy CronJobs | Fill the empty tables with real data | ✅ DONE |
+| 3 | **Wire MCP Tools** — 10 stubs → real DB queries | Make all 14 tools return results | ✅ DONE |
+| 4 | **Engine Integration** — entity resolution reads shared DB | Use data already collected | ⏳ TODO |
+| 5 | **Live Dashboard** — pretext-civic React app hits MCP/API | Replace static mockups with live data | ⏳ TODO |
+| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, public signup, tier enforcement | Unlock revenue | ⏳ TODO |
+| 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | Scale + enterprise | ⏳ TODO |
 
-### Code
-- [ ] `@civint/pipeline-core` built and published (done, can stay as local dep for now)
-- [ ] New `api-server` package in civint monorepo
-- [ ] New `mcp-server` package wrapping pipeline-core
-- [ ] New `portal` package (Astro/React static site)
-- [ ] OpenAPI spec for API
+---
 
-### Business
-- [ ] Stripe or Paddle account for billing
-- [ ] Terms of Service + Privacy Policy
-- [ ] civint.ca domain registration
-- [ ] OGL-C attribution compliance (footer: "Contains information licensed under the Open Government Licence – Canada")
+## SaaS Pricing
+
+Following the public API model — one API key, every dataset, citations, MCP-native:
+
+| Tier | Price | Requests | Rate | Support |
+|------|-------|----------|------|---------|
+| Free | $0 | 1,000/mo | 30/min | Community |
+| Pro | $49/mo | 100,000/mo | 25/sec | Email |
+| Business | $199/mo | 500,000/mo | 100/sec | 24h SLA |
+| Enterprise | Custom | Custom | Custom | Dedicated |
+
+**Payment methods:** Stripe (cards), Crypto (BTC/ETH via BTCPay Server), Interac e-Transfer (Canada).
+
+**What's already built:** Auth, rate limiting, SQLite usage tracking, tenant DB schema, static HTML pricing/dashboard pages. Remaining gaps: billing engine backend, public signup flow wiring, live data in dashboard.
+
+---
+
+## What's NOT Built (Future Scope)
+
+| Feature | Notes |
+|---------|-------|
+| Python SDK | Nice-to-have, TS first |
+| Real-time alerts / webhooks | Complex, not needed for current scope |
+| Natural language "Ask" endpoint | Requires NL query engine |
+| Federal/provincial API compliance packages | Enterprise feature |
+| SEDI insider trading scraper | Types defined, scraper not built |
+| Corporations Canada registry | Connector not built |
+| Provincial legislative committees | Different HTML formats per province |
+| Municipal council meeting data | eScribe, iCompass, CivicWeb vendor platforms |
+
+---
+
+## Infrastructure
+
+All services run on the existing K3s cluster (nexus). No Cloudflare, no D1, no KV — everything runs in-cluster.
+
+- **MCP server**: Single replica deployment, port 3001 (14/14 tools real)
+- **API server**: In-cluster deployment with Caddy ingress
+- **Portal**: Static site served from cluster
+- **Database**: SQLite via better-sqlite3 — deployed and wired to all ingestion modules
+- **Auth**: API key authentication via Bearer token
