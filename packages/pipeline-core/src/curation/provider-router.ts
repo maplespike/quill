@@ -588,3 +588,295 @@ export function getDefaultRouter(): ProviderRouter {
   }
   return defaultRouter;
 }
+
+/* ------------------------------------------------------------------ */
+/*  ProviderHealthChecker                                              */
+/* ------------------------------------------------------------------ */
+
+interface HealthCheckResult {
+  alive: boolean;
+  latencyMs: number;
+  lastError: string | null;
+}
+
+interface CacheEntry {
+  result: HealthCheckResult;
+  cachedAt: number;
+}
+
+/**
+ * Lightweight health checker that pings a provider's base URL via HEAD
+ * and caches the result for 30 seconds to avoid hammering down providers.
+ */
+export class ProviderHealthChecker {
+  private cache = new Map<string, CacheEntry>();
+  private readonly cacheTtlMs = 30_000;
+  private readonly timeoutMs = 5_000;
+
+  /**
+   * Perform a health check against the given provider base URL.
+   * Results are cached per providerId for 30 seconds.
+   */
+  async check(
+    providerId: string,
+    baseUrl: string,
+  ): Promise<HealthCheckResult> {
+    const cached = this.cache.get(providerId);
+    if (cached && Date.now() - cached.cachedAt < this.cacheTtlMs) {
+      return cached.result;
+    }
+
+    const start = Date.now();
+    try {
+      const url = baseUrl.replace(/\/$/, '');
+      const response = await fetch(url, {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(this.timeoutMs),
+      });
+      const latencyMs = Date.now() - start;
+      const result: HealthCheckResult = {
+        alive: response.ok,
+        latencyMs,
+        lastError: response.ok ? null : `HTTP ${response.status}`,
+      };
+      this.cache.set(providerId, { result, cachedAt: Date.now() });
+      return result;
+    } catch (err) {
+      const latencyMs = Date.now() - start;
+      const result: HealthCheckResult = {
+        alive: false,
+        latencyMs,
+        lastError: (err as Error).message,
+      };
+      this.cache.set(providerId, { result, cachedAt: Date.now() });
+      return result;
+    }
+  }
+
+  /** Clear the health check cache for a specific provider (or all if omitted). */
+  clearCache(providerId?: string): void {
+    if (providerId) {
+      this.cache.delete(providerId);
+    } else {
+      this.cache.clear();
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  CircuitBreaker                                                    */
+/* ------------------------------------------------------------------ */
+
+type CircuitState = 'closed' | 'open' | 'half-open';
+
+interface CircuitEntry {
+  failures: number;
+  lastFailure: number;
+  state: CircuitState;
+}
+
+/**
+ * Circuit breaker that trips after 3 failures within a 60-second window
+ * and stays open for a 5-minute cool-down before allowing trial requests.
+ */
+export class CircuitBreaker {
+  private circuits = new Map<string, CircuitEntry>();
+  private readonly failureThreshold = 3;
+  private readonly failureWindowMs = 60_000;
+  private readonly cooldownMs = 300_000;
+
+  /**
+   * Record a failure for the given provider.
+   * Opens the circuit after 3 failures within a 60s sliding window.
+   * A single failure while in half-open immediately re-opens the circuit.
+   */
+  recordFailure(providerId: string): void {
+    const now = Date.now();
+    let circuit = this.circuits.get(providerId);
+
+    if (!circuit) {
+      this.circuits.set(providerId, {
+        failures: 1,
+        lastFailure: now,
+        state: 'closed',
+      });
+      return;
+    }
+
+    // In half-open, a single failure re-opens the circuit
+    if (circuit.state === 'half-open') {
+      circuit.lastFailure = now;
+      circuit.state = 'open';
+      return;
+    }
+
+    // Reset failure count if outside the 60s window
+    if (now - circuit.lastFailure > this.failureWindowMs) {
+      circuit.failures = 0;
+    }
+
+    circuit.failures++;
+    circuit.lastFailure = now;
+
+    if (circuit.failures >= this.failureThreshold) {
+      circuit.state = 'open';
+    }
+  }
+
+  /**
+   * Record a success for the given provider.
+   * Resets the failure counter and closes the circuit.
+   */
+  recordSuccess(providerId: string): void {
+    const circuit = this.circuits.get(providerId);
+    if (!circuit) return;
+    circuit.failures = 0;
+    circuit.state = 'closed';
+  }
+
+  /**
+   * Returns true if the circuit is currently open (requests should not be sent).
+   * Automatically transitions from open → half-open after the 5-minute cool-down
+   * so that a single trial request is allowed.
+   */
+  isOpen(providerId: string): boolean {
+    const circuit = this.circuits.get(providerId);
+    if (!circuit) return false;
+
+    if (circuit.state === 'open') {
+      // Check if cool-down has expired — transition to half-open
+      if (Date.now() - circuit.lastFailure >= this.cooldownMs) {
+        circuit.state = 'half-open';
+        return false;
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Get the current circuit state for a provider.
+   * Returns 'closed' if no state has been recorded yet.
+   */
+  getState(providerId: string): string {
+    const circuit = this.circuits.get(providerId);
+    return circuit ? circuit.state : 'closed';
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Logging Helper                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Write a structured log entry with timestamp and provider context.
+ */
+export function logProviderEvent(
+  level: 'info' | 'warn' | 'error',
+  providerId: string,
+  message: string,
+  data?: unknown,
+): void {
+  const timestamp = new Date().toISOString();
+  const dataSuffix = data !== undefined ? ` ${JSON.stringify(data)}` : '';
+  const formatted = `[${timestamp}] [Provider:${providerId}] ${message}${dataSuffix}`;
+
+  switch (level) {
+    case 'info':
+      console.log(formatted);
+      break;
+    case 'warn':
+      console.warn(formatted);
+      break;
+    case 'error':
+      console.error(formatted);
+      break;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fallback Chain                                                    */
+/* ------------------------------------------------------------------ */
+
+interface FallbackAttempt {
+  provider: string;
+  status: string;
+  error?: string;
+}
+
+interface FallbackResult {
+  result: unknown;
+  providerUsed: string;
+  attempts: FallbackAttempt[];
+}
+
+// Module-level circuit breaker instance shared by routeWithFallback
+const fallbackCircuitBreaker = new CircuitBreaker();
+
+/**
+ * Try providers sequentially with exponential backoff.
+ * Skips providers whose circuit breaker is open.
+ *
+ * @param providers - Ordered list of provider IDs to attempt.
+ * @param requestFn - Async function that performs the actual request for a provider.
+ * @param circuitBreaker - Optional CircuitBreaker instance (defaults to a shared singleton).
+ * @returns The first successful result along with the provider that served it.
+ * @throws AggregateError if all providers fail.
+ */
+export async function routeWithFallback(
+  providers: string[],
+  requestFn: (providerId: string) => Promise<unknown>,
+  circuitBreaker?: CircuitBreaker,
+): Promise<FallbackResult> {
+  const cb = circuitBreaker || fallbackCircuitBreaker;
+  const attempts: FallbackAttempt[] = [];
+  const errors: Error[] = [];
+
+  for (let i = 0; i < providers.length; i++) {
+    const providerId = providers[i];
+
+    // Check circuit breaker — skip open circuits
+    if (cb.isOpen(providerId)) {
+      attempts.push({ provider: providerId, status: 'circuit-open' });
+      logProviderEvent('warn', providerId, 'Circuit open — skipping');
+      errors.push(new Error(`Circuit breaker open for ${providerId}`));
+      continue;
+    }
+
+    try {
+      const result = await requestFn(providerId);
+      cb.recordSuccess(providerId);
+      attempts.push({ provider: providerId, status: 'success' });
+      logProviderEvent('info', providerId, 'Request succeeded');
+      return { result, providerUsed: providerId, attempts };
+    } catch (err) {
+      const error = err as Error;
+      cb.recordFailure(providerId);
+      attempts.push({
+        provider: providerId,
+        status: 'failed',
+        error: error.message,
+      });
+      logProviderEvent('error', providerId, `Request failed: ${error.message}`);
+
+      errors.push(error);
+
+      // Exponential backoff before next provider (1s * 2^attempt)
+      if (i < providers.length - 1) {
+        const backoffMs = 1000 * Math.pow(2, i);
+        logProviderEvent(
+          'warn',
+          providerId,
+          `Backing off ${backoffMs}ms before next provider`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      }
+    }
+  }
+
+  throw new AggregateError(
+    errors,
+    `All ${providers.length} providers failed`,
+  );
+}

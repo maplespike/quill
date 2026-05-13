@@ -140,3 +140,88 @@ export function defaultBiasAnalysis(): BiasAnalysis {
     alternativePerspectives: [],
   };
 }
+
+/* ------------------------------------------------------------------ */
+/*  Trust Source Scores                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Pre-configured trust scores for known sources (0 = untrusted, 100 = fully trusted).
+ */
+export const TTRUST_SOURCE_SCORES: Record<string, number> = {
+  // Canadian government & official
+  'canada.ca': 95,
+  'statcan.gc.ca': 95,
+  'pm.gc.ca': 90,
+  // Major Canadian media
+  'cbc.ca': 80,
+  'globeandmail.com': 80,
+  'thestar.com': 75,
+  'nationalpost.com': 70,
+  'lapresse.ca': 80,
+  // International wire services
+  'reuters.com': 85,
+  'apnews.com': 85,
+  'bbc.com': 75,
+  'bbc.co.uk': 75,
+  // Adversarial / low-trust sources
+  'rt.com': 5,
+  'sputniknews.com': 5,
+  'tass.com': 10,
+  'xinhuanet.com': 15,
+  'cgtn.com': 15,
+  'farsnews.ir': 5,
+  'presstv.ir': 5,
+};
+
+/**
+ * Compute a trust score for a given source URL/name (0-100).
+ * Looks up the domain in TTRUST_SOURCE_SCORES; returns a neutral score of 50
+ * if the source is not found.
+ */
+export function computeTrustScore(source: string): number {
+  const domain = source.toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  for (const [key, score] of Object.entries(TTRUST_SOURCE_SCORES)) {
+    if (domain.includes(key)) {
+      return score;
+    }
+  }
+  return 50;
+}
+
+/**
+ * Compute a composite trust score combining source trustworthiness and
+ * content-level 5GW threat analysis.
+ *
+ * Source score (60% weight) comes from computeTrustScore.
+ * Content score (40% weight) comes from inverting the 5GW threat score
+ * (100 - threatScore) — so clean content scores high.
+ *
+ * Level classification:
+ *   <40  = low trust
+ *   40-69 = medium trust
+ *   70+  = high trust
+ */
+export async function compositeTrustScore(
+  source: string,
+  content: string,
+): Promise<{ sourceScore: number; contentScore: number; composite: number; level: 'low' | 'medium' | 'high' }> {
+  const sourceScore = computeTrustScore(source);
+
+  // Import and use 5GW content analysis (inverted)
+  const { analyzeContent } = await import('../verification/fifth-gen-warfare.js');
+  const threatAssessment = await analyzeContent(content, source);
+  const contentScore = 100 - threatAssessment.score; // invert so clean = high
+
+  const composite = Math.round(sourceScore * 0.6 + contentScore * 0.4);
+  let level: 'low' | 'medium' | 'high';
+  if (composite < 40) {
+    level = 'low';
+  } else if (composite < 70) {
+    level = 'medium';
+  } else {
+    level = 'high';
+  }
+
+  return { sourceScore, contentScore, composite, level };
+}

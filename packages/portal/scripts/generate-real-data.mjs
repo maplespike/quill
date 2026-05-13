@@ -35,7 +35,7 @@ async function fetchRealCommittees() {
       try {
         const resp = await fetch(url, { signal: AbortSignal.timeout(15000) });
         const html = await resp.text();
-        
+
         // Extract XML URL from HTML
         const xmlMatch = html.match(/<a[^>]*class="[^"]*btn-export-xml[^"]*"[^>]*href="([^"]+)"/i);
         if (!xmlMatch) {
@@ -43,23 +43,23 @@ async function fetchRealCommittees() {
           continue;
         }
         const xmlUrl = xmlMatch[1].startsWith('/') ? BASE + xmlMatch[1] : xmlMatch[1];
-        
+
         // Fetch and parse XML
         const xmlResp = await fetch(xmlUrl, { signal: AbortSignal.timeout(15000) });
         const xml = await xmlResp.text();
-        
+
         // Simple XML parsing for basic fields
         const dateMatch = xml.match(/<DocumentDate[^>]*>([^<]+)/);
         const inCamera = xml.includes('InCameraNote') && !xml.includes('<InCameraNote/>');
         const titleMatch = xml.match(/<Title[^>]*>([^<]+)/i);
-        
+
         // Count interventions
         const interventionMatches = xml.match(/<Intervention[ >]/g);
         const interventionCount = interventionMatches ? interventionMatches.length : 0;
-        
+
         // Extract witnesses (speakers)
         const speakers = [...xml.matchAll(/<Speaker[^>]*>([^<]+)/g)].map(s => s[1].trim()).filter(Boolean);
-        
+
         const record = {
           committee: t.acr,
           name: t.name,

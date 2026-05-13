@@ -112,16 +112,13 @@ export function jsonResponse<T>(
 export function addRateLimitHeaders(
   response: Response,
   rateInfo: {
-    dailyCalls: number;
-    monthlyCalls: number;
-    dailyLimit: number;
-    monthlyLimit: number;
+    remaining: number;
+    resetTime: number;
   },
 ): Response {
   const headers = new Headers(response.headers);
-  headers.set('X-RateLimit-Limit', String(rateInfo.monthlyLimit));
-  headers.set('X-RateLimit-Remaining', String(Math.max(0, rateInfo.monthlyLimit - rateInfo.monthlyCalls)));
-  headers.set('X-RateLimit-Reset', String(calcRateLimitReset('monthly')));
+  headers.set('X-RateLimit-Remaining', String(Math.max(0, rateInfo.remaining)));
+  headers.set('X-RateLimit-Reset', String(Math.floor(rateInfo.resetTime / 1000)));
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
