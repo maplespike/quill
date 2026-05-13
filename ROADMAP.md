@@ -1,9 +1,9 @@
 # CivInt Canada Pipeline — Master Roadmap
 
-> **Updated:** 2026-05-12 (post-codebase audit + critical fixes deployed)
+> **Updated:** 2026-05-13 (portal visual uplift, docs refresh)
 > **Repository:** `/data/projects/own/civint`
 > **Working branch:** main
-> **Deployment target:** K3s cluster (nexus), GitHub Pages (docs)
+> **Deployment target:** GitHub Pages (portal) + K3s cluster (backend)
 
 ---
 
@@ -50,7 +50,7 @@
 | ✅ Senate committee support | DONE | All 20 Senate committees via sencanada.ca (SOCI, RIDR, SCME, etc.) |
 | ✅ D1 schema: 3 tables | DONE | `committee_meetings`, `committee_interventions`, `committee_speakers` |
 | 🔴 Unit tests | TODO | No test files exist in pipeline-core despite roadmap references to "232 tested" |
-| 🟡 Cron job deployment | PARTIAL | Module built and tested, not yet deployed to K8s |
+| 🟡 Cron job deployment | PARTIAL | Module built and tested, not yet deployed as K8s CronJob |
 
 ---
 
@@ -184,8 +184,21 @@
 | 🔴 Public signup flow | HIGH | 2 days | Web form → Stripe Checkout / crypto payment page / Interac instructions → API key provisioning |
 | 🔴 API key management UI | MEDIUM | 2 days | In-dashboard: generate, revoke, rotate keys. Track usage per key |
 | 🔴 Usage dashboard (live) | MEDIUM | 3 days | Daily/monthly usage graphs, quota remaining, overage warnings |
-| 🔴 Developer portal (live) | MEDIUM | 2 days | Wiring the static HTML pages to real API data (key list, usage stats, billing history) |
+| 🔴 Developer console (live) | MEDIUM | 2 weeks | Wiring the static HTML pages to real API data — key list, usage stats, billing history, data catalog explorer, API playground, Ask chat, Signal builder |
 | 🔴 Public docs / quickstart | LOW | 1 day | Onboarding flow for new developers |
+
+### Console Features (Katzilla Parity Target)
+
+| Feature | Katzilla | CivInt | Effort |
+|---------|----------|--------|--------|
+| API key management (create/rotate/revoke in UI) | ✅ | 🔴 Static key in env | 2 days |
+| Usage counter dashboard | ✅ "170K req/30d" | 🔴 API tracks it, no UI | 3 days |
+| Data catalog explorer (browse all tools) | ✅ 27 agents, 217 actions | 🔴 MCP tools list only | 3 days |
+| API playground (live try-it) | ✅ POST url → see JSON | ❌ Static curl blocks | 2 days |
+| Natural-language Ask (chat UI) | ✅ Claude-powered, cited | 🔴 MCP-only (external) | 1 week |
+| Signal/monitor builder (source+filter+delivery) | ✅ Pick source → deliver | 🔴 Code-based only | 1 week |
+| User accounts / sign-up | ✅ Google/GitHub OAuth | 🟡 Register endpoint exists | 3 days |
+| Billing / checkout | ✅ Stripe, annual discount | 🔴 Static pricing page | 3 days |
 
 ### Pricing Tiers
 
@@ -200,12 +213,25 @@ Payment methods: **Stripe** (credit cards), **Crypto** (BTC/ETH via BTCPay Serve
 
 ### Competitive Positioning
 
-Differentiation from US-focused counterparts:
-- **Data no US service covers**: committee evidence (50 HoC + Senate), federal lobbying registry, provincial lobbying (ON), GIC appointments, CanLII court decisions, LMIA, Canada Gazette, oversight bodies (OAG, PBO, Ethics, CB, CRTC)
-- **Influence tracking**: 32 tracked actors with CRA charity cross-ref, funding flow detection
-- **Sovereign infrastructure**: All data on Canadian K3s cluster, no US cloud dependency
-- **5GW analysis**: Biased/narrative defense analysis — unique
-- **Audit trails**: AIDA-compliant provenance logging — built for regulatory use
+**vs. Katzilla.dev (primary competitor):**
+
+| Dimension | Katzilla | CivInt Canada |
+|-----------|----------|--------------|
+| Focus | US-first, 300+ global sources | Canada-only, deep parliamentary/corporate |
+| Canadian data | open.canada.ca + weather (surface) | 16 deep modules — committees, lobbying, courts, Gazette, procurement, elections, oversight |
+| Parliamentary | Congress.gov bills only | 34 HoC + 20 Senate, witness tracking, in-camera flags |
+| Lobbying | None | Federal registry + Ontario provincial |
+| Courts | CourtListener (US) | CanLII (Canadian courts) |
+| Oversight | None | OAG, PBO, Ethics, CB, CRTC |
+| Console UX | ✅ Polished workspace (keys, usage, explorer, playground, Ask, Signal) | 🟡 Static portal, no live console |
+| Pricing | $0-$4,999/mo | $0-$199/mo |
+| Citation | SHA-256 hash | SHA-256 + audit trail + provenance chain |
+
+**CivInt advantages:** Deeper Canadian data, parliamentary tracking, lobbying/corporate influence, oversight bodies, 5GW analysis, AIDA-compliant audit trails.
+
+**Katzilla advantages:** Polished developer console, broader global data (300+ sources), more mature MCP/API surface, Ask/Signal products, established user base.
+
+**Differentiation strategy:** Win on Canadian depth, match on console UX, compete on price.
 
 ---
 
@@ -358,32 +384,38 @@ tools/
 packages/pipeline-core/schema/d1.sql (1042 lines, 38 tables across all modules)
 ```
 
-### Infrastructure (NixOS + K8s)
+### Infrastructure
 ```
-/etc/nixos/packages/civint-mcp-image.nix         — OCI image build
-/etc/nixos/overlay.nix                             — Package registration
-/etc/nixos/flake.nix                               — Flake inputs + outputs
-/etc/nixos/kubernetes/modules/frostbite-gazette.nix — K8s deployment
+Deployment:
+  GitHub Pages  → Portal (static HTML/CSS/JS, no build step)
+  K3s cluster   → MCP server (SSE, port 3001)
+                → API server (REST, Bearer auth)
+                → Engine (CronJobs for ingestion)
+
+NixOS (nexus):
+  /etc/nixos/packages/civint-mcp-image.nix         — OCI image build
+  /etc/nixos/overlay.nix                             — Package registration
+  /etc/nixos/flake.nix                               — Flake inputs + outputs
 ```
 
 ---
 
 ## TOP 10: WHAT TO BUILD NEXT
 
-Sorted by impact-to-effort ratio:
+Sorted by impact-to-effort ratio (updated 2026-05-13 — SaaS console priorities elevated):
 
 | # | Task | Phase | Impact | Effort |
 |---|------|-------|--------|--------|
-| 1 | **Wire portal dashboard to live API** — replace static HTML with API calls to civint.lan:8083 | P5 | Critical — biggest visibility win, completes the stack | 1 day |
-| 2 | **Deploy CronJobs on K3s** — committee, corporate, influence, gazette, gic, oversight, provincial, canlii, lmia | P3 | Critical — keeps all pipelines fresh | 2 days |
-| 3 | **Engine integration** — entity resolution + signal detection reads shared DB, produces briefs | P4 | High — unlocks analytics/"spy novel" viz | 3 days |
-| 4 | **Stripe + Crypto + Interac billing** — payment processing, webhooks, tier enforcement | P6 | High — unlocks revenue | 3-5 days |
-| 5 | **Public signup flow** — web form → payment → API key provisioning | P6 | High — user acquisition | 2 days |
-| 6 | **BC/AB/QC provincial lobbying** — wire up remaining province registries | P4 | Medium — fills coverage gap | 2 days |
-| 7 | **Usage dashboard + API key management UI** (live data) | P6 | Medium — developer experience | 3 days |
-| 8 | **CI/CD — GitHub Actions** build → push → deploy | P6 | Medium — dev velocity | 1 day |
-| 9 | **SEDI insider trading scraper** | P4 | Medium — executive stock transactions | 3 days |
-| 10 | **Corporations Canada registry** | P4 | Medium — corporate entity ownership | 2 days |
+| 1 | **Deploy CronJobs on K3s** — committee, corporate, influence, gazette, gic, oversight, provincial, canlii, lmia | P3 | Critical — keeps all pipelines fresh | 2 days |
+| 2 | **User accounts** — OAuth (Google/GitHub) or magic-link, session management | P6 | Critical — unlocks all console features | 3 days |
+| 3 | **API key management UI** — create/rotate/revoke in dashboard | P6 | High — developer self-service, Katzilla parity | 2 days |
+| 4 | **Usage dashboard** — live counter, rate limit viz, quota warnings | P6 | High — developer experience, Katzilla parity | 3 days |
+| 5 | **Stripe + Crypto + Interac billing** — payment processing, webhooks, tier enforcement | P6 | High — unlocks revenue | 3-5 days |
+| 6 | **Public signup flow** — web form → payment → API key provisioning | P6 | High — user acquisition | 2 days |
+| 7 | **API playground** — live endpoint test with JSON output (replace static curl blocks) | P6 | Medium — interactive demo, Katzilla parity | 2 days |
+| 8 | **Data catalog explorer** — searchable tool/action browser for all 14 MCP tools | P6 | Medium — discovery, Katzilla parity | 3 days |
+| 9 | **Engine integration** — entity resolution + signal detection reads shared DB, produces briefs | P4 | High — unlocks analytics | 3 days |
+| 10 | **BC/AB/QC provincial lobbying** — wire up remaining province registries | P4 | Medium — fills coverage gap | 2 days |
 
 ---
 
@@ -400,3 +432,7 @@ Sorted by impact-to-effort ratio:
 | 2026-05-12 | Pure nix-oci over nix-csi or --impure | Existing cluster patterns, zero workarounds |
 | 2026-05-12 | .lan domains + K3s cluster over Cloudflare | Zero external cloud spend, existing infrastructure |
 | 2026-05-12 | SaaS/commercial unarchived — Stripe + crypto + Interac e-Transfer billing | Public API with paid tiers. Billing trifecta for Canadian market: cards (Stripe), self-custody crypto (BTCPay Server), Interac e-Transfer |
+| 2026-05-13 | Portal visual uplift applied | fade-in opacity fix, particle background, hero refined, all text visible, script.js wired |
+| 2026-05-13 | Katzilla.dev identified as primary competitor | Feature-by-feature comparison added to Phase 6. Strategy: win on Canadian depth, match on console UX, compete on price |
+| 2026-05-13 | SaaS confirmed as business model | "Not a SaaS" removed from PRD non-goals. Phase 6 expanded with console features and build order |
+| 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs, and package READMEs updated to reflect current state |

@@ -1,9 +1,10 @@
 # CivInt Canada — Market Requirements Document (Internal)
 
 > **Product:** CivInt Canada
-> **Type:** Data pipeline / unified government data layer
+> **Type:** Data pipeline / unified government data layer / SaaS API
 > **Status:** Internal strategy doc
-> **Author:** j_kro / Hermes Agent
+> **Author:** j_kro / Hermes + Sisyphus
+> **Last updated:** 2026-05-13
 
 ---
 
@@ -42,6 +43,7 @@ CivInt fills this gap with a sovereign, Canadian-first pipeline.
 
 | Competitor | Strengths | Weaknesses | Our Advantage |
 |------------|-----------|------------|---------------|
+| **Katzilla.dev** (primary) | 300+ global sources, polished workspace UX (keys, usage, explorer, playground, Ask, Signal), MCP + REST + SDKs, Google/GitHub OAuth, Stripe billing | US-first, thin Canadian coverage (open.canada.ca + weather only), no parliamentary/lobbying/court depth | Much deeper Canadian data (16 modules vs 2), parliamentary tracking with in-camera detection, lobbying/corporate influence, oversight bodies, AIDA audit trails, lower pricing |
 | **mcp-canada** (ReyemTech) | 193 bilingual StatCan tools, open-source MIT | Self-hosted only, no SLA, no curation, experimental | Curated + verified + audited + MCP-native |
 | **OpenGov / Socrata** | Enterprise contracts, dashboard UX | US-focus, expensive, no MCP, no AI curation | Zero-cost entry, MCP-native, open-source core |
 | **Raw government portals** | Free, authoritative | 6+ different APIs, no caching, no SLA, no structure | One pipeline, cached, curated, verified |
@@ -56,8 +58,12 @@ CivInt fills this gap with a sovereign, Canadian-first pipeline.
 
 ### Competitive Moat
 
-1. **Pipeline-core is the widest-scope Canadian gov data library** — 43+ RSS feeds, StatCan/CKAN APIs, AI curation, SHA-256 verification, audit logging. Note: requires a database deployment for full functionality; see ROADMAP.md.
-2. **5GW / narrative defense** — The bias analysis and narrative defense layer is unique
+1. **Deepest Canadian government data coverage** — 16 modules vs Katzilla's 2 (open.canada.ca + weather). Parliamentary committees (50), lobbying registry, CanLII courts, Gazette, oversight bodies, GIC, LMIA, elections — none of which Katzilla covers for Canada.
+2. **Parliamentary intelligence** — In-camera meeting detection, speaker tracking, witness cross-referencing. No competitor does this.
+3. **5GW / narrative defense** — The bias analysis and narrative defense layer is unique.
+4. **AIDA-compliant audit trails** — SHA-256 citation hashes + provenance chain + audit logging. Built for regulatory compliance.
+5. **Sovereign infrastructure** — All data on Canadian K3s cluster. No US cloud dependency.
+6. **Pricing advantage** — $0-$199/mo vs Katzilla's $0-$4,999/mo. Same API/MCP model at lower cost.
 3. **Provenance audit trails** — First mover on Canadian AI regulation compliance
 4. **Canadian sovereignty** — Data routed through Canadian infrastructure (K3s cluster). No US cloud lock-in
 5. **Dogfooding** — Frostbite Gazette is a real, active product with real usage
