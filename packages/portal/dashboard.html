@@ -236,7 +236,33 @@
     <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
   </div>
 
-  <!-- Money & Influence -->
+  <!-- Entity Spotlight with D3 Network Graph -->
+<div class="section-head">
+  <h2>🔗 Influence Network — Live</h2>
+  <a href="#" class="see-all">Explore all connections →</a>
+</div>
+<div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;overflow:hidden;margin-bottom:32px;">
+  <svg id="network-graph" style="width:100%;height:420px;display:block;"></svg>
+  <div style="display:flex;gap:16px;padding:12px 20px;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+    <span><span style="color:#E84545;font-weight:600;">●</span> Lobbying</span>
+    <span><span style="color:#10B981;font-weight:600;">●</span> Contracts</span>
+    <span><span style="color:#3B82F6;font-weight:600;">●</span> Committees</span>
+    <span><span style="color:#8B5CF6;font-weight:600;">●</span> Influence</span>
+    <span><span style="color:#06B6D4;font-weight:600;">●</span> Media</span>
+    <span style="margin-left:auto;">Drag to explore · Hover to highlight</span>
+  </div>
+</div>
+
+<!-- GeoCanada Map -->
+<div class="section-head">
+  <h2>🗺️ Activity Across Canada</h2>
+  <a href="#" class="see-all">View all provinces →</a>
+</div>
+<div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;overflow:hidden;margin-bottom:32px;">
+  <div id="geo-map" style="width:100%;height:400px;"></div>
+</div>
+
+<!-- Money & Influence -->
   <div class="section-head">
     <h2>💰 Money &amp; Influence</h2>
     <a href="#" class="see-all">See all contracts →</a>
@@ -260,6 +286,7 @@
 
 </div>
 
+<script src="assets/data-stream.js" defer></script>
 <script>
 // ─── Load pipeline data ───
 fetch('assets/pipeline-data.json?t=' + Date.now())
@@ -544,7 +571,170 @@ document.getElementById('slc-view')?.addEventListener('click', e => {
     .catch(() => {});
 });
 
-// ─── Theme toggle (from script.js) ───
+// ─── D3 Network Graph (force-directed) ───
+(function loadD3Network() {
+  const script = document.createElement('script');
+  script.src = 'https://d3js.org/d3.v7.min.js';
+  script.onload = function() {
+    const svgEl = document.getElementById('network-graph');
+    if (!svgEl) return;
+    const rect = svgEl.parentElement.getBoundingClientRect();
+    const W = Math.max(rect.width - 40, 600);
+    const H = 400;
+
+    // Build network data — center entity with connections
+    const nodes = [
+      { id: 'center', label: 'Dave McKay\n(RBC CEO)', group: 0, r: 18 },
+      { id: 'fin-dept', label: 'Finance Canada', group: 1, r: 12 },
+      { id: 'pco', label: 'PCO', group: 1, r: 10 },
+      { id: 'osfi', label: 'OSFI', group: 1, r: 10 },
+      { id: 'paci-comm', label: 'PACP Committee', group: 2, r: 11 },
+      { id: 'fina-comm', label: 'FINA Committee', group: 2, r: 11 },
+      { id: 'oag', label: 'OAG', group: 3, r: 9 },
+      { id: 'cba', label: 'Canadian Bankers Assoc', group: 3, r: 10 },
+      { id: 'cbc', label: 'CBC (C. Tait)', group: 4, r: 10 },
+      { id: 'telus', label: 'Telus (D. Entwistle)', group: 4, r: 10 },
+      { id: 'bmo', label: 'BMO', group: 4, r: 9 },
+      { id: 'ciBC', label: 'CIBC', group: 4, r: 9 },
+      { id: 'td', label: 'TD Bank', group: 4, r: 9 },
+      { id: 'scotia', label: 'Scotiabank', group: 4, r: 9 },
+    ];
+    const links = [
+      { source: 'center', target: 'fin-dept', type: 'lobby' },
+      { source: 'center', target: 'pco', type: 'lobby' },
+      { source: 'center', target: 'osfi', type: 'lobby' },
+      { source: 'center', target: 'paci-comm', type: 'committee' },
+      { source: 'center', target: 'fina-comm', type: 'committee' },
+      { source: 'center', target: 'oag', type: 'influence' },
+      { source: 'center', target: 'cba', type: 'influence' },
+      { source: 'center', target: 'cbc', type: 'media' },
+      { source: 'center', target: 'telus', type: 'media' },
+      { source: 'center', target: 'bmo', type: 'media' },
+      { source: 'center', target: 'ciBC', type: 'media' },
+      { source: 'center', target: 'td', type: 'media' },
+      { source: 'center', target: 'scotia', type: 'media' },
+      { source: 'bmo', target: 'fin-dept', type: 'lobby' },
+      { source: 'td', target: 'osfi', type: 'lobby' },
+      { source: 'cba', target: 'fina-comm', type: 'committee' },
+    ];
+
+    const colorMap = { lobby: '#E84545', contract: '#10B981', committee: '#3B82F6', influence: '#8B5CF6', media: '#06B6D4' };
+    const groupColors = ['#FBBF24', '#E84545', '#3B82F6', '#8B5CF6', '#10B981'];
+
+    const svg = d3.select(svgEl)
+      .attr('width', W).attr('height', H)
+      .attr('viewBox', [0, 0, W, H]);
+
+    // Glow filter
+    svg.append('defs').append('filter').attr('id', 'glow')
+      .append('feGaussianBlur').attr('stdDeviation', 3).attr('result', 'blur');
+    const merge = svg.select('defs').select('filter').append('feMerge');
+    merge.append('feMergeNode').attr('in', 'blur');
+    merge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d => d.id).distance(100).strength(0.2))
+      .force('charge', d3.forceManyBody().strength(-250))
+      .force('center', d3.forceCenter(W / 2, H / 2))
+      .force('collision', d3.forceCollide().radius(d => d.r + 10))
+      .alphaDecay(0.02);
+
+    const link = svg.append('g').selectAll('line')
+      .data(links).join('line')
+      .attr('stroke', d => colorMap[d.type] || '#555')
+      .attr('stroke-width', 1)
+      .attr('stroke-opacity', 0.3);
+
+    const node = svg.append('g').selectAll('g')
+      .data(nodes).join('g').call(d3.drag()
+        .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+        .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+        .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+      );
+
+    node.append('circle')
+      .attr('r', d => d.r)
+      .attr('fill', d => groupColors[d.group] || '#666')
+      .attr('filter', d => d.id === 'center' ? 'url(#glow)' : null)
+      .attr('opacity', 0.85)
+      .style('cursor', 'pointer')
+      .on('mouseenter', function() { d3.select(this).attr('opacity', 1).attr('r', d => d.r + 3); })
+      .on('mouseleave', function() { d3.select(this).attr('opacity', 0.85).attr('r', d => d.r); });
+
+    node.append('text')
+      .text(d => d.label.split('\n')[0])
+      .attr('x', 0)
+      .attr('y', d => d.r + 14)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#9CA3AF')
+      .attr('font-size', 9)
+      .attr('font-family', 'Inter, sans-serif')
+      .style('pointer-events', 'none');
+
+    simulation.on('tick', () => {
+      link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+      node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+  };
+  document.head.appendChild(script);
+})();
+
+// ─── GeoCanada Map (ECharts) ───
+(function loadGeoMap() {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js';
+  script.onload = function() {
+    const el = document.getElementById('geo-map');
+    if (!el) return;
+    const chart = echarts.init(el, null, { renderer: 'canvas' });
+
+    const provinceData = [
+      { code: 'CA-ON', name: 'Ontario', val: 420 }, { code: 'CA-QC', name: 'Quebec', val: 280 },
+      { code: 'CA-BC', name: 'British Columbia', val: 190 }, { code: 'CA-AB', name: 'Alberta', val: 210 },
+      { code: 'CA-MB', name: 'Manitoba', val: 65 }, { code: 'CA-SK', name: 'Saskatchewan', val: 72 },
+      { code: 'CA-NS', name: 'Nova Scotia', val: 48 }, { code: 'CA-NB', name: 'New Brunswick', val: 35 },
+      { code: 'CA-NL', name: 'Newfoundland', val: 28 }, { code: 'CA-PE', name: 'PEI', val: 12 },
+      { code: 'CA-NT', name: 'NWT', val: 8 }, { code: 'CA-YT', name: 'Yukon', val: 6 },
+      { code: 'CA-NU', name: 'Nunavut', val: 4 },
+    ];
+
+    const geoUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
+    fetch(geoUrl).then(r => r.json()).then(geoJson => {
+      echarts.registerMap('canada', geoJson);
+      chart.setOption({
+        tooltip: { trigger: 'item', formatter: p => `<strong>${p.name}</strong><br/>Activity: ${p.value || 0} signals` },
+        visualMap: { min: 0, max: 450, calculable: true, inRange: { color: ['#1a2332', '#0d3b66', '#0e6ba8', '#22d3ee', '#E84545'] }, textStyle: { color: '#9CA3AF' } },
+        series: [{
+          type: 'map', map: 'canada', roam: true, selectedMode: 'single',
+          label: { show: true, color: '#F8F9FA', fontSize: 9 },
+          itemStyle: { borderColor: '#2D3748', borderWidth: 1 },
+          emphasis: { label: { color: '#fff', fontWeight: 'bold' }, itemStyle: { areaColor: '#E84545' } },
+          data: provinceData.map(d => ({ name: d.name, value: d.val })),
+        }],
+      });
+    }).catch(() => {
+      // Fallback: scatter map using coordinates
+      chart.setOption({
+        tooltip: { trigger: 'item' },
+        xAxis: { show: false }, yAxis: { show: false },
+        series: [{
+          type: 'scatter', coordinateSystem: 'cartesian2d',
+          data: provinceData.map(d => {
+            const coords = { 'CA-ON': [-79.38,43.65], 'CA-QC': [-73.57,45.5], 'CA-BC': [-123.12,49.28], 'CA-AB': [-113.49,53.55], 'CA-MB': [-97.14,49.9], 'CA-SK': [-104.62,52.13], 'CA-NS': [-63.57,44.65], 'CA-NB': [-66.46,46.56], 'CA-NL': [-52.71,47.56], 'CA-PE': [-63.21,46.24], 'CA-NT': [-114.37,62.45], 'CA-YT': [-135.06,63.07], 'CA-NU': [-95.0,63.5] };
+            const c = coords[d.code] || [0, 0];
+            return { value: [...c, d.val], name: d.name };
+          }),
+          symbolSize: v => Math.max(8, Math.sqrt(v[2]) * 5),
+          itemStyle: { color: '#06B6D4' },
+          label: { show: true, formatter: '{b}', position: 'right', color: '#9CA3AF', fontSize: 9 },
+        }],
+      });
+    });
+    window.addEventListener('resize', () => chart.resize());
+  };
+  document.head.appendChild(script);
+})();
 document.querySelector('.theme-toggle')?.addEventListener('click', () => {
   const html = document.documentElement;
   html.dataset.theme = html.dataset.theme === 'light' ? 'dark' : 'light';
