@@ -32,6 +32,7 @@ import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, meHandler } from './routes/register.js';
 import { signalsHandler } from './routes/signals.js';
+import { listKeysHandler, createKeyHandler, deleteKeyHandler } from './routes/keys.js';
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
@@ -44,6 +45,9 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: getCitationHandler },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
+  { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
   { pattern: /^\/v1\/openapi\.json\/?$/, method: 'GET', params: [], handler: openApiHandler },
   { pattern: /^\/v1\/?$/, method: 'GET', params: [], handler: openApiHandler }, // Root redirect to spec
 ];

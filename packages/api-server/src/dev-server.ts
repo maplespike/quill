@@ -16,7 +16,7 @@ import { MemoryStorage, MemoryCache } from './storage.js';
 import { SqliteStorage, SqliteStorageCache } from './sqlite-storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 
-const PORT = parseInt(process.env.PORT || '8082', 10);
+const PORT = parseInt(process.env.PORT || '8081', 10);
 const AI_ENDPOINT = process.env.AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
 const AI_MODEL = process.env.AI_MODEL || 'qwen3.5-27b';
 const CIVINT_STORAGE = (process.env.CIVINT_STORAGE || 'memory').toLowerCase();

@@ -11,7 +11,7 @@ importers:
 
   packages/api-server:
     dependencies:
-      '@civint/pipeline-core':
+      '@maplespike/pipeline-core':
         specifier: workspace:*
         version: link:../pipeline-core
       better-sqlite3:
@@ -79,7 +79,7 @@ importers:
 
   packages/mcp-server:
     dependencies:
-      '@civint/pipeline-core':
+      '@maplespike/pipeline-core':
         specifier: workspace:*
         version: link:../pipeline-core
     devDependencies:
@@ -116,7 +116,7 @@ importers:
       '@chenglou/pretext':
         specifier: ^0.0.5
         version: 0.0.5
-      '@civint/engine':
+      '@maplespike/engine':
         specifier: workspace:*
         version: link:../engine
       '@types/d3-sankey':

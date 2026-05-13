@@ -127,6 +127,19 @@ export class D1Storage implements MapleSpikeStorage {
     const result = await this.db.prepare(sql).bind(...params).all<AuditEntry>();
     return result.results || [];
   }
+
+  async listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>> {
+    const result = await this.db.prepare(
+      'SELECT id, name, is_active, created_at, last_used_at FROM api_keys WHERE tenant_id = ?1 ORDER BY created_at DESC',
+    ).bind(tenantId).all<{ id: string; name: string; is_active: number; created_at: string; last_used_at: string | null }>();
+    return (result.results || []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      isActive: Boolean(row.is_active),
+      createdAt: row.created_at,
+      lastUsedAt: row.last_used_at,
+    }));
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -228,6 +241,22 @@ export class MemoryStorage implements MapleSpikeStorage {
     const offset = filter.offset || 0;
     const limit = filter.limit || 50;
     return results.slice(offset, offset + limit);
+  }
+
+  async listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>> {
+    const keys: Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }> = [];
+    for (const [keyHash, mapping] of this.keyToTenant) {
+      if (mapping.tenantId === tenantId) {
+        keys.push({
+          id: mapping.keyId,
+          name: mapping.keyId === 'dev-key-1' ? 'dev' : 'default',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          lastUsedAt: null,
+        });
+      }
+    }
+    return keys;
   }
 }
 
