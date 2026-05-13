@@ -2,7 +2,7 @@
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
-**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Node.js + K3s
+**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Node.js + K3s + Caddy
 
 ---
 
@@ -31,7 +31,7 @@ CivInt Canada ingests, verifies, and surfaces **16 data modules** of Canadian pu
 
 Every record includes SHA-256 citation hashes, source provenance, and audit trails for independent verification.
 
-> **Current state:** All 16 modules have data connectors with DB persistence. Corporate ingestion (lobbying, procurement, exec statements) and influence tracking (CRA charities, committee appearances, CKAN grants) write to DB via `corporate/db.ts` and `influence/db.ts`. All **14 MCP tools** return real data from `pipeline-data.json`. Build plan Phases 1–3 (Shared DB, Wire ingestion, Wire MCP) are complete. See [ROADMAP.md](./ROADMAP.md) for remaining phases.
+> **Current state:** All 16 modules have data connectors with DB persistence. All **14 MCP tools** return real data from `pipeline-data.json` with live-fetch fallbacks. Phases 1–3 (Shared DB, Wire Ingestion, Wire MCP) are complete. Portal visual uplift applied (all text visible, particle background, hero refined). Next: Phase 6 — SaaS console (API keys, usage, billing, catalog, playground). See [ROADMAP.md](./ROADMAP.md) for full plan.
 
 ---
 
@@ -43,37 +43,37 @@ civint/
 │   ├── pipeline-core/    # Ingestion, verification, audit (shared library)
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── pretext-civic/    # React component library (charts, geo) — orphaned
-│   ├── portal/           # Developer portal & documentation site (static)
-│   ├── api-server/       # REST API gateway (8 endpoints)
-│   └── mcp-server/       # MCP protocol server (✅ 14 real)
-├── docs/                 # Architecture docs, roadmap
-├── schema/               # SQLite schema (unified)
+│   ├── portal/           # Developer portal & landing page (static HTML)
+│   ├── api-server/       # REST API gateway (8 endpoints, auth, rate limits)
+│   └── mcp-server/       # MCP protocol server (✅ 14 real tools)
+├── docs/                 # Architecture docs, roadmap, market analysis
+├── .hermes/              # Analysis plans and retrospectives
 ├── flake.nix             # Nix build (13-line stub, delegates to nixos-config)
-├── ROADMAP.md            # Full phased roadmap & file inventory
+├── ROADMAP.md            # Full phased roadmap & file inventory (402+ lines)
 └── tsconfig.json         # Shared TypeScript configuration
 ```
 
 ---
 
-## Build Plan (6 Phases)
-
-The stack needs a shared persistence layer connecting ingestion → search → presentation:
+## Build Plan (7 Phases)
 
 ```
-pipeline-core ──→ SQLite DB ──→ MCP server ──→ Dashboard
-     │                            (14 real tools)   (live data)
-     │                                              │
-     └── Engine reads same DB ──→ briefs/signals ───┘
+pipeline-core ──→ SQLite DB ──→ MCP server (14 real tools) ──→ Dashboard / Console
+     │                                                             │
+     └── Engine reads same DB ──→ briefs/signals ─────────────────┘
+                                                                   │
+                                        Portal (static marketing) ──┘
 ```
 
 | Phase | What | Why | Status |
 |-------|------|-----|--------|
-| 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration runner | Gates everything — without DB, nothing persists or queries | ✅ DONE |
-| 2 | **Wire ingestion** — corporate (parse CSV, insert), influence (real funding queries), deploy CronJobs | Fill the empty tables with real data | ✅ DONE |
-| 3 | **Wire MCP** — point 10 stub tools at DB queries | Make all 14 tools return real results | ✅ DONE |
-| 4 | **Engine integration** — entity resolution + brief gen reads from shared DB | Use the data already collected | ⏳ |
-| 5 | **Dashboard** — pretext-civic React app hits MCP/API for live data | Replace static HTML with live data | ⏳ |
-| 6 | **CI/CD** — GitHub Actions build + push | Automatic deployments | ⏳ |
+| 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | Gates everything — without DB, nothing persists | ✅ DONE |
+| 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | Fill the empty tables with real data | ✅ DONE |
+| 3 | **Wire MCP** — 10 stub tools → real DB queries | All 14 tools return real results | ✅ DONE |
+| 4 | **Engine integration** — entity resolution + brief gen reads shared DB | Use the data already collected | ⏳ TODO |
+| 5 | **Live Dashboard** — React dashboard hits MCP/API for live data | Replace static mockups with live data | ⏳ TODO |
+| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, signup, tier enforcement, developer console (API keys, usage, catalog, playground, Ask, Signal) | Revenue + developer self-service | 🔴 TODO |
+| 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | Scale + enterprise | 🔴 TODO |
 
 See [ROADMAP.md](./ROADMAP.md) for the full phased plan.
 
@@ -123,9 +123,17 @@ pnpm start
 
 ## Infrastructure
 
-All services run on the existing K3s cluster. No Cloudflare, no custom domain, no external cloud spend.
+| Service | Platform | Stack |
+|---------|----------|-------|
+| Portal (marketing + docs) | **GitHub Pages** | Static HTML/CSS/JS — `git push` to deploy |
+| Product Dashboard | **K3s cluster** (nexus) | Next.js |
+| MCP Server | **K3s cluster** | Node.js, SSE transport on 3001 |
+| API Server | **K3s cluster** | Node.js, Bearer auth, rate limiting |
+| Engine / CronJobs | **K3s cluster** | Scheduled ingestion pipelines |
 
-**API access:** Registration + usage tracking exist. Billing (Stripe, crypto, Interac) is not yet implemented. See [ROADMAP.md](./ROADMAP.md).
+All backend data on Canadian K3s cluster. Portal is zero-build static HTML on GitHub Pages. No Cloudflare, no external cloud spend.
+
+**API access:** Auth + rate limiting + usage tracking work. Billing (Stripe, crypto, Interac) is the next major build. See [ROADMAP.md](./ROADMAP.md).
 
 See [ROADMAP.md](./ROADMAP.md) for the full phased plan.
 

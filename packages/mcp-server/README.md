@@ -1,8 +1,8 @@
 # CivInt Canada MCP Server
 
-Model Context Protocol server for Canadian government data. Provides 14 tools for AI agents to query, search, and verify Canadian government information.
+Model Context Protocol server for Canadian government data. Provides **14 tools** for AI agents to query, search, and verify Canadian government information. All 14 tools return real data from `pipeline-data.json` with live-fetch fallbacks.
 
-> **Status:** All 14 tools wired to pipeline-core DB queries — search returns real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
+> **Status:** All 14 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
 
 - **Package:** `@civint/mcp-server`
 - **Transport:** stdio (local) or SSE (hosted)
@@ -29,9 +29,7 @@ npm run start:sse
 # → http://localhost:3001/sse
 ```
 
-## Tools
-
-### Live (all return real data)
+## Tools — All 14 Live
 
 | Tool | Description | Input |
 |------|-------------|-------|
@@ -39,21 +37,16 @@ npm run start:sse
 | `fact_check` | Check claims against official government data | claim |
 | `get_citation` | Retrieve and verify SHA-256 citation hashes | hash |
 | `latest_releases` | Latest government data releases and indicators | jurisdiction, category, limit |
-
-### In Development
-
-| Tool | Description |
-|------|-------------|
-| `search_committees` | Full-text committee intervention search across 50 HoC + Senate committees — returns real data from DB |
-| `search_corporate` | Lobbying registry + procurement + executive statements search — returns real data from DB |
-| `search_influence` | Influence actor investigation — returns real data from DB |
-| `search_gazette` | Canada Gazette regulation search (Parts I, II) — returns real data from DB |
-| `search_gic` | Governor-in-Council appointment lookup — returns real data from DB |
-| `search_elections` | Elections Canada third-party advertiser search — returns real data from DB |
-| `search_provincial_lobbying` | Ontario/BC/Quebec lobbying registry search — returns real data from DB |
-| `search_oversight` | OAG, PBO, Ethics, Competition Bureau, CRTC search — returns real data from DB |
-| `search_canlii` | Court decision search via CanLII — returns real data from DB |
-| `search_lmia` | LMIA quarterly data search by employer/occupation — returns real data from DB |
+| `search_committees` | Full-text committee search across 50 HoC + Senate committees — real data from pipeline-data.json + live ourcommons.ca fallback | query, chamber, committee, limit |
+| `search_corporate` | Lobbying registry + procurement + executive statements — real data | query, category, limit |
+| `search_influence` | Influence actor investigation (32 tracked actors) — real data | query, category, limit |
+| `search_gazette` | Canada Gazette regulation search (Parts I, II) — real data | query, part, department, limit |
+| `search_gic` | Governor-in-Council appointment lookup — real data | query, department, limit |
+| `search_elections` | Elections Canada third-party advertiser search — real data | query, year, limit |
+| `search_provincial_lobbying` | Ontario (BC/QC stubbed) lobbying registry search — real data | query, province, limit |
+| `search_oversight` | OAG, PBO, Ethics, Competition Bureau, CRTC search — real data | query, body, limit |
+| `search_canlii` | Court decision search via CanLII — real data | query, court, year, limit |
+| `search_lmia` | LMIA quarterly data search by employer/occupation — real data | query, province, limit |
 
 ## Claude Desktop Configuration
 
@@ -92,7 +85,7 @@ Add to your `claude_desktop_config.json`:
 └────────────┘     └──────────────────┘     └──────────────┘
 ```
 
-All 14 tools wired to pipeline-core DB queries. Search tools query persisted data from SQLite via the shared database layer.
+All 14 tools return real data from `pipeline-data.json`. When the local data file is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
 
 ## License
 

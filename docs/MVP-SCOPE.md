@@ -1,8 +1,9 @@
 # CivInt Canada — Current Capabilities
 
-> **Version:** v2
+> **Version:** v3
 > **Status:** Active
 > **Owner:** j_kro
+> **Last updated:** 2026-05-13
 
 ---
 
@@ -72,14 +73,18 @@ A REST API gateway with 8 endpoints. Auth, rate limiting, usage tracking all wor
 
 ### 4. Developer Portal (Portal)
 
-A lightweight static site for documentation.
+A lightweight static site for marketing + documentation. Visual uplift applied May 13 — all text visible, particle background, refined hero.
 
-- [x] Static HTML/CSS site served from cluster
+- [x] Static HTML/CSS site served from GitHub Pages
+- [x] Landing page with hero, features, pricing, badges, stats
+- [x] Dashboard page with live data cards (committees, lobbying, courts)
 - [x] Documentation and quickstart guides
 - [x] OpenAPI spec reference
-- [ ] No API key management UI
-- [ ] No usage dashboard
-- [ ] No Swagger UI integration
+- [x] Dark/light theme toggle with localStorage persistence
+- [x] Mobile responsive nav
+- [ ] No API key management UI (Phase 6)
+- [ ] No usage dashboard (Phase 6)
+- [ ] No Swagger UI integration (Phase 6)
 
 ---
 
@@ -101,17 +106,17 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 
 ---
 
-## Build Plan: 7 Phases
+## Build Plan: 7 Phases (Phase 6 expanded)
 
 | Phase | What | Why | Status |
 |-------|------|-----|--------|
 | 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | Gates everything — no data can flow without it | ✅ DONE |
-| 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries, deploy CronJobs | Fill the empty tables with real data | ✅ DONE |
-| 3 | **Wire MCP Tools** — 10 stubs → real DB queries | Make all 14 tools return results | ✅ DONE |
+| 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | Fill the empty tables with real data | ✅ DONE |
+| 3 | **Wire MCP Tools** — 10 stubs → real DB queries | All 14 tools return real results | ✅ DONE |
 | 4 | **Engine Integration** — entity resolution reads shared DB | Use data already collected | ⏳ TODO |
-| 5 | **Live Dashboard** — pretext-civic React app hits MCP/API | Replace static mockups with live data | ⏳ TODO |
-| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, public signup, tier enforcement | Unlock revenue | ⏳ TODO |
-| 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | Scale + enterprise | ⏳ TODO |
+| 5 | **Live Dashboard** — React dashboard hits MCP/API | Replace static mockups with live data | ⏳ TODO |
+| 6 | **SaaS / Public API + Console** — Stripe + crypto + Interac billing, public signup, tier enforcement, developer console (API keys, usage, catalog, playground, Ask, Signal) | Revenue + developer self-service + Katzilla parity | 🔴 TODO |
+| 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | Scale + enterprise | 🔴 TODO |
 
 ---
 
@@ -153,6 +158,6 @@ All services run on the existing K3s cluster (nexus). No Cloudflare, no D1, no K
 
 - **MCP server**: Single replica deployment, port 3001 (14/14 tools real)
 - **API server**: In-cluster deployment with Caddy ingress
-- **Portal**: Static site served from cluster
+- **Portal**: Static site on GitHub Pages
 - **Database**: SQLite via better-sqlite3 — deployed and wired to all ingestion modules
 - **Auth**: API key authentication via Bearer token
