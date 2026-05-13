@@ -1,9 +1,9 @@
 # CivInt Canada — Engineering Architecture Document
 
-**Version:** v5
+**Version:** v6
 **Status:** Active
-**Author:** j_kro / Hermes Agent
-**Last updated:** 2026-05-12
+**Author:** j_kro / Sisyphus
+**Last updated:** 2026-05-13
 
 ---
 
@@ -13,7 +13,7 @@ CivInt Canada is Canada's sovereign, AI-native government data pipeline. It wrap
 
 One API key grants access to every major Canadian government dataset, packaged with machine-readable citations, provenance metadata, and trust scores.
 
-**Infrastructure:** All services run on the existing K3s cluster (nexus). The developer portal is a static site on GitHub Pages. No Cloudflare, no custom domain, no external cloud spend.
+**Infrastructure:** Backend services (MCP, API, engine) on K3s cluster (nexus). Developer portal on GitHub Pages. No Cloudflare, no custom domain, no external cloud spend.
 
 ---
 
@@ -45,7 +45,6 @@ One API key grants access to every major Canadian government dataset, packaged w
 - Not a newsroom — no editorial content, journalism is Frostbite Gazette's role
 - Not a CKAN replacement — we're an aggregation/curation layer, not a data portal
 - Not a general-purpose AI platform — CivInt only curates Canadian government data
-- Not a SaaS business — no billing infrastructure, no multi-tenant pricing tiers
 - Not a social network — no user profiles, comments, or community features
 
 ---
@@ -55,29 +54,30 @@ One API key grants access to every major Canadian government dataset, packaged w
 ### System Diagram
 
 ```
-GitHub Pages ------→ Developer portal (static site)
-                       |
-                       ▼ (API key + curl)
-Cluster (nexus) ------→ api-server (Node, in-cluster)
-                         ├── SQLite (keys, usage, audit)
-                         ├── In-memory cache (node-cache)
-                         ├── pipeline-core (ingestion, curation, verification)
-                         │     ├── RSS Feeds .................... ✅
-                         │     ├── Gov API (StatCan/CKAN) ....... ✅
-                         │     ├── Committees (HoC + Senate) .... ✅ fetch→parse→persist→search
-                         │     ├── Corporate .................... ✅ full pipeline
-                         │     ├── Influence .................... ✅ full pipeline
-                         │     ├── Gazette (Parts I, II) ........ ✅ full pipeline (III deferred)
-                         │     ├── GIC Appointments ............ ✅ full pipeline
-                         │     ├── Provincial Lobbying (ON) .... ✅ ON full (BC/QC stubbed)
-                         │     ├── Elections Canada ............. ✅ full pipeline
-                         │     ├── Oversight Bodies ............ ✅ full pipeline
-                         │     ├── CanLII Court Decisions ...... ✅ full pipeline
-                         │     └── LMIA Data ................... ✅ full pipeline
-                         └── mcp-server (SSE + stdio, in-cluster)
-                               └── 14 tools — all wired to pipeline-core DB queries
+GitHub Pages (civint.ca)
+  └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
 
-Key: ✅ = complete pipeline, 🟡 = partial/incomplete, 🔴 = not started
+K3s Cluster (nexus)
+  ├── MCP server (SSE, port 3001) ── 14 tools, all real
+  ├── API server (REST, Bearer auth, rate limits)
+  │     ├── SQLite (keys, usage, audit)
+  │     ├── In-memory cache (node-cache)
+  │     └── pipeline-core (ingestion, curation, verification)
+  │           ├── RSS Feeds .................... ✅
+  │           ├── Gov API (StatCan/CKAN) ....... ✅
+  │           ├── Committees (HoC + Senate) .... ✅
+  │           ├── Corporate .................... ✅
+  │           ├── Influence .................... ✅
+  │           ├── Gazette (Parts I, II) ........ ✅
+  │           ├── GIC Appointments ............ ✅
+  │           ├── Provincial Lobbying (ON) .... ✅ ON full (BC/QC stubbed)
+  │           ├── Elections Canada ............. ✅
+  │           ├── Oversight Bodies ............ ✅
+  │           ├── CanLII Court Decisions ...... ✅
+  │           └── LMIA Data ................... ✅
+  └── Engine CronJobs (ingestion scheduling)
+
+Portal (GitHub Pages) ──HTTP──→ API server (K3s)
 ```
 
 No Cloudflare, no D1, no KV — everything runs on the existing cluster.

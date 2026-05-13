@@ -1,19 +1,8 @@
 # CivInt Canada — Developer Portal
 
-SaaS landing page, documentation, AI agent setup guide, and developer dashboard for the CivInt Canada API.
+SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the CivInt Canada API.
 
-**Live on cluster.** Pure static site — no build step required.
-
----
-
-## Pages
-
-| Page | Route | Description |
-|------|-------|-------------|
-| Landing page | `index.html` | Hero, features, pricing with monthly/annual toggle, API explorer |
-| Documentation | `docs.html` | Quickstart, MCP setup, API reference, pricing table, FAQ |
-| AI Agents | `agents.html` | MCP tool reference, agent setup (Claude, Cursor, Windsurf, Continue), example prompts |
-| Dashboard | `dashboard.html` | API key management, usage stats, activity log |
+**Status:** Local dev (stealth) — served from K3s cluster on LAN. Will deploy to GitHub Pages when public.
 
 ## AI-friendly features
 
@@ -36,9 +25,12 @@ npm run dev     # if configured
 
 The portal is a pure static site (HTML + CSS + JS). No build step required.
 
-- **K3s cluster** — Serve via Caddy from a simple pod
-- **GitHub Pages** — `git push` and enable Pages
-- **Any static host**
+| Environment | Platform | Status |
+|-------------|----------|--------|
+| **Dev** (current) | K3s cluster (LAN) — Python http.server on port 3000 | Active |
+| **Production** (future) | GitHub Pages — workflow ready at `.github/workflows/deploy-portal.yml` | Ready to flip |
+
+**To go live:** Make the repo public → enable Pages → merge to main. The workflow file is already in place and will deploy `packages/portal/` to GitHub Pages automatically.
 
 ## Stack
 

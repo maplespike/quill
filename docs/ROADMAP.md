@@ -2,19 +2,19 @@
 
 > This file is a synced copy of `/data/projects/own/civint/ROADMAP.md` (the root-level canonical document).
 >
-> For the full, up-to-date roadmap with honest module statuses, file inventory, and the 6-phase build plan, see the [root ROADMAP.md](../ROADMAP.md).
+> For the full, up-to-date roadmap with honest module statuses, file inventory, and the 7-phase build plan, see the [root ROADMAP.md](../ROADMAP.md).
 
 ---
 
-**Last synced:** 2026-05-12
+**Last synced:** 2026-05-13
 
 Key changes from the previous version:
 
-- **Phase 2 (MCP Server):** Changed from "Complete" to "PARTIAL" — 4 of 14 tools are real, 10 return empty results pending DB wiring
-- **Phase 1B (Corporate):** Downgraded to 🟡/🔴 — connectors exist but no DB persistence; CSV data returned as stub
-- **Phase 1C (Influence):** Downgraded to 🟡/🔴 — hypothetical connections only, no real API queries
-- **Phase 3 (CI):** Changed from "PARTIAL" to 🔴 TODO — no `.github/` directory exists
-- **Phase 6 (SaaS):** REVIVED — unarchived with Stripe + crypto + Interac billing. Was previously "ARCHIVED" in error.
-- **Phase 0:** Schema corrected to 1042 lines / 38 tables; 5GW analysis module added
-- **Critical fixes deployed:** Shared DB (SQLite), corporate/influence DB persistence, all 14 MCP tools wired — the 3 critical issues from the audit are resolved
-- **Top 10:** Now prioritizes dashboard wiring, CronJobs, engine integration, and billing
+- **All 14 MCP tools confirmed real** — every search tool returns real data from pipeline-data.json with live-fetch fallbacks
+- **Portal visual uplift completed** — fade-in opacity fix, particle animation replaced, hero text shortened, script.js wired, all text visible
+- **Katzilla.dev competitive analysis added** — primary competitor identified, feature-by-feature comparison in Phase 6
+- **Phase 6 (SaaS) established** — public API with Stripe + crypto + Interac billing. Console features mapped against Katzilla parity target
+- **PRD SaaS contradiction fixed** — "Not a SaaS business" removed from non-goals, architecture diagram updated to reflect K3s + Caddy deployment
+- **Phase 0–3 status confirmed DONE** — Shared DB, Wire Ingestion, Wire MCP all complete per current pipeline-data.json verification
+- **Phases 4–7 remain TODO** — Engine integration, live dashboard wiring, CronJob deployment, CI/CD
+- **Top 10 reordered** — console features (user accounts, API keys, usage dashboard) now prioritized alongside CronJobs and billing
