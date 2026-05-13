@@ -507,3 +507,223 @@ export type {
   GeoLayer,
   LODEResult,
 } from './geospatial/types.js';
+
+// Proactive Disclosure — federal contracts over $10K, travel, hospitality, reclassification
+export {
+  ingestProactiveDisclosure,
+  searchProactiveDisclosure,
+  getContractsByVendor,
+  getContractsByDepartment,
+  getTopContracts,
+  getDepartmentStats,
+  initializePDTable,
+  fetchProactiveDisclosure,
+  fetchAllProactiveDisclosure,
+  fetchByDepartment,
+  parseCKAResult,
+  parseCKAResults,
+  normalizeDate,
+  extractFiscalYear,
+  inferGoodsOrServices,
+  PROACTIVE_DISCLOSURE_DDL,
+  MAJOR_DEPARTMENTS,
+  CKAN_SOLR_SEARCH_URL,
+  CKAN_API_BASE,
+  DEFAULT_SEARCH_QUERY,
+  DEPARTMENT_ACRONYM_MAP,
+  OWNER_ORG_ACRONYM_MAP,
+  PDError,
+} from './proactive-disclosure/index.js';
+export type {
+  ProactiveDisclosureRecord,
+  ProactiveDisclosureSearchOptions,
+  ProactiveDisclosureIngestionResult,
+  RawCKANProactiveDisclosureDoc,
+  DepartmentInfo,
+  CKANSearchResponse,
+} from './proactive-disclosure/types.js';
+
+// Provincial Legislatures — Hansard, committees, and bills across all 10 provinces
+export {
+  ingestProvincialLegislatures,
+  ingestAllProvincialLegislatures,
+  initializeProvincialLegislaturesTable,
+  searchProvincialLegislatures,
+  getByProvince as getLegislatureByProvince,
+  getBySpeaker,
+  getByBillNumber,
+  getRecentProvincialRecords,
+  getActiveBills,
+  getProvincialStats,
+  PROVINCIAL_LEGISLATURES_DDL,
+} from './provincial-legislatures/index.js';
+export {
+  fetchProvincialHansard,
+  fetchAllProvincialHansard,
+  fetchOntarioHansard,
+  fetchOntarioCommitteeHearings,
+  fetchOntarioBills,
+  fetchBCHansard,
+  fetchBCCommitteeHearings,
+  fetchBCBills,
+  fetchAlbertaHansard,
+  fetchAlbertaCommitteeHearings,
+  fetchAlbertaBills,
+} from './provincial-legislatures/fetcher.js';
+export {
+  parseProvincialRecord,
+  parseProvincialRecords,
+  parseOntarioHansardXml,
+  parseBCHansardXml,
+  parseAlbertaHansardHtml,
+  parseBillEntry,
+  extractBillReferences,
+  normalizeProvince,
+  detectRecordType,
+} from './provincial-legislatures/parser.js';
+export {
+  PROVINCE_CONFIGS as LEGISLATURE_CONFIGS,
+  ALL_PROVINCES,
+  IMPLEMENTED_PROVINCES,
+  XML_HANSARD_PROVINCES,
+  ONTARIO_CONFIG,
+  BC_CONFIG,
+  ALBERTA_CONFIG,
+  QUEBEC_CONFIG,
+  ONTARIO,
+  BC,
+  ALBERTA,
+  DEFAULT_MAX_RECORDS,
+  ProvincialLegislatureError,
+} from './provincial-legislatures/constants.js';
+export type {
+  ProvincialLegislatureRecord,
+  ProvinceCode,
+  LegislativeRecordType,
+  ProvinceChamber,
+  ProvinceLegislatureConfig,
+  ProvincialLegislatureIngestionOptions,
+  ProvincialLegislatureIngestionResult,
+} from './provincial-legislatures/types.js';
+
+// Crown Corporations — annual reports, quarterly financials, governance data
+export {
+  ingestCrownCorporations,
+  ingestAllCrownCorporations,
+  initializeCrownCorporationsTable,
+  searchCrownCorporations,
+  getByOrg,
+  getByFiscalYear,
+  getRecentRecords,
+  getAnnualFinancials,
+  crownCorporationsTableExists,
+  getLatestPublishedDate,
+  recordExists,
+  CROWN_CORPORATIONS_DDL,
+} from './crown-corporations/index.js';
+export {
+  fetchCrownCorpReport,
+  fetchAllCrownCorps,
+  fetchCBCReports,
+  fetchCanadaPostReports,
+  fetchCMHCReports,
+  fetchEDCReports,
+  fetchViaRailReports,
+  fetchBDCReports,
+} from './crown-corporations/fetcher.js';
+export {
+  parseReport,
+  parseRecords,
+  detectReportType,
+  detectQuarter,
+  normalizeOrgCode,
+  extractFiscalYear as crownCorpExtractFiscalYear,
+} from './crown-corporations/parser.js';
+export {
+  CROWN_CORP_CONFIGS,
+  ALL_CROWN_CORPS,
+  CURRENT_CROWN_CORPS,
+  QUARTERLY_REPORTING_CORPS,
+  RSS_FEED_CORPS,
+  ANNUAL_REPORT_URL_PATTERNS,
+  CrownCorporationError,
+  DEFAULT_MAX_RECORDS as CROWN_CORP_DEFAULT_MAX_RECORDS,
+} from './crown-corporations/constants.js';
+export type {
+  CrownCorporationRecord,
+  CrownCorporationCode,
+  ReportType,
+  CrownCorporationConfig,
+  CrownCorporationIngestionOptions,
+  CrownCorporationIngestionResult,
+} from './crown-corporations/types.js';
+
+// Federal Budget — budget, public accounts, fiscal monitor, departmental plans
+export {
+  ingestFederalBudget,
+  ingestAllFederalBudget,
+  initializeFederalBudgetTable,
+  searchFederalBudget as budgetSearchFederalBudget,
+  getByFiscalYear as budgetGetByFiscalYear,
+  getByRecordType as budgetGetByRecordType,
+  getByDepartment as budgetGetByDepartment,
+  getByCategory as budgetGetByCategory,
+  getDeficitHistory as budgetGetDeficitHistory,
+  getDebtHistory as budgetGetDebtHistory,
+  budgetTableExists as budgetTableExists,
+  getLatestPublishedDate as budgetGetLatestPublishedDate,
+  recordExists as budgetRecordExists,
+  FEDERAL_BUDGET_DDL,
+} from './federal-budget/index.js';
+export {
+  fetchBudgetData,
+  fetchPublicAccounts,
+  fetchFiscalMonitor,
+  fetchDepartmentalPlans,
+  fetchAllBudgetData,
+  searchCKAN as budgetSearchCKAN,
+  fetchCKANPackage as budgetFetchCKANPackage,
+  fetchCKANResource as budgetFetchCKANResource,
+  extractDocumentLinks as budgetExtractDocumentLinks,
+  normalizeFiscalYear as budgetNormalizeFiscalYear,
+} from './federal-budget/fetcher.js';
+export {
+  parseBudgetCSV,
+  parsePublicAccounts as budgetParsePublicAccounts,
+  parseFiscalMonitorCSV as budgetParseFiscalMonitorCSV,
+  parseDepartmentalPlanRecords as budgetParseDepartmentalPlanRecords,
+  parseDocumentLinks as budgetParseDocumentLinks,
+  parseCKANPackage as budgetParseCKANPackage,
+  detectCategory as budgetDetectCategory,
+  detectRecordType as budgetDetectRecordType,
+  parseAmount as budgetParseAmount,
+  parseCSVLine as budgetParseCSVLine,
+} from './federal-budget/parser.js';
+export {
+  FEDERAL_DEPARTMENTS,
+  DEPARTMENT_ACRONYM_MAP as BUDGET_DEPARTMENT_ACRONYM_MAP,
+  DEPARTMENT_NAME_MAP as BUDGET_DEPARTMENT_NAME_MAP,
+  ALL_BUDGET_RECORD_TYPES,
+  ALL_BUDGET_CATEGORIES,
+  BUDGET_RECORD_TYPE_LABELS,
+  BUDGET_CATEGORY_LABELS,
+  RECENT_FISCAL_YEARS,
+  AVAILABLE_BUDGET_YEARS,
+  BUDGET_SOURCES,
+  BUDGET_CKAN_PACKAGE_IDS,
+  BudgetError,
+  DEFAULT_MAX_RECORDS as BUDGET_DEFAULT_MAX_RECORDS,
+} from './federal-budget/constants.js';
+export type {
+  BudgetRecord,
+  BudgetRecordType,
+  BudgetCategory,
+  BudgetIngestionOptions,
+  BudgetIngestionResult,
+  CKANPackageResponse as BudgetCKANPackageResponse,
+  CKANPackage as BudgetCKANPackage,
+  CKANResource as BudgetCKANResource,
+  RawPublicAccountsRow,
+  RawFiscalMonitorRow,
+  RawDepartmentalPlanRow,
+} from './federal-budget/types.js';
