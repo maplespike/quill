@@ -1,4 +1,4 @@
-# MapleSpike Canada
+# MapleSpike
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
@@ -8,7 +8,7 @@
 
 ## What it is
 
-MapleSpike Canada ingests, verifies, and surfaces **16 data modules** of Canadian public-domain government data:
+MapleSpike ingests, verifies, and surfaces **16 data modules** of Canadian public-domain government data:
 
 | # | Module | What it tracks | Connectors | DB Persist | MCP Tool |
 |---|--------|----------------|-----------|------------|----------|
