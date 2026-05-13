@@ -9,6 +9,7 @@
  */
 
 import type { Env, RouteHandler, RouteContext } from './types.js';
+import { TIER_LIMITS } from './types.js';
 import { authenticateRequest } from './auth.js';
 import { checkRateLimit } from './rate-limit.js';
 import { buildError, jsonResponse, corsPreflight, addRateLimitHeaders } from './response.js';
@@ -108,7 +109,7 @@ export async function handleRequest(
   // Authentication (except health and register which are open)
   const tenant = route.handler === healthHandler || route.handler === registerHandler
     ? null
-    : await authenticateRequest(request, db);
+    : await authenticateRequest(request);
 
   if (!tenant && route.handler !== healthHandler && route.handler !== registerHandler) {
     const ctx: RouteContext = {
@@ -134,9 +135,11 @@ export async function handleRequest(
   };
 
   // Rate limit (skip for health and spec)
-  let rateCheck: { dailyCalls: number; monthlyCalls: number; dailyLimit: number; monthlyLimit: number } | null = null;
+  let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
   if (route.handler !== healthHandler && route.handler !== openApiHandler) {
-    const check = await checkRateLimit(ctx.tenant, db);
+    const tierLimits = TIER_LIMITS[ctx.tenant.tier];
+    const windowMs = 24 * 60 * 60 * 1000; // 24-hour sliding window
+    const check = checkRateLimit(ctx.tenant.id, tierLimits.daily, windowMs);
     rateCheck = check; // store for response headers
     if (!check.allowed) {
       await db.logAudit({
@@ -144,13 +147,13 @@ export async function handleRequest(
         apiKeyId: ctx.apiKeyId,
         operation: 'rate_limit',
         endpoint: route.pattern.source,
-        outputSummary: check.reason || 'Rate limited',
+        outputSummary: 'Rate limited',
         confidence: null,
         success: false,
         durationMs: Date.now() - startTime,
       });
 
-      let response = jsonResponse(buildError('RATE_LIMITED', check.reason || 'Rate limit exceeded', ctx), 429);
+      let response = jsonResponse(buildError('RATE_LIMITED', 'Rate limit exceeded. Try again later.', ctx), 429);
       if (rateCheck) {
         response = addRateLimitHeaders(response, rateCheck);
       }

@@ -1,76 +1,64 @@
 /**
  * CivInt Canada — Rate Limiting
  *
- * Per-tier rate limiting using daily/monthly usage counters.
+ * In-memory sliding window rate limiter using Map.
+ * Replaces Cloudflare KV-based rate limiting for dev mode.
  */
 
-import type { Tenant, CivIntStorage } from './types.js';
-import { TIER_LIMITS } from './types.js';
-
-export interface RateLimitResult {
-  allowed: boolean;
-  reason?: string;
-  dailyCalls: number;
-  monthlyCalls: number;
-  dailyLimit: number;
-  monthlyLimit: number;
+interface WindowEntry {
+  count: number;
+  windowStart: number;
 }
 
+const rateStore = new Map<string, WindowEntry[]>();
+
 /**
- * Check rate limits for a tenant.
- * Returns {allowed: false} with reason if over limit.
+ * Check rate limit for a tenant using a sliding window.
+ *
+ * @param tenantId - The tenant identifier
+ * @param limit - Maximum requests allowed in the window
+ * @param windowMs - Window duration in milliseconds
+ * @returns Whether the request is allowed, remaining budget, and reset timestamp (ms)
  */
-export async function checkRateLimit(
-  tenant: Tenant,
-  db: CivIntStorage,
-): Promise<RateLimitResult> {
-  const now = new Date();
-  const date = now.toISOString().slice(0, 10); // YYYY-MM-DD
-  const yearMonth = now.toISOString().slice(0, 7); // YYYY-MM
+export function checkRateLimit(
+  tenantId: string,
+  limit: number,
+  windowMs: number,
+): { allowed: boolean; remaining: number; resetTime: number } {
+  const now = Date.now();
 
-  const limits = TIER_LIMITS[tenant.tier];
-  if (!limits) {
-    return {
-      allowed: false,
-      reason: `Unknown tier: ${tenant.tier}`,
-      dailyCalls: 0,
-      monthlyCalls: 0,
-      dailyLimit: 0,
-      monthlyLimit: 0,
-    };
+  if (!rateStore.has(tenantId)) {
+    rateStore.set(tenantId, []);
   }
 
-  const [dailyCalls, monthlyCalls] = await Promise.all([
-    db.getDailyUsage(tenant.id, date),
-    db.getMonthlyUsage(tenant.id, yearMonth),
-  ]);
+  const entries = rateStore.get(tenantId)!;
+  const cutoff = now - windowMs;
 
-  // Internal tier gets unlimited access
-  if (tenant.tier === 'internal') {
-    return { allowed: true, dailyCalls, monthlyCalls, dailyLimit: limits.daily, monthlyLimit: limits.monthly };
+  // Prune expired windows
+  const active = entries.filter((e) => e.windowStart > cutoff);
+
+  const total = active.reduce((sum, e) => sum + e.count, 0);
+
+  if (total >= limit) {
+    const oldest =
+      active.length > 0
+        ? active.reduce((min, e) => Math.min(min, e.windowStart), Infinity)
+        : now;
+    return { allowed: false, remaining: 0, resetTime: oldest + windowMs };
   }
 
-  if (dailyCalls >= limits.daily) {
-    return {
-      allowed: false,
-      reason: `Daily limit reached (${dailyCalls}/${limits.daily}). Resets at midnight UTC.`,
-      dailyCalls,
-      monthlyCalls,
-      dailyLimit: limits.daily,
-      monthlyLimit: limits.monthly,
-    };
-  }
+  // Record this request
+  active.push({ count: 1, windowStart: now });
+  rateStore.set(tenantId, active);
 
-  if (monthlyCalls >= limits.monthly) {
-    return {
-      allowed: false,
-      reason: `Monthly limit reached (${monthlyCalls}/${limits.monthly}). Upgrade at civint.ca/pricing.`,
-      dailyCalls,
-      monthlyCalls,
-      dailyLimit: limits.daily,
-      monthlyLimit: limits.monthly,
-    };
-  }
+  const oldest =
+    active.length > 0
+      ? active.reduce((min, e) => Math.min(min, e.windowStart), now)
+      : now;
 
-  return { allowed: true, dailyCalls, monthlyCalls, dailyLimit: limits.daily, monthlyLimit: limits.monthly };
+  return {
+    allowed: true,
+    remaining: limit - total - 1,
+    resetTime: oldest + windowMs,
+  };
 }

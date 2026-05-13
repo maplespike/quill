@@ -5,6 +5,10 @@ export type { AIGatewayConfig } from './ai-gateway.js';
 export {
   ProviderRouter,
   getDefaultRouter,
+  ProviderHealthChecker,
+  CircuitBreaker,
+  routeWithFallback,
+  logProviderEvent,
 } from './provider-router.js';
 export type {
   ProviderHealth,

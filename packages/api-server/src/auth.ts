@@ -1,11 +1,43 @@
 /**
  * CivInt Canada — API Key Authentication
  *
- * Authenticates Bearer tokens against the storage backend.
- * Uses SHA-256 hashing so raw keys aren't stored (same as FG pattern).
+ * Multi-tenant API key auth using an in-memory Map.
+ * Supports at least two keys: demo and internal.
+ * Keep all existing exports.
  */
 
-import type { Tenant, CivIntStorage } from './types.js';
+import type { Tenant } from './types.js';
+
+/* ------------------------------------------------------------------ */
+/*  In-Memory API Key Store                                           */
+/* ------------------------------------------------------------------ */
+
+const apiKeyMap = new Map<string, { tenantId: string; name: string }>();
+
+// Seed with demo and internal keys
+apiKeyMap.set('civint-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
+apiKeyMap.set('civint-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
+
+const tenantDetails: Record<string, Tenant> = {
+  'demo-tenant': {
+    id: 'demo-tenant',
+    name: 'Demo User',
+    tier: 'pro',
+    isActive: true,
+    journalismMode: false,
+  },
+  'internal-tenant': {
+    id: 'internal-tenant',
+    name: 'Internal Service',
+    tier: 'internal',
+    isActive: true,
+    journalismMode: true,
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/*  Public API                                                        */
+/* ------------------------------------------------------------------ */
 
 /**
  * Simple SHA-256 hash for API key comparison.
@@ -30,15 +62,24 @@ export function extractBearerToken(request: Request): string | null {
 }
 
 /**
- * Authenticate a request. Returns tenant info or null.
+ * Authenticate a request using the in-memory API key map.
+ * Returns tenant info or null.
+ *
+ * No longer requires a storage backend — keys are looked up directly.
  */
 export async function authenticateRequest(
   request: Request,
-  db: CivIntStorage,
 ): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
   const rawKey = extractBearerToken(request);
   if (!rawKey) return null;
-  return db.authenticate(rawKey);
+
+  const entry = apiKeyMap.get(rawKey);
+  if (!entry) return null;
+
+  const tenant = tenantDetails[entry.tenantId];
+  if (!tenant || !tenant.isActive) return null;
+
+  return { tenant, apiKeyId: `key-${entry.tenantId}` };
 }
 
 /**
