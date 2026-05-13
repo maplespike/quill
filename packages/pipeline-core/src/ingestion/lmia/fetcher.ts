@@ -1,5 +1,5 @@
 /**
- * LMIA Fetcher — CivInt Pipeline
+ * LMIA Fetcher — MapleSpike Pipeline
  *
  * HTTP fetcher for Labour Market Impact Assessment (LMIA) data from
  * open.canada.ca (CKAN) and ESDC quarterly CSV exports.
@@ -35,7 +35,7 @@ export class LmiaFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'CivInt/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'MapleSpike/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/csv,text/plain,application/json,*/*',
 } as const;
 

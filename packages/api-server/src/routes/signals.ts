@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — GET /v1/signals
+ * MapleSpike Canada — GET /v1/signals
  *
  * Returns detected intelligence signals and briefs from the engine pipeline.
  * Runs the engine orchestrator on pipeline data.

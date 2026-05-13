@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en-CA" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CivInt Canada — Civic Pulse Dashboard</title>
+<title>MapleSpike Canada — Civic Pulse Dashboard</title>
 <meta name="description" content="See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -158,13 +158,14 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo"><span class="logo-icon">C</span>CivInt Canada</a>
+    <a href="index.html" class="logo"><span class="logo-icon">C</span><span data-i18n="nav.logo">MapleSpike Canada</span></a>
     <ul class="nav-links">
-      <li><a href="index.html#features">What it does</a></li>
-      <li><a href="docs.html">How it Works</a></li>
-      <li><a href="agents.html">For AI Tools</a></li>
-      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
+      <li><a href="docs.html" data-i18n="nav.howItWorks">How it Works</a></li>
+      <li><a href="agents.html" data-i18n="nav.forAiTools">For AI Tools</a></li>
+      <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
       <li><a href="dashboard.html" class="btn btn-sm btn-ghost" style="border-color:var(--accent);color:var(--accent);">Dashboard</a></li>
+      <li><button class="lang-toggle" data-lang="fr-CA">FR</button></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
@@ -177,18 +178,18 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 
   <!-- Header -->
   <div class="dash-header">
-    <h1>🇨🇦 Civic Pulse</h1>
-    <span style="font-size:0.82rem;color:var(--text-muted);">Live from official government sources · Updated every 6 hours</span>
+    <h1 data-i18n="dashboard.header">🇨🇦 Civic Pulse</h1>
+    <span style="font-size:0.82rem;color:var(--text-muted);" data-i18n="dashboard.headerMeta">Live from official government sources · Updated every 6 hours</span>
   </div>
 
   <!-- Search hero -->
   <div class="search-hero">
     <h2>What's happening in Canadian government today?</h2>
-    <p>Search across Parliament, lobbying, regulations, court decisions, and more.</p>
+    <p data-i18n="dashboard.searchDesc">Search across Parliament, lobbying, regulations, court decisions, and more.</p>
     <div class="search-box" id="live-search-box">
       <span>🔍</span>
       <input type="text" placeholder="Search committees, people, companies, topics..." id="dash-search-input">
-      <span class="hint" id="search-status">⏎ enter</span>
+      <span class="hint" id="search-status" data-i18n="dashboard.searchHint">⏎ enter</span>
     </div>
     <div class="search-suggestions">
       <a href="#" data-search="housing">🏠 Housing</a>
@@ -225,15 +226,15 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
     <div class="sb-icon">🔒</div>
     <div class="sb-body">
       <div class="sb-title">In-camera meeting detection is live</div>
-      <div class="sb-desc">CivInt automatically detects when parliamentary committees go behind closed doors. We track all 54 committees across both chambers — if a meeting is marked in-camera, you'll know what was discussed and who was there.</div>
+      <div class="sb-desc">MapleSpike automatically detects when parliamentary committees go behind closed doors. We track all 54 committees across both chambers — if a meeting is marked in-camera, you'll know what was discussed and who was there.</div>
     </div>
     <a href="#" class="btn btn-primary sb-btn">View recent alerts →</a>
   </div>
 
   <!-- Recent alerts / signals -->
   <div class="section-head">
-    <h2>🔔 Notable activity</h2>
-    <a href="#" class="see-all">View all signals →</a>
+    <h2 data-i18n="dashboard.sections.notableActivity">🔔 Notable activity</h2>
+    <a href="#" class="see-all" data-i18n="dashboard.sections.viewAllSignals">View all signals →</a>
   </div>
   <div class="card-grid-3" id="alerts-feed">
     <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
@@ -243,8 +244,8 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 
   <!-- Parliament & Committees -->
   <div class="section-head">
-    <h2>🏛️ Parliament &amp; Committees</h2>
-    <a href="#" class="see-all">See all committees →</a>
+    <h2 data-i18n="dashboard.sections.parliamentCommittees">🏛️ Parliament &amp; Committees</h2>
+    <a href="#" class="see-all" data-i18n="dashboard.sections.seeAllCommittees">See all committees →</a>
   </div>
   <div class="card-grid-3" id="committees-feed">
     <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
@@ -255,7 +256,7 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
   <!-- Tracked entities -->
   <div class="section-head">
     <h2>👤 Who we're watching</h2>
-    <a href="#" class="see-all">View all tracked →</a>
+    <a href="#" class="see-all" data-i18n="dashboard.sections.viewAllTracked">View all tracked →</a>
   </div>
   <div class="entity-grid" id="entity-feed">
     <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
@@ -268,8 +269,8 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 
   <!-- Entity Spotlight with D3 Network Graph -->
 <div class="section-head">
-  <h2>🔗 Influence Network — Live</h2>
-  <a href="#" class="see-all">Explore all connections →</a>
+  <h2 data-i18n="dashboard.sections.influenceNetwork">🔗 Influence Network — Live</h2>
+  <a href="#" class="see-all" data-i18n="dashboard.sections.exploreConnections">Explore all connections →</a>
 </div>
 <div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;overflow:hidden;margin-bottom:32px;">
   <svg id="network-graph" style="width:100%;height:420px;display:block;"></svg>
@@ -285,8 +286,8 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 
 <!-- GeoCanada Map -->
 <div class="section-head">
-  <h2>🗺️ Activity Across Canada</h2>
-  <a href="#" class="see-all">View all provinces →</a>
+  <h2 data-i18n="dashboard.sections.activityAcrossCanada">🗺️ Activity Across Canada</h2>
+  <a href="#" class="see-all" data-i18n="dashboard.sections.viewAllProvinces">View all provinces →</a>
 </div>
 <div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;overflow:hidden;margin-bottom:32px;">
   <div id="geo-map" style="width:100%;height:400px;"></div>
@@ -294,8 +295,8 @@ body { padding-top: calc(20px + var(--nav-height, 64px)); }
 
 <!-- Money & Influence -->
   <div class="section-head">
-    <h2>💰 Money &amp; Influence</h2>
-    <a href="#" class="see-all">See all contracts →</a>
+    <h2 data-i18n="dashboard.sections.moneyInfluence">💰 Money &amp; Influence</h2>
+    <a href="#" class="see-all" data-i18n="dashboard.sections.seeAllContracts">See all contracts →</a>
   </div>
   <div class="card-grid-3" id="money-feed">
     <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
@@ -644,7 +645,7 @@ async function doLiveSearch(q) {
 // ─── Since you last checked ───
 (function checkLastVisit() {
   const now = Date.now();
-  const last = localStorage.getItem('civint_last_visit');
+  const last = localStorage.getItem('maplespike_last_visit');
   const banner = document.getElementById('since-last-checked');
   if (last) {
     const hours = Math.round((now - parseInt(last)) / 3600000);
@@ -659,7 +660,7 @@ async function doLiveSearch(q) {
     }
     banner.style.display = 'flex';
   }
-  localStorage.setItem('civint_last_visit', String(now));
+  localStorage.setItem('maplespike_last_visit', String(now));
 })();
 
 document.getElementById('slc-view')?.addEventListener('click', e => {

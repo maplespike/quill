@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchStatCanReleases, fetchCKANPackages } from '@civint/pipeline-core';
+import { fetchStatCanReleases, fetchCKANPackages } from '@maplespike/pipeline-core';
 
 /**
  * Check a specific claim, statement, or statistic against official Canadian government data sources.
@@ -11,6 +11,9 @@ export const definition: ToolDefinition = {
     'Check a specific claim, statement, or statistic against official Canadian government data sources ' +
     '(StatCan, open.canada.ca, federal spending records). Returns corroborating or contradicting ' +
     'evidence with citations, trust scores, and confidence ratings.',
+  descriptions: {
+    "fr-CA": "Vérifier une affirmation en la comparant aux données officielles du gouvernement canadien. Idéal pour vérifier les données économiques, les statistiques de l’emploi, les chiffres du PIB et d’autres indicateurs gouvernementaux publiés par Statistique Canada et les sources fédérales.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

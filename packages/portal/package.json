@@ -1,8 +1,8 @@
 {
-  "name": "@civint/portal",
+  "name": "@maplespike/portal",
   "version": "0.1.0",
   "private": true,
-  "description": "CivInt Canada — Developer Portal (landing page, docs, dashboard)",
+  "description": "MapleSpike Canada — Developer Portal (landing page, docs, dashboard)",
   "scripts": {
     "dev": "npx serve . -p 4321",
     "build": "echo 'Static site — no build step required'",

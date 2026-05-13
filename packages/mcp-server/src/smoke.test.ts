@@ -1,5 +1,5 @@
 /**
- * Smoke test for CivInt MCP Server wired tools.
+ * Smoke test for MapleSpike MCP Server wired tools.
  * Tests that each tool handler returns real data from pipeline-core functions,
  * not stub responses. Verifies async handlers work correctly.
  */

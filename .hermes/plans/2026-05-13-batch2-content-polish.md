@@ -30,7 +30,7 @@ Files: index.html footer
 
 **What to do:**
 - Add a GitHub badge/link in the footer
-- Link to https://github.com/reverb256/civint
+- Link to https://github.com/reverb256/maplespike
 - Show "Open Source" or "GitHub" as a small badge
 - Can use the existing star/fork shield style via inline SVG
 

@@ -1,12 +1,12 @@
-# CivInt Canada — Developer Portal
+# MapleSpike Canada — Developer Portal
 
-SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the CivInt Canada API.
+SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the MapleSpike Canada API.
 
 **Status:** Local dev (stealth) — served from K3s cluster on LAN. Will deploy to GitHub Pages when public.
 
 ## AI-friendly features
 
-- **`/llms.txt`** — Compact API index for AI agent discovery (civint.ca/llms.txt)
+- **`/llms.txt`** — Compact API index for AI agent discovery (maplespike.ca/llms.txt)
 - **`/llms-full.txt`** — Full documentation archive for large-context models
 - **`/v1/openapi.json`** — OpenAPI 3.1 specification for code generation
 - **`Accept: text/markdown`** — Returns raw Markdown for any page

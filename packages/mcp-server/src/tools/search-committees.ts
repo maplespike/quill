@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'Covers standing committees (e.g., FINA, OGGO, ETHI), special committees, joint committees, ' +
     'and in-camera (secret) meeting records. Returns witness testimony, interventions, and ' +
     'speaker attributions with timestamps.',
+  descriptions: {
+    "fr-CA": "Rechercher des témoignages, transcriptions et procès-verbaux de comités de la Chambre des communes et du Sénat. Couvre les comités permanents (p. ex., FINA, OGGO, ETHI), les comités spéciaux, les comités mixtes et les séances à huis clos. Retourne les témoignages, interventions et attributions de temps de parole.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

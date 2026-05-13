@@ -1,5 +1,5 @@
 /**
- * Oversight Bodies Constants — CivInt Pipeline
+ * Oversight Bodies Constants — MapleSpike Pipeline
  *
  * URLs and configuration for Canada's independent oversight bodies.
  *

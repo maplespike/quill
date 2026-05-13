@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: civint-api
+  name: maplespike-api
   namespace: ai-inference
   labels:
-    app: civint-api
+    app: maplespike-api
     component: api-server
     tier: backend
 spec:
@@ -16,18 +16,18 @@ spec:
       maxSurge: 1
   selector:
     matchLabels:
-      app: civint-api
+      app: maplespike-api
   template:
     metadata:
       labels:
-        app: civint-api
+        app: maplespike-api
         component: api-server
         tier: backend
     spec:
       nodeName: nexus
       containers:
-        - name: civint-api
-          image: nexus:5000/civint-api:latest
+        - name: maplespike-api
+          image: nexus:5000/maplespike-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
@@ -40,7 +40,7 @@ spec:
             - name: CIVINT_STORAGE
               value: "sqlite"
             - name: CIVINT_DB_PATH
-              value: "/data/civint.db"
+              value: "/data/maplespike.db"
             - name: AI_ENDPOINT
               value: "http://ai-inference-gateway:8080/v1"
             - name: AI_MODEL

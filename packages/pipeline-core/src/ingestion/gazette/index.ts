@@ -1,5 +1,5 @@
 /**
- * Gazette Ingestion — CivInt Pipeline
+ * Gazette Ingestion — MapleSpike Pipeline
  *
  * Orchestrates the Canada Gazette ingestion pipeline:
  *   1. Fetch RSS feed for the specified Gazette part

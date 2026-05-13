@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * CivInt MCP Server — stdio transport (CLI)
+ * MapleSpike MCP Server — stdio transport (CLI)
  *
- * Usage: npx civint-mcp
+ * Usage: npx maplespike-mcp
  *        # or directly: node dist/cli.js
  *
  * For Claude Desktop configuration:
  * {
  *   "mcpServers": {
- *     "civint-canada": {
+ *     "maplespike-canada": {
  *       "command": "npx",
- *       "args": ["@civint/mcp-server"]
+ *       "args": ["@maplespike/mcp-server"]
  *     }
  *   }
  * }
@@ -31,7 +31,9 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
-console.error(`[civint-mcp] Starting stdio transport — ${server.getToolCount()} tools registered`);
+const CLI_LOCALE = process.env.CIVINT_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
+
+console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
 
 // ─── stdio transport ───────────────────────────────────────────────────
 // Read JSON-RPC messages from stdin, write responses to stdout
@@ -57,23 +59,23 @@ rl.on('line', async (line: string) => {
     return;
   }
 
-  server.handleMessage(parsed, (response) => {
+  server.handleMessage(parsed, CLI_LOCALE, (response) => {
     process.stdout.write(JSON.stringify(response) + '\n');
-  }).catch((err: unknown) => console.error('[civint-mcp] Error:', err));
+  }).catch((err: unknown) => console.error('[maplespike-mcp] Error:', err));
 });
 
 rl.on('close', () => {
-  console.error('[civint-mcp] stdin closed, waiting for pending operations...');
+  console.error('[maplespike-mcp] stdin closed, waiting for pending operations...');
   // Process exits naturally once all async ops complete and no active handles remain
 });
 
 // Handle SIGINT/SIGTERM gracefully
 process.on('SIGINT', () => {
-  console.error('[civint-mcp] SIGINT received, shutting down');
+  console.error('[maplespike-mcp] SIGINT received, shutting down');
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  console.error('[civint-mcp] SIGTERM received, shutting down');
+  console.error('[maplespike-mcp] SIGTERM received, shutting down');
   process.exit(0);
 });

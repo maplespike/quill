@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en-CA" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Setup — CivInt Canada</title>
-  <meta name="description" content="Connect CivInt to ChatGPT, Claude, Gemini, and Grok. Plus your own pipelines.">
+  <title>AI Setup — MapleSpike Canada</title>
+  <meta name="description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. Plus your own pipelines.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
-  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
-  <meta property="og:title" content="AI Setup — CivInt Canada">
-  <meta property="og:description" content="Connect CivInt to ChatGPT, Claude, Gemini, and Grok. Plus your own pipelines.">
-  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo_v2_00002_.png">
+  <link rel="apple-touch-icon" href="assets/maplespike_logo_v2_00002_.png">
+  <meta property="og:title" content="AI Setup — MapleSpike Canada">
+  <meta property="og:description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. Plus your own pipelines.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo_v2_00002_.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://civint.ca/agents.html">
+  <meta property="og:url" content="https://maplespike.ca/agents.html">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AI Setup — CivInt Canada">
-  <meta name="twitter:description" content="Connect CivInt to ChatGPT, Claude, Gemini, and Grok for AI-powered government data access.">
-  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <meta name="twitter:title" content="AI Setup — MapleSpike Canada">
+  <meta name="twitter:description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok for AI-powered government data access.">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo_v2_00002_.png">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "CivInt Canada",
+    "name": "MapleSpike Canada",
     "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
-    "url": "https://civint.ca",
+    "url": "https://maplespike.ca",
     "foundingDate": "2025",
     "funder": { "@type": "Organization", "name": "Reverb256" }
   }
@@ -41,14 +41,15 @@
   <div class="nav-inner">
     <a href="index.html" class="logo">
       <span class="logo-icon">C</span>
-      CivInt Canada
+      MapleSpike Canada
     </a>
     <ul class="nav-links">
-      <li><a href="index.html#features">What it does</a></li>
-      <li><a href="docs.html">How it Works</a></li>
-      <li><a href="agents.html" class="active">For AI Tools</a></li>
-      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
+      <li><a href="docs.html" data-i18n="nav.howItWorks">How it Works</a></li>
+      <li><a href="agents.html" class="active" data-i18n="nav.forAiTools">For AI Tools</a></li>
+      <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
       <li><a href="dashboard.html" class="btn btn-sm btn-primary">Dashboard</a></li>
+      <li><button class="lang-toggle" data-lang="fr-CA">FR</button></li>
       <li><button class="theme-toggle"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
@@ -59,9 +60,9 @@
 
 <div class="docs-page">
 
-<h1>Connect CivInt to your AI tools</h1>
+<h1>Connect MapleSpike to your AI tools</h1>
 <p style="font-size:1.2rem;color:var(--text-secondary);margin-bottom:40px;">
-  CivInt speaks the <span data-term="mcp">MCP</span> protocol — the standard that lets AI tools fetch live data. Add it once and your AI can answer questions about Canadian government in real time.
+  MapleSpike speaks the <span data-term="mcp">MCP</span> protocol — the standard that lets AI tools fetch live data. Add it once and your AI can answer questions about Canadian government in real time.
 </p>
 
 <!-- ═══ WHAT YOU CAN ASK ═══ -->
@@ -108,23 +109,23 @@
     <span style="font-size:2rem;">💬</span>
     <h3 style="margin:0;">ChatGPT</h3>
   </div>
-  <p>OpenAI's ChatGPT supports MCP through the ChatGPT desktop app and GPT Actions. Add CivInt as an MCP server to let ChatGPT answer questions about Canadian government data.</p>
+  <p>OpenAI's ChatGPT supports MCP through the ChatGPT desktop app and GPT Actions. Add MapleSpike as an MCP server to let ChatGPT answer questions about Canadian government data.</p>
 
   <h4>Desktop App (macOS/Windows)</h4>
   <p>Configure in <code>~/.chatgpt/mcp.json</code>. You can connect via the SSE endpoint (recommended) or run the MCP server from source:</p>
   <div class="code-block">
 {
   "mcpServers": {
-    "civint-canada": {
-      "url": "https://civint.lan/mcp"
+    "maplespike-canada": {
+      "url": "https://maplespike.lan/mcp"
     }
   }
 }
   </div>
-  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">Note: The MCP server runs as a service on your K3s cluster. Ask your cluster admin for the endpoint URL and API key. To run locally, build from the repo: <code>pnpm --filter @civint/mcp-server start</code></p>
+  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">Note: The MCP server runs as a service on your K3s cluster. Ask your cluster admin for the endpoint URL and API key. To run locally, build from the repo: <code>pnpm --filter @maplespike/mcp-server start</code></p>
 
   <h4>Or use the ChatGPT Actions API</h4>
-  <p>Point a GPT Action to CivInt's MCP endpoint at <code>https://civint.lan/mcp</code> (local) or the hosted MCP server endpoint.</p>
+  <p>Point a GPT Action to MapleSpike's MCP endpoint at <code>https://maplespike.lan/mcp</code> (local) or the hosted MCP server endpoint.</p>
 </div>
 
 <!-- Claude -->
@@ -133,15 +134,15 @@
     <span style="font-size:2rem;">🤖</span>
     <h3 style="margin:0;">Claude (Anthropic)</h3>
   </div>
-  <p>Claude was the first major AI to adopt MCP natively. Both Claude Desktop and Claude Code support CivInt out of the box.</p>
+  <p>Claude was the first major AI to adopt MCP natively. Both Claude Desktop and Claude Code support MapleSpike out of the box.</p>
 
   <h4>Claude Desktop</h4>
   <p>Add to <code>claude_desktop_config.json</code>. Connect via the SSE endpoint (recommended):</p>
   <div class="code-block">
 {
   "mcpServers": {
-    "civint-canada": {
-      "url": "https://civint.lan/mcp"
+    "maplespike-canada": {
+      "url": "https://maplespike.lan/mcp"
     }
   }
 }
@@ -150,10 +151,10 @@
 
   <h4>Claude Code (CLI)</h4>
   <div class="code-block">
-claude mcp add civint-canada -- https://civint.lan/mcp
+claude mcp add maplespike-canada -- https://maplespike.lan/mcp
   </div>
 
-  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using the CivInt MCP tools, find me all lobbyist meetings with Innovation department this quarter and check if any of those companies also have sole-source contracts."</em></p>
+  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using the MapleSpike MCP tools, find me all lobbyist meetings with Innovation department this quarter and check if any of those companies also have sole-source contracts."</em></p>
 </div>
 
 <!-- Google Gemini -->
@@ -162,13 +163,13 @@ claude mcp add civint-canada -- https://civint.lan/mcp
     <span style="font-size:2rem;">🔮</span>
     <h3 style="margin:0;">Google Gemini</h3>
   </div>
-  <p>Gemini supports MCP through Google AI Studio and the Gemini API. Use the MCP client library to connect CivInt as a tool.</p>
+  <p>Gemini supports MCP through Google AI Studio and the Gemini API. Use the MCP client library to connect MapleSpike as a tool.</p>
 
   <h4>Via Google AI Studio</h4>
-  <p>Use the built-in MCP client in AI Studio to add CivInt as a tool. Configure with:</p>
+  <p>Use the built-in MCP client in AI Studio to add MapleSpike as a tool. Configure with:</p>
   <div class="code-block">
-MCP Server URL: https://civint.lan/mcp
-Authentication: Bearer token (your CivInt API key)
+MCP Server URL: https://maplespike.lan/mcp
+Authentication: Bearer token (your MapleSpike API key)
   </div>
 
   <h4>Via Gemini API (Vertex AI / custom apps)</h4>
@@ -177,7 +178,7 @@ Authentication: Bearer token (your CivInt API key)
 from google import genai
 from mcp import Client
 
-client = Client("https://civint.lan/mcp")
+client = Client("https://maplespike.lan/mcp")
 tools = await client.list_tools()
 
 response = client.generate(
@@ -187,7 +188,7 @@ response = client.generate(
 )
   </div>
 
-  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using CivInt, list all meetings of the Standing Committee on Public Accounts from the last month and summarize the main topics."</em></p>
+  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using MapleSpike, list all meetings of the Standing Committee on Public Accounts from the last month and summarize the main topics."</em></p>
 </div>
 
 <!-- Grok -->
@@ -196,7 +197,7 @@ response = client.generate(
     <span style="font-size:2rem;">𝕏</span>
     <h3 style="margin:0;">Grok (xAI)</h3>
   </div>
-  <p>Grok supports MCP tools through xAI's API. Connect CivInt to enable Grok to answer questions about Canadian government data with verified sources.</p>
+  <p>Grok supports MCP tools through xAI's API. Connect MapleSpike to enable Grok to answer questions about Canadian government data with verified sources.</p>
 
   <h4>Via xAI API</h4>
   <div class="code-block">
@@ -209,7 +210,7 @@ client = OpenAI(
   base_url="https://api.x.ai/v1"
 )
 
-# CivInt MCP tools are called as function calls
+# MapleSpike MCP tools are called as function calls
 response = client.chat.completions.create(
   model="grok-3",
   messages=[{"role": "user", "content": "Who lobbied the most this month?"}],
@@ -223,7 +224,7 @@ response = client.chat.completions.create(
 )
   </div>
 
-  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using CivInt, check which telecom CEOs have appeared before parliamentary committees this year and cross-reference with their company's lobbying activity."</em></p>
+  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using MapleSpike, check which telecom CEOs have appeared before parliamentary committees this year and cross-reference with their company's lobbying activity."</em></p>
 </div>
 
 <!-- ═══ YOUR OWN PIPELINES ═══ -->
@@ -232,35 +233,35 @@ response = client.chat.completions.create(
     <span style="font-size:2rem;">⚙️</span>
     <h3 style="margin:0;color:var(--accent);">Your Own Pipelines</h3>
   </div>
-  <p style="font-size:1.1rem;">CivInt isn't just for AI chat — it's a full data pipeline that runs on your own infrastructure. Every ingestion module is also available as a local tool or script.</p>
+  <p style="font-size:1.1rem;">MapleSpike isn't just for AI chat — it's a full data pipeline that runs on your own infrastructure. Every ingestion module is also available as a local tool or script.</p>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
     <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
       <h4 style="margin:0 0 8px;">🏛️ Committees Pipeline</h4>
       <p>Ingests all 30 House of Commons committees daily. Captures evidence XML, Hansard transcripts, speaker attribution, and in-camera flags.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core committees --ingest-all</div>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core committees --ingest-all</div>
     </div>
     <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
       <h4 style="margin:0 0 8px;">💰 Lobbying Pipeline</h4>
       <p>Monthly CSV dumps from the Office of the Commissioner of Lobbying. Tracks who is lobbying which department, on what topic, and how much they're spending.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core lobbying --ingest</div>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core lobbying --ingest</div>
     </div>
     <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
       <h4 style="margin:0 0 8px;">📄 Procurement Pipeline</h4>
       <p>CanadaBuys RSS feed + proactive disclosure contracts. Flags sole-source awards and cross-references with lobbying data.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core procurement --check-sole-source</div>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core procurement --check-sole-source</div>
     </div>
     <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
       <h4 style="margin:0 0 8px;">🌐 Influence Pipeline</h4>
       <p>32 tracked IOs, NGOs, think tanks, and consultancies. Cross-references committee appearances, lobbying, funding, and CRA charity data.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/pipeline-core influence --ingest-all</div>
+      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core influence --ingest-all</div>
     </div>
   </div>
 
   <div style="margin-top:24px;padding:20px;background:var(--bg-secondary);border-radius:var(--radius);">
     <h4 style="margin:0 0 8px;">🔗 Entity Resolution Engine</h4>
-    <p>The engine package links people and organizations across all data sources. When the same person appears on a committee, in a lobbying report, and as a contract signatory — CivInt connects them. Runs 7 signal detectors for revolving doors, lobbying overlaps, and sole-source flagging.</p>
-    <div class="code-block" style="margin-top:12px;">pnpm --filter @civint/engine sweep --full</div>
+    <p>The engine package links people and organizations across all data sources. When the same person appears on a committee, in a lobbying report, and as a contract signatory — MapleSpike connects them. Runs 7 signal detectors for revolving doors, lobbying overlaps, and sole-source flagging.</p>
+    <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/engine sweep --full</div>
   </div>
 
   <p style="margin-top:24px;padding:16px;background:var(--accent-dim);border-radius:var(--radius-sm);">
@@ -269,7 +270,7 @@ response = client.chat.completions.create(
 </div>
 
 <!-- ═══ MCP TOOLS REFERENCE ═══ -->
-<h2>All CivInt MCP Tools</h2>
+<h2>All MapleSpike MCP Tools</h2>
 <p>These tools become available in your AI once connected. Each returns verified data with source citations.</p>
 
 <table>
@@ -294,16 +295,16 @@ response = client.chat.completions.create(
     <div class="brand">
       <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
       <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
-      CivInt Canada
+      MapleSpike Canada
       </a>
-      <p>CivInt makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
+      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
     </div>
     <div>
       <h4>Product</h4>
       <ul>
-        <li><a href="index.html#features">What it does</a></li>
-        <li><a href="index.html#pricing">Pricing</a></li>
-        <li><a href="docs.html">How it Works</a></li>
+        <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
+        <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
+        <li><a href="docs.html" data-i18n="nav.howItWorks">How it Works</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
       </ul>
     </div>
@@ -327,7 +328,7 @@ response = client.chat.completions.create(
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 CivInt Canada. All rights reserved.</span>
+    <span>© 2026 MapleSpike Canada. All rights reserved.</span>
     <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
   </div>
 </footer>

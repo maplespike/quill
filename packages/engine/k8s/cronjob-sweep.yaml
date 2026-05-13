@@ -1,10 +1,10 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: civint-sweep
+  name: maplespike-sweep
   namespace: ai-inference
   labels:
-    app: civint-sweep
+    app: maplespike-sweep
     component: sweep-scheduler
     tier: backend
 spec:
@@ -16,15 +16,15 @@ spec:
       template:
         metadata:
           labels:
-            app: civint-sweep
+            app: maplespike-sweep
             component: sweep-scheduler
             tier: backend
         spec:
           # Pin to nexus — no GPU needed, keep traffic local to the registry
           nodeName: nexus
           containers:
-            - name: civint-sweep
-              image: nexus:5000/civint-mcp:latest
+            - name: maplespike-sweep
+              image: nexus:5000/maplespike-engine:latest
               imagePullPolicy: Always
               command:
                 - node

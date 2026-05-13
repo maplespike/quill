@@ -21,7 +21,7 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 def html_to_md(html_path, full_path):
     """Quick HTML→Markdown extraction for docs-style pages."""
     import html.parser
-    
+
     class MDExtractor(html.parser.HTMLParser):
         def __init__(self):
             super().__init__()
@@ -32,7 +32,7 @@ def html_to_md(html_path, full_path):
             self.in_skip = False
             self.skip_tags = {"nav", "footer", "aside", "script", "style"}
             self.tag_stack = []
-            
+
         def handle_starttag(self, tag, attrs):
             tag = tag.lower()
             self.tag_stack.append(tag)
@@ -51,7 +51,7 @@ def html_to_md(html_path, full_path):
                 self.in_code = True
                 self.code_lang = ""
                 self.code_buf = []
-                
+
         def handle_endtag(self, tag):
             tag = tag.lower()
             if self.tag_stack and self.tag_stack[-1] == tag:
@@ -64,7 +64,7 @@ def html_to_md(html_path, full_path):
                 self.lines.append(f"```{lang}\n{code}\n```")
                 self.in_code = False
                 self.code_buf = []
-                
+
         def handle_data(self, data):
             if self.in_skip:
                 return
@@ -84,14 +84,14 @@ def html_to_md(html_path, full_path):
                         self.lines.append(f"| {text} |")
                     else:
                         self.lines.append(text)
-                        
+
     extractor = MDExtractor()
     try:
         with open(full_path) as f:
             extractor.feed(f.read())
     except:
         return None
-    
+
     # Post-process: clean up
     md = "\n".join(extractor.lines)
     md = re.sub(r'\n{3,}', '\n\n', md)
@@ -107,14 +107,14 @@ def make_md_fallback(path):
 # ── Custom handler ──────────────────────────────────────────────────
 
 class CivIntHandler(SimpleHTTPRequestHandler):
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
-    
+
     def do_GET(self):
         parsed = urlparse(self.path)
         path = parsed.path
-        
+
         # ── Rewrite /index.md or /page-name.md ──
         if path.endswith(".md"):
             md_path = path[:-3]  # strip .md
@@ -122,7 +122,7 @@ class CivIntHandler(SimpleHTTPRequestHandler):
                 md_path = "/index"
             html_candidate = md_path + ".html"
             full_path = os.path.join(DIRECTORY, html_candidate.lstrip("/"))
-            
+
             if os.path.exists(full_path):
                 md_content = html_to_md(html_candidate, full_path)
                 if md_content:
@@ -136,16 +136,21 @@ class CivIntHandler(SimpleHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(body)
                     return
-        
+
             # ── Debug log for content negotiation ──
         import sys
         accept = self.headers.get("Accept", "")
         dbg = f"[AI] path={path} accept={accept!r}"
-        
+
         # ── Content negotiation: Accept: text/markdown ──
         is_ai_request = "text/markdown" in accept or "text/plain" in accept
         dbg += f" | is_ai={is_ai_request}"
-        
+
+        # Content negotiation: Accept-Language for bilingual support
+        accept_lang = self.headers.get("Accept-Language", "")
+        is_french = "fr" in accept_lang and "en" not in accept_lang[:accept_lang.find("fr")]
+        dbg += f" | lang={'fr' if is_french else 'en'}"
+
         if is_ai_request and not path.endswith((".txt", ".json", ".png", ".css", ".js", ".ico", ".svg")):
             # Try exact path, path + .html, or index.html for root
             candidates = []
@@ -155,7 +160,7 @@ class CivIntHandler(SimpleHTTPRequestHandler):
             else:
                 base = p.lstrip("/")
                 candidates = [base, base + ".html", "index.html"]
-            
+
             for c in candidates:
                 full_path = os.path.join(DIRECTORY, c)
                 dbg += f" | trying={c}"
@@ -166,7 +171,7 @@ class CivIntHandler(SimpleHTTPRequestHandler):
                             content = f.read()
                         # Quick strip-tags to Markdown-like output
                         import html.parser as hp
-                        
+
                         class Cleaner(hp.HTMLParser):
                             def __init__(self):
                                 super().__init__()
@@ -188,7 +193,7 @@ class CivIntHandler(SimpleHTTPRequestHandler):
                                 if self.in_skip: return
                                 if self.in_code: self.code_buf.append(data)
                                 elif data.strip(): self.out.append(data.strip())
-                        
+
                         c2 = Cleaner(); c2.feed(content); c2.close()
                         md = "\n\n".join(c2.out)
                         if len(md) > 50:
@@ -205,11 +210,11 @@ class CivIntHandler(SimpleHTTPRequestHandler):
                             return
                     except Exception as e:
                         dbg += f" ✗ EXCEPTION={e}"
-        
+
         dbg += " → fallthrough"
         print(dbg, file=sys.stderr)
         return super().do_GET()
-    
+
     def log_message(self, format, *args):
         # Quieter logging
         sys.stderr.write("[portal] %s - %s\n" % (self.client_address[0], format % args))

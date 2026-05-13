@@ -1,4 +1,4 @@
-# CivInt Canada — Current Capabilities
+# MapleSpike Canada — Current Capabilities
 
 > **Version:** v3
 > **Status:** Active
@@ -33,7 +33,7 @@ Plus RSS feed ingestion, StatCan/CKAN API integration, verification hashing, aud
 
 ### 2. Hosted MCP Server — ✅ ALL 14 TOOLS REAL
 
-An MCP server deployed on the K3s cluster, exposing CivInt data as tools for AI agents.
+An MCP server deployed on the K3s cluster, exposing MapleSpike data as tools for AI agents.
 
 - [x] MCP stdio transport (for sidecar usage) + SSE transport (for hosted usage)
 - [x] All 14 MCP tool definitions and handlers — all wired to pipeline-core database queries

@@ -1,5 +1,5 @@
 /**
- * Tool registry — loads all CivInt MCP tools
+ * Tool registry — loads all MapleSpike MCP tools
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';

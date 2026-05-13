@@ -2,16 +2,16 @@
 
 ## The Problem
 
-Caddy at `https://civint.lan/` currently routes to `127.0.0.1:3000` (Python http.server serving the portal landing page). It should route to `10.1.1.120:30964` (the K8s NodePort for the civint-web pod serving the Next.js CivicIntel dashboard).
+Caddy at `https://maplespike.lan/` currently routes to `127.0.0.1:3000` (Python http.server serving the portal landing page). It should route to `10.1.1.120:30964` (the K8s NodePort for the maplespike-web pod serving the Next.js CivicIntel dashboard).
 
-This means `civint.lan` shows the wrong frontend — the marketing portal instead of the product dashboard.
+This means `maplespike.lan` shows the wrong frontend — the marketing portal instead of the product dashboard.
 
 ## What to Do
 
 1. Check current Caddy route: `curl -s http://127.0.0.1:2019/config/`
 2. Update route from `127.0.0.1:3000` to `10.1.1.120:30964`
-3. Verify the civint-web pod is running: `kubectl get pods -n ai-inference | grep civint-web`
-4. Test: `curl -sk https://civint.lan/ | head -c 200`
+3. Verify the maplespike-web pod is running: `kubectl get pods -n ai-inference | grep maplespike-web`
+4. Test: `curl -sk https://maplespike.lan/ | head -c 200`
 
 ## How to Fix
 
@@ -22,7 +22,7 @@ curl -X PATCH -d '10.1.1.120:30964' http://127.0.0.1:2019/config/apps/http/serve
 
 Option B: Update the NixOS config and rebuild
 - File: /etc/nixos/hosts/zephyr/caddy-routes.nix
-- Find `mkRoute "civint.lan" "http://${nexus}:30964"` — it should already be correct
+- Find `mkRoute "maplespike.lan" "http://${nexus}:30964"` — it should already be correct
 - Run: sudo nixos-rebuild switch
 
 Option C: Direct Caddyfile edit and reload
@@ -31,6 +31,6 @@ Option C: Direct Caddyfile edit and reload
 
 ## Verification
 
-1. `curl -sk https://civint.lan/` returns the Next.js dashboard (title: "CivInt Canada — Civic Pulse Dashboard" or similar), not the portal landing page
+1. `curl -sk https://maplespike.lan/` returns the Next.js dashboard (title: "MapleSpike Canada — Civic Pulse Dashboard" or similar), not the portal landing page
 2. The portal landing page is still accessible directly at `http://10.1.1.110:3000/`
 3. No certificate errors

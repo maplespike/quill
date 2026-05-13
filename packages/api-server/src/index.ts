@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — API Gateway (Worker Entry)
+ * MapleSpike Canada — API Gateway (Worker Entry)
  *
  * Cloudflare Workers fetch handler + Node.js dev server compatible.
  * Multi-tenant REST API gateway wrapping pipeline-core.
@@ -15,7 +15,7 @@ import { checkRateLimit } from './rate-limit.js';
 import { buildError, jsonResponse, corsPreflight, addRateLimitHeaders } from './response.js';
 import { loadConfig } from './config.js';
 import { D1Storage, KVCache } from './storage.js';
-import type { CivIntStorage, CivIntCache } from './types.js';
+import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 
 interface Route {
   pattern: RegExp;
@@ -53,7 +53,7 @@ const ROUTES: Route[] = [
 function generateRequestId(): string {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);
-  return 'civint-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return 'maplespike-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 
@@ -79,8 +79,8 @@ function matchRoute(url: string, method: string): { route: Route; params: Record
 export async function handleRequest(
   request: Request,
   env: Record<string, string | undefined>,
-  db: CivIntStorage,
-  cache: CivIntCache,
+  db: MapleSpikeStorage,
+  cache: MapleSpikeCache,
 ): Promise<Response> {
   const config = loadConfig(env);
   const requestId = generateRequestId();
@@ -121,7 +121,7 @@ export async function handleRequest(
       db,
       cache,
     };
-    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://civint.ca', ctx), 401);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401);
   }
 
   const ctx: RouteContext = {

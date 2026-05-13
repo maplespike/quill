@@ -1,14 +1,14 @@
-# CivInt Canada — Journalist Quickstart
+# MapleSpike Canada — Journalist Quickstart
 
 > **Access Canadian government data through MCP tools. No more scraping portals or waiting on ATI.**
 >
-> CivInt is a **public API service** (self-hosted on K3s, open-source core). Access via MCP, REST API, SDK. Free tier available — no credit card required.
+> MapleSpike is a **public API service** (self-hosted on K3s, open-source core). Access via MCP, REST API, SDK. Free tier available — no credit card required.
 
 ---
 
 ## Quick Intro
 
-CivInt ingests 13+ modules of Canadian government data — House of Commons and Senate committees, federal lobbying, procurement, Canada Gazette, GIC appointments, provincial lobbying registries, Elections Canada third-party advertising, oversight bodies (OAG, PBO, Ethics Commissioner, Competition Bureau, CRTC), CanLII court decisions, and LMIA data.
+MapleSpike ingests 13+ modules of Canadian government data — House of Commons and Senate committees, federal lobbying, procurement, Canada Gazette, GIC appointments, provincial lobbying registries, Elections Canada third-party advertising, oversight bodies (OAG, PBO, Ethics Commissioner, Competition Bureau, CRTC), CanLII court decisions, and LMIA data.
 
 Every record includes SHA-256 citation hashes for independent verification.
 
@@ -18,15 +18,15 @@ Every record includes SHA-256 citation hashes for independent verification.
 
 ### 1. MCP Server (Recommended)
 
-The CivInt MCP server exposes 14 tools for AI agents. If you have access to the K3s cluster, you can connect Claude Desktop, Cursor, or any MCP-compatible client to the hosted SSE endpoint.
+The MapleSpike MCP server exposes 14 tools for AI agents. If you have access to the K3s cluster, you can connect Claude Desktop, Cursor, or any MCP-compatible client to the hosted SSE endpoint.
 
 **Configure Claude Desktop:**
 
 ```json
 {
   "mcpServers": {
-    "civint": {
-      "url": "http://civint-mcp.ai-inference.svc.lan:3001/sse"
+    "maplespike": {
+      "url": "http://maplespike-mcp.ai-inference.svc.lan:3001/sse"
     }
   }
 }
@@ -60,7 +60,7 @@ If the api-server is deployed on the cluster, you can make direct HTTP calls:
 ```bash
 # Search government data releases
 curl -H "Authorization: Bearer *** \
-  "http://civint-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&category=spending&limit=10"
+  "http://maplespike-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&category=spending&limit=10"
 ```
 
 ### 3. CLI (Local Development)
@@ -68,7 +68,7 @@ curl -H "Authorization: Bearer *** \
 ```bash
 # Clone and build
 git clone <repo-url>
-cd civint
+cd maplespike
 pnpm install
 pnpm run build
 
@@ -137,11 +137,11 @@ Every record includes a SHA-256 content hash. You can verify data integrity from
 ```bash
 # Get citation details
 curl -H "Authorization: Bearer *** \
-  "http://civint-api.ai-inference.svc.lan/v1/citation/cit-001"
+  "http://maplespike-api.ai-inference.svc.lan/v1/citation/cit-001"
 
 # Verify via sha256sum:
 echo -n "$(curl -s -H 'Authorization: Bearer *** \
-  'http://civint-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&limit=1')" | sha256sum
+  'http://maplespike-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&limit=1')" | sha256sum
 ```
 
 ---
@@ -152,7 +152,7 @@ All responses using Canadian government data include OGL-C attribution:
 
 > *"Contains information licensed under the Open Government Licence – Canada."*
 
-When publishing stories based on CivInt data, include this attribution in your article or data visualization.
+When publishing stories based on MapleSpike data, include this attribution in your article or data visualization.
 
 ---
 
@@ -170,6 +170,6 @@ When publishing stories based on CivInt data, include this attribution in your a
 
 ## Need Help?
 
-- **Repo:** [https://github.com/reverb256/civint](https://github.com/reverb256/civint)
+- **Repo:** [https://github.com/reverb256/maplespike](https://github.com/reverb256/maplespike)
 - **Docs:** See [README.md](../README.md) and [ROADMAP.md](../ROADMAP.md)
 - **MCP configuration:** See MCP server docs in `packages/mcp-server/`

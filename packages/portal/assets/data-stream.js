@@ -1,7 +1,7 @@
 /**
- * CivInt Data Stream — Matrix-style falling character columns
+ * MapleSpike Data Stream — Matrix-style falling character columns
  * Include: <script src="assets/data-stream.js" defer></script>
- * 
+ *
  * Does NOT add ticker — ticker is embedded in each page's HTML directly
  * for proper layout control (no z-index/position fighting with nav).
  */
@@ -59,19 +59,19 @@ function drawStreams(time) {
   for (let i = 0; i < drops.length; i++) {
     const d = drops[i];
     const x = i * 11;
-    
+
     // Head char (brightest)
     const headChar = set[Math.floor(Math.random() * set.length)];
     d.flicker += 0.4;
-    
+
     // Glow on head
     ctx.shadowColor = '#06B6D4';
     ctx.shadowBlur = 4;
     ctx.fillStyle = `rgba(6, 182, 212, ${0.3 + 0.2 * Math.sin(time * 0.002 + i)})`;
     ctx.fillText(headChar, x, d.y);
     ctx.shadowBlur = 0;
-    
-    // Trail 
+
+    // Trail
     for (let t = 1; t < Math.min(d.length, 10); t++) {
       const ty = d.y - t * fontSize;
       if (ty < -fontSize || ty > H + fontSize) break;
@@ -81,7 +81,7 @@ function drawStreams(time) {
       ctx.fillStyle = `rgba(6, 182, 212, ${alpha})`;
       ctx.fillText(trailChar, x, ty);
     }
-    
+
     // Bright white head
     ctx.fillStyle = `rgba(232, 240, 255, ${0.6 + 0.2 * Math.sin(time * 0.003 + d.flicker)})`;
     ctx.font = `bold ${fontSize}px "JetBrains Mono", monospace`;

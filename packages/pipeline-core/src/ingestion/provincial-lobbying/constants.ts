@@ -133,4 +133,4 @@ export const ONTARIO_LOBBYING_SUBJECTS = [
 
 
 export const DEFAULT_FETCH_TIMEOUT_MS = 30_000;
-export const DEFAULT_USER_AGENT = 'CivIntPipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+export const DEFAULT_USER_AGENT = 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';

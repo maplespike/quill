@@ -1,5 +1,5 @@
 /**
- * Shared HTTP Utility — CivInt Pipeline
+ * Shared HTTP Utility — MapleSpike Pipeline
  *
  * Typed wrapper around undici's `request()` function.
  * Centralises the single `as any` cast so no consumer needs it.
@@ -22,7 +22,7 @@ import { request as undiciRequest } from 'undici';
 
 const DEFAULT_USER_AGENT =
   process.env['DEFAULT_USER_AGENT'] ??
-  'CivIntPipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+  'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 

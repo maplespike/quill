@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'lobbying registrations, and executive statements. Tracks insider transactions, ' +
     'sole-source contracts, company press releases, and corporate-government interactions. ' +
     'Cross-references with federal lobbying registry and proactive disclosure data.',
+  descriptions: {
+    "fr-CA": "Rechercher dans les registres de lobbying fédéraux, les données d’approvisionnement et les déclarations de dirigeants d’entreprises. Couvre les 17 dirigeants suivis dans les secteurs bancaire, des télécommunications et des médias. Retourne les activités de lobbying, les attributions de contrats et les déclarations publiques.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

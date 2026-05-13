@@ -1,5 +1,5 @@
 /**
- * Elections Canada Third-Party Advertiser Registry — CivInt Pipeline
+ * Elections Canada Third-Party Advertiser Registry — MapleSpike Pipeline
  *
  * Source metadata, URL patterns, and known data export endpoints for
  * Elections Canada third-party advertising data.

@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — OpenAPI Specification
+ * MapleSpike Canada — OpenAPI Specification
  *
  * GET /v1/openapi.json — Auto-generated OpenAPI 3.1 spec
  */
@@ -18,8 +18,8 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       version: config.version,
       description: `Canada's sovereign, AI-native government data layer. One API key gives you access to every major Canadian government dataset — Statistics Canada, open.canada.ca, provincial portals, AI-curated news from 43+ sources, citation verification, bias analysis, and immutable audit trails.`,
       contact: {
-        name: 'CivInt Canada',
-        url: 'https://civint.ca',
+        name: 'MapleSpike Canada',
+        url: 'https://maplespike.ca',
       },
       license: {
         name: 'AGPL-3.0 (pipeline-core) / Commercial (hosted API)',
@@ -27,7 +27,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
     },
     servers: [
-      { url: 'https://api.civint.ca/v1', description: 'Production' },
+      { url: 'https://api.maplespike.ca/v1', description: 'Production' },
       { url: 'http://localhost:8081/v1', description: 'Development' },
     ],
     security: [{ BearerAuth: [] }],
@@ -36,8 +36,8 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
         BearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'API key (civint_ prefix)',
-          description: 'Get your API key at https://civint.ca',
+          bearerFormat: 'API key (maplespike_ prefix)',
+          description: 'Get your API key at https://maplespike.ca',
         },
       },
       schemas: {

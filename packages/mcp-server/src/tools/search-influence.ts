@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'think tanks, and consultancies operating in Canada. Traces government funding flows, ' +
     'CRA charity status, grants data, and organizational connections. ' +
     'Cross-references with federal grant metadata and parliamentary committee oversight.',
+  descriptions: {
+    "fr-CA": "Rechercher des acteurs d’influence suivis par MapleSpike — 32 organisations internationales, groupes de réflexion, cabinets de conseil et ONG. Retourne le financement gouvernemental, les comparaîtons devant les comités, les données d’organisme de bienfaisance de l’ARC et les connexions transversales.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

@@ -1,5 +1,5 @@
 /**
- * End-to-end smoke tests for CivInt MCP Server tools.
+ * End-to-end smoke tests for MapleSpike MCP Server tools.
  *
  * Calls each real handler directly (not through MCP protocol) and verifies
  * the response shape, expected fields, and graceful error handling.

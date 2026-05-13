@@ -1,5 +1,5 @@
 /**
- * CanLII Parser — CivInt Pipeline
+ * CanLII Parser — MapleSpike Pipeline
  *
  * Parses CanLII API JSON responses into structured CanliiDecision objects.
  * Also provides helper functions for extracting citations, party names,

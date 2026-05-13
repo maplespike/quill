@@ -1,8 +1,8 @@
-# Data Source Expansion Plan — CivInt Canada Pipeline
+# Data Source Expansion Plan — MapleSpike Canada Pipeline
 
 > **For Hermes:** implement source-by-source using this plan as reference.
 
-**Goal:** Add 7 new government data source ingestion modules to the CivInt pipeline, following the established patterns in `packages/pipeline-core/src/ingestion/`.
+**Goal:** Add 7 new government data source ingestion modules to the MapleSpike pipeline, following the established patterns in `packages/pipeline-core/src/ingestion/`.
 
 **Architecture:** Each new source gets its own subdirectory under `ingestion/` (like `committees/`, `corporate/`, `influence/`) with the standard module pattern: `types.ts`, `constants.ts`, a fetcher, a parser, an index that exports the public API. Each source is wired into the barrel export at `ingestion/index.ts`.
 
@@ -308,7 +308,7 @@ packages/pipeline-core/src/ingestion/oversight/
 
 **Effort:** ~3-5 days to cover the top 6 bodies (OAG, PBO, Ethics, Lobbying, Competition Bureau, CRTC). The rest are 0.5-1 day each.
 
-**CivInt dashboard integration:** This category is the most natural fit for the CivInt frontend in `packages/web/` — each body gets a report list view with status tracking (new, read, actioned, ignored). The "oversight dashboard" could be the front page.
+**MapleSpike dashboard integration:** This category is the most natural fit for the MapleSpike frontend in `packages/web/` — each body gets a report list view with status tracking (new, read, actioned, ignored). The "oversight dashboard" could be the front page.
 
 ---
 

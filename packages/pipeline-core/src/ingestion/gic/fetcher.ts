@@ -1,5 +1,5 @@
 /**
- * GIC Appointment Fetcher — CivInt Pipeline
+ * GIC Appointment Fetcher — MapleSpike Pipeline
  *
  * HTTP fetchers for Governor-in-Council appointment data from
  * multiple Canadian government sources:
@@ -31,7 +31,7 @@ export class GICFetchError extends Error {
 
 
 const DEFAULT_HEADERS = {
-  'User-Agent': 'CivIntPipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+  'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'application/json,text/csv,text/html,*/*',
 } as const;
 
