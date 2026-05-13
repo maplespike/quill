@@ -13,12 +13,8 @@
  * the EVIDENCE ID changes per meeting and is not predictable.
  */
 
-import { request, type Dispatcher } from 'undici';
+import { httpGet } from '../../utils/http.js';
 import { OURCOMMONS_BASE } from './constants.js';
-
-/* ------------------------------------------------------------------ */
-/*  Errors                                                             */
-/* ------------------------------------------------------------------ */
 
 export class CommitteeFetchError extends Error {
   constructor(
@@ -31,34 +27,21 @@ export class CommitteeFetchError extends Error {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Raw fetch                                                          */
-/* ------------------------------------------------------------------ */
+
 
 const DEFAULT_HEADERS = {
   'User-Agent': 'FrostbiteDataPipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 } as const;
 
-/**
- * Fetch raw text from a URL.
- */
 export async function fetchUrl(
   url: string,
   options: { timeoutMs?: number } = {},
 ): Promise<{ statusCode: number; body: string; headers: Record<string, string> }> {
-  const resp: Dispatcher.ResponseData = await request(url, {
-    method: 'GET',
+  const resp = await httpGet(url, {
     headers: { ...DEFAULT_HEADERS },
-    headersTimeout: options.timeoutMs ?? 30_000,
-    bodyTimeout: options.timeoutMs ?? 30_000,
-  } as any);
-
-  const body = await resp.body.text();
-  const headers: Record<string, string> = {};
-  if (typeof (resp.headers as any).forEach === 'function') {
-    (resp.headers as any).forEach((v: string, k: string) => { headers[k] = v; });
-  }
+    timeoutMs: options.timeoutMs ?? 30_000,
+  });
 
   if (resp.statusCode >= 400) {
     throw new CommitteeFetchError(
@@ -68,25 +51,20 @@ export async function fetchUrl(
     );
   }
 
-  return { statusCode: resp.statusCode, body, headers };
+  return { statusCode: resp.statusCode, body: resp.body, headers: resp.headers };
 }
 
-/* ------------------------------------------------------------------ */
-/*  Evidence XML fetching (two-step)                                   */
-/* ------------------------------------------------------------------ */
 
-/**
- * Extract the XML export URL from the evidence HTML page.
- * Looks for: <a class="btn btn-export-xml ..." href="...">XML</a>
- */
+
 export function extractXmlUrlFromHtml(html: string, baseUrl: string): string | null {
   // Match the btn-export-xml link
   const match = html.match(/<a\s[^>]*class="[^"]*\bbtn-export-xml\b[^"]*"[^>]*href="([^"]+)"/i);
   if (match && match[1]) {
     const href = match[1];
-    // Handle relative URLs
+    // Handle relative URLs — use the provided baseUrl
     if (href.startsWith('/')) {
-      return `${OURCOMMONS_BASE}${href}`;
+      const parsed = new URL(baseUrl);
+      return `${parsed.origin}${href}`;
     }
     if (href.startsWith('http')) {
       return href;
@@ -143,17 +121,15 @@ export async function fetchEvidenceXml(
   }
 
   // Step 3: Fetch XML with Accept header
-  const xmlResp = await request(xmlUrl, {
-    method: 'GET',
+  const xmlResp = await httpGet(xmlUrl, {
     headers: {
       ...DEFAULT_HEADERS,
       Accept: 'application/xml,text/xml,*/*',
     },
-    headersTimeout: options.timeoutMs ?? 30_000,
-    bodyTimeout: options.timeoutMs ?? 30_000,
-  } as any);
+    timeoutMs: options.timeoutMs ?? 30_000,
+  });
 
-  const xml = await xmlResp.body.text();
+  const xml = xmlResp.body;
 
   if (xmlResp.statusCode >= 400) {
     throw new CommitteeFetchError(
@@ -171,9 +147,10 @@ export async function fetchEvidenceXml(
  */
 export async function fetchMeetingList(
   acronym: string,
-  options: { timeoutMs?: number } = {},
+  options: { timeoutMs?: number; baseUrl?: string } = {},
 ): Promise<string> {
-  const url = `${OURCOMMONS_BASE}/Committees/en/${acronym}/Meetings`;
+  const baseUrl = options.baseUrl ?? OURCOMMONS_BASE;
+  const url = `${baseUrl}/Committees/en/${acronym}/Meetings`;
   const result = await fetchUrl(url, options);
   return result.body;
 }
@@ -187,8 +164,9 @@ export async function fetchEvidenceHtml(
   session: number,
   acronym: string,
   meetingNumber: number,
+  baseUrl: string = OURCOMMONS_BASE,
 ): Promise<string> {
-  const url = `${OURCOMMONS_BASE}/DocumentViewer/en/${parliament}-${session}/${acronym}/meeting-${meetingNumber}/evidence`;
+  const url = `${baseUrl}/DocumentViewer/en/${parliament}-${session}/${acronym}/meeting-${meetingNumber}/evidence`;
   const result = await fetchUrl(url);
   return result.body;
 }

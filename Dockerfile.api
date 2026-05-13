@@ -1,0 +1,57 @@
+# =============================================================================
+# CivInt Canada — API Server Dockerfile
+# Multi-stage build for packages/api-server
+# =============================================================================
+
+# ---- Stage 1: Build ----
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/api-server/package.json packages/api-server/package.json
+COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+
+# Install all dependencies (including devDependencies for build)
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/api-server/ packages/api-server/
+COPY packages/pipeline-core/ packages/pipeline-core/
+
+# Build pipeline-core first (dependency), then api-server
+RUN pnpm --filter @civint/pipeline-core run build
+RUN pnpm --filter @civint/api-server run build
+
+# ---- Stage 2: Production ----
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install pnpm (needed for workspace dependency resolution)
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/api-server/package.json packages/api-server/package.json
+COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+
+# Install production dependencies only
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy compiled output
+COPY --from=builder /app/packages/api-server/dist packages/api-server/dist
+COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
+
+# Expose the API port
+EXPOSE 8082
+
+# Set default storage backend to SQLite
+ENV CIVINT_STORAGE=sqlite
+ENV NODE_ENV=production
+
+CMD ["node", "packages/api-server/dist/dev-server.js"]

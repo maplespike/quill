@@ -2,7 +2,7 @@
 
 SaaS landing page, documentation, AI agent setup guide, and developer dashboard for the CivInt Canada API.
 
-**Live at:** [civint.ca](https://civint.ca)
+**Live on cluster.** Pure static site — no build step required.
 
 ---
 
@@ -36,8 +36,8 @@ npm run dev     # if configured
 
 The portal is a pure static site (HTML + CSS + JS). No build step required.
 
-- **GitHub Pages** — `git push` and enable Pages
 - **K3s cluster** — Serve via Caddy from a simple pod
+- **GitHub Pages** — `git push` and enable Pages
 - **Any static host**
 
 ## Stack

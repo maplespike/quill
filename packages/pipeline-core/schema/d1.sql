@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS committee_meetings (
   id TEXT PRIMARY KEY,
   committee_acronym TEXT NOT NULL,
   committee_name TEXT NOT NULL,
+  chamber TEXT NOT NULL DEFAULT 'commons',
   parliament INTEGER NOT NULL,
   session INTEGER NOT NULL,
   meeting_number INTEGER NOT NULL,
@@ -110,7 +111,7 @@ CREATE TABLE IF NOT EXISTS committee_meetings (
   xml_url TEXT NOT NULL,
   subject TEXT,
   ingested_at TEXT NOT NULL,
-  UNIQUE(parliament, session, committee_acronym, meeting_number)
+  UNIQUE(chamber, parliament, session, committee_acronym, meeting_number)
 );
 
 CREATE INDEX IF NOT EXISTS idx_cm_committee ON committee_meetings(committee_acronym);
@@ -397,6 +398,29 @@ CREATE INDEX IF NOT EXISTS idx_insider_issuer ON insider_transactions(issuer_nam
 CREATE INDEX IF NOT EXISTS idx_insider_date ON insider_transactions(transaction_date DESC);
 CREATE INDEX IF NOT EXISTS idx_insider_type ON insider_transactions(transaction_type);
 
+-- Canada Gazette records — proposed (Part I) and enacted (Part II) regulations
+CREATE TABLE IF NOT EXISTS gazette_records (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  html_url TEXT NOT NULL,
+  part TEXT NOT NULL CHECK(part IN ('I', 'II', 'III')),
+  published_at TEXT NOT NULL,
+  description TEXT,
+  registration_number TEXT,
+  rias_url TEXT,
+  rias_text TEXT,
+  comment_deadline TEXT,
+  department TEXT,
+  regulation_id TEXT,
+  ingested_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_gazette_part ON gazette_records(part);
+CREATE INDEX IF NOT EXISTS idx_gazette_published ON gazette_records(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_gazette_registration ON gazette_records(registration_number);
+CREATE INDEX IF NOT EXISTS idx_gazette_department ON gazette_records(department);
+CREATE INDEX IF NOT EXISTS idx_gazette_part_date ON gazette_records(part, published_at DESC);
+
 -- Influence Actor Tables
 --
 -- Tracks international organizations, NGOs, think tanks, consultancies,
@@ -490,3 +514,529 @@ CREATE TABLE IF NOT EXISTS cra_charity_cache (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cra_name ON cra_charity_cache(legal_name);
+
+-- GIC Appointments (Governor-in-Council)
+--
+-- Tracks federal GIC appointments to ~1,500+ positions across boards,
+-- tribunals, commissions, agencies, and courts. This is the patronage
+-- pipeline — the system through which the Governor-in-Council appoints
+-- individuals to key regulatory, adjudicative, and advisory bodies.
+--
+-- Sources: GC InfoBase, Canada Gazette Orders in Council (open.canada.ca CKAN)
+--
+CREATE TABLE IF NOT EXISTS gic_appointments (
+  id TEXT PRIMARY KEY,
+
+  -- Appointee
+  appointee_name TEXT NOT NULL,
+  position_title TEXT NOT NULL,
+
+  -- Organization / body receiving the appointment
+  organization TEXT NOT NULL,
+  organization_acronym TEXT,
+
+  -- Classification
+  category TEXT NOT NULL DEFAULT 'other',
+  department TEXT NOT NULL,
+
+  -- Dates
+  appointment_date TEXT NOT NULL,
+  expiry_date TEXT,
+  is_retroactive INTEGER DEFAULT 0,
+
+  -- Compensation
+  salary_range TEXT,
+  salary_min REAL,
+  salary_max REAL,
+
+  -- Metadata
+  location TEXT,
+  predecessor_name TEXT,
+  order_in_council_number TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(appointee_name, position_title, organization, appointment_date)
+);
+
+-- Provincial Lobbying Registries
+--
+-- Tracks lobbying activities at the provincial level, normalized to
+-- match the federal lobbying_records schema. The province field
+-- distinguishes jurisdiction (ON, BC, AB, QC, etc.), enabling
+-- cross-jurisdiction queries where a company may lobby both
+-- federally and provincially on the same issue.
+--
+-- Sources:
+--   - Ontario: Integrity Commissioner of Ontario (lobbyist.oico.on.ca)
+--   - British Columbia: Office of the Registrar of Lobbyists
+--   - Alberta: Office of the Ethics Commissioner
+--   - Quebec: Commissaire au lobbyisme du Quebec
+--
+CREATE TABLE IF NOT EXISTS provincial_lobbying (
+  id TEXT PRIMARY KEY,
+
+  -- Jurisdiction
+  province TEXT NOT NULL DEFAULT 'ON',
+
+  -- Registrant information
+  registrant_name TEXT NOT NULL,
+  registrant_client TEXT,
+  registrant_address TEXT,
+
+  -- Client information
+  client_name TEXT NOT NULL,
+  client_business TEXT,
+
+  -- Lobbying details
+  subject_matter TEXT,
+  government_institution TEXT,
+  public_office_holder TEXT,
+
+  -- Dates
+  communication_date TEXT NOT NULL,
+  start_date TEXT,
+  end_date TEXT,
+
+  -- Financials
+  lobbying_cost_cad REAL,
+
+  -- Classification
+  lobbyist_type TEXT DEFAULT 'consultant',
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  original_id TEXT,
+  source_system TEXT NOT NULL DEFAULT 'ontario-registry',
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(province, registrant_name, client_name, communication_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_province ON provincial_lobbying(province);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_client ON provincial_lobbying(client_name);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_date ON provincial_lobbying(communication_date DESC);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_registrant ON provincial_lobbying(registrant_name);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_institution ON provincial_lobbying(government_institution);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_subject ON provincial_lobbying(subject_matter);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_province_client ON provincial_lobbying(province, client_name);
+CREATE INDEX IF NOT EXISTS idx_prov_lobbying_source ON provincial_lobbying(source_system);
+
+CREATE INDEX IF NOT EXISTS idx_gic_appointee ON gic_appointments(appointee_name);
+CREATE INDEX IF NOT EXISTS idx_gic_organization ON gic_appointments(organization);
+CREATE INDEX IF NOT EXISTS idx_gic_acronym ON gic_appointments(organization_acronym);
+CREATE INDEX IF NOT EXISTS idx_gic_category ON gic_appointments(category);
+CREATE INDEX IF NOT EXISTS idx_gic_department ON gic_appointments(department);
+CREATE INDEX IF NOT EXISTS idx_gic_appointment_date ON gic_appointments(appointment_date DESC);
+CREATE INDEX IF NOT EXISTS idx_gic_expiry ON gic_appointments(expiry_date);
+CREATE INDEX IF NOT EXISTS idx_gic_oin ON gic_appointments(order_in_council_number);
+CREATE INDEX IF NOT EXISTS idx_gic_source ON gic_appointments(source_system);
+
+-- Independent Oversight Bodies tables
+--
+-- Tracks reports, investigations, and recommendations from Canada's
+-- independent oversight bodies: OAG, PBO, Ethics Commissioner, etc.
+-- Recommendation tracking is the key feature.
+--
+
+-- Oversight body reports
+CREATE TABLE IF NOT EXISTS oversight_reports (
+  id TEXT PRIMARY KEY,
+  body TEXT NOT NULL CHECK(body IN ('OAG','PBO','EthicsCommissioner','LobbyingCommissioner','CompetitionBureau','CRTC','PrivacyCommissioner','InformationCommissioner','OfficialLanguagesCommissioner','CanadianHumanRightsCommission')),
+  title TEXT NOT NULL,
+  date TEXT NOT NULL,
+  url TEXT NOT NULL UNIQUE,
+  pdf_url TEXT,
+  report_type TEXT NOT NULL,
+  summary TEXT,
+  findings_json TEXT,
+  audited_entities_json TEXT,
+  fiscal_year TEXT,
+  report_number TEXT,
+  language TEXT DEFAULT 'en',
+  ingested_at TEXT NOT NULL,
+  UNIQUE(body, url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_or_body ON oversight_reports(body);
+CREATE INDEX IF NOT EXISTS idx_or_date ON oversight_reports(date DESC);
+CREATE INDEX IF NOT EXISTS idx_or_type ON oversight_reports(report_type);
+CREATE INDEX IF NOT EXISTS idx_or_fiscal ON oversight_reports(fiscal_year);
+CREATE INDEX IF NOT EXISTS idx_or_body_date ON oversight_reports(body, date DESC);
+
+-- Oversight report recommendations
+CREATE TABLE IF NOT EXISTS oversight_recommendations (
+  id TEXT PRIMARY KEY,
+  report_id TEXT NOT NULL REFERENCES oversight_reports(id) ON DELETE CASCADE,
+  text TEXT NOT NULL,
+  number INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'unknown' CHECK(status IN ('implemented','partially-implemented','not-implemented','in-progress','no-longer-valid','unknown')),
+  responsible_entity TEXT,
+  status_date TEXT,
+  target_date TEXT,
+  implementation_notes TEXT,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(report_id, number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_or_rec_report ON oversight_recommendations(report_id);
+CREATE INDEX IF NOT EXISTS idx_or_rec_status ON oversight_recommendations(status);
+CREATE INDEX IF NOT EXISTS idx_or_rec_entity ON oversight_recommendations(responsible_entity);
+CREATE INDEX IF NOT EXISTS idx_or_rec_report_status ON oversight_recommendations(report_id, status);
+
+-- Competition Bureau merger reviews
+-- Tracks merger reviews for anti-competitive effects — reveals corporate power consolidation
+CREATE TABLE IF NOT EXISTS merger_reviews (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  date TEXT NOT NULL,
+  url TEXT NOT NULL,
+  summary TEXT,
+  parties_json TEXT NOT NULL,           -- JSON array of merging parties
+  sector TEXT,
+  outcome TEXT NOT NULL DEFAULT 'unknown' CHECK(outcome IN ('cleared','challenged','settled','withdrawn','ongoing','unknown')),
+  conditions_json TEXT,                  -- JSON array of conditions imposed
+  anti_competitive_concerns INTEGER DEFAULT 0,
+  market_definition TEXT,
+  findings_json TEXT,                    -- JSON array of key findings
+  ingested_at TEXT NOT NULL,
+  UNIQUE(url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_mr_date ON merger_reviews(date DESC);
+CREATE INDEX IF NOT EXISTS idx_mr_outcome ON merger_reviews(outcome);
+CREATE INDEX IF NOT EXISTS idx_mr_sector ON merger_reviews(sector);
+CREATE INDEX IF NOT EXISTS idx_mr_anticomp ON merger_reviews(anti_competitive_concerns);
+CREATE INDEX IF NOT EXISTS idx_mr_date_outcome ON merger_reviews(outcome, date DESC);
+
+-- CRTC regulatory decisions
+-- Broadcasting/telecom regulatory decisions, ownership changes, net neutrality rulings
+CREATE TABLE IF NOT EXISTS crtc_decisions (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  date TEXT NOT NULL,
+  url TEXT NOT NULL,
+  summary TEXT,
+  decision_type TEXT NOT NULL DEFAULT 'broadcasting-decision' CHECK(decision_type IN ('broadcasting-decision','telecom-decision','ownership-change','policy','notice-consultation')),
+  decision_number TEXT,
+  affected_parties_json TEXT,            -- JSON array of companies/entities affected
+  findings_json TEXT,                     -- JSON array of regulatory findings
+  conditions_json TEXT,                   -- JSON array of conditions imposed
+  is_ownership_change INTEGER DEFAULT 0,
+  is_net_neutrality INTEGER DEFAULT 0,
+  is_telecom_pricing INTEGER DEFAULT 0,
+  is_broadcasting_content INTEGER DEFAULT 0,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_crtc_date ON crtc_decisions(date DESC);
+CREATE INDEX IF NOT EXISTS idx_crtc_type ON crtc_decisions(decision_type);
+CREATE INDEX IF NOT EXISTS idx_crtc_ownership ON crtc_decisions(is_ownership_change);
+CREATE INDEX IF NOT EXISTS idx_crtc_netneutrality ON crtc_decisions(is_net_neutrality);
+CREATE INDEX IF NOT EXISTS idx_crtc_pricing ON crtc_decisions(is_telecom_pricing);
+CREATE INDEX IF NOT EXISTS idx_crtc_number ON crtc_decisions(decision_number);
+CREATE INDEX IF NOT EXISTS idx_crtc_type_date ON crtc_decisions(decision_type, date DESC);
+
+-- Oversight body investigations (Ethics Commissioner, Lobbying Commissioner)
+--
+-- Tracks investigations conducted by ethics and lobbying commissioners.
+-- These are distinct from oversight_reports (audits/publications) and
+-- store investigation-specific fields: subject of investigation, outcome,
+-- and involved parties.
+--
+-- Cross-reference use case: link ethics investigations into ministers
+-- with the company involved in the violation, and whether that company
+-- lobbied the minister.
+--
+CREATE TABLE IF NOT EXISTS oversight_investigations (
+  id TEXT PRIMARY KEY,
+  body TEXT NOT NULL CHECK(body IN ('EthicsCommissioner','LobbyingCommissioner','PrivacyCommissioner','InformationCommissioner','OfficialLanguagesCommissioner')),
+  title TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  date_opened TEXT NOT NULL,
+  date_closed TEXT,
+  summary TEXT,
+  findings_json TEXT,
+  outcome TEXT,
+  parties_json TEXT,
+  url TEXT NOT NULL,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(body, url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_oi_body ON oversight_investigations(body);
+CREATE INDEX IF NOT EXISTS idx_oi_subject ON oversight_investigations(subject);
+CREATE INDEX IF NOT EXISTS idx_oi_date ON oversight_investigations(date_opened DESC);
+CREATE INDEX IF NOT EXISTS idx_oi_outcome ON oversight_investigations(outcome);
+CREATE INDEX IF NOT EXISTS idx_oi_body_subject ON oversight_investigations(body, subject);
+
+-- Investigation recommendations (for Ethics/Lobbying Commissioner reports)
+CREATE TABLE IF NOT EXISTS oversight_investigation_recommendations (
+  id TEXT PRIMARY KEY,
+  investigation_id TEXT NOT NULL REFERENCES oversight_investigations(id) ON DELETE CASCADE,
+  text TEXT NOT NULL,
+  number INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'unknown' CHECK(status IN ('implemented','partially-implemented','not-implemented','in-progress','no-longer-valid','unknown')),
+  responsible_entity TEXT,
+  status_date TEXT,
+  target_date TEXT,
+  implementation_notes TEXT,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(investigation_id, number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_oir_inv ON oversight_investigation_recommendations(investigation_id);
+CREATE INDEX IF NOT EXISTS idx_oir_status ON oversight_investigation_recommendations(status);
+
+-- Elections Canada Third-Party Advertiser Registry
+--
+-- Tracks organizations and individuals who register as third-party
+-- advertisers under the Canada Elections Act. Third parties spend money
+-- on federal election advertising outside of political parties --
+-- including unions, corporations, issue groups, and individuals.
+--
+-- This is the "dark money in elections" data source, enabling
+-- cross-referencing with influence tracking (is a tracked IO/NGO also
+-- a third-party advertiser?) and corporate tracking (is a tracked
+-- company associated?).
+--
+-- Sources: Elections.ca registry, open.canada.ca CKAN datasets
+--
+CREATE TABLE IF NOT EXISTS third_party_ads (
+  id TEXT PRIMARY KEY,
+
+  -- Registrant identity
+  registrant_name TEXT NOT NULL,
+  registrant_type TEXT NOT NULL CHECK(registrant_type IN ('union', 'corporation', 'issue-group', 'individual', 'other')),
+
+  -- Contact info
+  address TEXT,
+  city TEXT,
+  province TEXT,
+  postal_code TEXT,
+  telephone TEXT,
+
+  -- Responsible officer (for organizations)
+  officer_name TEXT,
+  officer_title TEXT,
+
+  -- Advertising targeting
+  targeted_ridings TEXT,       -- JSON array of electoral district names
+  issue_focus TEXT,            -- JSON array of issue keywords
+  platforms TEXT,              -- JSON array of advertising platforms
+
+  -- Election period
+  election_period_type TEXT NOT NULL DEFAULT 'election',
+  election_name TEXT,
+  election_period_start TEXT,
+  election_period_end TEXT,
+
+  -- Financial data
+  total_spending REAL,
+  spending_limit REAL,
+
+  -- Registration metadata
+  registration_number TEXT,
+  registration_date TEXT,
+
+  -- Cross-references
+  is_tracked_influence_actor INTEGER DEFAULT 0,
+  influence_actor_id TEXT,
+  is_tracked_corporate_entity INTEGER DEFAULT 0,
+  corporate_entity_number TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(registrant_name, registration_number, registration_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tpa_name ON third_party_ads(registrant_name);
+CREATE INDEX IF NOT EXISTS idx_tpa_type ON third_party_ads(registrant_type);
+CREATE INDEX IF NOT EXISTS idx_tpa_province ON third_party_ads(province);
+CREATE INDEX IF NOT EXISTS idx_tpa_spending ON third_party_ads(total_spending DESC);
+CREATE INDEX IF NOT EXISTS idx_tpa_period ON third_party_ads(election_period_type);
+CREATE INDEX IF NOT EXISTS idx_tpa_registration ON third_party_ads(registration_date);
+CREATE INDEX IF NOT EXISTS idx_tpa_influence ON third_party_ads(is_tracked_influence_actor);
+CREATE INDEX IF NOT EXISTS idx_tpa_corporate ON third_party_ads(is_tracked_corporate_entity);
+CREATE INDEX IF NOT EXISTS idx_tpa_source ON third_party_ads(source_system);
+
+-- Third-party spending detail records
+CREATE TABLE IF NOT EXISTS third_party_spending (
+  id TEXT PRIMARY KEY,
+
+  -- Link to advertiser registry record
+  third_party_ad_id TEXT,
+  registrant_name TEXT NOT NULL,
+
+  -- Reporting period
+  reporting_period TEXT NOT NULL,
+
+  -- Spending detail
+  platform TEXT NOT NULL,
+  amount REAL NOT NULL,
+  spending_category TEXT,
+  vendor_name TEXT,
+  targeted_riding TEXT,
+  expense_date TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  FOREIGN KEY (third_party_ad_id) REFERENCES third_party_ads(id),
+  UNIQUE(registrant_name, reporting_period, platform, amount, expense_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tps_ad_id ON third_party_spending(third_party_ad_id);
+CREATE INDEX IF NOT EXISTS idx_tps_name ON third_party_spending(registrant_name);
+CREATE INDEX IF NOT EXISTS idx_tps_period ON third_party_spending(reporting_period);
+CREATE INDEX IF NOT EXISTS idx_tps_platform ON third_party_spending(platform);
+CREATE INDEX IF NOT EXISTS idx_tps_amount ON third_party_spending(amount DESC);
+CREATE INDEX IF NOT EXISTS idx_tps_riding ON third_party_spending(targeted_riding);
+
+-- CanLII Court Decisions tables
+--
+-- Tracks metadata for Canadian court decisions from the CanLII API.
+-- Key courts: Supreme Court of Canada, Federal Court, Federal Court of Appeal, Tax Court.
+-- Every decision that reviews a government action interprets a regulation.
+-- Cross-reference with: tracked companies (are they litigating?),
+-- tracked influence actors (interveners in court cases).
+--
+-- Sources: api.canlii.org/v1 (caseBrowse, caseCitator endpoints)
+--
+
+-- CanLII decisions metadata (full text deferred)
+CREATE TABLE IF NOT EXISTS canlii_decisions (
+  id TEXT PRIMARY KEY,
+
+  -- CanLII source identifiers
+  database_id TEXT NOT NULL,
+  case_id TEXT NOT NULL,
+
+  -- Case metadata
+  case_name TEXT NOT NULL,
+  court TEXT NOT NULL CHECK(court IN ('SCC', 'FCA', 'FC', 'TCC')),
+  decision_date TEXT,
+
+  -- Identifiers
+  docket_number TEXT,
+  citation TEXT,
+  all_citations TEXT,
+
+  -- URLs
+  url TEXT,
+
+  -- Case details
+  language TEXT NOT NULL DEFAULT 'en',
+  keywords TEXT,
+  concatenated_id TEXT,
+  summary TEXT,
+  parties_json TEXT,
+
+  -- Citation graphs (JSON arrays)
+  cited_cases_json TEXT,
+  citing_cases_json TEXT,
+  cited_legislation_json TEXT,
+
+  -- Relevance flags
+  reviews_government_action INTEGER DEFAULT 0,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(database_id, case_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_canlii_court ON canlii_decisions(court);
+CREATE INDEX IF NOT EXISTS idx_canlii_decision_date ON canlii_decisions(decision_date DESC);
+CREATE INDEX IF NOT EXISTS idx_canlii_case_name ON canlii_decisions(case_name);
+CREATE INDEX IF NOT EXISTS idx_canlii_keywords ON canlii_decisions(keywords);
+CREATE INDEX IF NOT EXISTS idx_canlii_reviews_gov ON canlii_decisions(reviews_government_action);
+CREATE INDEX IF NOT EXISTS idx_canlii_database_case ON canlii_decisions(database_id, case_id);
+CREATE INDEX IF NOT EXISTS idx_canlii_ingested ON canlii_decisions(ingested_at DESC);
+
+-- CanLII citation graph edges
+-- Tracks case-to-case and case-to-legislation citation relationships.
+CREATE TABLE IF NOT EXISTS canlii_citations (
+  id TEXT PRIMARY KEY,
+
+  -- Source decision (the decision that contains the citation)
+  decision_id TEXT NOT NULL REFERENCES canlii_decisions(id) ON DELETE CASCADE,
+
+  -- Citation target
+  cited_database_id TEXT NOT NULL,
+  cited_case_id TEXT,
+  cited_title TEXT NOT NULL,
+  cited_citation TEXT NOT NULL,
+
+  -- Citation type
+  citation_type TEXT NOT NULL CHECK(citation_type IN ('cited-case', 'citing-case', 'cited-legislation')),
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(decision_id, cited_citation, citation_type)
+);
+
+CREATE INDEX IF NOT EXISTS idx_canlii_cit_decision ON canlii_citations(decision_id);
+CREATE INDEX IF NOT EXISTS idx_canlii_cit_target ON canlii_citations(cited_citation);
+CREATE INDEX IF NOT EXISTS idx_canlii_cit_type ON canlii_citations(citation_type);
+CREATE INDEX IF NOT EXISTS idx_canlii_cit_target_type ON canlii_citations(cited_citation, citation_type);
+
+-- LMIA (Labour Market Impact Assessment) records — ESDC quarterly data
+--
+-- Tracks employers who received positive or negative Labour Market Impact
+-- Assessments from Employment and Social Development Canada (ESDC).
+-- Data published quarterly since 2014 on open.canada.ca.
+--
+-- Cross-reference opportunities:
+--   - Corporate module: companies using TFW program with known lobbying/contracts
+--   - Procurement: companies with government contracts who also use TFWs
+--
+CREATE TABLE IF NOT EXISTS lmia_records (
+  id TEXT PRIMARY KEY,
+  employer TEXT NOT NULL,
+  city TEXT,
+  province TEXT,
+  outcome TEXT NOT NULL CHECK(outcome IN ('positive', 'negative')),
+  stream TEXT NOT NULL,
+  stream_raw TEXT NOT NULL,
+  noc TEXT,
+  noc_title TEXT,
+  positions INTEGER,
+  wage_min REAL,
+  wage_max REAL,
+  wage_rate TEXT,
+  quarter TEXT NOT NULL,
+  ingested_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_lmia_employer ON lmia_records(employer);
+CREATE INDEX IF NOT EXISTS idx_lmia_outcome ON lmia_records(outcome);
+CREATE INDEX IF NOT EXISTS idx_lmia_stream ON lmia_records(stream);
+CREATE INDEX IF NOT EXISTS idx_lmia_province ON lmia_records(province);
+CREATE INDEX IF NOT EXISTS idx_lmia_noc ON lmia_records(noc);
+CREATE INDEX IF NOT EXISTS idx_lmia_quarter ON lmia_records(quarter);
+CREATE INDEX IF NOT EXISTS idx_lmia_quarter_outcome ON lmia_records(quarter, outcome);
+CREATE INDEX IF NOT EXISTS idx_lmia_employer_quarter ON lmia_records(employer, quarter);
+CREATE INDEX IF NOT EXISTS idx_lmia_employer_outcome ON lmia_records(employer, outcome);

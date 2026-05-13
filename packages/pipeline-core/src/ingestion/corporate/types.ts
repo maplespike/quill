@@ -233,4 +233,6 @@ export interface CorporateIngestionResult {
   recordsIngested: number;
   errors: string[];
   durationMs: number;
+  /** Parsed records returned when db is null (dry-run mode) */
+  records?: unknown[];
 }

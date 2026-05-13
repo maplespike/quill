@@ -10,9 +10,8 @@
  *   - Minutes XML:    https://www.ourcommons.ca/DocumentViewer/en/{Parl}-{Session}/{ACRONYM}/meeting-{N}/minutes?format=xml
  */
 
-/* ------------------------------------------------------------------ */
-/*  Committee Metadata                                                 */
-/* ------------------------------------------------------------------ */
+
+export type Chamber = 'commons' | 'senate';
 
 export type CommitteeCategory =
   | 'standing'
@@ -36,9 +35,6 @@ export const COMMITTEE_CATEGORIES: Record<string, CommitteeCategory> = {
   AMAD: 'joint', BCAN: 'joint', BILI: 'joint', REGS: 'joint',
 };
 
-/* ------------------------------------------------------------------ */
-/*  Meeting Evidence (from Hansard XML)                                */
-/* ------------------------------------------------------------------ */
 
 export interface CommitteeMeeting {
   /** SHA-256 citation hash of the full evidence XML (primary key) */
@@ -46,6 +42,7 @@ export interface CommitteeMeeting {
 
   committeeAcronym: string;
   committeeName: string;
+  chamber: Chamber;
   parliament: number;
   session: number;
   meetingNumber: number;
@@ -68,9 +65,6 @@ export interface CommitteeMeeting {
   ingestedAt: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Interventions (individual speaker contributions)                  */
-/* ------------------------------------------------------------------ */
 
 export interface Intervention {
   meetingId: string;
@@ -86,9 +80,6 @@ export interface Intervention {
   paraTextIds: string[];
 }
 
-/* ------------------------------------------------------------------ */
-/*  Speaker Profiles                                                   */
-/* ------------------------------------------------------------------ */
 
 export interface CommitteeSpeaker {
   name: string;
@@ -99,9 +90,6 @@ export interface CommitteeSpeaker {
   lastSeen: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Ingestion Result                                                   */
-/* ------------------------------------------------------------------ */
 
 export interface CommitteeIngestionResult {
   committee: string;
@@ -114,9 +102,6 @@ export interface CommitteeIngestionResult {
   durationMs: number;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Raw Hansard XML types (internal parser)                            */
-/* ------------------------------------------------------------------ */
 
 /**
  * Shape of the raw Hansard XML after JSON conversion via fast-xml-parser.

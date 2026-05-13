@@ -22,15 +22,13 @@ const API_KEY = process.env.CIVINT_API_KEY ?? 'dev-key';
 
 const server = new McpServer();
 
-// Register all 6 tools
+// Register all tools (dynamically loaded from tools/index.ts)
 const tools = getAllTools();
 for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
 console.error(`[civint-mcp] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
-
-// ─── SSE transport helpers ──────────────────────────────────────────────
 
 interface SseClient {
   id: string;
@@ -45,28 +43,22 @@ function sendSse(res: ServerResponse, event: string, data: unknown): void {
   res.write(body);
 }
 
-// ─── Auth middleware ────────────────────────────────────────────────────
-
 function authenticate(req: IncomingMessage): boolean {
   if (API_KEY === 'dev-key') return true; // dev mode — no auth
   const auth = req.headers.authorization ?? '';
   return auth === `Bearer ${API_KEY}` || auth === `Bearer ${Buffer.from(API_KEY).toString('base64')}`;
 }
 
-// ─── HTTP Server ───────────────────────────────────────────────────────
-
 const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
   const path = url.pathname;
 
-  // ── Health check ──────────────────────────────────────────────────
   if (path === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', tools: tools.length }));
     return;
   }
 
-  // ── SSE endpoint (server → client events) ─────────────────────────
   if (path === '/sse' && req.method === 'GET') {
     if (!authenticate(req)) {
       res.writeHead(401, { 'Content-Type': 'application/json' });
@@ -108,7 +100,6 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     return;
   }
 
-  // ── Client → Server messages (POST JSON-RPC) ──────────────────────
   if (path === '/messages' && req.method === 'POST') {
     const clientId = (url.searchParams.get('clientId') as string) ?? 'unknown';
     const client = clients.get(clientId);
@@ -146,12 +137,9 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     return;
   }
 
-  // ── 404 ───────────────────────────────────────────────────────────
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not found', path }));
 });
-
-// ─── Start ─────────────────────────────────────────────────────────────
 
 httpServer.listen(PORT, () => {
   console.log(`[civint-mcp] Hosted SSE server running on http://0.0.0.0:${PORT}`);
@@ -160,7 +148,6 @@ httpServer.listen(PORT, () => {
   console.log(`[civint-mcp] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
 });
 
-// Handle shutdown
 process.on('SIGINT', () => {
   console.error('[civint-mcp] SIGINT received, closing SSE connections');
   for (const { res } of clients.values()) {

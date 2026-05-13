@@ -14,13 +14,11 @@
  *   - GAC international development project data
  */
 
-import { request } from 'undici';
+import { httpGet } from '../../utils/http.js';
+import { hashString } from '../rss.js';
 import { INFLUENCE_SOURCES, TRACKED_INFLUENCE_ACTORS } from './constants.js';
-import type { GovernmentFunding, InfluenceConnection } from './types.js';
+import type { GovernmentFunding, InfluenceConnection, InfluenceActorCategory } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  Grants & Contributions (CKAN)                                      */
-/* ------------------------------------------------------------------ */
 
 /**
  * Search the federal Grants & Contributions dataset via CKAN.
@@ -31,12 +29,11 @@ export async function fetchGrantsCkanMetadata(): Promise<{
   datasets: { title: string; url: string; org: string }[];
 }> {
   try {
-    const resp = await request(INFLUENCE_SOURCES.GRANTS.CKAN_SEARCH, {
-      method: 'GET',
+    const resp = await httpGet(INFLUENCE_SOURCES.GRANTS.CKAN_SEARCH, {
       headers: { Accept: 'application/json' },
-    } as any);
+    });
 
-    const body = await resp.body.json() as any;
+    const body: any = resp.body ? JSON.parse(resp.body) : {};
     const docs = body?.response?.docs ?? [];
 
     return {
@@ -52,9 +49,6 @@ export async function fetchGrantsCkanMetadata(): Promise<{
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Funding Flow Detection                                             */
-/* ------------------------------------------------------------------ */
 
 /**
  * Keywords that indicate an organization receiving government
@@ -86,9 +80,117 @@ export function buildGrantSearchUrl(organizationName: string): string {
   return `https://search.open.canada.ca/api/select?q=${query}&rows=10&wt=json`;
 }
 
-/* ------------------------------------------------------------------ */
-/*  International Organization Dues & Contributions                    */
-/* ------------------------------------------------------------------ */
+
+/**
+ * Raw grant record shape returned by the open.canada.ca Solr / CKAN API.
+ */
+interface CkanGrantDoc {
+  id?: string;
+  title?: string;
+  org_title_at_publication?: string;
+  owner_org?: string;
+  url?: string;
+  /** Fiscal year field if present */
+  fiscal_year?: string;
+  /** Amount if present */
+  amount?: number;
+  /** Program name if present */
+  program_name?: string;
+  /** Recipient name if present */
+  recipient_name?: string;
+  /** Agreement type */
+  agreement_type?: string;
+  /** Start/end dates */
+  start_date?: string;
+  end_date?: string;
+  /** Description */
+  description?: string;
+  [key: string]: unknown;
+}
+
+interface CkanGrantResponse {
+  response?: {
+    numFound?: number;
+    docs?: CkanGrantDoc[];
+  };
+}
+
+
+/**
+ * Query the CKAN grants/contributions search for a specific actor.
+ *
+ * Fetches real dataset results from the open.canada.ca Solr endpoint
+ * and returns raw docs that can be parsed into GovernmentFunding records.
+ */
+export async function queryGrantsForActor(
+  actorName: string,
+): Promise<CkanGrantDoc[]> {
+  const url = buildGrantSearchUrl(actorName);
+  try {
+    const resp = await httpGet(url, {
+      headers: { Accept: 'application/json' },
+      timeoutMs: 15_000,
+    });
+    const body: CkanGrantResponse = JSON.parse(resp.body);
+    return body?.response?.docs ?? [];
+  } catch {
+    return [];
+  }
+}
+
+
+/**
+ * Parse a raw CKAN grant doc into a partial GovernmentFunding record.
+ */
+export function parseCkanGrantDoc(
+  doc: CkanGrantDoc,
+  matchedActorId: string,
+  matchedActorName: string,
+): {
+  id: string;
+  recipientName: string;
+  recipientType: InfluenceActorCategory | null;
+  department: string;
+  programName: string;
+  agreementType: string;
+  amount: number;
+  currency: string;
+  fiscalYear: string;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+  sourceUrl: string;
+  ingestedAt: string;
+  departmentAcronym: string | null;
+} {
+  const now = new Date().toISOString();
+  const recipient = doc.recipient_name ?? matchedActorName;
+  const dept = doc.org_title_at_publication ?? doc.owner_org ?? 'Government of Canada';
+  const title = doc.title ?? '';
+  const sourceUrl = doc.url ?? buildGrantSearchUrl(matchedActorName);
+
+  // Generate a deterministic ID
+  const id = `ckan-${hashString(recipient + dept + title + now)}`;
+
+  return {
+    id,
+    recipientName: recipient,
+    recipientType: matchedActorId ? null : null, // resolved from tracked actor
+    department: dept,
+    departmentAcronym: null,
+    programName: doc.program_name ?? (title.substring(0, 200) || 'Unknown Program'),
+    agreementType: doc.agreement_type ?? 'grant',
+    amount: doc.amount ?? 0,
+    currency: 'CAD',
+    fiscalYear: doc.fiscal_year ?? 'Unknown',
+    startDate: doc.start_date ?? null,
+    endDate: doc.end_date ?? null,
+    description: doc.description ?? title ?? null,
+    sourceUrl,
+    ingestedAt: now,
+  };
+}
+
 
 /**
  * Canada's assessed contributions to international organizations.
@@ -155,9 +257,6 @@ export const CANADA_INTL_ORG_CONTRIBUTIONS: {
   },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Consulting Firm Contract Detection                                 */
-/* ------------------------------------------------------------------ */
 
 /**
  * Known high-value consulting contracts that have been scrutinized.

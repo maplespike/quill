@@ -9,6 +9,12 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { fetchStatCanReleases, fetchCKANPackages, GOV_DATA_SOURCES } from '@civint/pipeline-core';
 import type { GovRelease } from '@civint/pipeline-core';
+import { readFileSync, existsSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /* ------------------------------------------------------------------ */
 /*  Sample data for development                                        */
@@ -143,4 +149,40 @@ export const searchGovHandler: RouteHandler = async (request, ctx) => {
     },
     total: ckanResults.length + sampleMatches.length,
   }, ctx));
+};
+
+/* ------------------------------------------------------------------ */
+/*  Pipeline Data Endpoint                                             */
+/* ------------------------------------------------------------------ */
+
+const PIPELINE_DATA_PATHS = [
+  resolve(__dirname, '../../../../packages/portal/assets/pipeline-data.json'),
+  resolve('/data/projects/own/civint/packages/portal/assets/pipeline-data.json'),
+];
+
+export const dataHandler: RouteHandler = async (_request, ctx) => {
+  // Find the pipeline data file
+  let pipelineDataPath: string | null = null;
+  for (const p of PIPELINE_DATA_PATHS) {
+    if (existsSync(p)) {
+      pipelineDataPath = p;
+      break;
+    }
+  }
+
+  if (!pipelineDataPath) {
+    return jsonResponse(
+      buildError('NOT_FOUND', 'Pipeline data file not found. Run the data pipeline first.', ctx),
+      404,
+    );
+  }
+
+  try {
+    const raw = readFileSync(pipelineDataPath, 'utf-8');
+    const data = JSON.parse(raw);
+    return jsonResponse(buildSuccess(data, ctx));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to read pipeline data';
+    return jsonResponse(buildError('DATA_READ_ERROR', message, ctx), 500);
+  }
 };

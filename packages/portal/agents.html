@@ -10,6 +10,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
+  <link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
+  <meta property="og:title" content="AI Setup — CivInt Canada">
+  <meta property="og:description" content="Connect CivInt to ChatGPT, Claude, Gemini, and Grok. Plus your own pipelines.">
+  <meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://civint.ca/agents.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Setup — CivInt Canada">
+  <meta name="twitter:description" content="Connect CivInt to ChatGPT, Claude, Gemini, and Grok for AI-powered government data access.">
+  <meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "CivInt Canada",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://civint.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
 </head>
 <body>
 
@@ -85,18 +109,17 @@
   <p>OpenAI's ChatGPT supports MCP through the ChatGPT desktop app and GPT Actions. Add CivInt as an MCP server to let ChatGPT answer questions about Canadian government data.</p>
   
   <h4>Desktop App (macOS/Windows)</h4>
-  <p>Configure in <code>~/.chatgpt/mcp.json</code>:</p>
+  <p>Configure in <code>~/.chatgpt/mcp.json</code>. You can connect via the SSE endpoint (recommended) or run the MCP server from source:</p>
   <div class="code-block">
 {
   "mcpServers": {
     "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key" }
+      "url": "https://civint.lan/mcp"
     }
   }
 }
   </div>
+  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">Note: The MCP server runs as a service on your K3s cluster. Ask your cluster admin for the endpoint URL and API key. To run locally, build from the repo: <code>pnpm --filter @civint/mcp-server start</code></p>
 
   <h4>Or use the ChatGPT Actions API</h4>
   <p>Point a GPT Action to CivInt's MCP endpoint at <code>https://civint.lan/mcp</code> (local) or the hosted MCP server endpoint.</p>
@@ -111,23 +134,21 @@
   <p>Claude was the first major AI to adopt MCP natively. Both Claude Desktop and Claude Code support CivInt out of the box.</p>
 
   <h4>Claude Desktop</h4>
-  <p>Add to <code>claude_desktop_config.json</code>:</p>
+  <p>Add to <code>claude_desktop_config.json</code>. Connect via the SSE endpoint (recommended):</p>
   <div class="code-block">
 {
   "mcpServers": {
     "civint-canada": {
-      "command": "npx",
-      "args": ["@civint/mcp-server"],
-      "env": { "CIVINT_API_KEY": "your-key" }
+      "url": "https://civint.lan/mcp"
     }
   }
 }
   </div>
+  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">The MCP server runs as a cluster service. Ask your cluster admin for the endpoint URL. The API key is managed by the operator — set <code>CIVINT_API_KEY</code> in the server environment.</p>
 
   <h4>Claude Code (CLI)</h4>
   <div class="code-block">
-claude mcp add civint-canada -- npx @civint/mcp-server \
-  --env CIVINT_API_KEY=your-key
+claude mcp add civint-canada -- https://civint.lan/mcp
   </div>
 
   <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using the CivInt MCP tools, find me all lobbyist meetings with Innovation department this quarter and check if any of those companies also have sole-source contracts."</em></p>
@@ -182,7 +203,7 @@ from openai import OpenAI
 import json
 
 client = OpenAI(
-  api_key="your-xai-key",
+  api_key="<ask-operator>",
   base_url="https://api.x.ai/v1"
 )
 
@@ -296,9 +317,9 @@ response = client.chat.completions.create(
     <div>
       <h4>Legal</h4>
       <ul>
-        <li><a href="#">Terms of Service</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-        <li><a href="#">OGL-C Attribution</a></li>
+        <li>Terms of Service</li>
+        <li>Privacy Policy</li>
+        <li>OGL-C Attribution</li>
         <li><a href="https://github.com/reverb256">GitHub</a></li>
       </ul>
     </div>

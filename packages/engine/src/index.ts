@@ -12,3 +12,6 @@ export * from "./graph/index";
 // Schemas
 export * from "./schemas/index";
 export * from "./types/index";
+// Orchestrator
+export { EngineOrchestrator, runEnginePipeline } from "./orchestrator";
+export type { OrchestratorResult, OrchestratorSummary } from "./orchestrator";

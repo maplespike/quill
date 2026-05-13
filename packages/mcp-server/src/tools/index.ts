@@ -1,5 +1,5 @@
 /**
- * Tool registry — loads all 4 CivInt MCP tools
+ * Tool registry — loads all CivInt MCP tools
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
@@ -7,6 +7,16 @@ import * as queryGovData from './query-gov-data.js';
 import * as factCheck from './fact-check.js';
 import * as getCitation from './get-citation.js';
 import * as latestReleases from './latest-releases.js';
+import * as searchCommittees from './search-committees.js';
+import * as searchCorporate from './search-corporate.js';
+import * as searchInfluence from './search-influence.js';
+import * as searchGazette from './search-gazette.js';
+import * as searchGic from './search-gic.js';
+import * as searchElections from './search-elections.js';
+import * as searchProvincialLobbying from './search-provincial-lobbying.js';
+import * as searchOversight from './search-oversight.js';
+import * as searchCanlii from './search-canlii.js';
+import * as searchLmia from './search-lmia.js';
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -19,6 +29,16 @@ export function getAllTools(): ToolModule[] {
     factCheck,
     getCitation,
     latestReleases,
+    searchCommittees,
+    searchCorporate,
+    searchInfluence,
+    searchGazette,
+    searchGic,
+    searchElections,
+    searchProvincialLobbying,
+    searchOversight,
+    searchCanlii,
+    searchLmia,
   ];
 }
 

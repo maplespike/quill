@@ -10,14 +10,11 @@
  * taxpayer-funded contracts and under what terms.
  */
 
-import { request } from 'undici';
+import { httpGet, parseJsonBody } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { CORPORATE_SOURCES } from './constants.js';
 import type { ContractAward } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  CanadaBuys Tenders (current opportunities)                        */
-/* ------------------------------------------------------------------ */
 
 export interface TenderNotice {
   id: string;
@@ -38,12 +35,11 @@ export interface TenderNotice {
  * Fetch current tender opportunities from CanadaBuys RSS feed.
  */
 export async function fetchTendersRss(): Promise<TenderNotice[]> {
-  const resp = await request(CORPORATE_SOURCES.PROCUREMENT.RSS_FEED, {
-    method: 'GET',
+  const resp = await httpGet(CORPORATE_SOURCES.PROCUREMENT.RSS_FEED, {
     headers: { Accept: 'application/rss+xml,application/xml' },
-  } as any);
+  });
 
-  const xml = await resp.body.text();
+  const xml = resp.body;
   const tenders: TenderNotice[] = [];
 
   // Simple RSS item parser
@@ -83,9 +79,6 @@ export async function fetchTendersRss(): Promise<TenderNotice[]> {
   return tenders;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Proactive Disclosure — Contracts over $10K                        */
-/* ------------------------------------------------------------------ */
 
 /**
  * Fetch proactive disclosure data from open.canada.ca CKAN API.
@@ -98,12 +91,11 @@ export async function fetchProactiveDisclosureContracts(): Promise<{
 }> {
   const searchUrl = 'https://search.open.canada.ca/api/select?q=proactive+disclosure+AND+contracts&fq=owner_org:gc&rows=5&wt=json';
 
-  const resp = await request(searchUrl, {
-    method: 'GET',
+  const resp = await httpGet(searchUrl, {
     headers: { Accept: 'application/json' },
-  } as any);
+  });
 
-  const body = await resp.body.json() as any;
+  const body: any = resp.body ? JSON.parse(resp.body) : {};
   const docs = body?.response?.docs ?? [];
 
   return {
@@ -117,9 +109,6 @@ export async function fetchProactiveDisclosureContracts(): Promise<{
   };
 }
 
-/* ------------------------------------------------------------------ */
-/*  Sole-Source Contract Detection                                     */
-/* ------------------------------------------------------------------ */
 
 /**
  * Keywords that indicate a contract may be sole-source (non-competitive).
@@ -150,9 +139,6 @@ export function isSoleSource(description: string | null, method: string | null):
   return false;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Contract Value Parsing                                            */
-/* ------------------------------------------------------------------ */
 
 /**
  * Parse a contract value string (e.g. "$1,234,567.89 CAD") to a number.

@@ -33,33 +33,31 @@
 
 import { XMLParser } from 'fast-xml-parser';
 import { computeHash } from '../../verification/hashing.js';
+import { getText } from '../../utils/http.js';
 import {
   evidenceHtmlUrl,
   evidenceUrl,
 } from './constants.js';
 import type {
+  Chamber,
   CommitteeMeeting,
   Intervention,
   RawHansard,
 } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  Parser Configuration                                               */
-/* ------------------------------------------------------------------ */
 
-const XML_PARSER: XMLParser = new (XMLParser as any)({
+
+const XML_PARSER: XMLParser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '@_',
   textNodeName: '#text',
-  isArray: (_name: string, _jpath: string, _isLeafNode: boolean) => false,
+  isArray: () => false,
   cdataPropName: '#cdata',
   trimValues: true,
   maxNestedTags: 5000,
-});
+} as import('fast-xml-parser').X2jOptions);
 
-/* ------------------------------------------------------------------ */
-/*  Metadata extraction                                                */
-/* ------------------------------------------------------------------ */
+
 
 interface ParsedMetadata {
   committeeAcronym: string;
@@ -75,10 +73,6 @@ interface ParsedMetadata {
   subject: string | null;
 }
 
-/**
- * Extract metadata from ExtractedInformation items.
- * The items come as either an array or a single object (fast-xml-parser quirk).
- */
 function extractMetadata(xml: RawHansard): ParsedMetadata | null {
   const info = xml.Hansard?.ExtractedInformation;
   if (!info) return null;
@@ -135,9 +129,7 @@ function extractMetadata(xml: RawHansard): ParsedMetadata | null {
   };
 }
 
-/* ------------------------------------------------------------------ */
-/*  Intervention extraction                                            */
-/* ------------------------------------------------------------------ */
+
 
 /**
  * Parse the speaker role, party, and riding from an affiliation string.
@@ -195,9 +187,6 @@ function parseSpeakerAffiliation(raw: string): {
   return result;
 }
 
-/**
- * Extract interventions from the XML structure.
- */
 function extractInterventions(xml: RawHansard): Intervention[] {
   const interventions: Intervention[] = [];
   const body = xml.Hansard?.HansardBody;
@@ -246,9 +235,7 @@ function extractInterventions(xml: RawHansard): Intervention[] {
     // Parse speaker
     const affiliationRawRaw = intervention.PersonSpeaking?.Affiliation;
     // Affiliation can be a string or an object with #text (when it has attributes like DbId)
-    const affiliationRaw = typeof affiliationRawRaw === 'object' && affiliationRawRaw !== null
-      ? (affiliationRawRaw as any)['#text'] ?? ''
-      : String(affiliationRawRaw ?? '');
+    const affiliationRaw = getText(affiliationRawRaw);
     const speaker = parseSpeakerAffiliation(affiliationRaw);
 
       // ParaText can be a string or object with #text (when it has id attribute)
@@ -258,10 +245,9 @@ function extractInterventions(xml: RawHansard): Intervention[] {
 
       const textParas: string[] = [];
       for (const p of paras) {
-        if (typeof p === 'string' && p.trim().length > 0) {
-          textParas.push(p);
-        } else if (typeof p === 'object' && p !== null && (p as any)['#text']) {
-          textParas.push((p as any)['#text']);
+        const pText = getText(p);
+        if (pText.trim().length > 0) {
+          textParas.push(pText);
         }
       }
       const text = textParas.join('\n\n');
@@ -299,22 +285,18 @@ function extractInterventions(xml: RawHansard): Intervention[] {
   return interventions;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Main Parse Entry Point                                            */
-/* ------------------------------------------------------------------ */
+
 
 export interface ParsedEvidence {
   meeting: CommitteeMeeting;
   interventions: Intervention[];
 }
 
-/**
- * Parse a raw Hansard XML string into structured meeting + interventions.
- */
 export async function parseEvidenceXml(
   xml: string,
   parliament?: number,
   session?: number,
+  chamber: Chamber = 'commons',
 ): Promise<ParsedEvidence> {
   const parsed: RawHansard = XML_PARSER.parse(xml) as unknown as RawHansard;
   const meta = extractMetadata(parsed);
@@ -330,6 +312,7 @@ export async function parseEvidenceXml(
     id: await computeHash(xml, 'sha256'),
     committeeAcronym: acronym,
     committeeName: meta.committeeName,
+    chamber,
     parliament: p,
     session: s,
     meetingNumber: meta.meetingNumber,

@@ -12,13 +12,10 @@
  * Many think tanks, NGOs, and advocacy groups are registered charities.
  */
 
-import { request } from 'undici';
+import { httpGet } from '../../utils/http.js';
 import { TRACKED_INFLUENCE_ACTORS } from './constants.js';
 import type { CraCharityRecord } from './types.js';
 
-/* ------------------------------------------------------------------ */
-/*  CRA Charity Search                                                 */
-/* ------------------------------------------------------------------ */
 
 /**
  * Search CRA charity database for a specific organization.
@@ -32,12 +29,11 @@ export async function searchCraCharity(
   const searchUrl = `https://apps.cra-arc.gc.ca/ebci/hacc/srch/pub/dsplyBscSrch?selectedCharityBn=&selectedFdtnBn=&selectedLanguage=en&q=${encodeURIComponent(query)}`;
 
   try {
-    const resp = await request(searchUrl, {
-      method: 'GET',
-      timeout: 15_000,
-    } as any);
+    const resp = await httpGet(searchUrl, {
+      timeoutMs: 15_000,
+    });
 
-    const html = await resp.body.text();
+    const html = resp.body;
     const results: Partial<CraCharityRecord>[] = [];
 
     // Parse result table rows
@@ -102,9 +98,6 @@ export async function resolveCraBn(
   return null;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Actor Committee History (Cross-Reference)                          */
-/* ------------------------------------------------------------------ */
 
 /**
  * Build search URLs for checking if a tracked actor has appeared
