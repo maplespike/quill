@@ -1,38 +1,62 @@
-name: Deploy Portal to GitHub Pages
+name: Deploy Portal to K3s
 
 on:
   push:
     branches:
-      - main
+      - prod
     paths:
       - 'packages/portal/**'
       - '.github/workflows/deploy-portal.yml'
   workflow_dispatch:
 
-concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
         with:
-          path: packages/portal
+          ref: prod
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Build and push Docker image
+        env:
+          SSH_HOST: ${{ secrets.NEXUS_HOST }}
+          SSH_USER: ${{ secrets.NEXUS_USER }}
+          SSH_KEY: ${{ secrets.NEXUS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+          # Copy portal files to nexus
+          tar czf /tmp/portal.tar.gz -C packages/portal \
+            --exclude=node_modules --exclude=.git \
+            .
+          scp /tmp/portal.tar.gz $SSH_USER@$SSH_HOST:/tmp/
+
+          # Build and push image on nexus
+          ssh $SSH_USER@$SSH_HOST "
+            set -e
+            mkdir -p /tmp/portal-build
+            cd /tmp/portal-build
+            rm -rf *
+            tar xzf /tmp/portal.tar.gz
+            docker build -t localhost:5000/civint-portal:latest .
+            docker push localhost:5000/civint-portal:latest
+            rm -rf /tmp/portal-build /tmp/portal.tar.gz
+          "
+
+      - name: Rollout K8s pod
+        env:
+          SSH_HOST: ${{ secrets.NEXUS_HOST }}
+          SSH_USER: ${{ secrets.NEXUS_USER }}
+          SSH_KEY: ${{ secrets.NEXUS_SSH_KEY }}
+        run: |
+          ssh $SSH_USER@$SSH_HOST "
+            set -e
+            kubectl delete pod civint-portal -n ai-inference --ignore-not-found
+            sleep 2
+            kubectl wait --for=condition=ready pod -l app=civint-portal -n ai-inference --timeout=60s
+            echo '✅ civint-portal is ready'
+          "
