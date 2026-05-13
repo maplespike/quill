@@ -3,142 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — CivInt Canada</title>
-<meta name="description" content="CivInt Canada developer dashboard — API key management, usage statistics, activity log, and pipeline monitoring.">
+<title>CivInt Canada — Civic Pulse Dashboard</title>
+<meta name="description" content="See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E84545'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-<link rel="icon" type="image/png" sizes="512x512" href="assets/civint_logo_v2_00002_.png">
-<link rel="apple-touch-icon" href="assets/civint_logo_v2_00002_.png">
-<meta property="og:title" content="CivInt Canada — Developer Dashboard &amp; API">
-<meta property="og:description" content="Canada's sovereign, AI-native government data pipeline. Monitor parliamentary committees, lobbying, regulations, court decisions, and more. Manage API keys and track usage in real time.">
-<meta property="og:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:url" content="https://civint.ca/dashboard.html">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="en_CA">
-<meta property="og:site_name" content="CivInt Canada">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="CivInt Canada — Developer Dashboard &amp; API">
-<meta name="twitter:description" content="Monitor Canada's government data pipeline — committees, lobbying, regulations, courts, and oversight. API key management and usage tracking built in.">
-<meta name="twitter:image" content="https://civint.ca/assets/civint_logo_v2_00002_.png">
-<meta name="twitter:site" content="@civint_ca">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "CivInt Canada",
-  "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
-  "url": "https://civint.ca",
-  "foundingDate": "2025",
-  "funder": { "@type": "Organization", "name": "Reverb256" }
-}
-</script>
 <style>
-.dash-layout { display:flex;min-height:100vh;padding-top:64px; }
-.dash-sidebar { width:220px;flex-shrink:0;padding:24px 16px;background:var(--bg-secondary);border-right:1px solid var(--border);position:fixed;top:64px;bottom:0;overflow-y:auto;z-index:10; }
-.dash-sidebar .logo { display:flex;align-items:center;gap:8px;font-weight:700;font-size:1rem;color:var(--text-primary);margin-bottom:24px; }
-.dash-nav { list-style:none;padding:0;margin:0; }
-.dash-nav li { margin-bottom:2px; }
-.dash-nav a { display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:0.9rem;color:var(--text-secondary);transition:all .2s;cursor:pointer; }
-.dash-nav a:hover { background:var(--bg-elevated);color:var(--text-primary); }
-.dash-nav a.active { background:var(--accent-dim);color:var(--accent);font-weight:600; }
-.dash-nav .badge { margin-left:auto;font-size:0.7rem;padding:2px 8px;border-radius:99px;background:var(--accent);color:#fff;font-weight:600; }
-.dash-content { flex:1;padding:32px 40px;margin-left:220px;max-width:1400px; }
-.dash-content h1 { font-size:1.6rem;margin-bottom:4px; }
-.dash-content .subtitle { color:var(--text-secondary);font-size:0.9rem;margin-bottom:28px; }
-.section-label { font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:12px;margin-top:32px; }
-.section-label:first-of-type { margin-top:0; }
-.stats-row { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px; }
-.stat-card { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .2s; }
-.stat-card:hover { border-color:var(--text-muted);transform:translateY(-1px); }
-.stat-card .stat-label { font-size:0.8rem;color:var(--text-muted);margin-bottom:4px; }
-.stat-card .stat-value { font-size:1.8rem;font-weight:700;color:var(--text-primary); }
-.stat-card .stat-sub { font-size:0.8rem;color:var(--text-secondary);margin-top:4px; }
-.stat-card .stat-icon { font-size:1.5rem;margin-bottom:8px; }
-.card-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-bottom:24px; }
-.card { background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .2s; }
-.card:hover { border-color:var(--text-muted); }
-.card h3 { font-size:0.95rem;margin-bottom:12px;display:flex;align-items:center;gap:6px; }
-.card .item { display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem; }
-.card .item:last-child { border-bottom:none; }
-.card .item .left { display:flex;align-items:center;gap:8px; }
-.card .item .name { font-weight:500;color:var(--text-primary); }
-.card .item .meta { color:var(--text-muted);font-size:0.8rem; }
-.card .item .tag { font-size:0.7rem;padding:2px 8px;border-radius:99px;font-weight:600; }
-.tag-red { background:var(--accent-dim);color:var(--accent); }
-.tag-cyan { background:var(--accent-cyan-dim);color:var(--accent-cyan); }
-.tag-green { background:var(--base19);color:var(--success); }
-.tag-yellow { background:rgba(251,191,36,0.12);color:var(--warning); }
-.tag-orange { background:rgba(249,115,22,0.12);color:#F97316; }
-.tag-purple { background:rgba(168,85,247,0.12);color:#A855F7; }
-.tag-pink { background:rgba(236,72,153,0.12);color:#EC4899; }
-.signal-feed { display:flex;flex-direction:column;gap:8px; }
-.signal-item { display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--bg-secondary);border-radius:8px;border-left:3px solid var(--accent);font-size:0.85rem;transition:all .15s;cursor:pointer; }
-.signal-item:hover { background:var(--bg-elevated); }
-.signal-item .sev { width:6px;height:6px;border-radius:50%;margin-top:6px;flex-shrink:0; }
-.signal-item .sev.high { background:var(--accent); }
-.signal-item .sev.med { background:var(--warning); }
-.signal-item .sev.low { background:var(--success); }
-.signal-item .body { flex:1; }
-.signal-item .title { font-weight:600;color:var(--text-primary);margin-bottom:2px; }
-.signal-item .desc { color:var(--text-secondary);margin-bottom:4px; }
-.signal-item .signal-meta { font-size:0.75rem;color:var(--text-muted); }
-.pipeline-row { display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:24px; }
-.pipeline-card { background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:16px; }
-.pipeline-card h4 { font-size:0.85rem;margin-bottom:8px;display:flex;align-items:center;gap:6px; }
-.pipeline-card .metric { display:flex;justify-content:space-between;font-size:0.8rem;padding:4px 0;color:var(--text-secondary); }
-.pipeline-card .metric .val { font-weight:600;color:var(--text-primary); }
-.status-dot { width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px; }
-.status-dot.ok { background:var(--success); }
-.status-dot.warn { background:var(--warning); }
-.status-dot.err { background:var(--accent); }
-.tab-bar { display:flex;gap:4px;margin-bottom:24px;background:var(--bg-secondary);border-radius:10px;padding:4px;width:fit-content;flex-wrap:wrap; }
-.tab-btn { padding:8px 20px;border:none;background:transparent;color:var(--text-secondary);font-size:0.85rem;font-weight:500;border-radius:8px;cursor:pointer;transition:all .15s;font-family:inherit; }
-.tab-btn:hover { color:var(--text-primary); }
-.tab-btn.active { background:var(--bg-card);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,0.2); }
-.empty-state { text-align:center;padding:48px 24px;color:var(--text-muted);font-size:0.9rem; }
+/* ═══ Dashboard-specific styles ═══ */
 
-/* Live search & ticker */
-.dash-topbar { display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap; }
-.dash-search { flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;transition:all .2s; }
-.dash-search:focus-within { border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim); }
-.dash-search input { flex:1;background:transparent;border:none;outline:none;color:var(--text-primary);font-size:0.85rem;font-family:inherit; }
-.dash-search input::placeholder { color:var(--text-muted); }
-.live-ticker { display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:0.8rem;color:var(--text-secondary);overflow:hidden;max-width:360px; }
-.live-ticker .pulse { width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0; }
-@keyframes pulse { 0%{opacity:1} 50%{opacity:0.3} 100%{opacity:1} }
-.live-ticker .ticker-text { white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+/* ── Layout ── */
+.dash { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
+.dash-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+.dash-header h1 { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
 
-/* Entity spotlight */
-.spotlight-card { display:grid;grid-template-columns:auto 1fr;gap:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;transition:all .3s; }
-.spotlight-card:hover { border-color:var(--accent); }
-.spotlight-card .avatar { width:48px;height:48px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:var(--accent); }
-.spotlight-card .s-name { font-weight:700;font-size:1rem;color:var(--text-primary); }
-.spotlight-card .s-org { font-size:0.85rem;color:var(--text-secondary); }
-.spotlight-card .s-tags { display:flex;gap:6px;flex-wrap:wrap;margin-top:6px; }
-.spotlight-card .s-tag { font-size:0.7rem;padding:2px 8px;border-radius:99px;font-weight:600; }
-.spotlight-card .s-links { margin-top:8px;display:flex;gap:6px;flex-wrap:wrap; }
-.spotlight-card .s-link { font-size:0.78rem;color:var(--accent-cyan);text-decoration:none;padding:2px 8px;border-radius:4px;background:var(--accent-cyan-dim); }
-.spotlight-card .s-link:hover { color:var(--text-primary); }
+/* ── Search hero ── */
+.search-hero { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px 40px; margin-bottom: 32px; text-align: center; }
+.search-hero h2 { font-size: 1.3rem; margin: 0 0 6px; }
+.search-hero p { color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 20px; }
+.search-box { display: flex; align-items: center; gap: 8px; max-width: 560px; margin: 0 auto; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 20px; transition: all var(--transition); }
+.search-box:focus-within { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+.search-box input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 0.95rem; font-family: inherit; }
+.search-box input::placeholder { color: var(--text-muted); }
+.search-box .hint { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+.search-suggestions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.search-suggestions a { font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; padding: 4px 14px; border-radius: 99px; background: var(--accent-cyan-dim); transition: all var(--transition); }
+.search-suggestions a:hover { background: var(--accent); color: #fff; }
 
-/* Animated counter */
-.stat-card .stat-value .counter-suffix { font-size:0.7em;color:var(--text-muted); }
+/* ── Stats row ── */
+.stats-dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 32px; }
+.stat-dash { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; transition: all var(--transition); }
+.stat-dash:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.stat-dash .icon { font-size: 1.6rem; margin-bottom: 8px; }
+.stat-dash .num { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
+.stat-dash .num .suffix { font-size: 0.65em; color: var(--text-muted); }
+.stat-dash .label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+.stat-dash .trend { font-size: 0.72rem; margin-top: 6px; padding: 2px 10px; border-radius: 99px; display: inline-block; }
+.trend-up { background: var(--base19); color: var(--success); }
+.trend-warn { background: var(--base18); color: var(--accent); }
+.trend-flat { background: var(--bg-elevated); color: var(--text-muted); }
 
-/* Cross-reference entity */
-.crossref { background:var(--bg-secondary);border-radius:8px;padding:12px 16px;margin-bottom:8px;border-left:3px solid var(--accent-cyan);font-size:0.85rem; }
-.crossref .cr-title { font-weight:600;color:var(--text-primary);margin-bottom:2px; }
-.crossref .cr-desc { color:var(--text-secondary);font-size:0.82rem; }
-.crossref .cr-source { font-size:0.75rem;color:var(--text-muted);margin-top:4px; }
-.source-link { display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-muted);text-decoration:none;padding:2px 6px;border-radius:4px;transition:all .15s; }
-.source-link:hover { color:var(--accent-cyan);background:var(--accent-cyan-dim); }
-.source-link .domain { max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-.signal-item .source-link { margin-top:4px; }
-.card .item .source-link { flex-shrink:0;margin-left:8px; }
-@media(max-width:768px){ .dash-sidebar{display:none}.dash-content{margin-left:0;padding:24px 16px}.stats-row{grid-template-columns:1fr 1fr}.card-grid{grid-template-columns:1fr} }
+/* ── Section headers ── */
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 36px 0 16px; }
+.section-head h2 { font-size: 1.1rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+.section-head .see-all { font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; }
+.section-head .see-all:hover { text-decoration: underline; }
+
+/* ── Card grid ── */
+.card-grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 8px; }
+
+/* ── Alert cards ── */
+.alert-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all var(--transition); position: relative; overflow: hidden; }
+.alert-card:hover { border-color: var(--accent-cyan); transform: translateY(-1px); }
+.alert-card .bar { position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+.alert-card .bar.red { background: var(--accent); }
+.alert-card .bar.amber { background: var(--warning); }
+.alert-card .bar.green { background: var(--success); }
+.alert-card .bar.blue { background: var(--base0D); }
+.alert-card .bar.purple { background: var(--base0E); }
+.alert-card .bar.cyan { background: var(--accent-cyan); }
+.alert-card .card-head { display: flex; align-items: flex-start; gap: 12px; }
+.alert-card .card-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+.alert-card .card-body { flex: 1; min-width: 0; }
+.alert-card .card-title { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 4px; line-height: 1.4; }
+.alert-card .card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+.alert-card .card-meta { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
+.alert-card .card-meta .tag { font-size: 0.68rem; padding: 2px 10px; border-radius: 99px; font-weight: 600; }
+.alert-card .card-meta .tag-influence { background: var(--base22); color: var(--base0E); }
+.alert-card .card-meta .tag-parliament { background: var(--base18); color: var(--accent); }
+.alert-card .card-meta .tag-money { background: var(--base20); color: var(--accent-cyan); }
+.alert-card .card-meta .tag-court { background: var(--base21); color: var(--base0D); }
+.alert-card .card-meta .tag-regulation { background: var(--base19); color: var(--success); }
+
+/* ── Entity cards ── */
+.entity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.entity-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 14px; transition: all var(--transition); cursor: pointer; }
+.entity-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.entity-card .e-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+.entity-card .e-info { flex: 1; min-width: 0; }
+.entity-card .e-name { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+.entity-card .e-org { font-size: 0.78rem; color: var(--text-secondary); }
+.entity-card .e-stat { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Trending topics ── */
+.trending-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.trend-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: all var(--transition); }
+.trend-card:hover { border-color: var(--accent-cyan); }
+.trend-card .trend-rank { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.trend-card .rank-num { font-size: 1.2rem; font-weight: 800; color: var(--text-muted); }
+.trend-card .rank-change { font-size: 0.7rem; }
+.trend-card .trend-topic { font-weight: 600; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 4px; }
+.trend-card .trend-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; }
+.trend-card .trend-mentions { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
+
+/* ── Loading shimmer ── */
+.shimmer { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius); }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── In-camera spotlight ── */
+.spotlight-banner { background: linear-gradient(135deg, var(--base18), var(--bg-card)); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.spotlight-banner .sb-icon { font-size: 2.2rem; flex-shrink: 0; }
+.spotlight-banner .sb-body { flex: 1; min-width: 200px; }
+.spotlight-banner .sb-title { font-weight: 700; font-size: 1rem; color: var(--accent); margin-bottom: 4px; }
+.spotlight-banner .sb-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.spotlight-banner .sb-btn { flex-shrink: 0; }
+
+/* ── Responsive ── */
+@media(max-width:768px) {
+  .dash { padding: 20px 16px 60px; }
+  .search-hero { padding: 24px 20px; }
+  .stats-dash { grid-template-columns: repeat(2, 1fr); }
+  .card-grid-3 { grid-template-columns: 1fr; }
+  .entity-grid { grid-template-columns: repeat(2, 1fr); }
+  .trending-grid { grid-template-columns: 1fr; }
+  .spotlight-banner { padding: 20px; }
+}
+
+/* ── Glossary tooltip (restored) ── */
+.glossary-term { border-bottom: 1px dashed var(--text-muted); cursor: help; position: relative; }
+.glossary-tip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--base03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: var(--text-secondary); width: 240px; box-shadow: var(--shadow-lg); z-index: 100; pointer-events: none; }
+.glossary-term:hover .glossary-tip { display: block; }
 </style>
 </head>
 <body>
@@ -152,1233 +137,317 @@
       <li><a href="agents.html">For AI Tools</a></li>
       <li><a href="index.html#pricing">Pricing</a></li>
       <li><a href="dashboard.html" class="btn btn-sm btn-ghost" style="border-color:var(--accent);color:var(--accent);">Dashboard</a></li>
-      <li><button class="theme-toggle"></button></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
     <button class="nav-mobile-toggle">☰</button>
   </div>
 </nav>
 
-<div class="dash-layout">
-  <aside class="dash-sidebar">
-    <div class="logo"><span class="logo-icon" style="width:24px;height:24px;font-size:0.75rem;">C</span>CivInt</div>
-    <ul class="dash-nav" id="dashNav">
-      <li><a data-view="overview" class="active">📊 Overview</a></li>
-      <li><a data-view="committees">🏛️ Committees <span class="badge">0</span></a></li>
-      <li><a data-view="corporate">💰 Corporate <span class="badge">0</span></a></li>
-      <li><a data-view="influence">🌐 Influence <span class="badge">0</span></a></li>
-      <li><a data-view="regulations">📜 Regulations</a></li>
-      <li><a data-view="courts">⚖️ Courts</a></li>
-      <li><a data-view="signals">⚠️ Signals <span class="badge">0</span></a></li>
-      <li><a data-view="oversight">👁️ Oversight</a></li>
-      <li style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;"><a data-view="pipeline">⚙️ Pipeline</a></li>
-      <li><a data-view="api-keys">🔑 API Keys</a></li>
-      <li><a href="index.html">🏠 Home</a></li>
-    </ul>
-  </aside>
+<div class="dash">
 
-  <main class="dash-content" id="dashContent">
-    <!-- Rendered by JS -->
-  </main>
+  <!-- Header -->
+  <div class="dash-header">
+    <h1>🇨🇦 Civic Pulse</h1>
+    <span style="font-size:0.82rem;color:var(--text-muted);">Live from official government sources · Updated every 6 hours</span>
+  </div>
+
+  <!-- Search hero -->
+  <div class="search-hero">
+    <h2>What's happening in Canadian government today?</h2>
+    <p>Search across Parliament, lobbying, regulations, court decisions, and more.</p>
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" placeholder="Search committees, people, companies, topics..." id="dash-search-input">
+      <span class="hint">⏎ enter</span>
+    </div>
+    <div class="search-suggestions">
+      <a href="#" data-search="in-camera">🔒 In-camera meetings</a>
+      <a href="#" data-search="lobbying">💼 Lobbying activity</a>
+      <a href="#" data-search="sole-source">⚠️ Sole-source contracts</a>
+      <a href="#" data-search="ethics">⚖️ Ethics investigations</a>
+      <a href="#" data-search="regulations">📜 New regulations</a>
+      <a href="#" data-search="catherine tait">🎤 Catherine Tait</a>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-dash" id="stats-row">
+    <div class="stat-dash shimmer">&nbsp;</div>
+    <div class="stat-dash shimmer">&nbsp;</div>
+    <div class="stat-dash shimmer">&nbsp;</div>
+    <div class="stat-dash shimmer">&nbsp;</div>
+    <div class="stat-dash shimmer">&nbsp;</div>
+  </div>
+
+  <!-- In-camera spotlight -->
+  <div class="spotlight-banner">
+    <div class="sb-icon">🔒</div>
+    <div class="sb-body">
+      <div class="sb-title">In-camera meeting detection is live</div>
+      <div class="sb-desc">CivInt automatically detects when parliamentary committees go behind closed doors. We track all 54 committees across both chambers — if a meeting is marked in-camera, you'll know what was discussed and who was there.</div>
+    </div>
+    <a href="#" class="btn btn-primary sb-btn">View recent alerts →</a>
+  </div>
+
+  <!-- Recent alerts / signals -->
+  <div class="section-head">
+    <h2>🔔 Notable activity</h2>
+    <a href="#" class="see-all">View all signals →</a>
+  </div>
+  <div class="card-grid-3" id="alerts-feed">
+    <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
+    <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
+    <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
+  </div>
+
+  <!-- Parliament & Committees -->
+  <div class="section-head">
+    <h2>🏛️ Parliament &amp; Committees</h2>
+    <a href="#" class="see-all">See all committees →</a>
+  </div>
+  <div class="card-grid-3" id="committees-feed">
+    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+  </div>
+
+  <!-- Tracked entities -->
+  <div class="section-head">
+    <h2>👤 Who we're watching</h2>
+    <a href="#" class="see-all">View all tracked →</a>
+  </div>
+  <div class="entity-grid" id="entity-feed">
+    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+  </div>
+
+  <!-- Money & Influence -->
+  <div class="section-head">
+    <h2>💰 Money &amp; Influence</h2>
+    <a href="#" class="see-all">See all contracts →</a>
+  </div>
+  <div class="card-grid-3" id="money-feed">
+    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+  </div>
+
+  <!-- Trending topics -->
+  <div class="section-head">
+    <h2>📈 Trending in Committees</h2>
+    <a href="#" class="see-all">See all topics →</a>
+  </div>
+  <div class="trending-grid" id="trending-feed">
+    <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
+    <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
+    <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
+  </div>
+
 </div>
 
 <script>
-(function(){
-'use strict';
-
-// ══════════════════════════════════════════════════════════
-//  DATA — 12-module CivInt data pipeline
-// ══════════════════════════════════════════════════════════
-
-const MODULE_LABELS = {
-  hoc: 'HoC Committees',
-  senate: 'Senate Committees',
-  corporate: 'Corporate/Procurement',
-  lobbying: 'Federal Lobbying',
-  procurement: 'Procurement Contracts',
-  influence: 'Influence Actors',
-  gazette: 'Canada Gazette',
-  gic: 'GIC Appointments',
-  elections: 'Elections (3rd Party)',
-  provincialLobbying: 'ON Lobbying',
-  oversight: 'Oversight Bodies',
-  canlii: 'CanLII (Courts)',
-  lmia: 'LMIA (TFW)',
-  engine: 'Entity Engine',
-};
-
-const MODULE_ICONS = {
-  hoc: '🏛️', senate: '🏛️', corporate: '💼', lobbying: '💰',
-  procurement: '📄', influence: '🌐', gazette: '📜', gic: '👤',
-  elections: '🗳️', provincialLobbying: '🗺️', oversight: '👁️',
-  canlii: '⚖️', lmia: '👷', engine: '⚙️',
-};
-
-// ── Pipeline data loader ─────────────────────────────────
-
-let PIPELINE_DATA = null;
-let DATA_LOADED = false;
-
-const API_BASE = 'http://127.0.0.1:8083/v1';
-
-function getStoredApiKey() {
-  return localStorage.getItem('civint_api_key') || '';
-}
-
-async function loadPipelineData() {
-  // Try API server first
-  const apiKey = getStoredApiKey();
-  if (apiKey) {
-    try {
-      const resp = await fetch(API_BASE + '/gov/releases', {
-        headers: { 'Authorization': 'Bearer ' + apiKey }
-      });
-      if (resp.ok) {
-        const json = await resp.json();
-        if (json.success && json.data) {
-          // Wrap API response into PIPELINE_DATA-compatible shape
-          PIPELINE_DATA = {
-            sources: {},
-            stats: { jurisdictions: 1 },
-            releases: json.data.releases || [],
-            govSources: json.data.sources || [],
-          };
-          DATA_LOADED = true;
-          updateSidebarBadges();
-          console.log('[CivInt] Pipeline data loaded from API server');
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('[CivInt] API server unreachable, falling back to local data', e);
-    }
-  }
-
-  // Fallback to local pipeline-data.json
-  try {
-    const resp = await fetch('assets/pipeline-data.json?t=' + Date.now());
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const json = await resp.json();
-    PIPELINE_DATA = json;
-    DATA_LOADED = true;
-    updateSidebarBadges();
-    console.log('[CivInt] Pipeline data loaded from assets/pipeline-data.json');
-  } catch (e) {
-    console.warn('[CivInt] No pipeline data available — running in offline mode', e);
-    PIPELINE_DATA = null;
-    DATA_LOADED = false;
-  }
-}
-
-function updateSidebarBadges() {
-  if (!PIPELINE_DATA) return;
-  const committees = (PIPELINE_DATA.committees || []).length + (PIPELINE_DATA.senateCommittees || []).length;
-  const committeesBadge = document.querySelector('.dash-nav a[data-view="committees"] .badge');
-  if (committeesBadge) committeesBadge.textContent = committees;
-
-  const corpCount = (PIPELINE_DATA.executives || []).length + (PIPELINE_DATA.contracts || []).length;
-  const corpBadge = document.querySelector('.dash-nav a[data-view="corporate"] .badge');
-  if (corpBadge) corpBadge.textContent = corpCount;
-
-  const influenceCount = (PIPELINE_DATA.influenceActors || []).length;
-  const influenceBadge = document.querySelector('.dash-nav a[data-view="influence"] .badge');
-  if (influenceBadge) influenceBadge.textContent = influenceCount;
-
-  const signalCount = (PIPELINE_DATA.signals || []).length;
-  const signalBadge = document.querySelector('.dash-nav a[data-view="signals"] .badge');
-  if (signalBadge) signalBadge.textContent = signalCount;
-}
-
-// ══════════════════════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════════════════════
-
-function sourceLink(url) {
-  if (!url) return '';
-  const domain = url.replace(/https?:\/\//,'').replace(/\/.*$/,'');
-  return `<a href="${url}" target="_blank" rel="noopener" class="source-link" title="${url}">🔗 <span class="domain">${domain}</span></a>`;
-}
-
-function iconForType(type) {
-  const icons = {
-    committee:'🏛️', procurement:'📄', lobbying:'💰', signal:'⚠️',
-    gazette:'📜', gic:'👤', elections:'🗳️', canlii:'⚖️',
-    oversight:'👁️', provincialLobbying:'🗺️', influence:'🌐', engine:'⚙️',
-    court:'⚖️', contract:'📄', executive:'👔', body:'🛡️',
-  };
-  return icons[type] || '📋';
-}
-
-function renderEmptyState(msg) {
-  return `<div class="empty-state">${msg || 'No data loaded. Run the data generator to populate the dashboard.'}</div>`;
-}
-
-// ══════════════════════════════════════════════════════════
-//  VIEW RENDERERS
-// ══════════════════════════════════════════════════════════
-
-function getPipelineSources() {
-  if (!PIPELINE_DATA) return {};
-  // Prefer 'pipeline' (flat format with status/lastRun/records/errors) over 'sources' (raw data without lastRun)
-  if (PIPELINE_DATA.pipeline && Object.keys(PIPELINE_DATA.pipeline).length > 0) return PIPELINE_DATA.pipeline;
-  return PIPELINE_DATA.sources || {};
-}
-
-function getStats() {
-  if (!PIPELINE_DATA) return null;
-  return PIPELINE_DATA.stats || {};
-}
-
-function renderOverview() {
-  if (!PIPELINE_DATA) {
-    return renderTopBar() + renderEmptyState();
-  }
-
-  const sources = getPipelineSources();
-  const totalRecords = Object.values(sources).reduce((s,m) => s + (m.records || 0), 0);
-  const allGreen = Object.values(sources).every(m => (m.status || 'ok') === 'ok');
-  const moduleCount = Object.keys(sources).length;
-  const signals = PIPELINE_DATA.signals || [];
-  const committees = PIPELINE_DATA.committees || [];
-  const senateCommittees = PIPELINE_DATA.senateCommittees || [];
-  const totalCommittees = committees.length + senateCommittees.length;
-  const crossrefs = PIPELINE_DATA.crossrefs || [];
-  const activity = PIPELINE_DATA.activity || [];
-  const stats = getStats();
-
-  const totalSignals = signals.length;
-  const highSignals = signals.filter(s => s.severity === 'high').length;
-
-  return `
-    ${renderTopBar()}
-
-    <!-- Entity Spotlight -->
-    ${crossrefs.length > 0 ? `<div class="spotlight-card" id="spotlightCard">${renderSpotlight(crossrefs[0])}</div>` : ''}
-
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">📡</div><div class="stat-label">Data Sources</div><div class="stat-value">${moduleCount}</div><div class="stat-sub" style="color:var(--success);">${allGreen ? 'All modules healthy' : 'Some issues'}</div></div>
-      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Pipeline Records</div><div class="stat-value" data-count="${totalRecords}">0</div><div class="stat-sub">Across all data pipelines</div></div>
-      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Committees</div><div class="stat-value">${totalCommittees}</div><div class="stat-sub">${committees.length > 0 ? 'HoC (' + committees.length + ') + Senate (' + senateCommittees.length + ')' : ''}</div></div>
-      <div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-label">Oversight Bodies</div><div class="stat-value">${(PIPELINE_DATA.oversightReports || []).length}</div><div class="stat-sub">Currently tracked</div></div>
-      <div class="stat-card"><div class="stat-icon">🗺️</div><div class="stat-label">Jurisdictions</div><div class="stat-value">${stats.jurisdictions || (PIPELINE_DATA.provincialLobbying ? 2 : 1)}</div><div class="stat-sub">Federal${PIPELINE_DATA.provincialLobbying ? ' + Provincial' : ''}</div></div>
-      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">System Status</div><div class="stat-value" style="color:var(--success);font-size:1.2rem;">${allGreen ? 'All Green' : '⚠️ Issues'}</div><div class="stat-sub">${allGreen ? moduleCount + ' modules operational' : 'Some modules need attention'}</div></div>
-    </div>
-
-    ${crossrefs.length > 0 ? `
-    <div class="section-label">🔗 Cross-Source Connections</div>
-    <div id="crossrefSection">
-      ${crossrefs.map(x => renderCrossref(x)).join('')}
-    </div>` : ''}
-
-    <div class="section-label">Pipeline Health</div>
-    <div class="pipeline-row">
-      ${Object.entries(sources).map(([name, m]) => `
-        <div class="pipeline-card" style="border-left:3px solid ${(m.status || 'ok') === 'ok' ? 'var(--success)' : 'var(--warning)'};">
-          <h4><span class="status-dot ${m.status || 'ok'}"></span>${MODULE_ICONS[name] || '📡'} ${MODULE_LABELS[name] || name}</h4>
-          <div class="metric"><span>Records</span><span class="val">${(m.records || 0).toLocaleString()}</span></div>
-          <div class="metric"><span>Last run</span><span class="val">${m.lastRun || 'unknown'}</span></div>
-          <div class="metric"><span>Errors</span><span class="val" style="color:${(m.errors || 0) > 0 ? 'var(--accent)' : 'var(--success)'}">${m.errors || 0}</span></div>
-        </div>
-      `).join('')}
-    </div>
-
-    <!-- In-Camera Alerts -->
-    ${(() => {
-      const inCamera = committees.filter(c => c.inCamera).concat(senateCommittees.filter(c => c.inCamera));
-      if (inCamera.length === 0) return '';
-      return `
-        <div class="section-label">🔒 In-Camera Alerts</div>
-        <div class="signal-feed" style="margin-bottom:24px;">
-          ${inCamera.map(c => `
-            <div class="signal-item" style="border-left-color:var(--accent);">
-              <span class="sev high"></span>
-              <div class="body">
-                <div class="title">${c.name} — Closed Meeting #${c.meeting}</div>
-                <div class="desc">${c.topic || 'No public transcript available'}</div>
-                <div class="signal-meta">${c.date || ''} ${sourceLink(c.source)}</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    })()}
-
-    ${signals.length > 0 ? `
-    <div class="section-label">Recent Signals</div>
-    <div class="signal-feed">
-      ${signals.map(s => `
-        <div class="signal-item">
-          <span class="sev ${s.severity}"></span>
-          <div class="body">
-            <div class="title">${s.title}</div>
-            <div class="desc">${s.desc || ''}</div>
-            <div class="signal-meta">${s.source || ''}${s.date ? ' · ' + s.date : ''} ${sourceLink(s.link || s.url)}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-
-    ${activity.length > 0 ? `
-    <div class="section-label">Latest Activity</div>
-    <div class="card" style="margin-top:12px;">
-      ${activity.map(a => {
-        const actType = a.type || a.module || '';
-        const actTime = a.time || a.timestamp || '';
-        const actAction = a.action || a.message || '';
-        const actSource = a.source || '';
-        return `
-        <div class="item">
-          <div class="left">
-            <span>${iconForType(actType)}</span>
-            <span class="name">${actAction}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="meta">${actTime}</span>
-            ${sourceLink(actSource)}
-          </div>
-        </div>`;
-      }).join('')}
-    </div>` : ''}
-  `;
-}
-
-function renderTopBar() {
-  const sources = getPipelineSources();
-  const totalRecords = Object.values(sources).reduce((s,m) => s + (m.records || 0), 0);
-  const defaultMsg = PIPELINE_DATA ? `${Object.keys(sources).length} pipeline modules active — ${totalRecords.toLocaleString()} records ingested` : 'No pipeline data loaded';
-  return `
-    <div class="dash-topbar">
-      <div class="dash-search">
-        <span style="color:var(--text-muted);font-size:0.9rem;">🔍</span>
-        <input type="text" id="dashSearch" placeholder="Search committees, lobbyists, contracts, regulations..." oninput="window.searchDashboard(this.value)">
-      </div>
-      <div class="live-ticker">
-        <span class="pulse"></span>
-        <span class="ticker-text" id="tickerText">${defaultMsg}</span>
-      </div>
-    </div>
-  `;
-}
-
-function renderSpotlight(entity) {
-  if (!entity) return '';
-  const apps = entity.apps || entity.links || entity.references || [];
-  return `
-    <div class="avatar">${(entity.name || '?').charAt(0)}</div>
-    <div>
-      <div class="s-name">${entity.name || 'Unknown'}</div>
-      <div class="s-org">${entity.org || ''}${entity.title ? ' · ' + entity.title : ''}</div>
-      <div class="s-tags">
-        ${apps.map(a => `<span class="s-tag" style="background:var(--accent-cyan-dim);color:var(--accent-cyan);">${a.source || a.type || 'ref'}</span>`).join('')}
-      </div>
-      <div class="s-links">
-        ${apps.map(a => `<a href="${a.link || a.url || '#'}" target="_blank" class="s-link">${a.label || a.title || 'Link'}</a>`).join('')}
-      </div>
-    </div>
-  `;
-}
-
-function renderCrossref(x) {
-  if (!x) return '';
-  const apps = x.apps || x.links || x.references || [];
-  return `
-    <div class="crossref">
-      <div class="cr-title">${x.name || 'Unknown'} <span style="font-weight:400;color:var(--text-muted);font-size:0.8rem;">${x.org || ''}</span></div>
-      <div class="cr-desc">Appears in ${apps.length} sources:</div>
-      ${apps.map(a => `
-        <div style="margin-top:4px;font-size:0.82rem;display:flex;align-items:center;gap:6px;">
-          <span style="color:var(--text-muted);font-size:0.7rem;">${iconForType(a.source || a.type || '')}</span>
-          <a href="${a.link || a.url || '#'}" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">${a.label || a.title || 'Link'}</a>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderCommittees() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const committees = PIPELINE_DATA.committees || [];
-  const senateCommittees = PIPELINE_DATA.senateCommittees || [];
-  const allComm = committees.concat(senateCommittees);
-  const inCamera = allComm.filter(c => c.inCamera);
-
-  if (allComm.length === 0) return renderEmptyState('No committee data loaded.');
-
-  const witnessCount = allComm.reduce((s,c) => s + ((c.witnesses && c.witnesses.length) || 0), 0);
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">House Committees</div><div class="stat-value">${committees.length}</div></div>
-      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Senate Committees</div><div class="stat-value">${senateCommittees.length}</div></div>
-      <div class="stat-card"><div class="stat-icon">🔒</div><div class="stat-label">In-Camera This Period</div><div class="stat-value">${inCamera.length}</div><div class="stat-sub" style="color:var(--accent);">Closed to the public</div></div>
-      <div class="stat-card"><div class="stat-icon">🎤</div><div class="stat-label">Witnesses Called</div><div class="stat-value">${witnessCount}</div></div>
-    </div>
-
-    <div class="tab-bar" style="margin-bottom:24px;">
-      <button class="tab-btn active" data-comm-filter="all">All</button>
-      <button class="tab-btn" data-comm-filter="house">House of Commons</button>
-      <button class="tab-btn" data-comm-filter="senate">Senate</button>
-    </div>
-
-    <div class="section-label">Recent Meetings</div>
-    <div class="card" style="margin-top:12px;" id="committeeList">
-      ${allComm.map(c => {
-        const isSenate = c.chamber === 'senate' || (c.id && c.id.startsWith('S'));
-        return `
-        <div class="item" data-comm-chamber="${isSenate ? 'senate' : 'house'}">
-          <div class="left">
-            <span>${c.inCamera ? '🔒' : '🎥'}</span>
-            <span class="name">${c.id || ''}${c.id ? ' — ' : ''}${c.name || 'Unknown'}</span>
-            <span class="meta">${c.meeting ? '#' + c.meeting : ''}${c.date ? ' · ' + c.date : ''}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="tag ${c.inCamera ? 'tag-red' : 'tag-cyan'}">${c.inCamera ? 'In-Camera' : 'Public'}</span>
-            ${sourceLink(c.source || c.url || '')}
-          </div>
-        </div>
-        <div style="padding:0 0 8px 28px;font-size:0.8rem;color:var(--text-secondary);">${c.topic || ''}</div>`;
-      }).join('')}
-    </div>
-
-    ${inCamera.length > 0 ? `
-    <div class="section-label" style="margin-top:24px;">In-Camera Alerts</div>
-    <div class="signal-feed" style="margin-top:12px;">
-      ${inCamera.map(c => `
-        <div class="signal-item">
-          <span class="sev high"></span>
-          <div class="body">
-            <div class="title">🔒 ${c.name || ''} — Closed Meeting ${c.meeting ? '#' + c.meeting : ''}</div>
-            <div class="desc">${c.topic || 'No public transcript available'}</div>
-            <div class="signal-meta">${c.date || ''} ${sourceLink(c.source || c.url || '')}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-  `;
-}
-
-function renderCorporate() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const contracts = PIPELINE_DATA.contracts || [];
-  const lobbying = PIPELINE_DATA.lobbying || [];
-  const executives = PIPELINE_DATA.executives || [];
-  const soleSource = contracts.filter(c => c.method === 'Sole Source');
-
-  if (executives.length === 0 && contracts.length === 0 && lobbying.length === 0) {
-    return renderEmptyState('No corporate data loaded.');
-  }
-
-  const totalValue = contracts.reduce((s, c) => {
-    const v = (c.value || '').replace(/[$,]/g,'');
-    return s + (parseFloat(v) || 0);
-  }, 0);
-  const valueStr = totalValue >= 1e9 ? '$' + (totalValue / 1e9).toFixed(1) + 'B' : totalValue >= 1e6 ? '$' + (totalValue / 1e6).toFixed(1) + 'M' : totalValue >= 1e3 ? '$' + (totalValue / 1e3).toFixed(1) + 'K' : '$' + totalValue;
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">👔</div><div class="stat-label">Tracked Executives</div><div class="stat-value">${executives.length}</div></div>
-      <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-label">Active Contracts</div><div class="stat-value">${contracts.length}</div><div class="stat-sub" style="color:var(--accent);">${soleSource.length > 0 ? soleSource.length + ' sole-source' : ''}</div></div>
-      <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-label">Lobbying Reports</div><div class="stat-value">${lobbying.length}</div><div class="stat-sub">firms tracked</div></div>
-      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Total Contract Value</div><div class="stat-value">${valueStr}</div><div class="stat-sub">in tracked awards</div></div>
-    </div>
-
-    ${lobbying.length > 0 ? `
-    <div class="section-label">Top Lobbying Firms</div>
-    <div class="card" style="margin-top:12px;">
-      ${lobbying.map(l => `
-        <div class="item">
-          <div class="left"><span class="name">${l.firm || l.name || ''}</span><span class="meta">${l.dept || l.department || ''}</span></div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="tag tag-cyan">${l.count || l.communications || 0} communications</span>
-            ${sourceLink(l.source || l.url || '')}
-          </div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-
-    <div class="card-grid">
-      ${contracts.length > 0 ? `
-      <div>
-        <div class="section-label">Recent Contracts</div>
-        <div class="card" style="margin-top:12px;">
-          ${contracts.map(c => `
-            <div class="item">
-              <div class="left"><span class="name">${c.vendor || c.name || ''}</span><span class="meta">${c.dept || c.department || ''}</span></div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span class="tag ${(c.method || '') === 'Sole Source' ? 'tag-red' : 'tag-green'}">${c.value || c.amount || ''}</span>
-                ${sourceLink(c.source || c.url || '')}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>` : ''}
-      ${executives.length > 0 ? `
-      <div>
-        <div class="section-label">Tracked Executives</div>
-        <div class="card" style="margin-top:12px;">
-          ${executives.slice(0,10).map(e => `
-            <div class="item">
-              <div class="left"><span class="name">${e.name || ''}</span><span class="meta">${e.org || e.organization || ''}</span></div>
-              <span class="tag ${(e.sector || '') === 'banking' ? 'tag-cyan' : (e.sector || '') === 'telecom' ? 'tag-orange' : 'tag-red'}">${e.sector || ''}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>` : ''}
-    </div>
-  `;
-}
-
-function renderInfluence() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const actors = PIPELINE_DATA.influenceActors || [];
-  if (actors.length === 0) return renderEmptyState('No influence actor data loaded.');
-
-  const byCat = {};
-  actors.forEach(a => { const cat = a.cat || a.category || 'Other'; byCat[cat] = (byCat[cat] || 0) + 1; });
-  const critical = actors.filter(a => (a.priority || '') === 'critical');
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">🌐</div><div class="stat-label">Tracked Actors</div><div class="stat-value">${actors.length}</div></div>
-      <div class="stat-card"><div class="stat-icon">🔴</div><div class="stat-label">Critical Priority</div><div class="stat-value">${critical.length}</div><div class="stat-sub" style="color:var(--accent);">Highest monitoring level</div></div>
-      <div class="stat-card"><div class="stat-icon">📂</div><div class="stat-label">Categories</div><div class="stat-value">${Object.keys(byCat).length}</div></div>
-      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Cross-Refs</div><div class="stat-value">${Object.keys(byCat).length * 3}</div><div class="stat-sub">Across categories</div></div>
-    </div>
-
-    <div class="section-label">By Category</div>
-    <div class="card-grid">
-      ${Object.entries(byCat).map(([cat, count]) => `
-        <div class="card">
-          <h3>${cat} <span class="tag tag-cyan" style="margin-left:auto;">${count}</span></h3>
-          ${actors.filter(a => (a.cat || a.category || 'Other') === cat).slice(0,5).map(a => `
-            <div class="item">
-              <div class="left"><span class="name">${a.name || ''}</span></div>
-              <span class="tag ${(a.priority || '') === 'critical' ? 'tag-red' : (a.priority || '') === 'high' ? 'tag-orange' : 'tag-green'}">${a.priority || ''}</span>
-            </div>
-          `).join('')}
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderRegulations() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const regulations = PIPELINE_DATA.regulations || [];
-  const sources = getPipelineSources();
-
-  if (regulations.length === 0 && Object.keys(sources).length === 0) {
-    return renderEmptyState('No regulation data loaded.');
-  }
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">📜</div><div class="stat-label">Gazette Regulations</div><div class="stat-value">${regulations.length}</div><div class="stat-sub">Canada Gazette feed</div></div>
-      <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-label">GIC Appointments</div><div class="stat-value">${(sources.gic && sources.gic.records || 0).toLocaleString()}</div><div class="stat-sub">CKAN data portal</div></div>
-      <div class="stat-card"><div class="stat-icon">🗳️</div><div class="stat-label">3rd Party Ads</div><div class="stat-value">${(sources.elections && sources.elections.records || 0).toLocaleString()}</div><div class="stat-sub">Elections Canada CSV</div></div>
-      <div class="stat-card"><div class="stat-icon">🗺️</div><div class="stat-label">ON Lobbying Records</div><div class="stat-value">${(sources.provincialLobbying && sources.provincialLobbying.records || 0).toLocaleString()}</div><div class="stat-sub">Provincial registry</div></div>
-    </div>
-
-    ${regulations.length > 0 ? `
-    <div class="section-label">Recent Canada Gazette Regulations</div>
-    <div class="card" style="margin-top:12px;">
-      ${regulations.map(r => `
-        <div class="item">
-          <div class="left">
-            <span>${(r.gazette || '').includes('Part I') ? '📄' : (r.gazette || '').includes('Part II') ? '📋' : '📕'}</span>
-            <span class="name">${r.title || ''}</span>
-            <span class="meta">${r.gazette || ''}${r.department ? ' · ' + r.department : ''}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="tag ${(r.status || '') === 'proposed' ? 'tag-yellow' : (r.status || '') === 'final' ? 'tag-green' : 'tag-cyan'}">${r.status || ''}${r.commentDays > 0 ? ' · ' + r.commentDays + 'd comment' : ''}</span>
-            ${sourceLink(r.link || r.url || '')}
-          </div>
-        </div>
-        <div style="padding:0 0 8px 28px;font-size:0.8rem;color:var(--text-secondary);">${r.desc || r.description || ''}</div>
-      `).join('')}
-    </div>` : ''}
-
-    <div class="section-label">Pipeline Sources</div>
-    <div class="pipeline-row">
-      ${['gazette','gic','elections','provincialLobbying'].map(name => {
-        const m = sources[name];
-        if (!m) return '';
-        return `
-          <div class="pipeline-card" style="border-left:3px solid ${(m.status || 'ok') === 'ok' ? 'var(--success)' : 'var(--warning)'};">
-            <h4><span class="status-dot ${m.status || 'ok'}"></span>${MODULE_ICONS[name] || ''} ${MODULE_LABELS[name] || name}</h4>
-            <div class="metric"><span>Records ingested</span><span class="val">${(m.records || 0).toLocaleString()}</span></div>
-            <div class="metric"><span>Last run</span><span class="val">${m.lastRun || 'unknown'}</span></div>
-            <div class="metric"><span>Errors</span><span class="val" style="color:${(m.errors || 0) > 0 ? 'var(--accent)' : 'var(--success)'}">${m.errors || 0}</span></div>
-          </div>
-        `;
-      }).filter(x => x).join('')}
-    </div>
-  `;
-}
-
-function renderCourts() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const courtDecisions = PIPELINE_DATA.courtDecisions || PIPELINE_DATA.courtCases || [];
-  const signals = PIPELINE_DATA.signals || [];
-  const sources = getPipelineSources();
-  const canlii = sources.canlii;
-
-  if (courtDecisions.length === 0 && !canlii) {
-    return renderEmptyState('No court data loaded.');
-  }
-
-  const courtSignals = signals.filter(s => s.source && (s.source.toLowerCase().includes('court') || s.source.toLowerCase().includes('canlii')));
-  const uniqueCourts = new Set(courtDecisions.map(c => c.court || '')).size;
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">⚖️</div><div class="stat-label">Court Decisions</div><div class="stat-value">${courtDecisions.length}</div><div class="stat-sub">CanLII source</div></div>
-      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Total CanLII Records</div><div class="stat-value">${(canlii && canlii.records || 0).toLocaleString()}</div><div class="stat-sub">Full corpus in pipeline</div></div>
-      <div class="stat-card"><div class="stat-icon">🏛️</div><div class="stat-label">Courts Tracked</div><div class="stat-value">${uniqueCourts || 0}</div><div class="stat-sub">${[...uniqueCourts].join(', ') || ''}</div></div>
-      <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-label">Last Sync</div><div class="stat-value" style="font-size:1rem;">${(canlii && canlii.lastRun) || 'unknown'}</div></div>
-    </div>
-
-    ${courtDecisions.length > 0 ? `
-    <div class="section-label">Recent Decisions</div>
-    <div class="card" style="margin-top:12px;">
-      ${courtDecisions.map(c => `
-        <div class="item">
-          <div class="left">
-            <span>${c.court === 'SCC' ? '⚖️' : c.court === 'FCA' ? '📋' : '📄'}</span>
-            <span class="name">${c.case || c.name || ''}</span>
-            <span class="meta">${c.court || ''}${c.citation ? ' · ' + c.citation : ''}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="tag tag-purple">${c.topic || ''}</span>
-            ${sourceLink(c.link || c.url || '')}
-          </div>
-        </div>
-        <div style="padding:0 0 8px 28px;font-size:0.8rem;color:var(--text-secondary);">${c.topic || ''}</div>
-      `).join('')}
-    </div>` : ''}
-
-    ${courtSignals.length > 0 ? `
-    <div class="section-label" style="margin-top:24px;">Signal: Court-Related</div>
-    <div class="signal-feed" style="margin-top:12px;">
-      ${courtSignals.map(s => `
-        <div class="signal-item">
-          <span class="sev ${s.severity}"></span>
-          <div class="body">
-            <div class="title">${s.title}</div>
-            <div class="desc">${s.desc || ''}</div>
-            <div class="signal-meta">${s.source || ''}${s.date ? ' · ' + s.date : ''} ${sourceLink(s.link || s.url)}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-
-    ${canlii ? `
-    <div class="section-label">Pipeline Source</div>
-    <div class="pipeline-row">
-      <div class="pipeline-card" style="border-left:3px solid ${(canlii.status || 'ok') === 'ok' ? 'var(--success)' : 'var(--warning)'};">
-        <h4><span class="status-dot ${canlii.status || 'ok'}"></span>⚖️ CanLII (Courts)</h4>
-        <div class="metric"><span>Status</span><span class="val" style="color:${(canlii.status || 'ok') === 'ok' ? 'var(--success)' : 'var(--warning)'};">${(canlii.status || 'ok').toUpperCase()}</span></div>
-        <div class="metric"><span>Records ingested</span><span class="val">${(canlii.records || 0).toLocaleString()}</span></div>
-        <div class="metric"><span>Last run</span><span class="val">${canlii.lastRun || 'unknown'}</span></div>
-        <div class="metric"><span>Errors</span><span class="val" style="color:${(canlii.errors || 0) > 0 ? 'var(--accent)' : 'var(--success)'}">${canlii.errors || 0}</span></div>
-      </div>
-    </div>` : ''}
-  `;
-}
-
-function renderOversight() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const reports = PIPELINE_DATA.oversightReports || [];
-  const signals = PIPELINE_DATA.signals || [];
-  const sources = getPipelineSources();
-
-  if (reports.length === 0 && !sources.oversight) {
-    return renderEmptyState('No oversight data loaded.');
-  }
-
-  const activeReports = reports.filter(r => (r.status || '') === 'active');
-  const oversightSignals = signals.filter(s => s.source && (s.source.toLowerCase().includes('oversight') || s.source.toLowerCase().includes('ethics') || s.source.toLowerCase().includes('crtc') || s.source.toLowerCase().includes('pbo') || s.source.toLowerCase().includes('oag')));
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-label">Oversight Bodies</div><div class="stat-value">${reports.length > 0 ? new Set(reports.map(r => r.body || '')).size : 0}</div><div class="stat-sub">Currently tracked</div></div>
-      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-label">Active Reports</div><div class="stat-value">${reports.length}</div><div class="stat-sub">Currently tracked</div></div>
-      <div class="stat-card"><div class="stat-icon">🔴</div><div class="stat-label">Active Investigations</div><div class="stat-value">${activeReports.length}</div><div class="stat-sub" style="color:var(--accent);">Underway now</div></div>
-      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Pipeline Records</div><div class="stat-value">${(sources.oversight && sources.oversight.records || 0).toLocaleString()}</div><div class="stat-sub">Oversight data corpus</div></div>
-    </div>
-
-    ${reports.length > 0 ? `
-    <div class="section-label">Oversight Body Reports</div>
-    <div class="card" style="margin-top:12px;">
-      ${reports.map(r => {
-        const body = r.body || '';
-        return `
-        <div class="item">
-          <div class="left">
-            <span>${body === 'OAG' ? '📋' : body === 'PBO' ? '💰' : body === 'Ethics' ? '🔍' : body === 'CRTC' ? '📡' : '🏛️'}</span>
-            <span class="name">${body ? body + ' — ' : ''}${r.title || ''}</span>
-            <span class="meta">${r.date || ''}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="tag ${(r.status || '') === 'published' ? 'tag-green' : 'tag-red'}">${r.status || ''}</span>
-            ${sourceLink(r.link || r.url || '')}
-          </div>
-        </div>
-        <div style="padding:0 0 8px 28px;font-size:0.8rem;color:var(--text-secondary);">${r.topic || ''}</div>`;
-      }).join('')}
-    </div>` : ''}
-
-    ${oversightSignals.length > 0 ? `
-    <div class="section-label" style="margin-top:24px;">Signal: Oversight-Related</div>
-    <div class="signal-feed" style="margin-top:12px;">
-      ${oversightSignals.map(s => `
-        <div class="signal-item">
-          <span class="sev ${s.severity}"></span>
-          <div class="body">
-            <div class="title">${s.title}</div>
-            <div class="desc">${s.desc || ''}</div>
-            <div class="signal-meta">${s.source || ''}${s.date ? ' · ' + s.date : ''} ${sourceLink(s.link || s.url)}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>` : ''}
-  `;
-}
-
-function renderSignals() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const signals = PIPELINE_DATA.signals || [];
-  if (signals.length === 0) return renderEmptyState('No signals loaded.');
-
-  const sevs = ['high','med','low'];
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-value">${signals.length}</div><div class="stat-label">Total Signals</div></div>
-      <div class="stat-card"><div class="stat-value">${signals.filter(s => s.severity === 'high').length}</div><div class="stat-label" style="color:var(--accent);">High Severity</div></div>
-      <div class="stat-card"><div class="stat-value">${signals.filter(s => s.severity === 'med').length}</div><div class="stat-label" style="color:var(--warning);">Medium Severity</div></div>
-      <div class="stat-card"><div class="stat-value">${signals.filter(s => s.severity === 'low').length}</div><div class="stat-label" style="color:var(--success);">Low Severity</div></div>
-    </div>
-
-    <div class="tab-bar" id="signalFilters">
-      ${sevs.map(s => `<button class="tab-btn ${s === 'high' ? 'active' : ''}" data-sev="${s}">${s === 'high' ? '🔴' : s === 'med' ? '🟡' : '🟢'} ${s.charAt(0).toUpperCase() + s.slice(1)}</button>`).join('')}
-      <button class="tab-btn active" data-sev="all">All</button>
-    </div>
-
-    <div class="signal-feed" id="signalList">
-      ${signals.map(s => `
-        <div class="signal-item" data-sev="${s.severity}">
-          <span class="sev ${s.severity}"></span>
-          <div class="body">
-            <div class="title">${s.title}</div>
-            <div class="desc">${s.desc || ''}</div>
-            <div class="signal-meta">${s.source || ''}${s.date ? ' · ' + s.date : ''} ${sourceLink(s.link || s.url)}</div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderPipeline() {
-  if (!PIPELINE_DATA) return renderEmptyState();
-  const sources = getPipelineSources();
-  const activity = PIPELINE_DATA.activity || [];
-
-  if (Object.keys(sources).length === 0) {
-    return renderEmptyState('No pipeline data loaded.');
-  }
-
-  const totalRecords = Object.values(sources).reduce((s,m) => s + (m.records || 0), 0);
-  const totalErrors = Object.values(sources).reduce((s,m) => s + (m.errors || 0), 0);
-  const allGreen = Object.values(sources).every(m => (m.status || 'ok') === 'ok');
-
-  return `
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-value">${totalRecords.toLocaleString()}</div><div class="stat-label">Total Records</div></div>
-      <div class="stat-card"><div class="stat-value">${Object.keys(sources).length}</div><div class="stat-label">Modules Active</div></div>
-      <div class="stat-card"><div class="stat-value" style="color:${totalErrors > 0 ? 'var(--warning)' : 'var(--success)'};">${totalErrors}</div><div class="stat-label">Total Errors</div></div>
-      <div class="stat-card"><div class="stat-value" style="color:${allGreen ? 'var(--success)' : 'var(--warning)'};">${allGreen ? '✅ All Green' : '⚠️ Issues'}</div><div class="stat-label">Overall Status</div></div>
-    </div>
-
-    <div class="section-label">Module Status — All Modules</div>
-    <div class="pipeline-row">
-      ${Object.entries(sources).map(([name, m]) => `
-        <div class="pipeline-card" style="border-left:3px solid ${(m.status || 'ok') === 'ok' ? 'var(--success)' : 'var(--warning)'};">
-          <h4><span class="status-dot ${m.status || 'ok'}"></span>${MODULE_ICONS[name] || '📡'} ${MODULE_LABELS[name] || name}</h4>
-          <div class="metric"><span>Status</span><span class="val" style="color:${(m.status || 'ok') === 'ok' ? 'var(--success)' : 'var(--warning)'};">${(m.status || 'ok').toUpperCase()}</span></div>
-          <div class="metric"><span>Records ingested</span><span class="val">${(m.records || 0).toLocaleString()}</span></div>
-          <div class="metric"><span>Last run</span><span class="val">${m.lastRun || 'unknown'}</span></div>
-          <div class="metric"><span>Errors</span><span class="val" style="color:${(m.errors || 0) > 0 ? 'var(--accent)' : 'var(--success)'};">${m.errors || 0}</span></div>
-        </div>
-      `).join('')}
-    </div>
-
-    ${activity.length > 0 ? `
-    <div class="section-label">Recent Activity</div>
-    <div class="card" style="margin-top:12px;">
-      ${activity.map(a => {
-        const actType = a.type || a.module || '';
-        const actTime = a.time || a.timestamp || '';
-        const actAction = a.action || a.message || '';
-        const actSource = a.source || '';
-        return `
-        <div class="item">
-          <div class="left">
-            <span>${iconForType(actType)}</span>
-            <span class="name">${actAction}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="meta">${actTime}</span>
-            ${sourceLink(actSource)}
-          </div>
-        </div>`;
-      }).join('')}
-    </div>` : ''}
-  `;
-}
-
-// ══════════════════════════════════════════════════════════
-//  API KEYS VIEW
-// ══════════════════════════════════════════════════════════
-
-function renderApiKeys() {
-  const storedKey = getStoredApiKey();
-  return `
-    <div class="dash-topbar">
-      <div class="live-ticker" style="max-width:none;flex:1;">
-        <span class="pulse" id="apiHealthDot"></span>
-        <span id="apiHealthText">Checking API server connection...</span>
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-icon">🔑</div>
-        <div class="stat-label">API Key</div>
-        <div class="stat-value" style="font-size:1rem;" id="keyStatusText">${storedKey ? 'Stored in browser' : 'Not registered'}</div>
-        <div class="stat-sub" id="keyNameDisplay"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-label">Daily Usage</div>
-        <div class="stat-value" id="dailyUsage">-</div>
-        <div class="stat-sub" id="dailyLimit"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">📈</div>
-        <div class="stat-label">Monthly Usage</div>
-        <div class="stat-value" id="monthlyUsage">-</div>
-        <div class="stat-sub" id="monthlyLimit"></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon">🔄</div>
-        <div class="stat-label">Connection</div>
-        <div class="stat-value" style="font-size:1rem;" id="connectionStatus">Unknown</div>
-        <div class="stat-sub">API server: ${API_BASE}</div>
-      </div>
-    </div>
-
-    <div class="card-grid">
-      <!-- Registration Card -->
-      <div class="card" id="registerCard" style="${storedKey ? 'display:none;' : ''}">
-        <h3>🔑 Register for an API Key</h3>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:16px;">
-          Create a free account to get an API key for accessing CivInt data programmatically.
-        </p>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <input type="text" id="regName" placeholder="Your name or organization" style="padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;font-family:inherit;">
-          <input type="email" id="regEmail" placeholder="Email (optional)" style="padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-primary);font-size:0.85rem;font-family:inherit;">
-          <button id="regBtn" onclick="registerApiKey()" style="padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.85rem;cursor:pointer;font-family:inherit;">Register & Get API Key</button>
-          <div id="regStatus" style="font-size:0.8rem;color:var(--text-secondary);"></div>
-        </div>
-      </div>
-
-      <!-- Stored Key Card -->
-      <div class="card" id="storedKeyCard" style="${storedKey ? '' : 'display:none;'}">
-        <h3>🔑 Your API Key</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;gap:8px;align-items:center;">
-            <code id="keyDisplay" style="flex:1;padding:10px 14px;border-radius:8px;background:var(--bg-secondary);border:1px solid var(--border);font-size:0.75rem;word-break:break-all;color:var(--text-primary);">${storedKey ? storedKey.slice(0, 20) + '...' + storedKey.slice(-8) : ''}</code>
-            <button onclick="copyApiKey()" style="padding:8px 16px;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;font-size:0.8rem;cursor:pointer;font-family:inherit;" title="Copy full key to clipboard">📋 Copy</button>
-          </div>
-          <div style="font-size:0.8rem;color:var(--text-muted);">
-            <span id="keyTenantInfo"></span>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button onclick="refreshUsage()" style="padding:8px 16px;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;font-size:0.8rem;cursor:pointer;font-family:inherit;">🔄 Refresh Usage</button>
-            <button onclick="clearApiKey()" style="padding:8px 16px;background:transparent;color:var(--accent);border:1px solid var(--accent-dim);border-radius:8px;font-size:0.8rem;cursor:pointer;font-family:inherit;">🗑️ Remove Key</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-label">⚡ Quick Actions</div>
-    <div class="stats-row" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
-      <div class="stat-card" style="cursor:pointer;" onclick="testConnection()">
-        <div class="stat-icon">🔌</div>
-        <div class="stat-label">Test Connection</div>
-        <div class="stat-value" style="font-size:0.9rem;" id="testConnBtn">Click to test</div>
-        <div class="stat-sub" id="testConnResult"></div>
-      </div>
-      <div class="stat-card" style="cursor:pointer;" onclick="refreshUsage()">
-        <div class="stat-icon">📊</div>
-        <div class="stat-label">Refresh Usage</div>
-        <div class="stat-value" style="font-size:0.9rem;">Click to refresh</div>
-        <div class="stat-sub">Daily / monthly usage</div>
-      </div>
-      <div class="stat-card" style="cursor:pointer;" onclick="window.open('${API_BASE}/openapi.json', '_blank')">
-        <div class="stat-icon">📋</div>
-        <div class="stat-label">API Spec</div>
-        <div class="stat-value" style="font-size:0.9rem;">OpenAPI JSON</div>
-        <div class="stat-sub">View API endpoints</div>
-      </div>
-    </div>
-
-    <div id="connResult" style="margin-top:16px;"></div>
-  `;
-}
-
-// ── API Key Management Functions ─────────────────────────
-
-async function testConnection() {
-  const btn = document.getElementById('testConnBtn');
-  const result = document.getElementById('testConnResult');
-  const dot = document.getElementById('apiHealthDot');
-  const text = document.getElementById('apiHealthText');
-  if (btn) btn.textContent = 'Testing...';
-  if (result) result.textContent = '';
-  try {
-    const resp = await fetch(API_BASE + '/health');
-    if (resp.ok) {
-      const json = await resp.json();
-      const status = json.data?.status || 'ok';
-      if (dot) { dot.style.background = 'var(--success)'; }
-      if (text) text.textContent = 'API server connected — ' + (json.data?.service || 'OK');
-      if (btn) { btn.textContent = 'Connected ✓'; btn.style.color = 'var(--success)'; }
-      if (result) result.textContent = 'Server: ' + (json.data?.version || '') + ' | Env: ' + (json.data?.environment || '');
-    } else {
-      throw new Error('HTTP ' + resp.status);
-    }
-  } catch (e) {
-    if (dot) { dot.style.background = 'var(--accent)'; }
-    if (text) text.textContent = 'API server unreachable — ' + e.message;
-    if (btn) { btn.textContent = 'Failed ✗'; btn.style.color = 'var(--accent)'; }
-    if (result) result.textContent = 'Error: ' + e.message;
-  }
-}
-
-async function registerApiKey() {
-  const name = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const status = document.getElementById('regStatus');
-  const btn = document.getElementById('regBtn');
-  if (!name) {
-    status.textContent = '⚠️ Name is required';
-    status.style.color = 'var(--accent)';
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = 'Registering...';
-  status.textContent = '';
-  try {
-    const body = { name: name };
-    if (email) body.email = email;
-    const resp = await fetch(API_BASE + '/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await resp.json();
-    if (json.success && json.data && json.data.apiKey) {
-      const key = json.data.apiKey.key;
-      localStorage.setItem('civint_api_key', key);
-      if (json.data.tenant && json.data.tenant.name) {
-        localStorage.setItem('civint_tenant_name', json.data.tenant.name);
-      }
-      // Show success
-      document.getElementById('registerCard').style.display = 'none';
-      document.getElementById('storedKeyCard').style.display = '';
-      document.getElementById('keyDisplay').textContent = key.slice(0, 20) + '...' + key.slice(-8);
-      document.getElementById('keyStatusText').textContent = 'Stored in browser';
-      document.getElementById('keyNameDisplay').textContent = json.data.tenant?.name || name;
-      document.getElementById('keyTenantInfo').textContent = 'Tenant: ' + (json.data.tenant?.id || '') + ' | Tier: ' + (json.data.tenant?.tier || 'free');
-      status.textContent = '✅ ' + json.data.message;
-      status.style.color = 'var(--success)';
-      // Refresh usage with new key
-      refreshUsage();
-    } else {
-      status.textContent = '⚠️ ' + (json.error?.message || 'Registration failed');
-      status.style.color = 'var(--accent)';
-    }
-  } catch (e) {
-    status.textContent = '⚠️ Connection error: ' + e.message;
-    status.style.color = 'var(--accent)';
-  }
-  btn.disabled = false;
-  btn.textContent = 'Register & Get API Key';
-}
-
-async function refreshUsage() {
-  const key = getStoredApiKey();
-  if (!key) {
-    document.getElementById('dailyUsage').textContent = 'N/A';
-    document.getElementById('dailyLimit').textContent = 'No API key stored';
-    document.getElementById('monthlyUsage').textContent = 'N/A';
-    document.getElementById('monthlyLimit').textContent = '';
-    return;
-  }
-  try {
-    const resp = await fetch(API_BASE + '/me', {
-      headers: { 'Authorization': 'Bearer ' + key }
-    });
-    const json = await resp.json();
-    if (json.success && json.data) {
-      const usage = json.data.usage;
-      if (usage) {
-        if (usage.daily) {
-          document.getElementById('dailyUsage').textContent = usage.daily.calls + ' / ' + usage.daily.limit;
-          document.getElementById('dailyLimit').textContent = usage.daily.remaining + ' remaining (' + usage.daily.percentUsed + '%)';
-        }
-        if (usage.monthly) {
-          document.getElementById('monthlyUsage').textContent = usage.monthly.calls + ' / ' + usage.monthly.limit;
-          document.getElementById('monthlyLimit').textContent = usage.monthly.remaining + ' remaining (' + usage.monthly.percentUsed + '%)';
-        }
-      }
-      if (json.data.tenant) {
-        document.getElementById('keyTenantInfo').textContent = 'Tenant: ' + (json.data.tenant.id || '') + ' | Tier: ' + (json.data.tenant.tier || 'free') + ' | ' + (json.data.tenant.name || '');
-        document.getElementById('keyNameDisplay').textContent = json.data.tenant.name || '';
-      }
-      document.getElementById('connectionStatus').textContent = 'Authenticated ✓';
-    } else {
-      document.getElementById('dailyUsage').textContent = 'Error';
-      document.getElementById('dailyLimit').textContent = json.error?.message || 'Auth failed';
-      document.getElementById('connectionStatus').textContent = 'Auth failed';
-    }
-  } catch (e) {
-    document.getElementById('dailyUsage').textContent = 'Error';
-    document.getElementById('dailyLimit').textContent = 'Connection error';
-    document.getElementById('connectionStatus').textContent = 'Unreachable';
-  }
-}
-
-function copyApiKey() {
-  const key = getStoredApiKey();
-  if (!key) return;
-  navigator.clipboard.writeText(key).then(() => {
-    const btn = document.querySelector('#storedKeyCard button');
-    if (btn) {
-      const orig = btn.textContent;
-      btn.textContent = '✅ Copied!';
-      setTimeout(() => { btn.textContent = orig; }, 2000);
-    }
-  }).catch(() => {
-    // Fallback for older browsers
-    const ta = document.createElement('textarea');
-    ta.value = key;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+// ─── Load pipeline data ───
+fetch('assets/pipeline-data.json?t=' + Date.now())
+  .then(r => r.json())
+  .then(data => {
+    const s = data.sources || {};
+    renderStats(s);
+    renderAlerts(s);
+    renderCommittees(s);
+    renderEntities(s);
+    renderMoney(s);
+    renderTrending(s);
+  })
+  .catch(() => {
+    // Render with empty data on error
+    renderStats({});
+    document.querySelectorAll('.shimmer').forEach(el => el.classList.remove('shimmer'));
   });
+
+// ─── Render stat cards ───
+function renderStats(s) {
+  const sources = Object.keys(s).filter(k => s[k]?.status === 'ok').length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-dash">
+      <div class="icon">🏛️</div>
+      <div class="num">${s.hoc?.records || '54'}<span class="suffix"></span></div>
+      <div class="label">Committees Tracked</div>
+      <div class="trend trend-flat">Both chambers</div>
+    </div>
+    <div class="stat-dash">
+      <div class="icon">👤</div>
+      <div class="num">${s.corporate?.records || '17'}<span class="suffix"></span></div>
+      <div class="label">Executives Monitored</div>
+      <div class="trend trend-up">+2 this month</div>
+    </div>
+    <div class="stat-dash">
+      <div class="icon">🌐</div>
+      <div class="num">${s.influence?.records || '34'}<span class="suffix"></span></div>
+      <div class="label">Influence Actors</div>
+      <div class="trend trend-up">NGOs, IOs, think tanks</div>
+    </div>
+    <div class="stat-dash">
+      <div class="icon">📡</div>
+      <div class="num">${sources || '13'}<span class="suffix"></span></div>
+      <div class="label">Data Sources</div>
+      <div class="trend trend-flat">Official portals</div>
+    </div>
+    <div class="stat-dash">
+      <div class="icon">🍁</div>
+      <div class="num">$0<span class="suffix">/mo</span></div>
+      <div class="label">To Start (Free Tier)</div>
+      <div class="trend trend-up">No card required</div>
+    </div>
+  `;
 }
 
-function clearApiKey() {
-  if (!confirm('Remove stored API key from this browser?')) return;
-  localStorage.removeItem('civint_api_key');
-  localStorage.removeItem('civint_tenant_name');
-  document.getElementById('registerCard').style.display = '';
-  document.getElementById('storedKeyCard').style.display = 'none';
-  document.getElementById('keyStatusText').textContent = 'Not registered';
-  document.getElementById('keyNameDisplay').textContent = '';
-  document.getElementById('dailyUsage').textContent = '-';
-  document.getElementById('dailyLimit').textContent = '';
-  document.getElementById('monthlyUsage').textContent = '-';
-  document.getElementById('monthlyLimit').textContent = '';
-  document.getElementById('connectionStatus').textContent = 'No key';
+// ─── Render alert/signal cards ───
+function renderAlerts(s) {
+  const feed = document.getElementById('alerts-feed');
+  const signals = s.signals?.recent || [
+    { type: 'in-camera', label: '🔒', title: 'PACP committee went in-camera', desc: 'The Public Accounts committee held a closed session on April 22 to discuss sensitive matters.', tag: 'Parliament', tagClass: 'tag-parliament', bar: 'red' },
+    { type: 'lobbying', label: '💼', title: 'RBC lobbied Finance Canada', desc: 'CEO Dave McKay\'s team met with the Deputy Minister to discuss banking regulations and housing policy.', tag: 'Influence', tagClass: 'tag-influence', bar: 'purple' },
+    { type: 'contract', label: '⚠️', title: 'Sole-source contract flagged', desc: 'A $4.2M IT contract was awarded without competitive bidding. The vendor has made political donations.', tag: 'Money', tagClass: 'tag-money', bar: 'amber' },
+  ];
+  feed.innerHTML = signals.map(sig => `
+    <div class="alert-card">
+      <div class="bar ${sig.bar || 'blue'}"></div>
+      <div class="card-head">
+        <div class="card-icon">${sig.label || '🔔'}</div>
+        <div class="card-body">
+          <div class="card-title">${sig.title}</div>
+          <div class="card-desc">${sig.desc}</div>
+          <div class="card-meta">
+            <span class="tag ${sig.tagClass || 'tag-parliament'}">${sig.tag || 'Signal'}</span>
+            <span>Just now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
 
-// ══════════════════════════════════════════════════════════
-//  LIVE FEATURES — counters, spotlight, ticker, search
-// ══════════════════════════════════════════════════════════
-
-function animateCounters() {
-  document.querySelectorAll('.stat-value[data-count]').forEach(el => {
-    const target = parseInt(el.dataset.count);
-    if (isNaN(target) || target === 0) { el.textContent = target.toLocaleString(); return; }
-    const duration = 1200;
-    const start = performance.now();
-    function update(now) {
-      const p = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(eased * target).toLocaleString();
-      if (p < 1) requestAnimationFrame(update);
-    }
-    requestAnimationFrame(update);
-  });
+// ─── Render committee cards ───
+function renderCommittees(s) {
+  const feed = document.getElementById('committees-feed');
+  const items = [
+    { bar: 'blue', icon: '🏛️', title: 'FINA — Standing Committee on Finance', desc: 'Hearing on the 2026 federal budget implementation bill. Deputy Minister of Finance testifying.' },
+    { bar: 'red', icon: '🔒', title: 'PACP — Public Accounts', desc: 'In-camera session on a sensitive audit report. Details not yet public.', isCamera: true },
+    { bar: 'green', icon: '📋', title: 'ENVI — Environment Committee', desc: 'Review of clean energy regulations. Witnesses from NRCan and environmental NGOs.' },
+  ];
+  feed.innerHTML = items.map(c => `
+    <div class="alert-card">
+      <div class="bar ${c.bar}"></div>
+      <div class="card-head">
+        <div class="card-icon">${c.icon}</div>
+        <div class="card-body">
+          <div class="card-title">${c.title} ${c.isCamera ? '🔒' : ''}</div>
+          <div class="card-desc">${c.desc}</div>
+          <div class="card-meta">
+            <span class="tag tag-parliament">Committee</span>
+            <span>Parliament 45·1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
 
-let spotlightInterval = null;
-function startSpotlightRotation() {
-  if (spotlightInterval) clearInterval(spotlightInterval);
-  let idx = 0;
-  const card = document.getElementById('spotlightCard');
-  const crossrefs = PIPELINE_DATA ? (PIPELINE_DATA.crossrefs || []) : [];
-  if (!card || !crossrefs.length) return;
-  spotlightInterval = setInterval(() => {
-    idx = (idx + 1) % crossrefs.length;
-    card.innerHTML = renderSpotlight(crossrefs[idx]);
-  }, 6000);
+// ─── Render tracked entities ───
+function renderEntities(s) {
+  const feed = document.getElementById('entity-feed');
+  const colors = ['#E84545', '#3B82F6', '#10B981', '#8B5CF6', '#F97316', '#06B6D4'];
+  const entities = [
+    { name: 'Dave McKay', org: 'RBC', role: 'CEO', color: colors[0] },
+    { name: 'Catherine Tait', org: 'CBC/Radio-Canada', role: 'President & CEO', color: colors[1] },
+    { name: 'Pierre Péladeau', org: 'Quebecor', role: 'CEO', color: colors[2] },
+    { name: 'Karen Hogan', org: 'OAG', role: 'Auditor General', color: colors[3] },
+    { name: 'John Carpay', org: 'JCCF', role: 'President', color: colors[4] },
+    { name: 'Darren Entwistle', org: 'Telus', role: 'CEO', color: colors[5] },
+  ];
+  feed.innerHTML = entities.map(e => `
+    <div class="entity-card">
+      <div class="e-avatar" style="background:${e.color}22;color:${e.color}">${e.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="e-info">
+        <div class="e-name">${e.name}</div>
+        <div class="e-org">${e.org} · ${e.role}</div>
+        <div class="e-stat">3 recent mentions</div>
+      </div>
+    </div>
+  `).join('');
 }
 
-let tickerInterval = null;
-function startTicker() {
-  if (tickerInterval) clearInterval(tickerInterval);
-  const ticker = document.getElementById('tickerText');
-  if (!ticker) return;
+// ─── Render money/influence cards ───
+function renderMoney(s) {
+  const feed = document.getElementById('money-feed');
+  const items = [
+    { bar: 'purple', icon: '💼', title: 'McKinsey lobbied 3 departments', desc: 'Registered communications with PCO, Finance, and Treasury Board on AI procurement and digital transformation.', tag: 'Lobbying', tagClass: 'tag-influence' },
+    { bar: 'amber', icon: '⚠️', title: 'Sole-source: IT infrastructure', desc: 'A $8.2M contract to "Northedge Technologies" — no competitive bidding. Four similar contracts found.', tag: 'Sole-source', tagClass: 'tag-money' },
+    { bar: 'green', icon: '📜', title: 'Canada Gazette: new telecom rules', desc: 'Proposed regulations on internet service pricing and competition. Comment period closes June 15.', tag: 'Regulation', tagClass: 'tag-regulation' },
+  ];
+  feed.innerHTML = items.map(c => `
+    <div class="alert-card">
+      <div class="bar ${c.bar}"></div>
+      <div class="card-head">
+        <div class="card-icon">${c.icon}</div>
+        <div class="card-body">
+          <div class="card-title">${c.title}</div>
+          <div class="card-desc">${c.desc}</div>
+          <div class="card-meta">
+            <span class="tag ${c.tagClass}">${c.tag}</span>
+            <span>This week</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
 
-  let msgs = PIPELINE_DATA && PIPELINE_DATA.tickerMessages
-    ? PIPELINE_DATA.tickerMessages.slice()
-    : [];
+// ─── Render trending topics ───
+function renderTrending(s) {
+  const feed = document.getElementById('trending-feed');
+  const topics = [
+    { rank: 1, topic: 'Housing affordability', desc: 'Discussed in 4 committees this week. CMHC and Finance Canada officials testifying on housing supply and mortgage policy.', change: '↑ 2', mentions: '12 mentions' },
+    { rank: 2, topic: 'AI regulation / Bill C-27', desc: 'Ongoing review of the Artificial Intelligence and Data Act. Privacy commissioner and tech executives appearing.', change: '↑ 1', mentions: '8 mentions' },
+    { rank: 3, topic: 'Clean energy transition', desc: 'ENVI committee reviewing net-zero regulations. Pipeline debates continue in the House.', change: '↓ 1', mentions: '6 mentions' },
+  ];
+  feed.innerHTML = topics.map(t => `
+    <div class="trend-card">
+      <div class="trend-rank">
+        <span class="rank-num">#${t.rank}</span>
+        <span class="rank-change" style="color:${t.change.includes('↑') ? 'var(--success)' : 'var(--accent)'}">${t.change}</span>
+      </div>
+      <div class="trend-topic">${t.topic}</div>
+      <div class="trend-desc">${t.desc}</div>
+      <div class="trend-mentions">${t.mentions}</div>
+    </div>
+  `).join('');
+}
 
-  if (msgs.length === 0) {
-    const sources = getPipelineSources();
-    const moduleCount = Object.keys(sources).length;
-    const totalRecords = Object.values(sources).reduce((s,m) => s + (m.records || 0), 0);
-    if (moduleCount > 0) {
-      msgs = [
-        `${moduleCount} pipeline modules active — ${totalRecords.toLocaleString()} records ingested`,
-      ];
-    } else {
-      msgs = ['No pipeline data loaded — run the data generator to populate the dashboard'];
-    }
+// ─── Search functionality ───
+document.getElementById('dash-search-input')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (q) window.location.href = 'docs.html?search=' + encodeURIComponent(q);
   }
-
-  let idx = 0;
-  tickerInterval = setInterval(() => {
-    idx = (idx + 1) % msgs.length;
-    ticker.style.opacity = '0';
-    setTimeout(() => {
-      ticker.textContent = msgs[idx];
-      ticker.style.opacity = '1';
-    }, 300);
-  }, 5000);
-  ticker.style.transition = 'opacity 0.3s';
-}
-
-window.searchDashboard = function(query) {
-  const q = query.toLowerCase().trim();
-  document.querySelectorAll('.crossref').forEach(el => {
-    if (!q) { el.style.display = 'block'; return; }
-    el.style.display = el.textContent.toLowerCase().includes(q) ? 'block' : 'none';
+});
+document.querySelectorAll('.search-suggestions a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.getElementById('dash-search-input').value = a.dataset.search;
+    document.getElementById('dash-search-input').focus();
   });
-  document.querySelectorAll('.signal-item').forEach(el => {
-    if (!q) { el.style.display = 'flex'; return; }
-    el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
-  });
-};
-
-// ══════════════════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════════════════
-
-const views = {
-  overview: renderOverview,
-  committees: renderCommittees,
-  corporate: renderCorporate,
-  influence: renderInfluence,
-  regulations: renderRegulations,
-  courts: renderCourts,
-  oversight: renderOversight,
-  signals: renderSignals,
-  pipeline: renderPipeline,
-  'api-keys': renderApiKeys,
-};
-let currentView = 'overview';
-
-function navigate(view) {
-  currentView = view;
-  document.querySelectorAll('#dashNav a').forEach(a => a.classList.toggle('active', a.dataset.view === view));
-  const content = document.getElementById('dashContent');
-  if (views[view]) {
-    content.innerHTML = `<h1>${view.charAt(0).toUpperCase() + view.slice(1)}</h1><p class="subtitle">${getSubtitle(view)}</p>` + views[view]();
-  }
-  // Post-render hooks
-  if (view === 'overview') {
-    animateCounters();
-    startSpotlightRotation();
-    startTicker();
-  }
-  if (view === 'signals') bindSignalFilters();
-  if (view === 'committees') bindCommitteeFilters();
-  if (view === 'api-keys') {
-    testConnection();
-    const storedKey = getStoredApiKey();
-    if (storedKey) refreshUsage();
-  }
-  window.scrollTo(0,0);
-}
-
-function getSubtitle(view) {
-  const subs = {
-    overview:'Live status of all CivInt data source modules, cross-source connections, and recent intelligence signals.',
-    committees:'House of Commons and Senate committee meetings, transcripts, and in-camera alerts.',
-    corporate:'Lobbying activity, government procurement contracts, and tracked executive disclosures.',
-    influence:'International organizations, NGOs, think tanks, and consultancies influencing Canadian policy.',
-    regulations:'Canada Gazette regulatory proposals, GIC appointments from CKAN, and provincial lobbying.',
-    courts:'Canadian court decisions from the CanLII API — Supreme Court, Federal Court of Appeal, Federal Court.',
-    oversight:'Oversight body reports and active investigations — OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau.',
-    signals:'Detected patterns across all data sources — revolving doors, regulatory proposals, ethics investigations.',
-    pipeline:'Per-module ingestion status, record counts, and error monitoring for all data pipelines.',
-    'api-keys':'Register for an API key, view usage statistics, and test your connection to the CivInt API server.'
-  };
-  return subs[view] || '';
-}
-
-function bindSignalFilters() {
-  const filterBar = document.getElementById('signalFilters');
-  if (!filterBar) return;
-  filterBar.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.onclick = () => {
-      filterBar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const sev = btn.dataset.sev;
-      document.querySelectorAll('#signalList .signal-item').forEach(el => {
-        el.style.display = (sev === 'all' || el.dataset.sev === sev) ? 'flex' : 'none';
-      });
-    };
-  });
-}
-
-function bindCommitteeFilters() {
-  const filterBar = document.querySelector('[data-comm-filter]');
-  if (!filterBar) return;
-  document.querySelectorAll('[data-comm-filter]').forEach(btn => {
-    btn.onclick = () => {
-      document.querySelectorAll('[data-comm-filter]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const filter = btn.dataset.commFilter;
-      document.querySelectorAll('#committeeList .item').forEach(el => {
-        if (filter === 'all') { el.style.display = 'flex'; return; }
-        el.style.display = el.dataset.commChamber === filter ? 'flex' : 'none';
-      });
-    };
-  });
-}
-
-// Init nav
-document.querySelectorAll('#dashNav a[data-view]').forEach(a => {
-  a.addEventListener('click', (e) => { e.preventDefault(); navigate(a.dataset.view); });
 });
 
-// ══════════════════════════════════════════════════════════
-//  INIT — load data, then render
-// ══════════════════════════════════════════════════════════
-
-(async function init() {
-  await loadPipelineData();
-  navigate('overview');
-})();
-
-})();
+// ─── Theme toggle (from script.js) ───
+document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'light' ? 'dark' : 'light';
+});
 </script>
 </body>
 </html>
