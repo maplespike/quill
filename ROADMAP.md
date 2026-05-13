@@ -1,4 +1,4 @@
-# MapleSpike Canada Pipeline — Master Roadmap
+# MapleSpike Pipeline — Master Roadmap
 
 > **Updated:** 2026-05-13 (portal visual uplift, docs refresh)
 > **Repository:** `/data/projects/own/maplespike`
@@ -213,7 +213,7 @@ Payment methods: **Stripe** (credit cards), **Crypto** (BTC/ETH via BTCPay Serve
 
 ### Competitive Positioning
 
-MapleSpike Canada is purpose-built for deep Canadian government data — parliamentary committees, lobbying, courts, procurement, elections, and oversight. The moat is Canadian depth and sovereignty.
+MapleSpike is purpose-built for deep Canadian government data — parliamentary committees, lobbying, courts, procurement, elections, and oversight. The moat is Canadian depth and sovereignty.
 
 ---
 
