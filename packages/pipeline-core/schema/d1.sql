@@ -1498,3 +1498,403 @@ CREATE INDEX IF NOT EXISTS idx_ati_source_system ON ati_records(source_system);
 CREATE INDEX IF NOT EXISTS idx_ati_department_disposition ON ati_records(department, disposition);
 CREATE INDEX IF NOT EXISTS idx_ati_department_fiscal ON ati_records(department, fiscal_year DESC);
 CREATE INDEX IF NOT EXISTS idx_ati_ingested ON ati_records(ingested_at DESC);
+
+-- Municipal Council Meetings — across all major Canadian cities
+CREATE TABLE IF NOT EXISTS municipal_meetings (
+  id TEXT PRIMARY KEY,
+
+  -- City / province
+  city TEXT NOT NULL,
+  province TEXT NOT NULL,
+
+  -- Meeting metadata
+  date TEXT NOT NULL,
+  meeting_type TEXT NOT NULL CHECK(meeting_type IN (
+    'council', 'committee', 'board', 'standing-committee',
+    'sub-committee', 'task-force', 'advisory', 'public-hearing', 'budget'
+  )),
+  status TEXT NOT NULL DEFAULT 'completed' CHECK(status IN (
+    'scheduled', 'in-progress', 'completed', 'cancelled', 'postponed'
+  )),
+  title TEXT NOT NULL,
+  description TEXT,
+  department TEXT,
+
+  -- URLs
+  meeting_url TEXT,
+  agenda_url TEXT,
+  minutes_url TEXT,
+  video_url TEXT,
+
+  -- Decisions (JSON array of MeetingDecision objects)
+  decisions TEXT NOT NULL DEFAULT '[]',
+
+  -- Agenda items (JSON array of strings)
+  agenda_items TEXT NOT NULL DEFAULT '[]',
+
+  -- Budget
+  budget_reference TEXT,
+  budget_amount REAL,
+
+  -- Provenance
+  vendor_platform TEXT,
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL DEFAULT 'municipal-council',
+  source_meeting_id TEXT,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_city ON municipal_meetings(city);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_date ON municipal_meetings(date DESC);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_city_date ON municipal_meetings(city, date DESC);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_type ON municipal_meetings(meeting_type);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_department ON municipal_meetings(department);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_status ON municipal_meetings(status);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_source ON municipal_meetings(source_system);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_ingested ON municipal_meetings(ingested_at DESC);
+CREATE INDEX IF NOT EXISTS idx_municipal_meetings_vendor ON municipal_meetings(vendor_platform);
+
+-- NPRI — National Pollutant Release Inventory (facility pollutant releases)
+CREATE TABLE IF NOT EXISTS npri_records (
+  id TEXT PRIMARY KEY,
+  facility_name TEXT NOT NULL,
+  facility_location TEXT,
+  province TEXT,
+  latitude REAL,
+  longitude REAL,
+  substance_name TEXT NOT NULL,
+  substance_cas TEXT,
+  release_air_kg REAL,
+  release_water_kg REAL,
+  release_land_kg REAL,
+  disposal_kg REAL,
+  recycling_kg REAL,
+  fiscal_year TEXT NOT NULL,
+  reported_by TEXT,
+  source_url TEXT NOT NULL,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+  source_system TEXT NOT NULL DEFAULT 'open-canada-ckan',
+  ingested_at TEXT NOT NULL,
+  UNIQUE(facility_name, substance_name, fiscal_year, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_npri_facility ON npri_records(facility_name);
+CREATE INDEX IF NOT EXISTS idx_npri_substance ON npri_records(substance_name);
+CREATE INDEX IF NOT EXISTS idx_npri_province ON npri_records(province);
+CREATE INDEX IF NOT EXISTS idx_npri_fiscal_year ON npri_records(fiscal_year DESC);
+CREATE INDEX IF NOT EXISTS idx_npri_reported_by ON npri_records(reported_by);
+CREATE INDEX IF NOT EXISTS idx_npri_substance_cas ON npri_records(substance_cas);
+CREATE INDEX IF NOT EXISTS idx_npri_facility_province ON npri_records(facility_name, province);
+CREATE INDEX IF NOT EXISTS idx_npri_fiscal_province ON npri_records(fiscal_year DESC, province);
+CREATE INDEX IF NOT EXISTS idx_npri_ingested ON npri_records(ingested_at DESC);
+
+-- Species at Risk — SARA registry listing decisions and recovery strategies
+CREATE TABLE IF NOT EXISTS species_at_risk_records (
+  id TEXT PRIMARY KEY,
+  species_name TEXT NOT NULL,
+  scientific_name TEXT,
+  taxonomic_group TEXT,
+  sara_species_id TEXT,
+  status TEXT NOT NULL CHECK(status IN (
+    'extirpated',
+    'endangered',
+    'threatened',
+    'special_concern',
+    'not_at_risk',
+    'data_deficient'
+  )),
+  assessment_date TEXT,
+  listing_date TEXT,
+  recovery_strategy_url TEXT,
+  critical_habitat INTEGER,
+  province_territory TEXT,
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL DEFAULT 'sara-api',
+  ingested_at TEXT NOT NULL,
+  UNIQUE(species_name, status, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sara_species_name ON species_at_risk_records(species_name);
+CREATE INDEX IF NOT EXISTS idx_sara_scientific_name ON species_at_risk_records(scientific_name);
+CREATE INDEX IF NOT EXISTS idx_sara_status ON species_at_risk_records(status);
+CREATE INDEX IF NOT EXISTS idx_sara_taxonomic_group ON species_at_risk_records(taxonomic_group);
+CREATE INDEX IF NOT EXISTS idx_sara_province ON species_at_risk_records(province_territory);
+CREATE INDEX IF NOT EXISTS idx_sara_assessment_date ON species_at_risk_records(assessment_date DESC);
+CREATE INDEX IF NOT EXISTS idx_sara_listing_date ON species_at_risk_records(listing_date DESC);
+CREATE INDEX IF NOT EXISTS idx_sara_status_group ON species_at_risk_records(status, taxonomic_group);
+CREATE INDEX IF NOT EXISTS idx_sara_ingested ON species_at_risk_records(ingested_at DESC);
+
+-- IAAC — Impact Assessment Agency of Canada (federal project assessments)
+CREATE TABLE IF NOT EXISTS impact_assessment_records (
+  id TEXT PRIMARY KEY,
+  project_name TEXT NOT NULL,
+  proponent TEXT,
+  project_type TEXT,
+  location TEXT,
+  province TEXT,
+  decision TEXT NOT NULL CHECK(decision IN (
+    'approved',
+    'approved-with-conditions',
+    'denied',
+    'pending',
+    'withdrawn',
+    'exempted',
+    'referred',
+    'not-required',
+    'unknown'
+  )),
+  decision_date TEXT,
+  assessment_type TEXT NOT NULL DEFAULT 'unknown' CHECK(assessment_type IN (
+    'iaa',
+    'ceaa-2012',
+    'ceaa-2012-original',
+    'panel-review',
+    'substituted',
+    'unknown'
+  )),
+  conditions_url TEXT,
+  assessment_report_url TEXT,
+  iaac_reference_number TEXT,
+  ceaa_reference_number TEXT,
+  federal_provincial_agreement INTEGER,
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL DEFAULT 'iaac-web',
+  ingested_at TEXT NOT NULL,
+  UNIQUE(project_name, decision, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_iaac_project ON impact_assessment_records(project_name);
+CREATE INDEX IF NOT EXISTS idx_iaac_proponent ON impact_assessment_records(proponent);
+CREATE INDEX IF NOT EXISTS idx_iaac_decision ON impact_assessment_records(decision);
+CREATE INDEX IF NOT EXISTS idx_iaac_decision_date ON impact_assessment_records(decision_date DESC);
+CREATE INDEX IF NOT EXISTS idx_iaac_project_type ON impact_assessment_records(project_type);
+CREATE INDEX IF NOT EXISTS idx_iaac_province ON impact_assessment_records(province);
+CREATE INDEX IF NOT EXISTS idx_iaac_assessment_type ON impact_assessment_records(assessment_type);
+CREATE INDEX IF NOT EXISTS idx_iaac_ref_number ON impact_assessment_records(iaac_reference_number);
+CREATE INDEX IF NOT EXISTS idx_iaac_ingested ON impact_assessment_records(ingested_at DESC);
+-- Health Canada — regulated product records (drugs, devices, natural products, recalls)
+CREATE TABLE IF NOT EXISTS health_canada_records (
+  id TEXT PRIMARY KEY,
+
+  -- Product identity
+  product_name TEXT NOT NULL,
+  product_type TEXT NOT NULL CHECK(product_type IN (
+    'drug', 'device', 'natural', 'recall'
+  )),
+
+  -- Licensing
+  license_number TEXT,
+  license_status TEXT NOT NULL DEFAULT 'unknown' CHECK(license_status IN (
+    'active', 'suspended', 'revoked', 'cancelled', 'expired',
+    'discontinued', 'recalled', 'pending', 'unknown'
+  )),
+
+  -- Manufacturer / company
+  manufacturer TEXT,
+
+  -- Drug-specific fields
+  therapeutic_area TEXT,
+  active_ingredient TEXT,
+  din TEXT,
+  npn TEXT,
+
+  -- Dates
+  license_date TEXT,
+  expiry_date TEXT,
+
+  -- Recall-specific fields
+  recall_severity TEXT,
+  recall_reason TEXT,
+  recall_classification TEXT,
+
+  -- Dosage / administration
+  dosage_form TEXT,
+  route_of_administration TEXT,
+  company_status TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL DEFAULT 'hc-dpd',
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(product_name, product_type, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_hc_product_name ON health_canada_records(product_name);
+CREATE INDEX IF NOT EXISTS idx_hc_product_type ON health_canada_records(product_type);
+CREATE INDEX IF NOT EXISTS idx_hc_license_number ON health_canada_records(license_number);
+CREATE INDEX IF NOT EXISTS idx_hc_license_status ON health_canada_records(license_status);
+CREATE INDEX IF NOT EXISTS idx_hc_manufacturer ON health_canada_records(manufacturer);
+CREATE INDEX IF NOT EXISTS idx_hc_therapeutic_area ON health_canada_records(therapeutic_area);
+CREATE INDEX IF NOT EXISTS idx_hc_active_ingredient ON health_canada_records(active_ingredient);
+CREATE INDEX IF NOT EXISTS idx_hc_din ON health_canada_records(din);
+CREATE INDEX IF NOT EXISTS idx_hc_npn ON health_canada_records(npn);
+CREATE INDEX IF NOT EXISTS idx_hc_license_date ON health_canada_records(license_date DESC);
+CREATE INDEX IF NOT EXISTS idx_hc_expiry_date ON health_canada_records(expiry_date DESC);
+CREATE INDEX IF NOT EXISTS idx_hc_recall_severity ON health_canada_records(recall_severity);
+CREATE INDEX IF NOT EXISTS idx_hc_product_type_status ON health_canada_records(product_type, license_status);
+CREATE INDEX IF NOT EXISTS idx_hc_ingested ON health_canada_records(ingested_at DESC);
+
+-- CIPO — Canadian Intellectual Property Office IP rights records
+-- Tracks patents, trademarks, and industrial designs registered in Canada.
+CREATE TABLE IF NOT EXISTS cipo_records (
+  id TEXT PRIMARY KEY,
+
+  -- Application identity
+  application_number TEXT NOT NULL,
+  filing_date TEXT,
+  status TEXT NOT NULL DEFAULT 'unknown' CHECK(status IN (
+    'active', 'pending', 'abandoned', 'expired', 'refused',
+    'withdrawn', 'opposed', 'expunged', 'unknown'
+  )),
+  type TEXT NOT NULL CHECK(type IN (
+    'patent', 'trademark', 'industrial_design'
+  )),
+
+  -- Title / description
+  title TEXT NOT NULL,
+  description TEXT,
+
+  -- Owner / agent
+  owner_name TEXT,
+  agent_name TEXT,
+
+  -- Classifications
+  ipc_classification TEXT,
+  nice_classification TEXT,
+
+  -- Dates
+  registration_date TEXT,
+  expiry_date TEXT,
+  publication_date TEXT,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL DEFAULT 'cipo-patent',
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(application_number, type, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cipo_app_number ON cipo_records(application_number);
+CREATE INDEX IF NOT EXISTS idx_cipo_type ON cipo_records(type);
+CREATE INDEX IF NOT EXISTS idx_cipo_status ON cipo_records(status);
+CREATE INDEX IF NOT EXISTS idx_cipo_title ON cipo_records(title);
+CREATE INDEX IF NOT EXISTS idx_cipo_owner ON cipo_records(owner_name);
+CREATE INDEX IF NOT EXISTS idx_cipo_agent ON cipo_records(agent_name);
+CREATE INDEX IF NOT EXISTS idx_cipo_filing_date ON cipo_records(filing_date DESC);
+CREATE INDEX IF NOT EXISTS idx_cipo_registration_date ON cipo_records(registration_date DESC);
+CREATE INDEX IF NOT EXISTS idx_cipo_expiry_date ON cipo_records(expiry_date DESC);
+CREATE INDEX IF NOT EXISTS idx_cipo_ipc ON cipo_records(ipc_classification);
+CREATE INDEX IF NOT EXISTS idx_cipo_nice ON cipo_records(nice_classification);
+CREATE INDEX IF NOT EXISTS idx_cipo_type_status ON cipo_records(type, status);
+CREATE INDEX IF NOT EXISTS idx_cipo_ingested ON cipo_records(ingested_at DESC);
+
+-- CMHC — Canada Mortgage and Housing Corporation housing market data
+-- Tracks housing starts, vacancy rates, rental rates, affordability, and related metrics.
+CREATE TABLE IF NOT EXISTS cmhc_records (
+  id TEXT PRIMARY KEY,
+
+  -- Metric identity
+  metric_name TEXT NOT NULL,
+  metric_type TEXT NOT NULL CHECK(metric_type IN (
+    'housing_starts', 'vacancy_rate', 'rental_rate', 'affordability',
+    'home_price', 'mortgage_arrears', 'housing_completions',
+    'housing_under_construction', 'supply', 'demand', 'absorption', 'other'
+  )),
+
+  -- Geography
+  geographic_area TEXT NOT NULL,
+  geographic_level TEXT NOT NULL DEFAULT 'city',
+
+  -- Time period
+  period TEXT NOT NULL,
+  period_start TEXT,
+  period_end TEXT,
+
+  -- Value
+  value REAL,
+  unit TEXT,
+
+  -- Housing type
+  housing_type TEXT NOT NULL DEFAULT 'all' CHECK(housing_type IN (
+    'rental', 'ownership', 'social', 'co-op', 'condo',
+    'single_detached', 'semi_detached', 'row', 'apartment', 'all'
+  )),
+
+  -- Adjustment
+  seasonally_adjusted INTEGER,
+
+  -- Provenance
+  source_url TEXT NOT NULL,
+  source_system TEXT NOT NULL DEFAULT 'cmhc-housing-starts',
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(metric_name, geographic_area, period, housing_type, source_url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cmhc_metric_name ON cmhc_records(metric_name);
+CREATE INDEX IF NOT EXISTS idx_cmhc_metric_type ON cmhc_records(metric_type);
+CREATE INDEX IF NOT EXISTS idx_cmhc_geo ON cmhc_records(geographic_area);
+CREATE INDEX IF NOT EXISTS idx_cmhc_period ON cmhc_records(period DESC);
+CREATE INDEX IF NOT EXISTS idx_cmhc_housing_type ON cmhc_records(housing_type);
+CREATE INDEX IF NOT EXISTS idx_cmhc_value ON cmhc_records(value);
+CREATE INDEX IF NOT EXISTS idx_cmhc_geo_period ON cmhc_records(geographic_area, period DESC);
+CREATE INDEX IF NOT EXISTS idx_cmhc_metric_period ON cmhc_records(metric_type, period DESC);
+CREATE INDEX IF NOT EXISTS idx_cmhc_ingested ON cmhc_records(ingested_at DESC);
+
+-- Global Canada — GAC / ECCC / CSIS combined metadata tracking
+-- Lighter-weight module primarily tracking records with links to source URLs/full docs.
+CREATE TABLE IF NOT EXISTS global_canada_records (
+  id TEXT PRIMARY KEY,
+
+  -- Source identity
+  source_system TEXT NOT NULL CHECK(source_system IN ('gac', 'eccc', 'csis')),
+  record_type TEXT NOT NULL CHECK(record_type IN (
+    'trade_agreement', 'foreign_policy', 'development_project',
+    'international_assistance', 'sanctions', 'treaty',
+    'climate_data', 'weather_warning', 'environmental_indicator',
+    'greenhouse_gas_inventory', 'climate_adaptation', 'weather_forecast',
+    'annual_report', 'public_briefing', 'security_advisory', 'other'
+  )),
+
+  -- Content
+  title TEXT NOT NULL,
+  description TEXT,
+  date TEXT,
+  url TEXT NOT NULL,
+
+  -- Department / topic
+  department TEXT NOT NULL,
+  topic_area TEXT,
+  geographic_focus TEXT,
+
+  -- Reference
+  reference_number TEXT,
+  format TEXT,
+
+  -- Pipeline metadata
+  ingested_at TEXT NOT NULL,
+
+  UNIQUE(title, source_system, url)
+);
+
+CREATE INDEX IF NOT EXISTS idx_gc_source ON global_canada_records(source_system);
+CREATE INDEX IF NOT EXISTS idx_gc_record_type ON global_canada_records(record_type);
+CREATE INDEX IF NOT EXISTS idx_gc_title ON global_canada_records(title);
+CREATE INDEX IF NOT EXISTS idx_gc_date ON global_canada_records(date DESC);
+CREATE INDEX IF NOT EXISTS idx_gc_department ON global_canada_records(department);
+CREATE INDEX IF NOT EXISTS idx_gc_topic ON global_canada_records(topic_area);
+CREATE INDEX IF NOT EXISTS idx_gc_geo_focus ON global_canada_records(geographic_focus);
+CREATE INDEX IF NOT EXISTS idx_gc_source_type ON global_canada_records(source_system, record_type);
+CREATE INDEX IF NOT EXISTS idx_gc_date_source ON global_canada_records(date DESC, source_system);
+CREATE INDEX IF NOT EXISTS idx_gc_ingested ON global_canada_records(ingested_at DESC);
