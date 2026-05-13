@@ -1,12 +1,12 @@
 {
-  "name": "@civint/mcp-server",
+  "name": "@maplespike/mcp-server",
   "version": "0.1.0",
-  "description": "CivInt Canada MCP Server — 6 tools wrapping pipeline-core for AI agent consumption",
+  "description": "MapleSpike Canada MCP Server — 6 tools wrapping pipeline-core for AI agent consumption",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "civint-mcp": "dist/cli.js"
+    "maplespike-mcp": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -b",
@@ -16,7 +16,7 @@
     "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
-    "@civint/pipeline-core": "workspace:*"
+    "@maplespike/pipeline-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.19.17",

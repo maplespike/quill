@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CivInt — Data Stream</title>
+<title>MapleSpike — Data Stream</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #0B1120; font-family: 'Inter', sans-serif; overflow: hidden; }
@@ -12,8 +12,8 @@ body { background: #0B1120; font-family: 'Inter', sans-serif; overflow: hidden; 
 #stream-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; }
 
 /* Data stream overlay */
-.data-stream { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 10; 
-  background: linear-gradient(90deg, transparent, #E84545, #06B6D4, transparent); 
+.data-stream { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 10;
+  background: linear-gradient(90deg, transparent, #E84545, #06B6D4, transparent);
   animation: streamPulse 2s ease-in-out infinite; opacity: 0.6; }
 @keyframes streamPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.8; } }
 
@@ -164,21 +164,21 @@ for (let i = 0; i < PARTICLES; i++) {
 
 function drawParticles(time) {
   ctx.clearRect(0, 0, W, H);
-  
+
   // Data stream lines
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
     p.x += Math.sin(time * 0.001 + i) * 0.3;
     p.y += p.vy * p.speed;
     p.pulse += 0.02;
-    
+
     // Wrap around
     if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
     if (p.x < -20) p.x = W + 20;
     if (p.x > W + 20) p.x = -20;
-    
+
     const alpha = p.alpha * (0.5 + 0.5 * Math.sin(p.pulse));
-    
+
     // Glow
     ctx.shadowColor = '#06B6D4';
     ctx.shadowBlur = 4;
@@ -187,7 +187,7 @@ function drawParticles(time) {
     ctx.fillText(p.char, p.x, p.y);
     ctx.shadowBlur = 0;
   }
-  
+
   // Connection lines between nearby particles
   ctx.strokeStyle = 'rgba(6, 182, 212, 0.04)';
   ctx.lineWidth = 1;
@@ -204,7 +204,7 @@ function drawParticles(time) {
       }
     }
   }
-  
+
   // Data stream "scanner line"
   const scanY = ((time * 0.05) % H);
   const grad = ctx.createLinearGradient(0, scanY - 40, 0, scanY + 40);
@@ -218,7 +218,7 @@ function drawParticles(time) {
 // ─── Pretext text setup ───
 const FONT = '16px Inter';
 const LINE_HEIGHT = 28;
-const TEXT = "Every day, the Government of Canada makes decisions that affect your life — new regulations, committee hearings, lobbying meetings, court rulings, and billion-dollar contracts. CivInt monitors 54 parliamentary committees across both chambers, 17 high-impact executives from Canada's largest banks, telecoms, and media companies, 34 international and domestic influence actors, 13 official government data sources, and publishes over a dozen active signals about what's happening right now. All data is sourced from official public portals under the Open Government Licence — Canada. No spin, no opinion. Just the facts that are already public, organized so you can actually use them.";
+const TEXT = "Every day, the Government of Canada makes decisions that affect your life — new regulations, committee hearings, lobbying meetings, court rulings, and billion-dollar contracts. MapleSpike monitors 54 parliamentary committees across both chambers, 17 high-impact executives from Canada's largest banks, telecoms, and media companies, 34 international and domestic influence actors, 13 official government data sources, and publishes over a dozen active signals about what's happening right now. All data is sourced from official public portals under the Open Government Licence — Canada. No spin, no opinion. Just the facts that are already public, organized so you can actually use them.";
 
 const prepared = prepareWithSegments(TEXT, FONT);
 let mouseX = W * 0.4;
@@ -231,11 +231,11 @@ function drawText(time) {
   const textAreaHeight = H * 0.45;
   const marginX = W * 0.1;
   const maxWidth = W - marginX * 2;
-  
+
   let cursor = { segmentIndex: 0, graphemeIndex: 0 };
   let y = textAreaTop;
   let lines = [];
-  
+
   while (true) {
     // Calculate available width at this Y, accounting for mouse obstacle
     let availWidth = maxWidth;
@@ -247,7 +247,7 @@ function drawText(time) {
         const obstacleRight = mouseX + OBSTACLE_RADIUS - marginX;
         const leftCol = Math.max(0, obstacleLeft);
         const rightCol = Math.max(0, maxWidth - obstacleRight);
-        
+
         if (leftCol > 60) {
           // Try left column first
           const range = layoutNextLineRange(prepared, cursor, leftCol);
@@ -273,7 +273,7 @@ function drawText(time) {
         }
       }
     }
-    
+
     // Normal line
     const range = layoutNextLineRange(prepared, cursor, availWidth);
     if (!range) break;
@@ -283,18 +283,18 @@ function drawText(time) {
     y += LINE_HEIGHT;
     if (y > textAreaTop + textAreaHeight) break;
   }
-  
+
   // Draw text
   ctx.textBaseline = 'top';
   ctx.font = FONT;
-  
+
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
     const alpha = 0.5 + 0.3 * Math.sin(time * 0.001 + i * 0.3);
     ctx.fillStyle = `rgba(248, 249, 250, ${alpha})`;
     ctx.fillText(l.text, l.x, l.y);
   }
-  
+
   // Draw obstacle (mouse cursor glow)
   const grad2 = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, OBSTACLE_RADIUS);
   grad2.addColorStop(0, 'rgba(232, 69, 69, 0.15)');
@@ -304,7 +304,7 @@ function drawText(time) {
   ctx.beginPath();
   ctx.arc(mouseX, mouseY, OBSTACLE_RADIUS, 0, Math.PI * 2);
   ctx.fill();
-  
+
   // Cursor ring
   ctx.strokeStyle = `rgba(232, 69, 69, ${0.3 + 0.2 * Math.sin(time * 0.003)})`;
   ctx.lineWidth = 1;

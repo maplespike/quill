@@ -13,6 +13,9 @@ export const definition: ToolDefinition = {
     'Office of the Conflict of Interest and Ethics Commissioner (CIEC), ' +
     'Office of the Lobbying Commissioner (OCL), Competition Bureau, and CRTC. ' +
     'Returns report findings, recommendations, investigation outcomes, and merger reviews.',
+  descriptions: {
+    "fr-CA": "Rechercher les rapports et enquêtes des organismes de surveillance fédéraux : Bureau du vérificateur général, directeur parlementaire du budget, commissaire à l’éthique, commissaire au lobbying, Bureau de la concurrence et CRTC.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

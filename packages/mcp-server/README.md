@@ -1,13 +1,13 @@
-# CivInt Canada MCP Server
+# MapleSpike Canada MCP Server
 
 Model Context Protocol server for Canadian government data. Provides **14 tools** for AI agents to query, search, and verify Canadian government information. All 14 tools return real data from `pipeline-data.json` with live-fetch fallbacks.
 
 > **Status:** All 14 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
 
-- **Package:** `@civint/mcp-server`
+- **Package:** `@maplespike/mcp-server`
 - **Transport:** stdio (local) or SSE (hosted)
 - **Deployment:** K8s cluster with Caddy ingress
-- **Cluster endpoint:** http://civint-mcp.ai-inference.svc.lan:3001
+- **Cluster endpoint:** http://maplespike-mcp.ai-inference.svc.lan:3001
 
 ---
 
@@ -55,9 +55,9 @@ Add to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "civint-canada": {
+    "maplespike-canada": {
       "command": "npx",
-      "args": ["@civint/mcp-server"],
+      "args": ["@maplespike/mcp-server"],
       "env": { "CIVINT_API_KEY": "dev-key" }
     }
   }
@@ -75,7 +75,7 @@ Add to your `claude_desktop_config.json`:
 
 ```
 ┌────────────┐     ┌──────────────────┐     ┌──────────────┐
-│  Claude    │────▶│  CivInt MCP      │────▶│  pipeline-   │
+│  Claude    │────▶│  MapleSpike MCP      │────▶│  pipeline-   │
 │  Desktop   │◀────│  Server          │◀────│  core        │
 └────────────┘     │                  │     └──────────────┘
                    │  ┌────────────┐  │

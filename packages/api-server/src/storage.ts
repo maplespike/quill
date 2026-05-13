@@ -1,11 +1,11 @@
 /**
- * CivInt Canada — Storage Abstraction
+ * MapleSpike Canada — Storage Abstraction
  *
  * Provides D1-backed and in-memory storage implementations
- * of the CivIntStorage interface.
+ * of the MapleSpikeStorage interface.
  */
 
-import type { CivIntStorage, CivIntCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
 import { hashApiKey } from './auth.js';
 import type { Env } from './types.js';
 
@@ -13,7 +13,7 @@ import type { Env } from './types.js';
 /*  D1 Implementation (Cloudflare Workers production)                  */
 /* ------------------------------------------------------------------ */
 
-export class D1Storage implements CivIntStorage {
+export class D1Storage implements MapleSpikeStorage {
   private db: Env['DB'];
 
   constructor(db: Env['DB']) {
@@ -133,7 +133,7 @@ export class D1Storage implements CivIntStorage {
 /*  KV Cache Implementation                                            */
 /* ------------------------------------------------------------------ */
 
-export class KVCache implements CivIntCache {
+export class KVCache implements MapleSpikeCache {
   private kv: Env['CACHE'];
 
   constructor(kv: Env['CACHE']) {
@@ -157,7 +157,7 @@ export class KVCache implements CivIntCache {
 /*  In-Memory Implementation (development / testing)                   */
 /* ------------------------------------------------------------------ */
 
-export class MemoryStorage implements CivIntStorage {
+export class MemoryStorage implements MapleSpikeStorage {
   private tenants: Map<string, Tenant> = new Map();
   private keyToTenant: Map<string, { tenantId: string; keyId: string }> = new Map();
   private dailyUsage: Map<string, number> = new Map();
@@ -174,7 +174,7 @@ export class MemoryStorage implements CivIntStorage {
       journalismMode: true,
     };
     this.tenants.set('fg-internal', internalTenant);
-  // Dev key: "civint-dev-key" -> SHA-256
+  // Dev key: "maplespike-dev-key" -> SHA-256
   const devKeyHash = 'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799';
   this.keyToTenant.set(devKeyHash, {
       tenantId: 'fg-internal',
@@ -231,7 +231,7 @@ export class MemoryStorage implements CivIntStorage {
   }
 }
 
-export class MemoryCache implements CivIntCache {
+export class MemoryCache implements MapleSpikeCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {

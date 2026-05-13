@@ -1,5 +1,5 @@
 /**
- * CanLII Ingestion — CivInt Pipeline
+ * CanLII Ingestion — MapleSpike Pipeline
  *
  * Orchestrates the CanLII court decisions ingestion pipeline:
  *   1. Search / browse for new decisions from tracked courts

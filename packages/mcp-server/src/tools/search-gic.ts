@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'commissions, and Crown corporations. Includes order-in-council appointment data, ' +
     'salary ranges, departmental categories, appointment types, and ' +
     'cross-references with federal lobbying registry for lobbyists-turned-appointees.',
+  descriptions: {
+    "fr-CA": "Rechercher les nominations du gouverneur en conseil, y compris les titulaires de charge, les échelles salariales et les affiliations ministérielles. Couvre toutes les nominations fédérales par décret.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

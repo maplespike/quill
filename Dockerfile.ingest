@@ -1,0 +1,50 @@
+# =============================================================================
+# CivInt Canada — Ingestion Runner Dockerfile
+# Multi-stage build for K8s CronJob — dispatches to pipeline-core ingestAll*()
+# based on CIVINT_PIPELINE env var.
+# =============================================================================
+
+# ---- Stage 1: Build ----
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+COPY packages/mcp-server/package.json packages/mcp-server/package.json
+
+# Install all dependencies (including devDependencies for build)
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/pipeline-core/ packages/pipeline-core/
+
+# Build pipeline-core (includes cli/ingest.ts)
+RUN pnpm --filter @civint/pipeline-core run build
+
+# ---- Stage 2: Production ----
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install pnpm (needed for workspace dependency resolution)
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+
+# Install production dependencies only
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy compiled output
+COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
+
+ENV NODE_ENV=production
+
+# CIVINT_PIPELINE must be set at runtime (e.g. "committee", "corporate")
+CMD ["node", "packages/pipeline-core/dist/cli/ingest.js"]

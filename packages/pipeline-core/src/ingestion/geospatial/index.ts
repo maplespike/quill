@@ -5,7 +5,7 @@
  * - BC LODE (land ownership)
  * - GeoMet (weather geo data)
  *
- * @module @civint/pipeline-core/ingestion/geospatial
+ * @module @maplespike/pipeline-core/ingestion/geospatial
  */
 
 export { discoverLayers, fetchFeatures, fetchLODEData } from './fetcher.js';

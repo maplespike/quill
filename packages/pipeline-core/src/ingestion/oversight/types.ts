@@ -1,5 +1,5 @@
 /**
- * Oversight Bodies Types — CivInt Pipeline
+ * Oversight Bodies Types — MapleSpike Pipeline
  *
  * Types for reports, investigations, and recommendations from Canada's
  * independent oversight bodies: OAG, PBO, Ethics Commissioner,

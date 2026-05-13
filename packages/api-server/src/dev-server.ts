@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — Development Server
+ * MapleSpike Canada — Development Server
  *
  * Node.js HTTP server that mounts the same route handlers as the Worker.
  * Supports in-memory (default) and SQLite storage backends.
@@ -14,24 +14,24 @@ import * as http from 'node:http';
 import { handleRequest } from './index.js';
 import { MemoryStorage, MemoryCache } from './storage.js';
 import { SqliteStorage, SqliteStorageCache } from './sqlite-storage.js';
-import type { CivIntStorage, CivIntCache } from './types.js';
+import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 
 const PORT = parseInt(process.env.PORT || '8082', 10);
 const AI_ENDPOINT = process.env.AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
 const AI_MODEL = process.env.AI_MODEL || 'qwen3.5-27b';
 const CIVINT_STORAGE = (process.env.CIVINT_STORAGE || 'memory').toLowerCase();
-const CIVINT_DB_PATH = process.env.CIVINT_DB_PATH || './civint.db';
+const CIVINT_DB_PATH = process.env.CIVINT_DB_PATH || './maplespike.db';
 
 const env = {
   ENVIRONMENT: 'development',
   CIVINT_VERSION: '0.1.0',
-  CIVINT_NAME: 'CivInt Canada (dev)',
+  CIVINT_NAME: 'MapleSpike Canada (dev)',
   AI_ENDPOINT,
   AI_MODEL,
 };
 
-let db: CivIntStorage;
-let cache: CivIntCache;
+let db: MapleSpikeStorage;
+let cache: MapleSpikeCache;
 
 if (CIVINT_STORAGE === 'sqlite') {
   console.log(`[Storage] Using SQLite backend: ${CIVINT_DB_PATH}`);
@@ -44,7 +44,7 @@ if (CIVINT_STORAGE === 'sqlite') {
   cache = new MemoryCache();
 
   // Seed a dev tenant with known API key
-  // Usage: curl -H "Authorization: Bearer civint-dev-key" http://localhost:8081/v1/health
+  // Usage: curl -H "Authorization: Bearer maplespike-dev-key" http://localhost:8081/v1/health
   memDb.registerTenant(
     {
       id: 'dev-tenant',
@@ -53,7 +53,7 @@ if (CIVINT_STORAGE === 'sqlite') {
       isActive: true,
       journalismMode: false,
     },
-    'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799', // SHA-256 of "civint-dev-key"
+    'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799', // SHA-256 of "maplespike-dev-key"
     'dev-key-1',
   );
 
@@ -123,7 +123,7 @@ if (!verifyStorageHealth()) {
 }
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  CivInt Canada API (dev)`);
+  console.log(`\n  MapleSpike Canada API (dev)`);
   console.log(`  ${'─'.repeat(40)}`);
   console.log(`  Server:    http://0.0.0.0:${PORT}/v1`);
   console.log(`  Health:    http://localhost:${PORT}/v1/health`);
@@ -133,8 +133,8 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`  DB Path:   ${CIVINT_DB_PATH}`);
   }
   console.log(`  AI:        ${AI_ENDPOINT} (${AI_MODEL})`);
-  console.log(`\n  Auth:      civint-dev-key`);
-  console.log(`  Example:   curl -H "Authorization: Bearer civint-dev-key" http://localhost:${PORT}/v1/health`);
+  console.log(`\n  Auth:      maplespike-dev-key`);
+  console.log(`  Example:   curl -H "Authorization: Bearer maplespike-dev-key" http://localhost:${PORT}/v1/health`);
   console.log(`  Register:  curl -X POST http://localhost:${PORT}/v1/register -H "Content-Type: application/json" -d '{"name":"My Org","email":"user@example.com"}'`);
   console.log(`  ${'─'.repeat(40)}\n`);
 });

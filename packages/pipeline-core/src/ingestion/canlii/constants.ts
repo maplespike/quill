@@ -1,5 +1,5 @@
 /**
- * CanLII Constants — CivInt Pipeline
+ * CanLII Constants — MapleSpike Pipeline
  *
  * API endpoint configuration, tracked courts, tracked legislation keywords,
  * and DDL for the canlii_decisions and canlii_citations tables.

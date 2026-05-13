@@ -1,5 +1,5 @@
 /**
- * GIC Appointment Constants — CivInt Pipeline
+ * GIC Appointment Constants — MapleSpike Pipeline
  *
  * Source metadata and URL patterns for Governor-in-Council appointment data.
  *

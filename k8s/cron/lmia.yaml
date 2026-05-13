@@ -1,10 +1,10 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: civint-ingest-lmia
+  name: maplespike-ingest-lmia
   namespace: ai-inference
   labels:
-    app: civint-ingest
+    app: maplespike-ingest
     pipeline: lmia
     tier: backend
 spec:
@@ -14,25 +14,21 @@ spec:
       template:
         metadata:
           labels:
-            app: civint-ingest
+            app: maplespike-ingest
             pipeline: lmia
             tier: backend
         spec:
           restartPolicy: OnFailure
           nodeName: nexus
           containers:
-            - name: civint-ingest
-              image: nexus:5000/civint-mcp:latest
+            - name: maplespike-ingest
+              image: nexus:5000/maplespike-ingest:latest
               imagePullPolicy: Always
               env:
                 - name: NODE_ENV
                   value: "production"
                 - name: CIVINT_PIPELINE
                   value: "lmia"
-                - name: CIVINT_AI_ENDPOINT
-                  value: "http://ai-inference-gateway:8080/v1"
-                - name: CIVINT_AI_MODEL
-                  value: "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"
               resources:
                 requests:
                   cpu: "100m"

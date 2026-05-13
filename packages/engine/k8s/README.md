@@ -1,6 +1,6 @@
-# CivInt Sweep CronJob
+# MapleSpike Sweep CronJob
 
-A Kubernetes CronJob that periodically runs the CivInt intelligence pipeline
+A Kubernetes CronJob that periodically runs the MapleSpike intelligence pipeline
 against all four Canadian government data sources:
 
 - **spending**   — federal procurement/contract data (via proactive disclosure)
@@ -37,11 +37,11 @@ This creates the CronJob in the `ai-inference` namespace.
 kubectl get cronjobs -n ai-inference
 
 # See the sweep cronjob details
-kubectl describe cronjob civint-sweep -n ai-inference
+kubectl describe cronjob maplespike-sweep -n ai-inference
 
 # Watch recent job runs
-kubectl get jobs -n ai-inference -l app=civint-sweep
-kubectl logs -n ai-inference -l app=civint-sweep --tail=50
+kubectl get jobs -n ai-inference -l app=maplespike-sweep
+kubectl logs -n ai-inference -l app=maplespike-sweep --tail=50
 ```
 
 ## Manual Testing
@@ -49,7 +49,7 @@ kubectl logs -n ai-inference -l app=civint-sweep --tail=50
 To trigger an immediate one-off run:
 
 ```bash
-kubectl create job --from=cronjob/civint-sweep test-sweep -n ai-inference
+kubectl create job --from=cronjob/maplespike-sweep test-sweep -n ai-inference
 ```
 
 Then watch the logs:
@@ -63,7 +63,7 @@ kubectl logs job/test-sweep -n ai-inference --follow
 | Variable           | Value                                    |
 |--------------------|------------------------------------------|
 | Schedule           | `0 */6 * * *`  (every 6 hours)          |
-| Image              | `nexus:5000/civint-mcp:latest`           |
+| Image              | `nexus:5000/maplespike-mcp:latest`           |
 | CPU request        | 200m                                     |
 | Memory request     | 256Mi                                    |
 | CPU limit          | 500m                                     |

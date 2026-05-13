@@ -1,5 +1,5 @@
 /**
- * Gazette Parser — CivInt Pipeline
+ * Gazette Parser — MapleSpike Pipeline
  *
  * Parses Canada Gazette RSS XML into structured GazetteRecord objects
  * and extracts Regulatory Impact Analysis Statement (RIAS) URLs from

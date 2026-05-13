@@ -5,7 +5,7 @@
  *
  * Instantiates the SweepEngine, runs a full sweep across all four
  * Canadian government data sources (spending, lobbying, ciec, gac),
- * and exits. Designed to be invoked by the civint-sweep CronJob.
+ * and exits. Designed to be invoked by the maplespike-sweep CronJob.
  *
  * Usage:
  *   node dist/sweep/run.js

@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: civint-mcp
+  name: maplespike-mcp
   namespace: ai-inference
   annotations:
     # Cluster Caddy will handle routing internally
@@ -10,13 +10,13 @@ metadata:
 spec:
   ingressClassName: caddy
   rules:
-    - host: civint-mcp.lan
+    - host: maplespike-mcp.lan
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: civint-mcp
+                name: maplespike-mcp
                 port:
                   number: 3001

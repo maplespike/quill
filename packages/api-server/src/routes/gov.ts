@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — Government Data Endpoints
+ * MapleSpike Canada — Government Data Endpoints
  *
  * GET /v1/gov/releases — Government data releases
  * GET /v1/gov/search — Search across all gov data sources
@@ -7,8 +7,8 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
-import { fetchStatCanReleases, fetchCKANPackages, GOV_DATA_SOURCES } from '@civint/pipeline-core';
-import type { GovRelease } from '@civint/pipeline-core';
+import { fetchStatCanReleases, fetchCKANPackages, GOV_DATA_SOURCES } from '@maplespike/pipeline-core';
+import type { GovRelease } from '@maplespike/pipeline-core';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -157,7 +157,7 @@ export const searchGovHandler: RouteHandler = async (request, ctx) => {
 
 const PIPELINE_DATA_PATHS = [
   resolve(__dirname, '../../../../packages/portal/assets/pipeline-data.json'),
-  resolve('/data/projects/own/civint/packages/portal/assets/pipeline-data.json'),
+  resolve('/data/projects/own/maplespike/packages/portal/assets/pipeline-data.json'),
 ];
 
 export const dataHandler: RouteHandler = async (_request, ctx) => {

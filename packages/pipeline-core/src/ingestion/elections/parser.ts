@@ -1,5 +1,5 @@
 /**
- * Elections Canada Third-Party Advertiser Registry Parser — CivInt Pipeline
+ * Elections Canada Third-Party Advertiser Registry Parser — MapleSpike Pipeline
  *
  * Parses raw third-party advertiser records from Elections Canada CSV exports,
  * CKAN datasets, and HTML scraping into structured ThirdPartyAd objects.

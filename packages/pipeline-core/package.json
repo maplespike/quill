@@ -1,5 +1,5 @@
 {
-  "name": "@civint/pipeline-core",
+  "name": "@maplespike/pipeline-core",
   "version": "0.1.0",
   "description": "Core data pipeline: ingestion, curation, verification, and audit for Canadian civic data",
   "type": "module",

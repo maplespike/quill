@@ -1,13 +1,91 @@
 /* ══════════════════════════════════════════════════════════════════
-   CivInt Canada — Portal JS
-   Dark/Light toggle, mobile menu, scroll-reveal, stat counters, demo
+   MapleSpike Canada — Portal JS
+   i18n, Dark/Light toggle, mobile menu, scroll-reveal, stat counters, demo
    ══════════════════════════════════════════════════════════════════ */
 
 (function() {
   'use strict';
 
-  const LS_THEME = 'civint-theme';
-  const LS_INIT = 'civint-initialized';
+  const LS_THEME = 'maplespike-theme';
+  const LS_INIT = 'maplespike-initialized';
+  const LS_LOCALE = 'maplespike-locale';
+
+  // ── i18n Engine ────────────────────────────────────────────────
+
+  const SUPPORTED_LOCALES = ['en-CA', 'fr-CA'];
+  const DEFAULT_LOCALE = 'en-CA';
+
+  function detectLocale() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && SUPPORTED_LOCALES.includes(urlLang)) return urlLang;
+
+    const saved = localStorage.getItem(LS_LOCALE);
+    if (saved && SUPPORTED_LOCALES.includes(saved)) return saved;
+
+    if ((navigator.language || '').startsWith('fr')) return 'fr-CA';
+    return DEFAULT_LOCALE;
+  }
+
+  let currentLocale = detectLocale();
+
+  async function loadI18n(locale) {
+    try {
+      const resp = await fetch('assets/i18n/' + locale + '.json?_t=' + Date.now());
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return await resp.json();
+    } catch (err) {
+      console.warn('[i18n] Failed to load ' + locale + ', falling back to en-CA:', err);
+      if (locale !== 'en-CA') return loadI18n('en-CA');
+      return null;
+    }
+  }
+
+  function resolveNestedKey(obj, path) {
+    return path.split('.').reduce((o, k) => (o && o[k] !== undefined) ? o[k] : null, obj);
+  }
+
+  function applyI18n(data) {
+    if (!data) return;
+    document.documentElement.lang = data.meta?.locale || currentLocale;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const value = resolveNestedKey(data, key);
+      if (value === null) return;
+
+      const attrMatch = key.match(/^(.+?)@(\w+)$/);
+      if (attrMatch) {
+        const attrValue = resolveNestedKey(data, attrMatch[1]);
+        if (attrValue !== null) el.setAttribute(attrMatch[2], attrValue);
+        return;
+      }
+
+      el.textContent = value;
+    });
+  }
+
+  async function setLocale(locale) {
+    if (!SUPPORTED_LOCALES.includes(locale)) return;
+    currentLocale = locale;
+    localStorage.setItem(LS_LOCALE, locale);
+
+    const url = new URL(window.location);
+    url.searchParams.set('lang', locale);
+    window.history.replaceState({}, '', url);
+
+    const data = await loadI18n(locale);
+    applyI18n(data);
+  }
+
+  function setupLangToggle() {
+    document.querySelectorAll('.lang-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-lang');
+        if (target) setLocale(target);
+      });
+    });
+  }
 
   // ── Dark/Light Theme Toggle ──────────────────────────────────
 
@@ -315,7 +393,7 @@
   window.regenerateKey = function() {
     if (!confirm('Regenerating your API key will invalidate the current one. All services using the old key will stop working. Continue?')) return;
     const chars = 'abcdef0123456789';
-    let key = 'civint-';
+    let key = 'maplespike-';
     for (let i = 0; i < 32; i++) key += chars[Math.floor(Math.random() * chars.length)];
     const keyEl = document.getElementById('apiKeyDisplay');
     if (keyEl) keyEl.textContent = key;
@@ -337,7 +415,7 @@
     'signal': 'An automated detection that connects two or more data points across different sources — e.g., a company lobbying a department while holding a sole-source contract from that same department.',
     'entity-resolution': 'The process of identifying when the same person or organization appears across different data sources (committees, lobbying, procurement) and linking those records together.',
     'revolving-door': 'When a person moves between a government role and a lobbying or industry position, especially within a short time frame. Tracked as a conflict-of-interest signal.',
-    'mcp': 'Model Context Protocol — an open standard that lets AI tools (ChatGPT, Claude, Gemini) connect to external data sources like CivInt through a common interface.',
+    'mcp': 'Model Context Protocol — an open standard that lets AI tools (ChatGPT, Claude, Gemini) connect to external data sources like MapleSpike through a common interface.',
     'pipeline': 'An automated data processing module that ingests, parses, and verifies records from a specific government source (e.g., the committees pipeline, lobbying pipeline).',
     'sweep': 'A scheduled run of the ingestion engine that collects new data from all sources, runs entity resolution, detects signals, and generates briefs.',
     'provenance': 'The verifiable chain of custody for a piece of data — from the original government source through ingestion, parsing, and citation hashing. Allows independent verification of any claim.',
@@ -345,8 +423,8 @@
     'cron-job': 'A scheduled task that runs automatically on the K3s cluster — e.g., daily committee ingestion runs at 6:00 AM UTC.',
     'in-camera-alert': 'A notification generated when a parliamentary committee meeting is flagged as in-camera (closed to the public). These are high-priority signals.',
     'lobbying': 'Communications between organizations and government officials aimed at influencing policy, legislation, or contracting decisions. Tracked by the Office of the Commissioner of Lobbying.',
-    'procurement': 'The process by which the government purchases goods and services from private companies. CivInt tracks contract awards, sole-source designations, and vendor history.',
-    'tier': 'Your CivInt subscription level (Public, Civic, Enterprise) that determines API call limits, rate limits, and feature access.',
+    'procurement': 'The process by which the government purchases goods and services from private companies. MapleSpike tracks contract awards, sole-source designations, and vendor history.',
+    'tier': 'Your MapleSpike subscription level (Public, Civic, Enterprise) that determines API call limits, rate limits, and feature access.',
   };
 
   function setupGlossary() {
@@ -423,10 +501,15 @@
 
   // ── Init ────────────────────────────────────────────────────
 
-  function init() {
+  async function init() {
     initTheme();
     setupThemeToggle();
     setupMobileMenu();
+
+    const data = await loadI18n(currentLocale);
+    applyI18n(data);
+    setupLangToggle();
+
     setupScrollReveal();
     setupStatCounters();
     setupGlossary();

@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchStatCanReleases } from '@civint/pipeline-core';
+import { fetchStatCanReleases } from '@maplespike/pipeline-core';
 
 /**
  * Get the latest government data releases from Statistics Canada and federal/provincial portals.
@@ -10,6 +10,9 @@ export const definition: ToolDefinition = {
     'Get the most recent government data releases, economic indicators, and announcements ' +
     'from Statistics Canada, open.canada.ca, and federal/provincial data portals. ' +
     'Use this to stay current on new datasets, revised statistics, and government publications.',
+  descriptions: {
+    "fr-CA": "Obtenir les plus récentes publications de données gouvernementales canadiennes, y compris les communiqués de Statistique Canada, les mises à jour de données du portail ouvert et les annonces provinciales. Filtrer par juridiction et catégorie.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — Response Envelope
+ * MapleSpike Canada — Response Envelope
  *
  * Consistent API response format for all endpoints.
  * Every response includes citations, usage meta, and OGL-C attribution.
@@ -96,10 +96,10 @@ export function jsonResponse<T>(
     status,
     headers: {
       'Content-Type': 'application/json',
-      'X-CivInt-Version': '0.1.0',
+      'X-MapleSpike-Version': '0.1.0',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CivInt-Mode',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
       ...extraHeaders,
     },
   });
@@ -132,7 +132,7 @@ export function corsPreflight(): Response {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CivInt-Mode',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
       'Access-Control-Max-Age': '86400',
     },
   });

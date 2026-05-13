@@ -1,5 +1,5 @@
 /**
- * Shared pipeline data loader for CivInt MCP search tools
+ * Shared pipeline data loader for MapleSpike MCP search tools
  *
  * Loads from pipeline-data.json when available.
  * Falls back to live HTTP fetching from source APIs when the file is missing.
@@ -21,10 +21,10 @@ export function getPipelineData(): Record<string, any> | null {
 
   // Try multiple possible relative paths (source vs compiled, dev vs production)
   const possiblePaths = [
-    // From dist/tools/ or src/tools/ — go up to civint/, then into portal
+    // From dist/tools/ or src/tools/ — go up to maplespike/, then into portal
     resolve(__dirname, '../../../../packages/portal/assets/pipeline-data.json'),
     // Alternative: from workspace root
-    resolve('/data/projects/own/civint/packages/portal/assets/pipeline-data.json'),
+    resolve('/data/projects/own/maplespike/packages/portal/assets/pipeline-data.json'),
   ];
 
   for (const dataPath of possiblePaths) {
@@ -140,7 +140,7 @@ async function liveFetchCanlii(query: string, limit: number): Promise<any[]> {
     const resp = await fetch(url, {
       headers: {
         'Accept': 'application/json, text/html',
-        'User-Agent': 'CivInt/1.0',
+        'User-Agent': 'MapleSpike/1.0',
       },
       signal: AbortSignal.timeout(10000),
     });

@@ -1,6 +1,6 @@
-# CivInt Canada — Market Requirements Document (Internal)
+# MapleSpike Canada — Market Requirements Document (Internal)
 
-> **Product:** CivInt Canada
+> **Product:** MapleSpike Canada
 > **Type:** Data pipeline / unified government data layer / SaaS API
 > **Status:** Internal strategy doc
 > **Author:** j_kro / Hermes + Sisyphus
@@ -26,14 +26,14 @@ Canada's open data ecosystem is currently fragmented: developers and journalists
 3. SHA-256 content verification
 4. MCP-native access for AI agents
 
-CivInt fills this gap with a sovereign, Canadian-first pipeline.
+MapleSpike fills this gap with a sovereign, Canadian-first pipeline.
 
 ### Market Timing (2026)
 
 - **MCP is standardizing**: GPO (US Government Publishing Office) and Census Bureau already ship public MCP servers. Claude Desktop, Cursor, and VS Code Copilot all support MCP. The "MCP for government data" pattern is emerging.
 - **Unified gov data pipelines are proven**: The market validates demand for unified government data access, especially with MCP support.
 - **Provenance pressure**: Bill C-27 / AIDA creates compliance pressure for government data users. Audit trails become mandatory. We already have them.
-- **AI agents need data**: Every Canadian AI agent needs government data context. With MCP, CivInt becomes the canonical source.
+- **AI agents need data**: Every Canadian AI agent needs government data context. With MCP, MapleSpike becomes the canonical source.
 
 ---
 
@@ -93,7 +93,7 @@ CivInt fills this gap with a sovereign, Canadian-first pipeline.
 
 ### Audience 4: Frostbite Gazette (Internal Dogfood)
 
-- First-class consumer of CivInt data
+- First-class consumer of MapleSpike data
 - Need: Journalism-mode pipeline with editorial overrides
 
 ---
@@ -114,8 +114,8 @@ CivInt fills this gap with a sovereign, Canadian-first pipeline.
 ### Growth model
 
 1. **Open-source**: Developer discovers pipeline-core on GitHub -> contributes or builds on it
-2. **MCP -> Pipeline**: Agent builder discovers CivInt via MCP -> uses the data pipeline
-3. **Journalist -> Story**: Story publishes with "Verify this data" link -> readers discover CivInt
+2. **MCP -> Pipeline**: Agent builder discovers MapleSpike via MCP -> uses the data pipeline
+3. **Journalist -> Story**: Story publishes with "Verify this data" link -> readers discover MapleSpike
 
 ---
 

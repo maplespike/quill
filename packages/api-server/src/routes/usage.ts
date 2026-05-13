@@ -1,5 +1,5 @@
 /**
- * CivInt Canada — Usage Endpoint
+ * MapleSpike Canada — Usage Endpoint
  *
  * GET /v1/usage — Current period consumption
  */

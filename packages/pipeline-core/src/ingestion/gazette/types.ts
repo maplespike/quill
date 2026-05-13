@@ -1,5 +1,5 @@
 /**
- * Gazette Data Types — CivInt Pipeline
+ * Gazette Data Types — MapleSpike Pipeline
  *
  * Strongly-typed interfaces for Canada Gazette (Parts I, II, III)
  * regulation data ingestion.

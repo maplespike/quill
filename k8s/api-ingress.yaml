@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maplespike-api
+  namespace: ai-inference
+  annotations:
+    caddy.ingress.kubernetes.io/rewrite-to: "/{path}"
+spec:
+  ingressClassName: caddy
+  rules:
+    - host: maplespike-api.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-api
+                port:
+                  number: 8082

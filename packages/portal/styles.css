@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
-   CivInt Canada — Portal Styles
+   MapleSpike Canada — Portal Styles
    Base16/Base24 token system + dark/light theme + premium SaaS UI
    ══════════════════════════════════════════════════════════════════ */
 
@@ -312,6 +312,31 @@ nav .nav-links a.active::after { width: 100%; }
   color: var(--text-primary);
   border-color: var(--text-muted);
   background: var(--bg-elevated);
+}
+
+/* Language toggle */
+.lang-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 36px; height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--accent-cyan);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all var(--transition);
+}
+
+.lang-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-cyan);
+  background: var(--accent-cyan-dim);
 }
 
 /* Mobile nav */

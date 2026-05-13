@@ -1,4 +1,4 @@
--- CivInt Canada — D1 Database Schema
+-- MapleSpike Canada — D1 Database Schema
 -- Multi-tenant API gateway storage
 -- SQLite / Cloudflare D1 compatible
 
@@ -95,6 +95,6 @@ CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 INSERT OR IGNORE INTO tenants (id, name, tier, journalism_mode) VALUES
   ('fg-internal', 'Frostbite Gazette', 'internal', 1);
 
--- Dev/test API key (SHA-256 of "civint-dev-key")
+-- Dev/test API key (SHA-256 of "maplespike-dev-key")
 INSERT OR IGNORE INTO api_keys (id, tenant_id, key_hash, name) VALUES
   ('dev-key-1', 'fg-internal', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'dev');

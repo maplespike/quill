@@ -12,6 +12,9 @@ export const definition: ToolDefinition = {
     'Covers Ontario, British Columbia, Alberta, Quebec, and other provincial lobbying records. ' +
     'Returns lobbying registrations, communication reports, and subject areas. ' +
     'Cross-references with the federal lobbying registry to identify multi-jurisdictional lobbying activity.',
+  descriptions: {
+    "fr-CA": "Rechercher les registres de lobbying provinciaux de l’Ontario. Normalise au schéma fédéral de lobbying pour une vue combinée fédérale-provinciale. Les registres de la C.-B. et du QC ne sont pas encore mis en œuvre.",
+  },
   inputSchema: {
     type: 'object',
     properties: {

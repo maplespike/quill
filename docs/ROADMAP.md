@@ -1,6 +1,6 @@
-# CivInt Canada — Roadmap
+# MapleSpike Canada — Roadmap
 
-> This file is a synced copy of `/data/projects/own/civint/ROADMAP.md` (the root-level canonical document).
+> This file is a synced copy of `/data/projects/own/maplespike/ROADMAP.md` (the root-level canonical document).
 >
 > For the full, up-to-date roadmap with honest module statuses, file inventory, and the 7-phase build plan, see the [root ROADMAP.md](../ROADMAP.md).
 
