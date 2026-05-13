@@ -115,7 +115,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 | 3 | **Wire MCP Tools** — 10 stubs → real DB queries | All 14 tools return real results | ✅ DONE |
 | 4 | **Engine Integration** — entity resolution reads shared DB | Use data already collected | ⏳ TODO |
 | 5 | **Live Dashboard** — React dashboard hits MCP/API | Replace static mockups with live data | ⏳ TODO |
-| 6 | **SaaS / Public API + Console** — Stripe + crypto + Interac billing, public signup, tier enforcement, developer console (API keys, usage, catalog, playground, Ask, Signal) | Revenue + developer self-service + Katzilla parity | 🔴 TODO |
+| 6 | **SaaS / Public API + Console** — Stripe + crypto + Interac billing, public signup, tier enforcement, developer console (API keys, usage, catalog, playground, Ask, Signal) | Revenue + developer self-service | 🔴 TODO |
 | 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | Scale + enterprise | 🔴 TODO |
 
 ---

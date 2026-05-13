@@ -187,18 +187,18 @@
 | 🔴 Developer console (live) | MEDIUM | 2 weeks | Wiring the static HTML pages to real API data — key list, usage stats, billing history, data catalog explorer, API playground, Ask chat, Signal builder |
 | 🔴 Public docs / quickstart | LOW | 1 day | Onboarding flow for new developers |
 
-### Console Features (Katzilla Parity Target)
+### Console Features Required
 
-| Feature | Katzilla | MapleSpike | Effort |
-|---------|----------|--------|--------|
-| API key management (create/rotate/revoke in UI) | ✅ | 🔴 Static key in env | 2 days |
-| Usage counter dashboard | ✅ "170K req/30d" | 🔴 API tracks it, no UI | 3 days |
-| Data catalog explorer (browse all tools) | ✅ 27 agents, 217 actions | 🔴 MCP tools list only | 3 days |
-| API playground (live try-it) | ✅ POST url → see JSON | ❌ Static curl blocks | 2 days |
-| Natural-language Ask (chat UI) | ✅ Claude-powered, cited | 🔴 MCP-only (external) | 1 week |
-| Signal/monitor builder (source+filter+delivery) | ✅ Pick source → deliver | 🔴 Code-based only | 1 week |
-| User accounts / sign-up | ✅ Google/GitHub OAuth | 🟡 Register endpoint exists | 3 days |
-| Billing / checkout | ✅ Stripe, annual discount | 🔴 Static pricing page | 3 days |
+| Feature | Status | Effort |
+|---------|--------|--------|
+| API key management (create/rotate/revoke in UI) | 🔴 Static key in env | 2 days |
+| Usage counter dashboard | 🔴 API tracks it, no UI | 3 days |
+| Data catalog explorer (browse all tools) | 🔴 MCP tools list only | 3 days |
+| API playground (live try-it) | 🟡 Run button on portal | 2 days |
+| Natural-language Ask (chat UI) | 🔴 MCP-only (external) | 1 week |
+| Signal/monitor builder (source+filter+delivery) | 🔴 Code-based only | 1 week |
+| User accounts / sign-up | 🟡 Register endpoint exists | 3 days |
+| Billing / checkout | 🔴 Static pricing page | 3 days |
 
 ### Pricing Tiers
 
@@ -213,25 +213,9 @@ Payment methods: **Stripe** (credit cards), **Crypto** (BTC/ETH via BTCPay Serve
 
 ### Competitive Positioning
 
-**vs. Katzilla.dev (primary competitor):**
+MapleSpike Canada is purpose-built for deep Canadian government data — parliamentary committees, lobbying, courts, procurement, elections, and oversight. The moat is Canadian depth and sovereignty.
 
-| Dimension | Katzilla | MapleSpike Canada |
-|-----------|----------|--------------|
-| Focus | US-first, 300+ global sources | Canada-only, deep parliamentary/corporate |
-| Canadian data | open.canada.ca + weather (surface) | 16 deep modules — committees, lobbying, courts, Gazette, procurement, elections, oversight |
-| Parliamentary | Congress.gov bills only | 34 HoC + 20 Senate, witness tracking, in-camera flags |
-| Lobbying | None | Federal registry + Ontario provincial |
-| Courts | CourtListener (US) | CanLII (Canadian courts) |
-| Oversight | None | OAG, PBO, Ethics, CB, CRTC |
-| Console UX | ✅ Polished workspace (keys, usage, explorer, playground, Ask, Signal) | 🟡 Static portal, no live console |
-| Pricing | $0-$4,999/mo | $0-$199/mo |
-| Citation | SHA-256 hash | SHA-256 + audit trail + provenance chain |
-
-**MapleSpike advantages:** Deeper Canadian data, parliamentary tracking, lobbying/corporate influence, oversight bodies, 5GW analysis, AIDA-compliant audit trails.
-
-**Katzilla advantages:** Polished developer console, broader global data (300+ sources), more mature MCP/API surface, Ask/Signal products, established user base.
-
-**Differentiation strategy:** Win on Canadian depth, match on console UX, compete on price.
+---
 
 ---
 
@@ -408,12 +392,12 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — SaaS console priorities
 |---|------|-------|--------|--------|
 | 1 | **Deploy CronJobs on K3s** — committee, corporate, influence, gazette, gic, oversight, provincial, canlii, lmia | P3 | Critical — keeps all pipelines fresh | 2 days |
 | 2 | **User accounts** — OAuth (Google/GitHub) or magic-link, session management | P6 | Critical — unlocks all console features | 3 days |
-| 3 | **API key management UI** — create/rotate/revoke in dashboard | P6 | High — developer self-service, Katzilla parity | 2 days |
-| 4 | **Usage dashboard** — live counter, rate limit viz, quota warnings | P6 | High — developer experience, Katzilla parity | 3 days |
+| 3 | **API key management UI** — create/rotate/revoke in dashboard | P6 | High — developer self-service | 2 days |
+| 4 | **Usage dashboard** — live counter, rate limit viz, quota warnings | P6 | High — developer experience | 3 days |
 | 5 | **Stripe + Crypto + Interac billing** — payment processing, webhooks, tier enforcement | P6 | High — unlocks revenue | 3-5 days |
 | 6 | **Public signup flow** — web form → payment → API key provisioning | P6 | High — user acquisition | 2 days |
-| 7 | **API playground** — live endpoint test with JSON output (replace static curl blocks) | P6 | Medium — interactive demo, Katzilla parity | 2 days |
-| 8 | **Data catalog explorer** — searchable tool/action browser for all 14 MCP tools | P6 | Medium — discovery, Katzilla parity | 3 days |
+| 7 | **API playground** — live endpoint test with JSON output (replace static curl blocks) | P6 | Medium — interactive demo | 2 days |
+| 8 | **Data catalog explorer** — searchable tool/action browser for all 14 MCP tools | P6 | Medium — discovery | 3 days |
 | 9 | **Engine integration** — entity resolution + signal detection reads shared DB, produces briefs | P4 | High — unlocks analytics | 3 days |
 | 10 | **BC/AB/QC provincial lobbying** — wire up remaining province registries | P4 | Medium — fills coverage gap | 2 days |
 
@@ -433,7 +417,7 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — SaaS console priorities
 | 2026-05-12 | .lan domains + K3s cluster over Cloudflare | Zero external cloud spend, existing infrastructure |
 | 2026-05-12 | SaaS/commercial unarchived — Stripe + crypto + Interac e-Transfer billing | Public API with paid tiers. Billing trifecta for Canadian market: cards (Stripe), self-custody crypto (BTCPay Server), Interac e-Transfer |
 | 2026-05-13 | Portal visual uplift applied | fade-in opacity fix, particle background, hero refined, all text visible, script.js wired |
-| 2026-05-13 | Katzilla.dev identified as primary competitor | Feature-by-feature comparison added to Phase 6. Strategy: win on Canadian depth, match on console UX, compete on price |
+
 | 2026-05-13 | SaaS confirmed as business model | "Not a SaaS" removed from PRD non-goals. Phase 6 expanded with console features and build order |
 | 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs, and package READMEs updated to reflect current state |
 | 2026-05-13 | Infrastructure overhaul: Nix + Docker + K8s | flake.nix fixed (4 images: mcp, api, ingest, engine). Dockerfiles created for ingest + engine. Stale k8s.yaml removed. API Service + Ingress added. 9 CronJobs fixed to use maplespike-ingest image. Ingestion CLI entrypoint created. Portal K8s manifest removed (moved to GitHub Pages) |
