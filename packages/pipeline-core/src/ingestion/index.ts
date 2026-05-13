@@ -947,3 +947,384 @@ export type {
   RawAtiRecord,
   RawAtiCkanPackage,
 } from './ati/types.js';
+
+// Municipal Council Data — meetings, agendas, decisions, budgets across major Canadian cities
+export {
+  ingestMunicipal,
+  searchMunicipalMeetings,
+  getRecentMeetings,
+  getBudgetMeetings,
+  getMeetingsByVendor,
+  MUNICIPAL_MEETINGS_DDL,
+  MUNICIPAL_DDL,
+} from './municipal/index.js';
+export {
+  fetchCityMeetings,
+  fetchMeetingDetail,
+} from './municipal/fetcher.js';
+export {
+  parseMeetingRecords,
+  parseMeetingPage,
+  parseSingleRecord,
+  detectMeetingTypes,
+} from './municipal/parser.js';
+export {
+  ALL_CITIES,
+  IMPLEMENTED_CITIES,
+  CITY_CONFIGS,
+  VENDOR_PLATFORM_PATTERNS,
+  MEETING_TYPE_KEYWORDS,
+  DECISION_TYPE_KEYWORDS,
+  getCityConfig,
+  isCityImplemented,
+  detectVendorPlatform,
+  meetingsListUrl,
+  meetingDetailUrl as municipalMeetingDetailUrl,
+  agendaUrl as municipalAgendaUrl,
+  minutesUrl as municipalMinutesUrl,
+  MunicipalCouncilError,
+  NotYetImplementedError,
+} from './municipal/constants.js';
+export type {
+  MunicipalMeeting,
+  MeetingDecision,
+  MeetingType,
+  MeetingStatus,
+  DecisionType,
+  CityCode,
+  CityConfig,
+  CityInfo,
+  VendorPlatform,
+  RawCouncilRecord,
+  MunicipalIngestionResult,
+} from './municipal/types.js';
+
+// CRA Charity T3010 — detailed financials of every registered Canadian charity
+export {
+  ingestCraCharities,
+  ingestAllCraCharityYears,
+  initializeCraCharityTable,
+  searchCraCharities,
+  getTopPoliticalSpenders,
+  getTopCharitiesByRevenue,
+  getCraCharityStats,
+} from './cra-charity/index.js';
+export {
+  fetchCraIdentCsv,
+  fetchCraFinancialCsv,
+  fetchCraGeneralCsv,
+  fetchCraProgramsCsv,
+  fetchCraAllCsvs,
+  fetchCraCkanMetadata,
+  discoverCraResources,
+  listAvailableYears,
+  CraCharityFetchError,
+} from './cra-charity/fetcher.js';
+export {
+  parseCraCsvs,
+  parseCraIdentCsv,
+  parseCsvLine as craParseCsvLine,
+  parseCurrency as craParseCurrency,
+} from './cra-charity/parser.js';
+export {
+  CRA_CHARITY_T3010_DDL,
+  CRA_CHARITY_PACKAGE_IDS,
+  CRA_CKAN,
+  CRA_CHARITY_SEARCH_URL,
+  CRA_CSV_DOWNLOAD_URL,
+  ckanPackageUrl as craCkanPackageUrl,
+  ckanDownloadUrl as craCkanDownloadUrl,
+  craSearchUrl,
+} from './cra-charity/constants.js';
+export type {
+  CraCharityT3010,
+  CraCharityIngestionResult,
+} from './cra-charity/types.js';
+export {
+  CharityCategory,
+  CharityDesignation,
+  CharityStatus,
+} from './cra-charity/types.js';
+
+// NPRI — National Pollutant Release Inventory (facility pollutant releases)
+export {
+  ingestNpri,
+  initializeNpriTable,
+  npriTableExists,
+  npriRecordExists,
+  getLatestNpriIngestionDate,
+  searchNpriRecords,
+  getNpriByFacility,
+  getNpriBySubstance,
+  getNpriByProvince,
+  NPRI_RECORDS_DDL,
+  NPRI_SOURCES,
+  NPRI_CKAN_PACKAGE_IDS,
+  RECENT_FISCAL_YEARS as NPRI_RECENT_FISCAL_YEARS,
+  NpriError,
+} from './npri/index.js';
+export {
+  fetchNpriReleases,
+  fetchAllNpriReleases,
+  searchNpriCkanPackages,
+  fetchNpriCkanPackage,
+  fetchNpriResource,
+} from './npri/fetcher.js';
+export {
+  parseNpriRecord,
+  parseNpriBatch,
+  parseNpriCkanPackage,
+} from './npri/parser.js';
+export type {
+  NpriRecord,
+  NpriIngestionOptions,
+  NpriIngestionResult,
+  RawNpriRecord,
+  RawNpriCkanPackage,
+} from './npri/types.js';
+
+// Species at Risk — SARA registry listing decisions and recovery strategies
+export {
+  ingestSaraSpecies,
+  initializeSaraTable,
+  saraTableExists,
+  saraRecordExists,
+  getLatestSaraIngestionDate,
+  searchSaraRecords,
+  getSaraByStatus,
+  getSaraByGroup,
+  getSaraByProvince,
+  SARA_SPECIES_DDL,
+  SARA_SOURCES,
+  SARA_STATUS_MAP,
+  SARA_TAXONOMIC_GROUPS,
+  SaraError,
+} from './species-at-risk/index.js';
+export {
+  fetchSaraSpecies,
+  fetchAllSaraSpecies,
+  fetchSaraSpeciesDetail,
+  fetchSaraRecoveryStrategies,
+  fetchSaraListingDecisions,
+} from './species-at-risk/fetcher.js';
+export {
+  parseSaraSpecies,
+  parseSaraBatch,
+  parseSaraResponse,
+  normalizeStatus as normalizeSaraStatus,
+} from './species-at-risk/parser.js';
+export type {
+  SpeciesAtRiskRecord,
+  SpeciesStatus,
+  SaraIngestionOptions,
+  SaraIngestionResult,
+  RawSaraSpecies,
+  SaraApiResponse,
+} from './species-at-risk/types.js';
+
+// IAAC — Impact Assessment Agency of Canada (federal project assessments)
+export {
+  ingestIaacAssessments,
+  initializeIaacTable,
+  iaacTableExists,
+  iaacRecordExists,
+  getLatestIaacIngestionDate,
+  searchIaacRecords,
+  getIaacByDecision,
+  getIaacByProponent,
+  getIaacByProjectType,
+  IAAC_ASSESSMENTS_DDL,
+  IAAC_SOURCES,
+  IAAC_DECISION_MAP,
+  IAAC_ASSESSMENT_TYPE_MAP,
+  IAAC_PROJECT_TYPES,
+  IaacError,
+} from './impact-assessment/index.js';
+export {
+  fetchIaacProjects,
+  fetchIaacAssessmentDetail,
+} from './impact-assessment/fetcher.js';
+export {
+  parseIaacRecord,
+  parseIaacBatch,
+  normalizeDecision as normalizeIaacDecision,
+  normalizeAssessmentType,
+} from './impact-assessment/parser.js';
+export type {
+  ImpactAssessmentRecord,
+  ImpactAssessmentDecision,
+  AssessmentType,
+  IaacIngestionOptions,
+  IaacIngestionResult,
+  RawImpactAssessmentRecord,
+} from './impact-assessment/types.js';
+
+// Health Canada — drug approvals, medical device licenses, natural products, recalls
+export {
+  ingestHealthCanada,
+  initializeHealthCanadaTable,
+  healthCanadaTableExists,
+  healthCanadaRecordExists,
+  getLatestHealthCanadaIngestionDate,
+  searchHealthCanadaRecords,
+  getHealthCanadaByType,
+  getHealthCanadaByManufacturer,
+  getHealthCanadaRecallsBySeverity,
+  getActiveHealthCanadaProducts,
+  getExpiringHealthCanadaProducts,
+  HEALTH_CANADA_DDL,
+  HC_SOURCES,
+  HC_PRODUCT_TYPE_CONFIG,
+  HC_LICENSE_STATUS_MAP,
+  ALL_HC_PRODUCT_TYPES,
+  DEFAULT_MAX_RECORDS as HC_DEFAULT_MAX_RECORDS,
+  HealthCanadaError,
+} from './health-canada/index.js';
+export {
+  fetchHealthCanadaProducts,
+  fetchAllHealthCanadaProducts,
+} from './health-canada/fetcher.js';
+export {
+  parseProductRecord,
+  parseProductBatch,
+  normalizeLicenseStatus,
+  normalizeProductType,
+} from './health-canada/parser.js';
+export type {
+  HealthCanadaRecord,
+  HealthCanadaProductType,
+  HealthCanadaLicenseStatus,
+  HealthCanadaIngestionOptions,
+  HealthCanadaIngestionResult,
+  RawHealthCanadaRecord,
+} from './health-canada/types.js';
+
+// CIPO — Canadian Intellectual Property Office patents, trademarks, industrial designs
+export {
+  ingestCipo,
+  initializeCipoTable,
+  cipoTableExists,
+  cipoRecordExists,
+  getLatestCipoIngestionDate,
+  searchCipoRecords,
+  getCipoByType,
+  getCipoByOwner,
+  getActiveCipoRecords,
+  getExpiringCipoRecords,
+  CIPO_DDL,
+} from './cipo/index.js';
+export {
+  fetchCipoRecords,
+  fetchAllCipoRecords,
+} from './cipo/fetcher.js';
+export {
+  parseCipoRecord,
+  parseCipoBatch,
+  normalizeCipoStatus,
+  normalizeCipoType,
+} from './cipo/parser.js';
+export {
+  CIPO_SOURCES,
+  CIPO_IP_TYPE_CONFIG,
+  CIPO_STATUS_MAP,
+  ALL_CIPO_IP_TYPES,
+  DEFAULT_MAX_RECORDS as CIPO_DEFAULT_MAX_RECORDS,
+  CipoError,
+} from './cipo/constants.js';
+export type {
+  CipoRecord,
+  CipoIpType,
+  CipoStatus,
+  CipoIngestionOptions,
+  CipoIngestionResult,
+  RawCipoRecord,
+} from './cipo/types.js';
+
+// CMHC — Canada Mortgage and Housing Corporation housing market data
+export {
+  ingestCmhc,
+  initializeCmhcTable,
+  cmhcTableExists,
+  cmhcRecordExists,
+  getLatestCmhcIngestionDate,
+  searchCmhcRecords,
+  getCmhcByMetric,
+  getCmhcByArea,
+  getCmhcByHousingType,
+  getLatestCmhcMetric,
+  CMHC_DDL,
+} from './cmhc/index.js';
+export {
+  fetchCmhcData,
+  fetchCmhcCkanMetadata,
+} from './cmhc/fetcher.js';
+export {
+  parseCmhcDataset,
+  parseCmhcCsvRows,
+  normalizeCmhcMetric,
+  normalizeCmhcHousingType,
+} from './cmhc/parser.js';
+export {
+  CMHC_SOURCES,
+  CMHC_METRIC_CONFIG,
+  CMHC_METRIC_TYPE_MAP,
+  ALL_CMHC_METRICS,
+  ALL_CMHC_HOUSING_TYPES,
+  DEFAULT_MAX_RECORDS as CMHC_DEFAULT_MAX_RECORDS,
+  CmhcError,
+} from './cmhc/constants.js';
+export type {
+  CmhcRecord,
+  CmhcMetric,
+  CmhcHousingType,
+  CmhcIngestionOptions,
+  CmhcIngestionResult,
+  RawCmhcRecord,
+} from './cmhc/types.js';
+
+// Global Canada — GAC / ECCC / CSIS combined metadata tracking
+export {
+  ingestGlobalCanada,
+  initializeGlobalCanadaTable,
+  globalCanadaTableExists,
+  globalCanadaRecordExists,
+  getLatestGlobalCanadaIngestionDate,
+  searchGlobalCanadaRecords,
+  getGlobalCanadaBySource,
+  getGlobalCanadaByTopic,
+  getRecentGlobalCanadaRecords,
+  searchGlobalCanadaBySource,
+  GLOBAL_CANADA_DDL,
+} from './global-canada/index.js';
+export {
+  fetchGlobalCanadaBySource,
+  fetchAllGlobalCanadaRecords,
+  fetchGacTradeAgreements,
+  fetchEcccClimateData,
+  fetchCsisReports,
+} from './global-canada/fetcher.js';
+export {
+  parseGlobalCanadaRecord,
+  parseGlobalCanadaBatch,
+  parseGacRecord,
+  parseEcccRecord,
+  parseCsisHtml,
+  normalizeSource,
+  normalizeRecordType,
+} from './global-canada/parser.js';
+export {
+  GLOBAL_CANADA_SOURCES,
+  GLOBAL_CANADA_SOURCE_CONFIG,
+  GLOBAL_CANADA_RECORD_TYPE_MAP,
+  ALL_GLOBAL_CANADA_SOURCES,
+  DEFAULT_MAX_RECORDS as GLOBAL_CANADA_DEFAULT_MAX_RECORDS,
+  GlobalCanadaError,
+} from './global-canada/constants.js';
+export type {
+  GlobalCanadaRecord,
+  GlobalCanadaSource,
+  GlobalCanadaRecordType,
+  GlobalCanadaIngestionOptions,
+  GlobalCanadaIngestionResult,
+  RawGlobalCanadaRecord,
+} from './global-canada/types.js';
