@@ -1,6 +1,6 @@
-# MapleSpike Canada — Developer Portal
+# MapleSpike — Developer Portal
 
-SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the MapleSpike Canada API.
+SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the MapleSpike API.
 
 **Status:** Local dev (stealth) — served from K3s cluster on LAN. Will deploy to GitHub Pages when public.
 
