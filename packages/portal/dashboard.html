@@ -128,6 +128,34 @@
 </head>
 <body>
 
+<!-- ═══ Ticker ═══ -->
+<div style="position:fixed;top:0;left:0;right:0;height:20px;z-index:1001;background:rgba(11,17,32,0.9);border-bottom:1px solid rgba(232,69,69,0.1);overflow:hidden;pointer-events:none;">
+  <div style="display:flex;white-space:nowrap;animation:ciScroll 35s linear infinite;height:20px;align-items:center;">
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> Committees: 54 active</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Lobbying spike detected</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Canada Gazette updated</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> OAG audit published</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> In-camera meeting flagged</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Sole-source contract found</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Ethics investigation opened</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> Senate report released</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> Committees: 54 active</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Lobbying spike detected</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Canada Gazette updated</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> OAG audit published</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#10B981;display:inline-block;"></span> In-camera meeting flagged</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#E84545;display:inline-block;"></span> Sole-source contract found</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#06B6D4;display:inline-block;"></span> Ethics investigation opened</span>
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:0 14px;font-size:0.6rem;color:rgba(255,255,255,0.45);font-family:'JetBrains Mono',monospace;"><span style="width:3px;height:3px;border-radius:50%;background:#FBBF24;display:inline-block;"></span> Senate report released</span>
+  </div>
+  <style>@keyframes ciScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }</style>
+</div>
+
+<style>
+nav { top: 20px !important; }
+body { padding-top: calc(20px + var(--nav-height, 64px)); }
+</style>
+
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo"><span class="logo-icon">C</span>CivInt Canada</a>
