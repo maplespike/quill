@@ -155,19 +155,30 @@
   <div class="search-hero">
     <h2>What's happening in Canadian government today?</h2>
     <p>Search across Parliament, lobbying, regulations, court decisions, and more.</p>
-    <div class="search-box">
+    <div class="search-box" id="live-search-box">
       <span>🔍</span>
       <input type="text" placeholder="Search committees, people, companies, topics..." id="dash-search-input">
-      <span class="hint">⏎ enter</span>
+      <span class="hint" id="search-status">⏎ enter</span>
     </div>
     <div class="search-suggestions">
+      <a href="#" data-search="housing">🏠 Housing</a>
+      <a href="#" data-search="AI regulation">🤖 AI regulation</a>
       <a href="#" data-search="in-camera">🔒 In-camera meetings</a>
       <a href="#" data-search="lobbying">💼 Lobbying activity</a>
-      <a href="#" data-search="sole-source">⚠️ Sole-source contracts</a>
       <a href="#" data-search="ethics">⚖️ Ethics investigations</a>
-      <a href="#" data-search="regulations">📜 New regulations</a>
       <a href="#" data-search="catherine tait">🎤 Catherine Tait</a>
     </div>
+    <div id="live-search-results" style="display:none;margin-top:16px;text-align:left;"></div>
+  </div>
+
+  <!-- Since you last checked -->
+  <div class="spotlight-banner" id="since-last-checked" style="display:none;">
+    <div class="sb-icon">🆕</div>
+    <div class="sb-body">
+      <div class="sb-title" id="slc-title">Since you last checked</div>
+      <div class="sb-desc" id="slc-desc">New activity across committees, lobbying, and regulations.</div>
+    </div>
+    <a href="#" class="btn btn-primary sb-btn" id="slc-view">View changes →</a>
   </div>
 
   <!-- Stats row -->
@@ -428,19 +439,109 @@ function renderTrending(s) {
   `).join('');
 }
 
-// ─── Search functionality ───
-document.getElementById('dash-search-input')?.addEventListener('keydown', e => {
+// ─── Search via API Bridge ───
+const API_BRIDGE = 'http://10.1.1.110:3004';  // Change to relative URL in production
+
+document.getElementById('dash-search-input')?.addEventListener('keydown', async e => {
   if (e.key === 'Enter') {
     const q = e.target.value.trim();
-    if (q) window.location.href = 'docs.html?search=' + encodeURIComponent(q);
+    if (!q) return;
+    await doLiveSearch(q);
   }
 });
 document.querySelectorAll('.search-suggestions a').forEach(a => {
-  a.addEventListener('click', e => {
+  a.addEventListener('click', async e => {
     e.preventDefault();
     document.getElementById('dash-search-input').value = a.dataset.search;
-    document.getElementById('dash-search-input').focus();
+    await doLiveSearch(a.dataset.search);
   });
+});
+
+async function doLiveSearch(q) {
+  const resultsDiv = document.getElementById('live-search-results');
+  const status = document.getElementById('search-status');
+  resultsDiv.style.display = 'block';
+  status.textContent = '🔍 searching...';
+
+  try {
+    // Search across multiple tools in parallel
+    const [committees, corporate, influence, oversight, canlii] = await Promise.allSettled([
+      fetch(`${API_BRIDGE}/api/search-committees?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
+      fetch(`${API_BRIDGE}/api/search-corporate?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
+      fetch(`${API_BRIDGE}/api/search-influence?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
+      fetch(`${API_BRIDGE}/api/search-oversight?q=${encodeURIComponent(q)}&limit=3`).then(r => r.json()),
+    ]);
+
+    let html = `<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:10px;">Results for "<strong>${q}</strong>"</div>`;
+    let total = 0;
+
+    const sections = [
+      { label: '🏛️ Committees', result: committees, key: 'results' },
+      { label: '💼 Corporate', result: corporate, key: 'results' },
+      { label: '🌐 Influence', result: influence, key: 'results' },
+      { label: '📋 Oversight', result: oversight, key: 'results' },
+    ];
+
+    for (const sec of sections) {
+      const data = sec.result.status === 'fulfilled' ? sec.result.value : null;
+      const results = data ? (Array.isArray(data) ? data : data[sec.key] || data.results || []) : [];
+      if (results.length > 0) {
+        total += results.length;
+        html += `<div style="margin:8px 0 4px;font-weight:600;font-size:0.85rem;">${sec.label}</div>`;
+        results.slice(0, 3).forEach(r => {
+          const title = r.title || r.name || r.executive_name || r.client_name || r.query || 'Item';
+          const desc = r.description || r.text || r.subject_matter || '';
+          html += `<div class="crossref"><div class="cr-title">${title}</div><div class="cr-desc">${(desc+'').substring(0,120)}</div></div>`;
+        });
+      }
+    }
+
+    if (total === 0) {
+      html += `<div class="empty-state">No results found for "${q}". Try a different search term.</div>`;
+    } else {
+      html += `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">${total} result(s) found</div>`;
+    }
+
+    resultsDiv.innerHTML = html;
+    status.textContent = `✅ ${total} results`;
+  } catch (err) {
+    resultsDiv.innerHTML = `<div class="empty-state">Search error: ${err.message}</div>`;
+    status.textContent = '⚠️ error';
+  }
+}
+
+// ─── Since you last checked ───
+(function checkLastVisit() {
+  const now = Date.now();
+  const last = localStorage.getItem('civint_last_visit');
+  const banner = document.getElementById('since-last-checked');
+  if (last) {
+    const hours = Math.round((now - parseInt(last)) / 3600000);
+    if (hours < 1) {
+      document.getElementById('slc-title').textContent = 'Welcome back!';
+      document.getElementById('slc-desc').textContent = `You last checked ${Math.round(hours * 60)} minutes ago. Here's what's new.`;
+    } else if (hours < 24) {
+      document.getElementById('slc-title').textContent = `You last checked ${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.round(hours / 24);
+      document.getElementById('slc-title').textContent = `It's been ${days} day${days > 1 ? 's' : ''} since you last checked`;
+    }
+    banner.style.display = 'flex';
+  }
+  localStorage.setItem('civint_last_visit', String(now));
+})();
+
+document.getElementById('slc-view')?.addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('since-last-checked').scrollIntoView({ behavior: 'smooth' });
+  // Refresh data
+  fetch('assets/pipeline-data.json?t=' + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      renderStats(data.sources || {});
+      // Re-render other sections
+    })
+    .catch(() => {});
 });
 
 // ─── Theme toggle (from script.js) ───
