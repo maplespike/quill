@@ -52,13 +52,13 @@ interface ScrapedMeetingLink {
  */
 function scrapeMeetingList(html: string, acronym: string): ScrapedMeetingLink[] {
   const meetings: ScrapedMeetingLink[] = [];
-  
+
   // Match meeting entries: they contain "Meeting N" pattern in link text
   // The HTML structure: each past meeting is a link with text containing
   // weekday/month/day/year + meeting number
   const meetingPattern = /(?:Meeting|Réunion)\s*(\d+)/gi;
   const datePattern = /(\w+day,|\w+ \d{1,2},)\s+(\w+\s+\d{1,2},\s+\d{4})/gi;
-  
+
   // Extract all meeting numbers from the page
   const numbers: number[] = [];
   let m;

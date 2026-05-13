@@ -695,6 +695,119 @@ export class FifthGenerationWarfareDefense {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Threat Keywords (5 categories)                                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Keywords for detecting fifth-generation warfare threat patterns.
+ * Each category maps to an array of indicative keywords/phrases/domains.
+ */
+export const THREAT_KEYWORDS: Record<string, string[]> = {
+  'adversarial-media': [
+    'rt.com', 'sputnik', 'tass.com', 'xinhuanet', 'cgtn', 'pressTV', 'farsnews',
+  ],
+  'emotional-manipulation': [
+    'must', 'urgent', 'shocking', 'you wont believe', 'they dont want you to know', 'wake up',
+  ],
+  'false-balance': [
+    'both sides', 'all sides agree', 'controversial claim', 'debate rages', 'some say',
+  ],
+  'astroturfing': [
+    'grassroots movement', 'people are saying', 'trending nationwide', 'ordinary citizens demand',
+  ],
+  'disinformation-vectors': [
+    'deepfake', 'ai-generated', 'manipulated', 'fabricated', 'misleading',
+  ],
+};
+
+/* ------------------------------------------------------------------ */
+/*  Threat Assessment Types & Functions                                 */
+/* ------------------------------------------------------------------ */
+
+export interface ThreatAssessment {
+  score: number;           // 0-100 (0 = clean, 100 = extreme threat)
+  flags: string[];
+  confidence: number;      // 0-100
+  details: {
+    category: string;
+    matches: string[];
+    severity: number;
+  }[];
+}
+
+/**
+ * Analyze content text for 5GW threat indicators.
+ *
+ * Searches text for each threat category's keywords and computes an
+ * aggregate score (0-100). Each category contributes weight proportional
+ * to the number of matches found. Confidence reflects how many distinct
+ * threat categories were triggered.
+ */
+export async function analyzeContent(text: string, _source: string): Promise<ThreatAssessment> {
+  const lowerText = text.toLowerCase();
+  const details: ThreatAssessment['details'] = [];
+  let totalWeightedSeverity = 0;
+  let totalWeight = 0;
+  const flags: string[] = [];
+  let categoriesTriggered = 0;
+
+  for (const [category, keywords] of Object.entries(THREAT_KEYWORDS)) {
+    const matches: string[] = [];
+
+    for (const keyword of keywords) {
+      if (lowerText.includes(keyword.toLowerCase())) {
+        matches.push(keyword);
+      }
+    }
+
+    if (matches.length > 0) {
+      categoriesTriggered++;
+      // Severity: base 30 + 15 per match, capped at 100
+      const severity = Math.min(30 + matches.length * 15, 100);
+      totalWeightedSeverity += severity * matches.length;
+      totalWeight += matches.length;
+
+      details.push({ category, matches, severity });
+      flags.push(`${category} (${matches.length} hit(s), severity ${severity})`);
+    }
+  }
+
+  // Aggregate score: weighted average across all triggered categories
+  const score = totalWeight > 0
+    ? Math.min(Math.round(totalWeightedSeverity / totalWeight), 100)
+    : 0;
+
+  // Confidence: 30 base + 15 per triggered category, capped at 98
+  const confidence = categoriesTriggered > 0
+    ? Math.min(30 + categoriesTriggered * 15, 98)
+    : 0;
+
+  return { score, flags, confidence, details };
+}
+
+/**
+ * Assess a source URL/name against threat keyword categories.
+ * Returns whether the source is trusted and a warning if suspicious.
+ */
+export function assessSource(source: string): { trusted: boolean; category: string; warning: string | null } {
+  const lowerSrc = source.toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+
+  for (const [category, keywords] of Object.entries(THREAT_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (lowerSrc.includes(keyword)) {
+        return {
+          trusted: false,
+          category,
+          warning: `Source matches '${keyword}' in category '${category}'`,
+        };
+      }
+    }
+  }
+
+  return { trusted: true, category: 'unknown', warning: null };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
