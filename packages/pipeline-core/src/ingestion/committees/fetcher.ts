@@ -109,7 +109,7 @@ export async function fetchEvidenceXml(
 ): Promise<string> {
   // Step 1: Fetch the HTML page
   const htmlResult = await fetchUrl(htmlUrl, options);
-  
+
   // Step 2: Extract XML URL
   const xmlUrl = extractXmlUrlFromHtml(htmlResult.body, htmlUrl);
   if (!xmlUrl) {

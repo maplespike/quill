@@ -73,7 +73,7 @@ export async function fetchCkanDataset(): Promise<{
  */
 export async function fetchRegistrationsCsv(): Promise<string> {
   const url = 'https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip';
-  
+
   const resp = await httpGet(url, {
     headers: { Accept: 'application/zip,*/*' },
   });
@@ -98,24 +98,24 @@ export async function searchLobbying(
   query: string,
 ): Promise<Partial<LobbyingRecord>[]> {
   const searchUrl = `https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=${encodeURIComponent(query)}`;
-  
+
   const resp = await httpGet(searchUrl, {
     headers: { Accept: 'text/html' },
   });
 
   const html = resp.body;
-  
+
   // Parse search results from HTML table
   const results: Partial<LobbyingRecord>[] = [];
-  
+
   // Match table rows in the search results
   const rowPattern = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
   let rowMatch: RegExpExecArray | null;
-  
+
   while ((rowMatch = rowPattern.exec(html)) !== null) {
     const cells = rowMatch[1].match(/<td[^>]*>([\s\S]*?)<\/td>/gi);
     if (!cells || cells.length < 3) continue;
-    
+
     const extractCell = (idx: number): string => {
       const cell = cells[idx];
       if (!cell) return '';
@@ -153,7 +153,7 @@ export async function fetchMonthlyCommunicationReports(): Promise<{
   csvUrl: string;
 }[]> {
   const url = 'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/monthlyCommunicationReportsCSV.shtml';
-  
+
   const resp = await httpGet(url, {
     headers: { Accept: 'text/html' },
   });

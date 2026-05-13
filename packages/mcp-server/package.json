@@ -13,13 +13,14 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "start": "node dist/cli.js",
     "start:sse": "node dist/index.js",
-    "test": "node --test src/**/*.test.ts"
+    "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "@civint/pipeline-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.19.17",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   }
 }

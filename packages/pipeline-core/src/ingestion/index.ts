@@ -3,6 +3,14 @@ export { fetchStatCanReleases, fetchCKANPackages, fetchOpenDataPortal, getGovDat
 export type { RSSItem, RSSFeed, RSSSource, RawArticle } from './rss.js';
 export type { GovRelease, CKANPackage, StatCanRelease, OpenDataPortalDataset, OpenDataPortalConfig } from './gov-api.js';
 
+// Provincial CKAN portal stubs
+export {
+  PROVINCIAL_CKAN_SOURCES,
+  fetchProvincialCkan,
+  fetchAllProvincialCkan,
+} from './provincial-ckan.js';
+export type { ProvincialCkanSource } from './provincial-ckan.js';
+
 // Committee evidence ingestion
 export {
   ingestCommittee,
@@ -477,3 +485,25 @@ export type {
   CkanResource,
   CkanPackageResponse,
 } from './lmia/index.js';
+
+// LODE Geospatial — BC Land Ownership Data Exchange & GeoMet weather Canada WFS/WMS
+export {
+  discoverLayers,
+  fetchFeatures,
+  fetchLODEData,
+} from './geospatial/fetcher.js';
+export {
+  LODE_SOURCES,
+  WFS_VERSION,
+  WMS_VERSION,
+} from './geospatial/constants.js';
+export type {
+  LodeSourceKey,
+} from './geospatial/constants.js';
+export type {
+  GeoPoint,
+  BoundingBox,
+  GeoFeature,
+  GeoLayer,
+  LODEResult,
+} from './geospatial/types.js';

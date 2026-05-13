@@ -19,7 +19,7 @@ import type { CraCharityRecord } from './types.js';
 
 /**
  * Search CRA charity database for a specific organization.
- * 
+ *
  * CRA's public charity search allows querying by BN, name, or keyword.
  * Returns basic charity profile including status and designation.
  */
@@ -46,7 +46,7 @@ export async function searchCraCharity(
       if (!cells || cells.length < 2) continue;
 
       const extract = (cell: string) => cell.replace(/<[^>]+>/g, '').trim();
-      
+
       // Typically: BN, Name, Status, Category
       const bnMatch = row.match(/bn=(\d+)/i) || row.match(/selectedCharityBn=(\d+)/i);
       const bn = bnMatch ? bnMatch[1] : null;
