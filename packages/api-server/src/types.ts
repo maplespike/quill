@@ -107,6 +107,8 @@ export interface MapleSpikeStorage {
   logAudit(entry: Omit<AuditEntry, 'id' | 'created_at'>): Promise<void>;
   /** Query audit log. */
   queryAudit(filter: AuditQueryParams): Promise<AuditEntry[]>;
+  /** List API keys for a tenant. Returns key metadata (not the raw key/hash). */
+  listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>>;
 }
 
 export interface MapleSpikeCache {

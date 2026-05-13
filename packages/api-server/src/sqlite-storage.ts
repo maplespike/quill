@@ -247,6 +247,19 @@ export class SqliteStorage implements MapleSpikeStorage {
     return rows || [];
   }
 
+  async listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>> {
+    const rows = this.db.prepare(
+      'SELECT id, name, is_active, created_at, last_used_at FROM api_keys WHERE tenant_id = ? ORDER BY created_at DESC',
+    ).all(tenantId) as Array<{ id: string; name: string; is_active: number; created_at: string; last_used_at: string | null }>;
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      isActive: Boolean(row.is_active),
+      createdAt: row.created_at,
+      lastUsedAt: row.last_used_at,
+    }));
+  }
+
   /*  Registration Helpers (for SqliteStorage)                         */
 
   /** Create a new tenant. */

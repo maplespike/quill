@@ -17,6 +17,7 @@ const apiKeyMap = new Map<string, { tenantId: string; name: string }>();
 // Seed with demo and internal keys
 apiKeyMap.set('maplespike-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
 apiKeyMap.set('maplespike-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
+apiKeyMap.set('maplespike-dev-key', { tenantId: 'dev-tenant', name: 'Dev User' });
 
 const tenantDetails: Record<string, Tenant> = {
   'demo-tenant': {
@@ -32,6 +33,13 @@ const tenantDetails: Record<string, Tenant> = {
     tier: 'internal',
     isActive: true,
     journalismMode: true,
+  },
+  'dev-tenant': {
+    id: 'dev-tenant',
+    name: 'Dev User',
+    tier: 'pro',
+    isActive: true,
+    journalismMode: false,
   },
 };
 
