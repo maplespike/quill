@@ -75,7 +75,48 @@
 
 <!-- ═══ Hero ═══ -->
 <section class="hero">
-  <canvas id="hero-canvas"></canvas>
+  <!-- Pretext-enabled textured canvas behind hero text -->
+  <canvas id="hero-canvas" style="z-index:1;"></canvas>
+  <script type="module">
+  import { prepareWithSegments, layoutNextLineRange, materializeLineRange } from 'https://esm.sh/@chenglou/pretext@0.0.6';
+  const canvas = document.getElementById('hero-canvas');
+  if (canvas && window.innerWidth > 768) {
+    const ctx = canvas.getContext('2d');
+    let W, H, mouseX = -200, mouseY = -200;
+    function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+    resize(); window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', e => { mouseX = e.clientX - canvas.getBoundingClientRect().left; mouseY = e.clientY - canvas.getBoundingClientRect().top; });
+    const text = "CivInt tracks parliamentary committees, lobbying registrations, proposed regulations, government contracts, court decisions, and oversight audits from official public sources. All data is verified and citable. No spin. No opinion. Just what's publicly available, organized so you can actually use it.";
+    const prepared = prepareWithSegments(text, '14px Inter');
+    const LH = 24; const MX = 40; const MY = 180; const AV = W - 80;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      let cursor = { segmentIndex: 0, graphemeIndex: 0 };
+      let y = MY; let lines = [];
+      while (true) {
+        let availW = AV;
+        if (mouseY > y - LH && mouseY < y + LH) {
+          const obsLeft = mouseX - 50 - MX; const obsRight = mouseX + 50 - MX;
+          const lc = Math.max(0, obsLeft); const rc = Math.max(0, AV - obsRight);
+          if (lc > 40) { const r = layoutNextLineRange(prepared, cursor, lc); if (r) { lines.push({ t: materializeLineRange(prepared, r).text, x: MX, y }); cursor = r.end; y += LH; continue; } }
+          if (rc > 40) { const r = layoutNextLineRange(prepared, cursor, rc); if (r) { const ln = materializeLineRange(prepared, r); lines.push({ t: ln.text, x: MX + obsRight, y }); cursor = r.end; y += LH; continue; } }
+        }
+        const r = layoutNextLineRange(prepared, cursor, availW); if (!r) break;
+        lines.push({ t: materializeLineRange(prepared, r).text, x: MX, y }); cursor = r.end; y += LH;
+        if (y > MY + 300) break;
+      }
+      ctx.textBaseline = 'top'; ctx.font = '14px Inter';
+      lines.forEach((l, i) => { ctx.fillStyle = `rgba(248,249,250,${0.55 + 0.2*Math.sin(Date.now()*0.001 + i*0.3)})`; ctx.fillText(l.t, l.x, l.y); });
+      const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 60);
+      grad.addColorStop(0, 'rgba(232,69,69,0.12)'); grad.addColorStop(0.5, 'rgba(6,182,212,0.05)'); grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(mouseX, mouseY, 60, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = `rgba(232,69,69,${0.25 + 0.15*Math.sin(Date.now()*0.003)})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(mouseX, mouseY, 60, 0, Math.PI * 2); ctx.stroke();
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+  </script>
   <div class="badge-row fade-in">
     <span class="badge badge-red">🔒 In-camera meeting detection</span>
     <span class="badge badge-cyan">📜 Proposed regulations (Gazette)</span>
@@ -475,6 +516,7 @@
   </div>
 </footer>
 
+<script src="assets/data-stream.js" defer></script>
 <script src="script.js"></script>
 <script>
 // Override static stats with real pipeline data

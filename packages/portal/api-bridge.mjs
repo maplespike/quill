@@ -19,10 +19,10 @@ let tools = {};
 
 async function loadTools() {
   const toolsDir = path.resolve(__dirname, '../mcp-server/dist/tools');
-  
+
   console.error(`[bridge] DEBUG: toolsDir=${toolsDir}`);
   console.error(`[bridge] DEBUG: exists=${fs.existsSync(toolsDir)}`);
-  
+
   if (!fs.existsSync(toolsDir)) {
     console.error(`[bridge] Tools dir not found: ${toolsDir}`);
     return;
@@ -30,7 +30,7 @@ async function loadTools() {
 
   const files = fs.readdirSync(toolsDir)
     .filter(f => f.endsWith('.js') && f !== 'index.js' && f !== 'types.js');
-  
+
   console.error(`[bridge] DEBUG: found ${files.length} tool files: ${files.slice(0,5).join(', ')}`);
 
   for (const file of files) {
