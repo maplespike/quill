@@ -490,13 +490,69 @@
    489|})();
    490|</script>
    491|
-   492|<script>
-   493|// ─── API configuration ───
-   494|const API_BRIDGE = 'http://127.0.0.1:8084/v1/';
-   495|const DEV_API_KEY = 'maplespike-dev-key';
-   496|
-   497|// ─── Load dashboard data from live API ───
-   498|async function loadDashboardData() {
-   499|  try {
-   500|    // Public endpoints (no auth needed)
+<script>
+// ─── API configuration ───
+const API_BRIDGE = 'http://127.0.0.1:8084/v1/';
+const DEV_API_KEY='maples...-key';
+
+// ─── Load dashboard data from live pipeline-data.json ───
+async function loadDashboardData() {
+  try {
+    const resp = await fetch('assets/pipeline-data.json?t=' + Date.now(), {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    return data;
+  } catch (e) {
+    console.warn('Failed to load pipeline-data.json:', e.message);
+    return null;
+  }
+}
+
+// ─── Render stat cards ───
+function renderStats(sources) {
+  if (!sources) return;
+  const labels = [
+    { key: 'hoc', label: 'COMMITTEE MEETINGS' },
+    { key: 'senate', label: 'SENATE MEETINGS' },
+    { key: 'gazette', label: 'REGULATIONS' },
+    { key: 'gic', label: 'GIC APPOINTMENTS' },
+    { key: 'procurement', label: 'CONTRACTS' },
+  ];
+  const container = document.getElementById('stats-row');
+  if (!container) return;
+  container.innerHTML = labels.map(({ key, label }) => {
+    const count = sources[key]?.records?.length ?? sources[key]?.recordsFound ?? 0;
+    return `<div class="stat-dash"><span class="stat-dash-number">${count.toLocaleString()}</span><span class="stat-dash-label">${label}</span></div>`;
+  }).join('');
+}
+
+// ─── Populate activity feed ───
+function renderActivity(activity) {
+  const container = document.getElementById('activity-feed');
+  if (!container || !activity?.length) return;
+  container.innerHTML = activity.slice(0, 10).map(a =>
+    `<div class="activity-item"><span class="activity-date">${a.date || ''}</span><span class="activity-text">${a.text || a.title || ''}</span></div>`
+  ).join('');
+}
+
+// ─── Main ───
+(async function() {
+  const data = await loadDashboardData();
+  if (data) {
+    renderStats(data.sources);
+    renderActivity(data.activity);
+    const status = document.getElementById('data-status');
+    if (status) {
+      const ago = data.generatedAt ? Math.floor((Date.now() - new Date(data.generatedAt).getTime()) / 60000) : 0;
+      status.textContent = ago < 60 ? `Updated ${ago}m ago` : `Updated ${Math.floor(ago/60)}h ago`;
+    }
+  } else {
+    // Show fallback message
+    const container = document.getElementById('stats-row');
+    if (container) container.innerHTML = '<div class="stat-dash" style="grid-column:1/-1;text-align:center;"><span class="stat-dash-label">Run <code>node scripts/generate-pipeline-data.mjs</code> to populate dashboard</span></div>';
+  }
+})();
+</script>
    501|
