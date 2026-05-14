@@ -367,6 +367,6 @@ export async function ingestInCameraMeetings(
 ): Promise<Record<string, CommitteeIngestionResult>> {
   return ingestAllCommittees(db, {
     inCameraOnly: true,
-    onProgress: console.log,
+    onProgress: () => {},
   });
 }

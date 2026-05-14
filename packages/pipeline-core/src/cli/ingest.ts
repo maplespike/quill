@@ -35,6 +35,7 @@ import {
   ingestAllA2aj,
   ingestAllLegislationData,
   ingestAllGoCSpending,
+  searchCrossReference,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -141,7 +142,7 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   'a2aj': { name: "A2AJ Legal API (116K+ decisions, 5K+ statutes via api.a2aj.ca)", run: () => ingestAllA2aj(), },
   'legislation': { name: "Legislation (Justice Canada XML + provincial e-Laws, BC Laws, CKAN)", run: () => ingestAllLegislationData(), },
   'goc-spending': { name: "GoC Spending (GitHub-based federal contracts data)", run: () => ingestAllGoCSpending(), },
-  'cross-reference': { name: "Cross-Reference Engine (lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections)", run: () => { console.log("Cross-reference: run searchCrossReference({query: 'Entity Name'})"); return Promise.resolve(); } },
+  'cross-reference': { name: "Cross-Reference Engine (lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections)", run: () => searchCrossReference({ query: process.env.CROSS_REF_QUERY || '' }).then(r => { console.log(JSON.stringify(r, null, 2)); }) },
 };
 
 async function main(): Promise<void> {

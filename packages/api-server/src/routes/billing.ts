@@ -2,7 +2,7 @@
  * MapleSpike — Billing Routes (Stub)
  *
  * GET  /v1/billing/plans — List available pricing plans
- * POST /v1/billing/checkout — Create a checkout session (placeholder)
+ * POST /v1/billing/checkout — Create a checkout session
  */
 
 import type { RouteHandler } from '../types.js';
