@@ -20,16 +20,19 @@ spec:
     spec:
       nodeName: nexus
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
+        fsGroup: 1000
       containers:
         - name: gitea
-          image: docker.io/gitea/gitea:latest
+          image: docker.io/gitea/gitea:latest-rootless
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 3000
               name: http
-            - containerPort: 22
-              name: ssh
           env:
             - name: GITEA__database__DB_TYPE
               value: "sqlite3"
@@ -41,10 +44,6 @@ spec:
               value: "https://gitea.lan"
             - name: GITEA__server__HTTP_PORT
               value: "3000"
-            - name: GITEA__server__SSH_PORT
-              value: "22"
-            - name: GITEA__server__SSH_DOMAIN
-              value: "gitea.lan"
             - name: GITEA__server__DISABLE_SSH
               value: "true"
             - name: GITEA__server__START_SSH_SERVER
@@ -53,17 +52,15 @@ spec:
               value: "true"
             - name: GITEA__security__SECRET_KEY
               value: "custom-maplespike-gitea-secret-2026"
-            - name: GITEA__oauth2__ENABLED
-              value: "true"
-            - name: GITEA__openid__ENABLE_OPENID_SIGNIN
+            - name: GITEA__mailer__ENABLED
               value: "false"
           resources:
             requests:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: "100m"
+              memory: "128Mi"
             limits:
-              cpu: "1000m"
-              memory: "512Mi"
+              cpu: "500m"
+              memory: "256Mi"
           livenessProbe:
             httpGet:
               path: /
