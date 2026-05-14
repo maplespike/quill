@@ -17,6 +17,9 @@ import * as searchProvincialLobbying from './search-provincial-lobbying.js';
 import * as searchOversight from './search-oversight.js';
 import * as searchCanlii from './search-canlii.js';
 import * as searchLmia from './search-lmia.js';
+import * as aiAsk from './ai-ask.js';
+import * as aiAnalyze from './ai-analyze.js';
+import * as aiSearchSemantic from './ai-search-semantic.js';
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -39,6 +42,9 @@ export function getAllTools(): ToolModule[] {
     searchOversight,
     searchCanlii,
     searchLmia,
+    aiAsk,
+    aiAnalyze,
+    aiSearchSemantic,
   ];
 }
 
