@@ -35,7 +35,7 @@ spec:
                 - ALL
             seccompProfile:
               type: RuntimeDefault
-          image: nexus:5000/maplespike-portal:latest
+          image: ghcr.io/reverb256/maplespike-portal:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
