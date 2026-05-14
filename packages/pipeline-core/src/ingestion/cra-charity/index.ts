@@ -453,9 +453,6 @@ export {
   discoverCraResources,
   listAvailableYears,
   CraCharityFetchError,
-  CkanResource,
-  CkanPackageResponse,
-  CraCharityResources,
 } from './fetcher.js';
 
 export {

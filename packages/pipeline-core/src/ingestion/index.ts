@@ -480,9 +480,6 @@ export type {
   LmiaStream,
   LmiaIngestionResult,
 } from './lmia/types.js';
-export type {
-  CkanResource,
-} from './lmia/index.js';
 
 // LODE Geospatial — BC Land Ownership Data Exchange & GeoMet weather Canada WFS/WMS
 export {
