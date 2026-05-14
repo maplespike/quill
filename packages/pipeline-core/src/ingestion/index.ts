@@ -180,6 +180,7 @@ export type {
 export {
   ingestGIC,
   searchGIC,
+  searchGicAppointments,
   getRecentAppointments,
   getHighValueAppointments,
   findLobbyistsTurnedAppointees,
@@ -1667,3 +1668,13 @@ export type { ProvincialDataset, ProvincialDeepIngestionResult } from './provinc
 import { ingestAllFederalDeep } from './federal-deep/index.js';
 export { ingestAllFederalDeep } from './federal-deep/index.js';
 export type { FederalDataset, FederalDeepIngestionResult } from './federal-deep/types.js';
+
+/* ── A2AJ Legal API ────────────────────────────────────── */
+import { ingestAllA2aj, fetchCoverage, fetchByCitation, searchA2aj, A2AJ_ENDPOINTS, TRACKED_DATASETS } from './a2aj/index.js';
+export { ingestAllA2aj, fetchCoverage, fetchByCitation, searchA2aj, A2AJ_ENDPOINTS, TRACKED_DATASETS } from './a2aj/index.js';
+export type { A2ajCoverageItem, A2ajDocument, A2ajSearchResult, A2ajIngestionResult } from './a2aj/types.js';
+
+/* ── Legislation (Justice Canada XML + Provincial) ─────── */
+import { ingestAllLegislationData, LEGISLATION_SOURCES } from './legislation/index.js';
+export { ingestAllLegislationData, LEGISLATION_SOURCES } from './legislation/index.js';
+export type { LegislationRecord, LegislationIngestionResult } from './legislation/types.js';
