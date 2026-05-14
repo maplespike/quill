@@ -1,32 +1,49 @@
 {
   "name": "@maplespike/sdk",
-  "version": "0.1.0",
-  "description": "MapleSpike TypeScript SDK — typed client for the MapleSpike civilian intelligence API",
+  "version": "0.2.0",
+  "description": "MapleSpike TypeScript SDK — typed client for Canadian civic data: parliamentary, corporate, regulatory, immigration, and more",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "test": "node --test dist/**/*.test.js"
+    "test": "node --test dist/**/*.test.js",
+    "prepublishOnly": "pnpm build"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=18"
   },
+  "keywords": [
+    "canada", "civic-tech", "government", "open-data",
+    "parliament", "lobbying", "immigration", "elections",
+    "transparency", "maplespike"
+  ],
+  "license": "MIT",
+  "homepage": "https://maplespike.ca",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reverb256/maplespike.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": "https://github.com/reverb256/maplespike/issues",
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.7.0"
   }
 }
