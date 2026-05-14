@@ -1,6 +1,6 @@
-/data/projects/own/civint/.devenv/bootstrap/bootstrapLib.nix
-/data/projects/own/civint/.devenv/bootstrap/default.nix
-/data/projects/own/civint/devenv.lock
-/data/projects/own/civint/devenv.nix
-/data/projects/own/civint/devenv.yaml
-/data/projects/own/civint/.env
+/data/projects/own/maplespike/.devenv/bootstrap/bootstrapLib.nix
+/data/projects/own/maplespike/.devenv/bootstrap/default.nix
+/data/projects/own/maplespike/devenv.lock
+/data/projects/own/maplespike/devenv.nix
+/data/projects/own/maplespike/devenv.yaml
+/data/projects/own/maplespike/.env
