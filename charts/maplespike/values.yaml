@@ -1,0 +1,103 @@
+# MapleSpike Helm Chart Values
+# Override per-environment: helm install -f values-prod.yaml
+
+# Image configuration
+image:
+  registry: ghcr.io/reverb256
+  tag: latest
+  pullPolicy: Always
+
+# API Server
+api:
+  replicas: 1
+  port: 8084
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  env:
+    MAPLESPIKE_API_URL: "https://api.maplespike.ca"
+    NODE_ENV: "production"
+  ingress:
+    host: api.maplespike.ca
+    tls: true
+
+# MCP Server
+mcp:
+  replicas: 1
+  port: 3001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  ingress:
+    host: mcp.maplespike.ca
+    tls: true
+
+# Ingestion Runner (CronJobs)
+ingestion:
+  schedules:
+    committees: "0 */6 * * *"
+    corporate: "0 2 * * *"
+    influence: "0 4 * * *"
+    gazette: "0 */12 * * *"
+    gic: "0 6 * * *"
+    lmia: "0 8 * * *"
+    immigration: "0 3 * * *"
+    indigenous: "0 5 * * *"
+    defence: "0 7 * * *"
+    oversight: "0 */12 * * *"
+    canlii: "0 7 * * *"
+    provincial: "0 9 * * *"
+    realtime: "*/30 * * * *"
+    media: "0 10 * * *"
+    social: "0 11 * * *"
+    ngo-rss: "*/15 * * * *"
+    unions: "0 12 * * *"
+    universities: "0 13 * * *"
+    culture: "0 14 * * *"
+    legislation: "0 15 * * *"
+    a2aj: "0 16 * * *"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Engine (Sweep)
+engine:
+  replicas: 1
+  schedule: "*/15 * * * *"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Portal (GitHub Pages — not deployed via Helm)
+# portal: static site, deployed via .github/workflows/deploy-portal.yml
+
+# Monitoring
+monitoring:
+  pushgateway:
+    enabled: true
+    namespace: observability
+  uptimeKuma:
+    enabled: true
+    namespace: ai-inference
+
+# Secrets (set via --set or external secrets)
+secrets:
+  apiKey: ""
+  jwtSecret: ""
+  canliiApiKey: ""
