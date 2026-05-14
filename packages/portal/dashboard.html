@@ -3,13 +3,13 @@
      3|<head>
      4|<meta charset="UTF-8">
      5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|<title>MapleSpike — Civic Pulse Dashboard</title>
+     6|<title>MapleSpike — Civic Pulse Dashboard: Live Canadian Government Data</title>
      7|  <link rel="canonical" href="https://maplespike.ca/dashboard">
      8|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/dashboard">
      9|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/dashboard">
     10|  <meta name="robots" content="index, follow">
     11|
-    12|<meta name="description" content="See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.">
+    12|<meta name="description" content="Live dashboard of Canadian government activity — track Parliament, lobbying, regulations, court decisions, real-time weather alerts, border wait times, and more. Updated automatically from official sources.">
     13|<link rel="stylesheet" href="styles.css">
     14|<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
     15|<style>
@@ -141,16 +141,16 @@
    141|.glossary-term:hover .glossary-tip { display: block; }
    142|</style>
    143|
-   144|  <meta property="og:title" content="MapleSpike — Civic Pulse Dashboard">
-   145|  <meta property="og:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+   144|  <meta property="og:title" content="MapleSpike — Civic Pulse Dashboard: Live Canadian Government Data">
+   145|  <meta property="og:description" content="Live dashboard of Canadian government activity — track Parliament, lobbying, regulations, court decisions, real-time weather alerts, border wait times, and more. Updated automatically from official sources.">
    146|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
    147|  <meta property="og:image:width" content="1200">
    148|  <meta property="og:image:height" content="630">
    149|  <meta property="og:url" content="https://maplespike.ca/dashboard">
    150|  <meta property="og:type" content="website">
    151|  <meta name="twitter:card" content="summary_large_image">
-   152|  <meta name="twitter:title" content="MapleSpike — Civic Pulse Dashboard">
-   153|  <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+   152|  <meta name="twitter:title" content="MapleSpike — Civic Pulse Dashboard: Live Canadian Government Data">
+   153|  <meta name="twitter:description" content="Live dashboard of Canadian government activity — track Parliament, lobbying, regulations, court decisions, real-time weather alerts, border wait times, and more. Updated automatically from official sources.">
    154|  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
    155|
    156|
@@ -236,23 +236,24 @@
    235|  </div>
    236|
    237|  <!-- Search hero -->
-   238|  <div class="search-hero">
-   239|    <h2>What's happening in Canadian government today?</h2>
-   240|    <p data-i18n="dashboard.searchDesc">Search across Parliament, lobbying, regulations, court decisions, and more.</p>
-   241|    <div class="search-box" id="live-search-box">
-   242|      <span>🔍</span>
-   243|      <input type="text" placeholder="Search committees, people, companies, topics..." id="dash-search-input">
-   244|      <span class="hint" id="search-status" data-i18n="dashboard.searchHint">⏎ enter</span>
-   245|    </div>
-   246|    <div class="search-suggestions">
+  <div class="search-hero">
+    <h2>Track every move — search across all 53 modules</h2>
+    <p data-i18n="dashboard.searchDesc">Search Parliament, lobbying, regulations, courts, and contracts — or enter a person/company name for a complete cross-reference across every dataset.</p>
+    <div class="search-box" id="live-search-box">
+      <span>🔍</span>
+      <input type="text" placeholder="Search committees, people, companies, or try 'Brookfield' or 'Catherine Tait'..." id="dash-search-input">
+      <span class="hint" id="search-status" data-i18n="dashboard.searchHint">⏎ enter</span>
+    </div>
+    <div class="search-suggestions">
    247|      <a href="#" data-search="housing">🏠 Housing</a>
    248|      <a href="#" data-search="AI regulation">🤖 AI regulation</a>
    249|      <a href="#" data-search="in-camera">🔒 In-camera meetings</a>
    250|      <a href="#" data-search="lobbying">💼 Lobbying activity</a>
    251|      <a href="#" data-search="ethics">⚖️ Ethics investigations</a>
-   252|      <a href="#" data-search="catherine tait">🎤 Catherine Tait</a>
-   253|    </div>
-   254|    <div id="live-search-results" style="display:none;margin-top:16px;text-align:left;"></div>
+      <a href="#" data-search="catherine tait">🎤 Catherine Tait</a>
+      <a href="#" data-search="brookfield">🏢 Cross-reference: Brookfield</a>
+    </div>
+    <div id="live-search-results" style="display:none;margin-top:16px;text-align:left;"></div>
    255|  </div>
    256|
    257|  <!-- Since you last checked -->
@@ -275,14 +276,14 @@
    274|  </div>
    275|
    276|  <!-- In-camera spotlight -->
-   277|  <div class="spotlight-banner">
-   278|    <div class="sb-icon">🔒</div>
-   279|    <div class="sb-body">
-   280|      <div class="sb-title">In-camera meeting detection is live</div>
-   281|      <div class="sb-desc">MapleSpike automatically detects when parliamentary committees go behind closed doors. We track <span id="committee-count">all</span> committees across both chambers — if a meeting is marked in-camera, you'll know what was discussed and who was there.</div>
-   282|    </div>
-   283|    <a href="#" class="btn btn-primary sb-btn">View recent alerts →</a>
-   284|  </div>
+  <div class="spotlight-banner">
+    <div class="sb-icon">🔒</div>
+    <div class="sb-body">
+      <div class="sb-title">In-camera meeting detection is live</div>
+      <div class="sb-desc">MapleSpike automatically detects when any of <span id="committee-count">54</span> parliamentary committees go behind closed doors. Cross-reference closed-door meetings with lobbying registrations, contract awards, and campaign donations — see the full picture.</div>
+    </div>
+    <a href="#" class="btn btn-primary sb-btn">View recent alerts →</a>
+  </div>
    285|
    286|  <!-- Recent alerts / signals -->
    287|  <div class="section-head">
@@ -513,30 +514,28 @@ async function loadDashboardData() {
 // ─── Render stat cards ───
 function renderStats(sources) {
   if (!sources) return;
+  const moduleKeys = Object.keys(sources);
+  const totalModules = moduleKeys.length;
   const labels = [
+    { key: '_total', label: 'DATA MODULES', value: totalModules },
     { key: 'hoc', label: 'HOC MEETINGS' },
     { key: 'senate', label: 'SENATE MEETINGS' },
     { key: 'gazette', label: 'REGULATIONS' },
     { key: 'gic', label: 'GIC APPOINTMENTS' },
-    { key: 'lmia', label: 'LMIA RECORDS' },
-    { key: 'oversight', label: 'OVERSIGHT' },
-    { key: 'elections', label: 'ELECTIONS' },
-    { key: 'corporate', label: 'CORPORATE' },
-    { key: 'lobbying', label: 'LOBBYING' },
     { key: 'procurement', label: 'CONTRACTS' },
+    { key: 'lobbying', label: 'LOBBYING' },
     { key: 'influence', label: 'INFLUENCE' },
-    { key: 'provincialLobbying', label: 'PROV. LOBBYING' },
+    { key: 'elections', label: 'ELECTIONS' },
     { key: 'immigration', label: 'IMMIGRATION' },
-    { key: 'transport', label: 'TRANSPORT SAFETY' },
+    { key: 'oversight', label: 'OVERSIGHT' },
     { key: 'defence', label: 'DEFENCE/VETS' },
-    { key: 'education', label: 'EDUCATION' },
-    { key: 'science', label: 'SCIENCE' },
+    { key: 'transport', label: 'TRANSPORT' },
   ];
   const container = document.getElementById('stats-row');
   if (!container) return;
-  container.innerHTML = labels.map(({ key, label }) => {
-    const count = sources[key]?.records?.length ?? sources[key]?.recordsFound ?? 0;
-    return `<div class="stat-dash"><span class="stat-dash-number">${count.toLocaleString()}</span><span class="stat-dash-label">${label}</span></div>`;
+  container.innerHTML = labels.map(({ key, label, value }) => {
+    const count = value !== undefined ? value : (sources[key]?.records?.length ?? sources[key]?.recordsFound ?? 0);
+    return `<div class="stat-dash"><div class="num">${count.toLocaleString()}</div><div class="label">${label}</div></div>`;
   }).join('');
 }
 
@@ -574,4 +573,6 @@ function renderActivity(activity) {
   }
 })();
 </script>
-   501|
+ 
+</body>
+</html>

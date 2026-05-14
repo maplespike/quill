@@ -1,53 +1,48 @@
+# ─────────────────────────────────────────────────────────────────
+# MapleSpike CI — runs on every PR and push to main
+# ─────────────────────────────────────────────────────────────────
 name: CI
-
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-
+  pull_request: { branches: [main] }
+  push: { branches: [main] }
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
-
-permissions:
-  contents: read
+permissions: { contents: read }
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
+        with: { version: 9 }
       - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+        with: { node-version: 22, cache: pnpm }
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
-      - name: Clean stale build artifacts
-        run: rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo
-
-      - name: Build all packages
-        run: pnpm -r build
-
-      - name: Run pipeline-core tests
+      # Type-check every package
+      - run: npx tsc --noEmit
         working-directory: packages/pipeline-core
-        run: pnpm test
-
-      - name: Run MCP server tests
+      - run: npx tsc --noEmit
         working-directory: packages/mcp-server
-        run: pnpm test
-
-      - name: Run engine tests
-        working-directory: packages/engine
-        run: pnpm test
-
-      - name: Run API server tests
+      - run: npx tsc --noEmit
+        working-directory: packages/sdk
+      - run: npx tsc --noEmit
         working-directory: packages/api-server
-        run: pnpm test
+
+      # Build all
+      - run: pnpm -r build
+
+      # Test all
+      - run: pnpm test
+        working-directory: packages/sdk
+      - run: pnpm test
+        working-directory: packages/pipeline-core
+      - run: pnpm test
+        working-directory: packages/mcp-server
+      - run: pnpm test
+        working-directory: packages/engine
+      - run: pnpm test
+        working-directory: packages/api-server
