@@ -211,6 +211,116 @@
     counters.forEach(el => observer.observe(el));
   }
 
+  // ── Command Palette (⌘K) ─────────────────────────────────────
+
+  const CMD_PALETTE_ITEMS = [
+    { id: 'dashboard', label: 'Console — API Keys & Usage', icon: '▦', url: 'dashboard.html', keywords: 'keys api usage dashboard console' },
+    { id: 'data', label: 'DATA — API Access', icon: '▦', url: 'dashboard.html', keywords: 'data api rest mcp' },
+    { id: 'signal', label: 'SIGNAL — Monitoring', icon: '◐', url: 'dashboard.html?tab=signals', keywords: 'signal monitoring alerts webhooks' },
+    { id: 'ask', label: 'ASK — AI Queries', icon: '✦', url: 'agents.html', keywords: 'ask ai queries natural language' },
+    { id: 'explorer', label: 'Data Explorer — Browse All Sources', icon: '🔍', url: 'explorer.html', keywords: 'explorer browse sources catalog datasets' },
+    { id: 'docs', label: 'Documentation', icon: '📄', url: 'docs.html', keywords: 'docs documentation quickstart guide' },
+    { id: 'agents', label: 'AI Agent Setup', icon: '🤖', url: 'agents.html', keywords: 'agents setup claude chatgpt mcp' },
+    { id: 'pricing', label: 'Pricing & Plans', icon: '💰', url: 'index.html#pricing', keywords: 'pricing plans free pro business' },
+    { id: 'workspace', label: 'Workspace', icon: '⚙️', url: 'workspace.html', keywords: 'workspace settings account' },
+    { id: 'search_committees', label: 'Tool: search_committees', icon: '🏛️', url: 'docs.html#mcp-tools', keywords: 'tool committees parliament search' },
+    { id: 'search_corporate', label: 'Tool: search_corporate', icon: '💼', url: 'docs.html#mcp-tools', keywords: 'tool corporate lobbying procurement' },
+    { id: 'search_gazette', label: 'Tool: search_gazette', icon: '📜', url: 'docs.html#mcp-tools', keywords: 'tool gazette regulations canada' },
+    { id: 'search_canlii', label: 'Tool: search_canlii', icon: '⚖️', url: 'docs.html#mcp-tools', keywords: 'tool canlii courts decisions legal' },
+    { id: 'search_lmia', label: 'Tool: search_lmia', icon: '👷', url: 'docs.html#mcp-tools', keywords: 'tool lmia labour market jobs' },
+  ];
+
+  let paletteEl = null;
+  let paletteInput = null;
+  let paletteResults = null;
+
+  function openPalette() {
+    if (!paletteEl) return;
+    paletteEl.classList.add('open');
+    paletteEl.style.display = 'flex';
+    setTimeout(() => paletteInput?.focus(), 50);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePalette() {
+    if (!paletteEl) return;
+    paletteEl.classList.remove('open');
+    paletteEl.style.display = 'none';
+    if (paletteInput) paletteInput.value = '';
+    if (paletteResults) paletteResults.innerHTML = '';
+    document.body.style.overflow = '';
+  }
+
+  function filterPalette(query) {
+    if (!paletteResults) return;
+    const q = query.toLowerCase().trim();
+    const results = q
+      ? CMD_PALETTE_ITEMS.filter(i => i.label.toLowerCase().includes(q) || i.keywords.includes(q))
+      : CMD_PALETTE_ITEMS;
+
+    paletteResults.innerHTML = results.map((item, idx) =>
+      `<a href="${item.url}" class="palette-result" data-index="${idx}" onclick="closePalette()">
+        <span class="palette-icon">${item.icon}</span>
+        <span class="palette-label">${item.label}</span>
+        <span class="palette-hint">↵</span>
+      </a>`
+    ).join('') || '<div class="palette-empty">No results found</div>';
+  }
+
+  function setupCommandPalette() {
+    // Create the overlay HTML
+    paletteEl = document.createElement('div');
+    paletteEl.id = 'cmd-palette';
+    paletteEl.style.display = 'none';
+    paletteEl.innerHTML = `
+      <div class="palette-backdrop" onclick="closePalette()"></div>
+      <div class="palette-modal">
+        <div class="palette-input-wrap">
+          <span class="palette-search-icon">🔍</span>
+          <input type="text" class="palette-input" placeholder="Search pages, tools, and commands…" autocomplete="off" spellcheck="false">
+          <span class="palette-kbd">ESC</span>
+        </div>
+        <div class="palette-results"></div>
+      </div>
+    `;
+    document.body.appendChild(paletteEl);
+
+    paletteInput = paletteEl.querySelector('.palette-input');
+    paletteResults = paletteEl.querySelector('.palette-results');
+
+    paletteInput.addEventListener('input', (e) => filterPalette(e.target.value));
+    paletteInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePalette();
+      const results = paletteResults.querySelectorAll('.palette-result');
+      if (!results.length) return;
+      const current = paletteResults.querySelector('.palette-result.highlighted');
+      let idx = current ? parseInt(current.dataset.index) : -1;
+      if (e.key === 'ArrowDown') { e.preventDefault(); idx = Math.min(idx + 1, results.length - 1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(idx - 1, 0); }
+      if (e.key === 'Enter' && current) { e.preventDefault(); current.click(); }
+      results.forEach((r, i) => r.classList.toggle('highlighted', i === idx));
+      if (idx >= 0) results[idx]?.scrollIntoView({ block: 'nearest' });
+    });
+
+    // Global keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        paletteEl.style.display === 'flex' ? closePalette() : openPalette();
+      }
+      if (e.key === 'Escape' && paletteEl.style.display === 'flex') closePalette();
+    });
+
+    // Click on ⌘K hint opens palette
+    document.querySelectorAll('.cmd-hint').forEach(el => {
+      el.addEventListener('click', openPalette);
+      el.style.cursor = 'pointer';
+    });
+
+    // Show on page load with small delay
+    filterPalette('');
+  }
+
   // ── API Demo Box ────────────────────────────────────────────
 
   function setupDemoBox() {
@@ -561,6 +671,8 @@
     const data = await loadI18n(currentLocale);
     applyI18n(data);
     setupLangToggle();
+
+    setupCommandPalette();
 
     setupScrollReveal();
     setupStatCounters();
