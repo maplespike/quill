@@ -18,17 +18,10 @@ spec:
         app: uptime-kuma
         component: monitoring
     spec:
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
+      nodeName: nexus
       containers:
         - name: uptime-kuma
           image: louislam/uptime-kuma:latest
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
           ports:
             - containerPort: 3001
           env:
@@ -75,24 +68,3 @@ spec:
       targetPort: 3001
   selector:
     app: uptime-kuma
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: uptime-kuma
-  namespace: ai-inference
-  annotations:
-    caddy.ingress.kubernetes.io/rewrite-to: "/{path}"
-spec:
-  ingressClassName: caddy
-  rules:
-    - host: status.maplespike.lan
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: uptime-kuma
-                port:
-                  number: 3001

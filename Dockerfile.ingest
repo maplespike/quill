@@ -1,7 +1,7 @@
 # =============================================================================
 # CivInt Canada — Ingestion Runner Dockerfile
 # Multi-stage build for K8s CronJob — dispatches to pipeline-core ingestAll*()
-# based on CIVINT_PIPELINE env var.
+# based on MAPLESPIKE_PIPELINE env var.
 # =============================================================================
 
 # ---- Stage 1: Build ----
@@ -21,10 +21,11 @@ COPY packages/mcp-server/package.json packages/mcp-server/package.json
 RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
+COPY tsconfig.json ./
 COPY packages/pipeline-core/ packages/pipeline-core/
 
 # Build pipeline-core (includes cli/ingest.ts)
-RUN pnpm --filter @civint/pipeline-core run build
+RUN pnpm --filter @maplespike/pipeline-core run build
 
 # ---- Stage 2: Production ----
 FROM node:22-alpine
@@ -49,5 +50,5 @@ COPY packages/pipeline-core/scripts/push-heartbeat.mjs scripts/push-heartbeat.mj
 
 ENV NODE_ENV=production
 
-# CIVINT_PIPELINE must be set at runtime (e.g. "committee", "corporate")
+# MAPLESPIKE_PIPELINE must be set at runtime (e.g. "committee", "corporate")
 CMD ["node", "packages/pipeline-core/dist/cli/ingest.js"]
