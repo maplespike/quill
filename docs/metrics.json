@@ -1,0 +1,39 @@
+{
+  "//": "AUTO-GENERATED — Single source of truth for all doc metrics.",
+  "//": "Last updated: 2026-05-14. Update this file whenever registry.ts or tools/index.ts changes.",
+  "//": "Run: grep -c 'modulePath:' packages/pipeline-core/src/ingestion/registry.ts",
+  "//": "      grep -l 'export const.*definition' packages/mcp-server/src/tools/*.ts | wc -l",
+  "//": "      find packages -name '*.ts' -not -path '*/node_modules/*' -not -path '*/dist/*' | xargs wc -l | tail -1",
+  "version": "2026-05-14",
+  "modules": {
+    "registryCount": 65,
+    "ingestionDirs": 61,
+    "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 61 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+  },
+  "mcpTools": {
+    "count": 22,
+    "description": "14 data search tools + 3 AI tools + system_health + search_immigration + search_science + search_tribunals + search_lode"
+  },
+  "typescript": {
+    "totalLines": 112910,
+    "totalFiles": 486,
+    "packages": 10,
+    "perPackage": {
+      "pipeline-core": { "files": 332, "lines": 88782 },
+      "engine": { "files": 67, "lines": 11173 },
+      "api-server": { "files": 35, "lines": 6450 },
+      "mcp-server": { "files": 35, "lines": 4520 },
+      "sdk": { "files": 9, "lines": 1589 },
+      "legal-core": { "files": 7, "lines": 356 },
+      "legislation": { "files": 1, "lines": 40 }
+    }
+  },
+  "packages": {
+    "total": 10,
+    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "pretext-civic", "legal-core", "legislation"]
+  },
+  "externalEndpoints": {
+    "estimated": 1141,
+    "description": "Estimated unique external data endpoints consumed across all modules"
+  }
+}
