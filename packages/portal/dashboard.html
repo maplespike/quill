@@ -493,7 +493,7 @@
    491|
 <script>
 // ─── API configuration ───
-const API_BRIDGE = 'http://127.0.0.1:8082/v1/';
+const API_BRIDGE = 'http://127.0.0.1:8085/v1/';
 const DEV_API_KEY='maples...-key';
 
 // ─── Load dashboard data from live pipeline-data.json ───
@@ -589,7 +589,7 @@ function renderActivity(activity) {
     searchResults.style.display = 'block';
     searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--text-muted);">Searching...</p>';
     try {
-      const resp = await fetch('http://127.0.0.1:8082/v1/gov/search?query=' + encodeURIComponent(query) + '&limit=8', {
+      const resp = await fetch('http://127.0.0.1:8085/v1/gov/search?query=' + encodeURIComponent(query) + '&limit=8', {
         signal: AbortSignal.timeout(8000),
       });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -615,7 +615,7 @@ function renderActivity(activity) {
       }
       searchStatus.textContent = '\u23ce enter';
     } catch (e) {
-      searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--accent);">Could not reach the API server. Make sure the MapleSpike API is running on <code>http://127.0.0.1:8082</code></p>';
+      searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--accent);">Could not reach the API server. Make sure the MapleSpike API is running on <code>http://127.0.0.1:8085</code></p>';
       searchStatus.textContent = '\u23ce enter';
     }
   }
