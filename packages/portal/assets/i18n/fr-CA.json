@@ -20,7 +20,7 @@
     "forAiTools": "Pour les outils IA",
     "pricing": "Tarification",
     "dashboard": "Tableau de bord",
-    "logo": "MapleSpike Canada"
+    "logo": "MapleSpike"
   },
   "hero": {
     "badges": {
@@ -243,7 +243,7 @@
     }
   },
   "dashboard": {
-    "title": "MapleSpike Canada — Tableau de bord civique",
+    "title": "MapleSpike — Tableau de bord civique",
     "metaDesc": "Voyez ce qui se passe au sein du gouvernement canadien en ce moment. Suivez le Parlement, le lobbying, les règlements et les décisions judiciaires — tout en un seul endroit.",
     "header": "Pouls civique",
     "headerMeta": "En direct des sources gouvernementales officielles · Mis à jour toutes les 6 heures",
@@ -295,8 +295,8 @@
     }
   },
   "docs": {
-    "title": "MapleSpike Canada — Documentation",
-    "metaDesc": "Documentation de l’API MapleSpike Canada. Démarrage rapide, configuration MCP, référence API, tarification et FAQ.",
+    "title": "MapleSpike — Documentation",
+    "metaDesc": "Documentation de l’API MapleSpike. Démarrage rapide, configuration MCP, référence API, tarification et FAQ.",
     "header": "Documentation",
     "sections": {
       "quickstart": "Démarrage rapide",
@@ -307,7 +307,7 @@
     }
   },
   "agents": {
-    "title": "MapleSpike Canada — Configuration des agents IA",
+    "title": "MapleSpike — Configuration des agents IA",
     "metaDesc": "Connectez MapleSpike à ChatGPT, Claude, Gemini, Grok, Cursor et Windsurf via MCP.",
     "header": "Configuration des agents"
   }
