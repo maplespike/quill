@@ -1,5 +1,5 @@
 -- 001_initial.sql
--- Core tables for MapleSpike Canada
+-- Core tables for MapleSpike
 
 CREATE TABLE IF NOT EXISTS organizations (
     id TEXT PRIMARY KEY,
