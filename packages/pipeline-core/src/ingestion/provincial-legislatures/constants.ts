@@ -9,7 +9,7 @@
  *   - BC: leg.bc.ca (Hansard XML archives, committee pages)
  *   - Alberta: assembly.ab.ca (Hansard HTML, committee hearings)
  *   - Quebec: assnat.qc.ca (Hansard XML, bilingual)
- *   - Others: various formats — generic HTML scrapers provided
+ *   - Others: various formats — stubs provided for future implementation
  */
 
 import type { ProvinceLegislatureConfig } from './types.js';
@@ -340,7 +340,7 @@ export const PROVINCE_CONFIGS: Record<string, ProvinceLegislatureConfig> = {
 export const ALL_PROVINCES: ProvinceLegislatureConfig[] = Object.values(PROVINCE_CONFIGS);
 
 /**
- * All provinces now have generic committee hearings and bills fetchers.
+ * Provinces with working implementations (others are stubs).
  */
 export const IMPLEMENTED_PROVINCES: ProvinceLegislatureConfig[] = [
   ONTARIO_CONFIG,
@@ -401,16 +401,6 @@ export const ALBERTA = {
   HANSARD_SEARCH_URL: 'https://www.assembly.ab.ca/search?type=hansard',
   COMMITTEES_URL: 'https://www.assembly.ab.ca/committees',
   BILLS_URL: 'https://www.assembly.ab.ca/bills',
-  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
-};
-
-/**
- * Quebec specific API endpoints and paths.
- */
-export const QUEBEC = {
-  HANSARD_LIST_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/assemblee-nationale/index.html',
-  COMMITTEES_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/commissions/index.html',
-  BILLS_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/projets-loi/index.html',
   USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
 };
 

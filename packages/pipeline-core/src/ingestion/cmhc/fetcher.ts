@@ -150,7 +150,7 @@ export async function fetchCmhcHousingStarts(
       return { records, errors };
     }
 
-    // Graceful fallback when CKAN is unavailable — return a metadata-only record
+    // Fallback: return a placeholder
     return {
       records: [{
         metricName: `housing_starts_${year ?? 'all'}`,
