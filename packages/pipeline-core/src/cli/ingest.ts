@@ -24,6 +24,7 @@ import {
   ingestAllNgoRss,
   ingestAllRegional,
   ingestAllMedia,
+  ingestAllRealtime,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -119,6 +120,7 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   'ngo-rss': { name: "NGO / Influence RSS Narrative Tracking", run: () => ingestAllNgoRss(), },
   'regional-authorities': { name: "Regional Authorities Data (Peel, York, Durham, Metro Vancouver, CRD, etc.)", run: () => ingestAllRegional(), },
   'media': { name: "Media & Broadcasting Data (CRTC market reports, ownership charts, Canada Media Fund, Telefilm)", run: () => ingestAllMedia(), },
+  'realtime': { name: "Real-Time Feeds (ECCC weather alerts, CBSA border wait times, parole board decisions)", run: () => ingestAllRealtime(), },
 };
 
 async function main(): Promise<void> {
