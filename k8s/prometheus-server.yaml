@@ -83,11 +83,11 @@ data:
 
       - job_name: 'maplespike-api'
         static_configs:
-          - targets: ['civint-api.ai-inference:8084']
+          - targets: ['maplespike-api.ai-inference:8084']
 
       - job_name: 'maplespike-mcp'
         static_configs:
-          - targets: ['civint-mcp.ai-inference:3001']
+          - targets: ['maplespike-mcp.ai-inference:3001']
 
       - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
