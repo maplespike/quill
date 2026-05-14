@@ -5,7 +5,7 @@ status: active
 
 # MapleSpike SDK · `@maplespike/sdk`
 
-> **Canadian civic data, one import away.**  
+> **Canadian civic data, one import away.**
 > Typed TypeScript client for parliamentary committees, corporate registry, immigration stats, elections, gazette, LMIA, courts, oversight, and more.
 
 ```ts
