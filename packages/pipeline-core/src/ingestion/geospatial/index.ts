@@ -1,20 +1,5 @@
-/**
- * LODE Geospatial ingestion module
- *
- * Canadian geospatial data sources:
- * - BC LODE (land ownership)
- * - GeoMet (weather geo data)
- *
- * @module @maplespike/pipeline-core/ingestion/geospatial
- */
+import { ingestAllGeospatial } from './fetcher.js';
+import type { GeospatialRecord, GeospatialIngestionResult } from './types.js';
 
-export { discoverLayers, fetchFeatures, fetchLODEData } from './fetcher.js';
-export { LODE_SOURCES, WFS_VERSION, WMS_VERSION } from './constants.js';
-export type { LodeSourceKey } from './constants.js';
-export type {
-  GeoPoint,
-  BoundingBox,
-  GeoFeature,
-  GeoLayer,
-  LODEResult,
-} from './types.js';
+export { ingestAllGeospatial };
+export type { GeospatialRecord, GeospatialIngestionResult };
