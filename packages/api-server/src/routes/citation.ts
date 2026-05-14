@@ -123,17 +123,13 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
     return jsonResponse(buildSuccess({
       verified: true,
       citation: {
-        source_name: sourceConfig.name,
-        source_url: result.record.source || result.record.url || '',
+        source_name: result.source || maplespike[result.source]?.name || 'Government of Canada',
+        source_url: result.record.source_url || result.record.url || '',
         license: 'Open Government Licence – Canada',
+        data_hash: targetHash,
         retrieved_at: new Date().toISOString(),
-        data_hash: `sha256:${targetHash}`,
-        algorithm: 'SHA-256',
-        record: {
-          id: result.record.committee || result.record.id || result.record.title || '',
-          summary: result.record.name || result.record.description || result.record.title || '',
-          date: result.record.date || result.record.publicationDate || null,
-        },
+        update_frequency: 'unknown',
+      },
       },
       verify_command: `echo -n '${JSON.stringify(result.record).replace(/'/g, "'\\''")}' | sha256sum`,
     }, ctx));

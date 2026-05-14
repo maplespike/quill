@@ -3,6 +3,20 @@ export { fetchStatCanReleases, fetchCKANPackages, fetchOpenDataPortal, getGovDat
 export type { RSSItem, RSSFeed, RSSSource, RawArticle } from './rss.js';
 export type { GovRelease, CKANPackage, StatCanRelease, OpenDataPortalDataset, OpenDataPortalConfig } from './gov-api.js';
 
+// Attestation & Provenance — citation, merkle tree, signatures, content-addressed store
+export {
+  buildCitation,
+  buildMerkleRoot,
+  generateMerkleProof,
+  signCitation,
+  verifyCitationSignature,
+  generateAttestationKey,
+  ContentAddressableStore,
+  getUpdateFrequency,
+  UPDATE_FREQUENCIES,
+} from './attestation/index.js';
+export type { Citation } from './attestation/index.js';
+
 // Provincial CKAN portal fetchers
 export {
   PROVINCIAL_CKAN_SOURCES,

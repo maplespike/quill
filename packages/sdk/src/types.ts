@@ -33,7 +33,7 @@ export interface ResponseQuality {
   certainty_score: number;
 }
 
-/** Source attribution */
+/** Source attribution — matches pipeline-core attestation.Citation */
 export interface Citation {
   source_name: string;
   source_url: string;
@@ -41,6 +41,9 @@ export interface Citation {
   data_hash: string;
   retrieved_at: string;
   update_frequency: string;
+  merkle_root?: string;
+  signature?: string;
+  signer_key_id?: string;
 }
 
 // ─── Query options ──────────────────────────────────────────────────────────
