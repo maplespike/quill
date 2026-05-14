@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found · MapleSpike</title>
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <meta name="robots" content="noindex, follow">
+  <style>
+    .error-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; text-align:center; padding:40px 24px; }
+    .error-code { font-size:6rem; font-weight:800; font-family:var(--font-mono); color:var(--accent); line-height:1; opacity:0.3; }
+    .error-msg { font-size:1.2rem; color:var(--text-secondary); margin:16px 0 32px; }
+    .error-detail { font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:32px; }
+    .error-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  </style>
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="logo"><span class="logo-icon">C</span> MapleSpike</a>
+      <ul class="nav-links">
+        <li><a href="dashboard.html" class="product-nav-item"><span class="nav-icon">▦</span> DATA</a></li>
+        <li><a href="dashboard.html?tab=signals" class="product-nav-item"><span class="nav-icon">◐</span> SIGNAL</a></li>
+        <li><a href="agents.html" class="product-nav-item"><span class="nav-icon">✦</span> ASK</a></li>
+        <li><a href="docs.html">Docs</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="dashboard.html" class="btn btn-sm btn-primary">Console</a></li>
+        <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+      </ul>
+      <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+  </nav>
+  <div class="error-page">
+    <div class="error-code">404</div>
+    <div class="error-msg">This page doesn't exist in our dataset.</div>
+    <div class="error-detail">// The requested resource was not found in any of our 28 data sources</div>
+    <div class="error-actions">
+      <a href="index.html" class="btn btn-primary">← Back to Home</a>
+      <a href="explorer.html" class="btn btn-secondary">Browse Data Sources</a>
+      <a href="dashboard.html" class="btn btn-ghost">Console</a>
+    </div>
+  </div>
+</body>
+</html>
