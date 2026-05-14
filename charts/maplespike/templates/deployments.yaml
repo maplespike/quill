@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "maplespike.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: maplespike-api
+    component: api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: maplespike-api
+  template:
+    metadata:
+      labels:
+        app: maplespike-api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: api
+        image: "{{ .Values.image.registry }}/maplespike-api:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.api.port }}
+        env:
+        - name: NODE_ENV
+          value: "{{ .Values.api.env.NODE_ENV }}"
+        - name: MAPLESPIKE_API_URL
+          value: "{{ .Values.api.env.MAPLESPIKE_API_URL }}"
+        - name: MAPLESPIKE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: maplespike-secrets
+              key: apiKey
+              optional: true
+        resources:
+          requests:
+            cpu: {{ .Values.api.resources.requests.cpu }}
+            memory: {{ .Values.api.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.api.resources.limits.cpu }}
+            memory: {{ .Values.api.resources.limits.memory }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "maplespike.fullname" . }}-mcp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: maplespike-mcp
+    component: mcp
+spec:
+  replicas: {{ .Values.mcp.replicas }}
+  selector:
+    matchLabels:
+      app: maplespike-mcp
+  template:
+    metadata:
+      labels:
+        app: maplespike-mcp
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: mcp
+        image: "{{ .Values.image.registry }}/maplespike-mcp:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.mcp.port }}
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: MAPLESPIKE_API_URL
+          value: "http://{{ include "maplespike.fullname" . }}-api:{{ .Values.api.port }}"
+        resources:
+          requests:
+            cpu: {{ .Values.mcp.resources.requests.cpu }}
+            memory: {{ .Values.mcp.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.mcp.resources.limits.cpu }}
+            memory: {{ .Values.mcp.resources.limits.memory }}

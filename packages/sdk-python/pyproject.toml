@@ -3,16 +3,16 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.backends._legacy:_Backend"
 
 [project]
-name = "maplespike"
-version = "0.1.0"
-description = "MapleSpike Python SDK — typed client for the MapleSpike civilian intelligence API"
+name = "maplespike-sdk"
+version = "0.2.0"
+description = "MapleSpike Python SDK — typed client for Canadian government data: Parliament, lobbying, immigration, courts, regulations, oversight, and more"
 authors = [
     { name = "MapleSpike", email = "dev@maplespike.ca" },
 ]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["maplespike", "api", "sdk", "canada", "government", "intelligence", "data"]
+keywords = ["maplespike", "api", "sdk", "canada", "government", "transparency", "open-data", "civic-tech"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -24,15 +24,20 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
+    "Topic :: Scientific Computing :: GIS",
+    "Topic :: Sociology :: Politics",
 ]
 dependencies = []
 
 [project.urls]
-Source = "https://github.com/maplespike/sdk-python"
-Tracker = "https://github.com/maplespike/sdk-python/issues"
+Homepage = "https://maplespike.ca"
+Source = "https://github.com/reverb256/maplespike/tree/main/packages/sdk-python"
+Tracker = "https://github.com/reverb256/maplespike/issues"
+Documentation = "https://maplespike.ca/docs.html"
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
 ]
+
