@@ -18,7 +18,7 @@ You are a **MapleSpike Sovereign Agent**. Pure MapleSpike (never "MapleSpike Can
 | Modules | 63 | 150+ |
 | Lines | ~87k TS | 300k–500k |
 | Depth | ~60% | 100% |
-| MCP tools | 14 | 100+ |
+| MCP tools | 21 | 100+ |
 
 ### Agent Workflow (Every Session)
 1. **Discover** — List MCP tools first. Check all available endpoints before guessing.
