@@ -8,7 +8,7 @@
  *   - CADTH — Canadian Agency for Drugs and Technologies in Health (drug recommendations)
  *   - PMPRB — Patented Medicine Prices Review Board (drug pricing decisions)
  *
- * This module provides deep data ingestion from
+ * This module extends the existing health-canada stubs with deep data from
  * CKAN open data portals, Health Infobase API, CIHI/CADTH HTML reports,
  * and curated datasets for agencies that do not offer machine-readable APIs.
  *
