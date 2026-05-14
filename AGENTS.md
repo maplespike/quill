@@ -272,7 +272,7 @@ pnpm start
 | `MAPLESPIKE_NAME` | `MapleSpike` | Application display name | config.ts |
 | `PORT` | `8082` | API dev server port | dev-server.ts |
 | `MAPLESPIKE_API_KEY` | `maplespike-dev-key` | API key for server-to-server auth | dev-server.ts, api-client.ts |
-| `MAPLESPIKE_API_URL` | `http://maplespike-api:8084/v1` | Base URL for the API server | api-client.ts, routes/ai.ts |
+| `MAPLESPIKE_API_URL` | `http://maplespike-api:8082/v1` | Base URL for the API server | api-client.ts, routes/ai.ts |
 | `MAPLESPIKE_DB_PATH` | `./maplespike.db` | SQLite database file path | sqlite-storage.ts, dev-server.ts |
 | `MAPLESPIKE_STORAGE` | `memory` | Storage backend: `memory` or `sqlite` | dev-server.ts |
 | `JWT_SECRET` | `maplespike-jwt-secret-change-in-production` | HMAC secret for JWT signing | config.ts, jwt.ts |
@@ -296,7 +296,7 @@ pnpm start
 |----------|---------|-------------|---------|
 | `PORT` | `3001` | MCP server listening port (SSE mode) | mcp-server/src/index.ts |
 | `MAPLESPIKE_API_KEY` | `dev-key` | API key for MCP → API auth | mcp-server/src/index.ts |
-| `MAPLESPIKE_API_URL` | `http://maplespike-api:8084/v1` | API server base URL for MCP tools | mcp-server/src/tools/api-client.ts |
+| `MAPLESPIKE_API_URL` | `http://maplespike-api:8082/v1` | API server base URL for MCP tools | mcp-server/src/tools/api-client.ts |
 | `MAPLESPIKE_LOCALE` | `en-CA` | Output locale (`en-CA` / `fr-CA`) | mcp-server/src/cli.ts |
 
 ### Authentication / OAuth
