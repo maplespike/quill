@@ -1,0 +1,142 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/mcp-server/**'
+      - 'packages/api-server/**'
+      - 'packages/pipeline-core/**'
+      - 'packages/engine/**'
+      - 'Dockerfile.*'
+      - 'k8s/**'
+      - 'packages/portal/**'
+      - '.github/workflows/deploy.yml'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm -r build
+
+      - name: Run MCP server tests
+        working-directory: packages/mcp-server
+        run: pnpm test
+
+      - name: Run engine tests
+        working-directory: packages/engine
+        run: pnpm test
+
+  # ── Backend: Build Docker images on nexus ──
+  build-backend:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and deploy on nexus via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.NEXUS_HOST }}
+          port: ${{ secrets.NEXUS_PORT || '22' }}
+          username: ${{ secrets.NEXUS_USER }}
+          key: ${{ secrets.NEXUS_SSH_KEY }}
+          script: |
+            set -e
+            cd /data/projects/own/maplespike
+            git fetch origin main
+            git checkout main
+            git pull origin main
+
+            # Build all 4 Docker images
+            docker build -f Dockerfile.mcp     -t nexus:5000/maplespike-mcp:latest     .
+            docker build -f Dockerfile.api     -t nexus:5000/maplespike-api:latest     .
+            docker build -f Dockerfile.ingest  -t nexus:5000/maplespike-ingest:latest  .
+            docker build -f Dockerfile.engine  -t nexus:5000/maplespike-engine:latest  .
+
+            # Push to local registry
+            docker push nexus:5000/maplespike-mcp:latest
+            docker push nexus:5000/maplespike-api:latest
+            docker push nexus:5000/maplespike-ingest:latest
+            docker push nexus:5000/maplespike-engine:latest
+
+            # Rollout K8s deployments
+            kubectl rollout restart deployment/civint-mcp -n ai-inference
+            kubectl rollout status deployment/civint-mcp -n ai-inference --timeout=120s
+
+            kubectl rollout restart deployment/civint-api -n ai-inference
+            kubectl rollout status deployment/civint-api -n ai-inference --timeout=120s
+
+  # ── Portal: Deploy static site to GitHub Pages ──
+  deploy-portal:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject analytics domain
+        run: |
+          if [ -n "${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}" ]; then
+            sed -i "s/__MAPLESPIKE_ANALYTICS_DOMAIN__/${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}/g" packages/portal/*.html
+            echo "Analytics domain injected: ${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}"
+          else
+            # Disable analytics — remove the script tags entirely
+            sed -i '/plausible/d' packages/portal/*.html
+            echo "No analytics domain set — analytics disabled"
+          fi
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/portal
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
