@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog — MapleSpike</title>
+  <meta name="description" content="Release notes and changelog for MapleSpike — Canadian government data API.">
+  <link rel="canonical" href="https://maplespike.ca/changelog">
+  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/changelog">
+  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/changelog">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <meta property="og:title" content="Changelog — MapleSpike">
+  <meta property="og:description" content="Release notes and changelog for MapleSpike.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Changelog — MapleSpike">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#C23030">
+  <style>
+    .changelog-page { max-width: 720px; margin: 0 auto; padding: 32px 24px 80px; }
+    .cl-entry { margin: 32px 0; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
+    .cl-entry:hover { border-color: rgba(194,48,48,0.3); }
+    .cl-date { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); }
+    .cl-version { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin: 4px 0 8px; }
+    .cl-tag { display: inline-block; font-size: 0.65rem; font-family: var(--font-mono); padding: 2px 10px; border-radius: 99px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 6px; }
+    .cl-tag-new { background: var(--base19); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .cl-tag-fix { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(194,48,48,0.2); }
+    .cl-tag-api { background: var(--base20); color: var(--accent-cyan); border: 1px solid rgba(8,145,178,0.2); }
+    .cl-entry ul { margin: 8px 0 0; padding-left: 20px; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.8; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-icon">C</span> MapleSpike</a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html" class="active"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+  </div>
+</nav>
+
+<div class="changelog-page">
+  <div class="section-bracket" style="margin-bottom:24px;">
+    <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);">Changelog</span>
+  </div>
+  <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 8px;">Release notes</h1>
+  <p style="color:var(--text-secondary);margin-bottom:32px;">Track changes, improvements, and fixes to the MapleSpike platform.</p>
+
+  <div class="cl-entry">
+    <div class="cl-date">2026-05-13</div>
+    <div class="cl-version">v0.2.0 — Auth &amp; Docs</div>
+    <div>
+      <span class="cl-tag cl-tag-new">New</span>
+      <span class="cl-tag cl-tag-api">API</span>
+    </div>
+    <ul>
+      <li>Web3 wallet authentication (SIWE/EIP-4361) — <code>/v1/auth/web3/challenge</code>, <code>/v1/auth/web3/login</code></li>
+      <li>Passkey / FIDO2 authentication (WebAuthn) — register and login via biometric, security keys, cross-device passkeys</li>
+      <li>Generic OAuth 2.0 provider framework — GitHub built-in, any OIDC provider via env vars</li>
+      <li>Real citation verification against pipeline data — SHA-256 hash lookup with source URL and license</li>
+      <li>Comprehensive docs rewrite — 10 sections matching Katzilla quality (Quickstart, Auth, Request/Response, Endpoints, Token Optimization, Citation Contract, MCP Tools, Rate Limits, Errors, FAQ)</li>
+      <li>CSS micro-polish — custom scrollbar, branded selection, reduced-motion support, glass cards, CTA glow</li>
+      <li>SEO tags across all pages — canonical, hreflang, robots, OG, Twitter, JSON-LD</li>
+      <li>404 page, sitemap.xml, robots.txt, manifest.json, PWA support</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
+    <div class="cl-date">2026-05-12</div>
+    <div class="cl-version">v0.1.0 — Initial Release</div>
+    <div>
+      <span class="cl-tag cl-tag-new">New</span>
+    </div>
+    <ul>
+      <li>14 MCP data tools with bilingual (EN/FR) descriptions</li>
+      <li>REST API with auth, rate limiting, usage tracking, and 402 quota enforcement</li>
+      <li>28 ingestion modules covering Canadian government data</li>
+      <li>Infrastructure: K3s deployment, Nix builds, Docker images, CronJob manifests</li>
+      <li>i18n support: en-CA/fr-CA translation files with 178 strings each</li>
+      <li>Portal with dark terminal aesthetic, hero code demo, source grid, data explorer</li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="brand">
+      <a href="index.html" class="logo"><span class="logo-icon">C</span> MapleSpike</a>
+      <p>Canadian public data infrastructure — for journalists, researchers, and AI agents that cite.</p>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="explorer.html">Data Explorer</a></li>
+        <li><a href="workspace.html">API Keys</a></li>
+        <li><a href="docs.html">Documentation</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="changelog.html">Changelog</a></li>
+        <li><a href="docs.html">Docs</a></li>
+        <li><a href="https://github.com/reverb256">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 MapleSpike.</span>
+    <span>Data: <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
+  </div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
