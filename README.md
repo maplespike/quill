@@ -2,7 +2,7 @@
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
-**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Node.js + K3s + Caddy
+**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Static HTML/CSS/JS (portal)
 
 ---
 
