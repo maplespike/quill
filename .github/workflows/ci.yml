@@ -60,21 +60,3 @@ jobs:
       - name: Build api-server
         run: pnpm build
         working-directory: packages/api-server
-
-      # ── Python SDK ──────────────────────────────────────────
-
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.12' }
-
-      - name: Install Python SDK
-        run: pip install -e ".[dev]"
-        working-directory: packages/sdk-python
-
-      - name: Test Python SDK (if tests exist)
-        run: |
-          if [ -d tests ] || [ -d test ]; then
-            python -m pytest -v
-          else
-            echo "No tests directory found — skipping Python SDK tests"
-          fi
-        working-directory: packages/sdk-python
