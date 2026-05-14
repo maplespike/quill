@@ -1,7 +1,7 @@
 {
   "name": "@maplespike/mcp-server",
-  "version": "0.1.0",
-  "description": "MapleSpike MCP Server — 6 tools wrapping pipeline-core for AI agent consumption",
+  "version": "0.2.0",
+  "description": "MapleSpike MCP Server - tools wrapping pipeline-core for AI agent consumption",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,8 +13,8 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "start": "node dist/cli.js",
     "start:sse": "node dist/index.js",
-    "test": "tsx --test 'src/**/*.test.ts'"
-    "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts",
+    "test": "tsx --test 'src/**/*.test.ts'",
+    "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts"
   },
   "dependencies": {
     "@maplespike/pipeline-core": "workspace:*"
