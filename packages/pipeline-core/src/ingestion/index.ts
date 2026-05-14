@@ -1630,21 +1630,8 @@ export { ingestAllRealtime, REALTIME_SOURCES } from './real-time-feeds/index.js'
 export type { RealtimeRecord, RealtimeIngestionResult } from './real-time-feeds/types.js';
 
 /* ── Provincial Regulators (80+ across 21 categories, 13 provinces) ── */
-export {
-  REGULATORS,
-  REGULATOR_CATEGORIES,
-  CATEGORY_LABELS,
-
-  getRegulatorsByProvince,
-  getRegulatorsByCategory,
-  getRegulator,
-  getCoverageSummary,
-} from './provincial-regulators/index.js';
-export type {
-  ProvincialRegulator,
-
-  RegulatorCoverage,
-} from './provincial-regulators/types.js';
+// TODO: build provincial-regulators module — referenced constants/types/index don't exist yet
+// export { ... } from './provincial-regulators/index.js';
 
 /* ── Municipal Long-Tail ──────────────────────────────── */
 import { ingestMunicipalLongTail } from './municipal-long-tail/index.js';
