@@ -3,17 +3,19 @@ import type { NgoRssConfig } from './types.js';
 /** NGO & influence RSS sources for narrative tracking */
 export const NGO_RSS_SOURCES: NgoRssConfig[] = [
   // ── Think Tanks ──────────────────────────────────────
-  { name: 'Fraser Institute', url: 'https://www.fraserinstitute.org/rss', category: 'think-tank', description: 'Economic policy papers and commentary', enabled: true, narrativeTags: ['economic-policy', 'taxation', 'fiscal'] },
-  { name: 'C.D. Howe Institute', url: 'https://www.cdhowe.org/feed', category: 'think-tank', description: 'Public policy research and analysis', enabled: true, narrativeTags: ['economic-policy', 'regulation', 'governance'] },
+  { name: 'Fraser Institute', url: 'https://www.fraserinstitute.org/rss.xml', category: 'think-tank', description: 'Economic policy papers and commentary', enabled: true, narrativeTags: ['economic-policy', 'taxation', 'fiscal'] },
+  { name: 'C.D. Howe Institute', url: 'https://www.cdhowe.org/rss.xml', category: 'think-tank', description: 'Public policy research and analysis', enabled: true, narrativeTags: ['economic-policy', 'regulation', 'governance'] },
   { name: 'Macdonald-Laurier Institute', url: 'https://macdonaldlaurier.ca/feed/', category: 'think-tank', description: 'National security, Indigenous, energy policy', enabled: true, narrativeTags: ['national-security', 'indigenous', 'energy'] },
   { name: 'IRPP (Policy Options)', url: 'https://policyoptions.irpp.org/feed/', category: 'think-tank', description: 'Public policy magazine', enabled: true, narrativeTags: ['public-policy', 'social-policy', 'governance'] },
-  { name: 'CIGI', url: 'https://www.cigionline.org/feed/', category: 'think-tank', description: 'International governance and innovation', enabled: true, narrativeTags: ['foreign-policy', 'governance', 'technology'] },
+  { name: 'CIGI', url: 'https://www.cigionline.org/rss.xml', category: 'think-tank', description: 'International governance and innovation', enabled: true, narrativeTags: ['foreign-policy', 'governance', 'technology'] },
   { name: 'Conference Board of Canada', url: 'https://www.conferenceboard.ca/feed/', category: 'think-tank', description: 'Economic forecasts and research', enabled: true, narrativeTags: ['economic-policy', 'forecasts'] },
   { name: 'Canada West Foundation', url: 'https://cwf.ca/feed/', category: 'think-tank', description: 'Western Canada policy research', enabled: true, narrativeTags: ['regional-policy', 'western-canada'] },
   { name: 'Broadbent Institute', url: 'https://www.broadbentinstitute.ca/feed/', category: 'think-tank', description: 'Progressive policy research', enabled: true, narrativeTags: ['progressive', 'social-policy', 'inequality'] },
-  { name: 'Canadian Taxpayers Federation', url: 'https://www.taxpayer.com/feed', category: 'think-tank', description: 'Fiscal accountability advocacy', enabled: true, narrativeTags: ['fiscal', 'taxation', 'accountability'] },
+  { name: 'Canadian Taxpayers Federation', url: 'https://www.taxpayer.com/rss', category: 'think-tank', description: 'Fiscal accountability advocacy', enabled: true, narrativeTags: ['fiscal', 'taxation', 'accountability'] },
   { name: 'Canadian Centre for Policy Alternatives', url: 'https://www.policyalternatives.ca/feed/', category: 'think-tank', description: 'Progressive alternative policy', enabled: true, narrativeTags: ['progressive', 'social-policy', 'inequality'] },
   { name: 'Cardus', url: 'https://www.cardus.ca/feed/', category: 'think-tank', description: 'Social policy and faith', enabled: true, narrativeTags: ['social-policy', 'faith', 'family'] },
+  { name: 'Rideau Institute', url: 'https://www.rideauinstitute.ca/feed/', category: 'think-tank', description: 'Peace, security, and defence policy', enabled: true, narrativeTags: ['defence', 'security', 'foreign-policy'] },
+  { name: 'International Crisis Group', url: 'https://www.crisisgroup.org/rss', category: 'think-tank', description: 'Conflict analysis and resolution', enabled: true, narrativeTags: ['conflict', 'international-security', 'foreign-policy'] },
 
   // ── NGOs & Non-Profits ───────────────────────────────
   { name: 'UNHCR Global News', url: 'https://www.unhcr.org/rss.xml', category: 'un-international', description: 'UNHCR global news', enabled: true, narrativeTags: ['refugee', 'asylum', 'humanitarian'] },
@@ -25,6 +27,8 @@ export const NGO_RSS_SOURCES: NgoRssConfig[] = [
   { name: 'World Wildlife Fund Canada', url: 'https://wwf.ca/feed/', category: 'ngo', description: 'Wildlife conservation', enabled: true, narrativeTags: ['conservation', 'species', 'environment'] },
   { name: 'Canadian Bar Association', url: 'https://www.cba.org/feed', category: 'ngo', description: 'Legal policy advocacy', enabled: true, narrativeTags: ['legal-policy', 'justice', 'law'] },
   { name: 'Canadian Medical Association', url: 'https://www.cma.ca/feed', category: 'ngo', description: 'Health policy', enabled: true, narrativeTags: ['health-policy', 'physicians', 'healthcare'] },
+  { name: 'Oxfam Canada', url: 'https://www.oxfam.ca/feed/', category: 'ngo', description: 'International development and poverty', enabled: true, narrativeTags: ['development', 'poverty', 'humanitarian'] },
+  { name: 'Transparency International Canada', url: 'https://transparencycanada.ca/feed/', category: 'ngo', description: 'Anti-corruption advocacy', enabled: true, narrativeTags: ['corruption', 'accountability', 'governance'] },
 
   // ── WEF Alternatives ─────────────────────────────────
   { name: 'WEF rss.app Generator', url: 'https://rss.app/rss-feed/world-economic-forum-rss-feed', category: 'wef-alternative', description: 'WEF press releases via third-party generator', enabled: true, narrativeTags: ['wef', 'global-governance', 'davos', 'influence'] },
