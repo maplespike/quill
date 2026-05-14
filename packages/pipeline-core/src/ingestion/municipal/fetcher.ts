@@ -675,6 +675,213 @@ async function fetchICompassMeetings(
 
 
 /* ------------------------------------------------------------------ */
+/*  CKAN City API Fetcher (Generalized)                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fetch city council data via CKAN open data portal.
+ * Used by: Ottawa, Montreal, Vancouver, Regina, Toronto
+ */
+async function fetchCkanCityData(
+  ckanBase: string,
+  searchQuery: string,
+  city: CityCode,
+): Promise<RawCouncilRecord[]> {
+  const records: RawCouncilRecord[] = [];
+  try {
+    const searchUrl = `${ckanBase}/package_search?q=${encodeURIComponent(searchQuery)}&rows=20`;
+    const resp = await fetchJson<{ success: boolean; result: { results: Array<{ title: string; resources: Array<{ url: string; format: string }> }> } }>(searchUrl);
+    if (!resp.success) return records;
+
+    for (const pkg of resp.result?.results ?? []) {
+      for (const res of pkg.resources ?? []) {
+        if (res.format !== 'CSV' || !res.url) continue;
+        try {
+          const csvText = await fetchText(res.url);
+          const lines = csvText.split('\n').filter((l: string) => l.trim());
+          if (lines.length < 2) continue;
+          const headers = parseCsvLine(lines[0]);
+          for (let i = 1; i < Math.min(lines.length, 200); i++) {
+            const row = parseCsvLine(lines[i]);
+            const rowMap: Record<string, string> = {};
+            headers.forEach((h: string, idx: number) => { rowMap[h.trim()] = (row[idx] ?? '').trim(); });
+            const dateStr = Object.values(rowMap).find((v: string) => /^\d{4}-\d{2}-\d{2}/.test(v)) || '';
+            const title = rowMap['title'] || rowMap['titre'] || rowMap['name'] || pkg.title || 'City Council Meeting';
+            records.push({
+              city,
+              sourceUrl: res.url,
+              date: dateStr,
+              title,
+              meetingId: await computeHash(`${city}:${dateStr}:${title}`, 'sha256'),
+              rawJson: JSON.stringify(rowMap),
+            });
+          }
+        } catch { /* skip broken resource */ }
+      }
+    }
+  } catch { /* CKAN unavailable */ }
+  return records;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Socrata City API Fetcher                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fetch city data via Socrata open data portal.
+ * Used by: Edmonton, Calgary, Winnipeg, Saskatoon
+ */
+async function fetchSocrataCityData(
+  socrataBase: string,
+  city: CityCode,
+): Promise<RawCouncilRecord[]> {
+  const records: RawCouncilRecord[] = [];
+  try {
+    // List all datasets via Socrata views API
+    const viewsUrl = `${socrataBase}/api/views?limit=50`;
+    const views = await fetchJson<Array<{ id: string; name: string; description?: string }>>(viewsUrl);
+    if (!Array.isArray(views)) return records;
+
+    for (const view of views.slice(0, 10)) {
+      // Look for council/meeting datasets
+      if (!/(council|meeting|agenda|minutes|budget|vote)/i.test(view.name + (view.description ?? ''))) continue;
+      try {
+        const dataUrl = `${socrataBase}/resource/${view.id}.json?$limit=200`;
+        const data = await fetchJson<Array<Record<string, unknown>>>(dataUrl);
+        if (!Array.isArray(data)) continue;
+
+        for (const row of data) {
+          const dateStr = (row['date'] as string) || (row['meeting_date'] as string) || (row['Date'] as string) || '';
+          const title = (row['title'] as string) || (row['subject'] as string) || (row['name'] as string) || view.name;
+          records.push({
+            city,
+            sourceUrl: dataUrl,
+            date: dateStr,
+            title,
+            meetingId: await computeHash(`${city}:${dateStr}:${title}`, 'sha256'),
+            rawJson: JSON.stringify(row),
+          });
+        }
+      } catch { /* skip */ }
+    }
+  } catch { /* Socrata unavailable */ }
+  return records;
+}
+
+/* ------------------------------------------------------------------ */
+/*  ArcGIS Hub City API Fetcher                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fetch city data via ArcGIS Hub open data portal.
+ * Used by: Hamilton, Halifax, Surrey
+ */
+async function fetchArcgisHubData(
+  hubBase: string,
+  city: CityCode,
+): Promise<RawCouncilRecord[]> {
+  const records: RawCouncilRecord[] = [];
+  try {
+    const searchUrl = `${hubBase}/api/search/definition/?q=council&limit=20`;
+    const results = await fetchJson<Array<Record<string, unknown>>>(searchUrl);
+    if (!Array.isArray(results)) return records;
+
+    for (const item of results.slice(0, 10)) {
+      const id = (item['id'] as string) || '';
+      const name = (item['name'] as string) || (item['title'] as string) || 'Dataset';
+      if (!/(council|meeting|agenda|minutes|budget|vote)/i.test(name) && !id) continue;
+      records.push({
+        city,
+        sourceUrl: `${hubBase}/api/search/definition/?id=${id}`,
+        date: '',
+        title: name,
+        meetingId: await computeHash(`${city}:arcgis:${id || name}`, 'sha256'),
+        rawJson: JSON.stringify(item),
+      });
+    }
+  } catch { /* ArcGIS Hub unavailable */ }
+  return records;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Données Québec CKAN Fetcher (for Quebec cities)                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fetch city data via the provincial Données Québec CKAN portal.
+ * Used by: Quebec City, Laval, Gatineau, Longueuil, Lévis
+ * All route through https://www.donneesquebec.ca with org filter.
+ */
+async function fetchDonneesQuebecCityData(
+  orgId: string,
+  city: CityCode,
+): Promise<RawCouncilRecord[]> {
+  const records: RawCouncilRecord[] = [];
+  try {
+    const orgUrl = `https://www.donneesquebec.ca/api/3/action/organization_show?id=${orgId}&include_datasets=true`;
+    const resp = await fetchJson<{ success: boolean; result: { packages: Array<{ name: string; title: string; resources: Array<{ url: string; format: string }> }> } }>(orgUrl);
+    if (!resp.success || !resp.result?.packages) return records;
+
+    for (const pkg of resp.result.packages.slice(0, 20)) {
+      if (!/(conseil|seance|municipal|council|budget|permis|zonage)/i.test(pkg.title)) continue;
+      for (const res of pkg.resources ?? []) {
+        if (res.format !== 'CSV' || !res.url) continue;
+        try {
+          const csvText = await fetchText(res.url);
+          const lines = csvText.split('\n').filter((l: string) => l.trim());
+          if (lines.length < 2) continue;
+          const headers = parseCsvLine(lines[0]);
+          for (let i = 1; i < Math.min(lines.length, 200); i++) {
+            const row = parseCsvLine(lines[i]);
+            const rowMap: Record<string, string> = {};
+            headers.forEach((h: string, idx: number) => { rowMap[h.trim()] = (row[idx] ?? '').trim(); });
+            const dateStr = Object.values(rowMap).find((v: string) => /^\d{4}-\d{2}-\d{2}/.test(v)) || '';
+            const title = rowMap['titre'] || rowMap['title'] || pkg.title;
+            records.push({
+              city,
+              sourceUrl: res.url,
+              date: dateStr,
+              title,
+              meetingId: await computeHash(`${city}:dq:${dateStr}:${title}`, 'sha256'),
+              rawJson: JSON.stringify(rowMap),
+            });
+          }
+        } catch { /* skip */ }
+      }
+    }
+  } catch { /* Données Québec unavailable */ }
+  return records;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Custom Search API Fetcher (for opendata.london.ca, data.mississauga.ca) */
+/* ------------------------------------------------------------------ */
+
+async function fetchCustomSearchApiData(
+  searchUrl: string,
+  city: CityCode,
+): Promise<RawCouncilRecord[]> {
+  const records: RawCouncilRecord[] = [];
+  try {
+    const data = await fetchJson<Array<Record<string, unknown>>>(searchUrl);
+    if (!Array.isArray(data)) return records;
+    for (const item of data.slice(0, 50)) {
+      const title = (item['title'] as string) || (item['name'] as string) || 'Dataset';
+      const dateStr = (item['date'] as string) || (item['updated_at'] as string) || (item['created_at'] as string) || '';
+      records.push({
+        city,
+        sourceUrl: searchUrl,
+        date: dateStr,
+        title,
+        meetingId: await computeHash(`${city}:custom:${title}`, 'sha256'),
+        rawJson: JSON.stringify(item),
+      });
+    }
+  } catch { /* API unavailable */ }
+  return records;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Fetcher — Dispatches by City                                  */
 /* ------------------------------------------------------------------ */
 
@@ -719,6 +926,13 @@ export async function fetchCityMeetings(
         sourcesTried.push('montreal-custom');
         sourcesTried.push('montreal-ckan');
         records = await fetchMontrealMeetings(year);
+        // Also try CKAN generalized
+        const mtlConfig = getCityConfig('montreal');
+        if (mtlConfig.apiEndpoints.ckanBase && records.length === 0) {
+          const ckanRecords = await fetchCkanCityData(mtlConfig.apiEndpoints.ckanBase, 'conseil municipal seance', 'montreal');
+          records.push(...ckanRecords);
+          if (ckanRecords.length > 0) sourcesTried.push('montreal-ckan-generic');
+        }
         break;
       }
 
@@ -729,26 +943,141 @@ export async function fetchCityMeetings(
         break;
       }
 
+      /* ---------- CKAN Portal Cities ---------- */
+      case 'ottawa': {
+        sourcesTried.push('ottawa-ckan');
+        sourcesTried.push('escribe');
+        const ottConfig = getCityConfig('ottawa');
+        // Try CKAN first
+        const ottCkanRecords = await fetchCkanCityData(ottConfig.apiEndpoints.ckanBase, 'council meeting', 'ottawa');
+        if (ottCkanRecords.length > 0) {
+          records = ottCkanRecords;
+        } else {
+          // Fall back to eScribe
+          const escribeBase = ottConfig.apiEndpoints.escribeBase ?? ottConfig.meetingsUrl;
+          records = await fetchEscribeMeetings(escribeBase, year, 'ottawa');
+          records = records.map(r => ({ ...r, city: 'ottawa' as CityCode }));
+        }
+        break;
+      }
+
+      case 'vancouver': {
+        sourcesTried.push('vancouver-ckan');
+        sourcesTried.push('vancouver-custom');
+        const vanConfig = getCityConfig('vancouver');
+        const vanCkan = await fetchCkanCityData(vanConfig.apiEndpoints.ckanBase, 'council meeting', 'vancouver');
+        if (vanCkan.length > 0) {
+          records = vanCkan;
+        } else {
+          records = await fetchVancouverMeetings(year);
+        }
+        break;
+      }
+
+      case 'regina': {
+        sourcesTried.push('regina-ckan');
+        const regConfig = getCityConfig('regina');
+        records = await fetchCkanCityData(regConfig.apiEndpoints.ckanBase, 'council', 'regina');
+        break;
+      }
+
       /* ---------- eScribe Vendor Cities ---------- */
       case 'calgary':
       case 'edmonton':
-      case 'ottawa':
       case 'hamilton': {
         sourcesTried.push('escribe');
         const config = getCityConfig(city);
         const escribeBase = config.apiEndpoints.escribeBase ?? config.meetingsUrl;
         records = await fetchEscribeMeetings(escribeBase, year, city);
         records = records.map(r => ({ ...r, city }));
+        // Also try Socrata API for Calgary/Edmonton as supplement
+        if (city !== 'hamilton' && records.length < 5) {
+          sourcesTried.push(`${city}-socrata`);
+          const socrataUrl = config.apiEndpoints.socrataBase ?? '';
+          if (socrataUrl) {
+            const socrataRecords = await fetchSocrataCityData(socrataUrl, city);
+            records.push(...socrataRecords);
+          }
+        }
         break;
       }
 
-      /* ---------- CivicWeb Vendor Cities ---------- */
-      case 'winnipeg':
-      case 'halifax': {
+      /* ---------- CivicWeb Vendor Cities (with API supplement) ---------- */
+      case 'winnipeg': {
+        sourcesTried.push('winnipeg-socrata');
         sourcesTried.push('civicweb');
-        const config = getCityConfig(city);
-        records = await fetchCivicWebMeetings(config.baseUrl, year, city);
-        records = records.map(r => ({ ...r, city }));
+        const wpgConfig = getCityConfig('winnipeg');
+        // Try Socrata API first
+        const wpgSocrata = await fetchSocrataCityData(wpgConfig.apiEndpoints.socrataBase, 'winnipeg');
+        if (wpgSocrata.length > 0) {
+          records = wpgSocrata;
+        } else {
+          records = await fetchCivicWebMeetings(wpgConfig.baseUrl, year, 'winnipeg');
+          records = records.map(r => ({ ...r, city: 'winnipeg' as CityCode }));
+        }
+        break;
+      }
+
+      case 'halifax': {
+        sourcesTried.push('halifax-arcgis');
+        sourcesTried.push('civicweb');
+        const hfxConfig = getCityConfig('halifax');
+        // Try ArcGIS Hub first
+        const hfxArcgis = await fetchArcgisHubData(hfxConfig.apiEndpoints.arcgisHubBase ?? 'https://data-hrm.hub.arcgis.com', 'halifax');
+        if (hfxArcgis.length > 0) {
+          records = hfxArcgis;
+        } else {
+          records = await fetchCivicWebMeetings(hfxConfig.baseUrl, year, 'halifax');
+          records = records.map(r => ({ ...r, city: 'halifax' as CityCode }));
+        }
+        break;
+      }
+
+      /* ---------- ArcGIS Hub Cities ---------- */
+      case 'surrey': {
+        sourcesTried.push('surrey-arcgis');
+        const surreyConfig = getCityConfig('surrey');
+        records = await fetchArcgisHubData(surreyConfig.apiEndpoints.arcgisHubBase, 'surrey');
+        break;
+      }
+      case 'saskatoon': {
+        sourcesTried.push('saskatoon-socrata');
+        const skConfig = getCityConfig('saskatoon');
+        records = await fetchSocrataCityData(skConfig.apiEndpoints.socrataBase, 'saskatoon');
+        break;
+      }
+      case 'laval': {
+        sourcesTried.push('donnees-quebec');
+        records = await fetchDonneesQuebecCityData('ville-de-laval', 'laval');
+        break;
+      }
+      case 'gatineau': {
+        sourcesTried.push('donnees-quebec');
+        records = await fetchDonneesQuebecCityData('ville-de-gatineau', 'gatineau');
+        break;
+      }
+      case 'longueuil': {
+        sourcesTried.push('donnees-quebec');
+        records = await fetchDonneesQuebecCityData('ville-de-longueuil', 'longueuil');
+        break;
+      }
+      case 'levis': {
+        sourcesTried.push('donnees-quebec');
+        records = await fetchDonneesQuebecCityData('ville-de-levis', 'levis');
+        break;
+      }
+
+      /* ---------- Custom API Cities ---------- */
+      case 'mississauga': {
+        sourcesTried.push('mississauga-api');
+        const missConfig = getCityConfig('mississauga');
+        records = await fetchCustomSearchApiData(missConfig.apiEndpoints.searchApi, 'mississauga');
+        break;
+      }
+      case 'london': {
+        sourcesTried.push('london-api');
+        const ldnConfig = getCityConfig('london');
+        records = await fetchCustomSearchApiData(ldnConfig.apiEndpoints.searchApi, 'london');
         break;
       }
 
