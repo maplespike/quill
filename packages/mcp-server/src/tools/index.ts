@@ -20,6 +20,7 @@ import * as searchLmia from './search-lmia.js';
 import * as searchImmigration from './search-immigration.js';
 import * as searchScience from './search-science.js';
 import * as searchTribunals from './search-tribunals.js';
+import * as searchLode from './search-lode.js';
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
@@ -49,6 +50,7 @@ export function getAllTools(): ToolModule[] {
     searchImmigration,
     searchScience,
     searchTribunals,
+    searchLode,
     aiAsk,
     aiAnalyze,
     aiSearchSemantic,
