@@ -25,6 +25,13 @@ import {
   ingestAllRegional,
   ingestAllMedia,
   ingestAllRealtime,
+  ingestMunicipalLongTail,
+  ingestAllUniversities,
+  ingestAllUnions,
+  ingestAllFilings,
+  ingestAllCultureDeep,
+  ingestAllProvincialDeep,
+  ingestAllFederalDeep,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -121,6 +128,13 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   'regional-authorities': { name: "Regional Authorities Data (Peel, York, Durham, Metro Vancouver, CRD, etc.)", run: () => ingestAllRegional(), },
   'media': { name: "Media & Broadcasting Data (CRTC market reports, ownership charts, Canada Media Fund, Telefilm)", run: () => ingestAllMedia(), },
   'realtime': { name: "Real-Time Feeds (ECCC weather alerts, CBSA border wait times, parole board decisions)", run: () => ingestAllRealtime(), },
+  'municipal-long-tail': { name: "Municipal Long-Tail Federated Crawler (provincial CKAN portals)", run: () => ingestMunicipalLongTail(), },
+  'universities': { name: "Universities Deep (CUDO Ontario data, per-institution financials)", run: () => ingestAllUniversities(), },
+  'unions': { name: "Unions Deep (CUPE, Unifor, PSAC annual reports and financials)", run: () => ingestAllUnions(), },
+  'corporate-filings': { name: "Corporate Filings (SEDAR+, public company data)", run: () => ingestAllFilings(), },
+  'culture-deep': { name: "Culture & Heritage Deep (Canada Council grants, Canadian Heritage CKAN)", run: () => ingestAllCultureDeep(), },
+  'provincial-deep': { name: "Provincial Deep (SK, MB, NS, NB, NL, PE, YT, NT, NU targeted datasets)", run: () => ingestAllProvincialDeep(), },
+  'federal-deep': { name: "Federal Deep (CIHI wait times, ESDC datasets, PHAC surveillance)", run: () => ingestAllFederalDeep(), },
 };
 
 async function main(): Promise<void> {
