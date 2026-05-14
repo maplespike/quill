@@ -556,6 +556,7 @@
   async function init() {
     initTheme();
     setupThemeToggle();
+    initTicker();
     setupMobileMenu();
 
     const data = await loadI18n(currentLocale);
@@ -578,6 +579,38 @@
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
+  }
+
+  // ── Ticker: live data from API ──
+  async function initTicker() {
+    const ticker = document.querySelector('.ticker-inner');
+    if (!ticker) return; // Page doesn't have a ticker
+    try {
+      const resp = await fetch('http://127.0.0.1:8085/v1/health', { signal: AbortSignal.timeout(3000) });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const json = await resp.json();
+      const d = json.data || {};
+      const usage = d.usage || {};
+      const daily = usage.daily || 0;
+      const monthly = usage.monthly || 0;
+      const ts = d.timestamp ? new Date(d.timestamp) : new Date();
+      const timeStr = ts.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' });
+
+      const items = [
+        { text: 'API: ' + daily.toLocaleString() + ' requests today', color: '#10B981' },
+        { text: 'Monthly: ' + monthly.toLocaleString() + ' queries', color: '#0891B2' },
+        { text: 'Status: ' + (d.status === 'ok' ? 'Operational' : d.status), color: d.status === 'ok' ? '#10B981' : '#C23030' },
+        { text: 'Updated: ' + timeStr + ' UTC', color: '#D4A017' },
+        { text: daily > 0 ? daily + ' sources queried' : 'Pipeline active', color: daily > 0 ? '#C23030' : '#D4A017' },
+        { text: 'v' + (d.version || '0.1.0'), color: '#8B5CF6' },
+      ];
+      // Build ticker HTML (items repeated for seamless loop)
+      const html = items.map(i => `<span class="ticker-item"><span class="ticker-dot" style="background:${i.color};"></span> ${i.text}</span>`).join('');
+      ticker.innerHTML = html + html;
+    } catch (e) {
+      // API unavailable — show minimal honest message
+      ticker.innerHTML = '<span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Live data unavailable</span><span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Live data unavailable</span>';
+    }
   }
 
 })();

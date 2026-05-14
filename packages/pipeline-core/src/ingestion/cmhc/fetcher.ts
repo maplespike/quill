@@ -135,37 +135,11 @@ export async function fetchCmhcHousingStarts(
     // Attempt to fetch via CMHC CKAN
     const pkg = await fetchCkanPackage(CMHC_SOURCES.CKAN_PACKAGE_IDS.HOUSING_STARTS);
     if (pkg) {
-      const records: RawCmhcRecord[] = [{
-        metricName: `housing_starts_${year ?? 'all'}`,
-        metricType: 'housing_starts',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'units',
-        housingType: 'all',
-        sourceUrl: CMHC_SOURCES.HOUSING_STARTS,
-        sourceSystem: 'cmhc-housing-starts',
-      }];
-      return { records, errors };
+      // CKAN package found — actual data parsing is TBD; return empty for now
+      return { records: [], errors };
     }
 
-    // Fallback: return a placeholder
-    return {
-      records: [{
-        metricName: `housing_starts_${year ?? 'all'}`,
-        metricType: 'housing_starts',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'units',
-        housingType: 'all',
-        sourceUrl: CMHC_SOURCES.HOUSING_STARTS,
-        sourceSystem: 'cmhc-housing-starts',
-      }],
-      errors: [],
-    };
+    return { records: [], errors };
   } catch (err) {
     const msg = `CMHC housing starts fetch failed: ${(err as Error).message}`;
     errors.push(msg);
@@ -189,36 +163,11 @@ export async function fetchCmhcVacancyRates(
   try {
     const pkg = await fetchCkanPackage(CMHC_SOURCES.CKAN_PACKAGE_IDS.VACANCY_RATES);
     if (pkg) {
-      const records: RawCmhcRecord[] = [{
-        metricName: `vacancy_rate_${year ?? 'all'}`,
-        metricType: 'vacancy_rate',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'percent',
-        housingType: 'rental',
-        sourceUrl: CMHC_SOURCES.VACANCY_RATES,
-        sourceSystem: 'cmhc-vacancy-rates',
-      }];
-      return { records, errors };
+      // CKAN package found — actual data parsing is TBD; return empty for now
+      return { records: [], errors };
     }
 
-    return {
-      records: [{
-        metricName: `vacancy_rate_${year ?? 'all'}`,
-        metricType: 'vacancy_rate',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'percent',
-        housingType: 'rental',
-        sourceUrl: CMHC_SOURCES.VACANCY_RATES,
-        sourceSystem: 'cmhc-vacancy-rates',
-      }],
-      errors: [],
-    };
+    return { records: [], errors };
   } catch (err) {
     const msg = `CMHC vacancy rates fetch failed: ${(err as Error).message}`;
     errors.push(msg);
@@ -242,36 +191,11 @@ export async function fetchCmhcRentalRates(
   try {
     const pkg = await fetchCkanPackage(CMHC_SOURCES.CKAN_PACKAGE_IDS.RENTAL_MARKET);
     if (pkg) {
-      const records: RawCmhcRecord[] = [{
-        metricName: `rental_rate_${year ?? 'all'}`,
-        metricType: 'rental_rate',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'dollars',
-        housingType: 'rental',
-        sourceUrl: CMHC_SOURCES.RENTAL_MARKET,
-        sourceSystem: 'cmhc-rental-rates',
-      }];
-      return { records, errors };
+      // CKAN package found — actual data parsing is TBD; return empty for now
+      return { records: [], errors };
     }
 
-    return {
-      records: [{
-        metricName: `rental_rate_${year ?? 'all'}`,
-        metricType: 'rental_rate',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'dollars',
-        housingType: 'rental',
-        sourceUrl: CMHC_SOURCES.RENTAL_MARKET,
-        sourceSystem: 'cmhc-rental-rates',
-      }],
-      errors: [],
-    };
+    return { records: [], errors };
   } catch (err) {
     const msg = `CMHC rental rates fetch failed: ${(err as Error).message}`;
     errors.push(msg);
@@ -295,36 +219,11 @@ export async function fetchCmhcAffordability(
   try {
     const pkg = await fetchCkanPackage(CMHC_SOURCES.CKAN_PACKAGE_IDS.AFFORDABILITY);
     if (pkg) {
-      const records: RawCmhcRecord[] = [{
-        metricName: `affordability_${year ?? 'all'}`,
-        metricType: 'affordability',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'index',
-        housingType: 'all',
-        sourceUrl: CMHC_SOURCES.AFFORDABILITY,
-        sourceSystem: 'cmhc-affordability',
-      }];
-      return { records, errors };
+      // CKAN package found — actual data parsing is TBD; return empty for now
+      return { records: [], errors };
     }
 
-    return {
-      records: [{
-        metricName: `affordability_${year ?? 'all'}`,
-        metricType: 'affordability',
-        geographicArea: 'Canada',
-        geographicLevel: 'national',
-        period: year ? String(year) : 'latest',
-        value: null,
-        unit: 'index',
-        housingType: 'all',
-        sourceUrl: CMHC_SOURCES.AFFORDABILITY,
-        sourceSystem: 'cmhc-affordability',
-      }],
-      errors: [],
-    };
+    return { records: [], errors };
   } catch (err) {
     const msg = `CMHC affordability fetch failed: ${(err as Error).message}`;
     errors.push(msg);

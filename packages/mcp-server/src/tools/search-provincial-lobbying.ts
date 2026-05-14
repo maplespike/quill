@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search provincial lobbying registries across Canadian provinces.
@@ -62,18 +62,9 @@ export const handler: ToolHandler = async (args) => {
   const province = (args.province as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  // Try cached pipeline data first; fall back to live fetch if unavailable
-  let results: any[];
-  let total: number;
-  if (getPipelineData()) {
-    const result = searchRecords(['provincialLobbying'], query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(['provincialLobbying'], query, limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  const result = await searchGovData(query, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   // Apply province filter if provided
   let filteredResults = results;

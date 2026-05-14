@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search House of Commons and Senate committee evidence, transcripts, and proceedings.
@@ -64,18 +64,10 @@ export const handler: ToolHandler = async (args) => {
   if (chamber === 'house' || chamber === 'all') sourceKeys.push('hoc');
   if (chamber === 'senate' || chamber === 'all') sourceKeys.push('senate');
 
-  // Try cached pipeline data first; fall back to live fetch if unavailable
-  let results: any[];
-  let total: number;
-  if (getPipelineData()) {
-    const result = searchRecords(sourceKeys, query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(sourceKeys, query, limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  // Live search via API server
+  const result = await searchGovData(query, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   // Apply committee filter post-search
   let filteredResults = results;

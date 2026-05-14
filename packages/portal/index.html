@@ -76,23 +76,7 @@
 <!-- ═══ Ticker ═══ -->
 <div class="ticker">
   <div class="ticker-inner">
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 47 active</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-    <!-- Duplicate for seamless loop -->
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 47 active</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Loading live data...</span>
   </div>
 </div>
 
@@ -720,25 +704,15 @@
     els.forEach(el => observer.observe(el));
   }
 
-  // ── Live Stats from pipeline-data.json + API ──
+  // ── Live Stats from API ──
   async function fetchLiveStats() {
     const reqEl = document.getElementById('stats-requests');
     const uptimeEl = document.getElementById('stats-uptime');
     const sourcesEl = document.getElementById('stats-sources');
     const statusIndicator = document.getElementById('system-status');
     const freshnessIndicators = document.querySelectorAll('[data-freshness]');
-    // Try pipeline-data.json first for module/source counts
     try {
-      const pdResp = await fetch('assets/pipeline-data.json?t=' + Date.now(), { signal: AbortSignal.timeout(3000) });
-      if (pdResp.ok) {
-        const pd = await pdResp.json();
-        const sourceCount = pd.sources ? Object.keys(pd.sources).length : 13;
-        const totalRecords = pd.stats?.totalRecords || 0;
-        if (sourcesEl) sourcesEl.textContent = String(sourceCount || 0);
-      }
-    } catch {}
-    try {
-      const resp = await fetch('http://127.0.0.1:8085/v1/health');
+      const resp = await fetch('/api/v1/health');
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const data = await resp.json();
       if (data.success && data.data) {
@@ -746,7 +720,7 @@
         const monthly = usage.monthly || 0;
         const daily = usage.daily || 0;
         if (reqEl) reqEl.textContent = (monthly || daily || 0).toLocaleString();
-        if (uptimeEl) uptimeEl.textContent = data.data.status === 'ok' ? '99.9%' : 'Check';
+        if (uptimeEl) uptimeEl.textContent = data.data.status === 'ok' ? new Date(data.data.timestamp).toLocaleString('en-CA') : 'Check';
         if (sourcesEl && data.data.sources) sourcesEl.textContent = data.data.sources;
         // Update status indicator
         if (statusIndicator) {
@@ -761,17 +735,15 @@
             const source = el.dataset.freshness;
             if (source === 'parliament') el.textContent = 'Updated ' + (now.getHours() > 6 ? 'today' : 'yesterday') + ' 06:00 UTC';
             else if (source === 'lobbying') el.textContent = 'Updated ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            else el.textContent = 'Updated within 24h';
+            else el.textContent = '—';
           });
         }
       }
     } catch (e) {
-      // Fallback to simulated stats if API unavailable
-      if (reqEl) reqEl.textContent = '172,556';
-      if (uptimeEl) uptimeEl.textContent = '99.9%';
-      if (sourcesEl && (!sourcesEl.textContent || sourcesEl?.textContent === '—')) sourcesEl.textContent = '53';
-      if (statusIndicator) {
-        statusIndicator.innerHTML = '<span class="live-dot" style="background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span> ALL SYSTEMS OPERATIONAL';
+      // API unavailable — show honest state, no simulated stats
+      if (statusIndicator) statusIndicator.innerHTML = '<span class="live-dot" style="background:#6B7280;box-shadow:0 0 6px rgba(107,114,128,0.4);"></span> STATUS UNKNOWN';
+      if (freshnessIndicators.length > 0) {
+        freshnessIndicators.forEach(el => { el.textContent = '—'; });
       }
     }
   }

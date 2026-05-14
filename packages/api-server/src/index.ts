@@ -10,7 +10,7 @@
  * MapleSpike-quality response envelope with:
  *   - Quality meta (freshness, confidence, certainty)
  *   - Citation envelope
- *   - Token optimization params (_fields, _format, _limit, _mock, etc.)
+ *   - Token optimization params (_fields, _format, _limit, etc.)
  *   - Cache tracking (hit/miss)
  *   - Duration tracking
  */
@@ -33,8 +33,6 @@ import { D1Storage, KVCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { globalCache } from './cache.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
-import { getMockData } from './mock-data.js';
-import { MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES } from './mock-data.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
 
@@ -189,12 +187,6 @@ export async function handleRequest(
   const startTime = Date.now();
   const url = new URL(request.url);
   const queryOptions = parseQueryOptions(url);
-
-  // --- Mock mode ---
-  // If _mock=true, return pre-cached sample data without any upstream calls
-  if (queryOptions._mock) {
-    return handleMockRequest(request, url, queryOptions);
-  }
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
@@ -585,175 +577,6 @@ export async function handleRequest(
     }
     return response;
   }
-}
-
-/**
- * Handle a mock request — returns cached sample data, free, no upstream hit.
- * Route pattern: /v1/mock/:category
- */
-async function handleMockRequest(
-  request: Request,
-  url: URL,
-  queryOptions: QueryOptions,
-): Promise<Response> {
-  // Determine which data source to mock based on path
-  const pathParts = url.pathname.replace(/^\/v1\//, '').split('/');
-  const category = pathParts[0] === 'mock' && pathParts[1]
-    ? pathParts[1]
-    : pathParts[0] || 'committees';
-
-  // If no specific category, return all mock data
-  if (category === 'mock' || category === 'data') {
-    const mockData = MOCK_DATA_SOURCES;
-    const freshData = queryOptions._limit
-      ? Object.fromEntries(
-          Object.entries(mockData).map(([key, val]) => [
-            key,
-            Array.isArray(val) ? val.slice(0, queryOptions._limit) : val,
-          ]),
-        )
-      : mockData;
-
-    return jsonResponse({
-      success: true,
-      data: freshData,
-      text: null,
-      error: null,
-      meta: {
-        requestId: generateRequestId(),
-        timestamp: new Date().toISOString(),
-        version: '0.1.0',
-        usage: { periodCalls: 0, periodLimit: 1000, tier: 'free' },
-        agent: 'maplespike',
-        action: 'mock-data',
-        authMethod: 'none',
-        creditsCharged: 0,
-        cacheStatus: 'hit',
-        durationMs: 0,
-      },
-      quality: {
-        freshness_seconds: 0,
-        source_uptime_7d: 1.0,
-        confidence: 'high',
-        certainty_score: 0.99,
-      },
-      citation: {
-        source_name: 'MapleSpike Mock Data',
-        source_url: 'https://maplespike.ca/mock',
-        retrieved_at: new Date().toISOString(),
-        data_hash: 'sha256:mocked-sample-data-no-upstream-call',
-        license: 'Sample Data — Not for Production Use',
-        update_frequency: 'manual',
-      },
-    });
-  }
-
-  // Return specific category mock data
-  const mockArray = getMockData(category);
-  if (mockArray.length === 0) {
-    // If category not found, return ALL mock data as a fallback
-    const mockData = MOCK_DATA_SOURCES;
-    return jsonResponse({
-      success: true,
-      data: queryOptions._limit
-        ? Object.fromEntries(
-            Object.entries(mockData).map(([key, val]) => [
-              key,
-              Array.isArray(val) ? val.slice(0, queryOptions._limit) : val,
-            ]),
-          )
-        : mockData,
-      text: null,
-      error: null,
-      meta: {
-        requestId: generateRequestId(),
-        timestamp: new Date().toISOString(),
-        version: '0.1.0',
-        usage: { periodCalls: 0, periodLimit: 1000, tier: 'free' },
-        agent: 'maplespike',
-        action: 'mock-data',
-        authMethod: 'none',
-        creditsCharged: 0,
-        cacheStatus: 'hit',
-        durationMs: 0,
-      },
-      quality: {
-        freshness_seconds: 0,
-        source_uptime_7d: 1.0,
-        confidence: 'high',
-        certainty_score: 0.99,
-      },
-      citation: {
-        source_name: 'MapleSpike Mock Data',
-        source_url: 'https://maplespike.ca/mock',
-        retrieved_at: new Date().toISOString(),
-        data_hash: 'sha256:mocked-sample-data-no-upstream-call',
-        license: 'Sample Data — Not for Production Use',
-        update_frequency: 'manual',
-      },
-    });
-  }
-
-  let data = mockArray;
-
-  // Apply _limit
-  if (queryOptions._limit) {
-    data = data.slice(0, queryOptions._limit);
-  }
-
-  // Apply _fields
-  if (queryOptions._fields) {
-    data = data.map((item: unknown) => {
-      if (typeof item === 'object' && item !== null) {
-        const obj = item as Record<string, unknown>;
-        const filtered: Record<string, unknown> = {};
-        for (const key of queryOptions._fields!) {
-          if (key in obj) filtered[key] = obj[key];
-        }
-        return filtered;
-      }
-      return item;
-    });
-  }
-
-  // Apply _format compact
-  let finalData: unknown = data;
-  if (queryOptions._format === 'compact') {
-    finalData = compactObject(data);
-  }
-
-  return jsonResponse({
-    success: true,
-    data: finalData,
-    text: null,
-    error: null,
-    meta: {
-      requestId: generateRequestId(),
-      timestamp: new Date().toISOString(),
-      version: '0.1.0',
-      usage: { periodCalls: 0, periodLimit: 1000, tier: 'free' },
-      agent: 'maplespike',
-      action: `mock-${category}`,
-      authMethod: 'none',
-      creditsCharged: 0,
-      cacheStatus: 'hit',
-      durationMs: 0,
-    },
-    quality: {
-      freshness_seconds: 0,
-      source_uptime_7d: 1.0,
-      confidence: 'high',
-      certainty_score: 0.99,
-    },
-    citation: {
-      source_name: 'MapleSpike Mock Data',
-      source_url: 'https://maplespike.ca/mock',
-      retrieved_at: new Date().toISOString(),
-      data_hash: 'sha256:mocked-sample-data-no-upstream-call',
-      license: 'Sample Data — Not for Production Use',
-      update_frequency: 'manual',
-    },
-  });
 }
 
 /**
