@@ -102,7 +102,7 @@ Every new data module requires:
 
 - **Type:** pnpm monorepo with Turbo
 - **Node:** ≥18 (CI uses 22)
-- **Packages:** 8 (`packages/*`)
+- **Packages:** 11 (`packages/*`)
 - **Stack:** TypeScript, SQLite (better-sqlite3), Drizzle ORM, Node.js
 - **License:** AGPL-3.0 (pipeline-core) / MIT (others)
 
@@ -114,11 +114,15 @@ Every new data module requires:
 |---------|---------|-------------|
 | `pipeline-core` | Ingestion, verification, audit | `dist/index.js` |
 | `engine` | Entity resolution, graph, signals, briefs | `src/index.ts` |
-| `api-server` | REST API gateway (10+ endpoints) | `dist/index.js` |
+| `api-server` | REST API gateway (38 routes) | `dist/index.js` |
 | `mcp-server` | MCP protocol server (22 tools) | `dist/cli.js` |
 | `sdk` | TypeScript client library | `dist/index.js` |
+| `sdk-python` | Python client library | `maplespike/__init__.py` |
 | `portal` | Static HTML landing page | `.` (no build) |
+| `docs` | VitePress documentation site | `src/index.md` |
 | `pretext-civic` | React chart components (orphaned) | `src/index.ts` |
+| `legal-core` | Legal data SDK | `src/index.ts` |
+| `legislation` | Legislation XML parser | `src/index.ts` |
 
 ---
 
@@ -308,6 +312,12 @@ pnpm start
 | `GITHUB_REDIRECT_URI` | `http://localhost:8082/v1/auth/github/callback` | GitHub OAuth callback URL | auth/github.ts |
 | `MAPLESPIKE_DOMAIN` | `maplespike.ca` | Relying Party ID for WebAuthn/Passkeys | auth/passkey.ts |
 | `MAPLESPIKE_ORIGIN` | `https://maplespike.ca` | Allowed origin (derived from MAPLESPIKE_DOMAIN) | auth/passkey.ts |
+| `MAPLESPIKE_OAUTH_{NAME}_CLIENT_ID` | _(empty)_ | OAuth client ID for provider NAME | auth/oauth.ts |
+| `MAPLESPIKE_OAUTH_{NAME}_CLIENT_SECRET` | _(empty)_ | OAuth client secret | auth/oauth.ts |
+| `MAPLESPIKE_OAUTH_{NAME}_AUTHORIZE_URL` | _(auto)_ | Override OAuth authorize endpoint (self-hosted providers like Casdoor) | auth/oauth.ts |
+| `MAPLESPIKE_OAUTH_{NAME}_TOKEN_URL` | _(auto)_ | Override OAuth token endpoint | auth/oauth.ts |
+| `MAPLESPIKE_OAUTH_{NAME}_USER_INFO_URL` | _(auto)_ | Override user info endpoint | auth/oauth.ts |
+| `MAPLESPIKE_OAUTH_{NAME}_SCOPE` | `openid email profile` | Override OAuth scopes | auth/oauth.ts |
 | `MAPLESPIKE_OAUTH_REDIRECT_BASE` | `http://localhost:8082/v1/auth/oauth` | Base URL for OAuth redirects | auth/oauth.ts |
 
 ### Pipeline CLI
