@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Configuration
+ * MapleSpike — Configuration
  *
  * Central config derived from environment / wrangler vars.
  */
@@ -12,14 +12,16 @@ export interface AppConfig {
   environment: 'development' | 'production';
   aiEndpoint: string;
   aiModel: string;
+  jwtSecret: string;
 }
 
 export function loadConfig(env: Env | Record<string, string | undefined>): AppConfig {
   return {
     version: env.CIVINT_VERSION as string || '0.1.0',
-    name: env.CIVINT_NAME as string || 'MapleSpike Canada',
+    name: env.CIVINT_NAME as string || 'MapleSpike',
     environment: (env.ENVIRONMENT as 'development' | 'production') || 'development',
     aiEndpoint: env.AI_ENDPOINT as string || 'http://127.0.0.1:8080/v1',
     aiModel: env.AI_MODEL as string || 'qwen3.5-27b',
+    jwtSecret: env.JWT_SECRET as string || 'maplespike-jwt-secret-change-in-production',
   };
 }

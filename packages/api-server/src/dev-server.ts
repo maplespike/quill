@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Development Server
+ * MapleSpike — Development Server
  *
  * Node.js HTTP server that mounts the same route handlers as the Worker.
  * Supports in-memory (default) and SQLite storage backends.
@@ -25,9 +25,10 @@ const CIVINT_DB_PATH = process.env.CIVINT_DB_PATH || './maplespike.db';
 const env = {
   ENVIRONMENT: 'development',
   CIVINT_VERSION: '0.1.0',
-  CIVINT_NAME: 'MapleSpike Canada (dev)',
+  CIVINT_NAME: 'MapleSpike (dev)',
   AI_ENDPOINT,
   AI_MODEL,
+  JWT_SECRET: process.env.JWT_SECRET || 'maplespike-jwt-secret-change-in-production',
 };
 
 let db: MapleSpikeStorage;
@@ -44,7 +45,7 @@ if (CIVINT_STORAGE === 'sqlite') {
   cache = new MemoryCache();
 
   // Seed a dev tenant with known API key
-  // Usage: curl -H "Authorization: Bearer maplespike-dev-key" http://localhost:8081/v1/health
+  // Usage: curl -H "Authorization: Bearer maplespike-dev-key" http://localhost:8082/v1/health
   memDb.registerTenant(
     {
       id: 'dev-tenant',
@@ -123,8 +124,11 @@ if (!verifyStorageHealth()) {
 }
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  MapleSpike Canada API (dev)`);
-  console.log(`  ${'─'.repeat(40)}`);
+  const devKey = process.env.DEV_API_KEY || 'maplespike-dev-key';
+  const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
+
+  console.log(`\n  MapleSpike API (dev)`);
+  console.log(`  ${'─'.repeat(45)}`);
   console.log(`  Server:    http://0.0.0.0:${PORT}/v1`);
   console.log(`  Health:    http://localhost:${PORT}/v1/health`);
   console.log(`  Spec:      http://localhost:${PORT}/v1/openapi.json`);
@@ -133,8 +137,23 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`  DB Path:   ${CIVINT_DB_PATH}`);
   }
   console.log(`  AI:        ${AI_ENDPOINT} (${AI_MODEL})`);
-  console.log(`\n  Auth:      maplespike-dev-key`);
-  console.log(`  Example:   curl -H "Authorization: Bearer maplespike-dev-key" http://localhost:${PORT}/v1/health`);
-  console.log(`  Register:  curl -X POST http://localhost:${PORT}/v1/register -H "Content-Type: application/json" -d '{"name":"My Org","email":"user@example.com"}'`);
-  console.log(`  ${'─'.repeat(40)}\n`);
+  console.log(`  JWT:       ${jwtSecret}`);
+  console.log(``);
+  console.log(`  Authentication:`);
+  console.log(`  ${'─'.repeat(45)}`);
+  console.log(`  1. API Key (legacy):`);
+  console.log(`     curl -H "Authorization: Bearer ${devKey}" http://localhost:${PORT}/v1/health`);
+  console.log(`     curl -H "X-API-Key: ${devKey}" http://localhost:${PORT}/v1/health`);
+  console.log(``);
+  console.log(`  2. GitHub OAuth (if configured):`);
+  console.log(`     Open http://localhost:${PORT}/v1/auth/github in your browser`);
+  console.log(``);
+  console.log(`  3. JWT Token:`);
+  console.log(`     curl -H "Authorization: Bearer <jwt>" http://localhost:${PORT}/v1/auth/me`);
+  console.log(``);
+  console.log(`  4. Registration:`);
+  console.log(`     curl -X POST http://localhost:${PORT}/v1/register \\`);
+  console.log(`       -H "Content-Type: application/json" \\`);
+  console.log(`       -d '{"name":"My Org","email":"user@example.com"}'`);
+  console.log(`  ${'─'.repeat(45)}\n`);
 });

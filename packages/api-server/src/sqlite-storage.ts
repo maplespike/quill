@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — SQLite Storage Backend
+ * MapleSpike — SQLite Storage Backend
  *
  * Implements MapleSpikeStorage using better-sqlite3 for local/container deployments.
  * Table schemas match the D1 schema from schema.sql exactly.

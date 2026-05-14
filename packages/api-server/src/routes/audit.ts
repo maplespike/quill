@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Audit Endpoints
+ * MapleSpike — Audit Endpoints
  *
  * POST /v1/audit/query — Query audit log (Business tier+)
  */

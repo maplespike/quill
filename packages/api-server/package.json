@@ -1,7 +1,7 @@
 {
   "name": "@maplespike/api-server",
   "version": "0.1.0",
-  "description": "MapleSpike Canada API Gateway — multi-tenant REST gateway wrapping pipeline-core",
+  "description": "MapleSpike API Gateway — multi-tenant REST gateway wrapping pipeline-core",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

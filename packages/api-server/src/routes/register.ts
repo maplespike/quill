@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Registration / Self-Service Routes
+ * MapleSpike — Registration / Self-Service Routes
  *
  * POST /v1/register — Creates a new tenant + API key
  * GET  /v1/me      — Returns current tenant info + usage (requires auth)

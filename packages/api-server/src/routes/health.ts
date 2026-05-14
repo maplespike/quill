@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — GET /v1/health
+ * MapleSpike — GET /v1/health
  */
 
 import type { RouteHandler } from '../types.js';

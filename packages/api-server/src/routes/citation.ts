@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Citation Endpoint
+ * MapleSpike — Citation Endpoint
  *
  * GET /v1/citation/:id — Retrieve and verify citation hash
  */

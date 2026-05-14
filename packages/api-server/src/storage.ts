@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Storage Abstraction
+ * MapleSpike — Storage Abstraction
  *
  * Provides D1-backed and in-memory storage implementations
  * of the MapleSpikeStorage interface.

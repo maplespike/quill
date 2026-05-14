@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Government Data Endpoints
+ * MapleSpike — Government Data Endpoints
  *
  * GET /v1/gov/releases — Government data releases
  * GET /v1/gov/search — Search across all gov data sources

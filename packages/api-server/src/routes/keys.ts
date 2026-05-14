@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — API Key Management Endpoints
+ * MapleSpike — API Key Management Endpoints
  *
  * GET    /v1/keys       — List API keys for the current tenant
  * POST   /v1/keys       — Create a new API key
