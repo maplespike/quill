@@ -22,10 +22,10 @@ import { TIER_LIMITS } from './types.js';
 /*  Default Citation                                                   */
 /* ------------------------------------------------------------------ */
 
-const OGL_C_CITATION: CitationMeta = {
+export const OGL_C_CITATION: CitationMeta = {
   source_name: 'Open Government Licence – Canada',
   source_url: 'https://open.canada.ca/en/open-government-licence-canada',
-  retrieved_at: new Date().toISOString(),
+  get retrieved_at(): string { return new Date().toISOString(); },
   data_hash: '',
   license: 'https://open.canada.ca/en/open-government-licence-canada',
   update_frequency: 'daily',
