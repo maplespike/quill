@@ -4,36 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Docs — MapleSpike</title>
-  <meta name="description" content="MapleSpike documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, pricing, and FAQ.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <meta name="description" content="MapleSpike documentation — quickstart, API reference, MCP setup, pipeline architecture.">
+
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo_v2_00002_.png">
-  <link rel="apple-touch-icon" href="assets/maplespike_logo_v2_00002_.png">
-  <meta property="og:title" content="Docs — MapleSpike">
-  <meta property="og:description" content="MapleSpike documentation — quickstart guide, MCP server setup for AI tools, REST API reference, pipeline modules, and pricing.">
-  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo_v2_00002_.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://maplespike.ca/docs.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Docs — MapleSpike">
-  <meta name="twitter:description" content="MapleSpike documentation — quickstart, MCP setup, API reference, pricing.">
-  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo_v2_00002_.png">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "MapleSpike",
-    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
-    "url": "https://maplespike.ca",
-    "foundingDate": "2025",
-    "funder": { "@type": "Organization", "name": "Reverb256" }
-  }
-  </script>
+
+
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#C23030">
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
 
@@ -41,191 +24,182 @@
   <div class="nav-inner">
     <a href="index.html" class="logo">
       <span class="logo-icon">C</span>
-      MapleSpike
+      <span>MapleSpike</span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
-      <li><a href="docs.html" class="active" data-i18n="nav.howItWorks">How it Works</a></li>
-      <li><a href="agents.html" data-i18n="nav.forAiTools">For AI Tools</a></li>
-      <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
-      <li><a href="dashboard.html" class="btn btn-sm btn-primary">Dashboard</a></li>
-      <li><button class="lang-toggle" data-lang="fr-CA">FR</button></li>
-      <li><button class="theme-toggle"></button></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="signal.html"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
+      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
+      <li><a href="#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html" class="active"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
-    <button class="nav-mobile-toggle">☰</button>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
   </div>
 </nav>
 
-<div class="nav-mobile-overlay"></div>
+<div class="docs-page" style="max-width:860px;">
 
-<div class="docs-page">
-  <h1>How MapleSpike works</h1>
-  <p>MapleSpike is a data pipeline that collects Canadian government information from official public sources every day — committee meetings, lobbying reports, procurement contracts — and connects the dots so you can see the full picture.</p>
+  <div class="section-bracket fade-in-init s1">
+    <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Quickstart</span>
+    <span class="badge badge-green" style="margin-left:8px;font-size:0.65rem;">LIVE</span>
+  </div>
+  <h1 class="fade-in-init s2">One API key.<br>Every Canadian government source. Every response cited.</h1>
 
-  <h2>What we track</h2>
-
-  <h3>🏛️ Parliamentary Committees</h3>
-  <p>All 34 House of Commons committees are ingested daily from <a href="https://www.ourcommons.ca">ourcommons.ca</a>. Every meeting transcript, witness list, and committee report is parsed into structured data.</p>
-  <p style="background:var(--accent-dim);padding:16px 20px;border-radius:8px;border-left:3px solid var(--accent);margin-top:12px;">
-    <strong>🔒 <span data-term="in-camera">In-camera detection</span>:</strong> The evidence XML schema includes an <code>&lt;InCameraNote/&gt;</code> field — when a committee goes closed-door, this field is populated. MapleSpike flags these meetings automatically so you know which proceedings are happening off the public record.
-  </p>
-
-  <h3>💰 Lobbying Registry</h3>
-  <p>The Office of the Commissioner of Lobbying publishes monthly CSV dumps of every registered <span data-term="lobbying">lobbying</span> communication. MapleSpike ingests these from the <a href="https://open.canada.ca/data/en/dataset/lobbyists-registry">open.canada.ca CKAN portal</a> — showing which companies are meeting with which government departments, on what topics, and how much they're spending.</p>
-
-  <h3>📄 Government Procurement</h3>
-  <p>Contract awards from <a href="https://canadabuys.canada.ca">CanadaBuys</a> and proactive disclosure datasets are fetched daily. Each contract is tagged with whether it was <span data-term="sole-source">sole-source</span> or competitive. Large sole-source awards are flagged for review.</p>
-
-  <h3>👔 Executive Statements</h3>
-  <p>We track 17 high-impact Canadian executives across banking, telecom, and media — the CEOs of RBC, Telus, Bell, Rogers, CBC, Postmedia, Globe and Mail, and more. Their public statements, press releases, and committee appearances are collected from company IR feeds and cross-referenced with our committee data.</p>
-
-  <h3>🌐 Influence Actors</h3>
-  <p>34 <span data-term="influence-actor">influence actors</span> — international organizations, NGOs, think tanks, and consultancies — are monitored from the UN and WEF to McKinsey and the CCPA. We track their government funding, committee appearances, lobbying activities, and CRA charity data from <a href="https://apps.cra-arc.gc.ca">charities.gc.ca</a>.</p>
-
-  <h3>📜 Canada Gazette</h3>
-  <p>Regulatory activity from <a href="https://www.gazette.gc.ca">gazette.gc.ca</a> is ingested daily. Part I captures proposed regulations open for public comment; Part II contains enacted regulations and orders-in-council. Each entry is parsed for the regulating department, legal authority, and comment deadlines so you can track regulatory changes before they take effect.</p>
-
-  <h3>🏛️ Senate Committees</h3>
-  <p>All 20 standing Senate committees are ingested from <a href="https://sencanada.ca">sencanada.ca</a> using the same XML evidence schema as the House. Meeting transcripts, witness lists, and reports are normalized to the same committee data model, enabling cross-chamber analysis of witness appearances and policy topics.</p>
-
-  <h3>👑 GIC Appointments</h3>
-  <p>Governor-in-Council appointments — the federal patronage system — are collected from the <a href="https://open.canada.ca/data/en/dataset/governor-in-council-appointments">open.canada.ca GIC dataset</a>. Every order-in-council appointment to boards, commissions, tribunals, and Crown corporations is tracked, including position, term length, remuneration, and location data for patronage mapping.</p>
-
-  <h3>🗳️ Election Advertising</h3>
-  <p>Third-party election advertising spending is collected from <a href="https://www.elections.ca">Elections Canada</a>. The module tracks registered third parties, their advertising expenses during election periods, and donor contributions — shedding light on <span data-term="dark-money">dark money</span> in Canadian federal elections.</p>
-
-  <h3>🏢 Provincial Lobbying</h3>
-  <p>The Ontario lobbying registry is ingested daily from <a href="https://lobbying.ontario.ca">lobbying.ontario.ca</a> and normalized to the federal lobbying schema. This gives a combined federal-provincial lobbying view, with entity resolution linking lobbyists and organizations across both jurisdictions.</p>
-
-  <h3>📋 Oversight Bodies</h3>
-  <p>Five oversight streams are monitored: <a href="https://www.oag-bvg.gc.ca">Office of the Auditor General (OAG)</a> performance audits, <a href="https://www.pbo-dpb.gc.ca">Parliamentary Budget Officer (PBO)</a> cost estimates, <a href="https://ciec-ccie.gc.ca">Ethics Commissioner</a> investigation reports and compliance agreements, <a href="https://www.competitionbureau.gc.ca">Competition Bureau</a> merger reviews and enforcement actions, and <a href="https://crtc.gc.ca">CRTC</a> decisions and policy rulings. Each is fetched from the respective body's publications feed.</p>
-
-  <h3>⚖️ Court Decisions</h3>
-  <p>Federal Court, Supreme Court of Canada, and Tax Court decisions are ingested via the <a href="https://canlii.ca">CanLII API</a>. Every decision is parsed for case metadata (docket number, court, judge, parties) and full-text content, enabling cross-referencing of legal challenges against government actions, regulations, and procurement disputes.</p>
-
-  <h3>👷 Labour Market Impact Assessments (LMIA)</h3>
-  <p>Employment and Social Development Canada publishes quarterly lists of every employer who received a positive or negative LMIA through the Temporary Foreign Worker Program. MapleSpike ingests these from the <a href="https://open.canada.ca/data/en/dataset/90fed587-1364-4f33-a9ee-208181dc0b97">open.canada.ca CKAN portal</a> — showing which companies are hiring foreign workers, in which occupations, at what wage levels, and in what regions. Data available from 2014 to present.</p>
-  <p style="background:var(--accent-dim);padding:12px 16px;border-radius:6px;border-left:3px solid var(--accent);margin-top:8px;">
-    <strong>Cross-reference:</strong> LMIA records can be matched against the corporate module (which tracked companies are using TFW programs?) and procurement (companies with government contracts AND LMIA approvals — a potential labour cost story).
-  </p>
-
-  <h2>How the pipeline works</h2>
-
-  <p>All 13 data source modules feed into a unified 4-stage pipeline:</p>
-
-  <ol style="color:var(--text-secondary);line-height:1.9;">
-    <li><strong>Ingestion</strong> — Each of the 13 modules has a dedicated fetcher that downloads data from its government source (XML, CSV, RSS, JSON, HTML, API) and funnels it into the <span data-term="pipeline">pipeline</span></li>
-    <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records (committees, lobbying records, contracts, statements, regulations, appointments, court decisions, etc.)</li>
-    <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent <span data-term="citation">citation</span> verification and <span data-term="provenance">provenance</span> tracking</li>
-    <li><strong>Cross-referencing</strong> — The <span data-term="entity-resolution">entity resolution</span> engine links people and organizations across all 13 sources, detecting patterns (revolving doors, lobbying overlaps, regulatory capture, etc.) that become <span data-term="signal">signals</span></li>
-  </ol>
-
-  <h2>Accessing the data</h2>
-
-  <h3>Dashboard</h3>
-  <p>The <a href="dashboard.html">MapleSpike Dashboard</a> gives you a live view of all pipelines, recent signals, and searchable data across all sources. No account needed — it's open to anyone on the local network.</p>
-
-  <h3>MCP Server (for AI tools)</h3>
-  <p>MapleSpike speaks the MCP protocol, which means you can connect it to ChatGPT, Claude, Gemini, Grok, or any MCP-compatible client. See the <a href="agents.html">AI Tools page</a> for setup instructions per platform.</p>
-
-  <h3>CLI</h3>
-  <p>Each ingestion module has a command-line interface for manual runs and scripting:</p>
-  <div class="code-block">
-pnpm --filter @maplespike/pipeline-core committees --ingest-all<br>
-pnpm --filter @maplespike/pipeline-core senate --ingest-all<br>
-pnpm --filter @maplespike/pipeline-core gazette --ingest-all<br>
-pnpm --filter @maplespike/pipeline-core lobbying --ingest<br>
-pnpm --filter @maplespike/pipeline-core provincial-lobbying --ingest<br>
-pnpm --filter @maplespike/pipeline-core procurement --check-sole-source<br>
-pnpm --filter @maplespike/pipeline-core gic-appointments --ingest<br>
-pnpm --filter @maplespike/pipeline-core election-ads --ingest<br>
-pnpm --filter @maplespike/pipeline-core oversight --ingest-all<br>
-pnpm --filter @maplespike/pipeline-core courts --ingest<br>
-pnpm --filter @maplespike/pipeline-core influence --ingest-all<br>
-pnpm --filter @maplespike/engine sweep --full
+  <div class="code-block" style="margin:24px 0;">
+<span style="color:var(--text-muted);">// 30-second quickstart</span><br><br>
+<span style="color:var(--text-muted);">$</span> npm install @maplespike/sdk<br><br>
+<span style="color:var(--text-muted);">// Initialize and query</span><br>
+import { MapleSpike } from <span style="color:#D4A017;">'@maplespike/sdk'</span><br>
+const ms = new MapleSpike({ apiKey: <span style="color:#D4A017;">'ms_live_...'</span> })<br><br>
+const result = await ms<br>
+&nbsp;&nbsp;.agent(<span style="color:#D4A017;">'committees'</span>)<br>
+&nbsp;&nbsp;.action(<span style="color:#D4A017;">'search'</span>, { query: <span style="color:#D4A017;">'housing'</span> })<br><br>
+console.log(result.data)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--text-muted);">// structured data</span><br>
+console.log(result.quality)&nbsp;&nbsp;<span style="color:var(--text-muted);">// freshness, confidence</span><br>
+console.log(result.citation)&nbsp;<span style="color:var(--text-muted);">// source_url, license, hash</span>
   </div>
 
-  <h3>REST API</h3>
-  <p>The API server exposes data over HTTP at <code>https://maplespike.lan/api/v1/</code> (internal network). OpenAPI spec available.</p>
+  <div class="info-box" style="background:var(--accent-dim);border-left:3px solid var(--accent);padding:12px 16px;border-radius:var(--radius-sm);margin:20px 0;">
+    <strong style="color:var(--accent);">No key? Use mock mode.</strong>
+    <span style="color:var(--text-secondary);font-size:0.9rem;"> Pass <code style="font-size:0.85em;">_mock=true</code> on any API endpoint to get sample data. Free on every plan, no upstream calls.</span>
+  </div>
 
-  <h2>Data sources</h2>
+  <p style="margin-top:24px;">Or with curl:</p>
+  <div class="code-block">
+<span style="color:var(--text-muted);">$</span> curl https://api.maplespike.ca/v1/gov/search \<br>
+&nbsp;&nbsp;-H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> \<br>
+&nbsp;&nbsp;-d <span style="color:#D4A017;">'{"query":"housing","_limit":3}'</span><br><br>
+{<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"success"</span>: true,<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"data"</span>: { <span style="color:#D4A017;">"committees"</span>: [...] },<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"quality"</span>: { <span style="color:#D4A017;">"freshness_seconds"</span>: 47, <span style="color:#D4A017;">"confidence"</span>: <span style="color:#D4A017;">"high"</span> },<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: { <span style="color:#D4A017;">"license"</span>: <span style="color:#D4A017;">"OGL-C"</span>, <span style="color:#D4A017;">"data_hash"</span>: <span style="color:#D4A017;">"sha256:a1f3..."</span> }<br>
+}
+  </div>
 
-  <table>
-    <tr><th>Source</th><th>Format</th><th>Update frequency</th><th>Link</th></tr>
-    <tr><td>House of Commons committees</td><td>XML</td><td>Daily</td><td><a href="https://www.ourcommons.ca">ourcommons.ca</a></td></tr>
-    <tr><td>Senate committees</td><td>XML</td><td>Daily</td><td><a href="https://sencanada.ca">sencanada.ca</a></td></tr>
-    <tr><td>Canada Gazette (Part I & II)</td><td>XML/HTML</td><td>Daily</td><td><a href="https://www.gazette.gc.ca">gazette.gc.ca</a></td></tr>
-    <tr><td>GIC Appointments</td><td>JSON/CSV</td><td>Weekly</td><td><a href="https://open.canada.ca/data/en/dataset/governor-in-council-appointments">open.canada.ca</a></td></tr>
-    <tr><td>Federal Lobbying Registry</td><td>CSV</td><td>Monthly</td><td><a href="https://lobbycanada.gc.ca">lobbycanada.gc.ca</a></td></tr>
-    <tr><td>Ontario Lobbying Registry</td><td>CSV/JSON</td><td>Daily</td><td><a href="https://lobbying.ontario.ca">lobbying.ontario.ca</a></td></tr>
-    <tr><td>Procurement contracts</td><td>JSON/CSV</td><td>Daily</td><td><a href="https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b">open.canada.ca</a></td></tr>
-    <tr><td>CanadaBuys tenders</td><td>RSS</td><td>Real-time</td><td><a href="https://canadabuys.canada.ca">canadabuys.canada.ca</a></td></tr>
-    <tr><td>Elections Canada (3rd-party advertising)</td><td>CSV</td><td>Per election period</td><td><a href="https://www.elections.ca">elections.ca</a></td></tr>
-    <tr><td>Office of the Auditor General</td><td>PDF/HTML</td><td>Weekly</td><td><a href="https://www.oag-bvg.gc.ca">oag-bvg.gc.ca</a></td></tr>
-    <tr><td>Parliamentary Budget Officer</td><td>PDF/HTML</td><td>Varies</td><td><a href="https://www.pbo-dpb.gc.ca">pbo-dpb.gc.ca</a></td></tr>
-    <tr><td>Ethics Commissioner</td><td>HTML</td><td>Varies</td><td><a href="https://ciec-ccie.gc.ca">ciec-ccie.gc.ca</a></td></tr>
-    <tr><td>Competition Bureau</td><td>HTML</td><td>Weekly</td><td><a href="https://www.competitionbureau.gc.ca">competitionbureau.gc.ca</a></td></tr>
-    <tr><td>CRTC decisions</td><td>HTML/XML</td><td>Daily</td><td><a href="https://crtc.gc.ca">crtc.gc.ca</a></td></tr>
-    <tr><td>Court decisions (CanLII)</td><td>API (JSON)</td><td>Daily</td><td><a href="https://canlii.ca">canlii.ca</a></td></tr>
-    <tr><td>CRA Charities</td><td>HTML/CSV</td><td>Weekly</td><td><a href="https://apps.cra-arc.gc.ca">cra-arc.gc.ca</a></td></tr>
-    <tr><td>Grants and contributions</td><td>JSON</td><td>Quarterly</td><td><a href="https://open.canada.ca/data/en/dataset/432527ab-7aac-45b5-81d6-7597107a7013">open.canada.ca</a></td></tr>
+  <!-- Pipeline -->
+  <div class="section-bracket fade-in-init s3" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Pipeline</span>
+  </div>
+  <h2>How data flows</h2>
+  <p>Each of the <strong>28 data modules</strong> follows the same 4-stage pipeline:</p>
+  <ol style="color:var(--text-secondary);line-height:1.9;">
+    <li><strong>Ingestion</strong> — Dedicated fetcher downloads from each source (XML, CSV, RSS, JSON, HTML)</li>
+    <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records with consistent fields</li>
+    <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent citation verification</li>
+    <li><strong>Cross-referencing</strong> — Entity resolution links people and organizations across all sources, detecting patterns that become signals</li>
+  </ol>
+  <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">CLI: <code style="font-family:var(--font-mono);">pnpm --filter @maplespike/engine sweep --full</code> — runs all modules.</p>
+
+  <!-- API Reference -->
+  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">02</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
+  </div>
+
+  <h2>Endpoints</h2>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Method</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Path</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Description</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/health</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">System status and usage</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/gov/search?query=</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Search government sources</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/citation/:hash</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Verify a data point by hash</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/usage</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Usage and quota</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">List API keys</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">POST</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Create API key</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/auth/me</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Current user profile</td></tr>
   </table>
 
-  <h2>Architecture</h2>
+  <h2>Response envelope</h2>
+  <p>Every endpoint returns the same structure:</p>
+  <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"success"</span>: true,<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"data"</span>: { /* structured result */ },<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"meta"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"authMethod"</span>: <span style="color:#0891B2;">"api-key"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"creditsCharged"</span>: 0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"cacheStatus"</span>: <span style="color:#0891B2;">"hit"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"durationMs"</span>: 1<br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"quality"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"freshness_seconds"</span>: 47,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"confidence"</span>: <span style="color:#0891B2;">"high"</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span><br>
+&nbsp;&nbsp;}<br>
+}
+  </div>
 
-  <p>MapleSpike runs on your own K3s cluster. The data never leaves your infrastructure. All code is open source under AGPL-3.0 / MIT.</p>
+  <h2>Token optimization</h2>
+  <p>Trim responses for AI agents — every token saved is money earned:</p>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Param</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Type</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Effect</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_fields</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">string[]</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Return only named fields</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_format</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">full|compact</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">compact strips nulls</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_limit</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">number</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Cap array results</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_mock</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">true</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Sample data, free, no upstream hit</td></tr>
+  </table>
 
+  <!-- MCP Setup -->
+  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">MCP Setup</span>
+    <span class="badge badge-cyan" style="margin-left:8px;font-size:0.65rem;">18 TOOLS</span>
+  </div>
+  <h2>Connect from any AI client</h2>
+  <p>MapleSpike exposes <strong>18 tools</strong> (15 data + 3 AI) through the Model Context Protocol. Add this to your MCP client config:</p>
+  <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"maplespike"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"command"</span>: <span style="color:#0891B2;">"npx"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"args"</span>: [<span style="color:#0891B2;">"@maplespike/mcp-server"</span>]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+  </div>
+  <p style="margin-top:8px;">Works with Claude Desktop, ChatGPT, Cursor, Windsurf, Gemini, and any MCP-compatible client. See the <a href="agents.html" style="color:var(--accent);">AI Tools page</a> for per-platform setup.</p>
+
+  <!-- Architecture -->
+  <div class="section-bracket fade-in-init s6" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Architecture</span>
+  </div>
+  <h2>Open source, self-hosted</h2>
+  <p>Everything runs on your own K3s cluster. No data leaves your infrastructure.</p>
   <div class="code-block">
 maplespike/<br>
 ├── packages/<br>
-│   ├── pipeline-core/    # Data ingestion, verification, audit<br>
-│   ├── engine/            # Entity resolution, graph, signals, briefs<br>
-│   ├── api-server/        # REST API gateway<br>
-│   ├── mcp-server/        # MCP protocol server for AI tools<br>
-│   ├── portal/            # This website (static HTML)<br>
-│   └── pretext-civic/     # Chart component library<br>
-├── flake.nix              # Nix build for container deployment<br>
-└── ROADMAP.md             # Full development roadmap
+│   ├── pipeline-core/&nbsp;&nbsp;# 28 ingestion modules + verification + audit<br>
+│   ├── engine/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Entity resolution, graph, signals, briefs<br>
+│   ├── api-server/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# REST API with Katzilla-quality envelope<br>
+│   ├── mcp-server/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 18 MCP tools for AI agents<br>
+│   ├── sdk/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# TypeScript SDK (zero deps)<br>
+│   ├── sdk-python/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Python SDK (zero deps)<br>
+│   ├── portal/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# This dashboard (static HTML)<br>
+│   └── pretext-civic/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Chart component library<br>
+└── flake.nix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Nix build for container deployment
   </div>
 
-  <p>The pipeline runs via cron jobs on the K3s cluster, orchestrated through the engine's sweep scheduler. Each module is independent — you can run committees without procurement, or influence without lobbying.</p>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Layer</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Stack</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Ingestion</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">TypeScript, Node.js, undici</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">AI Inference</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Local AI Gateway — 122 models</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Vector Search</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Qdrant (maplespike collection, 2048-dim)</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">API</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Node.js HTTP, in-memory cache</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">SDKs</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">TypeScript + Python, zero deps</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Infrastructure</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">K3s on NixOS, Caddy reverse proxy</td></tr>
+  </table>
 
-  <h2>For developers</h2>
-
-  <p>MapleSpike is open source and self-hosted. The entire stack runs on your own infrastructure.</p>
-
-  <h3>Repository</h3>
-  <p><a href="https://github.com/reverb256/maplespike">github.com/reverb256/maplespike</a> — monorepo with all packages.</p>
-
-  <h3>Quick start</h3>
-  <div class="code-block">
-git clone https://github.com/reverb256/maplespike<br>
-cd maplespike<br>
-pnpm install<br>
-pnpm run build
-  </div>
-
-  <h3>Run an ingestion module</h3>
-  <div class="code-block">
-pnpm --filter @maplespike/pipeline-core build<br>
-node -e "import { ingestAllCommittees } from '@maplespike/pipeline-core';<br>
-&nbsp;&nbsp;ingestAllCommittees(null, { onProgress: console.log });"
-  </div>
-
-  <h3>MCP server (standalone)</h3>
-  <div class="code-block">
-cd packages/mcp-server<br>
-pnpm start
-  </div>
-
-  <h3>Engine sweep</h3>
-  <div class="code-block">
-pnpm --filter @maplespike/engine build<br>
-pnpm --filter @maplespike/engine sweep --full
-  </div>
-
-  <h3>License</h3>
-  <p>Core pipeline: AGPL-3.0. MCP server, engine, portal: MIT. Government data retains its original license (primarily OGL-C).</p>
+  <p style="margin-top:16px;">Open source: <a href="https://github.com/reverb256/maplespike" style="color:var(--accent);">github.com/reverb256/maplespike</a> — AGPL-3.0 (pipeline) / MIT (SDKs, portal).</p>
 
 </div>
 
@@ -233,42 +207,40 @@ pnpm --filter @maplespike/engine sweep --full
   <div class="footer-inner">
     <div class="brand">
       <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
-      <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
-      MapleSpike
+        <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
+        MapleSpike
       </a>
-      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
+      <p>Canadian public data infrastructure — for journalists, researchers, and AI agents that cite.</p>
     </div>
     <div>
       <h4>Product</h4>
       <ul>
-        <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
-        <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
-        <li><a href="docs.html">How it Works</a></li>
+        <li><a href="explorer.html">Data Explorer</a></li>
+        <li><a href="workspace.html">API Keys</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="signal.html">Monitors</a></li>
       </ul>
     </div>
     <div>
       <h4>AI Tools</h4>
       <ul>
-        <li><a href="agents.html">ChatGPT Setup</a></li>
-        <li><a href="agents.html">Claude Setup</a></li>
-        <li><a href="agents.html">Gemini Setup</a></li>
-        <li><a href="agents.html">Grok Setup</a></li>
+        <li><a href="agents.html">MCP Setup</a></li>
+        <li><a href="ask.html">✦ Ask (AI Chat)</a></li>
+        <li><a href="docs.html">Documentation</a></li>
       </ul>
     </div>
     <div>
       <h4>Legal</h4>
       <ul>
         <li>Terms of Service</li>
-        <li>Privacy Policy</li>
         <li>OGL-C Attribution</li>
         <li><a href="https://github.com/reverb256">GitHub</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 MapleSpike. All rights reserved.</span>
-    <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
+    <span>© 2026 MapleSpike.</span>
+    <span>Data: <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
   </div>
 </footer>
 

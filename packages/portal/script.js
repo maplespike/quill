@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
-   MapleSpike Canada — Portal JS
+   MapleSpike — Portal JS
    i18n, Dark/Light toggle, mobile menu, scroll-reveal, stat counters, demo
    ══════════════════════════════════════════════════════════════════ */
 
@@ -121,19 +121,24 @@
   function setupMobileMenu() {
     const toggle = document.querySelector('.nav-mobile-toggle');
     const links = document.querySelector('.nav-links');
-    const overlay = document.querySelector('.nav-mobile-overlay');
     if (!toggle || !links) return;
 
     function closeMenu() {
       links.classList.remove('open');
-      if (overlay) overlay.classList.remove('open');
       toggle.textContent = '\u2630';
+      document.body.style.overflow = '';
+    }
+
+    function openMenu() {
+      links.classList.add('open');
+      toggle.textContent = '\u2715';
+      document.body.style.overflow = 'hidden';
     }
 
     toggle.addEventListener('click', () => {
-      const isOpen = links.classList.toggle('open');
-      toggle.textContent = isOpen ? '\u2715' : '\u2630';
-      if (overlay) overlay.classList.toggle('open');
+      const isOpen = links.classList.contains('open');
+      if (isOpen) closeMenu();
+      else openMenu();
     });
 
     // Close on link click
@@ -141,10 +146,10 @@
       link.addEventListener('click', closeMenu);
     });
 
-    // Close on overlay click
-    if (overlay) {
-      overlay.addEventListener('click', closeMenu);
-    }
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
+    });
   }
 
   // ── Scroll-Reveal (IntersectionObserver) ─────────────────────
@@ -538,7 +543,15 @@
     });
   }
 
-  // ── Init ────────────────────────────────────────────────────
+  // ── Console signature (non-template touch) ────────────────
+  console.log(
+    '%c⡏⠉⠉⠉⠉⠉⠉⠉⠉⠉⢹ %cMapleSpike',
+    'color:#C23030;font-size:10px;', 'color:#C23030;font-size:14px;font-weight:bold;'
+  );
+  console.log('%c  ⡇ Canadian public data infrastructure ⡇  ', 'color:#D4A017;font-size:10px;');
+  console.log('%c  ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⡇  ', 'color:#C23030;font-size:10px;');
+  console.log('%c  Open source · Self-hosted · AGPL-3.0', 'color:#0891B2;font-size:11px;');
+  console.log('%c  https://github.com/reverb256/maplespike', 'color:#6B7280;font-size:11px;');──────────────────────────────────────────────────
 
   async function init() {
     initTheme();
