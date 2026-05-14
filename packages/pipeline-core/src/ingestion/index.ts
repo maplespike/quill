@@ -1540,7 +1540,8 @@ export { SOURCES as SCIENCE_SOURCES, SCIENCE_SOURCE_NAMES, SCIENCE_CKAN_DATASETS
 /* ── Federal Tribunals ─────────────────────────────────────── */
 import { ingestAllTribunals, searchTribunals } from './federal-tribunals/index.js';
 export { ingestAllTribunals, searchTribunals } from './federal-tribunals/index.js';
-export { TRIBUNAL_SOURCES, TRIBUNAL_NAMES } from './federal-tribunals/constants.js';
+export { TRIBUNAL_SOURCES } from './federal-tribunals/constants.js';
+export { TRIBUNAL_NAMES } from './federal-tribunals/types.js';
 export type { TribunalDecision, TribunalCase, TribunalIngestionResult, TribunalName } from './federal-tribunals/types.js';
 
 // Education & Research — Tri-Council grants, CRC, CFI, student loans
