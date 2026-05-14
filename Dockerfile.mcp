@@ -49,4 +49,4 @@ COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
 EXPOSE 3001
 ENV NODE_ENV=production
 
-CMD ["node", "packages/mcp-server/dist/cli.js", "--sse"]
+CMD ["node", "packages/mcp-server/dist/cli.js"]
