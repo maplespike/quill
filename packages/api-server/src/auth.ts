@@ -28,7 +28,9 @@ const apiKeyMap = new Map<string, ApiKeyEntry>();
 // Seed with demo and internal keys (backward compatibility)
 apiKeyMap.set('maplespike-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
 apiKeyMap.set('maplespike-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
-apiKeyMap.set('maplespike-dev-key', { tenantId: 'dev-tenant', name: 'Dev User' });
+if (process.env.NODE_ENV !== 'production') {
+  apiKeyMap.set('maplespike-dev-key', { tenantId: 'dev-tenant', name: 'Dev User' });
+}
 
 const tenantDetails: Record<string, Tenant> = {
   'demo-tenant': {

@@ -12,6 +12,9 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { computeHash } from '@maplespike/pipeline-core';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+import { existsSync, readFileSync } from 'fs';
 
 /* ------------------------------------------------------------------ */
 /*  Pipeline data loader                                               */
