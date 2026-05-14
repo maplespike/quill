@@ -1,0 +1,29 @@
+# MapleSpike — Code Owners
+# Each line is a file pattern followed by owner(s)
+
+* @reverb256
+
+## Core ingestion
+/packages/pipeline-core/ @reverb256
+
+## API & MCP servers
+/packages/api-server/ @reverb256
+/packages/mcp-server/ @reverb256
+
+## Engine
+/packages/engine/ @reverb256
+
+## SDK
+/packages/sdk/ @reverb256
+/packages/sdk-python/ @reverb256
+
+## Legal
+/packages/legal-core/ @reverb256
+/packages/legislation/ @reverb256
+
+## Portal
+/packages/portal/ @reverb256
+
+## Infrastructure
+/k8s/ @reverb256
+/.github/ @reverb256

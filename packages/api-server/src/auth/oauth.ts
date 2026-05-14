@@ -146,6 +146,7 @@ export async function exchangeCode(
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
+    signal: AbortSignal.timeout(15000),
     body: JSON.stringify({
       client_id: provider.clientId,
       client_secret: provider.clientSecret,
@@ -175,6 +176,7 @@ export async function fetchProfile(
       Authorization: `Bearer ${accessToken}`,
       Accept: 'application/json',
     },
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!resp.ok) {

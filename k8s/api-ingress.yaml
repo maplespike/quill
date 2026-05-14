@@ -7,6 +7,10 @@ metadata:
     caddy.ingress.kubernetes.io/rewrite-to: "/{path}"
 spec:
   ingressClassName: caddy
+  tls:
+    - hosts:
+        - maplespike-api.lan
+      secretName: maplespike-api-tls
   rules:
     - host: maplespike-api.lan
       http:
