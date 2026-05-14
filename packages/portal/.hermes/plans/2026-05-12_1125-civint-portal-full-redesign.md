@@ -1,4 +1,4 @@
-# MapleSpike Canada Portal — Full Visual Redesign
+# MapleSpike Portal — Full Visual Redesign
 
 **Date:** 2026-05-12
 **Author:** Hermes Agent
@@ -8,7 +8,7 @@
 
 ## 1. Goal
 
-Transform the current functional-but-flat MapleSpike Canada portal into a premium SaaS-grade frontend that projects trust, sovereignty, and polish — commensurate with the product's positioning as Canada's sovereign AI-native government data layer.
+Transform the current functional-but-flat MapleSpike portal into a premium SaaS-grade frontend that projects trust, sovereignty, and polish — commensurate with the product's positioning as Canada's sovereign AI-native government data layer.
 
 The existing AI-friendly backend (`llms.txt`, `llms-full.txt`, content negotiation, Markdown endpoints) is already in place and must remain fully functional after the redesign.
 

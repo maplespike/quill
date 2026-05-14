@@ -8,5 +8,5 @@ Current values:
   PROJECT_TITLE=MapleSpike
   PROJECT_DESC=Canadian government data platform
   OLD_NAME=maplespike
-  OLD_TITLE=MapleSpike Canada
+  OLD_TITLE=MapleSpike
   OLD_DESC=Canadian sovereign data pipeline

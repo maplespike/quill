@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Rename the maplespike project to anything else.
-# Usage: ./scripts/rename.sh maplespike "MapleSpike" "MapleSpike Canada"
+# Usage: ./scripts/rename.sh maplespike "MapleSpike" "MapleSpike"
 #
-# Dry run: ./scripts/rename.sh maplespike "MapleSpike" "MapleSpike Canada" --dry
+# Dry run: ./scripts/rename.sh maplespike "MapleSpike" "MapleSpike" --dry
 
 set -euo pipefail
 
@@ -14,7 +14,7 @@ DRY="${4:-}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 OLD_NAME="maplespike"
 OLD_TITLE="MapleSpike"
-OLD_FULL="MapleSpike Canada"
+OLD_FULL="MapleSpike"
 
 echo "Renaming: $OLD_NAME → $NEW_NAME"
 echo "  Title: $OLD_TITLE → $NEW_TITLE"

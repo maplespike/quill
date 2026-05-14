@@ -31,6 +31,6 @@ Option C: Direct Caddyfile edit and reload
 
 ## Verification
 
-1. `curl -sk https://maplespike.lan/` returns the Next.js dashboard (title: "MapleSpike Canada — Civic Pulse Dashboard" or similar), not the portal landing page
+1. `curl -sk https://maplespike.lan/` returns the Next.js dashboard (title: "MapleSpike — Civic Pulse Dashboard" or similar), not the portal landing page
 2. The portal landing page is still accessible directly at `http://10.1.1.110:3000/`
 3. No certificate errors
