@@ -462,20 +462,23 @@ We have open.canada.ca, ON, BC, AB, QC. Missing:
 
 ---
 
-## 19. SCIENCE, SPACE & RESEARCH — ❌ Zero coverage (🔵 LOW)
+## 19. SCIENCE, SPACE & RESEARCH — ✅ Module built (🔵 LOW)
 
-| Source | Data | Access | Priority |
-|--------|------|--------|----------|
-| Canadian Space Agency | Budget, projects (Lunar Gateway, Radarsat) | Open data | 🟢 |
-| Polar Knowledge Canada | Arctic science, research funding | HTML | 🟢 |
-| Genome Canada | Genomics funding by project | Open data | 🟢 |
-| CANARIE | Research network, funding recipients | HTML | 🟢 |
-| Digital Research Alliance of Canada | Compute Canada, research computing | HTML | 🟢 |
-| Canadian Institute for Advanced Research | CIFAR programs, funding | HTML | 🟢 |
-| Mitacs | Research internship funding, by company/institution | Open data | 🟢 |
-| Perimeter Institute | Physics research | HTML | 🟢 |
-| Ocean Networks Canada | Pacific ocean observatory data | Open API | 🟢 |
-| Polar Data Catalogue | Arctic and Antarctic research data | API | 🟢 |
+Science/research module built: CSA missions, Mitacs grants, Ocean Networks Canada observations, Polar Data Catalogue.
+
+| Source | Data | Access | Priority | Status |
+|--------|------|--------|----------|--------|
+| Canadian Space Agency | Budget, missions, programs | Open data | 🟢 | ✅ CSA mission fetcher |
+| Mitacs | Research internship funding | Open data CSV | 🟢 | ✅ Mitacs CSV fetcher |
+| Ocean Networks Canada | Pacific ocean observatory data | Open API | 🟢 | ✅ ONC station fetcher |
+| Polar Data Catalogue | Arctic/Antarctic research data | API | 🟢 | ✅ Polar catalogue fetcher |
+| Polar Knowledge Canada | Arctic science, research funding | HTML | 🟢 | ⬜ |
+| Genome Canada | Genomics funding by project | Open data | 🟢 | ⬜ |
+| CANARIE | Research network, funding recipients | HTML | 🟢 | ⬜ |
+| Digital Research Alliance | Research computing | HTML | 🟢 | ⬜ |
+| CIFAR | Programs, funding | HTML | 🟢 | ⬜ |
+| Perimeter Institute | Physics research | HTML | 🟢 | ⬜ |
+| **MCP tool** | `search_science` | MCP | — | ✅ Registered |
 
 ---
 
