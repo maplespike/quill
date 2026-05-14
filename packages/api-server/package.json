@@ -25,5 +25,6 @@
     "tsx": "^4.21.0",
     "typescript": "^5.7.0",
     "undici": "^8.2.0"
-  }
+  },
+  "sideEffects": false
 }

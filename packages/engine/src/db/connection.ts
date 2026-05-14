@@ -4,7 +4,7 @@ import * as schema from "./schema";
 
 export type DbClient = ReturnType<typeof createDb>;
 
-const DEFAULT_DB_PATH = "civic-intel.sqlite";
+const DEFAULT_DB_PATH = "maplespike.sqlite";
 
 export function createDb(dbPath?: string): ReturnType<typeof drizzle> {
   const path = dbPath ?? DEFAULT_DB_PATH;

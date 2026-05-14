@@ -54,6 +54,7 @@ import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import { billingPlansHandler, billingCheckoutHandler } from './routes/billing.js';
+import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
 import {
   oauthLoginHandler,
   oauthCallbackHandler,
@@ -90,6 +91,10 @@ const ROUTES: Route[] = [
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },
   { pattern: /^\/v1\/billing\/checkout\/?$/, method: 'POST', params: [], handler: billingCheckoutHandler },
+  // AI
+  { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
+  { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
+  { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
