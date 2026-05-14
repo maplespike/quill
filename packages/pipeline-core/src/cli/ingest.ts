@@ -23,6 +23,7 @@ import {
   ingestAllCulture,
   ingestAllNgoRss,
   ingestAllRegional,
+  ingestAllMedia,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -117,6 +118,7 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   culture: { name: "Culture & Heritage Data Ingestion", run: () => ingestAllCulture(), },
   'ngo-rss': { name: "NGO / Influence RSS Narrative Tracking", run: () => ingestAllNgoRss(), },
   'regional-authorities': { name: "Regional Authorities Data (Peel, York, Durham, Metro Vancouver, CRD, etc.)", run: () => ingestAllRegional(), },
+  'media': { name: "Media & Broadcasting Data (CRTC market reports, ownership charts, Canada Media Fund, Telefilm)", run: () => ingestAllMedia(), },
 };
 
 async function main(): Promise<void> {
