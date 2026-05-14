@@ -5,8 +5,8 @@ import type { MapleSpikeResponse, QueryOptions, MapleSpikeApiError } from './typ
 import { MapleSpikeError } from './types.js';
 import { getApiKey, getJwtToken } from './auth.js';
 
-export const DEFAULT_BASE_URL = 'https://api.maplespike.ca';
-const DEV_BASE_URL = 'http://127.0.0.1:8084';
+export const DEFAULT_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
+const DEV_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
 
 /** Determine the base URL. Auto-detects dev environment. */
 export function resolveBaseUrl(customBaseUrl?: string): string {
