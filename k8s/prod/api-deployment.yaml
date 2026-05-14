@@ -27,6 +27,14 @@ spec:
       nodeName: nexus
       containers:
         - name: api
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
           image: nexus:5000/maplespike-api:latest
           imagePullPolicy: Always
           ports:

@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maplespike-api
+  namespace: maplespike-dev
+  labels:
+    app: maplespike-api
+    component: api
+    tier: backend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: maplespike-api
+  template:
+    metadata:
+      labels:
+        app: maplespike-api
+        component: api
+        tier: backend
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [nexus, sentry, forge]
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values: [zephyr]
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: maplespike-api
+                topologyKey: kubernetes.io/hostname
+      tolerations:
+        - key: node.forge/mining
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: api
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          image: nexus:5000/maplespike-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: PORT
+              value: "8082"
+            - name: NODE_ENV
+              value: "development"
+            - name: MAPLESPIKE_STORAGE
+              value: "memory"
+            - name: MAPLESPIKE_API_KEY
+              value: "maplespike-dev-key"
+            - name: MAPLESPIKE_AI_ENDPOINT
+              value: "http://ai-inference-gateway.ai-inference:8080/v1"
+            - name: MAPLESPIKE_AI_MODEL
+              value: "qwen3.5-27b"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8082
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8082
+            initialDelaySeconds: 5
+            periodSeconds: 10
