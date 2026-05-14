@@ -15,6 +15,7 @@ export {
   getUpdateFrequency,
   UPDATE_FREQUENCIES,
 } from './attestation/index.js';
+
 export type { Citation } from './attestation/index.js';
 
 // Provincial CKAN portal fetchers
