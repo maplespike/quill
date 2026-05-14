@@ -1,4 +1,4 @@
-# Data Source Expansion Plan — MapleSpike Canada Pipeline
+# Data Source Expansion Plan — MapleSpike Pipeline
 
 > **For Hermes:** implement source-by-source using this plan as reference.
 

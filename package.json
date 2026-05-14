@@ -12,6 +12,7 @@
     "build:api": "pnpm --filter @maplespike/api-server build",
     "build:pipeline": "pnpm --filter @maplespike/pipeline-core build",
     "build:engine": "pnpm --filter @maplespike/engine build",
+    "build:sdk": "pnpm --filter @maplespike/sdk build",
     "test": "pnpm -r test",
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo"
   },
