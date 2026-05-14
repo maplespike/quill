@@ -12,6 +12,7 @@
 import type { Tenant } from './types.js';
 import { verifyToken, tokenFromRequest } from './auth/jwt.js';
 import { getUser, getTenantForUser } from './auth/users.js';
+import type { MapleSpikeStorage } from './types.js';
 
 /* ------------------------------------------------------------------ */
 /*  In-Memory API Key Store (legacy)                                   */
@@ -61,6 +62,7 @@ export interface AuthResult {
   tenant: Tenant;
   apiKeyId: string;
   authMethod: 'api-key' | 'jwt' | 'cookie';
+  rotatedKey?: { id: string; key: string; expiresAt: string };
 }
 
 /* ------------------------------------------------------------------ */
@@ -110,11 +112,12 @@ function extractApiKeyHeader(request: Request): string | null {
  */
 export async function authenticateRequest(
   request: Request,
+  db?: MapleSpikeStorage,
 ): Promise<AuthResult | null> {
   // Method 1: X-API-Key header (legacy server-to-server)
   const apiKey = extractApiKeyHeader(request);
   if (apiKey) {
-    const result = await authenticateWithApiKey(apiKey);
+    const result = await authenticateWithApiKey(apiKey, db);
     if (result) return result;
   }
 
@@ -127,7 +130,7 @@ export async function authenticateRequest(
       if (result) return result;
     } else {
       // Treat as legacy API key
-      const result = await authenticateWithApiKey(bearerToken);
+      const result = await authenticateWithApiKey(bearerToken, db);
       if (result) return result;
     }
   }
@@ -148,17 +151,27 @@ export async function authenticateRequest(
 
 async function authenticateWithApiKey(
   rawKey: string,
+  db?: MapleSpikeStorage,
 ): Promise<AuthResult | null> {
   const entry = apiKeyMap.get(rawKey);
-  if (!entry) return null;
+  if (entry) {
+    const tenant = tenantDetails[entry.tenantId];
+    if (!tenant || !tenant.isActive) return null;
+    return {
+      tenant,
+      apiKeyId: `key-${entry.tenantId}`,
+      authMethod: 'api-key',
+    };
+  }
 
-  const tenant = tenantDetails[entry.tenantId];
-  if (!tenant || !tenant.isActive) return null;
-
+  if (!db) return null;
+  const dbResult = await db.authenticate(rawKey);
+  if (!dbResult) return null;
   return {
-    tenant,
-    apiKeyId: `key-${entry.tenantId}`,
+    tenant: dbResult.tenant,
+    apiKeyId: dbResult.apiKeyId,
     authMethod: 'api-key',
+    rotatedKey: dbResult.rotatedKey,
   };
 }
 

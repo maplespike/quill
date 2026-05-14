@@ -7,7 +7,7 @@
 
 import Database from 'better-sqlite3';
 import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
-import { hashApiKey } from './auth.js';
+import { hashApiKey, generateApiKey } from './auth.js';
 
 
 export class SqliteStorage implements MapleSpikeStorage {
@@ -139,12 +139,12 @@ export class SqliteStorage implements MapleSpikeStorage {
 
   /*  MapleSpikeStorage Interface                                          */
 
-  async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
+  async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
     const keyHash = await hashApiKey(rawKey);
 
     const row = this.db.prepare(`
       SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,
-             k.id AS key_id, k.is_active AS key_active
+             k.id AS key_id, k.is_active AS key_active, k.expires_at
       FROM api_keys k
       JOIN tenants t ON t.id = k.tenant_id
       WHERE k.key_hash = ?
@@ -153,9 +153,30 @@ export class SqliteStorage implements MapleSpikeStorage {
     if (!row) return null;
     if (!row.key_active || !row.is_active) return null;
 
-    // Update last_used_at
+    const expiresAt = row.expires_at as string | null;
+    const now = new Date();
+    if (expiresAt && new Date(expiresAt) < now) {
+      return null;
+    }
+
     this.db.prepare("UPDATE api_keys SET last_used_at = datetime('now') WHERE id = ?")
       .run(row.key_id);
+
+    let rotatedKey: { id: string; key: string; expiresAt: string } | undefined;
+    if (expiresAt) {
+      const expiryDate = new Date(expiresAt);
+      const daysUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysUntilExpiry <= 7) {
+        const { rawKey: newRawKey, keyHash: newKeyHash } = await generateApiKey();
+        const newKeyId = 'key_' + Array.from(new Uint8Array(16))
+          .map(() => Math.random().toString(16).slice(2, 4)).join('');
+        const newExpiresAt = new Date();
+        newExpiresAt.setDate(newExpiresAt.getDate() + 90);
+        this.createApiKey(newKeyId, row.tenant_id as string, newKeyHash, 'auto-rotated', newExpiresAt.toISOString());
+        this.revokeApiKey(row.key_id as string, row.tenant_id as string);
+        rotatedKey = { id: newKeyId, key: newRawKey, expiresAt: newExpiresAt.toISOString() };
+      }
+    }
 
     return {
       tenant: {
@@ -166,7 +187,8 @@ export class SqliteStorage implements MapleSpikeStorage {
         isActive: Boolean(row.is_active),
         journalismMode: Boolean(row.journalism_mode),
       },
-      apiKeyId: row.key_id as string,
+      apiKeyId: rotatedKey?.id ?? (row.key_id as string),
+      rotatedKey,
     };
   }
 
@@ -247,16 +269,17 @@ export class SqliteStorage implements MapleSpikeStorage {
     return rows || [];
   }
 
-  async listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>> {
+  async listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null; expiresAt: string | null }>> {
     const rows = this.db.prepare(
-      'SELECT id, name, is_active, created_at, last_used_at FROM api_keys WHERE tenant_id = ? ORDER BY created_at DESC',
-    ).all(tenantId) as Array<{ id: string; name: string; is_active: number; created_at: string; last_used_at: string | null }>;
+      'SELECT id, name, is_active, created_at, last_used_at, expires_at FROM api_keys WHERE tenant_id = ? ORDER BY created_at DESC',
+    ).all(tenantId) as Array<{ id: string; name: string; is_active: number; created_at: string; last_used_at: string | null; expires_at: string | null }>;
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
       isActive: Boolean(row.is_active),
       createdAt: row.created_at,
       lastUsedAt: row.last_used_at,
+      expiresAt: row.expires_at,
     }));
   }
 
@@ -271,11 +294,18 @@ export class SqliteStorage implements MapleSpikeStorage {
   }
 
   /** Create a new API key record. */
-  createApiKey(keyId: string, tenantId: string, keyHash: string, name: string): void {
+  createApiKey(keyId: string, tenantId: string, keyHash: string, name: string, expiresAt?: string): void {
     this.db.prepare(`
-      INSERT INTO api_keys (id, tenant_id, key_hash, name)
-      VALUES (?, ?, ?, ?)
-    `).run(keyId, tenantId, keyHash, name);
+      INSERT INTO api_keys (id, tenant_id, key_hash, name, expires_at)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(keyId, tenantId, keyHash, name, expiresAt || null);
+  }
+
+  /** Revoke an API key by setting it inactive. */
+  revokeApiKey(keyId: string, tenantId: string): void {
+    this.db.prepare(
+      'UPDATE api_keys SET is_active = 0 WHERE id = ? AND tenant_id = ?',
+    ).run(keyId, tenantId);
   }
 
   /** Get a tenant by ID. */

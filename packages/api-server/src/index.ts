@@ -229,7 +229,7 @@ export async function handleRequest(
 
   const tenant = authExempt
     ? null
-    : await authenticateRequest(request);
+    : await authenticateRequest(request, db);
 
   if (!tenant && !authExempt) {
     const ctx: BuildContext = {
@@ -505,6 +505,17 @@ export async function handleRequest(
     let finalResponse = jsonResponse(newBody as unknown as ApiResponse, response.status);
     if (rateCheck) {
       finalResponse = addRateLimitHeaders(finalResponse, rateCheck);
+    }
+
+    if (tenant?.rotatedKey) {
+      finalResponse = new Response(finalResponse.body, {
+        status: finalResponse.status,
+        headers: new Headers(finalResponse.headers),
+      });
+      finalResponse.headers.set('X-Key-Rotated', 'true');
+      finalResponse.headers.set('X-New-Key-Id', tenant.rotatedKey.id);
+      finalResponse.headers.set('X-New-Key', tenant.rotatedKey.key);
+      finalResponse.headers.set('X-New-Key-Expires', tenant.rotatedKey.expiresAt);
     }
 
     // Log audit for mutations

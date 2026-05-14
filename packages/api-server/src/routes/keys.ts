@@ -36,7 +36,7 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
     return jsonResponse(buildSuccess({
       id: keyId,
       name: 'default',
-      key: rawKey, // Shown once — store it securely
+      key: rawKey,
       createdAt: new Date().toISOString(),
     }, ctx), 201);
   } catch (err) {
@@ -65,5 +65,46 @@ export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Key revocation failed';
     return jsonResponse(buildError('KEY_REVOCATION_FAILED', message, ctx), 500);
+  }
+};
+
+/**
+ * POST /v1/keys/:id/rotate — Rotate an API key (invalidate old, create new)
+ * Returns the new key — shown once only (zero-knowledge)
+ */
+export const rotateKeyHandler: RouteHandler = async (_request, ctx, params) => {
+  const keyId = params.id;
+  if (!keyId) {
+    return jsonResponse(buildError('MISSING_KEY_ID', 'Key ID is required', ctx), 400);
+  }
+
+  try {
+    const { rawKey, keyHash } = await generateApiKey();
+    const newKeyId = 'key_' + Array.from(new Uint8Array(16))
+      .map(() => Math.random().toString(16).slice(2, 4)).join('');
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 90);
+
+    if (typeof (ctx.db as any).revokeApiKey === 'function' &&
+        typeof (ctx.db as any).createApiKey === 'function') {
+      (ctx.db as any).revokeApiKey(keyId, ctx.tenant.id);
+      (ctx.db as any).createApiKey(newKeyId, ctx.tenant.id, keyHash, 'rotated', expiresAt.toISOString());
+    } else {
+      return jsonResponse(buildError('STORAGE_ERROR', 'Storage backend does not support key rotation', ctx), 500);
+    }
+
+    return jsonResponse(buildSuccess({
+      previousKeyId: keyId,
+      newKey: {
+        id: newKeyId,
+        key: rawKey,
+        expiresAt: expiresAt.toISOString(),
+      },
+      message: 'Key rotated successfully. Save your new API key — it will not be shown again.',
+    }, ctx));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Key rotation failed';
+    return jsonResponse(buildError('KEY_ROTATION_FAILED', message, ctx), 500);
   }
 };
