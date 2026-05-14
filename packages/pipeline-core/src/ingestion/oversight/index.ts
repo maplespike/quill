@@ -19,7 +19,7 @@
  * associated recommendations with implementation status tracking.
  */
 
-import { fetchOAGReports, fetchPBOReports, fetchEthicsInvestigations, fetchLobbyingInvestigations, fetchCompetitionBureauDecisions, fetchCRTCDecisions, OversightFetchError } from './fetcher.js';
+import { fetchOAGReports, fetchPBOReports, fetchEthicsInvestigations, fetchLobbyingInvestigations, fetchCompetitionBureauDecisions, fetchCRTCDecisions, fetchOSFIPublications, fetchFCACPublications, fetchFINTRACPublications, fetchCDICPublications, OversightFetchError } from './fetcher.js';
 import { parseOAGReportList, parsePBOReportList, parseEthicsReport, parseLobbyingInvestigation, parseCompetitionBureauList, parseCRTCList } from './parser.js';
 import { computeHash } from '../../verification/hashing.js';
 import {
@@ -333,6 +333,14 @@ async function fetchRawItems(
       return fetchCompetitionBureauDecisions(options);
     case 'CRTC':
       return fetchCRTCDecisions(options);
+    case 'OSFI':
+      return fetchOSFIPublications(options) as any;
+    case 'FCAC':
+      return fetchFCACPublications(options) as any;
+    case 'FINTRAC':
+      return fetchFINTRACPublications(options) as any;
+    case 'CDIC':
+      return fetchCDICPublications(options) as any;
     default:
       throw new Error(`Unsupported oversight body: ${body}`);
   }

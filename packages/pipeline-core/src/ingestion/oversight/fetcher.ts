@@ -49,6 +49,7 @@ import type {
   RawLobbyingItem,
   RawCompetitionBureauItem,
   RawCRTCItem,
+  RawReportItem,
 } from './types.js';
 
 
@@ -1430,5 +1431,82 @@ function parseOCLListingHtml(html: string): RawLobbyingItem[] {
     }
   }
 
+  return items;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Federal Financial Sector Regulators                                */
+/* ------------------------------------------------------------------ */
+
+export async function fetchOSFIPublications(
+  options: { timeoutMs?: number } = {},
+): Promise<RawReportItem[]> {
+  const items: RawReportItem[] = [];
+  try {
+    const result = await fetchUrl('https://www.osfi-bsif.gc.ca/Eng/osfi-bsif/ar-ra/Pages/default.aspx', options);
+    const html = result.body;
+    const lp = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = lp.exec(html)) !== null) {
+      const url = m[1].startsWith('http') ? m[1] : `https://www.osfi-bsif.gc.ca${m[1].startsWith('/') ? '' : '/'}${m[1]}`;
+      const t = m[2].replace(/<[^>]+>/g, '').trim();
+      if (t.length < 10 || !/(annual.report|publication|guideline)/i.test(t)) continue;
+      items.push({ title: t, date: t.match(/\b(20\d{2})\b/)?.[1] ?? '', url, bodyHtml: '', source: 'OSFI', reportType: 'annual-report' });
+    }
+  } catch { /* */ }
+  return items;
+}
+
+export async function fetchFCACPublications(
+  options: { timeoutMs?: number } = {},
+): Promise<RawReportItem[]> {
+  const items: RawReportItem[] = [];
+  try {
+    const result = await fetchUrl('https://www.canada.ca/en/financial-consumer-agency/corporate/transparency/open-data.html', options);
+    const html = result.body;
+    const lp = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = lp.exec(html)) !== null) {
+      const t = m[2].replace(/<[^>]+>/g, '').trim();
+      if (t.length < 15 || !/(report|data|survey|complaint)/i.test(t)) continue;
+      items.push({ title: t, date: '', url: m[1].startsWith('http') ? m[1] : `https://www.canada.ca${m[1]}`, bodyHtml: '', source: 'FCAC', reportType: /data/i.test(t) ? 'corporate-report' : 'annual-report' });
+    }
+  } catch { /* */ }
+  return items;
+}
+
+export async function fetchFINTRACPublications(
+  options: { timeoutMs?: number } = {},
+): Promise<RawReportItem[]> {
+  const items: RawReportItem[] = [];
+  try {
+    const result = await fetchUrl('https://www.fintrac-canafe.gc.ca/reports/1', options);
+    const html = result.body;
+    const lp = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = lp.exec(html)) !== null) {
+      const t = m[2].replace(/<[^>]+>/g, '').trim();
+      if (t.length < 10 || !/(annual.report|departmental.plan|evaluation|audit)/i.test(t)) continue;
+      items.push({ title: t, date: t.match(/\b(20\d{2})\b/)?.[1] ?? '', url: m[1].startsWith('http') ? m[1] : `https://www.fintrac-canafe.gc.ca${m[1]}`, bodyHtml: '', source: 'FINTRAC', reportType: 'annual-report' });
+    }
+  } catch { /* */ }
+  return items;
+}
+
+export async function fetchCDICPublications(
+  options: { timeoutMs?: number } = {},
+): Promise<RawReportItem[]> {
+  const items: RawReportItem[] = [];
+  try {
+    const result = await fetchUrl('https://www.cdic.ca/about-cdic/corporate-information/annual-reports/', options);
+    const html = result.body;
+    const lp = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = lp.exec(html)) !== null) {
+      const t = m[2].replace(/<[^>]+>/g, '').trim();
+      if (t.length < 10 || !/(annual.report|financial|quarterly)/i.test(t)) continue;
+      items.push({ title: t, date: t.match(/\b(20\d{2})\b/)?.[1] ?? '', url: m[1].startsWith('http') ? m[1] : `https://www.cdic.ca${m[1]}`, bodyHtml: '', source: 'CDIC', reportType: /quarterly/i.test(t) ? 'corporate-report' : 'annual-report' });
+    }
+  } catch { /* */ }
   return items;
 }
