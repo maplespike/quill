@@ -33,19 +33,19 @@ jobs:
 
       - name: Type-check pipeline-core
         working-directory: packages/pipeline-core
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Type-check MCP server
         working-directory: packages/mcp-server
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Type-check SDK
         working-directory: packages/sdk
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Type-check API server
         working-directory: packages/api-server
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Build all packages
         run: pnpm -r build
