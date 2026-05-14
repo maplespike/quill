@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Rate Limiting
+ * MapleSpike — Rate Limiting
  *
  * In-memory sliding window rate limiter using Map.
  * Replaces Cloudflare KV-based rate limiting for dev mode.
