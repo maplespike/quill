@@ -1,8 +1,8 @@
 {
   "name": "maplespike",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "MapleSpike — civilian intelligence data platform",
+  "description": "MapleSpike \u2014 civilian intelligence data platform",
   "workspaces": [
     "packages/*"
   ],
