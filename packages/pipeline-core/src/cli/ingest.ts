@@ -34,6 +34,7 @@ import {
   ingestAllFederalDeep,
   ingestAllA2aj,
   ingestAllLegislationData,
+  ingestAllGoCSpending,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -139,6 +140,7 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   'federal-deep': { name: "Federal Deep (CIHI wait times, ESDC datasets, PHAC surveillance)", run: () => ingestAllFederalDeep(), },
   'a2aj': { name: "A2AJ Legal API (116K+ decisions, 5K+ statutes via api.a2aj.ca)", run: () => ingestAllA2aj(), },
   'legislation': { name: "Legislation (Justice Canada XML + provincial e-Laws, BC Laws, CKAN)", run: () => ingestAllLegislationData(), },
+  'goc-spending': { name: "GoC Spending (GitHub-based federal contracts data)", run: () => ingestAllGoCSpending(), },
 };
 
 async function main(): Promise<void> {

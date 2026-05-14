@@ -415,6 +415,13 @@ export class MapleSpike {
     provincialLegislation: (p: any = {}) => this.query('legislation', 'provincial-legislation', p),
   };
 
+  // ─── Domain: GoC Spending ──────────────────────────
+
+  gocSpending = {
+    contracts: (p: any = {}) => this.query('goc-spending', 'contracts', p),
+    spendingSummary: (p: any = {}) => this.query('goc-spending', 'spending-summary', p),
+  };
+
   // ─── MCP Integration ──────────────────────────────────────────
 
   /**

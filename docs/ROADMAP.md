@@ -41,18 +41,32 @@
 
 | Task | Priority | Effort |
 |------|----------|--------|
-| npm publish @maplespike/sdk to public registry | Low | 1 hour (triggers on prod push) |
+| **GitHub deep data sources** (roadmapped below) | Medium | 1-2 weeks |
+| npm publish @maplespike/sdk to public registry | Low | 1 hour |
 | Portal live data (connect dashboard to pipeline-data.json) | Low | 1 day |
 | CI/CD: CronJob health monitoring + Prometheus alerting | Low | 2 days |
 | Cross-reference engine (lobbying ↔ committees ↔ GIC ↔ donations) | Medium | 1 week |
-| Enrich 8 skeleton modules with deeper parsers | Low | 1 week |
+| Enrich skeleton modules with deeper parsers | Low | 1 week |
 
-### CLI Pipelines (28)
+### GitHub Deep Data Sources — Discovered & Roadmapped
+
+| Repo | Size | Data | Pipeline Module | Status |
+|------|------|------|-----------------|--------|
+| **GoC-Spending/GoC-Spending** | 250 MB | Federal contracts by department/vendor (2015-2018, Markdown tables) | `goc-spending` | ✅ Built this session |
+| **justicecanada/laws-lois-xml** | 285 MB | Consolidated federal Acts + Regulations in XML (point-in-time) | `legislation` | ✅ Built this session |
+| **a2aj-ca/canadian-legal-data** | 4.4 MB | 116K+ court/tribunal decisions + 5K+ statutes via REST API | `a2aj` | ✅ Built this session |
+| **ccodwg/Covid19Canada** | 796 MB | Historical COVID-19 epidemiological data | Not built | 🟡 Low priority (historical) |
+| **StatCan/bdl-lde-public** | 33 MB | StatCan business data | Not built | 🟡 Enrich existing StatCan module |
+| **canada-ca/aia-eia-js** | 64 MB | Algorithmic Impact Assessment framework | Not built | 🔵 AI governance tracking |
+| **justicecanada/otto** | 163 MB | AI legal research tools (Python, AGPL-3.0) | Not built | 🔵 ML enhancement for legal corpus |
+| **canada-ca/PCTF-CCP** | 145 MB | Pan-Canadian Trust Framework (digital identity) | Not built | 🔵 Identity/auth standards |
+
+### CLI Pipelines (31)
 
 ```
 committee, corporate, influence, gazette, gic, elections, provincial-lobbying,
 oversight, canlii, lmia, immigration, indigenous, defence, tribunals, veterans,
 fisheries, agriculture, culture, ngo-rss, regional-authorities, media, realtime,
 social-programs, municipal-long-tail, universities, unions, corporate-filings,
-culture-deep, provincial-deep, federal-deep
+culture-deep, provincial-deep, federal-deep, a2aj, legislation, goc-spending
 ```
