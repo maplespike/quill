@@ -13,7 +13,9 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -26,7 +28,15 @@
   "engines": {
     "node": ">=18"
   },
-  "keywords": ["canada", "legislation", "justice-laws", "statutes", "regulations", "point-in-time", "maplespike"],
+  "keywords": [
+    "canada",
+    "legislation",
+    "justice-laws",
+    "statutes",
+    "regulations",
+    "point-in-time",
+    "maplespike"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -40,5 +50,6 @@
   },
   "dependencies": {
     "@maplespike/legal-core": "workspace:^"
-  }
+  },
+  "sideEffects": false
 }

@@ -1,4 +1,6 @@
-export type ProvinceCode = 'AB' | 'BC' | 'MB' | 'NB' | 'NL' | 'NS' | 'NT' | 'NU' | 'ON' | 'PE' | 'QC' | 'SK' | 'YT';
+import type { ProvinceCode } from '../provincial-legislatures/types.js';
+
+export { ProvinceCode };
 
 export type OversightBodyType =
   | 'auditor-general' | 'ombudsman' | 'human-rights-tribunal'

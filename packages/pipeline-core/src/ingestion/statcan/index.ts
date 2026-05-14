@@ -103,6 +103,8 @@ export async function ingestTrade(): Promise<StatCanIngestionResult> {
   return resultFor('trade', STATCAN_PRODUCTS.INTERNATIONAL_MERCHANDISE_TRADE, allRecords, errors, start);
 }
 
+export { STATCAN_PRODUCTS } from './constants.js';
+
 export async function ingestAllStatCan(): Promise<Record<string, StatCanIngestionResult>> {
   const [cpi, gdp, labour, population, trade] = await Promise.all([
     ingestCpi(),
