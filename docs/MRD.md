@@ -1,6 +1,6 @@
-# MapleSpike Canada — Market Requirements Document (Internal)
+# MapleSpike — Market Requirements Document (Internal)
 
-> **Product:** MapleSpike Canada
+> **Product:** MapleSpike
 > **Type:** Data pipeline / unified government data layer / SaaS API
 > **Status:** Internal strategy doc
 > **Author:** j_kro / Hermes + Sisyphus

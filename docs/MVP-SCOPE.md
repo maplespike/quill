@@ -1,4 +1,4 @@
-# MapleSpike Canada — Current Capabilities
+# MapleSpike — Current Capabilities
 
 > **Version:** v3
 > **Status:** Active
