@@ -124,7 +124,7 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            nodejs pnpm typescript nodePackages_latest.typescript-language-server
+            nodejs pnpm typescript typescript-language-server
             python3 docker-client kubectl
           ];
           shellHook = ''

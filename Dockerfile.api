@@ -50,8 +50,11 @@ RUN pnpm install --no-frozen-lockfile --prod
 COPY --from=builder /app/packages/api-server/dist packages/api-server/dist
 COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
 
-# Expose the API port
-EXPOSE 8082
+# Ensure non-root user owns the app files
+RUN chown -R 1000:1000 /app && mkdir -p /data && chown -R 1000:1000 /data
+
+# Run as non-root user (numeric UID required for PodSecurity verification)
+USER 1000
 
 # Set defaults
 ENV MAPLESPIKE_STORAGE=sqlite

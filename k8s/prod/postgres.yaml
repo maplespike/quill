@@ -21,6 +21,14 @@ spec:
       nodeName: nexus
       containers:
         - name: postgres
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
           image: postgres:17-alpine
           ports:
             - containerPort: 5432

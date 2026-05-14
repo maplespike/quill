@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portal-config
+  namespace: maplespike-dev
+  labels:
+    app: maplespike-portal
+    component: portal
+data:
+  config.js: |
+    // MapleSpike Portal Configuration — Dev Environment
+    // Mounted at /usr/share/nginx/html/config.js
+    window.MAPLESPIKE = window.MAPLESPIKE || {};
+    MAPLESPIKE.apiBase   = 'https://dev-maplespike-api.lan';
+    MAPLESPIKE.apiKey    = '';
+    MAPLESPIKE.timeout   = { health: 3000, quick: 5000, default: 8000 };
