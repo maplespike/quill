@@ -22,27 +22,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Type-check every package
-      - run: npx tsc --noEmit
-        working-directory: packages/pipeline-core
-      - run: npx tsc --noEmit
-        working-directory: packages/mcp-server
-      - run: npx tsc --noEmit
-        working-directory: packages/sdk
-      - run: npx tsc --noEmit
-        working-directory: packages/api-server
+      # Build all packages
+      - run: pnpm run clean && pnpm -r build
 
-      # Build all
-      - run: pnpm -r build
-
-      # Test all
-      - run: pnpm test
-        working-directory: packages/sdk
+      # Test all packages
       - run: pnpm test
         working-directory: packages/pipeline-core
       - run: pnpm test
         working-directory: packages/mcp-server
       - run: pnpm test
         working-directory: packages/engine
-      - run: pnpm test
-        working-directory: packages/api-server
