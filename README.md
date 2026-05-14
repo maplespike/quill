@@ -131,19 +131,45 @@ pnpm start
 
 ## Infrastructure
 
+Two environments run on the same K3s cluster, isolated by namespace and ingress hostname:
+
+| Environment | Namespace | Hostname |
+|-------------|-----------|----------|
+| **Production** | `maplespike` | `maplespike.lan` |
+| **Development** | `maplespike-dev` | `dev.maplespike.lan` |
+
 | Service | Platform | Stack |
 |---------|----------|-------|
-| Portal (marketing + docs) | **GitHub Pages** | Static HTML/CSS/JS — `git push` to deploy |
+| Portal (marketing + docs) | **K3s cluster** (nginx) | Static HTML/CSS/JS per-environment config.js |
 | Product Dashboard | **K3s cluster** (nexus) | Next.js |
 | MCP Server | **K3s cluster** | Node.js, SSE transport on 3001 |
 | API Server | **K3s cluster** | Node.js, Bearer auth, rate limiting |
 | Engine / CronJobs | **K3s cluster** | Scheduled ingestion pipelines |
 
-All backend data on Canadian K3s cluster. Portal is zero-build static HTML on GitHub Pages. No Cloudflare, no external cloud spend.
+**Development endpoints:**
+- Portal: [https://dev.maplespike.lan](https://dev.maplespike.lan) (NodePort 30965)
+- API: [https://dev-maplespike-api.lan](https://dev-maplespike-api.lan) (NodePort 31284)
+- MCP: [https://dev-maplespike-mcp.lan](https://dev-maplespike-mcp.lan) (NodePort 31746)
+
+A **Caddy ingress controller** routes both `.lan` domains to the correct services and namespaces. Environment-specific manifests live in `k8s/dev/` and `k8s/prod/`. Portal config.js uses a `config.dev.js` / `config.prod.js` pattern, mounted via ConfigMap per environment.
+
+All backend data stays on Canadian K3s cluster. No external cloud spend.
 
 **API access:** Auth + rate limiting + usage tracking work. Billing (Stripe, crypto, Interac) is the next major build. See [ROADMAP.md](./ROADMAP.md).
 
-See [ROADMAP.md](./ROADMAP.md) for the full phased plan.
+---
+
+## CI/CD
+
+GitHub Actions drives the two-environment deployment model:
+
+| Branch | Workflow | Action |
+|--------|----------|--------|
+| `main` | CI (ci.yml) | Run tests on every push |
+| `main` | Deploy Dev (deploy-dev.yml) | Build + deploy to `maplespike-dev` namespace |
+| `prod` | Deploy (deploy.yml) | Build + deploy to `maplespike` namespace |
+
+Container images are tagged `:dev` for dev builds and `:latest` for production. Each workflow builds, pushes to the registry, and applies the corresponding `k8s/dev/` or `k8s/prod/` Kubernetes manifests.
 
 ---
 
