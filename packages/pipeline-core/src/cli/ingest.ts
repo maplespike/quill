@@ -32,6 +32,8 @@ import {
   ingestAllCultureDeep,
   ingestAllProvincialDeep,
   ingestAllFederalDeep,
+  ingestAllA2aj,
+  ingestAllLegislationData,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -135,6 +137,8 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   'culture-deep': { name: "Culture & Heritage Deep (Canada Council grants, Canadian Heritage CKAN)", run: () => ingestAllCultureDeep(), },
   'provincial-deep': { name: "Provincial Deep (SK, MB, NS, NB, NL, PE, YT, NT, NU targeted datasets)", run: () => ingestAllProvincialDeep(), },
   'federal-deep': { name: "Federal Deep (CIHI wait times, ESDC datasets, PHAC surveillance)", run: () => ingestAllFederalDeep(), },
+  'a2aj': { name: "A2AJ Legal API (116K+ decisions, 5K+ statutes via api.a2aj.ca)", run: () => ingestAllA2aj(), },
+  'legislation': { name: "Legislation (Justice Canada XML + provincial e-Laws, BC Laws, CKAN)", run: () => ingestAllLegislationData(), },
 };
 
 async function main(): Promise<void> {

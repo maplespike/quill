@@ -399,6 +399,22 @@ export class MapleSpike {
     coverage: (p: any = {}) => this.query('provincial-regulators', 'regulator-coverage', p),
   };
 
+  // ─── Domain: A2AJ Legal API ──────────────────────────
+
+  a2aj = {
+    search: (p: any = {}) => this.query('a2aj', 'legal-search', p),
+    fetchByCitation: (p: any = {}) => this.query('a2aj', 'legal-fetch', p),
+    coverage: (p: any = {}) => this.query('a2aj', 'legal-coverage', p),
+  };
+
+  // ─── Domain: Legislation ────────────────────────────
+
+  legislation = {
+    federalActs: (p: any = {}) => this.query('legislation', 'federal-acts', p),
+    federalRegulations: (p: any = {}) => this.query('legislation', 'federal-regulations', p),
+    provincialLegislation: (p: any = {}) => this.query('legislation', 'provincial-legislation', p),
+  };
+
   // ─── MCP Integration ──────────────────────────────────────────
 
   /**

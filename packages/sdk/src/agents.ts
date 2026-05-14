@@ -362,6 +362,20 @@ export const AGENTS: Record<string, AgentDefinition> = {
     { id: 'regulator-search', description: 'Find regulators by province, category, or name', requiredParams: [], optionalParams: ['province', 'category', 'query', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/provincial-regulators/regulator-search?province=ON&category=securities'" },
     { id: 'regulator-coverage', description: 'Coverage summary of regulators across provinces', requiredParams: [], optionalParams: [], sampleCurl: "curl 'https://api.maplespike.ca/v1/provincial-regulators/regulator-coverage'" },
   ]},
+
+  // ── New: A2AJ Legal API ──────────────────────────────
+  a2aj: { name: 'a2aj', description: 'A2AJ Canadian legal data — search 116K+ court/tribunal decisions and 5K+ statutes/regulations via api.a2aj.ca (no API key needed)', actions: [
+    { id: 'legal-search', description: 'Search case law or legislation by full text with boolean operators', requiredParams: ['query'], optionalParams: ['doc_type', 'dataset', 'size', 'start_date', 'end_date'], sampleCurl: "curl 'https://api.maplespike.ca/v1/a2aj/legal-search?query=charter&dataset=SCC'" },
+    { id: 'legal-fetch', description: 'Fetch full text of a case or law by citation', requiredParams: ['citation'], optionalParams: ['doc_type'], sampleCurl: "curl 'https://api.maplespike.ca/v1/a2aj/legal-fetch?citation=2020+SCC+5'" },
+    { id: 'legal-coverage', description: 'List all available court/tribunal/legislation datasets with document counts', requiredParams: [], optionalParams: ['doc_type'], sampleCurl: "curl 'https://api.maplespike.ca/v1/a2aj/legal-coverage'" },
+  ]},
+
+  // ── New: Legislation ─────────────────────────────────
+  legislation: { name: 'legislation', description: 'Canadian legislation — Justice Canada consolidated federal laws (XML), Ontario e-Laws, BC Laws, provincial CKAN', actions: [
+    { id: 'federal-acts', description: 'Federal consolidated Acts from Justice Canada XML repository', requiredParams: [], optionalParams: ['keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/legislation/federal-acts?keyword=criminal'" },
+    { id: 'federal-regulations', description: 'Federal consolidated Regulations from Justice Canada XML repository', requiredParams: [], optionalParams: ['keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/legislation/federal-regulations?keyword=immigration'" },
+    { id: 'provincial-legislation', description: 'Provincial legislation from Ontario e-Laws, BC Laws, and CKAN portals', requiredParams: [], optionalParams: ['province', 'keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/legislation/provincial-legislation?province=ON'" },
+  ]},
 };
 
 /** Resolve an agent by name (case-insensitive). Throws if not found. */
