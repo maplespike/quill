@@ -12,7 +12,7 @@
  *   4. Persist to D1 database (UPSERT semantics)
  *
  * Currently implemented: Toronto, Vancouver
- * Framework-ready stubs: all other major Canadian cities
+ * 19 cities implemented with live fetchers
  *
  * Usage:
  *   import { ingestMunicipal } from './ingestion/municipal/index.js';
