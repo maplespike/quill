@@ -197,6 +197,7 @@ export async function handleRequest(
 
   // Authentication (public routes: health, register, github login/callback, refresh, logout)
   const authExempt = route.handler === healthHandler
+    || route.handler === getCitationHandler
     || route.handler === registerHandler
     || route.handler === githubLoginHandler
     || route.handler === githubCallbackHandler
