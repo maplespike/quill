@@ -1,8 +1,5 @@
+import { ingestAllRegulators, getRegulatorCoverage } from './fetcher.js';
 import type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } from './types.js';
-import { computeHash } from '../../verification/hashing.js';
 
-export async function ingestAllRegulators(): Promise<ProvincialRegulatorsIngestionResult> {
-  return { records: [], errors: [] };
-}
-
+export { ingestAllRegulators, getRegulatorCoverage };
 export type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } from './types.js';
