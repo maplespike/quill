@@ -13,7 +13,6 @@
 import * as http from 'node:http';
 import { handleRequest } from './index.js';
 import { MemoryStorage, MemoryCache } from './storage.js';
-import { SqliteStorage, SqliteStorageCache } from './sqlite-storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
@@ -36,6 +35,8 @@ let cache: MapleSpikeCache;
 
 if (MAPLESPIKE_STORAGE === 'sqlite') {
   console.log(`[Storage] Using SQLite backend: ${MAPLESPIKE_DB_PATH}`);
+  // Dynamic import so that better-sqlite3 native module is only loaded when needed
+  const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
   db = new SqliteStorage(MAPLESPIKE_DB_PATH);
   cache = new SqliteStorageCache();
 } else {
@@ -63,8 +64,9 @@ if (MAPLESPIKE_STORAGE === 'sqlite') {
 
 function verifyStorageHealth(): boolean {
   try {
-    if (db instanceof SqliteStorage) {
-      const result = (db as SqliteStorage).getTenant('fg-internal');
+    // Check if db has a getTenant method (SqliteStorage pattern)
+    if (typeof (db as any).getTenant === 'function') {
+      const result = (db as any).getTenant('fg-internal');
       return !!result;
     }
     return true; // MemoryStorage is always healthy
