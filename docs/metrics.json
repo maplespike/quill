@@ -17,7 +17,7 @@
   "typescript": {
     "totalLines": 112910,
     "totalFiles": 486,
-    "packages": 10,
+    "packages": 11,
     "perPackage": {
       "pipeline-core": { "files": 332, "lines": 88782 },
       "engine": { "files": 67, "lines": 11173 },
@@ -25,12 +25,14 @@
       "mcp-server": { "files": 35, "lines": 4520 },
       "sdk": { "files": 9, "lines": 1589 },
       "legal-core": { "files": 7, "lines": 356 },
-      "legislation": { "files": 1, "lines": 40 }
-    }
+      "legislation": { "files": 1, "lines": 40 },
+      "docs": { "files": 2, "lines": 89 }
+    },
+    "note": "Portal (HTML/CSS/JS, ~26 files, ~9.5K lines), sdk-python (Python, ~7 files, ~1.4K lines), pretext-civic (orphaned, 0 files) not counted in TS totals"
   },
   "packages": {
-    "total": 10,
-    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "pretext-civic", "legal-core", "legislation"]
+    "total": 11,
+    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "docs", "pretext-civic", "legal-core", "legislation"]
   },
   "externalEndpoints": {
     "estimated": 1141,
