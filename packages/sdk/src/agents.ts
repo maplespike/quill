@@ -241,41 +241,127 @@ const dataActions: ActionDefinition[] = [
 // ─── Agent catalog ──────────────────────────────────────────────────────────
 
 export const AGENTS: Record<string, AgentDefinition> = {
-  committees: {
-    name: 'committees',
-    description: 'Parliamentary committee information — membership, meetings, reports, witnesses',
-    actions: committeesActions,
-  },
-  corporate: {
-    name: 'corporate',
-    description: 'Corporate registry data — profiles, filings, directors, lobbying',
-    actions: corporateActions,
-  },
-  influence: {
-    name: 'influence',
-    description: 'Political influence tracking — donations, fundraising, media ownership',
-    actions: influenceActions,
-  },
-  regulations: {
-    name: 'regulations',
-    description: 'Regulatory activity — proposals, decisions, consultations',
-    actions: regulationsActions,
-  },
-  courts: {
-    name: 'courts',
-    description: 'Court system — decisions, case tracking, tribunal rulings',
-    actions: courtsActions,
-  },
-  oversight: {
-    name: 'oversight',
-    description: 'Government oversight — audits, watchdogs, ATIP, conflict of interest',
-    actions: oversightActions,
-  },
-  data: {
-    name: 'data',
-    description: 'Government data — spending, elections, demographics, salaries',
-    actions: dataActions,
-  },
+  committees: { name: 'committees', description: 'Parliamentary committee information — membership, meetings, reports, witnesses', actions: committeesActions },
+  corporate: { name: 'corporate', description: 'Corporate registry data — profiles, filings, directors, lobbying', actions: corporateActions },
+  influence: { name: 'influence', description: 'Political influence tracking — donations, fundraising, media ownership', actions: influenceActions },
+  regulations: { name: 'regulations', description: 'Regulatory activity — proposals, decisions, consultations', actions: regulationsActions },
+  courts: { name: 'courts', description: 'Court system — decisions, case tracking, tribunal rulings', actions: courtsActions },
+  oversight: { name: 'oversight', description: 'Government oversight — audits, watchdogs, ATIP, conflict of interest', actions: oversightActions },
+  data: { name: 'data', description: 'Government data — spending, elections, demographics, salaries', actions: dataActions },
+
+  // ── New: Immigration ─────────────────────────────────
+  immigration: { name: 'immigration', description: 'Immigration data — permanent residents, study permits, work permits, refugee decisions, CBSA enforcement', actions: [
+    { id: 'permanent-residents', description: 'Permanent resident admissions by province, category, country', requiredParams: [], optionalParams: ['province', 'year', 'category', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/immigration/permanent-residents?year=2025'" },
+    { id: 'study-permits', description: 'Study permit holders by country, institution type, gender', requiredParams: [], optionalParams: ['year', 'country', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/immigration/study-permits?year=2025'" },
+    { id: 'work-permits', description: 'Work permit holders by program (TFWP/IMP), province, skill level', requiredParams: [], optionalParams: ['year', 'program', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/immigration/work-permits?year=2025'" },
+    { id: 'refugee-decisions', description: 'IRB refugee protection division decisions and outcomes', requiredParams: [], optionalParams: ['year', 'country', 'outcome', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/immigration/refugee-decisions?year=2025'" },
+    { id: 'cbsa-enforcement', description: 'CBSA enforcement actions, removals, and port statistics', requiredParams: [], optionalParams: ['year', 'type', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/immigration/cbsa-enforcement?year=2025'" },
+  ]},
+
+  // ── New: Indigenous Relations ─────────────────────────
+  indigenous: { name: 'indigenous', description: 'Indigenous relations data — land claims, ISC spending, FN transparency, TRC calls to action', actions: [
+    { id: 'land-claims', description: 'CIRNAC specific claims and comprehensive land claims', requiredParams: [], optionalParams: ['status', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/indigenous/land-claims?status=settled'" },
+    { id: 'isc-spending', description: 'Indigenous Services Canada health, education, infrastructure spending', requiredParams: [], optionalParams: ['program', 'province', 'year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/indigenous/isc-spending?year=2025'" },
+    { id: 'fn-transparency', description: 'First Nations financial transparency and salary disclosure', requiredParams: [], optionalParams: ['year', 'first_nation', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/indigenous/fn-transparency?year=2024'" },
+    { id: 'trc-progress', description: 'Truth and Reconciliation Commission calls to action status', requiredParams: [], optionalParams: ['call_number', 'status', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/indigenous/trc-progress?status=completed'" },
+  ]},
+
+  // ── New: Criminal Justice ────────────────────────────
+  criminalJustice: { name: 'criminal-justice', description: 'Criminal justice — corrections population, parole decisions, RCMP crime stats, PPSC prosecutions', actions: [
+    { id: 'corrections-population', description: 'CSC incarceration rates, demographics, costs per inmate', requiredParams: [], optionalParams: ['year', 'province', 'type'], sampleCurl: "curl 'https://api.maplespike.ca/v1/criminal-justice/corrections-population?year=2025'" },
+    { id: 'parole-decisions', description: 'Parole Board of Canada decisions and registry', requiredParams: [], optionalParams: ['year', 'outcome', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/criminal-justice/parole-decisions?year=2025'" },
+    { id: 'rcmp-crime-stats', description: 'RCMP incident-based crime statistics by violation', requiredParams: [], optionalParams: ['year', 'province', 'violation', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/criminal-justice/rcmp-crime-stats?year=2025'" },
+    { id: 'prosecutions', description: 'PPSC caseloads, outcomes, stay rates', requiredParams: [], optionalParams: ['year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/criminal-justice/prosecutions?year=2025'" },
+  ]},
+
+  // ── New: Defence ─────────────────────────────────────
+  defence: { name: 'defence', description: 'National Defence — Regular Force personnel by rank, procurement contracts', actions: [
+    { id: 'personnel', description: 'DND Regular Force and Reserve personnel counts by rank, trade', requiredParams: [], optionalParams: ['year', 'rank', 'trade', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/defence/personnel?year=2025'" },
+    { id: 'procurement', description: 'Defence procurement contracts and major projects', requiredParams: [], optionalParams: ['year', 'vendor', 'value_min', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/defence/procurement?year=2025'" },
+  ]},
+
+  // ── New: Municipal ───────────────────────────────────
+  municipal: { name: 'municipal', description: 'Municipal council data — meetings, decisions, budgets across 19 Canadian cities', actions: [
+    { id: 'meetings', description: 'Council meeting agendas, minutes, decisions by city', requiredParams: [], optionalParams: ['city', 'year', 'type', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/municipal/meetings?city=toronto&year=2025'" },
+    { id: 'budgets', description: 'Municipal budget data and financial reports', requiredParams: [], optionalParams: ['city', 'year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/municipal/budgets?city=vancouver&year=2025'" },
+    { id: 'open-data', description: 'Municipal open data portal datasets', requiredParams: [], optionalParams: ['city', 'keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/municipal/open-data?city=ottawa&keyword=council'" },
+  ]},
+
+  // ── New: Transport Infrastructure ────────────────────
+  transport: { name: 'transport', description: 'Transport safety and infrastructure — TSB occurrences, TC recalls, CTA rulings, Infrastructure Canada', actions: [
+    { id: 'tsb-occurrences', description: 'Transportation Safety Board occurrence data (air, rail, marine, pipeline)', requiredParams: [], optionalParams: ['mode', 'year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/transport/tsb-occurrences?mode=aviation&year=2025'" },
+    { id: 'tc-recalls', description: 'Transport Canada vehicle recalls and safety violations', requiredParams: [], optionalParams: ['year', 'make', 'type', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/transport/tc-recalls?year=2025'" },
+    { id: 'cta-rulings', description: 'Canadian Transportation Agency rulings and decisions', requiredParams: [], optionalParams: ['year', 'keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/transport/cta-rulings?year=2025'" },
+  ]},
+
+  // ── New: Real-Time Feeds ────────────────────────────
+  realtime: { name: 'realtime', description: 'Real-time Canadian data — weather alerts, border wait times, parole decisions', actions: [
+    { id: 'weather-alerts', description: 'Environment Canada weather alerts (CAP-CP format)', requiredParams: [], optionalParams: ['province', 'severity', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/realtime/weather-alerts?severity=warning'" },
+    { id: 'border-waits', description: 'CBSA border wait times at Canada-US crossings', requiredParams: [], optionalParams: ['port', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/realtime/border-waits?province=ON'" },
+    { id: 'parole-registry', description: 'Parole Board of Canada decision registry', requiredParams: [], optionalParams: ['year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/realtime/parole-registry?year=2025'" },
+  ]},
+
+  // ── New: Media & Broadcasting ───────────────────────
+  media: { name: 'media', description: 'Media and broadcasting data — CRTC market reports, ownership charts, Canada Media Fund, Telefilm', actions: [
+    { id: 'crtc-market-reports', description: 'CRTC communications market data: broadcasting, telecom, internet', requiredParams: [], optionalParams: ['year', 'sector', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/media/crtc-market-reports?year=2025'" },
+    { id: 'ownership-charts', description: 'CRTC broadcasting ownership charts', requiredParams: [], optionalParams: ['sector', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/media/ownership-charts'" },
+    { id: 'cmf-data', description: 'Canada Media Fund investment data', requiredParams: [], optionalParams: ['year', 'program', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/media/cmf-data?year=2025'" },
+  ]},
+
+  // ── New: Education Research ─────────────────────────
+  education: { name: 'education', description: 'Education and research data — Tri-Council grants, Canada Research Chairs, CFI, student loans, university financials', actions: [
+    { id: 'tri-council-grants', description: 'CIHR, NSERC, SSHRC grant awards by institution and researcher', requiredParams: [], optionalParams: ['agency', 'institution', 'year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/education/tri-council-grants?agency=NSERC&year=2025'" },
+    { id: 'research-chairs', description: 'Canada Research Chair allocations', requiredParams: [], optionalParams: ['institution', 'tier', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/education/research-chairs?institution=UofT'" },
+    { id: 'student-loans', description: 'Canada Student Loan program statistics', requiredParams: [], optionalParams: ['year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/education/student-loans?year=2025'" },
+    { id: 'cudo-data', description: 'Council of Ontario Universities data: enrolment, funding, faculty', requiredParams: [], optionalParams: ['institution', 'year', 'metric', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/education/cudo-data?year=2025'" },
+  ]},
+
+  // ── New: Social Programs ────────────────────────────
+  socialPrograms: { name: 'social-programs', description: 'Social program data — CCB, CPP/OAS, EI, poverty statistics, food security, social assistance', actions: [
+    { id: 'ccb-data', description: 'Canada Child Benefit payments by federal riding', requiredParams: [], optionalParams: ['year', 'riding', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/social-programs/ccb-data?year=2025'" },
+    { id: 'cpp-oas', description: 'CPP, OAS, GIS beneficiary counts', requiredParams: [], optionalParams: ['program', 'year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/social-programs/cpp-oas?program=OAS&year=2025'" },
+    { id: 'ei-statistics', description: 'EI claims and benefits by province and industry', requiredParams: [], optionalParams: ['year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/social-programs/ei-statistics?year=2025'" },
+    { id: 'poverty-data', description: 'Poverty rates: LICO, LIM, MBM thresholds by province', requiredParams: [], optionalParams: ['measure', 'year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/social-programs/poverty-data?measure=LICO&year=2025'" },
+  ]},
+
+  // ── New: Bank of Canada ─────────────────────────────
+  bankOfCanada: { name: 'bank-of-canada', description: 'Bank of Canada — interest rate decisions, monetary policy, financial system reviews', actions: [
+    { id: 'rate-decisions', description: 'Overnight rate target decisions and history', requiredParams: [], optionalParams: ['date_from', 'date_to', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/bank-of-canada/rate-decisions?limit=10'" },
+    { id: 'monetary-policy', description: 'Monetary Policy Reports and summaries', requiredParams: [], optionalParams: ['year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/bank-of-canada/monetary-policy?year=2025'" },
+  ]},
+
+  // ── New: SEDI / Insider Trading ─────────────────────
+  sedi: { name: 'sedi', description: 'Insider trading reports — C-Suite executive stock transactions at Canadian public companies', actions: [
+    { id: 'insider-transactions', description: 'Insider trade reports by issuer, insider, and transaction type', requiredParams: [], optionalParams: ['issuer', 'insider', 'transaction_type', 'date_from', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/sedi/insider-transactions?issuer=RY&limit=50'" },
+  ]},
+
+  // ── New: Unions ─────────────────────────────────────
+  unions: { name: 'unions', description: 'Union data — membership, revenue, assets for major Canadian unions (CUPE, Unifor, PSAC, etc.)', actions: [
+    { id: 'union-reports', description: 'Union annual report data including membership and financials', requiredParams: [], optionalParams: ['union_name', 'year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/unions/union-reports?union=CUPE&year=2025'" },
+  ]},
+
+  // ── New: Universities ───────────────────────────────
+  universities: { name: 'universities', description: 'University data — CUDO enrolment, per-institution CKAN datasets', actions: [
+    { id: 'university-data', description: 'University financial, enrolment, and research data', requiredParams: [], optionalParams: ['institution', 'year', 'province', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/universities/university-data?province=ON&year=2025'" },
+  ]},
+
+  // ── New: CRTC ────────────────────────────────────────
+  crtc: { name: 'crtc', description: 'CRTC regulatory decisions and broadcasting ownership data', actions: [
+    { id: 'decisions', description: 'CRTC broadcasting and telecom regulatory decisions', requiredParams: [], optionalParams: ['year', 'type', 'applicant', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/crtc/decisions?year=2025&type=broadcasting'" },
+    { id: 'ownership', description: 'CRTC broadcasting ownership and control information', requiredParams: [], optionalParams: ['owner', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/crtc/ownership'" },
+  ]},
+
+  // ── New: CRA Charity ────────────────────────────────
+  craCharity: { name: 'cra-charity', description: 'CRA registered charity T3010 data — finances, political spending, programs', actions: [
+    { id: 'charity-search', description: 'Search registered charities by name, BN, or category', requiredParams: [], optionalParams: ['query', 'category', 'year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/cra-charity/charity-search?category=health&year=2024'" },
+    { id: 'political-spending', description: 'Charity political activity spending disclosure', requiredParams: [], optionalParams: ['year', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/cra-charity/political-spending?year=2024'" },
+  ]},
+
+  // ── New: Provincial Regulators ──────────────────────
+  provincialRegulators: { name: 'provincial-regulators', description: '273 provincial regulators across 21 categories — securities, financial services, law societies, policing, engineering, etc.', actions: [
+    { id: 'regulator-search', description: 'Find regulators by province, category, or name', requiredParams: [], optionalParams: ['province', 'category', 'query', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/provincial-regulators/regulator-search?province=ON&category=securities'" },
+    { id: 'regulator-coverage', description: 'Coverage summary of regulators across provinces', requiredParams: [], optionalParams: [], sampleCurl: "curl 'https://api.maplespike.ca/v1/provincial-regulators/regulator-coverage'" },
+  ]},
 };
 
 /** Resolve an agent by name (case-insensitive). Throws if not found. */
