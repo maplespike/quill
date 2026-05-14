@@ -1678,3 +1678,8 @@ export type { A2ajCoverageItem, A2ajDocument, A2ajSearchResult, A2ajIngestionRes
 import { ingestAllLegislationData, LEGISLATION_SOURCES } from './legislation/index.js';
 export { ingestAllLegislationData, LEGISLATION_SOURCES } from './legislation/index.js';
 export type { LegislationRecord, LegislationIngestionResult } from './legislation/types.js';
+
+/* ── GoC Spending (GitHub-based federal contracts) ────── */
+import { ingestAllGoCSpending, listDataFiles } from './goc-spending/index.js';
+export { ingestAllGoCSpending, listDataFiles } from './goc-spending/index.js';
+export type { GoCContract, GoCIngestionResult } from './goc-spending/types.js';

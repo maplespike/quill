@@ -376,6 +376,12 @@ export const AGENTS: Record<string, AgentDefinition> = {
     { id: 'federal-regulations', description: 'Federal consolidated Regulations from Justice Canada XML repository', requiredParams: [], optionalParams: ['keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/legislation/federal-regulations?keyword=immigration'" },
     { id: 'provincial-legislation', description: 'Provincial legislation from Ontario e-Laws, BC Laws, and CKAN portals', requiredParams: [], optionalParams: ['province', 'keyword', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/legislation/provincial-legislation?province=ON'" },
   ]},
+
+  // ── New: GoC Spending ────────────────────────────────
+  gocSpending: { name: 'goc-spending', description: 'Government of Canada spending data from GoC-Spending GitHub repository — federal contracts by department and vendor', actions: [
+    { id: 'contracts', description: 'Federal contracts data by year, department, and vendor', requiredParams: [], optionalParams: ['year', 'department', 'vendor', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/goc-spending/contracts?year=2018&limit=50'" },
+    { id: 'spending-summary', description: 'Aggregate spending statistics by department', requiredParams: [], optionalParams: ['year', 'department', 'limit'], sampleCurl: "curl 'https://api.maplespike.ca/v1/goc-spending/spending-summary?year=2018'" },
+  ]},
 };
 
 /** Resolve an agent by name (case-insensitive). Throws if not found. */
