@@ -11,6 +11,7 @@
     "dev": "node dist/dev-server.js",
     "dev:watch": "tsc --watch & node --watch dist/dev-server.js",
     "test": "tsx --test src/*.test.ts src/**/*.test.ts"
+    "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts",
   },
   "dependencies": {
     "@maplespike/pipeline-core": "workspace:*",
