@@ -8,30 +8,26 @@
 
 ## What it is
 
-MapleSpike ingests, verifies, and surfaces **16 data modules** of Canadian public-domain government data:
+MapleSpike ingests, verifies, and surfaces **53 data modules** of Canadian public-domain government data across every sector.
 
-| # | Module | What it tracks | Connectors | DB Persist | MCP Tool |
-|---|--------|----------------|-----------|------------|----------|
-| 1 | **RSS Feeds** | 43+ government, corporate, and media RSS feeds | ✅ | — | — |
-| 2 | **Gov API (StatCan/CKAN)** | Statistics Canada WDS, open.canada.ca CKAN, provincial portals | ✅ | — | ✅ real |
-| 3 | **House of Commons Committees** | 30 HoC committees — evidence XML, Hansard, in-camera detection | ✅ | ✅ full SQL | ✅ real |
-| 4 | **Senate Committees** | 20 Senate committees via sencanada.ca | ✅ | ✅ full SQL | ✅ real |
-| 5 | **Corporate Lobbying** | Federal lobbying registry, CKAN, monthly CSV reports | ✅ | ✅ DB persist | ✅ real |
-| 6 | **Procurement & Contracts** | CanadaBuys RSS, proactive disclosure, sole-source detection | ✅ | ✅ DB persist | ✅ real |
-| 7 | **Executive Statements** | 17 tracked execs — press releases, topic tagging | ✅ | ✅ DB persist | ✅ real |
-| 8 | **Influence Actors** | 32 IOs, NGOs, think tanks, consultancies | ✅ | ✅ DB persist | ✅ real |
-| 9 | **Canada Gazette** | Proposed and enacted regulations (Parts I, II) | ✅ | ✅ full SQL | ✅ real |
-| 10 | **GIC Appointments** | Governor-in-Council appointments, salary ranges | ✅ | ✅ full SQL | ✅ real |
-| 11 | **Provincial Lobbying** | Ontario lobbying registry (BC/QC stubbed) | ✅ partial | ✅ full SQL | ✅ real |
-| 12 | **Elections Canada** | Third-party advertiser registry, spending reports | ✅ | ✅ full SQL | ✅ real |
-| 13 | **Oversight Bodies** | OAG, PBO, Ethics, Lobbying Commissioner, CB, CRTC | ✅ | ✅ full SQL | ✅ real |
-| 14 | **CanLII Court Decisions** | Federal and provincial courts, citation graphs | ✅ | ✅ full SQL | ✅ real |
-| 15 | **LMIA Data** | LMIA quarterly data — TFW program usage | ✅ | ✅ full SQL | ✅ real |
-| 16 | **Verification, Audit & Curation** | SHA-256 hashing, AIDA audit trails, trust scoring | ✅ | — | ✅ real |
+**Coverage:**
+- **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
+- **Parliament & committees**: House and Senate committees, Hansard, Canada Gazette, LEGISinfo
+- **Regulatory & oversight**: OAG, PBO, Ethics Commissioner, Lobbying Commissioner, Competition Bureau, CRTC, Privacy Commissioner, Information Commissioner, Official Languages, CHRC, OSFI, FCAC, FINTRAC, CDIC
+- **Corporate & influence**: Lobbying registry, procurement, SEDI insider trades, SEDAR+ filings, corporations Canada, 31 NGO/think tank RSS feeds, WEF narrative tracking
+- **Provincial**: All 13 legislatures, 13 CKAN portals, 273 regulators across 21 categories (securities, law societies, police SIU, engineering, medical, teaching, etc.)
+- **Municipal**: 19 cities with direct open data fetchers, 3,490+ via provincial CKAN federation, regional authorities (Peel, York, Durham, Metro Vancouver, CRD)
+- **Justice & legal**: CanLII case law, A2AJ 116K+ decisions, Justice Canada legislation XML, federal tribunals, Ontario e-Laws, BC Laws
+- **Real-time**: ECCC weather alerts (CAP-CP), CBSA border wait times, parole board decisions
+- **Unions & labour**: CUPE, Unifor, PSAC annual reports, StatCan aggregates
+- **Universities**: CUDO enrolment data, Tri-Council grants, per-institution CKAN
+- **Media & broadcasting**: CRTC market reports, ownership charts, Canada Media Fund, Telefilm, Online News Act
+- **Defence & veterans**: DND personnel, procurement
+- **SDK**: @maplespike/sdk — typed TypeScript client covering all 53 modules, dual CJS/ESM
 
 Every record includes SHA-256 citation hashes, source provenance, and audit trails for independent verification.
 
-> **Current state:** All 16 modules have data connectors with DB persistence. All **14 MCP tools** return real data from `pipeline-data.json` with live-fetch fallbacks. Phases 1–3 (Shared DB, Wire Ingestion, Wire MCP) are complete. Portal visual uplift applied (all text visible, particle background, hero refined). Next: Phase 6 — SaaS console (API keys, usage, billing, catalog, playground). See [ROADMAP.md](./ROADMAP.md) for full plan.
+**Current state:** 53 modules, 81,857 lines, 1,141 external endpoints, zero stubs. All 7 packages compile clean. 5/5 SDK tests passing. Cross-reference engine connects lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections.
 
 ---
 

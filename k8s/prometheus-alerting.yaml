@@ -1,0 +1,64 @@
+# Prometheus alerting rules for MapleSpike CronJob health
+# Deploy to K3s: kubectl apply -f k8s/prometheus-alerting.yaml
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: maplespike-cronjob-alerts
+  namespace: observability
+  labels:
+    app: maplespike
+    component: alerting
+spec:
+  groups:
+  - name: maplespike-cronjobs
+    interval: 30s
+    rules:
+
+    # ── Failed CronJob runs ──
+    - alert: CronJobFailed
+      expr: |
+        increase(kube_job_status_failed{namespace="ai-inference"}[5m]) > 0
+      for: 1m
+      labels:
+        severity: critical
+        team: pipeline
+      annotations:
+        summary: "CronJob {{ $labels.job }} failed"
+        description: "CronJob {{ $labels.job }} in namespace {{ $labels.namespace }} has failed. Check logs with: kubectl logs job/{{ $labels.job }}"
+
+    # ── CronJob running too long ──
+    - alert: CronJobRunningTooLong
+      expr: |
+        time() - kube_job_status_start_time{namespace="ai-inference"} > 1800
+      for: 2m
+      labels:
+        severity: warning
+        team: pipeline
+      annotations:
+        summary: "CronJob {{ $labels.job }} running for >30m"
+        description: "Job {{ $labels.job }} has been running for more than 30 minutes. Investigate if it's stuck."
+
+    # ── Pushgateway stale (no recent metric push) ──
+    - alert: PipelineIngestionStale
+      expr: |
+        (time() - pushgateway_last_push_seconds{job="maplespike-ingest"}) > 7200
+      for: 5m
+      labels:
+        severity: warning
+        team: pipeline
+      annotations:
+        summary: "Pipeline ingestion stale for >2h"
+        description: "Last push to Pushgateway was {{ $value | humanizeDuration }} ago. One or more CronJobs may have stopped running."
+
+    # ── No recent pipeline data ──
+    - alert: NoPipelineData
+      expr: |
+        (time() - pipeline_data_generated_at_seconds) > 86400
+      for: 10m
+      labels:
+        severity: critical
+        team: pipeline
+      annotations:
+        summary: "Pipeline data not generated for >24h"
+        description: "pipeline-data.json was last generated {{ $value | humanizeDuration }} ago. Run: node scripts/generate-pipeline-data.mjs"
