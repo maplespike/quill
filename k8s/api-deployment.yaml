@@ -41,10 +41,12 @@ spec:
               value: "sqlite"
             - name: MAPLESPIKE_DB_PATH
               value: "/data/maplespike.db"
-            - name: AI_ENDPOINT
+            - name: MAPLESPIKE_AI_ENDPOINT
               value: "http://ai-inference-gateway:8080/v1"
-            - name: AI_MODEL
+            - name: MAPLESPIKE_AI_MODEL
               value: "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"
+            - name: MAPLESPIKE_API_KEY
+              value: "maplespike-dev-key"
           resources:
             requests:
               cpu: "100m"

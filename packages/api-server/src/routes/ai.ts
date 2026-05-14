@@ -13,9 +13,18 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 
-const GATEWAY_ENDPOINT = process.env.MAPLESPIKE_GATEWAY_URL || 'http://nexus:30880/v1';
+// Gateway endpoint: check multiple env var names for compatibility
+// Order: MAPLESPIKE_AI_ENDPOINT > MAPLESPIKE_GATEWAY_URL > AI_ENDPOINT > default
+const GATEWAY_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT
+  || process.env.MAPLESPIKE_GATEWAY_URL
+  || process.env.AI_ENDPOINT
+  || 'http://ai-inference-gateway:8080/v1';
 const GATEWAY_API_KEY = process.env.MAPLESPIKE_GATEWAY_API_KEY || '';
-const CHAT_MODEL = process.env.MAPLESPIKE_CHAT_MODEL || 'qwen/qwen3-coder-30b-a3b-instruct';
+// Model: check MAPLESPIKE_AI_MODEL > MAPLESPIKE_CHAT_MODEL > AI_MODEL > default
+const CHAT_MODEL = process.env.MAPLESPIKE_AI_MODEL
+  || process.env.MAPLESPIKE_CHAT_MODEL
+  || process.env.AI_MODEL
+  || 'Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf';
 const GOV_SEARCH_ENDPOINT = process.env.MAPLESPIKE_API_URL
   ? `${process.env.MAPLESPIKE_API_URL.replace(/\/+$/, '')}/v1/gov/search`
   : 'http://127.0.0.1:8084/v1/gov/search';
