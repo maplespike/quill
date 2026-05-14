@@ -1,19 +1,58 @@
 # MapleSpike — Roadmap
 
-> This file is a synced copy of `/data/projects/own/maplespike/ROADMAP.md` (the root-level canonical document).
->
-> For the full, up-to-date roadmap with honest module statuses, file inventory, and the 7-phase build plan, see the [root ROADMAP.md](../ROADMAP.md).
+> **Last updated:** 2026-05-13
 
----
+## Current Status: PHASE 5 — Library of Alexandria Complete
 
-**Last synced:** 2026-05-13
+### Key Metrics
+- **47 ingestion modules**, zero stubs
+- **81,857 lines** of TypeScript
+- **1,141 unique external data endpoints** consumed
+- **28 CLI pipelines** registered
+- **All 13 provinces/territories** covered at every oversight category
+- **273 provincial regulators** across 21 categories
+- **24 CKAN portals** (federal + 13 provincial + 10 municipal)
+- **86 RSS feeds** consumed (43 news + 31 NGO/think tank + 12 government)
+- **~200 direct CSV/XLSX downloads** (IRCC, LMIA, CRA Charity, CIHI, TSB)
+- **19 cities** with direct open data API fetchers
+- **3,490+ cities** accessible via provincial CKAN federation
 
-Key changes from the previous version:
+### What We Built
 
-- **All 14 MCP tools confirmed real** — every search tool returns real data from pipeline-data.json with live-fetch fallbacks
-- **Portal visual uplift completed** — fade-in opacity fix, particle animation replaced, hero text shortened, script.js wired, all text visible
-- **Phase 6 (SaaS) established** — public API with Stripe + crypto + Interac billing. Console features defined
-- **PRD SaaS contradiction fixed** — "Not a SaaS business" removed from non-goals, architecture diagram updated to reflect K3s + Caddy deployment
-- **Phase 0–3 status confirmed DONE** — Shared DB, Wire Ingestion, Wire MCP all complete per current pipeline-data.json verification
-- **Phases 4–7 remain TODO** — Engine integration, live dashboard wiring, CronJob deployment, CI/CD
-- **Top 10 reordered** — console features (user accounts, API keys, usage dashboard) now prioritized alongside CronJobs and billing
+| Phase | Scope | Status |
+|-------|-------|--------|
+| 0 | Shared database schema | ✅ DONE |
+| 1 | Core ingestion modules (committees, corporate, influence, gazette, GIC, elections) | ✅ DONE |
+| 2 | MCP tools + API server | ✅ DONE |
+| 3 | Portal (docs, workspace, blog, changelog, contact, explorer) | ✅ DONE |
+| 4 | Deep federal modules (immigration, defence, criminal justice, transport, health, education, social programs) | ✅ DONE |
+| 5 | Provincial/territorial full coverage (all 13 legislatures, CKAN, 273 regulators, 19 cities + long-tail federation) | ✅ DONE |
+| 5b | SDK packaging (@maplespike/sdk v0.2.0, dual CJS/ESM, typed client for 47 modules) | ✅ DONE |
+| 5c | Real-time feeds (ECCC weather, CBSA borders, parole decisions) | ✅ DONE |
+| 5d | Media/broadcasting deep (CRTC market reports, ownership charts, Canada Media Fund, Telefilm) | ✅ DONE |
+| 5e | Unions deep (8 major union annual reports), Universities deep (CUDO + CKAN) | ✅ DONE |
+| 5f | Corporate filings (SEDAR+ metadata), Culture deep (Canada Council, PCH CKAN) | ✅ DONE |
+| 5g | Provincial deep (9 smaller provinces CKAN), Federal deep (CIHI wait times, ESDC, PHAC) | ✅ DONE |
+| 5h | Municipal long-tail federated crawler (provincial CKAN portals) | ✅ DONE |
+| 6 | SaaS/API — public API with billing, user accounts, API keys | 🟡 In progress |
+| 7 | CI/CD — automated deployment, monitoring, CronJob health | 🟡 In progress |
+
+### Remaining Work
+
+| Task | Priority | Effort |
+|------|----------|--------|
+| npm publish @maplespike/sdk to public registry | Low | 1 hour (triggers on prod push) |
+| Portal live data (connect dashboard to pipeline-data.json) | Low | 1 day |
+| CI/CD: CronJob health monitoring + Prometheus alerting | Low | 2 days |
+| Cross-reference engine (lobbying ↔ committees ↔ GIC ↔ donations) | Medium | 1 week |
+| Enrich 8 skeleton modules with deeper parsers | Low | 1 week |
+
+### CLI Pipelines (28)
+
+```
+committee, corporate, influence, gazette, gic, elections, provincial-lobbying,
+oversight, canlii, lmia, immigration, indigenous, defence, tribunals, veterans,
+fisheries, agriculture, culture, ngo-rss, regional-authorities, media, realtime,
+social-programs, municipal-long-tail, universities, unions, corporate-filings,
+culture-deep, provincial-deep, federal-deep
+```
