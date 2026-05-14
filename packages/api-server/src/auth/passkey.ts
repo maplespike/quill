@@ -26,6 +26,12 @@ import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
 /*  Configuration                                                     */
 /* ------------------------------------------------------------------ */
 
+/* ══════════════════════════════════════════════════════════════════
+   RP_ID must match the origin domain for passkeys to work cross-platform.
+   In development, set MAPLESPIKE_DOMAIN=localhost and MAPLESPIKE_ORIGIN=http://localhost:PORT
+   For production, MAPLESPIKE_DOMAIN=maplespike.ca, origin must be https.
+   ══════════════════════════════════════════════════════════════════ */
+
 const RP_NAME = 'MapleSpike';
 const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
 const ORIGIN = process.env.MAPLESPIKE_ORIGIN || `https://${RP_ID}`;
@@ -75,16 +81,26 @@ export async function beginRegistration(
 ): Promise<PasskeyRegisterBeginResponse> {
   const registrationId = generateNonce();
 
+  // Fetch existing credentials for this user to prevent duplicate registration
+  const existingCreds = req.userId
+    ? Array.from(credentials.values())
+        .filter(c => c.userId === req.userId)
+        .map(c => ({
+          id: c.id,
+          transports: c.transports as AuthenticatorTransportFuture[],
+        }))
+    : [];
+
   const options = await generateRegistrationOptions({
     rpName: RP_NAME,
     rpID: RP_ID,
     userName: req.userName,
     userDisplayName: req.userName,
     attestationType: 'none',
-    excludeCredentials: [],
+    excludeCredentials: existingCreds,
     authenticatorSelection: {
-      residentKey: 'preferred',
-      userVerification: 'preferred',
+      residentKey: 'required',
+      userVerification: 'required',
     },
   });
 
@@ -178,7 +194,7 @@ export function beginLogin(
   const options = generateAuthenticationOptions({
     rpID: RP_ID,
     allowCredentials: allowedCredentials.length > 0 ? allowedCredentials : undefined,
-    userVerification: 'preferred',
+    userVerification: 'required',
   });
 
   setChallenge(`passkey:login:${loginId}`, (options as any).challenge as string);
