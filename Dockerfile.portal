@@ -1,0 +1,11 @@
+# MapleSpike — Portal Dockerfile
+# Serves the static portal HTML with an AI-friendly Python web server
+FROM python:3.13-alpine
+
+WORKDIR /app
+
+COPY packages/portal/ /app/
+
+EXPOSE 8080
+
+CMD ["python3", "server.py"]
