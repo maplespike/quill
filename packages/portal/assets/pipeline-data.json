@@ -1,57 +1,23 @@
 {
-  "generatedAt": "2026-05-12T21:53:23.871Z",
+  "generatedAt": "2026-05-14T04:48:06.211Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
-      "status": "ok",
-      "records": 3,
-      "errors": 0,
-      "data": [
-        {
-          "committee": "FAAE",
-          "name": "Foreign Affairs",
-          "meeting": 32,
-          "date": null,
-          "inCamera": false,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/FAAE/meeting-32/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/FAAE/Evidence/EV14050128/FAAEEV32-E.XML"
-        },
-        {
-          "committee": "JUST",
-          "name": "Justice and Human Rights",
-          "meeting": 27,
-          "date": null,
-          "inCamera": false,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/JUST/meeting-27/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/JUST/Evidence/EV14060164/JUSTEV27-E.XML"
-        },
-        {
-          "committee": "ACVA",
-          "name": "Veterans Affairs",
-          "meeting": 31,
-          "date": null,
-          "inCamera": false,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ACVA/meeting-31/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ACVA/Evidence/EV14047459/ACVAEV31-E.XML"
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 16,
+      "data": []
     },
     "senate": {
       "status": "error",
       "records": 0,
-      "errors": 0,
+      "errors": 5,
       "data": []
     },
     "gazette": {
       "status": "error",
       "records": 0,
-      "errors": 0,
+      "errors": 2,
       "data": []
     },
     "gic": {
@@ -267,7 +233,7 @@
     "oversight": {
       "status": "ok",
       "records": 15,
-      "errors": 0,
+      "errors": 2,
       "data": [
         {
           "body": "OAG",
@@ -367,6 +333,27 @@
       "errors": 0,
       "data": [
         {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/118fa92a-4368-4767-a34d-460fd6746508/download/bureaux-vote-2021.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "GEOJSON",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/79c44bf6-a247-47a2-890a-ded0c35c2fde/download/bureaux-vote-2021.geojson",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "SHP",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/5a3837a1-5d70-4cfd-852c-313ef09c919e/download/bureaux-vote-2021.zip",
+          "resourceDescription": ""
+        },
+        {
           "packageTitle": "2021 Municipal Election — Bassins (polling day offices)",
           "packageId": "c96ab120-1f16-4943-9203-5ed240c67d85",
           "resourceFormat": "KML",
@@ -392,27 +379,6 @@
           "packageId": "f0d6a32c-cc97-4f09-bf22-d9bf1e1d3c7c",
           "resourceFormat": "PDF",
           "resourceUrl": "https://www.gatineau.ca/upload/donneesouvertes/election_municipale_2021_sections_bvo.pdf",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/118fa92a-4368-4767-a34d-460fd6746508/download/bureaux-vote-2021.csv",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "GEOJSON",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/79c44bf6-a247-47a2-890a-ded0c35c2fde/download/bureaux-vote-2021.geojson",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "SHP",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/5a3837a1-5d70-4cfd-852c-313ef09c919e/download/bureaux-vote-2021.zip",
           "resourceDescription": ""
         },
         {
@@ -462,13 +428,13 @@
     "canlii": {
       "status": "error",
       "records": 0,
-      "errors": 0,
+      "errors": 4,
       "data": []
     },
     "corporate": {
       "status": "ok",
       "records": 3,
-      "errors": 0,
+      "errors": 1,
       "data": [
         {
           "dataset": "Proactive Publication - Contracts",
@@ -493,7 +459,7 @@
     "lobbying": {
       "status": "ok",
       "records": 2,
-      "errors": 0,
+      "errors": 1,
       "data": [
         {
           "packageTitle": "Lobbying Registrations",
@@ -514,7 +480,7 @@
     "procurement": {
       "status": "error",
       "records": 0,
-      "errors": 0,
+      "errors": 2,
       "data": []
     },
     "influence": {
@@ -569,8 +535,8 @@
     }
   },
   "stats": {
-    "totalRecords": 64,
-    "hoc": 3,
+    "totalRecords": 61,
+    "hoc": 0,
     "senate": 0,
     "gazette": 0,
     "gic": 12,
@@ -586,136 +552,130 @@
   },
   "activity": [
     {
-      "action": "Hoc: FAAE #32 — 3 meetings",
-      "type": "hoc",
-      "time": "2026-05-12T21:53:23.865Z",
-      "count": 3
-    },
-    {
       "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
       "type": "gic",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 12
     },
     {
       "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
       "type": "lmia",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 10
     },
     {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 15
     },
     {
-      "action": "Elections: \"2021 Municipal Election — Bassins (polling day offices)\" — 13 resources",
+      "action": "Elections: \"Municipal elections - Polling stations\" — 13 resources",
       "type": "elections",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 13
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 3
     },
     {
       "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
       "type": "lobbying",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 5
     },
     {
       "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
       "type": "provincialLobbying",
-      "time": "2026-05-12T21:53:23.865Z",
+      "time": "2026-05-14T04:48:06.201Z",
       "count": 1
     }
   ],
   "pipeline": {
     "hoc": {
-      "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
-      "records": 3,
-      "errors": 0
+      "status": "error",
+      "lastRun": "2026-05-14T04:48:06.212Z",
+      "records": 0,
+      "errors": 16
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 0,
-      "errors": 1
+      "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 0,
-      "errors": 1
+      "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 10,
       "errors": 0
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 15,
-      "errors": 0
+      "errors": 2
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 13,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 0,
-      "errors": 1
+      "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 3,
-      "errors": 0
+      "errors": 1
     },
     "lobbying": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 2,
-      "errors": 0
+      "errors": 1
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 0,
-      "errors": 1
+      "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
       "status": "ok",
-      "lastRun": "2026-05-12T21:53:23.871Z",
+      "lastRun": "2026-05-14T04:48:06.212Z",
       "records": 1,
       "errors": 0
     }
