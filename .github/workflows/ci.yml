@@ -29,6 +29,9 @@ jobs:
       # Build all JS/TS packages (Turbo respects dependency order)
       - run: pnpm -r build
 
+      # Rebuild native modules (better-sqlite3) for CI runner's Node version
+      - run: pnpm rebuild better-sqlite3
+
       # ── Start API server for MCP integration tests ──────────
 
       - name: Start API server (background)
