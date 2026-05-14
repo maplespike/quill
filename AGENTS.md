@@ -224,11 +224,13 @@ The root `pnpm build` builds in correct topological order.
 
 ---
 
-## MCP Server (18 Tools)
+## MCP Server (22 Tools)
 
-All 18 tools return real data. 14 search tools proxy through the API server (via `api-client.ts`) to guarantee MCP ↔ REST alignment. `query_gov_data` now uses the same API server endpoint as the REST API. `system_health` surfaces `/v1/health` + `/v1/usage` data. No external DB required for local dev.
+All 22 tools return real data — including 3 AI tools (ai_analyze, ai_ask, ai_search_semantic) now registered in `getAllTools()`. 14 search tools proxy through the API server (via `api-client.ts`) to guarantee MCP ↔ REST alignment. `query_gov_data` uses the same API server endpoint as the REST API. `system_health` surfaces `/v1/health` + `/v1/usage` data.
 
-Tools: `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `search_committees`, `search_corporate`, `search_influence`, `search_gazette`, `search_gic`, `search_elections`, `search_provincial_lobbying`, `search_oversight`, `search_canlii`, `search_lmia`, `ai_analyze`, `ai_ask`, `ai_search_semantic`, `system_health`
+**Transport:** SSE mode (HTTP) via `cli.ts` — serves `/health`, `/sse`, `/messages`. Deployed on K3s at port 32537 with 22 tools.
+
+Tools: `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `search_committees`, `search_corporate`, `search_influence`, `search_gazette`, `search_gic`, `search_elections`, `search_provincial_lobbying`, `search_oversight`, `search_canlii`, `search_lmia`, `search_immigration`, `search_science`, `search_tribunals`, `search_lode`, `ai_analyze`, `ai_ask`, `ai_search_semantic`, `system_health`
 
 **Local run:**
 ```bash
