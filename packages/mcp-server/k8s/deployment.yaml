@@ -38,9 +38,13 @@ spec:
               value: "3001"
             - name: NODE_ENV
               value: "production"
-            - name: CIVINT_AI_ENDPOINT
+            - name: MAPLESPIKE_API_URL
+              value: "http://maplespike-api:8084/v1"
+            - name: MAPLESPIKE_API_KEY
+              value: "maplespike-dev-key"
+            - name: AI_ENDPOINT
               value: "http://ai-inference-gateway:8080/v1"
-            - name: CIVINT_AI_MODEL
+            - name: AI_MODEL
               value: "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"
           resources:
             requests:
