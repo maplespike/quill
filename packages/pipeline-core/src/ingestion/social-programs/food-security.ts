@@ -43,23 +43,6 @@ interface CkanPackageResult {
 }
 
 /**
- * Known HungerCount data from Food Banks Canada annual report.
- * These are reference data points from the public reports.
- * Source: https://hungercount.foodbankscanada.ca/
- */
-export const KNOWN_HUNGER_COUNT_DATA: Record<string, {
-  individuals: number;
-  visits: number;
-  pctChildren: number;
-  pctSeniors: number;
-  pctEmployed: number;
-}> = {
-  '2024': { individuals: 2100000, visits: 0, pctChildren: 33, pctSeniors: 7, pctEmployed: 17 },
-  '2023': { individuals: 1935000, visits: 0, pctChildren: 33, pctSeniors: 7, pctEmployed: 16.7 },
-  '2022': { individuals: 1500000, visits: 0, pctChildren: 33, pctSeniors: 6, pctEmployed: 15 },
-};
-
-/**
  * Scrape Food Banks Canada HungerCount report for latest data.
  */
 export async function fetchFoodBankData(): Promise<{
@@ -144,24 +127,6 @@ export async function fetchFoodBankData(): Promise<{
     }
   } catch (err) {
     errors.push(`Food bank scrape failed: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // Fallback to known data if scraping produced nothing
-  if (records.length === 0) {
-    for (const [year, data] of Object.entries(KNOWN_HUNGER_COUNT_DATA)) {
-      records.push({
-        id: await computeHash(`foodbank:${year}:CA:known`, 'sha256'),
-        year,
-        province: 'CA',
-        visits: data.visits || null,
-        individuals: data.individuals,
-        pctChildren: data.pctChildren,
-        pctSeniors: data.pctSeniors,
-        pctEmployed: data.pctEmployed,
-        sourceUrl: 'https://hungercount.foodbankscanada.ca/',
-        ingestedAt: now,
-      });
-    }
   }
 
   return { records, errors };
@@ -302,21 +267,7 @@ const parsed = await parseHomelessnessCsv(resp.body, resource.url)
 
 // ─── Canada Disability Benefit ──────────────────────────────────────────
 
-/**
- * Known Canada Disability Benefit data from public reports.
- * The CDB was announced in 2024 with implementation planned.
- */
-export const KNOWN_DISABILITY_BENEFIT_DATA: Record<string, {
-  program: string;
-  jurisdiction: string;
-  monthlyBenefit: number;
-  recipients: number | null;
-}> = {
-  '2024': { program: 'Canada Disability Benefit (CDB)', jurisdiction: 'federal', monthlyBenefit: 200, recipients: null },
-  '2025': { program: 'Canada Disability Benefit (CDB)', jurisdiction: 'federal', monthlyBenefit: 225, recipients: null },
-};
-
-export async function fetchDisabilityBenefitData(): Promise<{
+async function fetchDisabilityBenefit(): Promise<{
   records: DisabilityBenefitRecord[];
   errors: string[];
 }> {
@@ -361,22 +312,6 @@ export async function fetchDisabilityBenefitData(): Promise<{
     errors.push(`Disability benefit scrape: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // Fallback to known data
-  if (records.length === 0) {
-    for (const [year, data] of Object.entries(KNOWN_DISABILITY_BENEFIT_DATA)) {
-      records.push({
-        id: await computeHash(`disability:${year}:${data.jurisdiction}:${data.program}:known`, 'sha256'),
-        year,
-        program: data.program,
-        jurisdiction: data.jurisdiction,
-        monthlyBenefit: data.monthlyBenefit,
-        recipients: data.recipients,
-        sourceUrl: SOCIAL_SOURCES.DISABILITY_BENEFIT.BASE,
-        ingestedAt: now,
-      });
-    }
-  }
-
   return { records, errors };
 }
 
@@ -391,7 +326,7 @@ export async function ingestFoodSecurity(): Promise<{
   const [foodBankResult, homelessnessResult, disabilityResult] = await Promise.all([
     fetchFoodBankData(),
     fetchHomelessnessData(),
-    fetchDisabilityBenefitData(),
+    fetchDisabilityBenefit(),
   ]);
 
   return {
