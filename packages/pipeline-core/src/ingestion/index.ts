@@ -1625,3 +1625,8 @@ export type { NgoRssItem, NgoRssIngestionResult, NgoRssConfig, NgoCategory, Narr
 import { ingestAllRegional, searchRegionalAuthorities, REGIONAL_AUTHORITIES, REGIONAL_AUTHORITY_MAP } from './regional-authorities/index.js';
 export { ingestAllRegional, searchRegionalAuthorities, REGIONAL_AUTHORITIES, REGIONAL_AUTHORITY_MAP } from './regional-authorities/index.js';
 export type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityCode, RegionalAuthorityConfig } from './regional-authorities/types.js';
+
+/* ── Media & Broadcasting ────────────────────────────── */
+import { ingestAllMedia, MEDIA_SOURCES } from './media-broadcasting/index.js';
+export { ingestAllMedia, MEDIA_SOURCES } from './media-broadcasting/index.js';
+export type { MediaRecord, MediaIngestionResult } from './media-broadcasting/types.js';
