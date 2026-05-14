@@ -1596,3 +1596,22 @@ export type {
   ApprenticeshipRecord,
   EduIngestionResult,
 } from './education-research/types.js';
+/* ── Veterans ──────────────────────────────────────────── */
+import { ingestAllVeterans, searchVeterans } from './veterans/index.js';
+export { ingestAllVeterans, searchVeterans } from './veterans/index.js';
+export type { VeteransRecord, VeteransIngestionResult } from './veterans/types.js';
+
+/* ── Fisheries ──────────────────────────────────────────── */
+import { ingestAllFisheries, searchFisheries } from './fisheries/index.js';
+export { ingestAllFisheries, searchFisheries } from './fisheries/index.js';
+export type { FisheriesRecord, FisheriesIngestionResult } from './fisheries/types.js';
+
+/* ── Agriculture ──────────────────────────────────────────── */
+import { ingestAllAgriculture, searchAgriculture } from './agriculture/index.js';
+export { ingestAllAgriculture, searchAgriculture } from './agriculture/index.js';
+export type { AgricultureRecord, AgricultureIngestionResult } from './agriculture/types.js';
+
+/* ── Culture ──────────────────────────────────────────── */
+import { ingestAllCulture, searchCulture } from './culture/index.js';
+export { ingestAllCulture, searchCulture } from './culture/index.js';
+export type { CultureRecord, CultureIngestionResult } from './culture/types.js';
