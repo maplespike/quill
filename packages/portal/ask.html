@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MapleSpike ASK — AI-Powered Government Data Search</title>
+  <script src="/config.js"></script>
 <link rel="canonical" href="https://maplespike.ca/ask">
 <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/ask">
 <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/ask">
@@ -141,7 +142,9 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/guide/what-is-maplespike.html"><span class="nav-bracket">[</span>GUIDE<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/api/endpoints.html"><span class="nav-bracket">[</span>API<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/mcp/tools.html"><span class="nav-bracket">[</span>MCP<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -210,13 +213,16 @@ const input = document.getElementById('ask-input');
 const sendBtn = document.getElementById('ask-send-btn');
 const suggestions = document.querySelectorAll('.suggestion-chip');
 
-  const API_ENDPOINT = 'http://127.0.0.1:8085/v1/ai_ask';
-  const GOV_SEARCH_ENDPOINT = 'http://127.0.0.1:8085/v1/gov/search';
+const _cfg = window.MAPLESPIKE || {};
+const _base = _cfg.apiBase || 'http://127.0.0.1:8085';
+const _to = _cfg.timeout || {};
+const API_ENDPOINT = _base + '/v1/ai_ask';
+const GOV_SEARCH_ENDPOINT = _base + '/v1/gov/search';
 
   // ── Call gov/search API and format results ──
   async function govSearch(query) {
     const resp = await fetch(`${GOV_SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&limit=8`, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(_to.default || 8000),
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
@@ -246,7 +252,7 @@ const suggestions = document.querySelectorAll('.suggestion-chip');
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(_to.default || 8000),
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
