@@ -12,4 +12,6 @@ export interface ProvincialRegulatorRecord {
 export interface ProvincialRegulatorsIngestionResult {
   records: ProvincialRegulatorRecord[];
   errors: string[];
+  durationMs?: number;
+  sourceCount?: number;
 }
