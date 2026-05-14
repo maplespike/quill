@@ -481,7 +481,6 @@ export type {
   LmiaIngestionResult,
 } from './lmia/types.js';
 
-// LODE Geospatial — BC Land Ownership Data Exchange & GeoMet weather Canada WFS/WMS
 // CKAN-based geospatial search across all federal and provincial portals
 import { ingestAllGeospatial } from './geospatial/index.js';
 export { ingestAllGeospatial } from './geospatial/index.js';
@@ -1670,6 +1669,26 @@ export type { LegislationRecord, LegislationIngestionResult } from './legislatio
 import { ingestAllGoCSpending, listDataFiles } from './goc-spending/index.js';
 export { ingestAllGoCSpending, listDataFiles } from './goc-spending/index.js';
 export type { GoCContract, GoCIngestionResult } from './goc-spending/types.js';
+
+/* ── Health Data ──────────────────────────────── */
+import { ingestHealthData, ALL_HEALTH_DATA_SOURCES, HEALTH_DATA_DDL, HEALTH_DATA_DEFAULT_MAX_RECORDS, HealthDataError } from './health-data/index.js';
+export { ingestHealthData, ALL_HEALTH_DATA_SOURCES, HEALTH_DATA_DDL, HEALTH_DATA_DEFAULT_MAX_RECORDS, HealthDataError } from './health-data/index.js';
+export type { HealthDataRecord, HealthDataIngestionResult, HealthDataSource, HealthDataCategory, HealthDataIngestionOptions } from './health-data/types.js';
+
+/* ── Provincial Orgs ──────────────────────────────── */
+import { ingestAllProvincialOrgs, ingestProvinceOrgs, searchProvincialOrg, PROVINCIAL_ORGS } from './provincial-orgs/index.js';
+export { ingestAllProvincialOrgs, ingestProvinceOrgs, searchProvincialOrg, PROVINCIAL_ORGS } from './provincial-orgs/index.js';
+export type { ProvincialOrgRecord, ProvincialOrgIngestionResult } from './provincial-orgs/types.js';
+
+/* ── Social Programs ────────────────────────────── */
+import { ingestAllSocialPrograms, searchSocialPrograms, SOCIAL_SOURCES, SOCIAL_CKAN_PACKAGE_IDS, SOCIAL_CKAN_QUERIES, SOCIAL_CPP_OAS_DDL, SOCIAL_EI_DDL, SOCIAL_CCB_DDL, SOCIAL_POVERTY_DDL, SOCIAL_ASSISTANCE_DDL, SOCIAL_FOOD_SECURITY_DDL, SOCIAL_DDL, ckanPackageShowUrl, ckanSearchUrl, ckanDownloadUrl } from './social-programs/index.js';
+export { ingestAllSocialPrograms, searchSocialPrograms, SOCIAL_SOURCES, SOCIAL_CKAN_PACKAGE_IDS, SOCIAL_CKAN_QUERIES, SOCIAL_CPP_OAS_DDL, SOCIAL_EI_DDL, SOCIAL_CCB_DDL, SOCIAL_POVERTY_DDL, SOCIAL_ASSISTANCE_DDL, SOCIAL_FOOD_SECURITY_DDL, SOCIAL_DDL } from './social-programs/index.js';
+export type { CcbRecord, CppOasBeneficiary, CppibInvestment, EiRecord, PovertyRecord, SocialAssistanceRecord, FoodBankRecord, HomelessnessRecord, DisabilityBenefitRecord, SocialIngestionResult } from './social-programs/types.js';
+
+/* ── Statistics Canada ──────────────────────────── */
+import { ingestAllStatCan, ingestCpi, ingestGdp, ingestLabour, ingestPopulation, ingestTrade, STATCAN_PRODUCTS } from './statcan/index.js';
+export { ingestAllStatCan, ingestCpi, ingestGdp, ingestLabour, ingestPopulation, ingestTrade, STATCAN_PRODUCTS } from './statcan/index.js';
+export type { StatCanIngestionResult, StatCanIndicatorType } from './statcan/types.js';
 
 /* ── Cross-Reference Engine ───────────────────────────── */
 import { searchCrossReference, CROSS_REF_MODULES } from './cross-reference/index.js';

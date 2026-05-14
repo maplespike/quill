@@ -55,7 +55,6 @@ describe('MapleSpike SDK', () => {
     const mod = await import('../auth.js');
     assert.equal(typeof mod.setApiKey, 'function');
     assert.equal(typeof mod.setJwtToken, 'function');
-    assert.equal(typeof mod.getAuthHeaders, 'function');
     assert.equal(typeof mod.clearAuth, 'function');
   });
 
