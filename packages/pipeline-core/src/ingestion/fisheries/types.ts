@@ -1,16 +1,32 @@
+/**
+ * Fisheries Data Types — MapleSpike Pipeline
+ *
+ * Types for Canadian fisheries and oceans data from:
+ *   - Fisheries & Oceans Canada (DFO)
+ *   - Canadian Coast Guard
+ *   - Marine protected areas
+ *   - Aquaculture regulation
+ */
+
 export interface FisheriesRecord {
   id: string;
   year: number;
   category: string;
+  subCategory: string;
   value: number;
+  unit: string;
   description: string;
   region: string;
+  species: string;
   sourceUrl: string;
+  sourceName: string;
   ingestedAt: string;
 }
 
 export interface FisheriesIngestionResult {
-  records: FisheriesRecord[];
+  source: string;
+  recordsFound: number;
+  recordsIngested: number;
   errors: string[];
   durationMs: number;
 }
