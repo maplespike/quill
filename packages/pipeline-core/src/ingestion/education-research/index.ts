@@ -11,7 +11,7 @@
  *   - When db is provided: persists parsed records to the database
  *   - When db is null: returns parsed records as structured data in the result
  *
- * Additional HTML sources (scraping stubs for future implementation):
+ * All major education data sources have real fetchers
  *   - Digital Research Alliance of Canada (alliancecan.ca)
  *   - Mitacs (mitacs.ca)
  */
