@@ -133,6 +133,10 @@ export const RSS_SOURCES: RSSSource[] = [
 export function parseRSS(xmlText: string): RSSFeed {
   const items: RSSItem[] = [];
 
+  if (!xmlText || typeof xmlText !== 'string') {
+    return { items: [] };
+  }
+
   const itemMatches = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/gi) || [];
 
   for (const itemBlock of itemMatches) {
