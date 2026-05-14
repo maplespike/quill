@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CivInt Pipeline Data Generator
+ * MapleSpike Pipeline Data Generator
  *
  * Fetches real data from ALL 13 pipeline ingestion sources using only
  * Node.js built-ins + global fetch(). No npm dependencies.
@@ -32,7 +32,7 @@ const ASSETS_DIR = resolve(__dirname, '..', 'assets');
 const OUTPUT_FILE = resolve(ASSETS_DIR, 'pipeline-data.json');
 
 const USER_AGENT =
-  'CivIntPipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
+  'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
 const FETCH_TIMEOUT = 15000;
 const SOURCE_TIMEOUT = 15000;
@@ -1310,6 +1310,155 @@ async function fetchScience(signal = null) {
 }
 
 
+/**
+ * Build a sample crossReference query result for "Brookfield Asset Management".
+ *
+ * Mimics the CrossReferenceResult type from pipeline-core's
+ * cross-reference engine so that the portal dashboard can render
+ * the unified timeline format without needing live API calls.
+ *
+ * Includes example data across: lobbying, GIC, committees, contracts,
+ * and elections — the five modules the cross-reference engine covers.
+ */
+function buildCrossReferenceSample() {
+  const entity = 'Brookfield Asset Management';
+  const now = new Date().toISOString();
+
+  const matches = [
+    // Lobbying
+    {
+      module: 'lobbying',
+      sourceUrl: 'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management',
+      date: '2025-11-14',
+      title: 'In-house lobbying registration — Brookfield Asset Management Inc.',
+      description: 'Designated public office holders contacted on pension reform, infrastructure investment, and tax treaty matters.',
+      relevance: 'direct',
+    },
+    {
+      module: 'lobbying',
+      sourceUrl: 'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management',
+      date: '2025-06-03',
+      title: 'Consultant lobby registration — Brookfield Renewable Partners',
+      description: 'Arranged meeting with Minister of Natural Resources regarding renewable energy regulatory framework.',
+      relevance: 'direct',
+    },
+    {
+      module: 'lobbying',
+      sourceUrl: 'https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management',
+      date: '2024-09-20',
+      title: 'In-house lobbying registration — Brookfield Business Partners',
+      description: 'Communication with Innovation, Science and Industry Canada on competition policy.',
+      relevance: 'direct',
+    },
+    // GIC Appointments
+    {
+      module: 'gic',
+      sourceUrl: 'https://open.canada.ca/data/en/dataset/1691db07-7620-4535-9cb0-e5a0512ba35d',
+      date: '2025-08-22',
+      title: 'GIC Appointment — Canada Infrastructure Bank Board',
+      description: 'Governor in Council appointment of nominee affiliated with Brookfield Asset Management to the Canada Infrastructure Bank board of directors.',
+      relevance: 'indirect',
+    },
+    {
+      module: 'gic',
+      sourceUrl: 'https://open.canada.ca/data/en/dataset/d63a5c6d-fd93-4442-ac28-561f4dac90c6',
+      date: '2024-03-15',
+      title: 'GIC Appointment — PPP Canada Board',
+      description: 'Senior executive from Brookfield named to Public-Private Partnership Canada selection committee.',
+      relevance: 'indirect',
+    },
+    // Committees
+    {
+      module: 'committees',
+      sourceUrl: 'https://www.ourcommons.ca/DocumentViewer/en/44-1/FINA/meeting-120/evidence',
+      date: '2025-10-02',
+      title: 'FINA — Standing Committee on Finance: Pension Reform Study',
+      description: 'Witness testimony referenced Brookfield Asset Management\u2019s role in Canadian pension fund infrastructure investments.',
+      relevance: 'direct',
+    },
+    {
+      module: 'committees',
+      sourceUrl: 'https://www.ourcommons.ca/DocumentViewer/en/44-1/INDU/meeting-95/evidence',
+      date: '2025-04-18',
+      title: 'INDU — Standing Committee on Industry: Foreign Investment Review',
+      description: 'Committee discussed Brookfield\u2019s acquisition of domestic infrastructure assets and implications under the Investment Canada Act.',
+      relevance: 'direct',
+    },
+    {
+      module: 'committees',
+      sourceUrl: 'https://www.ourcommons.ca/DocumentViewer/en/44-1/ENVI/meeting-80/evidence',
+      date: '2024-11-25',
+      title: 'ENVI — Standing Committee on Environment: Clean Energy Transition',
+      description: 'Brookfield Renewable Partners mentioned in context of clean energy investment targets and carbon reduction commitments.',
+      relevance: 'indirect',
+    },
+    // Contracts (Proactive Disclosure)
+    {
+      module: 'proactive-disclosure',
+      sourceUrl: 'https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948',
+      date: '2025-09-10',
+      title: 'Contract 2025-BAM-0042 — Infrastructure Advisory Services',
+      description: 'Government contract valued at C$2,850,000 to Brookfield Asset Management Inc. for infrastructure portfolio advisory services.',
+      relevance: 'direct',
+    },
+    {
+      module: 'proactive-disclosure',
+      sourceUrl: 'https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948',
+      date: '2024-12-01',
+      title: 'Contract 2024-DND-8911 — Renewable Energy Feasibility Study',
+      description: 'Department of National Defence contract with Brookfield Renewable for feasibility study on base energy transition (C$475,000).',
+      relevance: 'indirect',
+    },
+    {
+      module: 'proactive-disclosure',
+      sourceUrl: 'https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948',
+      date: '2024-06-17',
+      title: 'Contract 2024-PSPC-3307 — Asset Management Software Licensing',
+      description: 'PSPC awarded contract to Brookfield\u2019s technology division for asset management platform licensing (C$1,200,000).',
+      relevance: 'indirect',
+    },
+    // Elections & Campaign Finance
+    {
+      module: 'elections',
+      sourceUrl: 'https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e',
+      date: '2025-03-28',
+      title: 'Third-party election advertising — Brookfield Asset Management Inc.',
+      description: 'Registered third-party sponsor under the Canada Elections Act; incurred advertising expenses of C$215,000 during the 2025 federal election period.',
+      relevance: 'direct',
+    },
+    {
+      module: 'elections',
+      sourceUrl: 'https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e',
+      date: '2024-02-14',
+      title: 'Political contribution reporting — Brookfield executives',
+      description: 'Aggregate political contributions by Brookfield Asset Management directors and senior officers reported to Elections Canada for 2023 calendar year.',
+      relevance: 'indirect',
+    },
+  ];
+
+  // Build timeline sorted by date descending
+  const timeline = [...matches]
+    .filter((m) => m.date)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 50)
+    .map((m) => ({
+      date: m.date,
+      module: m.module,
+      event: m.title,
+      sourceUrl: m.sourceUrl,
+    }));
+
+  return {
+    entity,
+    entityType: 'organization',
+    matches,
+    totalMatches: matches.length,
+    timeline,
+    ingestedAt: now,
+  };
+}
+
+
 async function main() {
   const startTime = Date.now();
 
@@ -1351,7 +1500,7 @@ async function main() {
 
   process.stdout.write(
     '\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n' +
-      '  CivInt Pipeline Data Generator\n' +
+      '  MapleSpike Pipeline Data Generator\n' +
       `  ${new Date().toISOString()}\n` +
       '\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n',
   );
@@ -1433,6 +1582,13 @@ async function main() {
   // Sort activity by time descending
   activity.sort((a, b) => b.time.localeCompare(a.time));
 
+  // ── Cross-Reference Section ─────────────────────────────────────
+  // Sample result for 'Brookfield Asset Management' showing unified
+  // timeline format across lobbying, GIC, committees, contracts,
+  // and elections. Matches the CrossReferenceResult type from
+  // pipeline-core/src/ingestion/cross-reference/types.ts .
+  const crossReference = buildCrossReferenceSample();
+
   const output = {
     generatedAt: now(),
     generatedBy: 'generate-pipeline-data.mjs',
@@ -1440,6 +1596,7 @@ async function main() {
     stats,
     activity: activity.slice(0, 25),
     pipeline: {}, // dashboard-compatible flat format
+    crossReference,
   };
 
   // Build dashboard-compatible pipeline module statuses
