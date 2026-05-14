@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike — External Data Compatibility Standards
 
 > How MapleSpike aligns with canonical Canadian government data standards.

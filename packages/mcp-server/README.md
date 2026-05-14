@@ -1,8 +1,13 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike MCP Server
 
-Model Context Protocol server for Canadian government data. Provides **14 tools** for AI agents to query, search, and verify Canadian government information. All 14 tools return real data from `pipeline-data.json` with live-fetch fallbacks.
+Model Context Protocol server for Canadian government data. Provides **22 tools** for AI agents to query, search, and verify Canadian government information. All tools return real data from `pipeline-data.json` with live-fetch fallbacks.
 
-> **Status:** All 14 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
+> **Status:** All 22 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
 
 - **Package:** `@maplespike/mcp-server`
 - **Transport:** stdio (local) or SSE (hosted)
@@ -29,7 +34,7 @@ npm run start:sse
 # → http://localhost:3001/sse
 ```
 
-## Tools — All 14 Live
+## Tools — All 22 Live
 
 | Tool | Description | Input |
 |------|-------------|-------|
@@ -37,16 +42,24 @@ npm run start:sse
 | `fact_check` | Check claims against official government data | claim |
 | `get_citation` | Retrieve and verify SHA-256 citation hashes | hash |
 | `latest_releases` | Latest government data releases and indicators | jurisdiction, category, limit |
-| `search_committees` | Full-text committee search across 50 HoC + Senate committees — real data from pipeline-data.json + live ourcommons.ca fallback | query, chamber, committee, limit |
-| `search_corporate` | Lobbying registry + procurement + executive statements — real data | query, category, limit |
-| `search_influence` | Influence actor investigation (32 tracked actors) — real data | query, category, limit |
-| `search_gazette` | Canada Gazette regulation search (Parts I, II) — real data | query, part, department, limit |
-| `search_gic` | Governor-in-Council appointment lookup — real data | query, department, limit |
-| `search_elections` | Elections Canada third-party advertiser search — real data | query, year, limit |
-| `search_provincial_lobbying` | Ontario (BC/QC stubbed) lobbying registry search — real data | query, province, limit |
-| `search_oversight` | OAG, PBO, Ethics, Competition Bureau, CRTC search — real data | query, body, limit |
-| `search_canlii` | Court decision search via CanLII — real data | query, court, year, limit |
-| `search_lmia` | LMIA quarterly data search by employer/occupation — real data | query, province, limit |
+| `search_committees` | Full-text committee search across 50 HoC + Senate committees | query, chamber, committee, limit |
+| `search_corporate` | Lobbying registry + procurement + executive statements | query, category, limit |
+| `search_influence` | Influence actor investigation (32 tracked actors) | query, category, limit |
+| `search_gazette` | Canada Gazette regulation search (Parts I, II) | query, part, department, limit |
+| `search_gic` | Governor-in-Council appointment lookup | query, department, limit |
+| `search_elections` | Elections Canada third-party advertiser search | query, year, limit |
+| `search_provincial_lobbying` | Provincial lobbying registry search (ON, BC, AB, QC) | query, province, limit |
+| `search_oversight` | OAG, PBO, Ethics, Competition Bureau, CRTC search | query, body, limit |
+| `search_canlii` | Court decision search via CanLII | query, court, year, limit |
+| `search_lmia` | LMIA quarterly data search by employer/occupation | query, province, limit |
+| `search_immigration` | IRCC, IRB, CBSA immigration data | query, category, limit |
+| `search_science` | Science and research data (CSA, Mitacs, Ocean Networks) | query, limit |
+| `search_tribunals` | Federal tribunal decisions | query, tribunal, limit |
+| `search_lode` | Open Database of Addresses geospatial data | query, province, limit |
+| `ai_ask` | Natural language Q&A across all datasets | question |
+| `ai_analyze` | AI-powered data analysis | data, analysis_type |
+| `ai_search_semantic` | Semantic search across datasets | query, limit |
+| `system_health` | System health and usage metrics | — |
 
 ## Claude Desktop Configuration
 
@@ -85,7 +98,7 @@ Add to your `claude_desktop_config.json`:
 └────────────┘     └──────────────────┘     └──────────────┘
 ```
 
-All 14 tools return real data from `pipeline-data.json`. When the local data file is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
+All 22 tools return real data from `pipeline-data.json`. When the local data file is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
 
 ## License
 

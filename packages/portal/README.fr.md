@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike — Portail développeur
 
 > [English version](README.md) · Version anglaise disponible

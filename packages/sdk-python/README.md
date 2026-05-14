@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike Python SDK
 
 > **`maplespike-sdk`** — Typed Python client for Canadian government data: Parliament, lobbying, immigration, courts, regulations, oversight, and more.
