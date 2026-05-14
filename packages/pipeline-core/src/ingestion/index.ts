@@ -345,8 +345,7 @@ export {
   QUEBEC_LOBBYING,
 } from './provincial-lobbying/constants.js';
 export type {
-  ProvincialLobbyingRecord,
-  Province,
+
   ProvinceConfig,
   ProvincialIngestionResult,
   RawOntarioRecord,
@@ -583,8 +582,7 @@ export {
 } from './provincial-legislatures/parser.js';
 export {
   PROVINCE_CONFIGS as LEGISLATURE_CONFIGS,
-  ALL_PROVINCES,
-  IMPLEMENTED_PROVINCES,
+
   XML_HANSARD_PROVINCES,
   ONTARIO_CONFIG,
   BC_CONFIG,
@@ -597,8 +595,7 @@ export {
   ProvincialLegislatureError,
 } from './provincial-legislatures/constants.js';
 export type {
-  ProvincialLegislatureRecord,
-  ProvinceCode,
+
   LegislativeRecordType,
   ProvinceChamber,
   ProvinceLegislatureConfig,
@@ -1630,3 +1627,25 @@ export type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityCode, Re
 import { ingestAllMedia, MEDIA_SOURCES } from './media-broadcasting/index.js';
 export { ingestAllMedia, MEDIA_SOURCES } from './media-broadcasting/index.js';
 export type { MediaRecord, MediaIngestionResult } from './media-broadcasting/types.js';
+
+/* ── Real-Time Feeds ────────────────────────────────── */
+import { ingestAllRealtime, REALTIME_SOURCES } from './real-time-feeds/index.js';
+export { ingestAllRealtime, REALTIME_SOURCES } from './real-time-feeds/index.js';
+export type { RealtimeRecord, RealtimeIngestionResult } from './real-time-feeds/types.js';
+
+/* ── Provincial Regulators (80+ across 21 categories, 13 provinces) ── */
+export {
+  REGULATORS,
+  REGULATOR_CATEGORIES,
+  CATEGORY_LABELS,
+
+  getRegulatorsByProvince,
+  getRegulatorsByCategory,
+  getRegulator,
+  getCoverageSummary,
+} from './provincial-regulators/index.js';
+export type {
+  ProvincialRegulator,
+
+  RegulatorCoverage,
+} from './provincial-regulators/types.js';
