@@ -202,32 +202,12 @@
    182|</head>
    183|<body>
    184|
-   185|<!-- ═══ Ticker ═══ -->
-   186|<div class="ticker">
-   187|  <div class="ticker-inner">
-   188|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
-   189|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-   190|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-   191|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-   192|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-   193|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-   194|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-   195|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-   196|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
-   197|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-   198|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-   199|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-   200|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-   201|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-   202|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-   203|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-   204|  </div>
-   205|</div>
-   206|
-   207|<style>
-   208|nav { top: 22px !important; }
-   209|body { padding-top: calc(22px + 64px); }
-</style>
+<!-- ═══ Ticker ═══ -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Loading live data...</span>
+  </div>
+</div>
 
 <nav>
   <div class="nav-inner">
@@ -527,19 +507,26 @@
 const API_BRIDGE = 'http://127.0.0.1:8085/v1/';
 const DEV_API_KEY='maples...-key';
 
-// ─── Load dashboard data from live pipeline-data.json ───
+// ─── Load dashboard data from live API ───
 async function loadDashboardData() {
   try {
-    const resp = await fetch('assets/pipeline-data.json?t=' + Date.now(), {
+    const resp = await fetch('/api/v1/health', {
       signal: AbortSignal.timeout(5000),
     });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    return data;
+    if (resp.ok) {
+      const json = await resp.json();
+      if (json.success && json.data) {
+        return {
+          sources: json.data.sources || {},
+          activity: [],
+          generatedAt: json.data.timestamp || new Date().toISOString(),
+        };
+      }
+    }
   } catch (e) {
-    console.warn('Failed to load pipeline-data.json:', e.message);
-    return null;
+    console.warn('Health API unavailable:', e.message);
   }
+  return null;
 }
 
 // ─── Render stat cards ───

@@ -9,6 +9,15 @@ RUN rm -f /usr/share/nginx/html/server.py /usr/share/nginx/html/package.json /us
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Pre-create nginx temp directories for non-root operation (K8s securityContext runAsUser: 1001)
+# Without this, nginx fails at startup with: mkdir() "/var/cache/nginx/client_temp" failed (13: Permission denied)
+RUN mkdir -p /var/cache/nginx/client_temp \
+    && mkdir -p /var/cache/nginx/proxy_temp \
+    && mkdir -p /var/cache/nginx/fastcgi_temp \
+    && mkdir -p /var/cache/nginx/uwsgi_temp \
+    && mkdir -p /var/cache/nginx/scgi_temp \
+    && chmod -R 777 /var/cache/nginx
+
 EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

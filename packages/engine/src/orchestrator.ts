@@ -10,6 +10,9 @@
  *   console.log(result.summary);
  */
 
+import { readFileSync, existsSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import Database from "better-sqlite3";
 import { AliasManager } from "./entity/aliases";
 import { EntityResolver } from "./entity/resolver";
@@ -19,8 +22,6 @@ import {
   type MandatePromise,
 } from "./graph/signals";
 import { BriefGenerator, type SignalCounts } from "./briefs/generator";
-import { loadPipelineData, getSeedParsedData } from "./seed/data";
-import type { PipelineData } from "./seed/data";
 import type { Contract } from "./types/contract";
 import type { Disclosure, Interest } from "./types/disclosure";
 import type { Donation } from "./types/donation";
@@ -78,6 +79,47 @@ export interface OrchestratorResult {
   signals: IntelligenceThread[];
   brief: Brief | null;
   summary: OrchestratorSummary;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Pipeline Data Types and Loader                                     */
+/* ------------------------------------------------------------------ */
+
+interface PipelineData {
+  generatedAt: string;
+  sources: Record<
+    string,
+    {
+      status: string;
+      records: number;
+      data?: unknown[];
+    }
+  >;
+  stats: Record<string, number>;
+}
+
+let _pipelineCache: PipelineData | null = null;
+
+function loadPipelineData(): PipelineData | null {
+  if (_pipelineCache) return _pipelineCache;
+  try {
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const dataPath = join(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "portal",
+      "assets",
+      "pipeline-data.json",
+    );
+    if (!existsSync(dataPath)) return null;
+    const raw = readFileSync(dataPath, "utf-8");
+    _pipelineCache = JSON.parse(raw) as PipelineData;
+    return _pipelineCache;
+  } catch {
+    return null;
+  }
 }
 
 /* ------------------------------------------------------------------ */

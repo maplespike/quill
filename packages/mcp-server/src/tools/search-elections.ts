@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search Elections Canada data — third-party advertiser registry, financial reports,
@@ -53,18 +53,10 @@ export const handler: ToolHandler = async (args) => {
   const electionPeriod = (args.electionPeriod as string) ?? '';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  // Try cached pipeline data first; fall back to live fetch if unavailable
-  let results: any[];
-  let total: number;
-  if (getPipelineData()) {
-    const result = searchRecords(['elections'], query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(['elections'], query, limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  // Live search via API server
+  const result = await searchGovData(query, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   // Apply election period filter if provided
   let filteredResults = results;

@@ -31,6 +31,7 @@ export const HEALTH_DATA_SOURCES: Record<string, Record<string, string>> = {
   },
   CIHI: {
     BASE: 'https://www.cihi.ca/en/data',
+    BASE_OPEN_CANADA: 'https://open.canada.ca/data/api/3/action/',
     WAIT_TIMES_SURGERY: 'https://www.cihi.ca/en/access-data-and-reports/wait-times-for-surgery-and-diagnostic-tests',
     HEALTH_SPENDING: 'https://www.cihi.ca/en/national-health-expenditure-trends',
   },
