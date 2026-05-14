@@ -4,14 +4,14 @@
  * MapleSpike Ingestion Runner — K8s CronJob CLI entrypoint
  *
  * Reads MAPLESPIKE_PIPELINE env var and dispatches to the correct
- * ingestAll*() function from pipeline-core.
+ * module via the ingestion registry.
  *
  * Usage:
- *   MAPLESPIKE_PIPELINE=committee node dist/cli/ingest.js
- *   MAPLESPIKE_PIPELINE=corporate node dist/cli/ingest.js
+ *   MAPLESPIKE_PIPELINE=committees node dist/cli/ingest.js
+ *   MAPLESPIKE_PIPELINE=all node dist/cli/ingest.js
  *
  * Supported pipelines:
- *   committee, corporate, influence, gazette, gic,
+ *   committees, corporate, influence, gazette, gic,
  *   elections, provincial-lobbying, oversight, canlii, lmia,
  *   immigration, indigenous, defence, science, tribunals,
  *   veterans, fisheries, agriculture, culture, ngo-rss,
@@ -22,188 +22,119 @@
  *   education-research, federal-budget, geospatial,
  *   provincial-legislatures, provincial-orgs,
  *   provincial-regulators, social-programs, statcan,
- *   transport-infrastructure
+ *   transport-infrastructure, all
  */
 
-import {
-  ingestAllVeterans,
-  ingestAllFisheries,
-  ingestAllAgriculture,
-  ingestAllCulture,
-  ingestAllNgoRss,
-  ingestAllRegional,
-  ingestAllMedia,
-  ingestAllRealtime,
-  ingestMunicipalLongTail,
-  ingestAllUniversities,
-  ingestAllUnions,
-  ingestAllFilings,
-  ingestAllProvincialDeep,
-  ingestAllFederalDeep,
-  ingestAllA2aj,
-  ingestAllLegislationData,
-  ingestAllGoCSpending,
-  searchCrossReference,
-  ingestAllCommittees,
-  ingestAllCorporate,
-  ingestAllInfluence,
-  ingestAllParts,
-  ingestGIC,
-  ingestThirdPartyAds,
-  ingestAllProvincial,
-  ingestAllBodies,
-  ingestDecisions,
-  ingestAllLmia,
-  ingestAllImmigration,
-  ingestAllIndigenous,
-  ingestAllDefence,
-  ingestAllScience,
-  ingestAllTribunals,
-  ingestAllAti,
-  ingestAllCraCharityYears,
-  ingestAllCriminalJustice,
-  ingestAllCrownCorporations,
-  ingestAllEducationResearch,
-  ingestAllFederalBudget,
-  ingestAllGeospatial,
-  ingestAllProvincialLegislatures,
-  ingestAllProvincialOrgs,
-  ingestAllRegulators,
-  ingestAllSocialPrograms,
-  ingestAllStatCan,
-  ingestAllTransport,
-} from '../ingestion/index.js';
-
+import { getModule, runModule, runAllModules } from '../ingestion/registry.js';
 import type { D1Database } from '../ingestion/committees/db.js';
 
-const OPTIONS = {};
-
-// Null object adapter for functions that require a non-null D1Database.
-// Ingestion modules that don't receive a real DB will skip DB persistence
-// and log their output to stdout (useful for pipeline-data.json generation).
 const NULL_DB: D1Database = {
   prepare: () => { throw new Error('No database configured'); },
   exec: async () => ({ success: true }),
   batch: async () => [],
 };
 
-const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }> = {
-  committee: {
-    name: 'Committee Ingestion',
-    run: () => ingestAllCommittees(NULL_DB, OPTIONS as any),
-  },
-  corporate: {
-    name: 'Corporate Data Ingestion',
-    run: () => ingestAllCorporate(null, OPTIONS as any),
-  },
-  influence: {
-    name: 'Influence Actor Ingestion',
-    run: () => ingestAllInfluence(null, OPTIONS as any),
-  },
-  gazette: {
-    name: 'Canada Gazette Ingestion',
-    run: () => ingestAllParts(null, OPTIONS as any),
-  },
-  gic: {
-    name: 'GIC Appointment Ingestion',
-    run: () => ingestGIC(null, OPTIONS as any),
-  },
-  elections: {
-    name: 'Elections Canada Ingestion',
-    run: () => ingestThirdPartyAds(null, OPTIONS as any),
-  },
-  'provincial-lobbying': {
-    name: 'Provincial Lobbying Ingestion',
-    run: () => ingestAllProvincial(null, OPTIONS as any),
-  },
-  oversight: {
-    name: 'Oversight Body Ingestion',
-    run: () => ingestAllBodies(NULL_DB, OPTIONS as any),
-  },
-  canlii: {
-    name: 'CanLII Court Decision Ingestion',
-    run: () => ingestDecisions(null, OPTIONS as any),
-  },
-  lmia: {
-    name: 'LMIA Data Ingestion',
-    run: () => ingestAllLmia(null, OPTIONS as any),
-  },
-  indigenous: {
-    name: 'Indigenous Relations Ingestion (CIRNAC, ISC, TRC)',
-    run: () => ingestAllIndigenous(null, OPTIONS as any),
-  },
-  defence: {
-    name: 'National Defence Ingestion (DND personnel, procurement)',
-    run: () => ingestAllDefence(null, OPTIONS as any),
-  },
-  immigration: {
-    name: 'Immigration Data Ingestion (IRCC, IRB, CBSA)',
-    run: () => ingestAllImmigration(OPTIONS as any),
-  },
-
-  tribunals: {
-    name: 'Federal Tribunal Data Ingestion (SST, CITT, CHRT, Copyright Board, etc.)',
-    run: () => ingestAllTribunals(),
-  },
-  veterans: { name: "Veterans Affairs Data Ingestion", run: () => ingestAllVeterans(), },
-  fisheries: { name: "Fisheries & Oceans Data Ingestion", run: () => ingestAllFisheries(), },
-  agriculture: { name: "Agriculture & Agri-Food Data Ingestion", run: () => ingestAllAgriculture(), },
-  culture: { name: "Culture & Heritage Data Ingestion", run: () => ingestAllCulture(), },
-  'ngo-rss': { name: "NGO / Influence RSS Narrative Tracking", run: () => ingestAllNgoRss(), },
-  'regional-authorities': { name: "Regional Authorities Data (Peel, York, Durham, Metro Vancouver, CRD, etc.)", run: () => ingestAllRegional(), },
-  'media': { name: "Media & Broadcasting Data (CRTC market reports, ownership charts, Canada Media Fund, Telefilm)", run: () => ingestAllMedia(), },
-  'realtime': { name: "Real-Time Feeds (ECCC weather alerts, CBSA border wait times, parole board decisions)", run: () => ingestAllRealtime(), },
-  'municipal-long-tail': { name: "Federated Crawler (provincial CKAN portals)", run: () => ingestMunicipalLongTail(), },
-  'universities': { name: "Universities (CUDO Ontario data, per-institution financials)", run: () => ingestAllUniversities(), },
-  'unions': { name: "Unions (CUPE, Unifor, PSAC annual reports and financials)", run: () => ingestAllUnions(), },
-  'corporate-filings': { name: "Corporate Filings (SEDAR+, public company data)", run: () => ingestAllFilings(), },
-  'provincial': { name: "Provincial (SK, MB, NS, NB, NL, PE, YT, NT, NU)", run: () => ingestAllProvincialDeep(), },
-  'federal': { name: "Federal (CIHI, ESDC, PHAC)", run: () => ingestAllFederalDeep(), },
-  'a2aj': { name: "A2AJ Legal API (116K+ decisions, 5K+ statutes via api.a2aj.ca)", run: () => ingestAllA2aj(), },
-  'legislation': { name: "Legislation (Justice Canada XML + provincial e-Laws, BC Laws, CKAN)", run: () => ingestAllLegislationData(), },
-  'goc-spending': { name: "GoC Spending (GitHub-based federal contracts data)", run: () => ingestAllGoCSpending(), },
-  'cross-reference': { name: "Cross-Reference Engine (lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections)", run: () => searchCrossReference({ query: process.env.CROSS_REF_QUERY || '' }).then(r => { console.log(JSON.stringify(r, null, 2)); }) },
-  'ati': { name: "ATI Access to Information — Completed ATI releases across federal departments", run: () => ingestAllAti(null, OPTIONS as any), },
-  'cra-charity': { name: "CRA Charity T3010 — Financial details of all registered Canadian charities", run: () => ingestAllCraCharityYears(null, {}), },
-  'criminal-justice': { name: "Criminal Justice — CSC corrections, parole board, RCMP crime stats, PPSC prosecutions", run: () => ingestAllCriminalJustice(), },
-  'crown-corporations': { name: "Crown Corporations — Annual reports, quarterly financials, governance data", run: () => ingestAllCrownCorporations(null, OPTIONS as any), },
-  'education-research': { name: "Education & Research — Tri-Council grants, Canada Research Chairs, CFI, student loans", run: () => ingestAllEducationResearch(null, OPTIONS as any), },
-  'federal-budget': { name: "Federal Budget — Budgets, public accounts, fiscal monitor, departmental plans", run: () => ingestAllFederalBudget(null, OPTIONS as any), },
-  'geospatial': { name: "Geospatial Data — CKAN-based spatial search across federal and provincial portals", run: () => ingestAllGeospatial(), },
-  'provincial-legislatures': { name: "Provincial Legislatures — Hansard, committees, bills across all 10 provinces", run: () => ingestAllProvincialLegislatures(null, OPTIONS as any), },
-  'provincial-orgs': { name: "Provincial Organizations — Provincial entity registries and organization data", run: () => ingestAllProvincialOrgs(), },
-  'provincial-regulators': { name: "Provincial Regulators — Energy, utilities, securities and other regulatory bodies", run: () => ingestAllRegulators(), },
-  'science': { name: "Science Research — CSA space missions, Mitacs grants, ocean and polar observations", run: () => ingestAllScience(), },
-  'social-programs': { name: "Social Programs — CPP/OAS, EI, Canada Child Benefit, poverty and food security data", run: () => ingestAllSocialPrograms(), },
-  'statcan': { name: "Statistics Canada — CPI, GDP, labour, population, trade indicators", run: () => ingestAllStatCan(), },
-  'transport-infrastructure': { name: "Transport & Infrastructure — TSB occurrences, TC safety, CIIB, CTA, Infrastructure Canada", run: () => ingestAllTransport(), },
+const PIPELINE_CONFIG: Record<string, string> = {
+  committee: 'committees',
+  corporate: 'corporate',
+  influence: 'influence',
+  gazette: 'gazette',
+  gic: 'gic',
+  elections: 'elections',
+  'provincial-lobbying': 'provincial-lobbying',
+  oversight: 'oversight',
+  canlii: 'canlii',
+  lmia: 'lmia',
+  indigenous: 'indigenous-relations',
+  defence: 'defence',
+  immigration: 'immigration',
+  tribunals: 'federal-tribunals',
+  veterans: 'veterans',
+  fisheries: 'fisheries',
+  agriculture: 'agriculture',
+  culture: 'culture',
+  'ngo-rss': 'ngo-influence-rss',
+  'regional-authorities': 'regional-authorities',
+  media: 'media-broadcasting',
+  realtime: 'real-time-feeds',
+  'municipal-long-tail': 'municipal-long-tail',
+  universities: 'universities',
+  unions: 'unions',
+  'corporate-filings': 'corporate-filings',
+  provincial: 'provincial',
+  federal: 'federal',
+  a2aj: 'a2aj',
+  legislation: 'legislation',
+  'goc-spending': 'goc-spending',
+  'cross-reference': 'cross-reference',
+  ati: 'ati',
+  'cra-charity': 'cra-charity',
+  'criminal-justice': 'criminal-justice',
+  'crown-corporations': 'crown-corporations',
+  'education-research': 'education-research',
+  'federal-budget': 'federal-budget',
+  geospatial: 'geospatial',
+  'provincial-legislatures': 'provincial-legislatures',
+  'provincial-orgs': 'provincial-orgs',
+  'provincial-regulators': 'provincial-regulators',
+  'social-programs': 'social-programs',
+  statcan: 'statcan',
+  'transport-infrastructure': 'transport-infrastructure',
 };
 
-async function main(): Promise<void> {
-  const pipeline = process.env.MAPLESPIKE_PIPELINE || '';
+async function main() {
+  const pipeline = process.env.MAPLESPIKE_PIPELINE?.trim().toLowerCase() || 'help';
 
-  if (!pipeline || !PIPELINE_MAP[pipeline]) {
-    console.error(`[maplespike-ingest] Unknown or missing MAPLESPIKE_PIPELINE. Supported: ${Object.keys(PIPELINE_MAP).join(', ')}`);
+  if (pipeline === 'help') {
+    console.log('MapleSpike Ingestion Runner');
+    console.log('Usage: MAPLESPIKE_PIPELINE=<module> node dist/cli/ingest.js');
+    console.log('\nAvailable modules:');
+    for (const [alias, modName] of Object.entries(PIPELINE_CONFIG).sort()) {
+      const mod = getModule(modName);
+      if (mod) console.log(`  ${alias.padEnd(25)} ${mod.description}`);
+    }
+    console.log('  all                        Run all modules');
+    process.exit(0);
+  }
+
+  if (pipeline === 'all') {
+    console.log('[CLI] Running ALL ingestion modules...');
+    const results = await runAllModules();
+    let passed = 0; let failed = 0;
+    for (const [name, result] of Object.entries(results)) {
+      const status = (result as any)?.error ? '❌' : '✅';
+      console.log(`  ${status} ${name}: ${JSON.stringify(result).substring(0, 100)}`);
+      if ((result as any)?.error) failed++; else passed++;
+    }
+    console.log(`\n[CLI] Done: ${passed} passed, ${failed} failed`);
+    process.exit(failed > 0 ? 1 : 0);
+  }
+
+  const moduleName = PIPELINE_CONFIG[pipeline];
+  if (!moduleName) {
+    console.error(`[CLI] Unknown pipeline: "${pipeline}"`);
+    console.error(`  Run without MAPLESPIKE_PIPELINE to see available modules`);
     process.exit(1);
   }
 
-  const entry = PIPELINE_MAP[pipeline];
-  console.log(`[maplespike-ingest] Starting ${entry.name}...`);
+  const mod = getModule(moduleName);
+  if (!mod) {
+    console.error(`[CLI] Module "${moduleName}" not found in registry`);
+    process.exit(1);
+  }
 
-  const startTime = Date.now();
+  console.log(`[CLI] Running ${mod.name}: ${mod.description}`);
   try {
-    const result = await entry.run();
-    const elapsed = Date.now() - startTime;
-    console.log(`[maplespike-ingest] ${entry.name} complete in ${elapsed}ms`);
-    if (result && typeof result === 'object') {
-      console.log(JSON.stringify(result, null, 2));
-    }
+    const result = await runModule(moduleName, NULL_DB, {});
+    console.log(`[CLI] ✅ ${mod.name} complete:`, JSON.stringify(result).substring(0, 200));
     process.exit(0);
   } catch (err) {
-    const elapsed = Date.now() - startTime;
-    console.error(`[maplespike-ingest] ${entry.name} FAILED after ${elapsed}ms:`, err);
+    console.error(`[CLI] ❌ ${mod.name} failed:`, err);
     process.exit(1);
   }
 }
 
-main();
+main().catch((err) => {
+  console.error('[CLI] Fatal:', err);
+  process.exit(1);
+});

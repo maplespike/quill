@@ -1,0 +1,791 @@
+/**
+ * Ingestion Module Registry
+ *
+ * Discoverable catalog of all 61 ingestion modules.
+ * Use this instead of importing individual modules directly.
+ *
+ * Usage:
+ *   import { getModule, runModule } from './registry.js';
+ *   const mod = getModule('committees');
+ *   await runModule('committees', { limit: 10 });
+ */
+
+export type ModuleCategory =
+  | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
+  | 'elections' | 'provincial' | 'science' | 'social' | 'health'
+  | 'defence' | 'education' | 'environment' | 'infrastructure'
+  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss';
+
+export interface ModuleInfo {
+  name: string;
+  description: string;
+  category: ModuleCategory;
+  /** Path relative to ingestion/ directory for dynamic import */
+  modulePath: string;
+  /** Main ingestion function names (for discovery) */
+  ingestFunctions: string[];
+  /** Known data sources (API endpoints, portals, RSS feeds) */
+  sources: { name: string; format: string }[];
+  /** How often the source data changes */
+  updateFrequency: string;
+}
+
+const MODULE_REGISTRY: ModuleInfo[] = [
+  // ── RSS / Core ────────────────────────────────────────────
+  {
+    name: 'rss',
+    description: 'RSS feed ingestion for 44+ Canadian news and policy sources',
+    category: 'rss',
+    modulePath: './rss.js',
+    ingestFunctions: ['parseRSS', 'fetchFeed', 'deduplicateItems'],
+    sources: [{ name: 'CBC, Globe, National Post, regional papers, The Tyee, policy feeds', format: 'RSS' }],
+    updateFrequency: '30 min',
+  },
+  {
+    name: 'gov-api',
+    description: 'Government data API clients — StatCan WDS, CKAN portals, Open Data Portal',
+    category: 'government',
+    modulePath: './gov-api.js',
+    ingestFunctions: ['fetchStatCanReleases', 'fetchCKANPackages', 'fetchOpenDataPortal'],
+    sources: [{ name: 'Statistics Canada WDS', format: 'SDMX/REST' }, { name: 'open.canada.ca CKAN', format: 'JSON' }],
+    updateFrequency: 'daily',
+  },
+  {
+    name: 'attestation',
+    description: 'Citation building, Merkle tree proofs, content-addressed store, digital signatures',
+    category: 'government',
+    modulePath: './attestation/index.js',
+    ingestFunctions: ['buildCitation', 'buildMerkleRoot', 'signCitation', 'verifyCitationSignature'],
+    sources: [],
+    updateFrequency: 'on-ingest',
+  },
+  {
+    name: 'provincial-ckan',
+    description: 'Provincial CKAN portal fetchers for BC, Alberta, Ontario, Quebec',
+    category: 'provincial',
+    modulePath: './provincial-ckan.js',
+    ingestFunctions: ['fetchProvincialCkan', 'fetchAllProvincialCkan'],
+    sources: [
+      { name: 'data.ontario.ca', format: 'CKAN' },
+      { name: 'catalogue.data.gov.bc.ca', format: 'CKAN' },
+      { name: 'open.alberta.ca', format: 'CKAN' },
+      { name: 'donneesquebec.ca', format: 'CKAN' },
+    ],
+    updateFrequency: 'daily',
+  },
+  {
+    name: 'gc-standards',
+    description: 'Government of Canada department codes, standards, and normalization mappings',
+    category: 'government',
+    modulePath: './gc-standards/index.js',
+    ingestFunctions: ['normalizeDepartment'],
+    sources: [{ name: 'GC department codes', format: 'JSON' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Government ────────────────────────────────────────────
+  {
+    name: 'committees',
+    description: 'Parliamentary committee evidence XML ingestion — Hansard, speakers, in-camera meeting detection',
+    category: 'government',
+    modulePath: './committees/index.js',
+    ingestFunctions: ['ingestCommittee', 'ingestAllCommittees', 'ingestSenateCommittees', 'ingestInCameraMeetings'],
+    sources: [{ name: 'ourcommons.ca XML evidence API', format: 'XML' }],
+    updateFrequency: 'daily',
+  },
+  {
+    name: 'gic',
+    description: 'Governor-in-Council appointments — federal boards, tribunals, commissions patronage tracking',
+    category: 'government',
+    modulePath: './gic/index.js',
+    ingestFunctions: ['ingestGIC', 'searchGIC', 'getHighValueAppointments', 'findLobbyistsTurnedAppointees'],
+    sources: [{ name: 'open.canada.ca CKAN (GIC appointments)', format: 'CSV' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'gazette',
+    description: 'Canada Gazette Parts I & II — proposed and enacted regulations with Regulatory Impact Analysis',
+    category: 'government',
+    modulePath: './gazette/index.js',
+    ingestFunctions: ['ingestGazette', 'ingestAllParts'],
+    sources: [{ name: 'Canada Gazette RSS', format: 'RSS/XML' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'oversight',
+    description: 'Independent oversight bodies — OAG, PBO, Ethics Commissioner, Lobbying Commissioner, Competition Bureau, CRTC',
+    category: 'oversight',
+    modulePath: './oversight/index.js',
+    ingestFunctions: ['ingestBody', 'ingestAllBodies', 'ingestOAG', 'ingestPBO', 'ingestEthicsCommissioner'],
+    sources: [
+      { name: 'OAG reports (oag-bvg.gc.ca)', format: 'RSS/HTML' },
+      { name: 'PBO publications (pbo-dpb.ca)', format: 'HTML' },
+      { name: 'Ethics Commissioner (ciec-ccie.parl.gc.ca)', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'elections',
+    description: 'Elections Canada — third-party advertiser registry, financial reports, dark money tracking',
+    category: 'elections',
+    modulePath: './elections/index.js',
+    ingestFunctions: ['ingestThirdPartyAds', 'getTopSpenders', 'searchThirdParty', 'findInfluenceCrossReferences'],
+    sources: [{ name: 'Elections Canada CSV', format: 'CSV' }],
+    updateFrequency: 'daily (during election periods)',
+  },
+  {
+    name: 'canlii',
+    description: 'CanLII court decisions — legal tracking, government litigation monitoring, citation graph',
+    category: 'legal',
+    modulePath: './canlii/index.js',
+    ingestFunctions: ['ingestDecisions', 'searchDecisions', 'getRecentByCourt'],
+    sources: [{ name: 'CanLII API (canlii.org)', format: 'REST API' }],
+    updateFrequency: 'daily',
+  },
+  {
+    name: 'lmia',
+    description: 'Labour Market Impact Assessment — ESDC quarterly data, TFW program usage by employer',
+    category: 'corporate',
+    modulePath: './lmia/index.js',
+    ingestFunctions: ['ingestLmia', 'ingestAllLmia', 'getTopEmployers', 'searchByEmployer'],
+    sources: [{ name: 'ESDC open.canada.ca CKAN', format: 'CSV' }],
+    updateFrequency: 'quarterly',
+  },
+  {
+    name: 'proactive-disclosure',
+    description: 'Proactive disclosure — federal contracts over $10K, travel, hospitality, reclassification',
+    category: 'government',
+    modulePath: './proactive-disclosure/index.js',
+    ingestFunctions: ['ingestProactiveDisclosure', 'searchProactiveDisclosure', 'getContractsByVendor'],
+    sources: [{ name: 'open.canada.ca CKAN (proactive disclosure)', format: 'JSON/CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'ati',
+    description: 'Access to Information — completed ATI requests published by federal departments',
+    category: 'government',
+    modulePath: './ati/index.js',
+    ingestFunctions: ['ingestAti', 'ingestAllAti', 'searchAtiRecords', 'getAtiByDepartment'],
+    sources: [{ name: 'open.canada.ca CKAN (ATI summaries)', format: 'JSON/CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'federal-budget',
+    description: 'Federal budget, public accounts, fiscal monitor, and departmental plans',
+    category: 'government',
+    modulePath: './federal-budget/index.js',
+    ingestFunctions: ['ingestFederalBudget', 'ingestAllFederalBudget', 'searchFederalBudget'],
+    sources: [{ name: 'budget.canada.ca', format: 'HTML/CSV' }],
+    updateFrequency: 'annual (budget), quarterly (fiscal monitor)',
+  },
+  {
+    name: 'statcan',
+    description: 'Statistics Canada — CPI, GDP, labour, population, trade indicators via WDS',
+    category: 'government',
+    modulePath: './statcan/index.js',
+    ingestFunctions: ['ingestAllStatCan', 'ingestCpi', 'ingestGdp', 'ingestLabour', 'ingestPopulation', 'ingestTrade'],
+    sources: [{ name: 'Statistics Canada WDS API', format: 'SDMX/REST' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'immigration',
+    description: 'Immigration & Refugee — IRCC permanent/temporary residents, IRB decisions, CBSA enforcement',
+    category: 'government',
+    modulePath: './immigration/index.js',
+    ingestFunctions: ['ingestAllImmigration', 'ingestPermanentResidents', 'ingestRpdDecisions', 'ingestCbsaEnforcement'],
+    sources: [
+      { name: 'IRCC open.canada.ca datasets', format: 'CSV' },
+      { name: 'IRB refugee decisions', format: 'CSV' },
+      { name: 'CBSA enforcement stats', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'criminal-justice',
+    description: 'Criminal justice — CSC prison population, parole board, RCMP stats, PPSC prosecutions, youth justice',
+    category: 'government',
+    modulePath: './criminal-justice/index.js',
+    ingestFunctions: ['ingestAllCriminalJustice', 'ingestCorrections', 'ingestParole', 'ingestRcmpStats'],
+    sources: [
+      { name: 'StatCan corrections tables', format: 'CSV' },
+      { name: 'Parole Board decisions', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'indigenous-relations',
+    description: 'Indigenous relations — CIRNAC land claims, ISC spending, FN transparency, TRC Calls to Action tracker',
+    category: 'indigenous',
+    modulePath: './indigenous-relations/index.js',
+    ingestFunctions: ['ingestAllIndigenous', 'ingestLandClaims', 'ingestIscPrograms', 'ingestFnTransparency', 'ingestTrcCalls'],
+    sources: [
+      { name: 'CIRNAC open.canada.ca', format: 'CSV' },
+      { name: 'ISC First Nations financial transparency', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'federal',
+    description: 'Federal deep-dive datasets — supplementary federal data sources',
+    category: 'government',
+    modulePath: './federal/index.js',
+    ingestFunctions: ['ingestAllFederalDeep'],
+    sources: [],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'cross-reference',
+    description: 'Cross-reference engine — links entities across committees, corporate, lobbying, and influence modules',
+    category: 'government',
+    modulePath: './cross-reference/index.js',
+    ingestFunctions: ['searchCrossReference'],
+    sources: [],
+    updateFrequency: 'on-demand',
+  },
+  {
+    name: 'legislation',
+    description: 'Legislation — Justice Canada XML and provincial legislation tracking',
+    category: 'legal',
+    modulePath: './legislation/index.js',
+    ingestFunctions: ['ingestAllLegislationData'],
+    sources: [{ name: 'Justice Canada XML', format: 'XML' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'a2aj',
+    description: 'A2J Legal API — access to justice dataset coverage, citation lookup, search',
+    category: 'legal',
+    modulePath: './a2aj/index.js',
+    ingestFunctions: ['ingestAllA2aj', 'fetchCoverage', 'fetchByCitation', 'searchA2aj'],
+    sources: [{ name: 'A2J API', format: 'REST API' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'federal-tribunals',
+    description: 'Federal tribunals — decisions, cases, and membership across administrative tribunals',
+    category: 'legal',
+    modulePath: './federal-tribunals/index.js',
+    ingestFunctions: ['ingestAllTribunals', 'searchTribunals'],
+    sources: [{ name: 'Federal tribunal websites', format: 'HTML' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'goc-spending',
+    description: 'Government of Canada spending — GitHub-based federal contract and expenditure data',
+    category: 'government',
+    modulePath: './goc-spending/index.js',
+    ingestFunctions: ['ingestAllGoCSpending', 'listDataFiles'],
+    sources: [{ name: 'GitHub government spending data', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'real-time-feeds',
+    description: 'Real-time government data feeds — emergency alerts, health advisories, urgent notices',
+    category: 'government',
+    modulePath: './real-time-feeds/index.js',
+    ingestFunctions: ['ingestAllRealtime'],
+    sources: [{ name: 'Government real-time feeds', format: 'RSS/Atom' }],
+    updateFrequency: 'continuous',
+  },
+  {
+    name: 'regional-authorities',
+    description: 'Regional authorities — regional district, municipality, and local governance data',
+    category: 'government',
+    modulePath: './regional-authorities/index.js',
+    ingestFunctions: ['ingestAllRegional', 'searchRegionalAuthorities'],
+    sources: [{ name: 'Regional authority websites', format: 'HTML' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'municipal',
+    description: 'Municipal council data — meetings, agendas, decisions, budgets across major Canadian cities',
+    category: 'government',
+    modulePath: './municipal/index.js',
+    ingestFunctions: ['ingestMunicipal', 'searchMunicipalMeetings', 'getRecentMeetings'],
+    sources: [{ name: 'City council portals', format: 'HTML/API' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'municipal-long-tail',
+    description: 'Municipal long-tail — smaller municipalities, regional districts, specialized local datasets',
+    category: 'government',
+    modulePath: './municipal-long-tail/index.js',
+    ingestFunctions: ['ingestMunicipalLongTail'],
+    sources: [{ name: 'Small/medium city portals', format: 'HTML/API' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'global-canada',
+    description: 'Global Canada — GAC trade agreements, ECCC climate data, CSIS reports metadata',
+    category: 'government',
+    modulePath: './global-canada/index.js',
+    ingestFunctions: ['ingestGlobalCanada', 'searchGlobalCanadaRecords'],
+    sources: [
+      { name: 'Global Affairs Canada', format: 'HTML/CSV' },
+      { name: 'ECCC climate data', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'health-canada',
+    description: 'Health Canada — drug approvals, medical device licenses, natural products, recalls',
+    category: 'health',
+    modulePath: './health-canada/index.js',
+    ingestFunctions: ['ingestHealthCanada', 'searchHealthCanadaRecords', 'getHealthCanadaRecallsBySeverity'],
+    sources: [{ name: 'Health Canada datasets', format: 'CSV' }],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'health-data',
+    description: 'Health data — CIHI, CADTH, CFIA food recalls, PMPRB drug pricing, PHAC surveillance',
+    category: 'health',
+    modulePath: './health-data/index.js',
+    ingestFunctions: ['ingestHealthData'],
+    sources: [
+      { name: 'CIHI', format: 'CSV' },
+      { name: 'CFIA food recalls', format: 'RSS' },
+      { name: 'PMPRB drug pricing', format: 'CSV' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'defence',
+    description: 'National Defence — DND personnel, procurement, and capability data',
+    category: 'defence',
+    modulePath: './defence/index.js',
+    ingestFunctions: ['ingestAllDefence'],
+    sources: [{ name: 'DND open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'veterans',
+    description: 'Veterans Affairs — benefits, services, wait times, suicide data',
+    category: 'defence',
+    modulePath: './veterans/index.js',
+    ingestFunctions: ['ingestAllVeterans', 'searchVeterans'],
+    sources: [{ name: 'VAC open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'transport-infrastructure',
+    description: 'Transport infrastructure — TSB occurrences, TC safety recalls, CIIB projects, CTA rulings, Infrastructure Canada',
+    category: 'infrastructure',
+    modulePath: './transport-infrastructure/index.js',
+    ingestFunctions: ['ingestAllTransport', 'ingestTsbOccurrences', 'ingestTcSafety', 'ingestCtaRulings'],
+    sources: [
+      { name: 'TSB occurrence data', format: 'CSV' },
+      { name: 'Transport Canada recalls', format: 'CSV' },
+      { name: 'Infrastructure Canada projects', format: 'CSV' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'impact-assessment',
+    description: 'Impact Assessment Agency — federal project assessments, decisions, conditions, timelines',
+    category: 'environment',
+    modulePath: './impact-assessment/index.js',
+    ingestFunctions: ['ingestIaacAssessments', 'searchIaacRecords'],
+    sources: [{ name: 'IAAC registry', format: 'HTML/CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'npri',
+    description: 'National Pollutant Release Inventory — facility pollutant releases by substance and location',
+    category: 'environment',
+    modulePath: './npri/index.js',
+    ingestFunctions: ['ingestNpri', 'searchNpriRecords', 'getNpriByFacility'],
+    sources: [{ name: 'NPRI open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'annual',
+  },
+  {
+    name: 'species-at-risk',
+    description: 'Species at Risk Act registry — listing decisions, recovery strategies, SARA status',
+    category: 'environment',
+    modulePath: './species-at-risk/index.js',
+    ingestFunctions: ['ingestSaraSpecies', 'searchSaraRecords', 'getSaraByStatus'],
+    sources: [{ name: 'SARA registry', format: 'JSON/CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'fisheries',
+    description: 'Fisheries and Oceans Canada — fish stocks, licenses, conservation data',
+    category: 'environment',
+    modulePath: './fisheries/index.js',
+    ingestFunctions: ['ingestAllFisheries', 'searchFisheries'],
+    sources: [{ name: 'DFO open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'agriculture',
+    description: 'Agriculture and Agri-Food Canada — crop reports, farm data, agri-stats',
+    category: 'environment',
+    modulePath: './agriculture/index.js',
+    ingestFunctions: ['ingestAllAgriculture', 'searchAgriculture'],
+    sources: [{ name: 'AAFC open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Corporate ────────────────────────────────────────────
+  {
+    name: 'corporate',
+    description: 'Corporate influence — federal lobbying registry, procurement contracts, executive statements',
+    category: 'corporate',
+    modulePath: './corporate/index.js',
+    ingestFunctions: ['ingestAllCorporate', 'ingestLobbying', 'ingestProcurement', 'ingestExecutiveStatements'],
+    sources: [
+      { name: 'LobbyCanada registry', format: 'CSV' },
+      { name: 'CanadaBuys procurement', format: 'RSS' },
+      { name: 'GlobeNewswire exec statements', format: 'RSS' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'corporate-filings',
+    description: 'Corporate filings — SEDAR+, public company regulatory filings and disclosures',
+    category: 'corporate',
+    modulePath: './corporate-filings/index.js',
+    ingestFunctions: ['ingestAllFilings'],
+    sources: [{ name: 'SEDAR+ regulatory filings', format: 'HTML' }],
+    updateFrequency: 'daily',
+  },
+  {
+    name: 'sedi',
+    description: 'SEDI insider trading — TSX-listed executive/director stock transactions',
+    category: 'corporate',
+    modulePath: './sedi/index.js',
+    ingestFunctions: ['ingestSedi', 'ingestSediByIssuer', 'searchInsiderTransactions'],
+    sources: [{ name: 'SEDI (sedi.ca)', format: 'HTML' }],
+    updateFrequency: 'daily',
+  },
+  {
+    name: 'crown-corporations',
+    description: 'Crown corporations — annual reports, quarterly financials, governance data for CBC, Canada Post, CMHC, EDC, VIA Rail, BDC',
+    category: 'corporate',
+    modulePath: './crown-corporations/index.js',
+    ingestFunctions: ['ingestCrownCorporations', 'ingestAllCrownCorporations', 'searchCrownCorporations'],
+    sources: [{ name: 'Crown corp publications', format: 'HTML/PDF' }],
+    updateFrequency: 'quarterly',
+  },
+  {
+    name: 'cra-charity',
+    description: 'CRA Charity T3010 — detailed financials of every registered Canadian charity',
+    category: 'corporate',
+    modulePath: './cra-charity/index.js',
+    ingestFunctions: ['ingestCraCharities', 'ingestAllCraCharityYears', 'getTopPoliticalSpenders'],
+    sources: [{ name: 'CRA charity data (apps.cra-arc.gc.ca)', format: 'CSV' }],
+    updateFrequency: 'annual',
+  },
+  {
+    name: 'bank-of-canada',
+    description: 'Bank of Canada — rate decisions, monetary policy reports, Financial System Review, executive speeches',
+    category: 'financial',
+    modulePath: './bank-of-canada/index.js',
+    ingestFunctions: ['ingestBankOfCanada', 'searchBocDecisions', 'getBocRateChanges', 'getBocSpeechesBySpeaker'],
+    sources: [
+      { name: 'Bank of Canada RSS', format: 'RSS' },
+      { name: 'VALA executive speeches', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'cmhc',
+    description: 'CMHC — Canada Mortgage and Housing Corporation housing market data, rental reports, housing starts',
+    category: 'financial',
+    modulePath: './cmhc/index.js',
+    ingestFunctions: ['ingestCmhc', 'searchCmhcRecords', 'getCmhcByMetric'],
+    sources: [{ name: 'CMHC open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Influence ────────────────────────────────────────────
+  {
+    name: 'influence',
+    description: 'Influence actor catalog — 30+ tracked IOs, NGOs, think tanks, consultancies, with CRA charity cross-ref and funding flows',
+    category: 'influence',
+    modulePath: './influence/index.js',
+    ingestFunctions: ['ingestActors', 'detectFundingFlows', 'ingestAllInfluence', 'investigateActor'],
+    sources: [
+      { name: 'CRA charity search', format: 'HTML' },
+      { name: 'open.canada.ca grants CKAN', format: 'JSON' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'ngo-influence-rss',
+    description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
+    category: 'influence',
+    modulePath: './ngo-influence-rss/index.js',
+    ingestFunctions: ['ingestAllNgoRss', 'ingestNgoSource', 'searchNgoRss', 'classifyNarrative'],
+    sources: [{ name: 'Advocacy org RSS feeds', format: 'RSS' }],
+    updateFrequency: 'daily',
+  },
+
+  // ── Media ────────────────────────────────────────────────
+  {
+    name: 'crtc',
+    description: 'CRTC — broadcasting/telecom regulatory decisions, ownership change monitoring, net neutrality',
+    category: 'media',
+    modulePath: './crtc/index.js',
+    ingestFunctions: ['ingestCrtc', 'searchDecisions', 'getOwnershipChangeDecisions', 'getNetNeutralityDecisions'],
+    sources: [
+      { name: 'CRTC decisions RSS', format: 'RSS' },
+      { name: 'CRTC ownership database', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'media-broadcasting',
+    description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
+    category: 'media',
+    modulePath: './media-broadcasting/index.js',
+    ingestFunctions: ['ingestAllMedia'],
+    sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Geospatial ────────────────────────────────────────────
+  {
+    name: 'geospatial',
+    description: 'Geospatial — LODE (federal geospatial database), CKAN-based geospatial search across portals',
+    category: 'government',
+    modulePath: './geospatial/index.js',
+    ingestFunctions: ['ingestAllGeospatial', 'ingestLodeDatabaseById', 'searchLode', 'listLodeDatabases'],
+    sources: [{ name: 'LODE geospatial database', format: 'JSON' }, { name: 'Provincial CKAN geospatial', format: 'JSON' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Provincial ────────────────────────────────────────────
+  {
+    name: 'provincial-lobbying',
+    description: 'Provincial lobbying registries — Ontario, BC, Alberta, Quebec — cross-jurisdiction activity tracking',
+    category: 'provincial',
+    modulePath: './provincial-lobbying/index.js',
+    ingestFunctions: ['ingestOntarioLobbying', 'ingestBCLobbying', 'ingestAllProvincial', 'searchProvincialLobbying'],
+    sources: [
+      { name: 'Ontario lobbying registry', format: 'CKAN/HTML' },
+      { name: 'BC lobbying registry', format: 'HTML' },
+      { name: 'Alberta lobbying registry', format: 'HTML' },
+      { name: 'Quebec lobbying registry', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'provincial-legislatures',
+    description: 'Provincial legislatures — Hansard, committees, and bills across all 10 provinces',
+    category: 'provincial',
+    modulePath: './provincial-legislatures/index.js',
+    ingestFunctions: ['ingestProvincialLegislatures', 'ingestAllProvincialLegislatures', 'searchProvincialLegislatures'],
+    sources: [
+      { name: 'Ontario Hansard XML', format: 'XML' },
+      { name: 'BC Hansard XML', format: 'XML' },
+      { name: 'Alberta Hansard HTML', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+  },
+  {
+    name: 'provincial',
+    description: 'Provincial deep-dive datasets — supplementary provincial data beyond core CKAN',
+    category: 'provincial',
+    modulePath: './provincial/index.js',
+    ingestFunctions: ['ingestAllProvincialDeep'],
+    sources: [],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'provincial-orgs',
+    description: 'Provincial organizations — provincial agencies, boards, and commissions directory',
+    category: 'provincial',
+    modulePath: './provincial-orgs/index.js',
+    ingestFunctions: ['ingestAllProvincialOrgs', 'ingestProvinceOrgs', 'searchProvincialOrg'],
+    sources: [{ name: 'Provincial org directories', format: 'HTML' }],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'provincial-regulators',
+    description: 'Provincial regulators — regulatory bodies and their coverage across provinces',
+    category: 'provincial',
+    modulePath: './provincial-regulators/index.js',
+    ingestFunctions: ['ingestAllRegulators', 'getRegulatorCoverage'],
+    sources: [{ name: 'Provincial regulator websites', format: 'HTML' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Social ────────────────────────────────────────────────
+  {
+    name: 'social-programs',
+    description: 'Social programs — CPP/OAS, EI, Canada Child Benefit, poverty stats, social assistance, food security',
+    category: 'social',
+    modulePath: './social-programs/index.js',
+    ingestFunctions: ['ingestAllSocialPrograms', 'searchSocialPrograms'],
+    sources: [
+      { name: 'StatCan social data', format: 'CSV' },
+      { name: 'ESDC open.canada.ca', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'unions',
+    description: 'Unions — labour organization data, collective agreements, membership statistics',
+    category: 'labour',
+    modulePath: './unions/index.js',
+    ingestFunctions: ['ingestAllUnions'],
+    sources: [{ name: 'Labour program data', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Science & Education ──────────────────────────────────
+  {
+    name: 'science-research',
+    description: 'Science & research — CSA space missions, Mitacs grants, ocean observations, polar records',
+    category: 'science',
+    modulePath: './science-research/index.js',
+    ingestFunctions: ['ingestAllScience', 'searchScience'],
+    sources: [
+      { name: 'CSA space data', format: 'JSON' },
+      { name: 'Mitacs grants', format: 'CSV' },
+      { name: 'Ocean observations', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'education-research',
+    description: 'Education & research — Tri-Council grants (CIHR/NSERC/SSHRC), Canada Research Chairs, CFI, student loans',
+    category: 'education',
+    modulePath: './education-research/index.js',
+    ingestFunctions: ['ingestTriCouncil', 'ingestResearchChairs', 'ingestCFIData', 'ingestStudentLoans', 'ingestAllEducationResearch'],
+    sources: [
+      { name: 'Tri-Council CKAN', format: 'CSV' },
+      { name: 'Canada Research Chairs', format: 'CSV' },
+      { name: 'Canada Foundation for Innovation', format: 'CSV' },
+      { name: 'CSL student loans', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+  },
+  {
+    name: 'universities',
+    description: 'Universities — deep university data: tuition, enrollment, program costs, institutional finances',
+    category: 'education',
+    modulePath: './universities/index.js',
+    ingestFunctions: ['ingestAllUniversities'],
+    sources: [{ name: 'StatCan university data', format: 'CSV' }],
+    updateFrequency: 'annual',
+  },
+
+  // ── Culture ──────────────────────────────────────────────
+  {
+    name: 'culture',
+    description: 'Culture — Canadian Heritage programs, cultural spending, grants to arts organizations',
+    category: 'culture',
+    modulePath: './culture/index.js',
+    ingestFunctions: ['ingestAllCulture', 'searchCulture'],
+    sources: [{ name: 'Canadian Heritage open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+  },
+
+  // ── Intellectual Property ────────────────────────────────
+  {
+    name: 'cipo',
+    description: 'CIPO — Canadian Intellectual Property Office patents, trademarks, industrial designs',
+    category: 'legal',
+    modulePath: './cipo/index.js',
+    ingestFunctions: ['ingestCipo', 'searchCipoRecords', 'getCipoByOwner'],
+    sources: [{ name: 'CIPO open data', format: 'CSV' }],
+    updateFrequency: 'weekly',
+  },
+];
+
+// Build lookup map
+const moduleMap = new Map<string, ModuleInfo>();
+for (const mod of MODULE_REGISTRY) {
+  moduleMap.set(mod.name, mod);
+}
+
+// Build category index
+const categoryMap = new Map<ModuleCategory, ModuleInfo[]>();
+for (const mod of MODULE_REGISTRY) {
+  const list = categoryMap.get(mod.category) || [];
+  list.push(mod);
+  categoryMap.set(mod.category, list);
+}
+
+/**
+ * Get metadata for a specific ingestion module by name.
+ */
+export function getModule(name: string): ModuleInfo | undefined {
+  return moduleMap.get(name);
+}
+
+/**
+ * Get all modules in a given category.
+ */
+export function getModulesByCategory(category: ModuleCategory): ModuleInfo[] {
+  return categoryMap.get(category) ?? [];
+}
+
+/**
+ * Get all registered modules.
+ */
+export function getAllModules(): ModuleInfo[] {
+  return MODULE_REGISTRY;
+}
+
+/**
+ * Get all unique module categories.
+ */
+export function getCategories(): ModuleCategory[] {
+  return Array.from(categoryMap.keys());
+}
+
+/**
+ * Dynamically import and run an ingestion module by name.
+ * Resolves the module at call-time so there's no static dependency cost.
+ */
+export async function runModule(
+  name: string,
+  ...args: unknown[]
+): Promise<unknown> {
+  const info = moduleMap.get(name);
+  if (!info) throw new Error(`Unknown ingestion module: ${name}`);
+
+  let mod: Record<string, Function>;
+  try {
+    mod = await import(info.modulePath);
+  } catch (err) {
+    throw new Error(`Failed to load module "${name}" from ${info.modulePath}: ${err}`);
+  }
+
+  // Find the main ingest function — try ingestAll<Name> or ingest<Name> first
+  const mainFn = info.ingestFunctions.find(f =>
+    f.startsWith('ingestAll') || f.startsWith('ingest')
+  );
+  if (mainFn && typeof mod[mainFn] === 'function') {
+    return mod[mainFn](...args);
+  }
+
+  // Fallback: try first ingest function
+  for (const fn of info.ingestFunctions) {
+    if (typeof mod[fn] === 'function') {
+      return mod[fn](...args);
+    }
+  }
+
+  throw new Error(`Module "${name}" has no callable ingest function`);
+}
+
+/**
+ * Run ALL ingestion modules and return results keyed by name.
+ * Modules run in registry order (categories grouped together).
+ */
+export async function runAllModules(
+  ...args: unknown[]
+): Promise<Record<string, unknown>> {
+  const results: Record<string, unknown> = {};
+  for (const mod of MODULE_REGISTRY) {
+    try {
+      results[mod.name] = await runModule(mod.name, ...args);
+    } catch (err) {
+      results[mod.name] = { error: String(err) };
+    }
+  }
+  return results;
+}
