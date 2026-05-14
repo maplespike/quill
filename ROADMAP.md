@@ -231,7 +231,11 @@
 |------|----------|--------|-------|
 | ✅ API auth + rate-limit + usage tracking | DONE | Bearer auth, sliding-window rate limiter, SQLite usage logs. 402 quota_exhausted response for free tier hard cap |
 | ✅ Multi-tenant DB schema | DONE | `tenants`, `api_keys`, `usage_logs` tables |
-| ✅ GitHub OAuth login + JWT tokens | DONE | `/v1/auth/github`, `/v1/auth/github/callback`, `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/auth/me` |
+| ✅ JWT tokens + refresh + logout + me | DONE | `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/auth/me` — JWT infrastructure ready for any auth flow |
+| ✅ GitHub OAuth login (interim) | DONE | `/v1/auth/github`, `/v1/auth/github/callback` — will be supplemented by Web3 + Passkey |
+| 🔴 Web3 auth (wallet) | HIGH | 2 days | Sign-In with Ethereum (EIP-4361) + Solana. Challenge → sign → JWT. `/v1/auth/web3/challenge`, `/v1/auth/web3/login` |
+| 🔴 Passkey auth (WebAuthn) | HIGH | 3 days | Biometric/platform passkeys. `/v1/auth/passkey/register`, `/v1/auth/passkey/login`. Works on macOS/iOS/Android/Windows Hello |
+| 🔴 OIDC (Google, GitHub) | LOW | 2 days | Deferred — will use standard OIDC providers once Web3 + Passkey are stable |
 | ✅ API key CRUD endpoints | DONE | `/v1/keys` GET (list) + POST (create) + DELETE (revoke) |
 | ✅ Static pricing/dashboard pages | DONE | Portal has HTML dashboard, pricing with monthly/annual toggle |
 | ✅ Quota enforcement (hard cap on free) | DONE | HTTP 402 `quota_exhausted` with Retry-After header, `X-RateLimit-Remaining`/`X-RateLimit-Reset` headers on all responses |
@@ -248,8 +252,10 @@
 |---------|--------|--------|
 | API key management (create/rotate/revoke in UI) | ✅ API endpoints exist, workspace page has HTML | 1 day to wire |
 | Usage counter dashboard | ✅ `/v1/usage` returns live data, workspace HTML exists | 1 day to wire |
-| GitHub OAuth login | ✅ `/v1/auth/github` + `/v1/auth/github/callback` | Done |
-| JWT sessions + refresh | ✅ `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/auth/me` | Done |
+| User accounts + JWT | ✅ `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/auth/me` | Done |
+| GitHub OAuth (interim) | ✅ `/v1/auth/github` + `/v1/auth/github/callback` | Done |
+| Web3 wallet auth | 🔴 SIWE/EIP-4361 + Solana | 2 days |
+| Passkey auth | 🔴 WebAuthn registration + login | 3 days |
 | Quota enforcement (402) | ✅ Hard cap on free, Retry-After header | Done |
 | Token optimization params | ✅ `_fields`, `_format`, `_limit`, `_page`, `_summary`, `_mock` | Done |
 | Data catalog explorer (browse all tools) | ✅ Explorer page with category chips + search | Done |
@@ -479,7 +485,9 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 | 2026-05-13 | SaaS confirmed as business model | "Not a SaaS" removed from PRD non-goals. Phase 6 expanded with console features and build order |
 || 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs updated |
 | 2026-05-13 | Roadmap audited against codebase | Phase 2: 3 AI tools exist but unwired. Phase 7: auth/keys/JWT/GitHub OAuth/402 enforcement all ✅, Stripe/crypto ❌. Docs page expanded from 5→10 sections. Top 10 reordered to match reality |
+| 2026-05-13 | Auth strategy decided: Web3 + Passkey first, OIDC later | Current GitHub OAuth will remain as convenience. Primary auth will be wallet-based (SIWE/EIP-4361 for Ethereum, similar for Solana) and WebAuthn passkeys (biometric/platform). OIDC (Google, GitHub as OIDC providers) deferred. JWT infrastructure already in place — just need new grant flows |
 || 2026-05-13 | Infrastructure overhaul | flake.nix fixed, Dockerfiles for ingest + engine, 9 CronJobs fixed |
 || 2026-05-13 | Katzilla content gap analysis | 7 gaps: pricing page (done), blog, changelog, docs expansion, explorer depth, SDK tabstrip, support page |
 || 2026-05-13 | Nav coherence pass | All 9 pages identical bracket-style nav. SIGNAL+ASK removed. Footers on all pages. Titles standardized |
 || 2026-05-13 | Pricing page launched | /pricing.html with Free/Pro/Business, annual toggle, FAQ, enterprise CTA |
+|| 2026-05-13 | Portal modernization plan created | 5 tasks: AI readability layer, SDK tabstrip, anti-grid brutalism, dashboard feed, explorer depth. Written to .hermes/plans/2026-05-13-portal-modernization.md |
