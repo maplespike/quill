@@ -1329,15 +1329,6 @@ export type {
   RawGlobalCanadaRecord,
 } from './global-canada/types.js';
 
-// Indigenous Relations — CIRNAC land claims, ISC spending, TRC Calls to Action
-export {
-  ingestAllIndigenous,
-} from './indigenous-relations/index.js';
-export type {
-  LandClaim, IscCommunitySpending, FnTransparencyRecord,
-  TrcCallToAction, SelfGovernmentAgreement, IndigenousIngestionResult,
-} from './indigenous-relations/types.js';
-
 // Immigration & Refugee — IRCC admissions, IRB decisions, CBSA enforcement
 export {
   ingestAllImmigration,
@@ -1389,3 +1380,154 @@ export type {
   ImmigrationLobbyingLink,
   ImmigrationIngestionResult,
 } from './immigration/types.js';
+
+// Transport Infrastructure — TSB, Transport Canada, CIIB, CTA, Infrastructure Canada
+export {
+  ingestAllTransport,
+  ingestTsbOccurrences,
+  ingestTcSafety,
+  ingestInfrastructureProjects,
+  ingestCtaRulings,
+} from './transport-infrastructure/index.js';
+export {
+  fetchTsbOccurrences,
+  fetchTcVehicleRecalls,
+  fetchTcViolationsAudits,
+  fetchCiibProjects,
+  fetchCtaRulings,
+  fetchCtaDecisions,
+  fetchInfrastructureProjects,
+  fetchNationalTradeCorridors,
+  fetchCanadaInfrastructureBank,
+} from './transport-infrastructure/index.js';
+export {
+  TRANSPORT_SOURCES,
+  TSB_DATASETS,
+  TC_SAFETY_DATASETS,
+  CTA_DATASETS,
+  INFRASTRUCTURE_CANADA_DATASETS,
+  TRANSPORT_SOURCE_NAMES,
+  TransportInfrastructureFetchError,
+  DEFAULT_MAX_RECORDS as TRANSPORT_DEFAULT_MAX_RECORDS,
+} from './transport-infrastructure/constants.js';
+export type {
+  TsbOccurrence,
+  TcRecall,
+  TcViolationAudit,
+  CiibProject,
+  CtaRuling,
+  InfrastructureFunding,
+  NtcfProject,
+  TransportInfrastructureIngestionResult,
+} from './transport-infrastructure/types.js';
+
+// Criminal Justice — corrections, parole, RCMP stats, PPSC prosecutions
+export {
+  ingestAllCriminalJustice,
+  ingestCorrections as criminalJusticeIngestCorrections,
+  ingestParole as criminalJusticeIngestParole,
+  ingestRcmpStats as criminalJusticeIngestRcmpStats,
+  ingestProsecutions as criminalJusticeIngestProsecutions,
+  generateJusticeCrossReferences as criminalJusticeGenerateCrossReferences,
+} from './criminal-justice/index.js';
+export type {
+  CriminalJusticeIngestionResult,
+  CscPopulation,
+  CscIncident,
+  CscDeathInCustody,
+  CscCostPerInmate,
+  ParoleDecision,
+  RcmpHateCrime,
+  RcmpOrganizedCrime,
+  RcmpCrimeSeverity,
+  PpscCaseload,
+  PpscOutcome,
+  PpscStayRate,
+  YouthJusticeCase,
+  YouthRecidivism,
+  LegalAidFunding,
+  LegalAidCaseCost,
+} from './criminal-justice/types.js';
+
+// Indigenous Relations — CIRNAC land claims, ISC spending, FN transparency, TRC tracker
+export {
+  ingestAllIndigenous,
+  ingestLandClaims,
+  ingestIscPrograms,
+  ingestFnTransparency,
+  ingestTrcCalls,
+  generateIndigenousCrossReferences,
+} from './indigenous-relations/index.js';
+export {
+  fetchLandClaims as indigenousFetchLandClaims,
+  fetchSelfGovernmentAgreements as indigenousFetchSelfGovernmentAgreements,
+  fetchAllCirnacData,
+  fetchCirnacCkanDataset,
+  searchCirnacPackages,
+  parseLandClaim,
+} from './indigenous-relations/cirnac.js';
+export {
+  fetchIscHealthSpending as indigenousFetchIscHealthSpending,
+  fetchIscEducationSpending as indigenousFetchIscEducationSpending,
+  fetchIscInfrastructureSpending as indigenousFetchIscInfrastructureSpending,
+  fetchAllIscSpending,
+  fetchIscCkanDataset,
+  searchIscPackages,
+  parseIscSpendingRecord,
+} from './indigenous-relations/isc.js';
+export {
+  fetchFnTransparencyRecords as indigenousFetchFnTransparencyRecords,
+  fetchFnCkanDataset,
+  searchFnTransparencyPackages,
+  parseFnTransparencyRecord,
+  buildFnPortalUrl,
+} from './indigenous-relations/fn-transparency.js';
+export {
+  fetchAllTrcCalls as indigenousFetchAllTrcCalls,
+  fetchTrcStatusFromCirnac,
+  fetchBeyond94Data,
+  buildTrcCallRecords,
+} from './indigenous-relations/trc.js';
+export {
+  INDIGENOUS_SOURCES,
+  CIRNAC_DATASETS,
+  TRACKED_COMMUNITIES,
+  INDIGENOUS_SOURCE_NAMES,
+  TRC_CALLS_TO_ACTION,
+  IndigenousFetchError,
+  DEFAULT_MAX_RECORDS as INDIGENOUS_DEFAULT_MAX_RECORDS,
+} from './indigenous-relations/constants.js';
+export type {
+  LandClaim,
+  IscCommunitySpending,
+  FnTransparencyRecord,
+  TrcCallToAction,
+  SelfGovernmentAgreement,
+  IndigenousIngestionResult,
+} from './indigenous-relations/types.js';
+
+/* ── Science, Space & Research ──────────────────────────────── */
+import {
+  ingestAllScience,
+  searchScience,
+  fetchCsaMissions,
+  fetchMitacsGrants,
+  fetchOceanObservations,
+  fetchPolarRecords,
+} from './science-research/index.js';
+export {
+  ingestAllScience,
+  searchScience,
+  fetchCsaMissions,
+  fetchMitacsGrants,
+  fetchOceanObservations,
+  fetchPolarRecords,
+} from './science-research/index.js';
+export type {
+  ResearchGrant,
+  SpaceMission,
+  OceanObservation,
+  PolarRecord,
+  ScienceIngestionResult,
+} from './science-research/types.js';
+export { SOURCES as SCIENCE_SOURCES, SCIENCE_SOURCE_NAMES, SCIENCE_CKAN_DATASETS } from './science-research/constants.js';
