@@ -132,7 +132,32 @@
 
 ---
 
-## PHASE 4: DATA SOURCE EXPANSION — In Progress
+## PHASE 4: OBSERVABILITY & MONITORING — FOSS Stack
+
+| Item | Tool | License | Effort | Notes |
+|------|------|---------|--------|-------|
+| 🔴 Uptime monitoring + status page | **Uptime Kuma** | MIT | 30 min | Single K8s pod. Monitors MCP, API, portal endpoints. Built-in branded status page at status.maplespike.ca |
+| 🔴 CronJob/heartbeat alerts | **Prometheus Pushgateway** + AlertManager | Apache 2.0 | 30 min | Each ingestion CronJob pings a pushgateway metric on completion. AlertManager fires if silent for >24h |
+| 🔴 Log aggregation | **Grafana Loki** + Promtail | AGPLv3 | 1 hour | Ship logs from all pods to Loki. Query via Grafana instead of kubectl logs |
+| 🔴 Infrastructure dashboard | **Prometheus** + Node Exporter | Apache 2.0 | 30 min | Already partially running. Add MCP + API dashboards (request rate, latency, error rate) |
+| 🔴 On-call / incident management | **Grafana OnCall** | AGPLv3 | 2 hours | On-call scheduling, escalations, Slack/email notifications. Wires into AlertManager |
+| 🔴 Error tracking | **GlitchTip** | AGPLv3 | 1 hour | Sentry-compatible SDK. Catch API/MCP exceptions with stack traces |
+| 🔴 Distributed tracing | **SigNoz** or **Grafana Tempo** | MIT / AGPLv3 | 2 hours | OpenTelemetry-native. Trace API requests through pipeline-core to upstream sources |
+
+### Build Order
+
+| # | Task | Impact | Effort |
+|---|------|--------|--------|
+| 1 | Deploy Uptime Kuma pod + configure monitors for MCP/API/Portal | High — public trust signal | 30 min |
+| 2 | Add Pushgateway + AlertManager rules for CronJobs | High — catch silent pipeline failures | 30 min |
+| 3 | Ship pod logs to Loki via Promtail | Medium — replace kubectl logs | 1 hour |
+| 4 | Create Grafana dashboards for MCP/API | Medium — single pane of glass | 30 min |
+| 5 | Deploy GlitchTip for API error tracking | Medium — catch exceptions in production | 1 hour |
+| 6 | Set up Grafana OnCall for on-call rotation | Low — needed when team > 1 | 2 hours |
+
+**Total effort:** ~6 hours for complete FOSS observability stack.
+
+## PHASE 5: DATA SOURCE EXPANSION — In Progress
 
 | Item | Priority | Effort | Notes |
 |------|----------|--------|-------|
@@ -153,7 +178,7 @@
 
 ---
 
-## PHASE 5: FROSTBITE GAZETTE INTEGRATION — TODO (separate project)
+## PHASE 6: FROSTBITE GAZETTE INTEGRATION — TODO (separate project)
 
 | Item | Priority | Effort | Notes |
 |------|----------|--------|-------|
@@ -170,7 +195,7 @@
 
 ---
 
-## PHASE 6: SAAS — PUBLIC API (Stripe + Crypto + Interac)
+## PHASE 7: SAAS — PUBLIC API (Stripe + Crypto + Interac)
 
 | Item | Priority | Effort | Notes |
 |------|----------|--------|-------|
@@ -219,7 +244,7 @@ MapleSpike is purpose-built for deep Canadian government data — parliamentary 
 
 ---
 
-## PHASE 7: WHITE-LABEL / ENTERPRISE
+## PHASE 8: WHITE-LABEL / ENTERPRISE
 
 | Item | Priority | Effort | Notes |
 |------|----------|--------|-------|
