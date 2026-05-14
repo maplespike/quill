@@ -27,7 +27,7 @@ spec:
               env:
                 - name: NODE_ENV
                   value: "production"
-                - name: CIVINT_PIPELINE
+                - name: MAPLESPIKE_PIPELINE
                   value: "provincial-lobbying"
               resources:
                 requests:
