@@ -23,8 +23,8 @@ COPY packages/engine/ packages/engine/
 COPY packages/pipeline-core/ packages/pipeline-core/
 
 # Build pipeline-core first (dependency), then engine
-RUN pnpm --filter @civint/pipeline-core run build
-RUN pnpm --filter @civint/engine run build
+RUN pnpm --filter @maplespike/pipeline-core run build
+RUN pnpm --filter @maplespike/engine run build
 
 # ---- Stage 2: Production ----
 FROM node:22-alpine
