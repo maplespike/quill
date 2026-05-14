@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-14T04:48:06.211Z",
+  "generatedAt": "2026-05-14T04:51:27.464Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
@@ -532,10 +532,150 @@
           "province": "ON"
         }
       ]
+    },
+    "immigration": {
+      "status": "ok",
+      "records": 4,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Permanent Residents – Monthly IRCC Updates",
+          "resources": 52,
+          "source": "Perm Residents"
+        },
+        {
+          "dataset": "Temporary Residents: Study Permit Holders – Monthly IRCC Updates",
+          "resources": 30,
+          "source": "Study Permits"
+        },
+        {
+          "dataset": "Temporary Residents: Temporary Foreign Worker Program (TFWP) and International Mobility Program (IMP) Work Permit Holders – Monthly IRCC Updates",
+          "resources": 51,
+          "source": "Work Permits"
+        },
+        {
+          "dataset": "Refugee Protection Division (RPD) Decisions",
+          "resources": 81,
+          "source": "RPD Decisions"
+        }
+      ]
+    },
+    "indigenous": {
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
+    },
+    "transport": {
+      "status": "ok",
+      "records": 5,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Transport, Infrastructure and Communities – December 2024",
+          "resources": 17,
+          "url": "https://open.canada.ca/data/dataset/d751e21e-6dc4-4aaa-980b-46c6504a739e"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Transport, Infrastructure and Communities – February 2022",
+          "resources": 49,
+          "url": "https://open.canada.ca/data/dataset/87062e0c-e2b8-4c94-879b-9a4ae4de0e6f"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Transport, Infrastructure and Communities – March 2020",
+          "resources": 56,
+          "url": "https://open.canada.ca/data/dataset/cc1a3be8-ae7c-4f1d-b1cf-70f928361135"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Fisheries and Oceans – April 2022",
+          "resources": 28,
+          "url": "https://open.canada.ca/data/dataset/8a59f5b5-1d94-46b8-bca8-f3fa92e040bc"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Government Operations and Estimates – February 2026",
+          "resources": 5,
+          "url": "https://open.canada.ca/data/dataset/8ff62354-7e7c-440f-91a4-4953c0576e48"
+        }
+      ]
+    },
+    "defence": {
+      "status": "ok",
+      "records": 1,
+      "errors": 1,
+      "data": [
+        {
+          "dataset": "Canadian Armed Forces Regular Force Members by Rank",
+          "resources": 2
+        }
+      ]
+    },
+    "health": {
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
+    },
+    "education": {
+      "status": "ok",
+      "records": 5,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Canada Gazette: COMMISSIONS - Permission and leave granted ",
+          "resources": 22
+        },
+        {
+          "dataset": "CIHR Grants and Awards",
+          "resources": 28
+        },
+        {
+          "dataset": "Key Funding Data on Canada Council for the Arts Grant Recipients",
+          "resources": 2
+        },
+        {
+          "dataset": "Canada Gazette: COMMISSIONS - PUBLIC SERVICE COMMISSION PUBLIC SERVICE EMPLOYMENT ACT Permission granted ",
+          "resources": 4
+        },
+        {
+          "dataset": "Conditional Release Grant Rate",
+          "resources": 50
+        }
+      ]
+    },
+    "science": {
+      "status": "ok",
+      "records": 6,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Canadian Space Agency Fees Report",
+          "source": "Space"
+        },
+        {
+          "dataset": "Evaluation of the European Space Agency Contribution Program of the Canadian Space Agency",
+          "source": "Space"
+        },
+        {
+          "dataset": "Canadian Space Agency’s 2019-2020 Quarterly Financial Reports",
+          "source": "Space"
+        },
+        {
+          "dataset": "Meteorological Observations",
+          "source": "Ocean"
+        },
+        {
+          "dataset": "Earth Observation Imagery - Canada - NOAA AVHRR Composite",
+          "source": "Ocean"
+        },
+        {
+          "dataset": "Groundwater observation wells",
+          "source": "Ocean"
+        }
+      ]
     }
   },
   "stats": {
-    "totalRecords": 61,
+    "totalRecords": 82,
     "hoc": 0,
     "senate": 0,
     "gazette": 0,
@@ -548,135 +688,214 @@
     "lobbying": 2,
     "procurement": 0,
     "influence": 5,
-    "provincialLobbying": 1
+    "provincialLobbying": 1,
+    "immigration": 4,
+    "indigenous": 0,
+    "transport": 5,
+    "defence": 1,
+    "health": 0,
+    "education": 5,
+    "science": 6
   },
   "activity": [
     {
       "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
       "type": "gic",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 12
     },
     {
       "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
       "type": "lmia",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 10
     },
     {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 15
     },
     {
       "action": "Elections: \"Municipal elections - Polling stations\" — 13 resources",
       "type": "elections",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 13
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 3
     },
     {
       "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
       "type": "lobbying",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 5
     },
     {
       "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
       "type": "provincialLobbying",
-      "time": "2026-05-14T04:48:06.201Z",
+      "time": "2026-05-14T04:51:27.457Z",
       "count": 1
+    },
+    {
+      "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
+      "type": "immigration",
+      "time": "2026-05-14T04:51:27.457Z",
+      "count": 4
+    },
+    {
+      "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
+      "type": "transport",
+      "time": "2026-05-14T04:51:27.457Z",
+      "count": 5
+    },
+    {
+      "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
+      "type": "defence",
+      "time": "2026-05-14T04:51:27.457Z",
+      "count": 1
+    },
+    {
+      "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
+      "type": "education",
+      "time": "2026-05-14T04:51:27.457Z",
+      "count": 5
+    },
+    {
+      "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
+      "type": "science",
+      "time": "2026-05-14T04:51:27.457Z",
+      "count": 6
     }
   ],
   "pipeline": {
     "hoc": {
       "status": "error",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 0,
       "errors": 16
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 0,
       "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 0,
       "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 10,
       "errors": 0
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 15,
       "errors": 2
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 13,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 0,
       "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 3,
       "errors": 1
     },
     "lobbying": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 2,
       "errors": 1
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 0,
       "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:48:06.212Z",
+      "lastRun": "2026-05-14T04:51:27.464Z",
       "records": 1,
+      "errors": 0
+    },
+    "immigration": {
+      "status": "ok",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 4,
+      "errors": 0
+    },
+    "indigenous": {
+      "status": "error",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 0,
+      "errors": 2
+    },
+    "transport": {
+      "status": "ok",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 5,
+      "errors": 0
+    },
+    "defence": {
+      "status": "ok",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 1,
+      "errors": 1
+    },
+    "health": {
+      "status": "error",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 0,
+      "errors": 2
+    },
+    "education": {
+      "status": "ok",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 5,
+      "errors": 0
+    },
+    "science": {
+      "status": "ok",
+      "lastRun": "2026-05-14T04:51:27.464Z",
+      "records": 6,
       "errors": 0
     }
   }

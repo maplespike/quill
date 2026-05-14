@@ -1141,10 +1141,179 @@ async function fetchCanLII(signal = null) {
 }
 
 
+// ── Immigration (IRCC open data via CKAN) ──────────────────────────
+
+async function fetchImmigration(signal = null) {
+  log('  Immigration IRCC...\n');
+  const allRecords = [];
+  let errors = 0;
+  const ids = [
+    'f7e5498e-0ad8-4417-85c9-9b8aff9b9eda',
+    '90115b00-f9b8-49e8-afa3-b4cff8facaee',
+    '360024f2-17e9-4558-bfc1-3616485d65b9',
+    '6e47f705-71ed-41f0-8fd5-d1a8508a3b63',
+  ];
+  const labels = ['Perm Residents', 'Study Permits', 'Work Permits', 'RPD Decisions'];
+  for (let i = 0; i < ids.length; i++) {
+    try {
+      log(`    ${labels[i]}...`);
+      const url = `${CKAN_API}/package_show?id=${ids[i]}`;
+      const data = await fetchJson(url, 8000, signal);
+      if (data.success) {
+        const rc = (data.result.resources || []).length;
+        allRecords.push({ dataset: data.result.title, resources: rc, source: labels[i] });
+        log(`${rc} resources\n`);
+      }
+    } catch (e) {
+      errors++; log(`ERR: ${e.message.slice(0,40)}\n`);
+    }
+  }
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
+// ── Indigenous Relations ──────────────────────────────────────────
+
+async function fetchIndigenous(signal = null) {
+  log('  Indigenous Relations...\n');
+  const allRecords = [];
+  let errors = 0;
+  const ids = [
+    { id: 'a995192c-7df7-4ec6-954b-6a8fcf99fe8b', label: 'Specific Claims' },
+    { id: 'dd2aba36-0ab9-4e66-91ce-2c52261f2993', label: 'Indigenous Services' },
+  ];
+  for (const item of ids) {
+    try {
+      log(`    ${item.label}...`);
+      const url = `${CKAN_API}/package_show?id=${item.id}`;
+      const data = await fetchJson(url, 8000, signal);
+      if (data.success) {
+        allRecords.push({ dataset: data.result.title, resources: (data.result.resources || []).length, source: item.label });
+        log(`${(data.result.resources || []).length} resources\n`);
+      }
+    } catch (e) { errors++; log(`ERR: ${e.message.slice(0,40)}\n`); }
+  }
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
+// ── Transport Safety Board ───────────────────────────────────────
+
+async function fetchTransport(signal = null) {
+  log('  Transport Safety...\n');
+  const allRecords = [];
+  let errors = 0;
+  try {
+    const url = `${CKAN_API}/package_search?q=transportation+safety+board&rows=5`;
+    const data = await fetchJson(url, 8000, signal);
+    if (data.success) {
+      for (const r of (data.result.results || []).slice(0, 5)) {
+        allRecords.push({ dataset: r.title, resources: (r.resources || []).length, url: `https://open.canada.ca/data/dataset/${r.id}` });
+      }
+    }
+    log(`${allRecords.length} datasets\n`);
+  } catch (e) { errors++; log(`ERR: ${e.message.slice(0,40)}\n`); }
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
+// ── Defence & Veterans ──────────────────────────────────────────
+
+async function fetchDefence(signal = null) {
+  log('  Defence & Veterans...\n');
+  const allRecords = [];
+  let errors = 0;
+  const ids = [
+    '460aa2e0-5a37-47cf-a858-98b4327d29de',
+    '6322b9a3-49f5-4d3f-a61a-b5a077c88f5b',
+  ];
+  for (const id of ids) {
+    try {
+      const url = `${CKAN_API}/package_show?id=${id}`;
+      const data = await fetchJson(url, 8000, signal);
+      if (data.success) {
+        allRecords.push({ dataset: data.result.title, resources: (data.result.resources || []).length });
+      }
+    } catch (e) { errors++; }
+  }
+  log(`${allRecords.length} datasets\n`);
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
+// ── Health Canada ────────────────────────────────────────────────
+
+async function fetchHealth(signal = null) {
+  log('  Health Canada...\n');
+  const allRecords = [];
+  let errors = 0;
+  const ids = [
+    { id: 'd74b5e0c-cf0c-4c9d-b1b3-1a8c3a9b0e4d', label: 'Drug Database' },
+    { id: '37bf86f1-fb5e-4a3b-8e0a-9cb7b0c5e12a', label: 'Medical Devices' },
+  ];
+  for (const item of ids) {
+    try {
+      const url = `${CKAN_API}/package_show?id=${item.id}`;
+      const data = await fetchJson(url, 8000, signal);
+      if (data.success) {
+        allRecords.push({ dataset: data.result.title, resources: (data.result.resources || []).length });
+      }
+    } catch (e) { errors++; }
+  }
+  log(`${allRecords.length} datasets\n`);
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
+// ── Education Research ──────────────────────────────────────────
+
+async function fetchEducation(signal = null) {
+  log('  Education Research...\n');
+  const allRecords = [];
+  let errors = 0;
+  try {
+    const url = `${CKAN_API}/package_search?q=research+grants+canada&rows=5`;
+    const data = await fetchJson(url, 8000, signal);
+    if (data.success) {
+      for (const r of (data.result.results || []).slice(0, 5)) {
+        allRecords.push({ dataset: r.title, resources: (r.resources || []).length });
+      }
+    }
+    log(`${allRecords.length} datasets\n`);
+  } catch (e) { errors++; }
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
+// ── Science & Research ──────────────────────────────────────────
+
+async function fetchScience(signal = null) {
+  log('  Science & Research...\n');
+  const allRecords = [];
+  let errors = 0;
+  const urls = [
+    { url: `${CKAN_API}/package_search?q=canadian+space+agency&rows=3`, label: 'Space' },
+    { url: `${CKAN_API}/package_search?q=ocean+observations+canada&rows=3`, label: 'Ocean' },
+  ];
+  for (const item of urls) {
+    try {
+      const data = await fetchJson(item.url, 8000, signal);
+      if (data.success) {
+        for (const r of (data.result.results || []).slice(0, 3)) {
+          allRecords.push({ dataset: r.title, source: item.label });
+        }
+      }
+    } catch (e) { errors++; }
+  }
+  log(`${allRecords.length} items\n`);
+  return { status: allRecords.length > 0 ? 'ok' : 'error', records: allRecords.length, errors, data: allRecords };
+}
+
+
 async function main() {
   const startTime = Date.now();
 
-  // ---- Define all 13 sources ----
+  // ---- Define all 20+ sources ----
   const sourceDefs = [
     // Committees
     { key: 'hoc', label: 'HOC Committees', fn: (signal) => safe(fetchHocCommittees, 'HOC')(signal) },
@@ -1164,6 +1333,20 @@ async function main() {
     // Influence & Provincial
     { key: 'influence', label: 'Influence Tracking', fn: (signal) => safe(fetchInfluence, 'Influence')(signal) },
     { key: 'provincialLobbying', label: 'Provincial Lobbying', fn: (signal) => safe(fetchProvincialLobbying, 'ProvincialLobbying')(signal) },
+    // Immigration (IRCC open data)
+    { key: 'immigration', label: 'Immigration IRCC', fn: (signal) => safe(fetchImmigration, 'Immigration')(signal) },
+    // Indigenous Relations
+    { key: 'indigenous', label: 'Indigenous Relations', fn: (signal) => safe(fetchIndigenous, 'Indigenous')(signal) },
+    // Transport Safety Board
+    { key: 'transport', label: 'Transport Safety', fn: (signal) => safe(fetchTransport, 'Transport')(signal) },
+    // Defence & Veterans
+    { key: 'defence', label: 'Defence & Veterans', fn: (signal) => safe(fetchDefence, 'Defence')(signal) },
+    // Health data
+    { key: 'health', label: 'Health Canada', fn: (signal) => safe(fetchHealth, 'Health')(signal) },
+    // Education & Research
+    { key: 'education', label: 'Education Research', fn: (signal) => safe(fetchEducation, 'Education')(signal) },
+    // Science & Research
+    { key: 'science', label: 'Science & Research', fn: (signal) => safe(fetchScience, 'Science')(signal) },
   ];
 
   process.stdout.write(
