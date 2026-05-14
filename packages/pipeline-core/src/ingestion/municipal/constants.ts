@@ -25,6 +25,17 @@ export const ALL_CITIES: CityInfo[] = [
   { code: 'quebec-city',  name: 'Quebec City', province: 'QC', vendorPlatform: 'montreal-custom', isImplemented: true, isFrench: true  },
   { code: 'hamilton',     name: 'Hamilton',   province: 'ON', vendorPlatform: 'escribe',          isImplemented: true, isFrench: false },
   { code: 'halifax',      name: 'Halifax',    province: 'NS', vendorPlatform: 'civicweb',         isImplemented: true, isFrench: false },
+  // Tier 2 cities with open data portals
+  { code: 'mississauga',  name: 'Mississauga',  province: 'ON', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: false },
+  { code: 'surrey',       name: 'Surrey',       province: 'BC', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: false },
+  { code: 'london',       name: 'London',       province: 'ON', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: false },
+  { code: 'saskatoon',    name: 'Saskatoon',    province: 'SK', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: false },
+  { code: 'regina',       name: 'Regina',       province: 'SK', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: false },
+  // Quebec cities via Données Québec
+  { code: 'laval',        name: 'Laval',        province: 'QC', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: true  },
+  { code: 'gatineau',     name: 'Gatineau',     province: 'QC', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: true  },
+  { code: 'longueuil',    name: 'Longueuil',    province: 'QC', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: true  },
+  { code: 'levis',        name: 'Lévis',        province: 'QC', vendorPlatform: 'html-scrape', isImplemented: true, isFrench: true  },
 ] as const;
 
 /** Only cities with full implementation */
@@ -67,6 +78,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Vancouver',
     province: 'BC',
     vendorPlatform: 'vancouver-custom',
+    portalType: 'ckan',
     baseUrl: 'https://vancouver.ca',
     meetingsUrl: 'https://vancouver.ca/your-government/meeting-agendas-and-minutes.aspx',
     meetingDetailUrl: null,
@@ -75,8 +87,10 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://vancouver.ca/your-government/budget-and-financial-reports.aspx',
     apiEndpoints: {
       meetingsList: 'https://vancouver.ca/your-government/meeting-agendas-and-minutes.aspx',
-      // Vancouver also uses a searchable calendar
       calendarSearch: 'https://vancouver.ca/scripts/calendar/meetings.aspx',
+      ckanBase: 'https://opendata.vancouver.ca/api/3/action',
+      packageList: 'https://opendata.vancouver.ca/api/3/action/package_list',
+      packageShow: 'https://opendata.vancouver.ca/api/3/action/package_show?id={id}',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -92,6 +106,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Montreal',
     province: 'QC',
     vendorPlatform: 'montreal-custom',
+    portalType: 'ckan',
     baseUrl: 'https://montreal.ca',
     meetingsUrl: 'https://montreal.ca/en/city-council',
     meetingDetailUrl: null,
@@ -99,9 +114,10 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     minutesUrlPattern: null,
     budgetUrlPattern: 'https://montreal.ca/en/budget',
     apiEndpoints: {
-      // Montreal's open data portal may have council data
       meetingsList: 'https://montreal.ca/en/city-council',
-      openData: 'https://donnees.montreal.ca/',
+      ckanBase: 'https://donnees.montreal.ca/api/3/action',
+      packageList: 'https://donnees.montreal.ca/api/3/action/package_list',
+      packageShow: 'https://donnees.montreal.ca/api/3/action/package_show?id={id}',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -118,6 +134,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Calgary',
     province: 'AB',
     vendorPlatform: 'escribe',
+    portalType: 'socrata',
     baseUrl: 'https://www.calgary.ca',
     meetingsUrl: 'https://pub-calgary.escribemeetings.com/',
     meetingDetailUrl: 'https://pub-calgary.escribemeetings.com/Meeting.aspx?Id={meetingId}',
@@ -126,7 +143,9 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://www.calgary.ca/finance/budget.html',
     apiEndpoints: {
       escribeBase: 'https://pub-calgary.escribemeetings.com',
-      // eScribe API endpoints (if exposed)
+      socrataBase: 'https://data.calgary.ca',
+      socrataViews: 'https://data.calgary.ca/api/views',
+      socrataDataset: 'https://data.calgary.ca/resource/{dataset_id}.json',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -142,6 +161,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Edmonton',
     province: 'AB',
     vendorPlatform: 'escribe',
+    portalType: 'socrata',
     baseUrl: 'https://www.edmonton.ca',
     meetingsUrl: 'https://pub-edmonton.escribemeetings.com/',
     meetingDetailUrl: 'https://pub-edmonton.escribemeetings.com/Meeting.aspx?Id={meetingId}',
@@ -150,6 +170,9 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://www.edmonton.ca/budget',
     apiEndpoints: {
       escribeBase: 'https://pub-edmonton.escribemeetings.com',
+      socrataBase: 'https://data.edmonton.ca',
+      socrataViews: 'https://data.edmonton.ca/api/views',
+      socrataDataset: 'https://data.edmonton.ca/resource/{dataset_id}.json',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -165,6 +188,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Ottawa',
     province: 'ON',
     vendorPlatform: 'escribe',
+    portalType: 'ckan',
     baseUrl: 'https://ottawa.ca',
     meetingsUrl: 'https://pub-ottawa.escribemeetings.com/',
     meetingDetailUrl: 'https://pub-ottawa.escribemeetings.com/Meeting.aspx?Id={meetingId}',
@@ -173,6 +197,10 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://ottawa.ca/en/city-hall/budget',
     apiEndpoints: {
       escribeBase: 'https://pub-ottawa.escribemeetings.com',
+      ckanBase: 'https://open.ottawa.ca/api/3/action',
+      packageList: 'https://open.ottawa.ca/api/3/action/package_list',
+      packageShow: 'https://open.ottawa.ca/api/3/action/package_show?id={id}',
+      resourceShow: 'https://open.ottawa.ca/api/3/action/resource_show?id={id}',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -188,6 +216,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Winnipeg',
     province: 'MB',
     vendorPlatform: 'civicweb',
+    portalType: 'socrata',
     baseUrl: 'https://www.winnipeg.ca',
     meetingsUrl: 'https://www.winnipeg.ca/council/meetings',
     meetingDetailUrl: null,
@@ -196,7 +225,9 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://www.winnipeg.ca/finance/budget',
     apiEndpoints: {
       meetingsList: 'https://www.winnipeg.ca/council/meetings',
-      // CivicWeb may have an API
+      socrataBase: 'https://data.winnipeg.ca',
+      socrataViews: 'https://data.winnipeg.ca/api/views',
+      socrataDataset: 'https://data.winnipeg.ca/resource/{dataset_id}.json',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -212,6 +243,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Quebec City',
     province: 'QC',
     vendorPlatform: 'montreal-custom',
+    portalType: 'donnees-quebec',
     baseUrl: 'https://www.ville.quebec.qc.ca',
     meetingsUrl: 'https://www.ville.quebec.qc.ca/citoyens/conseil-municipal/seances/',
     meetingDetailUrl: null,
@@ -220,6 +252,9 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://www.ville.quebec.qc.ca/finances/budget/',
     apiEndpoints: {
       meetingsList: 'https://www.ville.quebec.qc.ca/citoyens/conseil-municipal/seances/',
+      donneesQuebec: 'https://www.donneesquebec.ca/api/3/action',
+      orgSearch: 'https://www.donneesquebec.ca/api/3/action/organization_show?id=ville-de-quebec',
+      packageList: 'https://www.donneesquebec.ca/api/3/action/package_list',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -236,6 +271,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Hamilton',
     province: 'ON',
     vendorPlatform: 'escribe',
+    portalType: 'arcgis-hub',
     baseUrl: 'https://www.hamilton.ca',
     meetingsUrl: 'https://pub-hamilton.escribemeetings.com/',
     meetingDetailUrl: 'https://pub-hamilton.escribemeetings.com/Meeting.aspx?Id={meetingId}',
@@ -244,6 +280,8 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://www.hamilton.ca/budget',
     apiEndpoints: {
       escribeBase: 'https://pub-hamilton.escribemeetings.com',
+      arcgisHubSearch: 'https://open.hamilton.ca/api/search/definition/',
+      arcgisHubBase: 'https://open.hamilton.ca',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -259,6 +297,7 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     name: 'Halifax',
     province: 'NS',
     vendorPlatform: 'civicweb',
+    portalType: 'arcgis-hub',
     baseUrl: 'https://www.halifax.ca',
     meetingsUrl: 'https://www.halifax.ca/city-hall/agendas-minutes',
     meetingDetailUrl: null,
@@ -267,6 +306,8 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     budgetUrlPattern: 'https://www.halifax.ca/budget',
     apiEndpoints: {
       meetingsList: 'https://www.halifax.ca/city-hall/agendas-minutes',
+      arcgisHubSearch: 'https://data-hrm.hub.arcgis.com/api/search/definition/',
+      arcgisHubBase: 'https://data-hrm.hub.arcgis.com',
     },
     customHeaders: {
       'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
@@ -274,6 +315,182 @@ export const CITY_CONFIGS: Record<CityCode, CityConfig> = {
     meetingIdPattern: '',
     timezone: 'America/Halifax',
     isFrench: false,
+  },
+
+  /* ================ MISSISSAUGA ================ */
+  mississauga: {
+    city: 'mississauga',
+    name: 'Mississauga',
+    province: 'ON',
+    vendorPlatform: null,
+    portalType: 'custom-api',
+    baseUrl: 'https://www.mississauga.ca',
+    meetingsUrl: 'https://www.mississauga.ca/city-council/',
+    meetingDetailUrl: null,
+    agendaUrlPattern: null,
+    minutesUrlPattern: null,
+    budgetUrlPattern: 'https://www.mississauga.ca/budget/',
+    apiEndpoints: {
+      dataPortal: 'https://data.mississauga.ca',
+      searchApi: 'https://data.mississauga.ca/api/search/definition/',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)' },
+    meetingIdPattern: '',
+    timezone: 'America/Toronto',
+    isFrench: false,
+  },
+
+  /* ================ SURREY (BC) ================ */
+  surrey: {
+    city: 'surrey',
+    name: 'Surrey',
+    province: 'BC',
+    vendorPlatform: null,
+    portalType: 'arcgis-hub',
+    baseUrl: 'https://www.surrey.ca',
+    meetingsUrl: 'https://www.surrey.ca/city-government/meetings',
+    meetingDetailUrl: null,
+    agendaUrlPattern: null,
+    minutesUrlPattern: null,
+    budgetUrlPattern: 'https://www.surrey.ca/budget',
+    apiEndpoints: {
+      arcgisHubSearch: 'https://opendata-surrey.hub.arcgis.com/api/search/definition/',
+      arcgisMapServer: 'https://gisservices.surrey.ca/arcgis/rest/services/OpenData/MapServer',
+      arcgisHubBase: 'https://opendata-surrey.hub.arcgis.com',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)' },
+    meetingIdPattern: '',
+    timezone: 'America/Vancouver',
+    isFrench: false,
+  },
+
+  /* ================ LONDON (ON) ================ */
+  london: {
+    city: 'london',
+    name: 'London',
+    province: 'ON',
+    vendorPlatform: null,
+    portalType: 'custom-api',
+    baseUrl: 'https://london.ca',
+    meetingsUrl: 'https://london.ca/city-hall/meetings',
+    meetingDetailUrl: null,
+    agendaUrlPattern: null,
+    minutesUrlPattern: null,
+    budgetUrlPattern: 'https://london.ca/budget',
+    apiEndpoints: {
+      dataPortal: 'https://opendata.london.ca',
+      searchApi: 'https://opendata.london.ca/api/search/definition/',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)' },
+    meetingIdPattern: '',
+    timezone: 'America/Toronto',
+    isFrench: false,
+  },
+
+  /* ================ SASKATOON ================ */
+  saskatoon: {
+    city: 'saskatoon',
+    name: 'Saskatoon',
+    province: 'SK',
+    vendorPlatform: null,
+    portalType: 'socrata',
+    baseUrl: 'https://www.saskatoon.ca',
+    meetingsUrl: 'https://www.saskatoon.ca/city-hall/meetings',
+    meetingDetailUrl: null,
+    agendaUrlPattern: null,
+    minutesUrlPattern: null,
+    budgetUrlPattern: 'https://www.saskatoon.ca/budget',
+    apiEndpoints: {
+      dataPortal: 'https://data.saskatoon.ca',
+      socrataBase: 'https://data.saskatoon.ca',
+      socrataViews: 'https://data.saskatoon.ca/api/views',
+      socrataDataset: 'https://data.saskatoon.ca/resource/{dataset_id}.json',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)' },
+    meetingIdPattern: '',
+    timezone: 'America/Regina',
+    isFrench: false,
+  },
+
+  /* ================ REGINA ================ */
+  regina: {
+    city: 'regina',
+    name: 'Regina',
+    province: 'SK',
+    vendorPlatform: null,
+    portalType: 'ckan',
+    baseUrl: 'https://www.regina.ca',
+    meetingsUrl: 'https://www.regina.ca/city-government/meetings',
+    meetingDetailUrl: null,
+    agendaUrlPattern: null,
+    minutesUrlPattern: null,
+    budgetUrlPattern: 'https://www.regina.ca/budget',
+    apiEndpoints: {
+      dataPortal: 'https://open.regina.ca',
+      ckanBase: 'https://open.regina.ca/api/3/action',
+      packageList: 'https://open.regina.ca/api/3/action/package_list',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)' },
+    meetingIdPattern: '',
+    timezone: 'America/Regina',
+    isFrench: false,
+  },
+
+  // Quebec cities all route through the provincial Données Québec CKAN
+  /* ================ LAVAL (via Données Québec) ================ */
+  laval: {
+    city: 'laval', name: 'Laval', province: 'QC', vendorPlatform: null,
+    portalType: 'donnees-quebec',
+    baseUrl: 'https://www.laval.ca', meetingsUrl: '', meetingDetailUrl: null,
+    agendaUrlPattern: null, minutesUrlPattern: null, budgetUrlPattern: '',
+    apiEndpoints: {
+      donneesQuebec: 'https://www.donneesquebec.ca/api/3/action',
+      orgSearch: 'https://www.donneesquebec.ca/api/3/action/organization_show?id=ville-de-laval',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1', 'Accept-Language': 'fr-CA,fr;q=0.9' },
+    meetingIdPattern: '', timezone: 'America/Montreal', isFrench: true,
+  },
+
+  /* ================ GATINEAU (via Données Québec) ================ */
+  gatineau: {
+    city: 'gatineau', name: 'Gatineau', province: 'QC', vendorPlatform: null,
+    portalType: 'donnees-quebec',
+    baseUrl: 'https://www.gatineau.ca', meetingsUrl: '', meetingDetailUrl: null,
+    agendaUrlPattern: null, minutesUrlPattern: null, budgetUrlPattern: '',
+    apiEndpoints: {
+      donneesQuebec: 'https://www.donneesquebec.ca/api/3/action',
+      orgSearch: 'https://www.donneesquebec.ca/api/3/action/organization_show?id=ville-de-gatineau',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1', 'Accept-Language': 'fr-CA,fr;q=0.9' },
+    meetingIdPattern: '', timezone: 'America/Montreal', isFrench: true,
+  },
+
+  /* ================ LONGUEUIL (via Données Québec) ================ */
+  longueuil: {
+    city: 'longueuil', name: 'Longueuil', province: 'QC', vendorPlatform: null,
+    portalType: 'donnees-quebec',
+    baseUrl: 'https://www.longueuil.quebec', meetingsUrl: '', meetingDetailUrl: null,
+    agendaUrlPattern: null, minutesUrlPattern: null, budgetUrlPattern: '',
+    apiEndpoints: {
+      donneesQuebec: 'https://www.donneesquebec.ca/api/3/action',
+      orgSearch: 'https://www.donneesquebec.ca/api/3/action/organization_show?id=ville-de-longueuil',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1', 'Accept-Language': 'fr-CA,fr;q=0.9' },
+    meetingIdPattern: '', timezone: 'America/Montreal', isFrench: true,
+  },
+
+  /* ================ LÉVIS (via Données Québec) ================ */
+  levis: {
+    city: 'levis', name: 'Lévis', province: 'QC', vendorPlatform: null,
+    portalType: 'donnees-quebec',
+    baseUrl: 'https://www.levis.ca', meetingsUrl: '', meetingDetailUrl: null,
+    agendaUrlPattern: null, minutesUrlPattern: null, budgetUrlPattern: '',
+    apiEndpoints: {
+      donneesQuebec: 'https://www.donneesquebec.ca/api/3/action',
+      orgSearch: 'https://www.donneesquebec.ca/api/3/action/organization_show?id=ville-de-levis',
+    },
+    customHeaders: { 'User-Agent': 'MapleSpikePipeline/0.1', 'Accept-Language': 'fr-CA,fr;q=0.9' },
+    meetingIdPattern: '', timezone: 'America/Montreal', isFrench: true,
   },
 };
 
