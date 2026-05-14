@@ -18,7 +18,7 @@ export interface QdrantConfig {
 }
 
 const DEFAULT_CONFIG: QdrantConfig = {
-  endpoint: 'http://nexus:30632',
+  endpoint: process.env.MAPLESPIKE_QDRANT_ENDPOINT || 'http://nexus:30632',
   collectionName: 'maplespike', // 2048-dim Cosine, matches all cluster embed models
   maxRetries: 2,
   retryDelay: 500,

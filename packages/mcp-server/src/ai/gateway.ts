@@ -19,9 +19,9 @@ export interface GatewayConfig {
 }
 
 const DEFAULT_CONFIG: GatewayConfig = {
-  endpoint: 'http://nexus:30880/v1',
-  chatModel: 'qwen/qwen3-coder-30b-a3b-instruct',
-  embedModel: 'nvidia/llama-3.2-nv-embedqa-1b-v2',
+  endpoint: process.env.MAPLESPIKE_GATEWAY_URL || 'http://nexus:30880/v1',
+  chatModel: process.env.MAPLESPIKE_CHAT_MODEL || 'qwen/qwen3-coder-30b-a3b-instruct',
+  embedModel: process.env.MAPLESPIKE_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2',
   maxRetries: 2,
   retryDelay: 1_000,
 };
