@@ -1,0 +1,93 @@
+
+
+import { computeHash } from '../../verification/hashing.js';
+import type { CultureRecord } from './types.js';
+
+export async function fetchHeritagePrograms(): Promise<CultureRecord[]> {
+  const records: CultureRecord[] = []; const errors: string[] = [];
+  const now = new Date().toISOString();
+  try {
+    const resp = await fetch('https://open.canada.ca/data/api/3/action/package_search?q=heritage+grants&rows=200', {
+      signal: AbortSignal.timeout(15000),
+    });
+    if (resp.ok) {
+      const body = await resp.json() as any;
+      const results = body?.result?.results ?? [];
+      for (const r of results) {
+        records.push({
+          id: await computeHash('heritage:' + (r.id || r.name), 'sha256'),
+          source: 'canadian-heritage', category: r.notes?.substring(0, 100) ?? '', value: 1,
+          description: r.title ?? '', region: 'Canada', year: new Date().getFullYear(),
+          sourceUrl: r.url ?? '', ingestedAt: now,
+        });
+      }
+    }
+  } catch {}
+  return records;
+}
+
+export async function fetchCanadaCouncilGrants(): Promise<CultureRecord[]> {
+  const records: CultureRecord[] = [];
+  const now = new Date().toISOString();
+  try {
+    const resp = await fetch('https://open.canada.ca/data/api/3/action/package_search?q=canada+council+grants&rows=200', {
+      signal: AbortSignal.timeout(15000),
+    });
+    if (resp.ok) {
+      const body = await resp.json() as any;
+      for (const r of (body?.result?.results ?? [])) {
+        records.push({
+          id: await computeHash('council:' + (r.id || r.name), 'sha256'),
+          source: 'canada-council', category: r.notes?.substring(0, 100) ?? '', value: 1,
+          description: r.title ?? '', region: 'Canada', year: new Date().getFullYear(),
+          sourceUrl: r.url ?? '', ingestedAt: now,
+        });
+      }
+    }
+  } catch {}
+  return records;
+}
+
+export async function fetchCanadaMediaFund(): Promise<CultureRecord[]> {
+  const records: CultureRecord[] = [];
+  const now = new Date().toISOString();
+  try {
+    const resp = await fetch('https://open.canada.ca/data/api/3/action/package_search?q=canada+media+fund&rows=200', {
+      signal: AbortSignal.timeout(15000),
+    });
+    if (resp.ok) {
+      const body = await resp.json() as any;
+      for (const r of (body?.result?.results ?? [])) {
+        records.push({
+          id: await computeHash('cmf:' + (r.id || r.name), 'sha256'),
+          source: 'canada-media-fund', category: r.notes?.substring(0, 100) ?? '', value: 1,
+          description: r.title ?? '', region: 'Canada', year: new Date().getFullYear(),
+          sourceUrl: r.url ?? '', ingestedAt: now,
+        });
+      }
+    }
+  } catch {}
+  return records;
+}
+
+export async function fetchTelefilmGrants(): Promise<CultureRecord[]> {
+  const records: CultureRecord[] = [];
+  const now = new Date().toISOString();
+  try {
+    const resp = await fetch('https://open.canada.ca/data/api/3/action/package_search?q=telefilm+canada&rows=200', {
+      signal: AbortSignal.timeout(15000),
+    });
+    if (resp.ok) {
+      const body = await resp.json() as any;
+      for (const r of (body?.result?.results ?? [])) {
+        records.push({
+          id: await computeHash('telefilm:' + (r.id || r.name), 'sha256'),
+          source: 'telefilm', category: r.notes?.substring(0, 100) ?? '', value: 1,
+          description: r.title ?? '', region: 'Canada', year: new Date().getFullYear(),
+          sourceUrl: r.url ?? '', ingestedAt: now,
+        });
+      }
+    }
+  } catch {}
+  return records;
+}
