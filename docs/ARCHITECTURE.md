@@ -95,16 +95,17 @@ A REST API gateway with auth, rate limiting, and usage tracking.
 
 ### 2.4 Developer Portal (Portal)
 
-A lightweight static site for marketing + documentation.
+A lightweight static site for marketing, documentation, and API interaction, served from K3s via nginx.
 
-- Static HTML/CSS site served from K3s
-- landing page with hero, features, pricing, badges, stats
-- Dashboard page with live data cards
-- Documentation and quickstart guides
-- OpenAPI spec reference at `/v1/openapi.json`
-- Dark/light theme toggle with localStorage persistence
-- Mobile responsive nav
-- AI-friendly `llms.txt` and `llms-full.txt`
+- **13 static HTML pages**: index (hero, features, stats), dashboard, docs, pricing, agents, ask, blog, changelog, contact, explorer, signal, workspace, 404
+- **Environment-aware config**: `config.js` (shared defaults), `config.dev.js` (dev override), `config.prod.js` (prod override). Mounted as a ConfigMap at `/usr/share/nginx/html/config.js`. Dev uses `apiBase: https://dev-maplespike-api.lan`, prod uses `https://maplespike-api.lan`.
+- **Dark/light theme** toggle with `localStorage` persistence and CSS custom properties
+- **Mobile responsive** navigation with hamburger menu
+- **Scroll-reveal animations** via `IntersectionObserver` on section entrances
+- **Glass dashboard sidebar** showing live modules tracked, API calls, and data sources
+- **Pricing toggle** for monthly / annual billing display
+- **MCP showcase** section demonstrating 22-tool MCP configuration
+- **AI-friendly**: `llms.txt`, `llms-full.txt`, OpenAPI spec at `/v1/openapi.json`, `Accept: text/markdown` content negotiation, `x-markdown-tokens` header
 
 ---
 
@@ -112,32 +113,55 @@ A lightweight static site for marketing + documentation.
 
 ### 3.1 System Diagram
 
-```
-GitHub Pages (maplespike.ca)
-  └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
+The K3s cluster (nexus) hosts two environments in separate namespaces, sharing the same image registry but differing in tags, ConfigMaps, NodePorts, and replica counts.
 
+```
 K3s Cluster (nexus)
-  ├── MCP server (SSE, port 3001) ── 22 tools, all live
-  ├── API server (REST, Bearer auth, rate limits)
-  │     ├── SQLite (keys, usage, audit)
-  │     ├── In-memory cache (node-cache)
-  │     └── pipeline-core (ingestion, curation, verification)
-  │           ├── RSS Feeds .................... ✅
-  │           ├── Gov API (StatCan/CKAN) ....... ✅
-  │           ├── Committees (HoC + Senate) .... ✅
-  │           ├── Corporate .................... ✅
-  │           ├── Influence .................... ✅
-  │           ├── Gazette (Parts I, II) ........ ✅
-  │           ├── GIC Appointments ............ ✅
-  │           ├── Provincial Lobbying (ON) .... ✅ ON full (BC/QC/AB stubbed)
-  │           ├── Elections Canada ............. ✅
-  │           ├── Oversight Bodies ............ ✅
-  │           ├── CanLII Court Decisions ...... ✅
-  │           └── LMIA Data ................... ✅
-  └── Engine CronJobs (ingestion scheduling)
+│
+├── Namespace: maplespike (prod)
+│   ├── Ingress: maplespike.lan (Caddy)
+│   │     /api/v1/*  → maplespike-api:8082
+│   │     /mcp/*     → maplespike-mcp:3001
+│   │     /*         → maplespike-portal:8080
+│   ├── Image tag: :latest (ghcr.io/reverb256)
+│   ├── Portal config: config.prod.js → apiBase: https://maplespike-api.lan
+│   ├── Replicas: API=2, MCP=1, Portal=1
+│   │
+│   ├── MCP server (NodePort 31745) ── 22 tools, all live
+│   ├── API server (NodePort 31283, Bearer auth, rate limits)
+│   │     ├── SQLite (keys, usage, audit)
+│   │     ├── In-memory cache (node-cache)
+│   │     └── pipeline-core (ingestion, curation, verification)
+│   │           ├── RSS Feeds .................... ✅
+│   │           ├── Gov API (StatCan/CKAN) ....... ✅
+│   │           ├── Committees (HoC + Senate) .... ✅
+│   │           ├── Corporate .................... ✅
+│   │           ├── Influence .................... ✅
+│   │           ├── Gazette (Parts I, II) ........ ✅
+│   │           ├── GIC Appointments ............ ✅
+│   │           ├── Provincial Lobbying (ON) .... ✅ ON full (BC/QC/AB stubbed)
+│   │           ├── Elections Canada ............. ✅
+│   │           ├── Oversight Bodies ............ ✅
+│   │           ├── CanLII Court Decisions ...... ✅
+│   │           └── LMIA Data ................... ✅
+│   └── Engine CronJobs (ingestion scheduling)
+│
+└── Namespace: maplespike-dev (dev)
+    ├── Ingress: dev.maplespike.lan (Caddy)
+    │     /api/v1/*  → maplespike-api:8082
+    │     /mcp/*     → maplespike-mcp:3001
+    │     /*         → maplespike-portal:8080
+    ├── Image tag: :dev (ghcr.io/reverb256)
+    ├── Portal config: config.dev.js → apiBase: https://dev-maplespike-api.lan
+    ├── Replicas: API=1, MCP=1, Portal=1
+    │
+    ├── MCP server (NodePort 31746) ── 22 tools, all live
+    ├── API server (NodePort 31284)
+    │     └── pipeline-core (same module list as prod)
+    └── Engine CronJobs (dev ingestion)
 ```
 
-No Cloudflare, no D1, no KV — everything runs on the existing cluster.
+No Cloudflare, no D1, no KV — everything runs on the existing cluster. Both namespaces pull from the same GHCR registry but use different image tags (:dev vs :latest) and different ConfigMaps for environment-specific settings.
 
 ### 3.2 Data Flow
 
@@ -183,7 +207,92 @@ Module/
 
 ---
 
-## 4. Build Plan (7 Phases)
+## 4. CI/CD Pipeline
+
+Two GitHub Actions workflows handle continuous deployment, mapped to two long-lived branches.
+
+```
+                      ┌──────────────┐
+                      │  Pull Request │
+                      │  (any branch) │
+                      └──────┬───────┘
+                             │
+                     ┌───────▼────────┐
+                     │  CI (ci.yml)   │
+                     │  pnpm install  │
+                     │  pnpm build    │
+                     │  pnpm test     │
+                     └───────┬────────┘
+                             │ pass
+              ┌──────────────┼──────────────┐
+              │              │              │
+     ┌────────▼────────┐    │    ┌─────────▼─────────┐
+     │  push to main   │    │    │  push to prod      │
+     └────────┬────────┘    │    └─────────┬──────────┘
+              │             │              │
+     ┌────────▼────────┐    │    ┌─────────▼──────────┐
+     │  Deploy Dev     │    │    │  Deploy (deploy.yml)│
+     │  (deploy-dev.yml)│    │    │  Build :latest tag │
+     │  Build :dev tag  │    │    │  Push to GHCR      │
+     │  Push to GHCR    │    │    │  SSH → K3s nexus   │
+     │  SSH → K3s nexus │    │    │  kubectl apply     │
+     │  kubectl apply   │    │    │  maplespike ns     │
+     │  maplespike-dev  │    │    └─────────┬──────────┘
+     │  ns              │    │              │
+     └────────┬────────┘    │    ┌─────────▼──────────┐
+              │             │    │  Publish           │
+              │             │    │  (publish.yml)     │
+              │             │    │  npm publish SDK   │
+              │             │    │  PyPI publish      │
+              │             │    └────────────────────┘
+              │             │
+              ▼             ▼
+    maplespike-dev     maplespike
+    (dev.maplespike.lan)  (maplespike.lan)
+```
+
+### 4.1 Branch Strategy
+
+| Branch | CI Run | Deploy To | Image Tag | Ingress |
+|--------|--------|-----------|-----------|---------|
+| `main` | `ci.yml` — pnpm build + test | `maplespike-dev` namespace | `:dev` | `dev.maplespike.lan` |
+| `prod` | N/A (separate) | `maplespike` namespace | `:latest` | `maplespike.lan` |
+
+### 4.2 Workflow: CI (ci.yml)
+
+Triggers on pull request to `main` and push to `main`. Runs `pnpm install`, `pnpm build`, and tests for all packages (pipeline-core, mcp-server, engine, sdk, legal-core, legislation, api-server). Serves as the quality gate before any deployment.
+
+### 4.3 Workflow: Deploy Dev (deploy-dev.yml)
+
+Triggers on push to `main` (path-filtered to `packages/`, `Dockerfile.*`, `k8s/`).
+
+1. **Test** — same suite as ci.yml
+2. **Build** — Docker images for `api`, `mcp`, `portal`, `ingest`, `engine` tagged as `:dev` and `:${{ github.sha }}`
+3. **Push** — all images to `ghcr.io/reverb256/`
+4. **SSH** — connects to nexus host, pulls images, tags for local registry
+5. **Apply** — `kubectl apply -f k8s/dev/*.yaml`
+6. **Rollout** — restarts deployments in `maplespike-dev`, waits for readiness
+
+### 4.4 Workflow: Deploy Prod (deploy.yml)
+
+Triggers on push to `prod` (path-filtered to `packages/`, `Dockerfile.*`, `k8s/prod/`).
+
+1. **Test** — same suite as ci.yml
+2. **Build** — same images tagged as `:latest` and `:${{ github.sha }}`
+3. **Push** — to `ghcr.io/reverb256/`
+4. **SSH** — connects to nexus, pulls images, tags for local registry
+5. **Apply** — `kubectl apply -f k8s/prod/*.yaml`
+6. **Rollout** — restarts deployments in `maplespike`, waits for readiness
+
+### 4.5 Workflow: Publish (publish.yml)
+
+Also triggers on push to `prod`. Publishes SDK packages:
+- **npm**: Uses Changesets to version and publish `@maplespike/sdk` to npm registry
+- **PyPI**: Builds `packages/sdk-python` wheel, publishes via `pypa/gh-action-pypi-publish`
+
+---
+
+## 6. Build Plan (7 Phases)
 
 | Phase | What | Why | Status |
 |-------|------|-----|--------|
@@ -197,29 +306,13 @@ Module/
 
 ---
 
-## 5. Market Context
+## 7. Market Context
 
-### 5.1 Market Sizing
+### 7.1 Market Sizing
 
-| Segment | Global TAM (2024) | CAGR | Source |
-|---------|-------------------|------|--------|
-| Data pipeline tools | ~$12B | 26% → $48B by 2030 | Grand View Research |
-| Government data platforms | ~$4B | 18% | Tyler Tech / OpenGov filings |
-| AI agent infrastructure | ~$2B | 45% | Emergen Research |
-| Canadian civic tech | ~$200M | 20% | Nordicity / Brookfield Institute |
+### 7.2 Competitive Landscape
 
-Canada's open data ecosystem is fragmented: developers and journalists navigate 6+ separate portals (StatCan WDS, open.canada.ca CKAN, ON/BC/AB/QC portals), each with different APIs, rate limits, data formats, and licensing. MapleSpike fills this gap.
-
-### 5.2 Competitive Landscape
-
-| Competitor | Strengths | Weaknesses | Our Advantage |
-|------------|-----------|------------|---------------|
-| **US-based gov data APIs** | Broad US/international coverage, mature products | No Canadian depth | Canadian-only focus with 65 modules |
-| **mcp-canada** (ReyemTech) | 193 bilingual StatCan tools, open-source MIT | Self-hosted only, no curation, experimental | Curated + verified + audited + MCP-native |
-| **OpenGov / Socrata** | Enterprise contracts, dashboard UX | US-focus, expensive, no MCP | Zero-cost entry, MCP-native, open-source core |
-| **Raw government portals** | Free, authoritative | 6+ different APIs, no caching, no SLA | One pipeline, cached, curated, verified |
-
-### 5.3 Target Audiences
+### 7.3 Target Audiences
 
 1. **Independent Journalists** (~500 in Canada) — Verified data feeds with citations
 2. **Civic Tech Developers** (~2,000) — Open pipeline they can extend
@@ -228,7 +321,7 @@ Canada's open data ecosystem is fragmented: developers and journalists navigate 
 
 ---
 
-## 6. SaaS Pricing
+## 8. SaaS Pricing
 
 | Tier | Price | Requests | Rate | Support |
 |------|-------|----------|------|---------|
@@ -243,7 +336,7 @@ Canada's open data ecosystem is fragmented: developers and journalists navigate 
 
 ---
 
-## 7. Risks & Mitigations
+## 9. Risks & Mitigations
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -254,7 +347,7 @@ Canada's open data ecosystem is fragmented: developers and journalists navigate 
 
 ---
 
-## 8. Non-Goals
+## 10. Non-Goals
 
 - Not a newsroom — no editorial content (journalism is Frostbite Gazette's role)
 - Not a CKAN replacement — we're an aggregation/curation layer, not a data portal
@@ -263,7 +356,7 @@ Canada's open data ecosystem is fragmented: developers and journalists navigate 
 
 ---
 
-## 9. Data Privacy
+## 11. Data Privacy
 
 - **Pipeline data**: Cached gov releases, articles — SQLite/Postgres + in-memory cache
 - **No PII**: The pipeline intentionally excludes personal information. All data is public government data.
