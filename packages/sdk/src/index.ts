@@ -1,13 +1,32 @@
-// ---------------------------------------------------------------------------
-// MapleSpike SDK — Main entry point
-// ---------------------------------------------------------------------------
-import type { SdkConfig, MapleSpikeResponse, QueryOptions, AgentProxy } from './types.js';
+/**
+ * MapleSpike SDK — typed client for Canadian civic data
+ *
+ * ```ts
+ * import { MapleSpike } from '@maplespike/sdk';
+ *
+ * const ms = new MapleSpike({ apiKey: 'ms_live_...' });
+ *
+ * // Domain-specific methods (typed)
+ * const pr = await ms.immigration.permanentResidents({ province: 'ON', year: 2025 });
+ * const committees = await ms.committees.meetings({ parliament: 44 });
+ * const lobbying = await ms.corporate.lobbying({ subject: 'healthcare' });
+ *
+ * // Generic query (any endpoint)
+ * const data = await ms.query('regulations', 'regulatory-proposals', { status: 'open' });
+ * ```
+ *
+ * @module @maplespike/sdk
+ */
+
+import type { SdkConfig, MapleSpikeResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
 import { getMockResponse } from './mock.js';
 import { setApiKey, setJwtToken, clearAuth } from './auth.js';
 
-export type { MapleSpikeResponse, QueryOptions, AgentProxy } from './types.js';
+// Re-export types
 export type {
+  MapleSpikeResponse,
+  QueryOptions,
   ResponseMeta,
   ResponseQuality,
   Citation,
@@ -20,18 +39,63 @@ export type {
 export { MapleSpikeError } from './types.js';
 export { getAgent, listAgents, listActions, AGENTS } from './agents.js';
 export { getApiKey, setApiKey, getJwtToken, setJwtToken, isAuthenticated, clearAuth } from './auth.js';
-export { buildUrl, buildHeaders, resolveBaseUrl } from './query.js';
-export { getMockResponse } from './mock.js';
 
-/**
- * MapleSpike — typed client for the MapleSpike civilian intelligence API.
- *
- * ```ts
- * const ms = new MapleSpike({ apiKey: 'ms_live_...' });
- * const result = await ms.query('committees', 'committee-membership', { parliament: 44 });
- * console.log(result.data);
- * ```
- */
+/* ------------------------------------------------------------------ */
+/*  Domain-specific query parameters                                   */
+/* ------------------------------------------------------------------ */
+
+export interface CommitteeQuery {
+  committee?: string; chamber?: 'commons' | 'senate'; parliament?: number;
+  dateFrom?: string; dateTo?: string; keyword?: string; limit?: number;
+}
+
+export interface CorporateQuery {
+  businessNumber?: string; directorName?: string; subject?: string;
+  dateFrom?: string; jurisdiction?: string; limit?: number;
+}
+
+export interface ImmigrationQuery {
+  province?: string; year?: number; category?: string;
+  countryOfCitizenship?: string; limit?: number;
+}
+
+export interface ElectionQuery {
+  year?: number; riding?: string; party?: string;
+  type?: 'federal' | 'provincial'; limit?: number;
+}
+
+export interface OversightQuery {
+  body?: string; year?: number; keyword?: string; limit?: number;
+}
+
+export interface GazetteQuery {
+  part?: 1 | 2 | 3; department?: string; keyword?: string;
+  dateFrom?: string; limit?: number;
+}
+
+export interface LmiaQuery {
+  employer?: string; occupation?: string; province?: string;
+  year?: number; outcome?: 'approved' | 'denied'; limit?: number;
+}
+
+export interface CanliiQuery {
+  court?: string; keyword?: string; dateFrom?: string;
+  citation?: string; limit?: number;
+}
+
+export interface ProvincialQuery {
+  province?: string; subject?: string; year?: number; limit?: number;
+}
+
+export interface GicQuery {
+  department?: string; organization?: string; year?: number;
+  minSalary?: number; limit?: number;
+}
+
+/* ------------------------------------------------------------------ */
+/*  MapleSpike Client Class                                            */
+/* ------------------------------------------------------------------ */
+
 export class MapleSpike {
   private _apiKey?: string;
   private _jwtToken?: string;
@@ -41,105 +105,319 @@ export class MapleSpike {
     this._apiKey = config.apiKey;
     this._jwtToken = config.jwtToken;
     this._baseUrl = resolveBaseUrl(config.baseUrl);
-
-    // Sync to auth module
     if (config.apiKey) setApiKey(config.apiKey);
     if (config.jwtToken) setJwtToken(config.jwtToken);
   }
 
-  // ─── Configuration ───────────────────────────────────────────────────────
+  get apiKey(): string | undefined { return this._apiKey; }
+  set apiKey(key: string | undefined) { this._apiKey = key; setApiKey(key); }
 
-  /** Get or set the API key */
-  get apiKey(): string | undefined {
-    return this._apiKey;
-  }
+  get jwtToken(): string | undefined { return this._jwtToken; }
+  set jwtToken(token: string | undefined) { this._jwtToken = token; setJwtToken(token); }
 
-  set apiKey(key: string | undefined) {
-    this._apiKey = key;
-    setApiKey(key);
-  }
+  get baseUrl(): string { return this._baseUrl; }
+  set baseUrl(url: string) { this._baseUrl = resolveBaseUrl(url); }
 
-  /** Get or set the JWT token */
-  get jwtToken(): string | undefined {
-    return this._jwtToken;
-  }
+  clearAuth(): void { this._apiKey = undefined; this._jwtToken = undefined; clearAuth(); }
+  isAuthenticated(): boolean { return !!(this._apiKey || this._jwtToken); }
 
-  set jwtToken(token: string | undefined) {
-    this._jwtToken = token;
-    setJwtToken(token);
-  }
+  // ─── Core Query ──────────────────────────────────────────────────
 
-  /** Get or set the base URL */
-  get baseUrl(): string {
-    return this._baseUrl;
-  }
-
-  set baseUrl(url: string) {
-    this._baseUrl = resolveBaseUrl(url);
-  }
-
-  /** Full-reset of auth state */
-  clearAuth(): void {
-    this._apiKey = undefined;
-    this._jwtToken = undefined;
-    clearAuth();
-  }
-
-  /** Check whether any auth is configured */
-  isAuthenticated(): boolean {
-    return !!(this._apiKey || this._jwtToken);
-  }
-
-  // ─── Query API ───────────────────────────────────────────────────────────
-
-  /**
-   * Execute a structured query against a MapleSpike agent action.
-   *
-   * @param agent  Agent name (e.g. "committees", "corporate")
-   * @param action Action name (e.g. "committee-membership", "corporation-profile")
-   * @param params Action-specific parameters
-   * @param options Query options (mock mode, field projection, pagination, etc.)
-   */
   async query<T = unknown>(
     agent: string,
     action: string,
     params?: Record<string, unknown>,
     options?: QueryOptions,
   ): Promise<MapleSpikeResponse<T>> {
-    // Mock mode — no network call
-    if (options?._mock) {
-      return getMockResponse(agent, action) as MapleSpikeResponse<T>;
-    }
-
+    if (options?._mock) return getMockResponse(agent, action) as unknown as MapleSpikeResponse<T>;
     const url = buildUrl(this._baseUrl, agent, action, params, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
-
     const response = await fetch(url, { headers });
     return parseResponse<T>(response);
   }
 
-  /**
-   * Begin a chained query: `ms.agent('committees').action('committee-membership', { ... })`
-   */
-  agent(name: string): AgentProxy {
+  /** Begin a chained query: `ms.agent('committees').action('membership', {...})` */
+  agent(name: string) {
     const self = this;
-    const agentName = name;
     return {
-      _agent: agentName,
-      agent(n: string): AgentProxy {
-        return self.agent(n);
-      },
-      async action(
-        action: string,
-        params?: Record<string, unknown>,
-        options?: QueryOptions,
-      ): Promise<MapleSpikeResponse<unknown>> {
-        return self.query(agentName, action, params, options);
-      },
+      _agent: name,
+      agent: (n: string) => self.agent(n),
+      action: async (action: string, params?: Record<string, unknown>, options?: QueryOptions) =>
+        self.query(name, action, params, options),
+    };
+  }
+
+  // ─── Domain: Committees ─────────────────────────────────────────
+
+  committees = {
+    membership: (p: CommitteeQuery = {}) =>
+      this.query('committees', 'committee-membership', p as any),
+    meetings: (p: CommitteeQuery = {}) =>
+      this.query('committees', 'committee-meetings', p as any),
+    reports: (p: CommitteeQuery = {}) =>
+      this.query('committees', 'committee-reports', p as any),
+    witnesses: (p: CommitteeQuery = {}) =>
+      this.query('committees', 'committee-witnesses', p as any),
+  };
+
+  // ─── Domain: Corporate ──────────────────────────────────────────
+
+  corporate = {
+    profile: (p: CorporateQuery) =>
+      this.query('corporate', 'corporation-profile', p as any),
+    filings: (p: CorporateQuery) =>
+      this.query('corporate', 'corporation-filings', p as any),
+    directors: (p: CorporateQuery = {}) =>
+      this.query('corporate', 'director-registry', p as any),
+    lobbying: (p: CorporateQuery = {}) =>
+      this.query('corporate', 'lobbying-activities', p as any),
+  };
+
+  // ─── Domain: Immigration ────────────────────────────────────────
+
+  immigration = {
+    permanentResidents: (p: ImmigrationQuery = {}) =>
+      this.query('immigration', 'permanent-residents', p as any),
+    studyPermits: (p: ImmigrationQuery = {}) =>
+      this.query('immigration', 'study-permits', p as any),
+    workPermits: (p: ImmigrationQuery = {}) =>
+      this.query('immigration', 'work-permits', p as any),
+    refugeeDecisions: (p: ImmigrationQuery = {}) =>
+      this.query('immigration', 'refugee-decisions', p as any),
+  };
+
+  // ─── Domain: Elections ──────────────────────────────────────────
+
+  elections = {
+    results: (p: ElectionQuery = {}) =>
+      this.query('elections', 'election-results', p as any),
+    contributions: (p: ElectionQuery = {}) =>
+      this.query('influence', 'political-contributions', p as any),
+    thirdParty: (p: ElectionQuery = {}) =>
+      this.query('elections', 'third-party-advertisers', p as any),
+  };
+
+  // ─── Domain: Oversight ──────────────────────────────────────────
+
+  oversight = {
+    auditorReports: (p: OversightQuery = {}) =>
+      this.query('oversight', 'auditor-reports', p as any),
+    watchdog: (p: OversightQuery = {}) =>
+      this.query('oversight', 'watchdog-reports', p as any),
+    atip: (p: OversightQuery = {}) =>
+      this.query('oversight', 'access-to-information', p as any),
+    conflictOfInterest: (p: OversightQuery = {}) =>
+      this.query('oversight', 'conflict-of-interest', p as any),
+  };
+
+  // ─── Domain: Canada Gazette ────────────────────────────────────
+
+  gazette = {
+    notices: (p: GazetteQuery = {}) =>
+      this.query('gazette', 'gazette-notices', p as any),
+    regulations: (p: GazetteQuery = {}) =>
+      this.query('gazette', 'regulatory-impact-analyses', p as any),
+  };
+
+  // ─── Domain: LMIA ─────────────────────────────────────────────
+
+  lmia = {
+    search: (p: LmiaQuery = {}) =>
+      this.query('lmia', 'lmia-records', p as any),
+    stats: (p: LmiaQuery = {}) =>
+      this.query('lmia', 'lmia-statistics', p as any),
+  };
+
+  // ─── Domain: Courts (CanLII) ──────────────────────────────────
+
+  courts = {
+    decisions: (p: CanliiQuery = {}) =>
+      this.query('courts', 'court-decisions', p as any),
+    tribunalRulings: (p: CanliiQuery = {}) =>
+      this.query('courts', 'tribunal-rulings', p as any),
+  };
+
+  // ─── Domain: Provincial ───────────────────────────────────────
+
+  provincial = {
+    lobbying: (p: ProvincialQuery = {}) =>
+      this.query('provincial-lobbying', 'provincial-lobbying', p as any),
+  };
+
+  // ─── Domain: GIC Appointments ─────────────────────────────────
+
+  gic = {
+    appointments: (p: GicQuery = {}) =>
+      this.query('gic', 'gic-appointments', p as any),
+  };
+
+  // ─── Domain: Influence ────────────────────────────────────────
+
+  influence = {
+    actors: (p: any = {}) => this.query('influence', 'influence-actors', p),
+    funding: (p: any = {}) => this.query('influence', 'funding-flows', p),
+  };
+
+  // ─── Domain: Regulations ──────────────────────────────────────
+
+  regulations = {
+    proposals: (p: any = {}) => this.query('regulations', 'regulatory-proposals', p),
+    decisions: (p: any = {}) => this.query('regulations', 'regulatory-decisions', p),
+    consultations: (p: any = {}) => this.query('regulations', 'consultation-comments', p),
+  };
+
+  // ─── Domain: Science & Research ───────────────────────────────
+
+  science = {
+    search: (p: any = {}) => this.query('science', 'science-data', p),
+  };
+
+  // ─── Domain: Health ───────────────────────────────────────────
+
+  health = {
+    search: (p: any = {}) => this.query('health', 'health-data', p),
+  };
+
+  // ─── Domain: Indigenous ─────────────────────────────────────
+
+  indigenous = {
+    landClaims: (p: any = {}) => this.query('indigenous', 'land-claims', p),
+    iscSpending: (p: any = {}) => this.query('indigenous', 'isc-spending', p),
+    fnTransparency: (p: any = {}) => this.query('indigenous', 'fn-transparency', p),
+    trcProgress: (p: any = {}) => this.query('indigenous', 'trc-progress', p),
+  };
+
+  // ─── Domain: Criminal Justice ────────────────────────────────
+
+  criminalJustice = {
+    corrections: (p: any = {}) => this.query('criminal-justice', 'corrections-population', p),
+    parole: (p: any = {}) => this.query('criminal-justice', 'parole-decisions', p),
+    rcmpCrimeStats: (p: any = {}) => this.query('criminal-justice', 'rcmp-crime-stats', p),
+    prosecutions: (p: any = {}) => this.query('criminal-justice', 'prosecutions', p),
+  };
+
+  // ─── Domain: Defence ────────────────────────────────────────
+
+  defence = {
+    personnel: (p: any = {}) => this.query('defence', 'personnel', p),
+    procurement: (p: any = {}) => this.query('defence', 'procurement', p),
+  };
+
+  // ─── Domain: Municipal ──────────────────────────────────────
+
+  municipal = {
+    meetings: (p: any = {}) => this.query('municipal', 'meetings', p),
+    budgets: (p: any = {}) => this.query('municipal', 'budgets', p),
+    openData: (p: any = {}) => this.query('municipal', 'open-data', p),
+  };
+
+  // ─── Domain: Transport ──────────────────────────────────────
+
+  transport = {
+    tsbOccurrences: (p: any = {}) => this.query('transport', 'tsb-occurrences', p),
+    tcRecalls: (p: any = {}) => this.query('transport', 'tc-recalls', p),
+    ctaRulings: (p: any = {}) => this.query('transport', 'cta-rulings', p),
+  };
+
+  // ─── Domain: Real-Time ──────────────────────────────────────
+
+  realtime = {
+    weatherAlerts: (p: any = {}) => this.query('realtime', 'weather-alerts', p),
+    borderWaits: (p: any = {}) => this.query('realtime', 'border-waits', p),
+    paroleRegistry: (p: any = {}) => this.query('realtime', 'parole-registry', p),
+  };
+
+  // ─── Domain: Media ─────────────────────────────────────────
+
+  media = {
+    crtcMarketReports: (p: any = {}) => this.query('media', 'crtc-market-reports', p),
+    ownershipCharts: (p: any = {}) => this.query('media', 'ownership-charts', p),
+    cmfData: (p: any = {}) => this.query('media', 'cmf-data', p),
+  };
+
+  // ─── Domain: Education ──────────────────────────────────────
+
+  education = {
+    triCouncilGrants: (p: any = {}) => this.query('education', 'tri-council-grants', p),
+    researchChairs: (p: any = {}) => this.query('education', 'research-chairs', p),
+    studentLoans: (p: any = {}) => this.query('education', 'student-loans', p),
+    cudoData: (p: any = {}) => this.query('education', 'cudo-data', p),
+  };
+
+  // ─── Domain: Social Programs ────────────────────────────────
+
+  socialPrograms = {
+    ccbData: (p: any = {}) => this.query('social-programs', 'ccb-data', p),
+    cppOas: (p: any = {}) => this.query('social-programs', 'cpp-oas', p),
+    eiStatistics: (p: any = {}) => this.query('social-programs', 'ei-statistics', p),
+    povertyData: (p: any = {}) => this.query('social-programs', 'poverty-data', p),
+  };
+
+  // ─── Domain: Bank of Canada ────────────────────────────────
+
+  bankOfCanada = {
+    rateDecisions: (p: any = {}) => this.query('bank-of-canada', 'rate-decisions', p),
+    monetaryPolicy: (p: any = {}) => this.query('bank-of-canada', 'monetary-policy', p),
+  };
+
+  // ─── Domain: SEDI ──────────────────────────────────────────
+
+  sedi = {
+    insiderTransactions: (p: any = {}) => this.query('sedi', 'insider-transactions', p),
+  };
+
+  // ─── Domain: Unions ────────────────────────────────────────
+
+  unions = {
+    reports: (p: any = {}) => this.query('unions', 'union-reports', p),
+  };
+
+  // ─── Domain: Universities ──────────────────────────────────
+
+  universities = {
+    data: (p: any = {}) => this.query('universities', 'university-data', p),
+  };
+
+  // ─── Domain: CRTC ─────────────────────────────────────────
+
+  crtc = {
+    decisions: (p: any = {}) => this.query('crtc', 'decisions', p),
+    ownership: (p: any = {}) => this.query('crtc', 'ownership', p),
+  };
+
+  // ─── Domain: CRA Charity ───────────────────────────────────
+
+  craCharity = {
+    search: (p: any = {}) => this.query('cra-charity', 'charity-search', p),
+    politicalSpending: (p: any = {}) => this.query('cra-charity', 'political-spending', p),
+  };
+
+  // ─── Domain: Provincial Regulators ─────────────────────────
+
+  provincialRegulators = {
+    search: (p: any = {}) => this.query('provincial-regulators', 'regulator-search', p),
+    coverage: (p: any = {}) => this.query('provincial-regulators', 'regulator-coverage', p),
+  };
+
+  // ─── MCP Integration ──────────────────────────────────────────
+
+  /**
+   * Get the MCP server URL for direct AI agent integration.
+   * Set via MAPLESPIKE_MCP_URL or defaults to production.
+   */
+  getMcpUrl(): string {
+    return process?.env?.MAPLESPIKE_MCP_URL ?? 'https://mcp.maplespike.ca';
+  }
+
+  /**
+   * Get an MCP-ready configuration snippet for AI agents.
+   */
+  getMcpConfig(): { serverUrl: string; apiKey?: string } {
+    return {
+      serverUrl: this.getMcpUrl(),
+      apiKey: this._apiKey,
     };
   }
 }
-
-// ─── Default export ─────────────────────────────────────────────────────────
 
 export default MapleSpike;
