@@ -1,4 +1,4 @@
--- MapleSpike Canada — D1 Database Schema
+-- MapleSpike — D1 Database Schema
 -- Multi-tenant API gateway storage
 -- SQLite / Cloudflare D1 compatible
 
