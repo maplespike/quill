@@ -459,10 +459,10 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 | 3 | **Wire workspace to live API** — connect API key management and usage stats pages to `/v1/keys` and `/v1/usage` endpoints | P7 | High — developer self-service | 1 day |
 | 4 | **Stripe billing** — Checkout sessions, webhooks, tier enforcement | P7 | High — unlocks revenue | 2 days |
 | 5 | ~~Fix engine tests~~ — rebuilt better-sqlite3 native addon against correct Node.js ABI | P4 | ✅ DONE — 133/133 pass | — |
-| 6 | **Blog** — minimal index page + RSS feed | P2B | Medium — shows activity | 1 day |
-| 7 | **Data Explorer depth** — 20+ category buttons with action counts | P2B | Medium — Katzilla has 21 categories | 1 day |
-| 8 | **Changelog** — release notes page | P2B | Medium — standard dev tool practice | 4 hours |
-| 9 | **Contact/Support page** | P2B | Low | 2 hours |
+| 6 | ~~Blog~~ — index page + RSS feed with 4 initial posts | P2B | ✅ DONE | — |
+| 7 | **Data Explorer depth** — 20+ category buttons with action counts | P2B | Medium — partially built | 1 day |
+| 8 | ~~Changelog~~ — release notes page | P2B | ✅ DONE | — |
+| 9 | ~~Contact/Support page~~ — email, FAQ, response times | P2B | ✅ DONE | — |
 | 10 | **Deploy Uptime Kuma** — pod for uptime monitoring + status page | P4 | Medium — observability | 1 day |
 
 ---
