@@ -12,22 +12,34 @@
   };
   languages.typescript.enable = true;
 
-  # Packages for native module builds (better-sqlite3)
+  # Python for the Python SDK (maplespike-sdk on PyPI)
+  languages.python = {
+    enable = true;
+    package = pkgs.python3;
+  };
+
+  # Packages for native module builds and dev tooling
   packages = with pkgs; [
-    # Build essentials for native Node modules
+    # Build essentials for native Node modules (better-sqlite3)
     python3
     stdenv.cc.cc
-    # Useful dev tools
-    git
-    jq
-    curl
+    # Dev tools
+    git jq curl
+    # Container builds (podman preferred, docker fallback)
+    podman
+    docker-client
+    # K8s tooling
+    kubectl
+    # Python packaging
+    nodePackages.pyright
   ];
 
   # Environment variables for native module compilation
   env = {
-    # Make node-gyp able to find the compiler
     CC = "gcc";
     CXX = "g++";
+    # Direnv-friendly
+    DIRENV_LOG_FORMAT = "";
   };
 
   # Scripts for common tasks
@@ -37,15 +49,17 @@
     test.exec = "pnpm test";
     lint.exec = "pnpm lint";
     typecheck.exec = "pnpm typecheck";
+    generate.exec = "node packages/portal/scripts/generate-agents-json.mjs && node packages/portal/scripts/generate-pipeline-data.mjs";
+    docker-build.exec = "bash scripts/build-images.sh";
+    docker-push.exec = "bash scripts/build-images.sh --push";
     clean.exec = ''
       rm -rf node_modules packages/*/node_modules
-      rm -rf .next packages/*/.next
       rm -rf dist packages/*/dist
       rm -f *.tsbuildinfo packages/*/*.tsbuildinfo
     '';
   };
 
-  # Pre-commit hooks (using simple ones that work without project deps)
+  # Pre-commit hooks
   git-hooks.hooks = {
     check-merge-conflicts.enable = true;
     detect-private-keys.enable = true;
@@ -56,8 +70,10 @@
   # Shell greeting
   enterShell = ''
     echo ""
-    echo "🏛️  CivicIntel Development Environment"
-    echo "====================================="
+    echo "🍁 MapleSpike Development Environment"
+    echo "======================================"
+    echo ""
+    echo "53 modules  |  81,857 lines  |  1,141 endpoints  |  0 stubs"
     echo ""
     echo "Available commands:"
     echo "  pnpm dev       - Start development server"
@@ -65,9 +81,14 @@
     echo "  pnpm test      - Run tests"
     echo "  pnpm lint      - Lint code"
     echo "  pnpm typecheck - Type check"
+    echo "  generate       - Generate agents.json + pipeline-data.json"
+    echo "  docker-build   - Build all 4 Docker images (podman/docker)"
+    echo "  docker-push    - Build and push to GHCR"
     echo ""
-    echo "Shortcuts (devenv scripts):"
-    echo "  dev, build, test, lint, typecheck, clean"
+    echo "Quick links:"
+    echo "  docs/compatibility.md  — External data standards"
+    echo "  docs/ROADMAP.md        — Build roadmap"
+    echo "  docs/GAP-ANALYSIS.md   — Coverage analysis"
     echo ""
   '';
 }
