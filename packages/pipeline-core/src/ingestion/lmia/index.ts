@@ -410,6 +410,4 @@ export {
   discoverLatestQuarter,
   listAvailableQuarters,
   LmiaFetchError,
-  CkanResource,
-  CkanPackageResponse,
 } from './fetcher.js';
