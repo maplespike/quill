@@ -1,0 +1,98 @@
+# MapleSpike Dev Deploy — CI/CD for main branch
+# Builds + pushes Docker images, deploys to K3s dev namespace
+# Triggers on push/merge to main branch only
+name: Deploy Dev
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'Dockerfile.*'
+      - 'k8s/dev/**'
+      - 'k8s/prod/**'
+      - '.github/workflows/deploy-dev.yml'
+
+concurrency:
+  group: deploy-dev-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      - run: pnpm --filter @maplespike/engine test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push all images
+        run: |
+          for img in api mcp portal ingest engine; do
+            echo "=== Building $img ==="
+            docker build -f Dockerfile.$img \
+              -t ghcr.io/reverb256/maplespike-$img:dev \
+              -t ghcr.io/reverb256/maplespike-$img:${{ github.sha }} .
+            docker push ghcr.io/reverb256/maplespike-$img:dev
+            docker push ghcr.io/reverb256/maplespike-$img:${{ github.sha }}
+          done
+
+      - name: Deploy to K3s (dev namespace)
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.NEXUS_HOST }}
+          port: ${{ secrets.NEXUS_PORT || '22' }}
+          username: ${{ secrets.NEXUS_USER }}
+          key: ${{ secrets.NEXUS_SSH_KEY }}
+          script: |
+            set -e
+            cd /data/projects/own/maplespike
+
+            git fetch origin main
+            git checkout main
+            git pull origin main
+
+            for img in api mcp portal ingest engine; do
+              docker pull ghcr.io/reverb256/maplespike-$img:dev || true
+              docker tag ghcr.io/reverb256/maplespike-$img:dev nexus:5000/maplespike-$img:dev 2>/dev/null || true
+              docker push nexus:5000/maplespike-$img:dev 2>/dev/null || \
+                podman push --tls-verify=false nexus:5000/maplespike-$img:dev 2>/dev/null || true
+            done
+
+            kubectl create namespace maplespike-dev 2>/dev/null || true
+
+            for f in k8s/dev/*.yaml; do
+              kubectl apply -f "$f" --wait=true 2>&1 || true
+            done
+
+            for deploy in maplespike-api maplespike-mcp maplespike-portal; do
+              kubectl rollout restart deployment/$deploy -n maplespike-dev --timeout=120s 2>/dev/null || true
+            done
+
+            kubectl rollout status deployment/maplespike-api -n maplespike-dev --timeout=120s || true
+            kubectl rollout status deployment/maplespike-mcp -n maplespike-dev --timeout=120s || true
+            kubectl rollout status deployment/maplespike-portal -n maplespike-dev --timeout=60s || true
+
+            echo "=== Dev Deployment Complete ==="
+            kubectl get pods -n maplespike-dev

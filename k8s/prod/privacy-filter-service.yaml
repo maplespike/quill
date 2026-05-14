@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: privacy-filter
+  namespace: ai-inference
+  labels:
+    app: privacy-filter
+spec:
+  type: ClusterIP
+  selector:
+    app: privacy-filter
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP

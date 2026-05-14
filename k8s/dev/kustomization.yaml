@@ -1,0 +1,14 @@
+# MapleSpike Dev Kubernetes Manifests
+# Applied via CI/CD on push to `main` branch
+# All services behind dev.maplespike.lan single-domain ingress
+# NodePorts: portal=30965, api=31284, mcp=31746
+resources:
+  - namespace.yaml
+  - portal-config.yaml
+  - api-deployment.yaml
+  - api-service.yaml
+  - mcp-deployment.yaml
+  - mcp-service.yaml
+  - portal-deployment.yaml
+  - portal-service.yaml
+  - ingress.yaml

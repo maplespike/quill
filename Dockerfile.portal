@@ -7,6 +7,12 @@ WORKDIR /app
 COPY packages/portal/ /app/
 COPY packages/portal/docs-dist/ /app/docs-dist/
 
+# Ensure non-root user can write to the app directory
+RUN chown -R 65534:65534 /app
+
+# Run as non-root user (nobody, UID 65534 — numeric required for PodSecurity)
+USER 65534
+
 EXPOSE 8080
 
 CMD ["python3", "server.py"]

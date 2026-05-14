@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maplespike-portal
+  namespace: maplespike-dev
+  labels:
+    app: maplespike-portal
+    component: portal
+    tier: frontend
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: maplespike-portal
+  template:
+    metadata:
+      labels:
+        app: maplespike-portal
+        component: portal
+        tier: frontend
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [nexus, sentry, forge]
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values: [zephyr]
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: maplespike-portal
+                topologyKey: kubernetes.io/hostname
+      tolerations:
+        - key: node.forge/mining
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: portal
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          image: nexus:5000/maplespike-portal:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: API_URL
+              value: "http://maplespike-api.maplespike-dev.svc.cluster.local:8082/v1"
+          volumeMounts:
+            - name: portal-config
+              mountPath: /usr/share/nginx/html/config.js
+              subPath: config.js
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: portal-config
+          configMap:
+            name: portal-config
+            items:
+              - key: config.js
+                path: config.js
