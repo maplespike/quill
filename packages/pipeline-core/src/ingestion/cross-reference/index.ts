@@ -1,0 +1,10 @@
+import { crossReferenceSearch } from './fetcher.js';
+import { CROSS_REF_MODULES } from './constants.js';
+import type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery } from './types.js';
+
+export async function searchCrossReference(query: CrossReferenceQuery): Promise<CrossReferenceResult> {
+  return crossReferenceSearch(query);
+}
+
+export { CROSS_REF_MODULES };
+export type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery };
