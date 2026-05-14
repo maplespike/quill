@@ -25,6 +25,8 @@ class ResponseQuality:
     source_uptime_7d: float = 1.0
     confidence: float = 0.95
     certainty_score: float = 0.9
+    last_verified: str = ''
+    data_completeness: str = ''
 
 
 @dataclass
@@ -36,6 +38,9 @@ class Citation:
     data_hash: str = ''
     retrieved_at: str = ''
     update_frequency: str = ''
+    original_format: str = ''
+    citation_text: str = ''
+    citation_footnote: str = ''
 
 
 @dataclass
