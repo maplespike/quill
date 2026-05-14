@@ -18,6 +18,10 @@ RUN mkdir -p /var/cache/nginx/client_temp \
     && mkdir -p /var/cache/nginx/scgi_temp \
     && chmod -R 777 /var/cache/nginx
 
+# Fix PID file location for non-root operation (runAsUser: 1001)
+# Default nginx.conf has "pid /run/nginx.pid;" which non-root can't write
+RUN sed -i 's|pid\s*/run/nginx.pid;|pid /tmp/nginx.pid;|' /etc/nginx/nginx.conf
+
 EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

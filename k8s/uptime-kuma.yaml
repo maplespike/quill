@@ -21,7 +21,7 @@ spec:
       nodeName: nexus
       containers:
         - name: uptime-kuma
-          image: louislam/uptime-kuma:latest
+          image: louislam/uptime-kuma:latest-rootless
           ports:
             - containerPort: 3001
           env:

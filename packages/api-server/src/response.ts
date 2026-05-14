@@ -32,6 +32,31 @@ export const OGL_C_CITATION: CitationMeta = {
 };
 
 /* ------------------------------------------------------------------ */
+/*  Citation Text Builders — generates ready-to-paste strings          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Generates citation_text and citation_footnote from raw citation fields.
+ * These are ready-to-paste strings AI agents can use directly without
+ * formatting — matches the Katzilla pattern for AI-agent-friendly citations.
+ */
+export function enrichCitation(meta: CitationMeta): CitationMeta {
+  if (meta.citation_text && meta.citation_footnote) return meta;
+  const d = new Date(meta.retrieved_at);
+  const dateStr = d.toISOString().split('T')[0];
+  const month = d.toLocaleString('en', { month: 'short', timeZone: 'UTC' });
+  const year = d.getFullYear();
+  return {
+    ...meta,
+    original_format: meta.original_format || 'JSON',
+    citation_text: meta.citation_text
+      || `${meta.source_name}, retrieved ${dateStr}. ${meta.license}. ${meta.source_url}`,
+    citation_footnote: meta.citation_footnote
+      || `${meta.source_name}, ${month} ${year}`,
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Builders — Internal                                                */
 /* ------------------------------------------------------------------ */
 
@@ -195,8 +220,8 @@ export function buildSuccess<T>(
     meta: buildResponseMeta(ctx, ctx.metaOverrides),
     quality: buildQualityMeta(ctx),
     citation: extraCitation
-      ? { ...OGL_C_CITATION, ...extraCitation }
-      : OGL_C_CITATION,
+      ? enrichCitation({ ...OGL_C_CITATION, ...extraCitation })
+      : enrichCitation(OGL_C_CITATION),
   };
 }
 

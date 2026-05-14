@@ -40,7 +40,10 @@ export interface Citation {
   license: string;
   data_hash: string;
   retrieved_at: string;
-  update_frequency: string;
+  update_frequency?: string;
+  original_format?: string;
+  citation_text?: string;
+  citation_footnote?: string;
   merkle_root?: string;
   signature?: string;
   signer_key_id?: string;
