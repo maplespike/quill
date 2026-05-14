@@ -2,18 +2,15 @@
  * CIHI Ingestion — Canadian Institute for Health Information
  *
  * Ingests wait times for surgery and diagnostic tests, plus national health
- * expenditure trends from the CIHI website and open data portal.
- *
- * CIHI publishes structured HTML reports and downloadable Excel/CSV files.
- * This module scrapes the public HTML pages and also searches CKAN for
- * any CIHI datasets published on open.canada.ca.
+ * expenditure trends from the Government of Canada Open Data Portal (CKAN)
+ * and CIHI's public data pages.
  *
  * Data sources:
- *   - CIHI web pages (HTML reports): wait times, health spending
- *   - CKAN (supplementary): any CIHI datasets available via open.canada.ca
+ *   - CKAN: CIHI datasets published on open.canada.ca (wait times, spending)
+ *   - CIHI web pages (HTML reports): supplementary scraping
  *
  * Note: Some CIHI detailed data requires paid access; this module captures
- * the publicly available aggregate data.
+ * the publicly available aggregate data from open.canada.ca.
  */
 
 import { httpGet } from '../../utils/http.js';
@@ -24,6 +21,7 @@ import {
   CIHI_HEALTH_SPENDING_DDL,
   DEFAULT_MAX_RECORDS,
   HTTP_TIMEOUT_MS,
+  DEFAULT_CKAN_ROWS,
   HealthDataError,
 } from './constants.js';
 import type {
@@ -49,176 +47,251 @@ export interface D1PreparedStatement {
 }
 
 /* ------------------------------------------------------------------ */
-/*  CIHI: Wait Times (HTML scraping from CIHI public pages)           */
+/*  CKAN Helpers                                                       */
+/* ------------------------------------------------------------------ */
+
+interface CkanResource {
+  id: string;
+  name?: string;
+  format?: string;
+  url?: string;
+  package_id?: string;
+}
+
+interface CkanPackage {
+  id: string;
+  title: string;
+  notes?: string;
+  resources?: CkanResource[];
+}
+
+interface CkanSearchResult {
+  result?: {
+    results?: CkanPackage[];
+    count?: number;
+  };
+}
+
+async function searchCkanPackages(
+  query: string,
+  rows: number = DEFAULT_CKAN_ROWS,
+): Promise<CkanPackage[]> {
+  const base = HEALTH_DATA_SOURCES.CIHI.BASE_OPEN_CANADA;
+  const url = `${base}package_search?q=${encodeURIComponent(query)}&rows=${rows}`;
+  const resp = await httpGet(url, { timeoutMs: HTTP_TIMEOUT_MS });
+  const text = resp.body;
+  const parsed: CkanSearchResult = JSON.parse(text);
+  return parsed?.result?.results ?? [];
+}
+
+async function fetchCkanResourceJson(url: string): Promise<unknown[]> {
+  const resp = await httpGet(url, { timeoutMs: HTTP_TIMEOUT_MS });
+  const text = resp.body;
+  const parsed = JSON.parse(text);
+  if (Array.isArray(parsed)) return parsed;
+  if (parsed?.result?.results && Array.isArray(parsed.result.results)) return parsed.result.results;
+  if (parsed?.results && Array.isArray(parsed.results)) return parsed.results;
+  return [];
+}
+
+/* ------------------------------------------------------------------ */
+/*  CIHI: Wait Times (CKAN + HTML scraping)                           */
 /* ------------------------------------------------------------------ */
 
 /**
- * Known surgery/procedure types tracked by CIHI for wait time reporting.
- */
-const CIHI_KNOWN_SURGERIES = [
-  'hip_replacement',
-  'knee_replacement',
-  'hip_fracture',
-  'cataract',
-  'coronary_artery_bypass',
-  'heart_valve',
-  'hysterectomy',
-  'prostatectomy',
-  'knee_arthroscopy',
-  'breast_cancer_surgery',
-  'colorectal_cancer_surgery',
-  'lung_cancer_surgery',
-  'bladder_cancer_surgery',
-  'ct_scan',
-  'mri',
-  'ultrasound',
-];
-
-/**
- * Extract wait-time data points from CIHI HTML pages using regex patterns
- * for common table structures CIHI uses.
+ * Extract wait-time data points from CIHI pages and CKAN datasets.
  */
 async function fetchCihiWaitTimes(maxRecords: number): Promise<CihiWaitTime[]> {
   const records: CihiWaitTime[] = [];
   const now = new Date().toISOString();
-  const surgeryUrl = HEALTH_DATA_SOURCES.CIHI.WAIT_TIMES_SURGERY;
 
-  try {
-    const resp = await httpGet(surgeryUrl, { timeoutMs: HTTP_TIMEOUT_MS });
-    const html = resp.body;
+  // Phase 1: Try CKAN for structured CIHI wait times data
+  let ckanRecords = 0;
+  const packages = await searchCkanPackages('cihi wait times surgery', DEFAULT_CKAN_ROWS);
+  for (const pkg of packages.slice(0, 3)) {
+    const resources = pkg.resources ?? [];
+    for (const res of resources.slice(0, 3)) {
+      if (!res.url) continue;
+      try {
+        const rows = await fetchCkanResourceJson(res.url);
+        for (const row of rows.slice(0, Math.floor(maxRecords / 3))) {
+          const r = row as Record<string, unknown>;
+          const year = parseInt(String(r.year ?? r.Year ?? r.report_year ?? r.fiscal_year ?? '0'), 10);
+          const province = String(r.province ?? r.Province ?? r.geo ?? '');
+          const surgeryType = String(r.surgery_type ?? r.surgery ?? r.SurgeryType ?? r.procedure ?? r.category ?? '');
+          if (!year || !province || !surgeryType) continue;
 
-    // Parse CIHI table-like data: look for year+province+surgery patterns
-    // CIHI typically publishes tables with columns: Year, Province, Surgery, Wait Time (days), Volume
-    const yearMatches = html.matchAll(/(20[0-9][0-9])(?:-20[0-9][0-9])?/g);
-    const provinces = ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'];
-    const provincePattern = new RegExp(`\\b(${provinces.join('|')})\\b`, 'g');
-
-    const foundYears = [...new Set([...yearMatches].map((m) => parseInt(m[1], 10)))].filter(
-      (y) => y >= 2005 && y <= new Date().getFullYear()
-    );
-
-    // Build structured records from known data patterns
-    for (const year of foundYears.slice(-5)) {
-      for (const surgery of CIHI_KNOWN_SURGERIES.slice(0, Math.max(5, Math.floor(maxRecords / 15)))) {
-        for (const province of provinces) {
-          // Simulate typical CIHI wait time ranges per procedure
-          // In production, this would parse actual table cells from the HTML
-          let baseWait = 60; // default days
-          if (surgery === 'hip_replacement') baseWait = 120;
-          else if (surgery === 'knee_replacement') baseWait = 150;
-          else if (surgery === 'cataract') baseWait = 90;
-          else if (surgery === 'ct_scan') baseWait = 30;
-          else if (surgery === 'mri') baseWait = 60;
-          else if (surgery === 'hip_fracture') baseWait = 14;
-
-          // Provincial variation
-          const provinceFactor: Record<string, number> = {
-            'ON': 0.9, 'AB': 1.0, 'BC': 1.1, 'QC': 1.2,
-            'MB': 1.3, 'SK': 1.4, 'NS': 1.5, 'NB': 1.6,
-            'PE': 1.7, 'NL': 1.8, 'NT': 2.0, 'NU': 2.5, 'YT': 1.9,
-          };
-          const factor = provinceFactor[province] ?? 1.0;
-          const waitDays = Math.round(baseWait * factor * (0.85 + Math.random() * 0.3));
-          const volume = Math.round(500 + Math.random() * 2000);
-
-          const content = `${year}:${province}:${surgery}:${waitDays}:${volume}`;
+          const content = JSON.stringify(r);
           const id = await computeHash(content, 'sha256');
 
           records.push({
             id,
             year,
             province,
-            surgery_type: surgery,
-            procedure: surgery.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-            wait_time_days: waitDays,
-            wait_time_p90_days: Math.round(waitDays * 1.8),
-            volume,
-            priority: null,
-            metric: 'median_wait_days',
-            source_url: surgeryUrl,
+            surgery_type: surgeryType.toLowerCase().replace(/\s+/g, '_'),
+            procedure: surgeryType,
+            wait_time_days: r.wait_time_days ? Number(r.wait_time_days) : (r.wait_time ? Number(r.wait_time) : null),
+            wait_time_p90_days: r.wait_time_p90_days ? Number(r.wait_time_p90_days) : null,
+            volume: r.volume ? Number(r.volume) : (r.count ? Number(r.count) : null),
+            priority: String(r.priority ?? r.urgency ?? '') || null,
+            metric: String(r.metric ?? r.measure ?? 'median_wait_days') || 'median_wait_days',
+            source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
             ingested_at: now,
           });
+          ckanRecords++;
         }
+      } catch {
+        // skip resource that could not be fetched
       }
     }
-  } catch (err) {
-    throw new HealthDataError(`CIHI wait times fetch failed: ${(err as Error).message}`, 'cihi');
+  }
+
+  // Phase 2: Try scraping CIHI's HTML page for supplementary data
+  try {
+    const surgeryUrl = HEALTH_DATA_SOURCES.CIHI.WAIT_TIMES_SURGERY;
+    const resp = await httpGet(surgeryUrl, { timeoutMs: HTTP_TIMEOUT_MS });
+    const html = resp.body;
+
+    // Try extracting data tables from CIHI HTML
+    const tableRows = html.match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) ?? [];
+    for (const row of tableRows.slice(0, Math.max(10, Math.floor(maxRecords / 5)))) {
+      const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) ?? [];
+      if (cells.length < 3) continue;
+
+      const cellTexts = cells.map((c: string) => c.replace(/<[^>]+>/g, '').trim());
+      const year = parseInt(cellTexts[0], 10);
+      const province = cellTexts[1];
+      const waitDays = parseFloat(cellTexts[2]);
+
+      if (!year || !province || isNaN(waitDays)) continue;
+      if (!['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT', 'CA'].includes(province)) continue;
+
+      const surgeryType = cellTexts.length > 3 ? cellTexts[3].toLowerCase().replace(/\s+/g, '_') : 'unknown';
+      const content = `${year}:${province}:${surgeryType}:${waitDays}`;
+      const id = await computeHash(content, 'sha256');
+
+      // Deduplicate against CKAN records
+      if (records.some((r) => r.id === id)) continue;
+
+      records.push({
+        id,
+        year,
+        province,
+        surgery_type: surgeryType,
+        procedure: cellTexts[3] || null,
+        wait_time_days: waitDays,
+        wait_time_p90_days: cellTexts.length > 4 ? parseFloat(cellTexts[4]) || null : null,
+        volume: cellTexts.length > 6 ? parseInt(cellTexts[6], 10) || null : null,
+        priority: null,
+        metric: 'median_wait_days',
+        source_url: surgeryUrl,
+        ingested_at: now,
+      });
+    }
+  } catch {
+    // HTML scraping failed — rely on whatever CKAN gave us
+  }
+
+  if (records.length === 0 && ckanRecords === 0) {
+    throw new HealthDataError('CIHI wait times: No data could be fetched from any source', 'cihi');
   }
 
   return records.slice(0, maxRecords);
 }
 
 /* ------------------------------------------------------------------ */
-/*  CIHI: Health Spending (HTML reports)                               */
+/*  CIHI: Health Spending (CKAN)                                       */
 /* ------------------------------------------------------------------ */
 
 /**
- * Extract health-spending trend data from CIHI's National Health Expenditure
- * Trends page.
+ * Extract health-spending trend data from CKAN datasets.
  */
 async function fetchCihiHealthSpending(maxRecords: number): Promise<CihiHealthSpending[]> {
   const records: CihiHealthSpending[] = [];
   const now = new Date().toISOString();
-  const spendingUrl = HEALTH_DATA_SOURCES.CIHI.HEALTH_SPENDING;
 
-  try {
-    const resp = await httpGet(spendingUrl, { timeoutMs: HTTP_TIMEOUT_MS });
-    const html = resp.body;
+  // Try CKAN for structured CIHI health spending data
+  const packages = await searchCkanPackages('national health expenditure canada', DEFAULT_CKAN_ROWS);
+  for (const pkg of packages.slice(0, 3)) {
+    const resources = pkg.resources ?? [];
+    for (const res of resources.slice(0, 3)) {
+      if (!res.url) continue;
+      try {
+        const rows = await fetchCkanResourceJson(res.url);
+        for (const row of rows.slice(0, Math.floor(maxRecords / 3))) {
+          const r = row as Record<string, unknown>;
+          const fiscalYear = String(r.fiscal_year ?? r.year ?? r.fiscalYear ?? r.FiscalYear ?? r.reference_period ?? '');
+          const province = String(r.province ?? r.Province ?? r.geo ?? r.GEO ?? '');
+          const category = String(r.spending_category ?? r.category ?? r.Category ?? r.sector ?? r.Sector ?? r.category_en ?? '');
+          const amount = r.amount_cad ? Number(r.amount_cad) : (r.amount ? Number(r.amount) : (r.value ? Number(r.value) : null));
+          if (!fiscalYear || !province || !category || amount === null) continue;
 
-    const provinces = ['CA', 'AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'];
-    const categories = [
-      'hospitals', 'physicians', 'drugs', 'other_professionals',
-      'capital', 'public_health', 'administration', 'other_institutions',
-    ];
-
-    const currentYear = new Date().getFullYear();
-    const fiscalYears = [];
-    for (let y = currentYear - 5; y <= currentYear; y++) {
-      fiscalYears.push(`${y}-${(y + 1).toString().slice(-2)}`);
-    }
-
-    for (const fy of fiscalYears) {
-      for (const province of provinces) {
-        // Generate realistic health spending estimates
-        // In production, this would parse CIHI's released tables
-        const baseSpending = province === 'CA'
-          ? 330_000_000_000
-          : province === 'ON' ? 85_000_000_000
-          : province === 'QC' ? 60_000_000_000
-          : province === 'BC' ? 40_000_000_000
-          : province === 'AB' ? 35_000_000_000
-          : 5_000_000_000 + Math.random() * 10_000_000_000;
-
-        for (const cat of categories.slice(0, Math.max(3, Math.floor(maxRecords / (fiscalYears.length * provinces.length))))) {
-          const share = cat === 'hospitals' ? 0.25
-            : cat === 'physicians' ? 0.20
-            : cat === 'drugs' ? 0.15
-            : 0.05 + Math.random() * 0.10;
-          const amount = Math.round(baseSpending * share);
-          const per_capita = province === 'CA' ? Math.round(amount / 40_000_000)
-            : province === 'ON' ? Math.round(amount / 15_000_000)
-            : Math.round(amount / 2_000_000);
-
-          const content = `${fy}:${province}:${cat}:${amount}`;
+          const content = JSON.stringify(r);
           const id = await computeHash(content, 'sha256');
 
           records.push({
             id,
-            fiscal_year: fy,
+            fiscal_year: fiscalYear,
             province,
-            spending_category: cat,
+            spending_category: category.toLowerCase().replace(/\s+/g, '_'),
             amount_cad: amount,
-            per_capita,
-            growth_percent: 2.5 + Math.random() * 4,
-            share_of_gdp: cat === 'hospitals' ? 7.5 : cat === 'physicians' ? 4.0 : 2.0 + Math.random() * 3,
-            source_url: spendingUrl,
+            per_capita: r.per_capita ? Number(r.per_capita) : null,
+            growth_percent: r.growth_percent ? Number(r.growth_percent) : null,
+            share_of_gdp: r.share_of_gdp ? Number(r.share_of_gdp) : null,
+            source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
             ingested_at: now,
           });
         }
+      } catch {
+        // skip resource that could not be fetched
       }
     }
-  } catch (err) {
-    throw new HealthDataError(`CIHI health spending fetch failed: ${(err as Error).message}`, 'cihi');
+  }
+
+  // Also search for alternate datasets
+  if (records.length < maxRecords / 2) {
+    const altPackages = await searchCkanPackages('health spending provincial territorial', DEFAULT_CKAN_ROWS);
+    for (const pkg of altPackages.slice(0, 3)) {
+      const resources = pkg.resources ?? [];
+      for (const res of resources.slice(0, 2)) {
+        if (!res.url) continue;
+        try {
+          const rows = await fetchCkanResourceJson(res.url);
+          for (const row of rows.slice(0, Math.floor(maxRecords / 3))) {
+            const r = row as Record<string, unknown>;
+            const fiscalYear = String(r.fiscal_year ?? r.year ?? r.FiscalYear ?? r.reference_period ?? '');
+            const province = String(r.province ?? r.Province ?? r.geo ?? r.GEO ?? '');
+            const category = String(r.spending_category ?? r.category ?? r.Category ?? r.sector ?? r.Sector ?? '');
+            const amount = r.amount_cad ? Number(r.amount_cad) : (r.amount ? Number(r.amount) : (r.value ? Number(r.value) : null));
+            if (!fiscalYear || !province || !category || amount === null) continue;
+
+            const content = JSON.stringify(r);
+            const id = await computeHash(content, 'sha256');
+
+            if (records.some((rec) => rec.id === id)) continue;
+
+            records.push({
+              id,
+              fiscal_year: fiscalYear,
+              province,
+              spending_category: category.toLowerCase().replace(/\s+/g, '_'),
+              amount_cad: amount,
+              per_capita: r.per_capita ? Number(r.per_capita) : null,
+              growth_percent: r.growth_percent ? Number(r.growth_percent) : null,
+              share_of_gdp: r.share_of_gdp ? Number(r.share_of_gdp) : null,
+              source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
+              ingested_at: now,
+            });
+          }
+        } catch {
+          // skip
+        }
+      }
+    }
+  }
+
+  if (records.length === 0) {
+    throw new HealthDataError('CIHI health spending: No data could be fetched from any source', 'cihi');
   }
 
   return records.slice(0, maxRecords);

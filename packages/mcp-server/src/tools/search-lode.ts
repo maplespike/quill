@@ -7,7 +7,6 @@
  * transit networks, and cycling networks.
  */
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData } from './pipeline-data.js';
 
 const LODE_DATABASE_LIST = [
   { id: 'oda', name: 'Open Database of Addresses', nameFr: 'Base de données ouvertes sur les adresses', records: '~10,000,000', version: '1.0', releaseDate: '2021-04-29', description: 'Civic addresses and geo-locations across Canada. Over 10 million addresses.', formats: ['CSV'], csvUrl: null, metadataUrl: 'https://www.statcan.gc.ca/eng/lode/databases/oda' },
@@ -98,37 +97,24 @@ export const handler: ToolHandler = async (args) => {
     ? LODE_DATABASE_LIST.filter(d => d.id === databaseId)
     : LODE_DATABASE_LIST;
 
-  // Build source keys for pipeline-data search
-  const sourceKeys = dbs.map(d => `lode-${d.id}`);
+  // Return LODE database metadata (geospatial datasets are multi-GB files served via StatCan)
+  let results = dbs.map(db => ({
+    id: db.id,
+    name: db.name,
+    version: db.version,
+    releaseDate: db.releaseDate,
+    recordCount: db.records,
+    description: db.description,
+    formats: db.formats,
+    csvUrl: db.csvUrl,
+    metadataUrl: db.metadataUrl,
+    _source: `lode-${db.id}`,
+    _metadata: true,
+  }));
+  let total = results.length;
 
-  let results: any[];
-  let total: number;
-
-  const pipelineData = getPipelineData();
-  if (pipelineData) {
-    const result = searchRecords(sourceKeys, query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    // No pipeline data — return database metadata as results
-    results = dbs.map(db => ({
-      id: db.id,
-      name: db.name,
-      version: db.version,
-      releaseDate: db.releaseDate,
-      recordCount: db.records,
-      description: db.description,
-      formats: db.formats,
-      csvUrl: db.csvUrl,
-      metadataUrl: db.metadataUrl,
-      _source: `lode-${db.id}`,
-      _metadata: true,
-    }));
-    total = results.length;
-  }
-
-  // If a query is given and we only have metadata, filter by query
-  if (query && !pipelineData) {
+  // If a query is given, filter by query
+  if (query) {
     const q = query.toLowerCase();
     results = results.filter(r =>
       JSON.stringify(r).toLowerCase().includes(q)

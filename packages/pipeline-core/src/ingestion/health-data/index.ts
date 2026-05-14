@@ -8,13 +8,16 @@
  *   - CADTH — Canadian Agency for Drugs and Technologies in Health (drug recommendations)
  *   - PMPRB — Patented Medicine Prices Review Board (drug pricing decisions)
  *
- * This module extends the existing health-canada stubs with deep data from
- * CKAN open data portals, Health Infobase API, CIHI/CADTH HTML reports,
- * and curated datasets for agencies that do not offer machine-readable APIs.
+ * This module provides deep data ingestion from
+ * CKAN open data portals and the following health agencies' public websites:
+ *   - Health Infobase API (PHAC)
+ *   - CIHI website (wait times, health spending)
+ *   - CADTH website (drug recommendations)
+ *   - PMPRB website (annual reports)
  *
  * Pipeline:
  *   1. Initialize D1 tables (if requested)
- *   2. Fetch records from each data source (CKAN, HTML, RSS, curated)
+ *   2. Fetch records from each data source (CKAN, HTML, RSS)
  *   3. Parse and normalize into typed records
  *   4. Deduplicate and persist to D1
  *   5. Return aggregated ingestion results

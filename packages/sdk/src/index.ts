@@ -20,7 +20,6 @@
 
 import type { SdkConfig, MapleSpikeResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
-import { getMockResponse } from './mock.js';
 import { setApiKey, setJwtToken, clearAuth } from './auth.js';
 
 // Re-export types
@@ -129,7 +128,6 @@ export class MapleSpike {
     params?: Record<string, unknown>,
     options?: QueryOptions,
   ): Promise<MapleSpikeResponse<T>> {
-    if (options?._mock) return getMockResponse(agent, action) as unknown as MapleSpikeResponse<T>;
     const url = buildUrl(this._baseUrl, agent, action, params, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers });

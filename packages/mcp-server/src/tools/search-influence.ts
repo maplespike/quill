@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search influence tracking data — international organizations, NGOs, think tanks,
@@ -54,18 +54,9 @@ export const handler: ToolHandler = async (args) => {
   const category = (args.category as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  // Try cached pipeline data first; fall back to live fetch if unavailable
-  let results: any[];
-  let total: number;
-  if (getPipelineData()) {
-    const result = searchRecords(['influence'], query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(['influence'], query, limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  const result = await searchGovData(query, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   // Apply category filter if provided
   let filteredResults = results;

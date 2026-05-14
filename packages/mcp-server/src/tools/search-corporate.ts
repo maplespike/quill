@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search corporate registry data, federal lobbying records, procurement contracts,
@@ -64,18 +64,10 @@ export const handler: ToolHandler = async (args) => {
 
   const sourceKeys = datasetSourceMap[dataset] || datasetSourceMap.all;
 
-  // Try cached pipeline data first; fall back to live fetch if unavailable
-  let results: any[];
-  let total: number;
-  if (getPipelineData()) {
-    const result = searchRecords(sourceKeys, query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(sourceKeys, query, limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  // Live search via API server
+  const result = await searchGovData(query, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   return {
     content: {

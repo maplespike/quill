@@ -1,6 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { chatCompletion } from '../ai/gateway.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * AI Ask Tool
@@ -76,21 +76,10 @@ export const handler: ToolHandler = async (args) => {
   const sourceKeys = resolveSourceKeys(sourceFilter);
 
   try {
-    // Step 1: Search pipeline data for relevant records
-    let searchResults: any[] = [];
-    let totalFound = 0;
-
-    if (getPipelineData()) {
-      // Search cached pipeline data
-      const result = searchRecords(sourceKeys, query, 15);
-      searchResults = result.results;
-      totalFound = result.total;
-    } else {
-      // Fall back to live fetch
-      const liveResult = await liveFetch(sourceKeys, query, 15);
-      searchResults = liveResult.results;
-      totalFound = liveResult.total;
-    }
+    // Step 1: Search live API
+    const result = await searchGovData(query, 'all', 15);
+    let searchResults = result.results;
+    let totalFound = result.total;
 
     // Step 2: Build context from pipeline results
     const contextParts: string[] = [];
