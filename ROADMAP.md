@@ -454,7 +454,7 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 
 | # | Task | Phase | Impact | Effort |
 |---|------|-------|--------|--------|
-| 1 | **Wire AI MCP tools** — register `ai_analyze`, `ai_ask`, `ai_search_semantic` in `getAllTools()`, connect to AI Gateway | P2 | High — 3 tools exist but are dead code | 1 day |
+| 1 | ~~Wire AI MCP tools~~ — already registered in `getAllTools()`, build passes | P2 | ✅ DONE | — |
 | 2 | **Deploy CronJobs on K3s** — apply all 9 pipeline manifests | P3 | Critical — keeps ingestion fresh | 2 days |
 | 3 | **Wire workspace to live API** — connect API key management and usage stats pages to `/v1/keys` and `/v1/usage` endpoints | P7 | High — developer self-service | 1 day |
 | 4 | **Stripe billing** — Checkout sessions, webhooks, tier enforcement | P7 | High — unlocks revenue | 2 days |
@@ -486,6 +486,8 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 || 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs updated |
 | 2026-05-13 | Roadmap audited against codebase | Phase 2: 3 AI tools exist but unwired. Phase 7: auth/keys/JWT/GitHub OAuth/402 enforcement all ✅, Stripe/crypto ❌. Docs page expanded from 5→10 sections. Top 10 reordered to match reality |
 | 2026-05-13 | Auth strategy decided: Web3 + Passkey first, OIDC later | Current GitHub OAuth will remain as convenience. Primary auth will be wallet-based (SIWE/EIP-4361 for Ethereum, similar for Solana) and WebAuthn passkeys (biometric/platform). OIDC (Google, GitHub as OIDC providers) deferred. JWT infrastructure already in place — just need new grant flows |
+| 2026-05-13 | AI tools confirmed wired | `ai_analyze`, `ai_ask`, `ai_search_semantic` were already registered in `getAllTools()`. Removed from Top 10. |
+| 2026-05-13 | Changelog page created | `changelog.html` with v0.1.0 and v0.2.0 entries. Added to nav across all pages. |
 || 2026-05-13 | Infrastructure overhaul | flake.nix fixed, Dockerfiles for ingest + engine, 9 CronJobs fixed |
 || 2026-05-13 | Katzilla content gap analysis | 7 gaps: pricing page (done), blog, changelog, docs expansion, explorer depth, SDK tabstrip, support page |
 || 2026-05-13 | Nav coherence pass | All 9 pages identical bracket-style nav. SIGNAL+ASK removed. Footers on all pages. Titles standardized |
