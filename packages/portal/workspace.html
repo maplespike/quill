@@ -117,7 +117,7 @@
         <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Quickstart:</span>
         <div class="code-block" style="margin-top:6px;">
           <span class="comment"># Set your key</span><br>
-          <span class="prompt">$</span> export MAPLESPIKE_KEY=<span class="string">"mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"</span><br><br>
+          <span class="prompt">$</span> export MAPLESPIKE_KEY=<span class="string">"<span id="quickstart-key">your_api_key_here</span>"</span><br><br>
           <span class="comment"># Make a call</span><br>
           <span class="prompt">$</span> curl -H <span class="string">"x-api-key: $MAPLESPIKE_KEY"</span> \<br>
           &nbsp;&nbsp;https://api.maplespike.ca/v1/health
@@ -281,7 +281,7 @@
 &nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"apiKey"</span>: <span class="string">"mp_live_...your_key"</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"apiKey"</span>: <span class="string">"<span id="mcp-key-placeholder">your_api_key_here</span>"</span><br>
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;}<br>
 }
@@ -298,35 +298,45 @@
   'use strict';
 
   const LS_THEME = 'maplespike-theme';
+  const LS_API_KEY = 'maplespike-api-key';
 
-  // ── Mock Data ──
   let keyVisible = false;
+  let currentKeys = [];
+  let authHeader = {};
 
-  const REQUEST_LOG_DATA = [
-    { time: '2026-05-13 23:15:22', method: 'GET', endpoint: '/v1/health', status: 200, duration: '42ms' },
-    { time: '2026-05-13 22:58:14', method: 'GET', endpoint: '/v1/gov/search?q=housing', status: 200, duration: '156ms' },
-    { time: '2026-05-13 22:30:01', method: 'GET', endpoint: '/v1/gov/releases', status: 200, duration: '89ms' },
-    { time: '2026-05-13 21:12:33', method: 'GET', endpoint: '/v1/usage', status: 200, duration: '34ms' },
-    { time: '2026-05-13 20:45:18', method: 'POST', endpoint: '/v1/audit/query', status: 401, duration: '12ms' },
-    { time: '2026-05-13 19:30:55', method: 'GET', endpoint: '/v1/citation/abc123', status: 404, duration: '8ms' },
-    { time: '2026-05-13 18:15:42', method: 'GET', endpoint: '/v1/gov/search?q=influence', status: 200, duration: '203ms' },
-    { time: '2026-05-13 16:44:29', method: 'GET', endpoint: '/v1/health', status: 200, duration: '38ms' },
-    { time: '2026-05-13 15:22:10', method: 'GET', endpoint: '/v1/gov/search?q=committees', status: 200, duration: '178ms' },
-    { time: '2026-05-13 14:00:05', method: 'GET', endpoint: '/v1/usage', status: 200, duration: '31ms' },
-  ];
+  function getAuthHeaders() {
+    const apiKey = localStorage.getItem(LS_API_KEY);
+    if (apiKey) return { 'X-API-Key': apiKey };
+    const token = document.cookie.split('; ').find(r => r.startsWith('session='));
+    if (token) return { 'Authorization': 'Bearer ' + token.split('=')[1] };
+    return {};
+  }
+
+  async function apiFetch(path, options = {}) {
+    const headers = { ...getAuthHeaders(), ...options.headers };
+    const resp = await fetch(path, { ...options, headers });
+    return resp;
+  }
+
+  const REQUEST_LOG_DATA = []; // Populated live
 
   // ── Render Request Log ──
-  function renderRequestLog() {
+  function renderRequestLog(entries) {
     const tbody = document.getElementById('request-log-body');
-    tbody.innerHTML = REQUEST_LOG_DATA.map(r => {
+    const data = entries || REQUEST_LOG_DATA;
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No requests yet. Make an API call to see it here.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(r => {
       const statusClass = r.status >= 200 && r.status < 300 ? 'status-ok' : 'status-err';
-      const methodClass = r.method.toLowerCase();
+      const methodClass = (r.method || 'GET').toLowerCase();
       return `<tr>
-        <td style="color:var(--text-muted);">${r.time}</td>
-        <td><span class="method-cell ${methodClass}">${r.method}</span></td>
-        <td style="font-family:var(--font-mono);font-size:0.78rem;">${r.endpoint}</td>
-        <td><span class="${statusClass}">${r.status}</span></td>
-        <td style="color:var(--text-muted);">${r.duration}</td>
+        <td style="color:var(--text-muted);">${r.time || r.created_at || ''}</td>
+        <td><span class="method-cell ${methodClass}">${r.method || 'GET'}</span></td>
+        <td style="font-family:var(--font-mono);font-size:0.78rem;">${r.endpoint || ''}</td>
+        <td><span class="${statusClass}">${r.status || 200}</span></td>
+        <td style="color:var(--text-muted);">${r.duration || (r.duration_ms ? r.duration_ms + 'ms' : '')}</td>
       </tr>`;
     }).join('');
   }
@@ -334,43 +344,63 @@
   // ── Fetch Live Usage ──
   async function fetchUsage() {
     try {
-      const resp = await fetch('http://127.0.0.1:8084/v1/health');
-      const data = await resp.json();
-      if (data.success && data.data) {
-        const usage = data.data.usage || {};
-        const tenant = data.data.tenant || {};
+      const resp = await apiFetch('/v1/me');
+      const body = await resp.json();
+      if (body.success && body.data) {
+        const tenant = body.data.tenant || {};
+        const usage = body.data.usage || {};
+        const daily = usage.daily || {};
+        const monthly = usage.monthly || {};
 
-        const daily = usage.daily || 0;
-        const monthly = usage.monthly || 0;
+        document.getElementById('usage-daily').textContent = daily.calls ?? 0;
+        document.getElementById('usage-monthly').textContent = monthly.calls ?? 0;
         const tier = tenant.tier || 'free';
-
-        document.getElementById('usage-daily').textContent = daily;
-        document.getElementById('usage-monthly').textContent = monthly;
         document.getElementById('usage-tier').textContent = tier === 'free' ? 'Public (Free)' : tier.charAt(0).toUpperCase() + tier.slice(1);
 
-        // Limits based on tier
-        let monthlyLimit = 1000;
-        let rateLimit = 10;
-        if (tier === 'civic') { monthlyLimit = 50000; rateLimit = 100; }
-        else if (tier === 'enterprise') { monthlyLimit = 250000; rateLimit = 500; }
-
+        const monthlyLimit = monthly.limit || 1000;
+        const dailyLimit = daily.limit || (monthlyLimit > 1000 ? Math.round(monthlyLimit / 30) : 1000);
         document.getElementById('usage-monthly-limit').textContent = monthlyLimit.toLocaleString();
-        document.getElementById('usage-daily-limit').textContent = monthlyLimit > 1000 ? (monthlyLimit / 30).toFixed(0) : '1,000';
+        document.getElementById('usage-daily-limit').textContent = dailyLimit < 10000 ? dailyLimit.toLocaleString() : Math.round(dailyLimit).toLocaleString();
+
+        let rateLimit = 10;
+        if (tier === 'pro') rateLimit = 25;
+        else if (tier === 'business') rateLimit = 100;
+        else if (tier === 'internal') rateLimit = 500;
         document.getElementById('usage-rate').textContent = rateLimit + ' req/s';
-        document.getElementById('billing-remaining').textContent = (monthlyLimit - monthly).toLocaleString();
+        document.getElementById('billing-remaining').textContent = monthly.remaining ?? (monthlyLimit - (monthly.calls || 0)).toLocaleString();
 
-        // Progress bars
-        const dailyPct = Math.min((daily / (monthlyLimit / 30)) * 100, 100);
-        const monthlyPct = Math.min((monthly / monthlyLimit) * 100, 100);
+        const dailyPct = Math.min(((daily.calls || 0) / (dailyLimit || 1)) * 100, 100);
+        const monthlyPct = Math.min(((monthly.calls || 0) / (monthlyLimit || 1)) * 100, 100);
         const ratePct = Math.min((rateLimit / 500) * 100, 100);
-
         document.getElementById('bar-daily').style.width = dailyPct + '%';
         document.getElementById('bar-monthly').style.width = monthlyPct + '%';
         document.getElementById('bar-rate').style.width = ratePct + '%';
       }
     } catch (e) {
-      // Use defaults/mock data if API unavailable
       console.log('API unavailable, using default stats');
+    }
+  }
+
+  // ── Fetch API Keys ──
+  async function fetchApiKeys() {
+    try {
+      const resp = await apiFetch('/v1/keys');
+      const body = await resp.json();
+      if (body.success && body.data) {
+        currentKeys = body.data.keys || [];
+        if (currentKeys.length > 0) {
+          const key = currentKeys[0];
+          document.getElementById('api-key-masked').textContent = key.id.slice(0, 8) + '••••••••••••••••••';
+          const storedKey = localStorage.getItem(LS_API_KEY);
+          if (storedKey) {
+            const truncated = storedKey.slice(0, 16) + '...';
+            document.getElementById('quickstart-key').textContent = truncated;
+            document.getElementById('mcp-key-placeholder').textContent = storedKey;
+          }
+        }
+      }
+    } catch (e) {
+      console.log('API key list unavailable');
     }
   }
 
@@ -382,14 +412,50 @@
   };
 
   window.copyApiKey = function() {
-    const key = 'mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6';
-    navigator.clipboard.writeText(key).then(() => showToast('API key copied to clipboard', 'success'))
-      .catch(() => {});
+    const storedKey = localStorage.getItem(LS_API_KEY);
+    const key = storedKey || (currentKeys.length > 0 ? currentKeys[0].id : '');
+    if (key) {
+      navigator.clipboard.writeText(key).then(() => showToast('API key copied to clipboard', 'success')).catch(() => {});
+    } else {
+      showToast('No API key available', 'error');
+    }
   };
 
   window.regenerateKey = function() {
-    if (confirm('Regenerate your API key? This will invalidate the current key immediately.')) {
-      showToast('New API key generated', 'success');
+    const keyName = prompt('Name for the new key:', 'default');
+    if (!keyName) return;
+    if (currentKeys.length > 0) {
+      const keyId = currentKeys[0].id;
+      if (!confirm('Regenerate this API key? The current key will be revoked immediately.')) return;
+      apiFetch(`/v1/keys/${keyId}/rotate`, { method: 'POST' })
+        .then(r => r.json())
+        .then(body => {
+          if (body.success && body.data && body.data.newKey) {
+            const newKey = body.data.newKey.key;
+            document.getElementById('api-key-visible').textContent = newKey;
+            document.getElementById('api-key-masked').textContent = newKey.slice(0, 12) + '••••••••••••';
+            localStorage.setItem(LS_API_KEY, newKey);
+            showToast('New API key generated — shown once, save it securely', 'success');
+            fetchApiKeys();
+          } else {
+            showToast(body.error?.message || 'Key rotation failed', 'error');
+          }
+        })
+        .catch(() => showToast('Failed to rotate key. Is the API server reachable?', 'error'));
+    } else {
+      apiFetch('/v1/keys', { method: 'POST' })
+        .then(r => r.json())
+        .then(body => {
+          if (body.success && body.data) {
+            const newKey = body.data.key;
+            document.getElementById('api-key-visible').textContent = newKey;
+            document.getElementById('api-key-masked').textContent = newKey.slice(0, 12) + '••••••••••••';
+            localStorage.setItem(LS_API_KEY, newKey);
+            showToast('API key created — shown once, save it securely', 'success');
+            fetchApiKeys();
+          }
+        })
+        .catch(() => showToast('Failed to create key', 'error'));
     }
   };
 
@@ -503,10 +569,12 @@
 
   function logout() {
     document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.removeItem(LS_API_KEY);
     document.getElementById('auth-oauth-section').style.display = '';
     document.getElementById('auth-session-section').style.display = 'none';
     document.getElementById('auth-status-label').textContent = 'Not signed in';
     document.getElementById('auth-dot').style.background = 'var(--text-muted)';
+    fetchApiKeys();
   }
 
   async function checkAuth() {
@@ -516,28 +584,72 @@
       const resp = await fetch('/v1/auth/me', {
         headers: { 'Authorization': `Bearer ${token.split('=')[1]}` }
       });
-      const data = await resp.json();
-      if (data.success && data.data) {
-        const user = data.data;
+      const body = await resp.json();
+      if (body.success && body.data) {
+        const user = body.data;
         document.getElementById('auth-oauth-section').style.display = 'none';
         document.getElementById('auth-session-section').style.display = '';
         document.getElementById('auth-status-label').textContent = 'Signed in';
         document.getElementById('auth-dot').style.background = 'var(--success)';
-        document.getElementById('auth-user-name').textContent = user.name || user.email || user.sub || 'User';
-        document.getElementById('auth-user-id').textContent = user.sub || '—';
-        document.getElementById('auth-method').textContent = user.authMethod || 'session';
-        document.getElementById('auth-tier').textContent = user.tier || 'free';
+        document.getElementById('auth-user-name').textContent = user.tenant?.name || user.name || user.email || 'User';
+        document.getElementById('auth-user-id').textContent = user.tenant?.id || user.sub || '—';
+        document.getElementById('auth-method').textContent = 'session';
+        document.getElementById('auth-tier').textContent = user.tenant?.tier || user.tier || 'free';
+        // Refresh data now that we're authenticated
+        fetchUsage();
+        fetchApiKeys();
+        fetchActivity();
       }
     } catch { /* Not authenticated */ }
   }
 
+  // ── Fetch Activity Log ──
+  async function fetchActivity() {
+    try {
+      const resp = await apiFetch('/v1/audit/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 10 }),
+      });
+      const body = await resp.json();
+      if (body.success && body.data) {
+        const entries = body.data.map(e => ({
+          time: e.created_at || '',
+          method: e.operation === 'api_call' ? 'GET' : 'POST',
+          endpoint: e.endpoint || '',
+          status: e.success ? 200 : (e.error_message ? 500 : 200),
+          duration: (e.duration_ms || 0) + 'ms',
+        }));
+        REQUEST_LOG_DATA.length = 0;
+        REQUEST_LOG_DATA.push(...entries);
+        renderRequestLog(entries);
+      }
+    } catch (e) {
+      renderRequestLog([]);
+    }
+  }
+
+  // ── Check for API key in URL ──
+  function checkUrlApiKey() {
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get('key');
+    if (key) {
+      localStorage.setItem(LS_API_KEY, key);
+      history.replaceState(null, '', window.location.pathname);
+      return true;
+    }
+    return false;
+  }
+
   // ── Init ──
+  checkUrlApiKey();
   initTheme();
   setupThemeToggle();
   setupMobileMenu();
   setupScrollReveal();
-  renderRequestLog();
   fetchUsage();
+  fetchApiKeys();
+  fetchActivity();
   setInterval(fetchUsage, 30000);
   loadOAuthProviders();
   checkAuth();
