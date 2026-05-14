@@ -1,41 +1,19 @@
-/**
- * LODE Geospatial — Type definitions
- *
- * Types for BC Land Ownership Data Exchange (LODE) and
- * GeoMet Weather Canada WFS/WMS geospatial data ingestion.
- */
-
-export interface GeoPoint {
-  lat: number;
-  lng: number;
-}
-
-export interface BoundingBox {
-  west: number;
-  south: number;
-  east: number;
-  north: number;
-}
-
-export interface GeoFeature {
+export interface GeospatialRecord {
   id: string;
-  type: string;
-  geometry: { type: string; coordinates: number[][] };
-  properties: Record<string, any>;
-  bbox?: BoundingBox;
-}
-
-export interface GeoLayer {
-  name: string;
   title: string;
-  crs: string;
-  features: number;
-  bbox: BoundingBox;
+  description: string;
+  url: string;
+  format: string;
+  region: string;
+  category: string;
+  hash: string;
+  ingestedAt: string;
 }
 
-export interface LODEResult {
-  features: GeoFeature[];
-  layers: GeoLayer[];
+export interface GeospatialIngestionResult {
+  records: GeospatialRecord[];
+  sourcesAttempted: number;
+  sourcesSucceeded: number;
   errors: string[];
   durationMs: number;
 }
