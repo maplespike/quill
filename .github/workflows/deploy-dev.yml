@@ -42,6 +42,9 @@ jobs:
       - run: pnpm run clean
       - run: pnpm -r build
 
+      # Rebuild native modules (better-sqlite3) for CI runner's Node version
+      - run: pnpm rebuild better-sqlite3
+
       - name: Test pipeline-core
         run: pnpm test
         working-directory: packages/pipeline-core
