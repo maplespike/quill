@@ -1,7 +1,7 @@
 {
   "name": "@maplespike/mcp-server",
   "version": "0.1.0",
-  "description": "MapleSpike Canada MCP Server — 6 tools wrapping pipeline-core for AI agent consumption",
+  "description": "MapleSpike MCP Server — 6 tools wrapping pipeline-core for AI agent consumption",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

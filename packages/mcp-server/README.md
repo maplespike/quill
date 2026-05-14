@@ -1,4 +1,4 @@
-# MapleSpike Canada MCP Server
+# MapleSpike MCP Server
 
 Model Context Protocol server for Canadian government data. Provides **14 tools** for AI agents to query, search, and verify Canadian government information. All 14 tools return real data from `pipeline-data.json` with live-fetch fallbacks.
 
