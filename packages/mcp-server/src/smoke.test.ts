@@ -139,18 +139,23 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.equal(result.isError, true);
   });
 
-  it('search_committees returns real pipeline data for valid query', async () => {
+  // ── Integration tests — require live API server ──
+  // Skip in CI where no API server is available
+  const skipInCI = process.env.CI === 'true' ? 'API server not available in CI' : false;
+
+  it('search_committees returns real pipeline data for valid query',
+    { skip: skipInCI }, async () => {
     const result = await searchCommittees.handler({ query: 'carbon tax', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
     assert.equal(content.tool, 'search_committees');
     assert.equal(content.query, 'carbon tax');
     assert.ok(Array.isArray(content.results));
-    // Should return results from hoc and/or senate pipeline sources
     assert.ok(typeof content.totalCount === 'number');
   });
 
-  it('search_corporate returns real pipeline data', async () => {
+  it('search_corporate returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchCorporate.handler({ query: 'disclosure', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -158,7 +163,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_gazette returns real pipeline data', async () => {
+  it('search_gazette returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchGazette.handler({ query: 'regulation', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -166,7 +172,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_gic returns real pipeline data', async () => {
+  it('search_gic returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchGic.handler({ query: 'appointment', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -174,7 +181,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_elections returns real pipeline data', async () => {
+  it('search_elections returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchElections.handler({ query: 'election', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -182,7 +190,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_provincial_lobbying returns real pipeline data', async () => {
+  it('search_provincial_lobbying returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchProvincialLobbying.handler({ query: 'lobby', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -190,7 +199,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_oversight returns real pipeline data', async () => {
+  it('search_oversight returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchOversight.handler({ query: 'auditor', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -198,7 +208,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_canlii returns real pipeline data', async () => {
+  it('search_canlii returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchCanlii.handler({ query: 'charter', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -206,7 +217,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_lmia returns real pipeline data', async () => {
+  it('search_lmia returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchLmia.handler({ query: 'employer', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -214,7 +226,8 @@ describe('MCP Tool Handlers (smoke tests)', () => {
     assert.ok(Array.isArray(content.results));
   });
 
-  it('search_influence returns real pipeline data', async () => {
+  it('search_influence returns real pipeline data',
+    { skip: skipInCI }, async () => {
     const result = await searchInfluence.handler({ query: 'grant', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;

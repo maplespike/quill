@@ -1,6 +1,7 @@
 # =============================================================================
 # MapleSpike — Deploy Dev
 # Builds Docker images + deploys to K3s dev namespace on merge to main
+# Tests must pass before build/deploy
 # =============================================================================
 name: Deploy Dev
 
@@ -27,8 +28,51 @@ env:
   REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  # ── Step 1: Build, test, and deploy ──
-  deploy:
+  # ── Step 1: Test (gate) ────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run clean
+      - run: pnpm -r build
+
+      - name: Test pipeline-core
+        run: pnpm test
+        working-directory: packages/pipeline-core
+
+      - name: Test mcp-server
+        run: pnpm test
+        working-directory: packages/mcp-server
+
+      - name: Test engine
+        run: pnpm test
+        working-directory: packages/engine
+
+      - name: Test sdk
+        run: pnpm test
+        working-directory: packages/sdk
+
+      - name: Build-check legal-core
+        run: pnpm build
+        working-directory: packages/legal-core
+
+      - name: Build-check legislation
+        run: pnpm build
+        working-directory: packages/legislation
+
+      - name: Build-check api-server
+        run: pnpm build
+        working-directory: packages/api-server
+
+  # ── Step 2: Build and push images ───────────────────────
+  build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,7 +124,11 @@ jobs:
           cache-from: type=gha,scope=portal-dev
           cache-to: type=gha,mode=max,scope=portal-dev
 
-      # ── Deploy to K3s dev namespace ──
+  # ── Step 3: Deploy to K3s dev namespace ─────────────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to K3s (dev)
         uses: appleboy/ssh-action@v1
         with:
