@@ -61,7 +61,7 @@ spec:
                 - ALL
             seccompProfile:
               type: RuntimeDefault
-          image: nexus:5000/maplespike-mcp:latest
+          image: nexus:5000/maplespike-mcp:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
