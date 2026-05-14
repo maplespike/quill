@@ -520,4 +520,4 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 || 2026-05-14 | Ingestion barrel refactored: 1707→91 lines | Module registry (registry.ts) with 61 modules, getModule/runModule API. CLI ingest.ts uses registry instead of 40+ direct imports. |
 || 2026-05-14 | 15 generated .d.ts files removed from engine/src | Build artifacts committed to source — all from types/, entity/, graph/, sources/, seed/ |
 || 2026-05-14 | MCP data access unified through api-client.ts | pipeline-data.ts reduced 340→60 lines as thin re-export wrapper. All 12 search tools route through unified API client. |
-|| 2026-05-14 | API server deployed + NixOS DNS/routes | maplespike-api pod at nexus:30882, maplespike-mcp at nexus:32537, civint.lan through Caddy. Dynamic import fix for sqlite-storage. |
+|| 2026-05-14 | API server deployed + NixOS DNS/routes | maplespike-api pod at nexus:30882, maplespike-mcp at nexus:32537, maplespike.lan through Caddy. Dynamic import fix for sqlite-storage. |

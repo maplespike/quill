@@ -106,7 +106,7 @@ body {
   font-family: var(--font-sans);
   background: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.7;
+  line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background var(--transition), color var(--transition);
@@ -1255,7 +1255,7 @@ nav .nav-links a.active::after { width: 100%; }
 .section {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 80px 24px;
+  padding: 100px 24px;
 }
 
 .section-alt {
@@ -1267,7 +1267,7 @@ nav .nav-links a.active::after { width: 100%; }
 .section-alt-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 80px 24px;
+  padding: 100px 24px;
 }
 
 .section-header {
@@ -1276,7 +1276,7 @@ nav .nav-links a.active::after { width: 100%; }
 }
 
 .section-header h2 {
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 12px;
 }
@@ -2576,4 +2576,73 @@ footer ul li a:hover {
 .docs-page .doc-badge {
   margin-left: 8px;
   font-size: 0.65rem;
+}
+
+/* ═══ Anti-Grid API Demo ═══ */
+.api-demo {
+  background: var(--base00);
+  border: 2px solid var(--base04);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  overflow: hidden;
+}
+.api-demo-header {
+  background: var(--base01);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--base04);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.api-demo-prompt {
+  color: var(--success);
+  font-weight: 700;
+}
+.api-demo-command {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.api-demo-response {
+  padding: 20px;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+.api-demo-response pre {
+  margin: 0;
+  font-family: var(--font-mono);
+}
+.api-demo-response .json-key { color: var(--accent-cyan); }
+.api-demo-response .json-string { color: var(--success); }
+.api-demo-response .json-boolean { color: var(--base0A); }
+.api-demo-response .json-number { color: var(--base09); }
+.api-demo-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--base04);
+  background: var(--base01);
+  flex-wrap: wrap;
+}
+.api-demo-tab {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  border: 1px solid var(--base04);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.api-demo-tab:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.api-demo-tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
 }

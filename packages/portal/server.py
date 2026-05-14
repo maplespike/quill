@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CivInt Canada — AI-friendly dev server.
+""""MapleSpike — AI-friendly dev server.
 
 Serves the static portal with:
   - Accept: text/markdown content negotiation
@@ -101,12 +101,12 @@ def html_to_md(html_path, full_path):
 def make_md_fallback(path):
     """Generate minimal Markdown from path for pages we can't parse."""
     name = os.path.splitext(os.path.basename(path))[0].replace("-", " ").title()
-    return f"# {name}\n\nDocumentation page. See the [CivInt Canada docs](/) for full content."
+    return f"# {name}\n\nDocumentation page. See the [MapleSpike docs](/) for full content."
 
 
 # ── Custom handler ──────────────────────────────────────────────────
 
-class CivIntHandler(SimpleHTTPRequestHandler):
+class MapleSpikeHandler(SimpleHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
@@ -223,8 +223,8 @@ class CivIntHandler(SimpleHTTPRequestHandler):
 # ── Main ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    server = HTTPServer(("0.0.0.0", PORT), CivIntHandler)
-    print(f"[portal] CivInt Canada dev server → http://localhost:{PORT}")
+    server = HTTPServer(("0.0.0.0", PORT), MapleSpikeHandler)
+    print(f"[portal] MapleSpike dev server → http://localhost:{PORT}")
     print(f"[portal] Serving: {DIRECTORY}")
     print(f"[portal] AI-friendly: llms.txt | llms-full.txt | Accept: text/markdown | /page.md")
     try:

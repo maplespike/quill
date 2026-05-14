@@ -25,6 +25,6 @@ class Maplespike < Formula
 
   test do
     output = shell_output("#{bin}/maplespike --help 2>&1", 1)
-    assert_match "CIVINT_PIPELINE", output
+    assert_match "MAPLESPIKE_PIPELINE", output
   end
 end
