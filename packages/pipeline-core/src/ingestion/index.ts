@@ -1329,6 +1329,11 @@ export type {
   RawGlobalCanadaRecord,
 } from './global-canada/types.js';
 
+// National Defence — DND personnel, procurement
+export {
+  ingestAllDefence,
+} from './defence/index.js';
+
 // Immigration & Refugee — IRCC admissions, IRB decisions, CBSA enforcement
 export {
   ingestAllImmigration,
@@ -1531,3 +1536,62 @@ export type {
   ScienceIngestionResult,
 } from './science-research/types.js';
 export { SOURCES as SCIENCE_SOURCES, SCIENCE_SOURCE_NAMES, SCIENCE_CKAN_DATASETS } from './science-research/constants.js';
+
+/* ── Federal Tribunals ─────────────────────────────────────── */
+import { ingestAllTribunals, searchTribunals } from './federal-tribunals/index.js';
+export { ingestAllTribunals, searchTribunals } from './federal-tribunals/index.js';
+export { TRIBUNAL_SOURCES, TRIBUNAL_NAMES } from './federal-tribunals/constants.js';
+export type { TribunalDecision, TribunalCase, TribunalIngestionResult, TribunalName } from './federal-tribunals/types.js';
+
+// Education & Research — Tri-Council grants, CRC, CFI, student loans
+export {
+  ingestTriCouncil,
+  ingestResearchChairs,
+  ingestCFIData,
+  ingestStudentLoans,
+  ingestAllEducationResearch,
+  initializeEducationTables,
+} from './education-research/index.js';
+export {
+  ingestAgencyGrants,
+  ingestAllTriCouncilGrants,
+  fetchTriCouncilCkanMetadata,
+} from './education-research/tri-council.js';
+export {
+  ingestCRC,
+  fetchCRCCkanMetadata,
+} from './education-research/crc.js';
+export {
+  ingestCFI,
+  fetchCFICkanMetadata,
+} from './education-research/cfi.js';
+export {
+  ingestStudentLoansPackage,
+  ingestAllStudentLoans,
+  fetchCSLCkanMetadata,
+} from './education-research/student-loans.js';
+export {
+  EDU_CKAN_PACKAGE_IDS,
+  EDU_CKAN_QUERIES,
+  EDU_DDL,
+  EDU_SOURCES,
+  EDU_TRI_COUNCIL_DDL,
+  EDU_RESEARCH_CHAIRS_DDL,
+  EDU_CFI_DDL,
+  EDU_STUDENT_LOANS_DDL,
+  EDU_UNIVERSITY_TUITION_DDL,
+  EDU_APPRENTICESHIP_DDL,
+  eduCkanSearchUrl,
+  eduCkanPackageUrl,
+  eduCkanDownloadUrl,
+} from './education-research/constants.js';
+export type {
+  TriCouncilAgency,
+  TriCouncilGrant,
+  ResearchChair,
+  CFIInfrastructure,
+  StudentLoan,
+  UniversityTuition,
+  ApprenticeshipRecord,
+  EduIngestionResult,
+} from './education-research/types.js';
