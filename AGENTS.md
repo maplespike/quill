@@ -253,11 +253,93 @@ pnpm start
 
 ## Environment Variables
 
-| Variable | Default | Where used |
-|----------|---------|------------|
-| `MAPLESPIKE_API_KEY` | `dev-key` | mcp-server |
-| `PORT` | `3001` | mcp-server (SSE mode) |
-| `MAPLESPIKE_DB_PATH` | `./maplespike.db` | api-server (SQLite path) |
+### Core API Server
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `ENVIRONMENT` | `development` | Runtime mode (`development` / `production`) | config.ts, index.ts |
+| `MAPLESPIKE_VERSION` | `0.1.0` | Application version string | config.ts |
+| `MAPLESPIKE_NAME` | `MapleSpike` | Application display name | config.ts |
+| `PORT` | `8082` | API dev server port | dev-server.ts |
+| `MAPLESPIKE_API_KEY` | `maplespike-dev-key` | API key for server-to-server auth | dev-server.ts, api-client.ts |
+| `MAPLESPIKE_API_URL` | `http://maplespike-api:8084/v1` | Base URL for the API server | api-client.ts, routes/ai.ts |
+| `MAPLESPIKE_DB_PATH` | `./maplespike.db` | SQLite database file path | sqlite-storage.ts, dev-server.ts |
+| `MAPLESPIKE_STORAGE` | `memory` | Storage backend: `memory` or `sqlite` | dev-server.ts |
+| `JWT_SECRET` | `maplespike-jwt-secret-change-in-production` | HMAC secret for JWT signing | config.ts, jwt.ts |
+| `DEV_API_KEY` | `maplespike-dev-key` | Dev-mode API key for local testing | dev-server.ts |
+| `APP_URL` | `http://localhost:8082` | Application URL for redirects | auth/github.ts |
+| `NODE_ENV` | _(none)_ | Node environment (`production` / `development`) | auth/github.ts |
+
+### AI / Gateway
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `AI_ENDPOINT` | `http://127.0.0.1:8080/v1` | AI inference provider endpoint | config.ts, dev-server.ts, index.ts |
+| `AI_MODEL` | `qwen3.5-27b` | Default AI model identifier | config.ts, dev-server.ts, index.ts |
+| `MAPLESPIKE_GATEWAY_URL` | `http://nexus:30880/v1` | AI inference gateway endpoint | routes/ai.ts |
+| `MAPLESPIKE_GATEWAY_API_KEY` | _(empty)_ | API key for the inference gateway | routes/ai.ts |
+| `MAPLESPIKE_CHAT_MODEL` | `qwen/qwen3-coder-30b-a3b-instruct` | Chat completion model override | routes/ai.ts |
+
+### MCP Server
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `PORT` | `3001` | MCP server listening port (SSE mode) | mcp-server/src/index.ts |
+| `MAPLESPIKE_API_KEY` | `dev-key` | API key for MCP → API auth | mcp-server/src/index.ts |
+| `MAPLESPIKE_API_URL` | `http://maplespike-api:8084/v1` | API server base URL for MCP tools | mcp-server/src/tools/api-client.ts |
+| `MAPLESPIKE_LOCALE` | `en-CA` | Output locale (`en-CA` / `fr-CA`) | mcp-server/src/cli.ts |
+
+### Authentication / OAuth
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `GITHUB_CLIENT_ID` | _(empty)_ | GitHub OAuth App client ID | auth/github.ts, auth/oauth.ts |
+| `GITHUB_CLIENT_SECRET` | _(empty)_ | GitHub OAuth App client secret | auth/github.ts, auth/oauth.ts |
+| `GITHUB_REDIRECT_URI` | `http://localhost:8082/v1/auth/github/callback` | GitHub OAuth callback URL | auth/github.ts |
+| `MAPLESPIKE_DOMAIN` | `maplespike.ca` | Relying Party ID for WebAuthn/Passkeys | auth/passkey.ts |
+| `MAPLESPIKE_ORIGIN` | `https://maplespike.ca` | Allowed origin (derived from MAPLESPIKE_DOMAIN) | auth/passkey.ts |
+| `MAPLESPIKE_OAUTH_REDIRECT_BASE` | `http://localhost:8082/v1/auth/oauth` | Base URL for OAuth redirects | auth/oauth.ts |
+
+### Pipeline CLI
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `MAPLESPIKE_PIPELINE` | _(empty)_ | Specific pipeline module to run | cli/ingest.ts |
+| `CROSS_REF_QUERY` | _(empty)_ | Query string for cross-reference CLI command | cli/ingest.ts |
+
+### Engine (Postgres)
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `PGHOST` | `localhost` | Postgres server host | engine/db/migrations/migrate.ts |
+| `PGPORT` | `5432` | Postgres server port | engine/db/migrations/migrate.ts |
+| `PGDATABASE` | `maplespike` | Postgres database name | engine/db/migrations/migrate.ts |
+| `PGUSER` | `postgres` | Postgres user | engine/db/migrations/migrate.ts |
+| `PGPASSWORD` | `postgres` | Postgres password | engine/db/migrations/migrate.ts |
+
+### Cloudflare Workers (Env Bindings)
+
+| Binding | Type | Description | Used in |
+|---------|------|-------------|---------|
+| `DB` | D1 binding | D1 database (Cloudflare Workers) | index.ts, types.ts |
+| `CACHE` | KV binding | KV namespace for caching | index.ts, types.ts |
+| `FREE_LIMIT` | `string` | Free tier monthly limit override | index.ts, types.ts |
+| `PRO_LIMIT` | `string` | Pro tier monthly limit override | index.ts, types.ts |
+| `BUSINESS_LIMIT` | `string` | Business tier monthly limit override | index.ts, types.ts |
+
+### Legal SDK
+
+| Variable | Default | Description | Used in |
+|----------|---------|-------------|---------|
+| `CANLII_API_KEY` | _(empty)_ | CanLII API key for legal document access | legal-core/src/index.ts (docstring) |
+
+### Helm Chart
+
+| Variable | Source | Description | Used in |
+|----------|--------|-------------|---------|
+| `NODE_ENV` | `.Values.api.env.NODE_ENV` | Node environment for K8s deployment | charts/maplespike/templates/deployments.yaml |
+| `MAPLESPIKE_API_URL` | `.Values.api.env.MAPLESPIKE_API_URL` | API URL for K8s deployment | charts/maplespike/templates/deployments.yaml |
+| `MAPLESPIKE_API_KEY` | K8s secret `maplespike-secrets.apiKey` | API key injected from secret | charts/maplespike/templates/deployments.yaml |
 
 ---
 

@@ -6,6 +6,12 @@
   "scripts": {
     "dev": "npx serve . -p 4321",
     "build": "echo 'Static site — no build step required'",
-    "preview": "npx serve . -p 4321"
+    "preview": "npx serve . -p 4321",
+    "gen:agents": "node scripts/generate-agents-json.mjs",
+    "gen:openapi": "node scripts/generate-openapi.mjs",
+    "gen:data": "node scripts/generate-pipeline-data.mjs",
+    "gen:real-data": "node scripts/generate-real-data.mjs",
+    "gen:committees": "node scripts/fetch-real-committees.mjs",
+    "gen:all": "node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && node scripts/generate-pipeline-data.mjs"
   }
 }

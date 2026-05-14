@@ -482,9 +482,11 @@ export type {
 } from './lmia/types.js';
 
 // CKAN-based geospatial search across all federal and provincial portals
-import { ingestAllGeospatial } from './geospatial/index.js';
+import { ingestAllGeospatial, ingestLodeDatabaseById, ingestAllLode, searchLode, listLodeDatabases, getLodeDatabaseInfo, LODE_DATABASES, LODE_SOURCE_NAMES } from './geospatial/index.js';
 export { ingestAllGeospatial } from './geospatial/index.js';
+export { ingestLodeDatabaseById, ingestAllLode, searchLode, listLodeDatabases, getLodeDatabaseInfo, LODE_DATABASES, LODE_SOURCE_NAMES } from './geospatial/index.js';
 export type { GeospatialRecord, GeospatialIngestionResult } from './geospatial/types.js';
+export type { LodeDatabaseInfo, LodeRecord, LodeIngestionResult, LodeSearchParams, LodeSearchResult, LodeHealthcareFacility, LodeBuilding, LodeAddress, LodeRecreationalFacility, LodeEducationalFacility, LodeCulturalFacility, LodeBusiness, LodeInfrastructure, LodeGreenhouse, LodePedestrianNetwork, LodeTransitStop, LodeCyclingNetwork } from './geospatial/index.js';
 
 // Proactive Disclosure — federal contracts over $10K, travel, hospitality, reclassification
 export {

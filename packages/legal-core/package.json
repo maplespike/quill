@@ -13,7 +13,9 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -26,7 +28,16 @@
   "engines": {
     "node": ">=18"
   },
-  "keywords": ["canada", "legal", "case-law", "canlii", "a2aj", "legislation", "tribunals", "maplespike"],
+  "keywords": [
+    "canada",
+    "legal",
+    "case-law",
+    "canlii",
+    "a2aj",
+    "legislation",
+    "tribunals",
+    "maplespike"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -38,5 +49,6 @@
     "tsup": "^8.5.1",
     "typescript": "^5.7.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "sideEffects": false
 }
