@@ -26,34 +26,10 @@ import {
 } from './constants.js';
 import type { ParoleDecision, CriminalJusticeIngestionResult } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  CSV Parser (shared with other modules)                             */
-/* ------------------------------------------------------------------ */
 
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-  return fields;
-}
 
 function parseCsv(content: string, hasHeader = true): string[][] {
   const lines = content.split('\n').filter(l => l.trim().length > 0);

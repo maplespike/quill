@@ -35,6 +35,7 @@ import type {
   RawThirdPartySpendingRecord,
 } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 
 /**
  * Categorize a registrant by its type string from Elections Canada.
@@ -174,31 +175,7 @@ function detectElectionPeriodType(
 }
 
 
-/**
- * Simple CSV line parser that handles quoted fields and commas within quotes.
- * This is a lightweight alternative to a full CSV library for cases where
- * we just need basic line-by-line parsing.
- */
-export function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-
-  return fields;
-}
 
 /**
  * Parse a CSV header row to build a column index.

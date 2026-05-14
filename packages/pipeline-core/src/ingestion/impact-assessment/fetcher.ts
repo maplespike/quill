@@ -21,6 +21,7 @@ import {
 import type { RawImpactAssessmentRecord } from './types.js';
 import type { HttpResponse } from '../../utils/http.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  Error Class                                                        */
 /* ------------------------------------------------------------------ */
@@ -378,25 +379,4 @@ function parseIaacCsvToRaw(
   return results;
 }
 
-/**
- * Parse a single CSV line respecting quoted values.
- */
-function parseCsvLine(line: string): string[] {
-  const values: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      values.push(current.replace(/^"|"$/g, '').trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  values.push(current.replace(/^"|"$/g, '').trim());
-  return values;
-}

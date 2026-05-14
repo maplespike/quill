@@ -123,13 +123,12 @@ export const getCitationHandler: RouteHandler = async (_request, ctx, params) =>
     return jsonResponse(buildSuccess({
       verified: true,
       citation: {
-        source_name: result.source || maplespike[result.source]?.name || 'Government of Canada',
+        source_name: result.source || 'Government of Canada',
         source_url: result.record.source_url || result.record.url || '',
         license: 'Open Government Licence – Canada',
         data_hash: targetHash,
         retrieved_at: new Date().toISOString(),
         update_frequency: 'unknown',
-      },
       },
       verify_command: `echo -n '${JSON.stringify(result.record).replace(/'/g, "'\\''")}' | sha256sum`,
     }, ctx));

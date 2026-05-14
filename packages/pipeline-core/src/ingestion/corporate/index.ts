@@ -34,39 +34,12 @@ import type {
   CorporateEntity,
 } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  CSV Parsing Helpers                                                */
 /* ------------------------------------------------------------------ */
 
-/**
- * Simple CSV line parser that handles quoted fields.
- * Splits a single CSV line into an array of field values.
- */
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        // Escaped quote inside quoted field
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-  return fields;
-}
 
 /**
  * Parse CSV text (with header row) into an array of row objects.

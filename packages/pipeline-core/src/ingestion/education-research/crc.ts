@@ -20,6 +20,7 @@ import {
 import type { D1Database } from '../committees/db.js';
 import type { ResearchChair, EduIngestionResult } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  Error Class                                                        */
 /* ------------------------------------------------------------------ */
@@ -153,33 +154,7 @@ export function findCRCResource(resources: CkanResource[]): CkanResource | null 
 /*  CSV Parsing                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
- * Simple CSV line parser handling quoted fields.
- */
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-  return fields;
-}
 
 /**
  * Parse CSV text into row objects.
