@@ -663,7 +663,7 @@ export async function findCrossJurisdictionActivity(
 
 /**
  * Run ingestion for all configured provinces.
- * Currently only Ontario is implemented; others are stubbed.
+ * ON, BC, AB, QC have dedicated implementations; other provinces default to skip.
  */
 export async function ingestAllProvincial(
   db: D1Database | null,
