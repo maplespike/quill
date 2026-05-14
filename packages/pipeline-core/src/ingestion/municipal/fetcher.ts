@@ -21,6 +21,7 @@ import {
 } from './constants.js';
 import type { CityCode, RawCouncilRecord } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 
 /* ------------------------------------------------------------------ */
 /*  HTTP Client                                                        */
@@ -336,28 +337,7 @@ async function fetchQuebecCityMeetings(year: number): Promise<RawCouncilRecord[]
 /*  Vendor API Fetchers                                                 */
 /* ------------------------------------------------------------------ */
 
-/**
- * Parse a single CSV line respecting quoted fields.
- */
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      inQuotes = !inQuotes;
-    } else if (ch === ',' && !inQuotes) {
-      result.push(current);
-      current = '';
-    } else {
-      current += ch;
-    }
-  }
-  result.push(current);
-  return result;
-}
 
 /**
  * Parse eScribe meeting list HTML into structured RawCouncilRecord entries.

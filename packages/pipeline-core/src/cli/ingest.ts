@@ -13,7 +13,16 @@
  * Supported pipelines:
  *   committee, corporate, influence, gazette, gic,
  *   elections, provincial-lobbying, oversight, canlii, lmia,
- *   immigration, indigenous, science, tribunals
+ *   immigration, indigenous, defence, science, tribunals,
+ *   veterans, fisheries, agriculture, culture, ngo-rss,
+ *   regional-authorities, media, realtime, municipal-long-tail,
+ *   universities, unions, corporate-filings, provincial, federal,
+ *   a2aj, legislation, goc-spending, cross-reference, ati,
+ *   cra-charity, criminal-justice, crown-corporations,
+ *   education-research, federal-budget, geospatial,
+ *   provincial-legislatures, provincial-orgs,
+ *   provincial-regulators, social-programs, statcan,
+ *   transport-infrastructure
  */
 
 import {
@@ -50,6 +59,19 @@ import {
   ingestAllDefence,
   ingestAllScience,
   ingestAllTribunals,
+  ingestAllAti,
+  ingestAllCraCharityYears,
+  ingestAllCriminalJustice,
+  ingestAllCrownCorporations,
+  ingestAllEducationResearch,
+  ingestAllFederalBudget,
+  ingestAllGeospatial,
+  ingestAllProvincialLegislatures,
+  ingestAllProvincialOrgs,
+  ingestAllRegulators,
+  ingestAllSocialPrograms,
+  ingestAllStatCan,
+  ingestAllTransport,
 } from '../ingestion/index.js';
 
 import type { D1Database } from '../ingestion/committees/db.js';
@@ -131,16 +153,30 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   'regional-authorities': { name: "Regional Authorities Data (Peel, York, Durham, Metro Vancouver, CRD, etc.)", run: () => ingestAllRegional(), },
   'media': { name: "Media & Broadcasting Data (CRTC market reports, ownership charts, Canada Media Fund, Telefilm)", run: () => ingestAllMedia(), },
   'realtime': { name: "Real-Time Feeds (ECCC weather alerts, CBSA border wait times, parole board decisions)", run: () => ingestAllRealtime(), },
-  'municipal-long-tail': { name: "Municipal Long-Tail Federated Crawler (provincial CKAN portals)", run: () => ingestMunicipalLongTail(), },
-  'universities': { name: "Universities Deep (CUDO Ontario data, per-institution financials)", run: () => ingestAllUniversities(), },
-  'unions': { name: "Unions Deep (CUPE, Unifor, PSAC annual reports and financials)", run: () => ingestAllUnions(), },
+  'municipal-long-tail': { name: "Federated Crawler (provincial CKAN portals)", run: () => ingestMunicipalLongTail(), },
+  'universities': { name: "Universities (CUDO Ontario data, per-institution financials)", run: () => ingestAllUniversities(), },
+  'unions': { name: "Unions (CUPE, Unifor, PSAC annual reports and financials)", run: () => ingestAllUnions(), },
   'corporate-filings': { name: "Corporate Filings (SEDAR+, public company data)", run: () => ingestAllFilings(), },
-  'provincial': { name: "Provincial Deep (SK, MB, NS, NB, NL, PE, YT, NT, NU targeted datasets)", run: () => ingestAllProvincialDeep(), },
-  'federal': { name: "Federal Deep (CIHI wait times, ESDC datasets, PHAC surveillance)", run: () => ingestAllFederalDeep(), },
+  'provincial': { name: "Provincial (SK, MB, NS, NB, NL, PE, YT, NT, NU)", run: () => ingestAllProvincialDeep(), },
+  'federal': { name: "Federal (CIHI, ESDC, PHAC)", run: () => ingestAllFederalDeep(), },
   'a2aj': { name: "A2AJ Legal API (116K+ decisions, 5K+ statutes via api.a2aj.ca)", run: () => ingestAllA2aj(), },
   'legislation': { name: "Legislation (Justice Canada XML + provincial e-Laws, BC Laws, CKAN)", run: () => ingestAllLegislationData(), },
   'goc-spending': { name: "GoC Spending (GitHub-based federal contracts data)", run: () => ingestAllGoCSpending(), },
   'cross-reference': { name: "Cross-Reference Engine (lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections)", run: () => searchCrossReference({ query: process.env.CROSS_REF_QUERY || '' }).then(r => { console.log(JSON.stringify(r, null, 2)); }) },
+  'ati': { name: "ATI Access to Information — Completed ATI releases across federal departments", run: () => ingestAllAti(null, OPTIONS as any), },
+  'cra-charity': { name: "CRA Charity T3010 — Financial details of all registered Canadian charities", run: () => ingestAllCraCharityYears(null, {}), },
+  'criminal-justice': { name: "Criminal Justice — CSC corrections, parole board, RCMP crime stats, PPSC prosecutions", run: () => ingestAllCriminalJustice(), },
+  'crown-corporations': { name: "Crown Corporations — Annual reports, quarterly financials, governance data", run: () => ingestAllCrownCorporations(null, OPTIONS as any), },
+  'education-research': { name: "Education & Research — Tri-Council grants, Canada Research Chairs, CFI, student loans", run: () => ingestAllEducationResearch(null, OPTIONS as any), },
+  'federal-budget': { name: "Federal Budget — Budgets, public accounts, fiscal monitor, departmental plans", run: () => ingestAllFederalBudget(null, OPTIONS as any), },
+  'geospatial': { name: "Geospatial Data — CKAN-based spatial search across federal and provincial portals", run: () => ingestAllGeospatial(), },
+  'provincial-legislatures': { name: "Provincial Legislatures — Hansard, committees, bills across all 10 provinces", run: () => ingestAllProvincialLegislatures(null, OPTIONS as any), },
+  'provincial-orgs': { name: "Provincial Organizations — Provincial entity registries and organization data", run: () => ingestAllProvincialOrgs(), },
+  'provincial-regulators': { name: "Provincial Regulators — Energy, utilities, securities and other regulatory bodies", run: () => ingestAllRegulators(), },
+  'science': { name: "Science Research — CSA space missions, Mitacs grants, ocean and polar observations", run: () => ingestAllScience(), },
+  'social-programs': { name: "Social Programs — CPP/OAS, EI, Canada Child Benefit, poverty and food security data", run: () => ingestAllSocialPrograms(), },
+  'statcan': { name: "Statistics Canada — CPI, GDP, labour, population, trade indicators", run: () => ingestAllStatCan(), },
+  'transport-infrastructure': { name: "Transport & Infrastructure — TSB occurrences, TC safety, CIIB, CTA, Infrastructure Canada", run: () => ingestAllTransport(), },
 };
 
 async function main(): Promise<void> {

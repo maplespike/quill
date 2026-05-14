@@ -68,5 +68,5 @@ committee, corporate, influence, gazette, gic, elections, provincial-lobbying,
 oversight, canlii, lmia, immigration, indigenous, defence, tribunals, veterans,
 fisheries, agriculture, culture, ngo-rss, regional-authorities, media, realtime,
 social-programs, municipal-long-tail, universities, unions, corporate-filings,
-culture-deep, provincial-deep, federal-deep, a2aj, legislation, goc-spending
+culture, provincial-deep, federal-deep, a2aj, legislation, goc-spending
 ```

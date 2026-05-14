@@ -23,6 +23,7 @@ import {
 } from './constants.js';
 import type { PovertyRecord, PovertyMeasure, MbmThreshold } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 const SOCIAL_UA = 'MapleSpike/0.1 (social-programs; mailto:j_kroeker@reverb256.ca)';
 
 interface CkanResource {
@@ -301,17 +302,4 @@ export async function ingestPoverty(): Promise<{
 
 // ─── CSV Utility ────────────────────────────────────────────────────────
 
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') { inQuotes = !inQuotes; continue; }
-    if (ch === ',' && !inQuotes) { result.push(current.trim()); current = ''; continue; }
-    current += ch;
-  }
-  result.push(current.trim());
-  return result;
-}
