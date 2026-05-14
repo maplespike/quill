@@ -24,12 +24,12 @@
 
 import { httpGet } from '../../utils/http.js';
 import {
-  PROVINCE_CONFIGS,
-  ONTARIO,
-  BC,
-  ALBERTA,
-  DEFAULT_HEADERS,
-  DEFAULT_TIMEOUT_MS,
+  PROVINCE_CONFIGS, ONTARIO, BC, ALBERTA,
+  BC_CONFIG, ALBERTA_CONFIG, QUEBEC_CONFIG,
+  SASKATCHEWAN_CONFIG, MANITOBA_CONFIG, NOVA_SCOTIA_CONFIG,
+  NEW_BRUNSWICK_CONFIG, NFLD_CONFIG, PEI_CONFIG,
+  YUKON_CONFIG, NWT_CONFIG, NUNAVUT_CONFIG,
+  DEFAULT_HEADERS, DEFAULT_TIMEOUT_MS,
   ProvincialLegislatureError,
 } from './constants.js';
 import type {
@@ -745,7 +745,7 @@ export async function fetchQuebecLegislativeData(
   }
 }
 
-const QUEBEC = {
+const QUEBEC_LOCAL = {
   HANSARD_LIST_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/derniers-journaux.html',
   HANSARD_ARCHIVE_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/archives.html',
   COMMITTEES_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/commissions/index.html',
@@ -764,7 +764,7 @@ export async function fetchQuebecHansard(
   const now = new Date().toISOString();
 
   try {
-    const resp = await httpGet(QUEBEC.HANSARD_LIST_URL, {
+    const resp = await httpGet(QUEBEC_LOCAL.HANSARD_LIST_URL, {
       headers: { ...DEFAULT_HEADERS, 'Accept': 'text/html,application/xhtml+xml,*/*' },
       timeoutMs: DEFAULT_TIMEOUT_MS,
     });
@@ -774,7 +774,7 @@ export async function fetchQuebecHansard(
         `Quebec Hansard list returned HTTP ${resp.statusCode}`,
         'HTTP_ERROR',
         'QC',
-        QUEBEC.HANSARD_LIST_URL,
+        QUEBEC_LOCAL.HANSARD_LIST_URL,
         resp.statusCode,
       );
     }
@@ -820,7 +820,7 @@ export async function fetchQuebecHansard(
       `Failed to fetch Quebec Hansard: ${err instanceof Error ? err.message : String(err)}`,
       'FETCH_ERROR',
       'QC',
-      QUEBEC.HANSARD_LIST_URL,
+      QUEBEC_LOCAL.HANSARD_LIST_URL,
     );
   }
 
@@ -828,7 +828,7 @@ export async function fetchQuebecHansard(
 }
 
 /**
- * Fetch Quebec committee hearings (stub).
+ * Fetch Quebec committee hearings.
  */
 export async function fetchQuebecCommitteeHearings(
   options: { dateFrom?: string; dateTo?: string } = {},
@@ -838,7 +838,7 @@ export async function fetchQuebecCommitteeHearings(
   const now = new Date().toISOString();
 
   try {
-    const resp = await httpGet(QUEBEC.COMMITTEES_URL, {
+    const resp = await httpGet(QUEBEC_LOCAL.COMMITTEES_URL, {
       headers: DEFAULT_HEADERS,
       timeoutMs: DEFAULT_TIMEOUT_MS,
     });
@@ -1570,7 +1570,7 @@ export async function fetchNewfoundlandCommitteeHearings(
   options: { dateFrom?: string; dateTo?: string } = {},
   maxRecords: number = 500,
 ): Promise<ProvincialLegislatureRecord[]> {
-  return fetchGenericCommitteeHearings('NL' as ProvinceCode, NEWFOUNDLAND_CONFIG.committeesUrl, { maxRecords });
+  return fetchGenericCommitteeHearings('NL' as ProvinceCode, NFLD_CONFIG.committeesUrl, { maxRecords });
 }
 
 /**
@@ -1579,7 +1579,7 @@ export async function fetchNewfoundlandCommitteeHearings(
 export async function fetchNewfoundlandBills(
   maxRecords: number = 500,
 ): Promise<ProvincialLegislatureRecord[]> {
-  return fetchGenericBills('NL' as ProvinceCode, NEWFOUNDLAND_CONFIG.billsUrl, { maxRecords });
+  return fetchGenericBills('NL' as ProvinceCode, NFLD_CONFIG.billsUrl, { maxRecords });
 }
 
 /* ------------------------------------------------------------------ */
