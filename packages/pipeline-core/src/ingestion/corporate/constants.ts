@@ -1,5 +1,5 @@
 /**
- * Corporate Constants — Frostbite Data Pipeline
+ * Corporate Constants — MapleSpike Pipeline
  *
  * Known URLs for Canadian corporate public-data sources
  * and a curated list of tracked entities.

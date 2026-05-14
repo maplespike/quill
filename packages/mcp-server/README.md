@@ -16,7 +16,7 @@ Model Context Protocol server for Canadian government data. Provides **14 tools*
 ### Local (stdio)
 
 ```bash
-export CIVINT_API_KEY=dev-key
+export MAPLESPIKE_API_KEY=dev-key
 cd packages/mcp-server
 pnpm start
 # → stdio MCP server ready
@@ -58,7 +58,7 @@ Add to your `claude_desktop_config.json`:
     "maplespike-canada": {
       "command": "npx",
       "args": ["@maplespike/mcp-server"],
-      "env": { "CIVINT_API_KEY": "dev-key" }
+      "env": { "MAPLESPIKE_API_KEY": "dev-key" }
     }
   }
 }
@@ -68,7 +68,7 @@ Add to your `claude_desktop_config.json`:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CIVINT_API_KEY` | `dev-key` | API key for authentication |
+| `MAPLESPIKE_API_KEY` | `dev-key` | API key for authentication |
 | `PORT` | 3001 | HTTP server port (SSE mode) |
 
 ## Architecture

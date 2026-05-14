@@ -1,5 +1,5 @@
 /**
- * SEDI Insider Trading Scraper — Frostbite Data Pipeline
+ * SEDI Insider Trading Scraper — MapleSpike Pipeline
  *
  * Fetches insider transaction reports from the Canadian SEDI (System for
  * Electronic Disclosure by Insiders) website at https://www.sedi.ca/.

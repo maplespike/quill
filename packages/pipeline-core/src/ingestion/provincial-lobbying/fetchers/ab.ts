@@ -1,5 +1,5 @@
 /**
- * Alberta Lobbying Fetcher — Frostbite Data Pipeline
+ * Alberta Lobbying Fetcher — MapleSpike Pipeline
  *
  * Searches the Alberta Lobbyist Registry (albertalobbyistregistry.ca) for lobbying records.
  * Uses undici for HTTP (consistent with the rest of the pipeline).

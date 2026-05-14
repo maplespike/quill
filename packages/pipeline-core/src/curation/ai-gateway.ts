@@ -1,5 +1,5 @@
 /**
- * AI Gateway Client — Frostbite Data Pipeline
+ * AI Gateway Client — MapleSpike Pipeline
  *
  * Generic fetch-based client for OpenAI-compatible chat completion APIs.
  * Supports rate-limit retry, JSON mode, and safe defaults on failure.

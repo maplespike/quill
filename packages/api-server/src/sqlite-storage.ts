@@ -14,7 +14,7 @@ export class SqliteStorage implements MapleSpikeStorage {
   private db: Database.Database;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.CIVINT_DB_PATH || './maplespike.db';
+    const path = dbPath || process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
     this.db = new Database(path);
 
     // Enable WAL mode for better concurrent read performance
@@ -114,12 +114,12 @@ export class SqliteStorage implements MapleSpikeStorage {
   /*  Seed Data (internal tenant + dev key)                            */
 
   private seed(): void {
-    // Internal tenant for Frostbite Gazette
+    // Internal tenant for MapleSpike
     const insertTenant = this.db.prepare(`
       INSERT OR IGNORE INTO tenants (id, name, tier, journalism_mode)
       VALUES (?, ?, ?, ?)
     `);
-        insertTenant.run('fg-internal', 'Frostbite Gazette', 'internal', 1);
+        insertTenant.run('ms-internal', 'MapleSpike', 'internal', 1);
         // Anonymous/unauth tenant for health checks
         insertTenant.run('anon', 'Anonymous', 'free', 0);
 
@@ -131,7 +131,7 @@ export class SqliteStorage implements MapleSpikeStorage {
     // Pre-computed SHA-256 of "maplespike-dev-key"
     insertKey.run(
       'dev-key-1',
-      'fg-internal',
+      'ms-internal',
       'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799',
       'dev',
     );

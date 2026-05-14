@@ -126,7 +126,7 @@ export const handler: ToolHandler = async (args) => {
       verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${hash}`),
       message:
         'Citation not found in current session store. ' +
-        'This hash may correspond to data ingested in a previous session or by the Frostbite Gazette pipeline. ' +
+        'This hash may correspond to data ingested in a previous session or by the MapleSpike pipeline. ' +
         'To verify independently, use the shell command above with the original data source.',
       note: 'Citations are stored per-server-session. For persistent citation storage, deploy with a database-backed audit logger.',
     },

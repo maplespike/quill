@@ -1,5 +1,5 @@
 /**
- * Corporate Data Types — Frostbite Data Pipeline
+ * Corporate Data Types — MapleSpike Pipeline
  *
  * Types for Canadian corporate/business public-domain data:
  *   - Federal lobbying registry (who's lobbying who)

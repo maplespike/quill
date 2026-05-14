@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Constants — Frostbite Data Pipeline
+ * Provincial Lobbying Constants — MapleSpike Pipeline
  *
  * Known URLs and configuration for provincial lobbying registries
  * across Canadian provinces.

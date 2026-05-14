@@ -1,5 +1,5 @@
 /**
- * Citation Verification — Frostbite Data Pipeline
+ * Citation Verification — MapleSpike Pipeline
  *
  * SHA-256 content hashing for article verification and provenance tracking.
  * Enables third parties to independently verify that content hasn't been altered.

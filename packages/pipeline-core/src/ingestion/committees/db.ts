@@ -1,8 +1,8 @@
 /**
- * Committee Database — Frostbite Data Pipeline
+ * Committee Database — MapleSpike Pipeline
  *
  * D1 SQLite persistence for committee meetings, interventions, and speakers.
- * Uses the same D1 API pattern as the existing Frostbite-Gazette schema.
+ * Uses the same D1 API pattern as the existing MapleSpike-Gazette schema.
  */
 
 import type { Chamber, CommitteeMeeting, Intervention, CommitteeSpeaker } from './types.js';

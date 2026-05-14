@@ -1,5 +1,5 @@
 /**
- * Executive Statements Collector — Frostbite Data Pipeline
+ * Executive Statements Collector — MapleSpike Pipeline
  *
  * Collects public statements by high-impact Canadian executives:
  *   - Committee testimony (already captured by committees module)

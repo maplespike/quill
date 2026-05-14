@@ -1,5 +1,5 @@
 /**
- * Influence Ingestion — Frostbite Data Pipeline
+ * Influence Ingestion — MapleSpike Pipeline
  *
  * Orchestrates influence tracking across all sources:
  *   1. Actor catalog — register tracked influence organizations

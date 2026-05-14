@@ -731,7 +731,7 @@ export class MunicipalCouncilError extends Error {
 
 export class NotYetImplementedError extends Error {
   constructor(city: CityCode) {
-    super(`City ${city} is not yet implemented. Only Toronto and Vancouver are implemented.`);
+    super(`City ${city} is not yet implemented. 19 cities are currently implemented.`);
     this.name = 'NotYetImplementedError';
   }
 }

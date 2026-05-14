@@ -7,7 +7,7 @@
  * Architecture:
  *   Request → Auth middleware → Rate limit → Route dispatch → Response envelope
  *
- * Katzilla-quality response envelope with:
+ * MapleSpike-quality response envelope with:
  *   - Quality meta (freshness, confidence, certainty)
  *   - Citation envelope
  *   - Token optimization params (_fields, _format, _limit, _mock, etc.)
@@ -781,8 +781,8 @@ export default {
     const cache = new KVCache(env.CACHE);
     const envVars: Record<string, string | undefined> = {
       ENVIRONMENT: env.ENVIRONMENT,
-      CIVINT_VERSION: env.CIVINT_VERSION,
-      CIVINT_NAME: env.CIVINT_NAME,
+      MAPLESPIKE_VERSION: env.MAPLESPIKE_VERSION,
+      MAPLESPIKE_NAME: env.MAPLESPIKE_NAME,
       FREE_LIMIT: env.FREE_LIMIT,
       PRO_LIMIT: env.PRO_LIMIT,
       BUSINESS_LIMIT: env.BUSINESS_LIMIT,

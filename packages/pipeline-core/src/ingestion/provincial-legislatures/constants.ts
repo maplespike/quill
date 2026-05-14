@@ -340,7 +340,7 @@ export const PROVINCE_CONFIGS: Record<string, ProvinceLegislatureConfig> = {
 export const ALL_PROVINCES: ProvinceLegislatureConfig[] = Object.values(PROVINCE_CONFIGS);
 
 /**
- * Provinces with working implementations (others are stubs).
+ * All 13 provinces/territories listed for coverage intent; only ON, BC, AB have real fetchers (depth varies).
  */
 export const IMPLEMENTED_PROVINCES: ProvinceLegislatureConfig[] = [
   ONTARIO_CONFIG,
@@ -378,6 +378,7 @@ export const ONTARIO = {
   HANSARD_LIST_URL: 'https://www.ola.org/en/legislative-business/hansard',
   HANSARD_XML_PATTERN: 'https://www.ola.org/sites/default/files/hansard/transcripts/parliament-{parliament}/session-{session}/{date}.xml',
   COMMITTEE_EVIDENCE_XML_PATTERN: 'https://www.ola.org/sites/default/files/committee/transcripts/{committee}/{date}.xml',
+  COMMITTEES_URL: 'https://www.ola.org/en/legislative-business/committees',
   BILLS_LIST_URL: 'https://www.ola.org/en/legislative-business/bills/current-parliament',
   USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
 };
@@ -401,6 +402,112 @@ export const ALBERTA = {
   HANSARD_SEARCH_URL: 'https://www.assembly.ab.ca/search?type=hansard',
   COMMITTEES_URL: 'https://www.assembly.ab.ca/committees',
   BILLS_URL: 'https://www.assembly.ab.ca/bills',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Quebec specific endpoints and paths.
+ */
+export const QUEBEC = {
+  HANSARD_LIST_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/derniers-journaux.html',
+  HANSARD_XML_PATTERN: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/derniers-journaux/{date}.html',
+  COMMITTEES_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/commissions/index.html',
+  BILLS_URL: 'https://www.assnat.qc.ca/fr/travaux-parlementaires/projets-loi/index.html',
+  CKAN_URL: 'https://www.donneesquebec.ca/api/3/action/package_search',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Manitoba specific endpoints and paths.
+ */
+export const MANITOBA = {
+  HANSARD_URL: 'https://www.gov.mb.ca/legislature/hansard/',
+  COMMITTEES_URL: 'https://www.gov.mb.ca/legislature/committees/',
+  BILLS_URL: 'https://web2.gov.mb.ca/bills/',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Saskatchewan specific endpoints and paths.
+ */
+export const SASKATCHEWAN = {
+  HANSARD_URL: 'https://www.legassembly.sk.ca/hansard/',
+  COMMITTEES_URL: 'https://www.legassembly.sk.ca/committees/',
+  BILLS_URL: 'https://publications.saskatchewan.ca/#/products?q=bills',
+  CKAN_URL: 'https://dashboard.saskatchewan.ca/api/3/action/package_search',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Nova Scotia specific endpoints and paths.
+ */
+export const NOVA_SCOTIA = {
+  HANSARD_URL: 'https://nslegislature.ca/legislative-business/hansard-debates',
+  COMMITTEES_URL: 'https://nslegislature.ca/legislative-business/committees',
+  BILLS_URL: 'https://nslegislature.ca/legislative-business/bills',
+  CKAN_URL: 'https://data.novascotia.ca/api/3/action/package_search',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * New Brunswick specific endpoints and paths.
+ */
+export const NEW_BRUNSWICK = {
+  HANSARD_URL: 'https://www.legnb.ca/en/hansard',
+  COMMITTEES_URL: 'https://www.legnb.ca/en/committees',
+  BILLS_URL: 'https://www.legnb.ca/en/bills',
+  CKAN_URL: 'https://www.snb.ca/api/3/action/package_search',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Newfoundland and Labrador specific endpoints and paths.
+ */
+export const NFLD = {
+  HANSARD_URL: 'https://www.assembly.nl.ca/HouseBusiness/Hansard/',
+  COMMITTEES_URL: 'https://www.assembly.nl.ca/HouseBusiness/Committees/',
+  BILLS_URL: 'https://www.assembly.nl.ca/HouseBusiness/Bills/',
+  CKAN_URL: 'https://opendata.gov.nl.ca/api/3/action/package_search',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Prince Edward Island specific endpoints and paths.
+ */
+export const PEI = {
+  HANSARD_URL: 'https://www.assembly.pe.ca/hansard',
+  COMMITTEES_URL: 'https://www.assembly.pe.ca/committees',
+  BILLS_URL: 'https://www.assembly.pe.ca/bills',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Yukon specific endpoints and paths.
+ */
+export const YUKON = {
+  HANSARD_URL: 'https://yukonassembly.ca/hansard',
+  COMMITTEES_URL: 'https://yukonassembly.ca/committees',
+  BILLS_URL: 'https://yukonassembly.ca/bills',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Northwest Territories specific endpoints and paths.
+ */
+export const NWT = {
+  HANSARD_URL: 'https://www.ntlegislativeassembly.ca/documents-proceedings/hansard',
+  COMMITTEES_URL: 'https://www.ntlegislativeassembly.ca/committees',
+  BILLS_URL: 'https://www.ntlegislativeassembly.ca/documents-proceedings/bills',
+  USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
+};
+
+/**
+ * Nunavut specific endpoints and paths.
+ */
+export const NUNAVUT = {
+  HANSARD_URL: 'https://assembly.nu.ca/hansard',
+  COMMITTEES_URL: 'https://assembly.nu.ca/standing-and-special-committees',
+  BILLS_URL: 'https://assembly.nu.ca/bills-and-legislation',
   USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
 };
 
