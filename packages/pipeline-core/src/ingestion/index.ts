@@ -1615,3 +1615,13 @@ export type { AgricultureRecord, AgricultureIngestionResult } from './agricultur
 import { ingestAllCulture, searchCulture } from './culture/index.js';
 export { ingestAllCulture, searchCulture } from './culture/index.js';
 export type { CultureRecord, CultureIngestionResult } from './culture/types.js';
+
+/* ── NGO / Influence RSS ─────────────────────────────── */
+import { ingestAllNgoRss, ingestNgoSource, searchNgoRss, classifyNarrative, NGO_RSS_SOURCES } from './ngo-influence-rss/index.js';
+export { ingestAllNgoRss, ingestNgoSource, searchNgoRss, classifyNarrative, NGO_RSS_SOURCES } from './ngo-influence-rss/index.js';
+export type { NgoRssItem, NgoRssIngestionResult, NgoRssConfig, NgoCategory, NarrativeFlag } from './ngo-influence-rss/types.js';
+
+/* ── Regional Authorities ────────────────────────────── */
+import { ingestAllRegional, searchRegionalAuthorities, REGIONAL_AUTHORITIES, REGIONAL_AUTHORITY_MAP } from './regional-authorities/index.js';
+export { ingestAllRegional, searchRegionalAuthorities, REGIONAL_AUTHORITIES, REGIONAL_AUTHORITY_MAP } from './regional-authorities/index.js';
+export type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityCode, RegionalAuthorityConfig } from './regional-authorities/types.js';
