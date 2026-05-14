@@ -9,7 +9,7 @@ status: active
 > **Current metrics:** [docs/metrics.json](./docs/metrics.json)
 > **Repository:** `/data/projects/own/maplespike`
 > **Working branch:** main
-> **Deployment target:** K3s cluster (api.maplespike.lan, mcp.maplespike.lan, civint.lan)
+> **Deployment target:** K3s cluster (api.maplespike.lan, mcp.maplespike.lan, maplespike.lan)
 
 ---
 
@@ -149,8 +149,8 @@ status: active
 | ✅ K8s deployment manifests | DONE | `maplespike-mcp` + `maplespike-api` in `ai-inference` namespace |
 | ✅ API server running on K3s | DONE | maplespike-api pod, NodePort 30882, /v1/health returns ok |
 | ✅ MCP server running on K3s | DONE | maplespike-mcp pod, NodePort 32537, /health returns ok |
-| ✅ Portal on K3s | DONE | civint.lan → Caddy → nexus:30964 |
-| ✅ NixOS Caddy routes + DNS | DONE | maplespike-api.lan, maplespike-mcp.lan, civint.lan — all .lan domains, TLS via cluster CA |
+| ✅ Portal on K3s | DONE | maplespike.lan → Caddy → nexus:30964 |
+| ✅ NixOS Caddy routes + DNS | DONE | maplespike-api.lan, maplespike-mcp.lan, maplespike.lan — all .lan domains, TLS via cluster CA |
 | ✅ NixOS overlay registration | DONE | `maplespike-mcp-image` in overlay |
 | ✅ Pure nix build pipeline | DONE | Flake input -> dockerTools -> push. Local flake.nix is 13-line stub delegating to nixos-config |
 | 🔴 CI: GitHub Actions workflow | TODO | No `.github/` directory exists at all |

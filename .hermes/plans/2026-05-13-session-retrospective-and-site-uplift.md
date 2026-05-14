@@ -31,7 +31,7 @@
 | http://10.1.1.110:3000/ | Python http.server | Portal landing page (index.html, dashboard.html, docs.html, agents.html) | 🟡 User says "broken" |
 
 ### Purged
-- Katzilla references removed from code + docs
+- External comparators removed from docs for clarity
 
 ---
 

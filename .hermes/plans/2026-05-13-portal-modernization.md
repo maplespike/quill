@@ -301,7 +301,7 @@ SCIENCE · EDUCATION · HOUSING · TELECOM · AGRICULTURE · META
 | 2 | SDK tabstrip in hero | 1-2h | High — immediate landing page improvement |
 | 3 | Anti-grid: replace bento cards with API code demo | 2-3h | High — removes template look |
 | 4 | Anti-grid: dashboard activity feed | 1-2h | Medium — improves dashboard UX |
-| 5 | Data Explorer depth | 2-3h | Medium — matches Katzilla coverage |
+| 5 | Data Explorer depth | 2-3h | Medium — 20+ categories with action counts |
 
 **Total:** ~8-12 hours of focused work.
 
