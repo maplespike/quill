@@ -1,8 +1,8 @@
-# MapleSpike Canada — Portail développeur
+# MapleSpike — Portail développeur
 
 > [English version](README.md) · Version anglaise disponible
 
-Pages d'accueil SaaS, documentation, guide de configuration des agents IA et tableau de bord développeur pour l'API MapleSpike Canada.
+Pages d'accueil SaaS, documentation, guide de configuration des agents IA et tableau de bord développeur pour l'API MapleSpike.
 
 **Statut :** Développement local (discret) — servi depuis le cluster K3s sur le réseau local. Sera déployé sur GitHub Pages lors du lancement public.
 

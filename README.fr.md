@@ -1,4 +1,4 @@
-# MapleSpike Canada
+# MapleSpike
 
 > **Pipeline de données gouvernementales canadiennes souverain et natif pour l'IA** — une couche unifiée pour les données gouvernementales, le suivi de l'influence des entreprises, la surveillance des comités, le renseignement réglementaire et le suivi des acteurs politiques. Construit sans dépendance au nuage externe, déployé sur un cluster K3s.
 
@@ -10,7 +10,7 @@
 
 ## Ce que c'est
 
-MapleSpike Canada ingère, vérifie et présente **16 modules de données** gouvernementales canadiennes publiques :
+MapleSpike ingère, vérifie et présente **16 modules de données** gouvernementales canadiennes publiques :
 
 | # | Module | Suivi | Connecteurs | Persistance BD | Outil MCP |
 |---|--------|-------|-----------|------------|----------|
