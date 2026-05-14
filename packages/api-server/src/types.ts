@@ -1,7 +1,8 @@
 /**
- * MapleSpike Canada — API Server Types
+ * MapleSpike — API Server Types
  *
  * Shared types for the multi-tenant API gateway.
+ * Katzilla-quality response envelope with quality, citation, and token optimization.
  */
 
 /* ------------------------------------------------------------------ */
@@ -28,6 +29,32 @@ export interface ApiKeyRecord {
 }
 
 /* ------------------------------------------------------------------ */
+/*  User Accounts (for JWT/GitHub OAuth)                               */
+/* ------------------------------------------------------------------ */
+
+export interface GitHubProfile {
+  id: number;
+  login: string;
+  name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  [key: string]: unknown;
+}
+
+export interface User {
+  id: string;
+  email: string | null;
+  githubId: string;
+  githubLogin: string;
+  githubName: string | null;
+  avatarUrl: string | null;
+  tier: Tier;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Usage / Rate Limits                                                */
 /* ------------------------------------------------------------------ */
 
@@ -40,7 +67,70 @@ export const TIER_LIMITS: Record<Tier, { monthly: number; daily: number }> = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Response Envelope                                                  */
+/*  Query Options (Token Optimization Params)                          */
+/* ------------------------------------------------------------------ */
+
+export interface QueryOptions {
+  /** Return only these top-level fields (e.g. ['data','meta']) */
+  _fields?: string[];
+  /** 'full' (default) or 'compact' — compact strips null/empty fields */
+  _format?: 'full' | 'compact';
+  /** Cap array results to N items */
+  _limit?: number;
+  /** Pagination offset */
+  _page?: number;
+  /** Normalize field names across sources */
+  _normalize?: boolean;
+  /** Unit conversion: 'metric' | 'imperial' */
+  _units?: 'metric' | 'imperial';
+  /** Return aggregate summary instead of rows */
+  _summary?: boolean;
+  /** Return cached sample data, no upstream hit, free */
+  _mock?: boolean;
+}
+
+export function parseQueryOptions(url: URL): QueryOptions {
+  const opts: QueryOptions = {};
+
+  const fields = url.searchParams.get('_fields');
+  if (fields) {
+    opts._fields = fields.split(',').map((f) => f.trim()).filter(Boolean);
+  }
+
+  const format = url.searchParams.get('_format');
+  if (format === 'compact' || format === 'full') {
+    opts._format = format;
+  }
+
+  const limit = url.searchParams.get('_limit');
+  if (limit) {
+    const n = parseInt(limit, 10);
+    if (!isNaN(n) && n > 0) opts._limit = n;
+  }
+
+  const page = url.searchParams.get('_page');
+  if (page) {
+    const n = parseInt(page, 10);
+    if (!isNaN(n) && n > 0) opts._page = n;
+  }
+
+  const normalize = url.searchParams.get('_normalize');
+  if (normalize === 'true' || normalize === '1') opts._normalize = true;
+
+  const units = url.searchParams.get('_units');
+  if (units === 'metric' || units === 'imperial') opts._units = units;
+
+  const summary = url.searchParams.get('_summary');
+  if (summary === 'true' || summary === '1') opts._summary = true;
+
+  const mock = url.searchParams.get('_mock');
+  if (mock === 'true' || mock === '1') opts._mock = true;
+
+  return opts;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Response Envelope (Katzilla-compatible)                            */
 /* ------------------------------------------------------------------ */
 
 export interface ApiError {
@@ -49,10 +139,19 @@ export interface ApiError {
 }
 
 export interface CitationMeta {
-  source: string;
-  timestamp: string;
-  hash: string;
+  source_name: string;
+  source_url: string;
+  retrieved_at: string;
+  data_hash: string;
   license: string;
+  update_frequency: string;
+}
+
+export interface QualityMeta {
+  freshness_seconds: number;
+  source_uptime_7d: number;
+  confidence: 'high' | 'medium' | 'low';
+  certainty_score: number;
 }
 
 export interface UsageMeta {
@@ -66,14 +165,22 @@ export interface ResponseMeta {
   timestamp: string;
   version: string;
   usage: UsageMeta;
+  agent: string;
+  action: string;
+  authMethod: string;
+  creditsCharged: number;
+  cacheStatus: 'hit' | 'miss';
+  durationMs: number;
 }
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data: T | null;
+  text: string | null;
   error: ApiError | null;
   meta: ResponseMeta;
-  citations: CitationMeta[];
+  quality: QualityMeta | null;
+  citation: CitationMeta | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -178,4 +285,5 @@ export interface Env {
   BUSINESS_LIMIT?: string;
   AI_ENDPOINT?: string;
   AI_MODEL?: string;
+  JWT_SECRET?: string;
 }
