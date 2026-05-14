@@ -279,7 +279,7 @@
    278|    <div class="sb-icon">🔒</div>
    279|    <div class="sb-body">
    280|      <div class="sb-title">In-camera meeting detection is live</div>
-   281|      <div class="sb-desc">MapleSpike automatically detects when parliamentary committees go behind closed doors. We track all 54 committees across both chambers — if a meeting is marked in-camera, you'll know what was discussed and who was there.</div>
+   281|      <div class="sb-desc">MapleSpike automatically detects when parliamentary committees go behind closed doors. We track <span id="committee-count">all</span> committees across both chambers — if a meeting is marked in-camera, you'll know what was discussed and who was there.</div>
    282|    </div>
    283|    <a href="#" class="btn btn-primary sb-btn">View recent alerts →</a>
    284|  </div>
@@ -514,11 +514,23 @@ async function loadDashboardData() {
 function renderStats(sources) {
   if (!sources) return;
   const labels = [
-    { key: 'hoc', label: 'COMMITTEE MEETINGS' },
+    { key: 'hoc', label: 'HOC MEETINGS' },
     { key: 'senate', label: 'SENATE MEETINGS' },
     { key: 'gazette', label: 'REGULATIONS' },
     { key: 'gic', label: 'GIC APPOINTMENTS' },
+    { key: 'lmia', label: 'LMIA RECORDS' },
+    { key: 'oversight', label: 'OVERSIGHT' },
+    { key: 'elections', label: 'ELECTIONS' },
+    { key: 'corporate', label: 'CORPORATE' },
+    { key: 'lobbying', label: 'LOBBYING' },
     { key: 'procurement', label: 'CONTRACTS' },
+    { key: 'influence', label: 'INFLUENCE' },
+    { key: 'provincialLobbying', label: 'PROV. LOBBYING' },
+    { key: 'immigration', label: 'IMMIGRATION' },
+    { key: 'transport', label: 'TRANSPORT SAFETY' },
+    { key: 'defence', label: 'DEFENCE/VETS' },
+    { key: 'education', label: 'EDUCATION' },
+    { key: 'science', label: 'SCIENCE' },
   ];
   const container = document.getElementById('stats-row');
   if (!container) return;
@@ -547,6 +559,13 @@ function renderActivity(activity) {
     if (status) {
       const ago = data.generatedAt ? Math.floor((Date.now() - new Date(data.generatedAt).getTime()) / 60000) : 0;
       status.textContent = ago < 60 ? `Updated ${ago}m ago` : `Updated ${Math.floor(ago/60)}h ago`;
+    }
+    // Live committee count from pipeline data
+    const committeeEl = document.getElementById('committee-count');
+    if (committeeEl && data.sources?.hoc?.committees) {
+      committeeEl.textContent = String(data.sources.hoc.committees.length + (data.sources.senate?.committees?.length || 0));
+    } else if (committeeEl) {
+      committeeEl.textContent = '54';
     }
   } else {
     // Show fallback message

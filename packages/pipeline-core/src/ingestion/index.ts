@@ -180,7 +180,6 @@ export type {
 export {
   ingestGIC,
   searchGIC,
-  searchGicAppointments,
   getRecentAppointments,
   getHighValueAppointments,
   findLobbyistsTurnedAppointees,
@@ -1630,9 +1629,10 @@ import { ingestAllRealtime, REALTIME_SOURCES } from './real-time-feeds/index.js'
 export { ingestAllRealtime, REALTIME_SOURCES } from './real-time-feeds/index.js';
 export type { RealtimeRecord, RealtimeIngestionResult } from './real-time-feeds/types.js';
 
-/* ── Provincial Regulators (80+ across 21 categories, 13 provinces) ── */
-// TODO: build provincial-regulators module — referenced constants/types/index don't exist yet
-// export { ... } from './provincial-regulators/index.js';
+/* ── Provincial Regulators ─────────────────────────────── */
+import { ingestAllRegulators, getRegulatorCoverage } from './provincial-regulators/index.js';
+export { ingestAllRegulators, getRegulatorCoverage };
+export type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } from './provincial-regulators/types.js';
 
 /* ── Municipal Long-Tail ──────────────────────────────── */
 import { ingestMunicipalLongTail } from './municipal-long-tail/index.js';
