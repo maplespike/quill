@@ -1625,34 +1625,29 @@ export { ingestMunicipalLongTail } from './municipal-long-tail/index.js';
 export type { MunicipalDataset, MunicipalLongTailIngestionResult } from './municipal-long-tail/types.js';
 
 /* ── Universities Deep ────────────────────────────────── */
-import { ingestAllUniversities } from './universities-deep/index.js';
-export { ingestAllUniversities } from './universities-deep/index.js';
-export type { UniversityRecord, UniversitiesIngestionResult } from './universities-deep/types.js';
+import { ingestAllUniversities } from './universities/index.js';
+export { ingestAllUniversities } from './universities/index.js';
+export type { UniversityRecord, UniversitiesIngestionResult } from './universities/types.js';
 
 /* ── Unions Deep ──────────────────────────────────────── */
-import { ingestAllUnions } from './unions-deep/index.js';
-export { ingestAllUnions } from './unions-deep/index.js';
-export type { UnionRecord, UnionsIngestionResult } from './unions-deep/types.js';
+import { ingestAllUnions } from './unions/index.js';
+export { ingestAllUnions } from './unions/index.js';
+export type { UnionRecord, UnionsIngestionResult } from './unions/types.js';
 
 /* ── Corporate Filings ────────────────────────────────── */
 import { ingestAllFilings } from './corporate-filings/index.js';
 export { ingestAllFilings } from './corporate-filings/index.js';
 export type { CorporateFiling, CorporateFilingsIngestionResult } from './corporate-filings/types.js';
 
-/* ── Culture & Heritage Deep ──────────────────────────── */
-import { ingestAllCultureDeep } from './culture-deep/index.js';
-export { ingestAllCultureDeep } from './culture-deep/index.js';
-export type { CultureGrant, CultureDeepIngestionResult } from './culture-deep/types.js';
-
 /* ── Provincial Deep ──────────────────────────────────── */
-import { ingestAllProvincialDeep } from './provincial-deep/index.js';
-export { ingestAllProvincialDeep } from './provincial-deep/index.js';
-export type { ProvincialDataset, ProvincialDeepIngestionResult } from './provincial-deep/types.js';
+import { ingestAllProvincialDeep } from './provincial/index.js';
+export { ingestAllProvincialDeep } from './provincial/index.js';
+export type { ProvincialDataset, ProvincialDeepIngestionResult } from './provincial/types.js';
 
 /* ── Federal Deep ──────────────────────────────────────── */
-import { ingestAllFederalDeep } from './federal-deep/index.js';
-export { ingestAllFederalDeep } from './federal-deep/index.js';
-export type { FederalDataset, FederalDeepIngestionResult } from './federal-deep/types.js';
+import { ingestAllFederalDeep } from './federal/index.js';
+export { ingestAllFederalDeep } from './federal/index.js';
+export type { FederalDataset, FederalDeepIngestionResult } from './federal/types.js';
 
 /* ── GC Standards & Compatibility ──────────────────────── */
 export { GC_DEPARTMENTS, GC_DEPARTMENT_CODES, normalizeDepartment, A2AJ_DATASET_CODES, CANLII_COURT_IDS } from './gc-standards/index.js';
