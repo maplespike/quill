@@ -1,5 +1,5 @@
 /**
- * Procurement Connector — Frostbite Data Pipeline
+ * Procurement Connector — MapleSpike Pipeline
  *
  * Fetches Canadian government procurement contracts from:
  *   - CanadaBuys tender notices

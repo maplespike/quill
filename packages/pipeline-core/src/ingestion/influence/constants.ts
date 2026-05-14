@@ -1,5 +1,5 @@
 /**
- * Influence Tracking Constants — Frostbite Data Pipeline
+ * Influence Tracking Constants — MapleSpike Pipeline
  *
  * Catalog of tracked international organizations, NGOs, think tanks,
  * consultancies, and other influence actors that shape Canadian policy.

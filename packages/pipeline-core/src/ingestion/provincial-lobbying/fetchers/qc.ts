@@ -1,5 +1,5 @@
 /**
- * Quebec Lobbying Fetcher — Frostbite Data Pipeline
+ * Quebec Lobbying Fetcher — MapleSpike Pipeline
  *
  * Searches the Quebec Lobbyists Registry (lobbyists.quebec) for lobbying records.
  * Uses undici for HTTP (consistent with the rest of the pipeline).

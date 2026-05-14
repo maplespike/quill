@@ -1,5 +1,5 @@
 /**
- * Corporate Database — Frostbite Data Pipeline
+ * Corporate Database — MapleSpike Pipeline
  *
  * D1 SQLite persistence for corporate data:
  *   - lobbying_records (federal lobbying registry)

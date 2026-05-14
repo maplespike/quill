@@ -517,6 +517,42 @@ function findMatchesInMemory(
 }
 
 
+/**
+ * Search GIC appointments in-memory (no DB required).
+ * Fetches from available sources, parses, and filters.
+ */
+export async function searchGicAppointments(
+  options: {
+    query?: string;
+    category?: GICCategory;
+    limit?: number;
+  } = {},
+): Promise<GICAppointment[]> {
+  const fetched = await fetchGICAppointments({ limit: options.limit ?? 100 });
+  const appointments = await parseGICAppointments(fetched.records, {
+    sourceSystem: fetched.source,
+  });
+
+  let filtered = appointments;
+
+  if (options.category) {
+    filtered = filtered.filter(a => a.category === options.category);
+  }
+
+  if (options.query) {
+    const q = options.query.toLowerCase();
+    filtered = filtered.filter(a =>
+      a.appointeeName.toLowerCase().includes(q) ||
+      a.positionTitle.toLowerCase().includes(q) ||
+      a.organization.toLowerCase().includes(q) ||
+      a.department.toLowerCase().includes(q),
+    );
+  }
+
+  const cap = options.limit ?? 50;
+  return filtered.slice(0, cap);
+}
+
 export type {
   GICAppointment,
   GICCategory,

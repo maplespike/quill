@@ -1,5 +1,5 @@
 /**
- * AI Curation Prompts — Frostbite Data Pipeline
+ * AI Curation Prompts — MapleSpike Pipeline
  *
  * Canonical source for AI prompts used in article curation, insights, and bias analysis.
  * These were embedded inline in the Cloudflare Worker; extracted here as reusable constants.

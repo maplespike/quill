@@ -90,11 +90,11 @@ CREATE INDEX IF NOT EXISTS idx_audit_operation ON audit_log(operation);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 
 -- ═══════════════════════════════════════════════════════════════
--- SEED DATA — Internal tenant for Frostbite Gazette
+-- SEED DATA — Internal tenant for MapleSpike
 -- ═══════════════════════════════════════════════════════════════
 INSERT OR IGNORE INTO tenants (id, name, tier, journalism_mode) VALUES
-  ('fg-internal', 'Frostbite Gazette', 'internal', 1);
+  ('ms-internal', 'MapleSpike', 'internal', 1);
 
 -- Dev/test API key (SHA-256 of "maplespike-dev-key")
 INSERT OR IGNORE INTO api_keys (id, tenant_id, key_hash, name) VALUES
-  ('dev-key-1', 'fg-internal', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'dev');
+  ('dev-key-1', 'ms-internal', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'dev');

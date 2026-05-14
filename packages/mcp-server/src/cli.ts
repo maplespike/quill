@@ -31,7 +31,7 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
-const CLI_LOCALE = process.env.CIVINT_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
+const CLI_LOCALE = process.env.MAPLESPIKE_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
 
 console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
 

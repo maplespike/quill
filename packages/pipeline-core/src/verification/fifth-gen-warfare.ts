@@ -1,5 +1,5 @@
 /**
- * Fifth-Generation Warfare Defense — Frostbite Data Pipeline
+ * Fifth-Generation Warfare Defense — MapleSpike Pipeline
  *
  * Analyzes content for foreign influence and narrative manipulation patterns
  * characteristic of fifth-generation warfare (5GW):

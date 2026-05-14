@@ -1,5 +1,5 @@
 /**
- * Curation Scoring — Frostbite Data Pipeline
+ * Curation Scoring — MapleSpike Pipeline
  *
  * Types, scoring logic, and threshold evaluation for AI-curated articles.
  *

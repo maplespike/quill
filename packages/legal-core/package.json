@@ -1,0 +1,42 @@
+{
+  "name": "@maplespike/legal-core",
+  "version": "0.1.0",
+  "description": "MapleSpike Legal Core — typed client for Canadian case law, legislation, and tribunal data via CanLII API and A2AJ open corpus",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["canada", "legal", "case-law", "canlii", "a2aj", "legislation", "tribunals", "maplespike"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reverb256/maplespike.git",
+    "directory": "packages/legal-core"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {}
+}

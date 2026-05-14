@@ -1,76 +1,204 @@
+/**
+ * Cross-Reference Fetcher — MapleSpike Pipeline
+ *
+ * Searches across all 7 pipeline modules for entity mentions:
+ *   Lobbying Registry, GIC Appointments, Parliamentary Committees,
+ *   Elections & Campaign Finance, Government Contracts,
+ *   Influence Tracking, Court Decisions (CanLII)
+ *
+ * Each module is queried via its public API or web interface.
+ */
+
 import { computeHash } from '../../verification/hashing.js';
 import type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery } from './types.js';
-import { CROSS_REF_TIMEOUT_MS, CROSS_REF_UA, MAX_MATCHES_PER_SOURCE, CROSS_REF_MODULES } from './constants.js';
+import {
+  CROSS_REF_TIMEOUT_MS, CROSS_REF_UA,
+  MAX_MATCHES_PER_SOURCE, CROSS_REF_MODULES,
+} from './constants.js';
 
-/** Generic HTML search across a URL, extracting links */
-async function searchUrl(url: string): Promise<string | null> {
+const FETCH_TIMEOUT = { signal: AbortSignal.timeout(CROSS_REF_TIMEOUT_MS) };
+const FETCH_OPTS = { headers: { 'User-Agent': CROSS_REF_UA }, ...FETCH_TIMEOUT };
+
+async function fetchText(url: string): Promise<string | null> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), CROSS_REF_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': CROSS_REF_UA }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.text() : null;
+    const r = await fetch(url, FETCH_OPTS);
+    return r.ok ? await r.text() : null;
   } catch { return null; }
 }
 
-/** Search lobbying registry for entity */
+async function fetchJson(url: string): Promise<any> {
+  const t = await fetchText(url);
+  return t ? JSON.parse(t) : null;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Module-specific search functions                                   */
+/* ------------------------------------------------------------------ */
+
+/** 1. Lobbying Registry — direct web scrape */
 async function searchLobbying(query: string, limit: number): Promise<CrossReferenceMatch[]> {
   const matches: CrossReferenceMatch[] = [];
-  const html = await searchUrl(`https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=${encodeURIComponent(query)}`);
+  const html = await fetchText(
+    `https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=${encodeURIComponent(query)}`,
+  );
   if (!html) return matches;
-  const lp = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  const re = /<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   let m: RegExpExecArray | null;
-  while ((m = lp.exec(html)) !== null && matches.length < limit) {
+  while ((m = re.exec(html)) !== null && matches.length < limit) {
     const t = m[2].replace(/<[^>]+>/g, '').trim();
     if (t.length < 5) continue;
-    matches.push({ module: 'lobbying', sourceUrl: m[1].startsWith('http') ? m[1] : `https://lobbycanada.gc.ca${m[1]}`, date: '', title: t, description: `Lobbying registration related to "${query}"`, relevance: 'direct' });
+    matches.push({
+      module: 'lobbying', sourceUrl: m[1].startsWith('http') ? m[1] : `https://lobbycanada.gc.ca${m[1]}`,
+      date: '', title: t, description: `Lobbying registration related to "${query}"`, relevance: 'direct',
+    });
   }
   return matches;
 }
 
-/** Search open.canada.ca CKAN for entity mentions across modules */
-async function searchCkan(entity: string, module: string, limit: number): Promise<CrossReferenceMatch[]> {
+/** 2. GIC Appointments — CKAN search */
+async function searchGIC(query: string, limit: number): Promise<CrossReferenceMatch[]> {
   const matches: CrossReferenceMatch[] = [];
-  const data = await searchUrl(`https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(entity)}&rows=${limit}`);
-  if (!data) return matches;
-  try {
-    const parsed = JSON.parse(data);
-    for (const pkg of parsed?.result?.results ?? []) {
-      matches.push({
-        module, sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
-        date: pkg.metadata_created?.substring(0, 10) || '',
-        title: pkg.title || '', description: (pkg.notes || '').substring(0, 300),
-        relevance: 'indirect',
-      });
-    }
-  } catch { /* */ }
+  const data = await fetchJson(
+    `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(`governor+in+council+${query}`)}&rows=${limit}`,
+  );
+  for (const pkg of data?.result?.results ?? []) {
+    matches.push({
+      module: 'gic', sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
+      date: pkg.metadata_created?.substring(0, 10) || '',
+      title: pkg.title || '', description: (pkg.notes || '').substring(0, 300),
+      relevance: 'indirect',
+    });
+  }
   return matches;
 }
 
-/** Main cross-reference search across all modules */
+/** 3. Parliamentary Committees — ourcommons.ca */
+async function searchCommittees(query: string, limit: number): Promise<CrossReferenceMatch[]> {
+  const matches: CrossReferenceMatch[] = [];
+  const html = await fetchText(
+    `https://www.ourcommons.ca/Committees/en/Search?search=all&text=${encodeURIComponent(query)}`,
+  );
+  if (!html) return matches;
+  const re = /<a[^>]*href=["'](\/Committees\/en\/[^"']+)["'][^>]*>([^<]+)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null && matches.length < limit) {
+    const t = m[2].trim();
+    if (t.length < 5) continue;
+    matches.push({
+      module: 'committees', sourceUrl: `https://www.ourcommons.ca${m[1]}`,
+      date: '', title: t, description: `Committee mention of "${query}"`, relevance: 'indirect',
+    });
+  }
+  return matches;
+}
+
+/** 4. Elections Canada — CKAN */
+async function searchElections(query: string, limit: number): Promise<CrossReferenceMatch[]> {
+  const matches: CrossReferenceMatch[] = [];
+  const data = await fetchJson(
+    `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(`elections+${query}`)}&rows=${limit}`,
+  );
+  for (const pkg of data?.result?.results ?? []) {
+    matches.push({
+      module: 'elections', sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
+      date: pkg.metadata_created?.substring(0, 10) || '',
+      title: pkg.title || '', description: (pkg.notes || '').substring(0, 300),
+      relevance: 'indirect',
+    });
+  }
+  return matches;
+}
+
+/** 5. Government Contracts — CKAN proactive disclosure */
+async function searchContracts(query: string, limit: number): Promise<CrossReferenceMatch[]> {
+  const matches: CrossReferenceMatch[] = [];
+  const data = await fetchJson(
+    `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(`contract+${query}`)}&rows=${limit}`,
+  );
+  for (const pkg of data?.result?.results ?? []) {
+    matches.push({
+      module: 'proactive-disclosure', sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
+      date: pkg.metadata_created?.substring(0, 10) || '',
+      title: pkg.title || '', description: (pkg.notes || '').substring(0, 300),
+      relevance: 'indirect',
+    });
+  }
+  return matches;
+}
+
+/** 6. Influence Tracking — CKAN funding/grants */
+async function searchInfluence(query: string, limit: number): Promise<CrossReferenceMatch[]> {
+  return searchCkanGeneric(query, limit, 'influence', `grant+${query}`);
+}
+
+/** 7. Court Decisions — CanLII web search */
+async function searchCanLII(query: string, limit: number): Promise<CrossReferenceMatch[]> {
+  const matches: CrossReferenceMatch[] = [];
+  const html = await fetchText(
+    `https://www.canlii.org/en/search?text=${encodeURIComponent(query)}&page=1&resultCount=${limit}`,
+  );
+  if (!html) return matches;
+  const re = /<a[^>]*href=["'](\/[^"']+\/en\/[^"']+)["'][^>]*>([^<]+)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null && matches.length < limit) {
+    const t = m[2].trim();
+    if (t.length < 5) continue;
+    matches.push({
+      module: 'canlii', sourceUrl: `https://www.canlii.org${m[1]}`,
+      date: '', title: t, description: `Court decision referencing "${query}"`, relevance: 'direct',
+    });
+  }
+  return matches;
+}
+
+/** Generic CKAN package search helper */
+async function searchCkanGeneric(query: string, limit: number, module: string, searchQuery?: string): Promise<CrossReferenceMatch[]> {
+  const matches: CrossReferenceMatch[] = [];
+  const data = await fetchJson(
+    `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(searchQuery || query)}&rows=${limit}`,
+  );
+  for (const pkg of data?.result?.results ?? []) {
+    matches.push({
+      module, sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
+      date: pkg.metadata_created?.substring(0, 10) || '',
+      title: pkg.title || '', description: (pkg.notes || '').substring(0, 300),
+      relevance: 'indirect',
+    });
+  }
+  return matches;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main Cross-Reference Search                                        */
+/* ------------------------------------------------------------------ */
+
 export async function crossReferenceSearch(query: CrossReferenceQuery): Promise<CrossReferenceResult> {
   const now = new Date().toISOString();
   const entity = query.query.trim();
   const limit = query.limit ?? MAX_MATCHES_PER_SOURCE;
   const allMatches: CrossReferenceMatch[] = [];
 
-  // Search lobbying registry (primary source)
-  const lobbyingMatches = await searchLobbying(entity, limit);
-  allMatches.push(...lobbyingMatches);
+  // Search ALL 7 pipeline modules in parallel
+  const results = await Promise.allSettled([
+    searchLobbying(entity, limit),
+    searchGIC(entity, limit),
+    searchCommittees(entity, limit),
+    searchElections(entity, limit),
+    searchContracts(entity, limit),
+    searchInfluence(entity, limit),
+    searchCanLII(entity, limit),
+  ]);
 
-  // Search CKAN for entity mentions across government datasets
-  const ckanModules = ['GIC Appointments', 'Government Contracts', 'Campaign Finance', 'Influence'];
-  const ckanResults = await Promise.allSettled(
-    ckanModules.map(m => searchCkan(entity, m, Math.ceil(limit / ckanModules.length)))
-  );
-  for (const r of ckanResults) {
+  for (const r of results) {
     if (r.status === 'fulfilled') allMatches.push(...r.value);
   }
 
-  // Build timeline (sorted by date, newest first)
-  const timeline: CrossReferenceTimelineEntry[] = allMatches
-    .filter(m => m.date)
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 50)
-    .map(m => ({ date: m.date, module: m.module, event: m.title, sourceUrl: m.sourceUrl }));
+  // Build timeline sorted by date (newest first)
+  const dated = allMatches.filter(m => m.date);
+  dated.sort((a, b) => b.date.localeCompare(a.date));
+  const timeline: CrossReferenceTimelineEntry[] = dated.slice(0, 50).map(m => ({
+    date: m.date, module: m.module, event: m.title, sourceUrl: m.sourceUrl,
+  }));
 
   // Deduplicate by sourceUrl
   const seen = new Set<string>();
