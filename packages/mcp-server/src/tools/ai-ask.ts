@@ -77,9 +77,9 @@ export const handler: ToolHandler = async (args) => {
 
   try {
     // Step 1: Search live API
-    const result = await searchGovData(query, 'all', 15);
-    let searchResults = result.results;
-    let totalFound = result.total;
+    const searchResult = await searchGovData(query, 'all', 15);
+    const searchResults = (searchResult as any)?.results ?? [];
+    const totalFound = (searchResult as any)?.total ?? 0;
 
     // Step 2: Build context from pipeline results
     const contextParts: string[] = [];
@@ -112,7 +112,7 @@ Rules:
     const userMessage = `Question: ${query}${contextBlock}`;
 
     // Step 4: Send to AI Gateway for synthesis
-    const result = await chatCompletion(
+    const aiResult = await chatCompletion(
       [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
@@ -125,12 +125,12 @@ Rules:
         tool: 'ai_ask',
         query,
         sourceFilter: sourceFilter || undefined,
-        answer: result.content,
+        answer: (aiResult as any)?.content ?? '',
         citations,
         totalPipelineRecordsFound: totalFound,
         pipelineRecordsUsed: searchResults.length,
-        model: result.model,
-        usage: result.usage,
+        model: (aiResult as any)?.model ?? '',
+        usage: (aiResult as any)?.usage ?? {},
       },
     };
   } catch (error) {

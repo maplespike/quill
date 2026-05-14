@@ -258,21 +258,7 @@ export async function fetchCmhcData(
     case 'affordability':
       return fetchCmhcAffordability(year, options);
     default:
-      return {
-        records: [{
-          metricName: `${metric}_${year ?? 'all'}`,
-          metricType: metric,
-          geographicArea: 'Canada',
-          geographicLevel: 'national',
-          period: year ? String(year) : 'latest',
-          value: null,
-          unit: null,
-          housingType: 'all',
-          sourceUrl: CMHC_SOURCES.PORTAL,
-          sourceSystem: `cmhc-${metric}`,
-        }],
-        errors: [],
-      };
+      return { records: [], errors: [`Unknown CMHC metric: ${metric}`] };
   }
 }
 
