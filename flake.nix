@@ -1,5 +1,5 @@
 {
-  description = "MapleSpike Canada — Canadian sovereign data pipeline: ingestion, verification, audit, and civic intelligence";
+  description = "MapleSpike — Canadian sovereign data pipeline: ingestion, verification, audit, and civic intelligence";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
