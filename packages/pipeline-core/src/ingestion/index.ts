@@ -1596,6 +1596,15 @@ export type {
   ApprenticeshipRecord,
   EduIngestionResult,
 } from './education-research/types.js';
+/* ── Social Programs ──────────────────────────────────── */
+import { ingestAllSocialPrograms, searchSocialPrograms } from './social-programs/index.js';
+export { ingestAllSocialPrograms, searchSocialPrograms } from './social-programs/index.js';
+export {
+  SOCIAL_SOURCES as SOCIAL_PROGRAMS_SOURCES,
+  SOCIAL_CKAN_PACKAGE_IDS, SOCIAL_DDL,
+} from './social-programs/index.js';
+export type { CcbRecord, CppOasBeneficiary, EiRecord, PovertyRecord, SocialAssistanceRecord, FoodBankRecord, SocialIngestionResult } from './social-programs/types.js';
+
 /* ── Veterans ──────────────────────────────────────────── */
 import { ingestAllVeterans, searchVeterans } from './veterans/index.js';
 export { ingestAllVeterans, searchVeterans } from './veterans/index.js';
