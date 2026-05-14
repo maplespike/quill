@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MapleSpike SIGNAL — Real-Time Government Activity Monitoring</title>
+  <script src="/config.js"></script>
 <link rel="canonical" href="https://maplespike.ca/signal">
 <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/signal">
 <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/signal">
@@ -147,7 +148,9 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/guide/what-is-maplespike.html"><span class="nav-bracket">[</span>GUIDE<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/api/endpoints.html"><span class="nav-bracket">[</span>API<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/mcp/tools.html"><span class="nav-bracket">[</span>MCP<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -266,7 +269,10 @@ let alerts = [];  // Start empty
 // ── Fetch real alerts from API ──
 async function fetchAlerts() {
   try {
-    const resp = await fetch('http://127.0.0.1:8085/v1/gov/releases?limit=20', { signal: AbortSignal.timeout(5000) });
+    const _cfg = window.MAPLESPIKE || {};
+    const _base = _cfg.apiBase || 'http://127.0.0.1:8085';
+    const _to = _cfg.timeout || {};
+    const resp = await fetch(_base + '/v1/gov/releases?limit=20', { signal: AbortSignal.timeout(_to.quick || 5000) });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const json = await resp.json();
     if (json.success && json.data && json.data.length) {
@@ -482,9 +488,8 @@ resultEl.textContent = '✗ HTTP ' + resp.status;
 resultEl.className = 'test-result fail';
 }
 } catch (err) {
-// Simulate success for demo
-resultEl.textContent = '✓ Test sent (simulated)';
-resultEl.className = 'test-result success';
+resultEl.textContent = '✗ Connection failed — check URL and try again';
+resultEl.className = 'test-result fail';
 }
 
 btn.disabled = false;
@@ -500,6 +505,8 @@ document.documentElement.setAttribute('data-theme', theme);
 document.querySelectorAll('.theme-toggle').forEach(btn => {
 btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
 });
+}
 
 // ── Init ──
+initTheme();
 fetchAlerts();

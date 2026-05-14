@@ -33,6 +33,7 @@
     }
   }
   </script>
+  <script src="/config.js"></script>
 </head>
 <body>
 
@@ -45,7 +46,9 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/" class="active"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/guide/what-is-maplespike.html" class="active"><span class="nav-bracket">[</span>GUIDE<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/api/endpoints.html"><span class="nav-bracket">[</span>API<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/mcp/tools.html"><span class="nav-bracket">[</span>MCP<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -64,11 +67,11 @@
     <span>Quickstart</span>
     <span class="badge badge-green" class="doc-badge">LIVE</span>
   </div>
-  <h1 class="fade-in-init s2">One API key.<br>63 Canadian government data modules. Every response cited.</h1>
+  <h1 class="fade-in-init s2">One API key.<br>65 Canadian government data modules. Every response cited.</h1>
 
   <p class="doc-head-text">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
 
-  <div class="code-block" class="doc-code-block">
+  <div class="code-block doc-code-block">
 <span style="color:var(--text-muted);">// 30-second quickstart</span><br><br>
 <span style="color:var(--text-muted);">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br>
 &nbsp;&nbsp;-H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> \<br>
@@ -87,7 +90,7 @@
 }
   </div>
 
-  <div class="info-box" class="doc-info">
+  <div class="info-box doc-info">
     <strong style="color:var(--accent);">No key?</strong>
     <span style="color:var(--text-secondary);font-size:0.9rem;">Get one free at <a href="workspace.html" style="color:var(--accent-cyan);">workspace.html</a> — 1,000 calls/month included. Or pass <code class="doc-inline-code">_mock=true</code> for sample data with no upstream hit.</span>
   </div>
@@ -237,7 +240,7 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
   <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">06</span><span class="bracket">]</span>
     <span>MCP Tools</span>
-    <span class="badge badge-cyan" class="doc-badge">18 TOOLS</span>
+    <span class="badge badge-cyan" class="doc-badge">22 TOOLS</span>
   </div>
   <h2>Data tools for AI agents</h2>
   <p>All tools return the same <code class="doc-inline-code">{ data, quality, citation }</code> envelope. Connect any MCP client — or use the REST API directly:</p>
@@ -367,7 +370,7 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
       <h4>AI Tools</h4>
       <ul>
         <li><a href="agents.html">MCP Setup</a></li>
-        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/docs/guide/what-is-maplespike.html">Documentation</a></li>
       </ul>
     </div>
     <div>
@@ -386,5 +389,6 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
 </footer>
 
 <script src="script.js"></script>
+<script src="/nav.js"></script>
 </body>
 </html>
