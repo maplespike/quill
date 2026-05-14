@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: maplespike-sweep
+  namespace: ai-inference
+  labels:
+    app: maplespike-sweep
+    component: sweep-scheduler
+    tier: backend
+spec:
+  # Every 15 minutes — high-frequency sweep of all data sources
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: maplespike-sweep
+            component: sweep-scheduler
+            tier: backend
+        spec:
+          # Pin to nexus — no GPU needed, keep traffic local to the registry
+          nodeName: nexus
+          containers:
+            - name: maplespike-sweep
+              image: nexus:5000/maplespike-engine:latest
+              imagePullPolicy: Always
+              command:
+                - node
+                - packages/engine/dist/sweep/run.js
+              env:
+                - name: NODE_ENV
+                  value: "production"
+                - name: MAPLESPIKE_DB_PATH
+                  value: "/data/maplespike.db"
+              resources:
+                limits:
+                  cpu: "100m"
+                  memory: "128Mi"
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+          volumes:
+            - name: data
+              emptyDir: {}
+          restartPolicy: OnFailure
+      backoffLimit: 3

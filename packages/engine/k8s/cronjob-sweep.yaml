@@ -32,9 +32,9 @@ spec:
               env:
                 - name: NODE_ENV
                   value: "production"
-                - name: CIVINT_AI_ENDPOINT
+                - name: MAPLESPIKE_AI_ENDPOINT
                   value: "http://ai-inference-gateway:8080/v1"
-                - name: CIVINT_AI_MODEL
+                - name: MAPLESPIKE_AI_MODEL
                   value: "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"
               resources:
                 requests:

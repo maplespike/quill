@@ -37,9 +37,9 @@ spec:
               value: "8082"
             - name: NODE_ENV
               value: "production"
-            - name: CIVINT_STORAGE
+            - name: MAPLESPIKE_STORAGE
               value: "sqlite"
-            - name: CIVINT_DB_PATH
+            - name: MAPLESPIKE_DB_PATH
               value: "/data/maplespike.db"
             - name: AI_ENDPOINT
               value: "http://ai-inference-gateway:8080/v1"
