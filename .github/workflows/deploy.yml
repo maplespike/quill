@@ -65,6 +65,12 @@ jobs:
           git config user.name 'maplespike-bot'
           git config user.email 'bot@maplespike.ca'
 
+      - name: Strip dev artifacts before merge
+        run: |
+          rm -rf .devenv .hermes 2>/dev/null || true
+          git add -A 2>/dev/null || true
+          git diff --cached --quiet || git commit -n -m 'chore: strip dev artifacts for prod'
+
       - name: Merge main into prod
         run: |
           git fetch origin prod
