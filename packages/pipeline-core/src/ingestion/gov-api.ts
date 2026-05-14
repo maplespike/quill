@@ -59,6 +59,7 @@ export async function fetchStatCanReleases(
     // getAllCubesListLite is the current endpoint (getAllCubes deprecated)
     const response = await fetch(`${STATCAN_WDS_BASE}/getAllCubesListLite`, {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!response.ok) {
@@ -116,6 +117,7 @@ export async function fetchCKANPackages(
 
   try {
     const response = await fetch(url, {
+      signal: AbortSignal.timeout(15000),
       headers: { Accept: 'application/json' },
     });
 
@@ -205,6 +207,7 @@ async function fetchSocrataDatasets(
     const catalogUrl = `${source.endpoint}/data.json`;
     const response = await fetch(catalogUrl, {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!response.ok) {
@@ -240,6 +243,7 @@ async function fetchArcGISDatasets(
     const searchUrl = `${source.endpoint}/api/search/v1?q=*&size=${limit}`;
     const response = await fetch(searchUrl, {
       headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!response.ok) {

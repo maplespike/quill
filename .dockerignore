@@ -1,0 +1,16 @@
+# MapleSpike — .dockerignore
+# Prevents local artifacts from leaking into Docker build context
+
+node_modules
+dist
+.git
+.gitignore
+*.md
+*.log
+.env
+.env.*
+!.env.example
+pnpm-lock.yaml
+tsconfig.tsbuildinfo
+coverage
+.turbo
