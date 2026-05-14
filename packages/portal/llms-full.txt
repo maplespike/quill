@@ -27,7 +27,7 @@ MapleSpike is self-hosted on your K3s cluster. API keys are managed by the clust
 Ask your cluster admin for your API key.
 
 ```bash
-export CIVINT_API_KEY="<ask-operator>"
+export MAPLESPIKE_API_KEY="<ask-operator>"
 ```
 
 ### 1.2 Make Your First API Call
@@ -306,7 +306,7 @@ Every response follows a consistent envelope with provenance metadata:
 {
   "data": { ... },
   "meta": {
-    "requestId": "civint-a1b2c3d4e5f6",
+    "requestId": "maplespike-a1b2c3d4e5f6",
     "timestamp": "2026-05-12T04:00:00Z",
     "tier": "free",
     "callsUsed": 42,
