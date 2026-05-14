@@ -203,7 +203,7 @@ export interface RouteContext {
 
 export interface MapleSpikeStorage {
   /** Look up tenant + API key by raw key value. Returns null if invalid. */
-  authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null>;
+  authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null>;
   /** Get current daily call count for a tenant. */
   getDailyUsage(tenantId: string, date: string): Promise<number>;
   /** Get current monthly call count for a tenant. */

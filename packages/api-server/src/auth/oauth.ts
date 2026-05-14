@@ -202,16 +202,13 @@ export async function loginWithOAuth(
   let isNewUser = false;
   if (!user) {
     isNewUser = true;
-    const ghProfile: GitHubProfile = {
-      id: parseInt(profile.providerId, 10) || 0,
-      login: profile.name || profile.providerId,
+    user = createUser({
+      id: Number(profile.providerId) || Date.now(),
+      login: profile.name ?? profile.providerId,
       name: profile.name,
       email: profile.email,
       avatar_url: profile.avatarUrl,
-      provider: profile.provider,
-      provider_id: profile.providerId,
-    };
-    user = createUser(ghProfile);
+    });
   }
 
   const tenant = getTenantForUser(userId);
