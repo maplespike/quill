@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleSpike — Data Explorer</title>
+  <title>MapleSpike — Data Explorer: Browse all 28 Canadian government data sources</title>
   <link rel="canonical" href="https://maplespike.ca/explorer">
   <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/explorer">
   <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/explorer">
@@ -32,7 +32,6 @@
   <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
   <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
 
-
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -45,8 +44,6 @@
   }
   </script>
 
-
-
   <link rel="preconnect" href="https://www.google.com" crossorigin>
   <link rel="manifest" href="/manifest.json">
   <meta name="msapplication-config" content="/browserconfig.xml">
@@ -57,6 +54,26 @@
 </head>
 <body>
 
+<style>nav { top: 22px !important; } body { padding-top: calc(22px + 64px); }</style>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="signal.html"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
+      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
+      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html" class="active"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+  </div>
 </nav>
 
 <!-- ═══ EXPLORER HEADER ═══ -->
@@ -104,7 +121,7 @@
       <h4>Product</h4>
       <ul>
         <li><a href="index.html">Home</a></li>
-        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
         <li><a href="docs.html">Documentation</a></li>
         <li><a href="workspace.html">Workspace</a></li>
       </ul>

@@ -43,7 +43,7 @@
   <style>
     /* Inline placeholder for critical hero animations */
     @keyframes livePulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity:0.6; box-shadow:0 0 0 4px rgba(16,185,129,0); } }
-
+    
     @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
     .fade-in-init { animation:fadeUp 0.6s ease forwards; opacity:0; }
     .fade-in-init.s1 { animation-delay:0.1s; }
@@ -52,7 +52,6 @@
     .fade-in-init.s4 { animation-delay:0.4s; }
     .fade-in-init.s5 { animation-delay:0.5s; }
   </style>
-
 
   <link rel="preconnect" href="https://www.google.com" crossorigin>
   <link rel="manifest" href="/manifest.json">
@@ -64,6 +63,25 @@
 </head>
 <body>
 
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="signal.html"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
+      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
+      <li><a href="#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+  </div>
 </nav>
 
 <!-- ═══ HERO ═══ -->
@@ -84,6 +102,11 @@
 
   <div class="hero-watermark" style="z-index:1;"></div>
 
+  <div class="product-badges fade-in-init s1">
+    <span class="product-badge"><span class="product-icon">▦</span> DATA</span>
+    <span class="product-badge"><span class="product-icon">◐</span> SIGNAL</span>
+    <span class="product-badge"><span class="product-icon">✦</span> ASK</span>
+  </div>
 
   <h1 class="fade-in-init s2">
     Track every government decision.<br>
@@ -531,18 +554,77 @@
   </div>
 </section>
 
-<!-- ═══ PRICING CTA ═══ -->
+<!-- ═══ PRICING ═══ -->
 <section class="section" id="pricing">
   <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
     <span style="color:var(--text-muted);font-size:0.85rem;">Pricing</span>
   </div>
   <div class="section-header fade-in">
-    <h2>Simple, transparent pricing.</h2>
-    <p>Free tier for journalists and researchers. Pro for production. Business for teams. No hidden fees, no contracts.</p>
+    <h2>Simple, transparent pricing</h2>
+    <p>Start for free. Scale as you grow. No hidden fees, no contracts, no surprise bills.</p>
   </div>
-  <div style="text-align:center;padding:32px 0;">
-    <a href="pricing.html" class="btn btn-primary btn-hero" style="font-size:1.05rem;padding:16px 40px;">See Full Pricing →</a>
+
+  <div class="pricing-toggle fade-in">
+    <span class="toggle-label" data-off>Monthly</span>
+    <div class="toggle-track" role="button" tabindex="0" aria-label="Toggle annual pricing"></div>
+    <span class="toggle-label" data-on>Annual <span class="save-badge">Save ~15%</span></span>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="pricing-card fade-in">
+      <div class="plan-name">Public</div>
+      <div class="price" data-monthly="$0" data-yearly="$0"><span class="amount">$0</span> <span class="period">/mo</span></div>
+      <div class="description">Free civic access for all Canadians. Transparency for everyone.</div>
+      <ul class="features">
+        <li>1,000 API calls/month</li>
+        <li>REST + MCP access</li>
+        <li>Community support</li>
+        <li>Attribution required</li>
+        <li>Rate-limited (10 req/s)</li>
+      </ul>
+      <a href="workspace.html" class="btn btn-secondary">Get Started</a>
+    </div>
+
+    <div class="pricing-card featured fade-in stagger-1">
+      <div class="popular-badge">POPULAR</div>
+      <div class="plan-name">Civic</div>
+      <div class="price" data-monthly="$49" data-yearly="$499" data-months-free="2"><span class="amount">$49</span> <span class="period">/mo</span></div>
+      <div class="description">For journalists, researchers, and civic tech teams.</div>
+      <ul class="features">
+        <li>50,000 API calls/month</li>
+        <li>Priority rate limits (100 req/s)</li>
+        <li>Bias analysis &amp; trust scores</li>
+        <li>SHA-256 citation hashes</li>
+        <li>Email support (48h SLA)</li>
+      </ul>
+      <a href="mailto:maplespike@reverb256.ca" class="btn btn-primary">Subscribe →</a>
+    </div>
+
+    <div class="pricing-card fade-in stagger-2">
+      <div class="plan-name">Enterprise</div>
+      <div class="price" data-monthly="$199" data-yearly="$1,999" data-months-free="2"><span class="amount">$199</span> <span class="period">/mo</span></div>
+      <div class="description">For newsrooms, civic orgs, and production apps.</div>
+      <ul class="features">
+        <li>250,000 API calls/month</li>
+        <li>Custom rate limits (500 req/s)</li>
+        <li>Audit log export &amp; provenance chain</li>
+        <li>Custom MCP tool definitions</li>
+        <li>SLA with 24h support</li>
+      </ul>
+      <a href="mailto:maplespike@reverb256.ca" class="btn btn-secondary">Subscribe →</a>
+    </div>
+  </div>
+
+  <div class="pricing-enterprise fade-in">
+    <h3>Need more?</h3>
+    <p>Enterprise tier for government agencies and large organizations. Self-hosted option, unlimited calls, dedicated MCP server, full audit and provenance package with SLA.</p>
+    <a href="mailto:maplespike@reverb256.ca" class="btn btn-primary">Contact Sales</a>
+  </div>
+
+  <div class="pricing-footer fade-in">
+    <span class="badge badge-green">&#x2713; AIDA-compliant audit trails</span>
+    <span class="badge" style="margin-left:8px;display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 12px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);">Bill C-27 ready</span>
   </div>
 </section>
 
@@ -592,7 +674,7 @@
       <h4>Product</h4>
       <ul>
         <li><a href="explorer.html">Data Sources</a></li>
-        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="#pricing">Pricing</a></li>
         <li><a href="docs.html">Documentation</a></li>
         <li><a href="workspace.html">Workspace</a></li>
       </ul>
@@ -809,8 +891,37 @@
     });
   }
 
-  // ── Pricing Toggle (removed — now on /pricing.html) ──
-  function setupPricingToggle() {}
+  // ── Pricing Toggle ──
+  function setupPricingToggle() {
+    const toggle = document.querySelector('.pricing-toggle .toggle-track');
+    const container = document.querySelector('.pricing-toggle');
+    if (!toggle || !container) return;
+    let isAnnual = false;
+    toggle.addEventListener('click', () => {
+      isAnnual = !isAnnual;
+      container.classList.toggle('active');
+      document.querySelectorAll('.pricing-card').forEach(card => {
+        const monthlyPrice = card.querySelector('.price[data-monthly]');
+        const annualPrice = card.querySelector('.price[data-yearly]');
+        if (monthlyPrice && annualPrice) {
+          const amount = card.querySelector('.amount');
+          const period = card.querySelector('.period');
+          if (isAnnual) {
+            amount.textContent = annualPrice.dataset.yearly || monthlyPrice.dataset.monthly;
+            period.textContent = '/yr';
+            const monthsFree = annualPrice.dataset.monthsFree;
+            if (monthsFree && amount.textContent !== '$0') {
+              const badge = container.querySelector('.save-badge');
+              if (badge) badge.textContent = 'Save ' + monthsFree + ' months';
+            }
+          } else {
+            amount.textContent = monthlyPrice.dataset.monthly;
+            period.textContent = '/mo';
+          }
+        }
+      });
+    });
+  }
 
   // ── Copy Curl ──
   window.copyCurl = function() {
