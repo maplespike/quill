@@ -52,6 +52,15 @@ import { auditQueryHandler } from './routes/audit.js';
 import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, meHandler } from './routes/register.js';
+import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
+import {
+  passkeyRegisterBeginHandler,
+  passkeyRegisterCompleteHandler,
+  passkeyLoginBeginHandler,
+  passkeyLoginCompleteHandler,
+  passkeyListHandler,
+  passkeyDeleteHandler,
+} from './routes/auth-passkey.js';
 // signalsHandler is lazy-loaded dynamically — see ROUTES
 import { listKeysHandler, createKeyHandler, deleteKeyHandler } from './routes/keys.js';
 import {
@@ -84,6 +93,16 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/auth\/refresh\/?$/, method: 'POST', params: [], handler: refreshTokenHandler },
   { pattern: /^\/v1\/auth\/logout\/?$/, method: 'POST', params: [], handler: logoutHandler },
   { pattern: /^\/v1\/auth\/me\/?$/, method: 'GET', params: [], handler: authMeHandler },
+  // Web3 wallet auth
+  { pattern: /^\/v1\/auth\/web3\/challenge\/?$/, method: 'POST', params: [], handler: web3ChallengeHandler },
+  { pattern: /^\/v1\/auth\/web3\/login\/?$/, method: 'POST', params: [], handler: web3LoginHandler },
+  // Passkey / WebAuthn auth
+  { pattern: /^\/v1\/auth\/passkey\/register\/begin\/?$/, method: 'POST', params: [], handler: passkeyRegisterBeginHandler },
+  { pattern: /^\/v1\/auth\/passkey\/register\/complete\/?$/, method: 'POST', params: [], handler: passkeyRegisterCompleteHandler },
+  { pattern: /^\/v1\/auth\/passkey\/login\/begin\/?$/, method: 'POST', params: [], handler: passkeyLoginBeginHandler },
+  { pattern: /^\/v1\/auth\/passkey\/login\/complete\/?$/, method: 'POST', params: [], handler: passkeyLoginCompleteHandler },
+  { pattern: /^\/v1\/auth\/passkey\/credentials\/?$/, method: 'GET', params: [], handler: passkeyListHandler },
+  { pattern: /^\/v1\/auth\/passkey\/credentials\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: passkeyDeleteHandler },
 ];
 
 /**
@@ -182,7 +201,14 @@ export async function handleRequest(
     || route.handler === githubLoginHandler
     || route.handler === githubCallbackHandler
     || route.handler === refreshTokenHandler
-    || route.handler === logoutHandler;
+    || route.handler === logoutHandler
+    // Web3 + Passkey auth entry points
+    || route.handler === web3ChallengeHandler
+    || route.handler === web3LoginHandler
+    || route.handler === passkeyRegisterBeginHandler
+    || route.handler === passkeyRegisterCompleteHandler
+    || route.handler === passkeyLoginBeginHandler
+    || route.handler === passkeyLoginCompleteHandler;
 
   const tenant = authExempt
     ? null
