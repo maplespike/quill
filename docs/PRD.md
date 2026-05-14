@@ -1,4 +1,4 @@
-# MapleSpike Canada — Engineering Architecture Document
+# MapleSpike — Engineering Architecture Document
 
 **Version:** v6
 **Status:** Active
@@ -9,7 +9,7 @@
 
 ## 1. Product Overview
 
-MapleSpike Canada is Canada's sovereign, AI-native government data pipeline. It wraps the `@maplespike/pipeline-core` library into a hosted, multi-module data pipeline that provides a unified REST + MCP API for Canadian government data — including Statistics Canada cubes, open.canada.ca CKAN portals, provincial data, citation verification (SHA-256), trust-scored responses, and immutable audit trails.
+MapleSpike is Canada's sovereign, AI-native government data pipeline. It wraps the `@maplespike/pipeline-core` library into a hosted, multi-module data pipeline that provides a unified REST + MCP API for Canadian government data — including Statistics Canada cubes, open.canada.ca CKAN portals, provincial data, citation verification (SHA-256), trust-scored responses, and immutable audit trails.
 
 One API key grants access to every major Canadian government dataset, packaged with machine-readable citations, provenance metadata, and trust scores.
 

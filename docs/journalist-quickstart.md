@@ -1,4 +1,4 @@
-# MapleSpike Canada — Journalist Quickstart
+# MapleSpike — Journalist Quickstart
 
 > **Access Canadian government data through MCP tools. No more scraping portals or waiting on ATI.**
 >

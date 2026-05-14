@@ -1,4 +1,4 @@
-# MapleSpike Canada — Roadmap
+# MapleSpike — Roadmap
 
 > This file is a synced copy of `/data/projects/own/maplespike/ROADMAP.md` (the root-level canonical document).
 >
