@@ -6,39 +6,58 @@
  *   - Provincial CKAN portals (package_search for regulator datasets)
  *   - Known regulator website scraping (decisions, orders, publications)
  *   - Open Canada CKAN federation
+ *
+ * Uses the shared httpGet() utility from ../../utils/http.ts (undici-backed).
  */
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } from './types.js';
 import {
-  REGULATOR_UA, REGULATOR_TIMEOUT_MS, MAX_REGULATOR_RECORDS,
+  REGULATOR_UA, REGULATOR_TIMEOUT_MS, MAX_REGULATOR_RECORDS, MAX_SCRAPE_TARGETS,
   PROVINCIAL_CKAN, REGULATORY_KEYWORDS, KNOWN_REGULATORS,
   ALL_REGULATOR_PROVINCES, TOTAL_KNOWN_REGULATORS,
   REGULATOR_CATEGORIES,
 } from './constants.js';
 
+/* ------------------------------------------------------------------ */
+/*  Shared helpers (wrapping httpGet)                                  */
+/* ------------------------------------------------------------------ */
+
+/** Fetch and parse JSON using the project's httpGet() utility. */
 async function fetchJson(url: string): Promise<any> {
   try {
-    const c = new AbortController();
-    const t = setTimeout(() => c.abort(), REGULATOR_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': REGULATOR_UA }, signal: c.signal });
-    clearTimeout(t);
-    if (!r.ok) return null;
-    return await r.json();
-  } catch { return null; }
+    const resp = await httpGet(url, {
+      headers: { 'User-Agent': REGULATOR_UA },
+      timeoutMs: REGULATOR_TIMEOUT_MS,
+    });
+    if (!resp.body) return null;
+    return await resp.json();
+  } catch {
+    return null;
+  }
 }
 
+/** Fetch raw text using the project's httpGet() utility. */
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const c = new AbortController();
-    const t = setTimeout(() => c.abort(), REGULATOR_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': REGULATOR_UA }, signal: c.signal });
-    clearTimeout(t);
-    return r.ok ? await r.text() : null;
-  } catch { return null; }
+    const resp = await httpGet(url, {
+      headers: { 'User-Agent': REGULATOR_UA },
+      timeoutMs: REGULATOR_TIMEOUT_MS,
+    });
+    return resp.body || null;
+  } catch {
+    return null;
+  }
 }
+
+/* ------------------------------------------------------------------ */
+/*  CKAN Portal Search                                                 */
+/* ------------------------------------------------------------------ */
 
 /**
  * Search a provincial CKAN portal for regulator-related datasets.
+ * Queries the CKAN package_search API with a keyword and returns
+ * structured ProvincialRegulatorRecord entries.
  */
 async function searchProvincialCkan(
   province: string,
@@ -49,7 +68,7 @@ async function searchProvincialCkan(
   const now = new Date().toISOString();
   if (!ckanBase) return records;
 
-  // Search for regulator keywords
+  // Search for regulator keywords via CKAN package_search
   const url = `${ckanBase}/package_search?q=${encodeURIComponent(keyword)}&rows=20`;
   const data = await fetchJson(url);
   if (!data?.result?.results) return records;
@@ -70,9 +89,14 @@ async function searchProvincialCkan(
   return records;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Regulator Website Scraper                                          */
+/* ------------------------------------------------------------------ */
+
 /**
  * Scrape a known regulator's website for recent decisions/publications.
- * Attempts to fetch common decision/order/publication page patterns.
+ * Attempts to fetch common decision/order/publication page patterns
+ * and extract dated links from the HTML.
  */
 async function scrapeRegulatorSite(
   province: string,
@@ -115,8 +139,21 @@ async function scrapeRegulatorSite(
   return records;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Main Ingestion Entry Point                                         */
+/* ------------------------------------------------------------------ */
+
 /**
  * Fetch all provincial regulator data.
+ *
+ * Two-phase approach:
+ *   1. CKAN portal searches — query the 11 provincial CKAN portals for
+ *      regulator-related datasets using regulatory keywords.
+ *   2. Known regulator website scraping — visit each known regulator's
+ *      website and try to find recent decisions/publications.
+ *
+ * Returns a ProvincialRegulatorsIngestionResult containing all records,
+ * any errors encountered, and timing/source metadata.
  */
 export async function ingestAllRegulators(): Promise<ProvincialRegulatorsIngestionResult> {
   const startTime = Date.now();
@@ -139,19 +176,22 @@ export async function ingestAllRegulators(): Promise<ProvincialRegulatorsIngesti
     if (records.length >= MAX_REGULATOR_RECORDS) break;
   }
 
-  // 2. Known regulator websites (scrape for decisions/publications)
+  // 2. Known regulator websites (scrape for decisions/publications, with limit)
+  let scrapeCount = 0;
   for (const province of ALL_REGULATOR_PROVINCES) {
     const regulators = KNOWN_REGULATORS[province] ?? [];
     for (const reg of regulators) {
+      if (scrapeCount >= MAX_SCRAPE_TARGETS) break;
       try {
         const scrapedRecords = await scrapeRegulatorSite(province, reg.name, reg.url, reg.category);
         records.push(...scrapedRecords);
+        scrapeCount++;
         if (records.length >= MAX_REGULATOR_RECORDS) break;
       } catch (e) {
         errors.push(`${province}/${reg.name}: ${(e as Error).message}`);
       }
     }
-    if (records.length >= MAX_REGULATOR_RECORDS) break;
+    if (scrapeCount >= MAX_SCRAPE_TARGETS || records.length >= MAX_REGULATOR_RECORDS) break;
   }
 
   return {
