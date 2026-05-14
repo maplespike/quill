@@ -1669,6 +1669,9 @@ import { ingestAllFederalDeep } from './federal-deep/index.js';
 export { ingestAllFederalDeep } from './federal-deep/index.js';
 export type { FederalDataset, FederalDeepIngestionResult } from './federal-deep/types.js';
 
+/* ── GC Standards & Compatibility ──────────────────────── */
+export { GC_DEPARTMENTS, GC_DEPARTMENT_CODES, normalizeDepartment, A2AJ_DATASET_CODES, CANLII_COURT_IDS } from './gc-standards/index.js';
+
 /* ── A2AJ Legal API ────────────────────────────────────── */
 import { ingestAllA2aj, fetchCoverage, fetchByCitation, searchA2aj, A2AJ_ENDPOINTS, TRACKED_DATASETS } from './a2aj/index.js';
 export { ingestAllA2aj, fetchCoverage, fetchByCitation, searchA2aj, A2AJ_ENDPOINTS, TRACKED_DATASETS } from './a2aj/index.js';
