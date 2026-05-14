@@ -45,7 +45,7 @@ function sendSse(res: ServerResponse, event: string, data: unknown): void {
 }
 
 function authenticate(req: IncomingMessage): boolean {
-  if (API_KEY === 'dev-key') return true; // dev mode — no auth
+  if (API_KEY === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
   const auth = req.headers.authorization ?? '';
   return auth === `Bearer ${API_KEY}` || auth === `Bearer ${Buffer.from(API_KEY).toString('base64')}`;
 }
