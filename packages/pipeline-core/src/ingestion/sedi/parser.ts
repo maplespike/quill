@@ -284,8 +284,6 @@ export async function parseSediReport(
     return [];
   }
 
-  console.log(`[SEDI] Extracted ${rawRows.length} raw rows from HTML`);
-
   // Step 2: Normalize each row into an InsiderTransaction
   const transactions: InsiderTransaction[] = [];
   let errors = 0;
@@ -298,16 +296,12 @@ export async function parseSediReport(
       }
     } catch (err) {
       errors++;
-      const msg = err instanceof Error ? err.message : String(err);
-      console.warn(`[SEDI] Error normalizing row (${row.insiderName}): ${msg}`);
     }
   }
 
   if (errors > 0) {
-    console.warn(`[SEDI] ${errors} row(s) failed normalization`);
   }
 
-  console.log(`[SEDI] Normalized ${transactions.length} insider transactions`);
   return transactions;
 }
 

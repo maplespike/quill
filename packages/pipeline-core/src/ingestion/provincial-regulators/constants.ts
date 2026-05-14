@@ -8,6 +8,7 @@
 export const REGULATOR_UA = 'MapleSpike-ProvRegulators/1.0';
 export const REGULATOR_TIMEOUT_MS = 15_000;
 export const MAX_REGULATOR_RECORDS = 5_000;
+export const MAX_SCRAPE_TARGETS = 20; // Max regulators to scrape per run (prevents timeouts)
 
 /** CKAN portals for provinces with open data */
 export const PROVINCIAL_CKAN: Record<string, string> = {
