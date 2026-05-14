@@ -29,7 +29,7 @@ export interface ProvincialOrgConfig {
 }
 
 /** A record fetched from a provincial oversight body */
-export interface ProvincialRecord {
+export interface ProvincialOrgRecord {
   bodyCode: string;
   bodyName: string;
   bodyType: OversightBodyType;
@@ -44,7 +44,7 @@ export interface ProvincialRecord {
 
 /** Result of a provincial-orgs ingestion run */
 export interface ProvincialOrgIngestionResult {
-  records: ProvincialRecord[];
+  records: ProvincialOrgRecord[];
   sourcesAttempted: number;
   sourcesSucceeded: number;
   errors: { source: string; error: string }[];
