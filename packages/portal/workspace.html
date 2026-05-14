@@ -56,30 +56,7 @@
 </head>
 <body>
 
-<!-- ═══ Ticker ═══ -->
-<div class="ticker">
-  <div class="ticker-inner">
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-  </div>
-</div>
-
 <!-- ═══ Navigation ═══ -->
-<style>nav { top: 22px !important; } body { padding-top: calc(22px + 64px); }</style>
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo">
@@ -244,10 +221,51 @@
       <a href="index.html#pricing" class="btn btn-primary" style="width:100%;">Upgrade Plan →</a>
     </div>
 
+    <!-- ═══ Auth Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[05]</span>Authentication</h2>
+        <span class="live-badge" id="auth-status-badge"><span class="live-dot" id="auth-dot"></span> <span id="auth-status-label">Not signed in</span></span>
+      </div>
+
+      <!-- OAuth section (shown when not authenticated) -->
+      <div id="auth-oauth-section">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Sign in to manage your API keys, view usage, and link multiple authentication methods.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="oauth-button-list"></div>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">
+          Also available: <a href="#" onclick="showPasskeyLogin()" style="color:var(--accent-cyan);">Passkey</a>,
+          <a href="#" onclick="showWeb3Login()" style="color:var(--accent-cyan);">Web3 Wallet</a>
+        </p>
+      </div>
+
+      <!-- Session section (shown when authenticated) -->
+      <div id="auth-session-section" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Signed in as</span>
+            <span style="font-weight:600;" id="auth-user-name">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">User ID</span>
+            <span style="font-weight:600;font-family:var(--font-mono);font-size:0.78rem;" id="auth-user-id">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Auth method</span>
+            <span style="font-weight:600;" id="auth-method">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Tier</span>
+            <span style="font-weight:600;" id="auth-tier">—</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="width:100%;" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+
     <!-- ═══ MCP Config Panel ═══ -->
     <div class="workspace-panel">
       <div class="panel-header">
-        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[05]</span>MCP Connection</h2>
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[06]</span>MCP Connection</h2>
       </div>
       <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Use these details to connect MapleSpike to your AI tools via the Model Context Protocol.</p>
       <div style="margin-bottom:12px;">
@@ -454,6 +472,65 @@
     els.forEach(el => observer.observe(el));
   }
 
+  // ── Auth ──
+  async function loadOAuthProviders() {
+    try {
+      const resp = await fetch('/v1/auth/oauth/providers');
+      const data = await resp.json();
+      const providers = data?.data?.providers || [];
+      const list = document.getElementById('oauth-button-list');
+      if (!list) return;
+      if (providers.length === 0) {
+        list.innerHTML = '<p style="font-size:0.82rem;color:var(--text-muted);">No OAuth providers configured.</p>';
+        return;
+      }
+      list.innerHTML = providers.map(p => {
+        const icon = p.name === 'github'
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>'
+          : '';
+        return `<a href="/v1/auth/oauth/${p.name}" class="btn btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;">${icon} Continue with ${p.label}</a>`;
+      }).join('');
+    } catch { /* pass — OAuth list is a bonus feature */ }
+  }
+
+  function showPasskeyLogin() {
+    alert('Passkey login not yet wired in the browser. Use the API: POST /v1/auth/passkey/login/begin');
+  }
+
+  function showWeb3Login() {
+    alert('Web3 wallet login not yet wired in the browser. Use the API: POST /v1/auth/web3/challenge');
+  }
+
+  function logout() {
+    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.getElementById('auth-oauth-section').style.display = '';
+    document.getElementById('auth-session-section').style.display = 'none';
+    document.getElementById('auth-status-label').textContent = 'Not signed in';
+    document.getElementById('auth-dot').style.background = 'var(--text-muted)';
+  }
+
+  async function checkAuth() {
+    const token = document.cookie.split('; ').find(r => r.startsWith('session='));
+    if (!token) return;
+    try {
+      const resp = await fetch('/v1/auth/me', {
+        headers: { 'Authorization': `Bearer ${token.split('=')[1]}` }
+      });
+      const data = await resp.json();
+      if (data.success && data.data) {
+        const user = data.data;
+        document.getElementById('auth-oauth-section').style.display = 'none';
+        document.getElementById('auth-session-section').style.display = '';
+        document.getElementById('auth-status-label').textContent = 'Signed in';
+        document.getElementById('auth-dot').style.background = 'var(--success)';
+        document.getElementById('auth-user-name').textContent = user.name || user.email || user.sub || 'User';
+        document.getElementById('auth-user-id').textContent = user.sub || '—';
+        document.getElementById('auth-method').textContent = user.authMethod || 'session';
+        document.getElementById('auth-tier').textContent = user.tier || 'free';
+      }
+    } catch { /* Not authenticated */ }
+  }
+
   // ── Init ──
   initTheme();
   setupThemeToggle();
@@ -462,6 +539,8 @@
   renderRequestLog();
   fetchUsage();
   setInterval(fetchUsage, 30000);
+  loadOAuthProviders();
+  checkAuth();
 })();
 </script>
 </body>
