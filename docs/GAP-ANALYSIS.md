@@ -1,9 +1,20 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike — Canadian Data Source Gap Analysis
 
 > **Created:** 2026-05-13
-> **Updated:** 2026-05-14 (current: 61 ingestion modules, ~113K lines TS, 10 packages)
-> **Current state:** 61 ingestion modules, ~113,000 lines of TypeScript
+> **Updated:** 2026-05-14
+> **Current state:** 65 modules registered in `registry.ts`, 61 ingestion directories, ~113K lines TS, 10 packages
+> **See also:** [docs/metrics.json](./metrics.json) for current auto-derived counts
 > **Estimated total coverage of meaningful Canadian public data:** ~95% of high-value accountability data
+
+**Note:** This document was originally written when MapleSpike had 28 modules. The session closing below
+describes the expansion to 47+ modules. The module registry now lists 65 entries. The gap analysis body
+below still references "28 modules" in its executive summary — this is the historical baseline from which
+we expanded. For current counts, see [docs/metrics.json](./metrics.json).
 
 ## SESSION CLOSING SUMMARY (May 13, 2026)
 
@@ -34,8 +45,8 @@
 | SDK | Not started | @maplespike/sdk v0.2.0 — dual CJS/ESM, typed client for all 47 modules, Changesets + release workflow |
 | Culture skeleton | 70 lines, basic CKAN | Expanded with Canada Council, Telefilm, CRTC ownership, multiple CKAN queries |
 
-### What We Demonstrated
-- **47 modules**, 81,857 lines, zero stubs
+### What We Demonstrated (at that time — historical snapshot)
+- **47 modules**, 81,857 lines, zero stubs *(current: 65 modules, ~113K lines)*
 - **1,141 unique external endpoints** consumed across all modules
 - **28 CLI pipelines** registered
 - **All 13 provinces/territories** at full oversight coverage (273 regulators, 21 categories)
@@ -546,53 +557,58 @@ Have some via oversight module. Missing:
 
 ## EXECUTIVE SUMMARY
 
-### What we have: 28 modules covering ~35% of landscape
+### What we have: 65 modules (registered), ~61 independent ingestion pipelines
 
-| Sector | Coverage | Modules needed |
+Since this document's original writing, MapleSpike has expanded significantly. The "28 modules" baseline below
+reflects the pre-May-2026 state. Current coverage:
+
+- **65 modules** registered in `registry.ts` across 20 categories
+- **22 MCP tools** all returning live data
+- **~113K lines** of TypeScript across 10 packages
+- All 13 provinces/territories with oversight coverage
+- 19 cities with direct open data fetchers, 3,490+ via CKAN federation
+
+| Sector | Coverage | Remaining gaps |
 |--------|----------|---------------|
-| Parliamentary & legislative | Good base | 0-2 more |
-| Corporate influence | Strong | 0 |
-| Oversight/accountability | Solid | 3-5 more (tribunals) |
-| Elections/democracy | Partial | 2-3 more |
-| Regulatory (Gazette, CRTC, CER) | Partial | 2-3 more |
-| Environment & health (surface) | Light | 5+ more (deepen) |
-| **Immigration** | **🟢 Built** | **1 module, 4 connectors ✅** |
-| **Indigenous relations** | **🟡 Module built, CLI registered** | **CIRNAC, ISC, FN transparency, TRC — types + fetchers, index.ts, compiled** |
-| **Criminal justice** | **🟡 Stubs started** | **1 module, 6+ connectors** |
-| **Transport & infrastructure** | **🟡 Stubs started** | **1 module, 5+ connectors** |
-| **Defence & veterans** | **Zero** | **1 module, 5+ connectors** |
-| **Provincial (7 provinces + 3 territories)** | **Zero** | **40-60 modules** |
-| **Municipal (30 cities)** | **Stub only** | **30-60 modules** |
-| **Social programs** | **Zero** | **1 module, 5+ connectors** |
-| **Education & research** | **Zero** | **1 module, 5+ connectors** |
-| **Labour & employment** | **Near zero** | **1 module, 4+ connectors** |
-| **Health (deep)** | **Partial** | **5+ modules** |
-| **Culture & media** | **Partial** | **3-5 modules** |
+| Parliamentary & legislative | ✅ Strong | 0-2 more |
+| Corporate influence | ✅ Strong | 0 |
+| Oversight/accountability | ✅ Solid | 3-5 more (tribunals) |
+| Elections/democracy | ✅ Partial | 2-3 more |
+| Regulatory (Gazette, CRTC) | ✅ Partial | 2-3 more |
+| Environment & health | 🟡 Light | 5+ more (deepen) |
+| Immigration | ✅ Built | Connector refinements |
+| Indigenous relations | ✅ Built | Expansion ongoing |
+| Criminal justice | ✅ Built | Expansion ongoing |
+| Transport & infrastructure | ✅ Built | Expansion ongoing |
+| Defence & veterans | ✅ Built | Expansion ongoing |
+| Provincial (7 provinces + 3 territories) | 🟡 Partial | 40-60 sub-modules |
+| Municipal (30 cities) | 🟡 19 direct + federation | 30-60 sub-modules |
+| Social programs | ✅ Built | Connector refinements |
+| Education & research | ✅ Built | Connector refinements |
+| Labour & employment | ✅ Built | Connector refinements |
+| Health (deep) | 🟡 Partial | 5+ sub-modules |
+| Culture & media | 🟡 Partial | 3-5 sub-modules |
 
 ### The math for "every Canadian data source"
 
-To go from 28 modules to **genuinely comprehensive** (calling it "every Canadian data source"):
+This section reflects the **original baseline** of 28 modules. Current state is 65 modules.
+To go from 65 to genuinely comprehensive (~160 modules):
 
-| Phase | Modules | Lines (est.) | Work |
-|-------|---------|-------------|------|
-| Current | 28 | 51,000 | Done |
-| Tier 1 (immigration, indigenous, justice, transport, defence) | 5 new modules | +10,000 | 2-3 weeks |
-| Deepen existing (health, education, social, culture, tribunals) | 15 new modules | +25,000 | 4-6 weeks |
-| Provincial (all 13 jurisdictions, 4+ sub-modules each) | 52 modules | +75,000 | 3-4 months |
-| Municipal (top 30, 3-5 sub-modules each) | 60 modules | +90,000 | 3-4 months |
-| **Total** | **~160 modules** | **~250,000+ lines** | **8-12 months full-time** |
-
-This is a multi-year build. Not because the data is hard — most is openly accessible — but because the sheer volume is enormous.
+| Phase | Modules | Work |
+|-------|---------|------|
+| Current | 65 | Done |
+| Deepen existing (health, education, social, culture, tribunals) | +15 | 4-6 weeks |
+| Provincial (all 13 jurisdictions, 4+ sub-modules each) | +52 | 3-4 months |
+| Municipal (top 30, 3-5 sub-modules each) | +60 | 3-4 months |
+| **Total** | **~160 modules** | **8-12 months full-time** |
 
 ### The "truth" question
 
-If someone asks "does MapleSpike cover every Canadian data source?", the honest answer right now is: **we cover the high-priority federal accountability data well (Parliament, lobbying, influence, oversight), but we have zero coverage of immigration, indigenous relations, criminal justice, defence, transport, most provinces and territories, and all but two cities.** We cover maybe 35% of what's meaningfully available.
+**Original assessment (28 modules):** We cover maybe 35% of what's meaningfully available.
 
-To change "maybe 35%" to "yes, we do" requires building modules at this rate for the better part of a year. The pipeline architecture scales — each module is the same 5-file pattern — but the human effort to write the fetchers, parsers, and test the live endpoints is linear with the number of sources.
+**Current assessment (65 modules):** We cover the high-priority federal accountability data comprehensively (Parliament, lobbying, influence, oversight, immigration, indigenous, defence, transport, criminal justice). Still missing: deep provincial/municipal coverage, health data depth, and various tribunals. Estimated coverage: ~60-65% of high-value Canadian public data.
 
-### Recommended bite: Immigration → Done. Next: Indigenous Relations
-
-Immigration module was added in this sprint (IRCC, IRB, CBSA — live data, MCP tool, CLI pipeline). **Next priority: indigenous-relations/**.
+**Next priority:** Provincial lobbying (BC/AB/QC), SEDAR+ corporate filings, and CIHI health data depth.
 
 - CIRNAC land claim data has CKAN CSV + structured fetcher building
 - ISC community infrastructure spending is per-community open data

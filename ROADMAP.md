@@ -1,6 +1,12 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike Pipeline — Master Roadmap
 
 > **Updated:** 2026-05-14 (module registry refactor, MCP data access unification, .d.ts cleanup)
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json)
 > **Repository:** `/data/projects/own/maplespike`
 > **Working branch:** main
 > **Deployment target:** K3s cluster (api.maplespike.lan, mcp.maplespike.lan, civint.lan)
@@ -101,8 +107,8 @@
 | ✅ K8s deployment | DONE | `maplespike-mcp` pod running |
 | ✅ Pure nix build | DONE | No `--impure` flags |
 | ✅ 14 data tools operational | DONE | All return real data from pipeline-data.json with live-fetch fallbacks |
-| ✅ Bilingual tool descriptions | DONE | All 14 tools have `descriptions: { 'fr-CA': '...' }`, locale-aware via Accept-Language |
-| ✅ Unified MCP data access | DONE | All 14 tools route through `api-client.ts`. `pipeline-data.ts` reduced 340→60 lines as thin re-export wrapper. Single API client with pipeline-data fallback. |
+| ✅ Bilingual tool descriptions | DONE | All tools have `descriptions: { 'fr-CA': '...' }`, locale-aware via Accept-Language |
+| ✅ Unified MCP data access | DONE | All tools route through `api-client.ts`. `pipeline-data.ts` reduced 340→60 lines as thin re-export wrapper. Single API client with pipeline-data fallback. |
 | 🟡 3 AI tools exist but NOT registered | TODO | `ai_analyze`, `ai_ask`, `ai_search_semantic` files exist in `src/tools/` and `src/ai/` (gateway.ts, qdrant.ts) but aren't wired into `getAllTools()`. Need registration + AI Gateway connection |
 
 ---
@@ -111,7 +117,7 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| ✅ Landing page hero with particles + CSS grid background | DONE | Katzilla-quality hero with mouse-interactive canvas particles |
+| ✅ Landing page hero with particles + CSS grid background | DONE | Mouse-interactive canvas particles, refined hero |
 | ✅ 10 HTML pages: index, dashboard, explorer, workspace, docs, pricing, ask, signal, agents, 404 | DONE | All share identical bracket-style nav and footer |
 | ✅ Nav coherence across all pages | DONE | DATA → PRICING → DOCS → EXPLORER → WORKSPACE → Get API Key |
 | ✅ Footer with status indicator on all pages | DONE | ALL SYSTEMS OPERATIONAL with live badge |
@@ -126,12 +132,12 @@
 | ✅ Dedicated /pricing.html page | DONE | Free/Pro/Business tiers, monthly/annual toggle, FAQ |
 | ✅ Data Explorer with category chips | DONE | 5 categories, search bar, filter |
 | ✅ Workspace with API key management | DONE | Key display, regenerate, usage stats |
-| ✅ Docs page with comprehensive API reference | DONE | Quickstart, Auth, Request/Response, Endpoints, Token Optimization, Citation Contract, 14-Tool Catalog, Rate Limits, Error Codes, FAQ — 10 sections matching Katzilla |
-| ✅ SIGNAL + ASK removed from nav (Katzilla-like naming) | DONE | Will return when services get proper names |
+| ✅ Docs page with comprehensive API reference | DONE | Quickstart, Auth, Request/Response, Endpoints, Token Optimization, Citation Contract, 14-Tool Catalog, Rate Limits, Error Codes, FAQ — 10 sections |
+| ✅ SIGNAL + ASK removed from nav | DONE | Will return when services get proper names |
 | 🔴 blog.maplespike.ca | TODO | Even minimal index + RSS |
 | 🔴 Changelog | TODO | Release notes |
-| 🔴 SDK tabstrip in hero (curl/SDK/MCP) | TODO | Katzilla has 3-tab quickstart |
-| 🔴 Data Explorer depth (20+ categories, action counts) | TODO | Katzilla has 21 categories with expandable cards |
+| 🔴 SDK tabstrip in hero (curl/SDK/MCP) | TODO | Modern 3-tab interactive quickstart |
+| 🔴 Data Explorer depth (20+ categories, action counts) | TODO | Expandable category cards with action counts |
 | 🔴 Contact/Support page | TODO | |
 
 ---
@@ -320,7 +326,6 @@ MapleSpike is purpose-built for deep Canadian government data — parliamentary 
 **Committees** (`packages/pipeline-core/src/ingestion/committees/`):
 ```
 constants.ts   — 30 HoC + 20 Senate committees, evidence URL patterns, Parliament 45-1
-constants.ts   — 30 HoC + 20 Senate committees, evidence URL patterns, Parliament 45-1
 types.ts       — CommitteeMeeting, Intervention, CommitteeSpeaker
 fetcher.ts     — HTML-to-XML extraction for ourcommons.ca + sencanada.ca
 parser.ts      — Deep XML Hansard parser (5,000 nested tags), in-camera detection
@@ -429,7 +434,7 @@ index.ts       — HTTP server on port 3001, /health, /sse, /messages
 cli.ts         — stdio transport for local use
 tools/
   types.ts                   — ToolDefinition, ToolHandler interfaces
-  index.ts                   — Tool registry (getAllTools: 14 tools)
+  index.ts                   — Tool registry (getAllTools: 22 tools)
   query-gov-data.ts          — ✅ CKAN search across jurisdictions (real)
   fact-check.ts              — ✅ Basic verification (real)
   get-citation.ts            — ✅ Citation hash retrieval (real)
@@ -508,7 +513,7 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 | 2026-05-13 | AI tools confirmed wired | `ai_analyze`, `ai_ask`, `ai_search_semantic` were already registered in `getAllTools()`. Removed from Top 10. |
 | 2026-05-13 | Changelog page created | `changelog.html` with v0.1.0 and v0.2.0 entries. Added to nav across all pages. |
 || 2026-05-13 | Infrastructure overhaul | flake.nix fixed, Dockerfiles for ingest + engine, 9 CronJobs fixed |
-|| 2026-05-13 | Katzilla content gap analysis | 7 gaps: pricing page (done), blog, changelog, docs expansion, explorer depth, SDK tabstrip, support page |
+|| 2026-05-13 | Portal content gap analysis | 7 gaps: pricing page (done), blog, changelog, docs expansion, explorer depth, SDK tabstrip, support page |
 || 2026-05-13 | Nav coherence pass | All 9 pages identical bracket-style nav. SIGNAL+ASK removed. Footers on all pages. Titles standardized |
 || 2026-05-13 | Pricing page launched | /pricing.html with Free/Pro/Business, annual toggle, FAQ, enterprise CTA |
 || 2026-05-13 | Portal modernization plan created | 5 tasks: AI readability layer, SDK tabstrip, anti-grid brutalism, dashboard feed, explorer depth. Written to .hermes/plans/2026-05-13-portal-modernization.md |

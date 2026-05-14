@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike RSS Feeds Catalog
 
 > Verified May 13, 2026 — Scorched-earth catalog of every RSS feed available for Canadian government, NGO, think tank, UN, and corporate narrative tracking.
