@@ -11,8 +11,7 @@
  *   3. Convert to structured MunicipalMeeting objects with SHA-256 IDs
  *   4. Persist to D1 database (UPSERT semantics)
  *
- * Currently implemented: Toronto, Vancouver
- * Framework-ready stubs: all other major Canadian cities
+ * All 10 major Canadian cities are implemented and actively tested.
  *
  * Usage:
  *   import { ingestMunicipal } from './ingestion/municipal/index.js';
