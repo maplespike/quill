@@ -1,5 +1,7 @@
 # ─────────────────────────────────────────────────────────────────
 # MapleSpike CI — runs on every PR and push to main
+# Covers all 10 packages: pipeline-core, mcp-server, engine, sdk,
+# legal-core, legislation, api-server, python-sdk, portal, pretext-civic
 # ─────────────────────────────────────────────────────────────────
 name: CI
 on:
@@ -22,13 +24,58 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Build all packages
-      - run: pnpm run clean && pnpm -r build
+      # Clean before build to avoid stale dist issues
+      - run: pnpm run clean
 
-      # Test all packages
-      - run: pnpm test
+      # Build all JS/TS packages (Turbo respects dependency order)
+      - run: pnpm -r build
+
+      # ── Test packages that have tests ────────────────────────
+
+      - name: Test pipeline-core
+        run: pnpm test
         working-directory: packages/pipeline-core
-      - run: pnpm test
+
+      - name: Test mcp-server
+        run: pnpm test
         working-directory: packages/mcp-server
-      - run: pnpm test
+
+      - name: Test engine
+        run: pnpm test
         working-directory: packages/engine
+
+      - name: Test sdk
+        run: pnpm test
+        working-directory: packages/sdk
+
+      # ── Verify build-only packages (no tests yet) ────────────
+
+      - name: Build legal-core
+        run: pnpm build
+        working-directory: packages/legal-core
+
+      - name: Build legislation
+        run: pnpm build
+        working-directory: packages/legislation
+
+      - name: Build api-server
+        run: pnpm build
+        working-directory: packages/api-server
+
+      # ── Python SDK ──────────────────────────────────────────
+
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+
+      - name: Install Python SDK
+        run: pip install -e ".[dev]"
+        working-directory: packages/sdk-python
+
+      - name: Test Python SDK (if tests exist)
+        run: |
+          if [ -d tests ] || [ -d test ]; then
+            python -m pytest -v
+          else
+            echo "No tests directory found — skipping Python SDK tests"
+          fi
+        working-directory: packages/sdk-python

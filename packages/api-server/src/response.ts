@@ -230,6 +230,7 @@ export function jsonResponse<T>(
     status,
     headers: {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
       'X-MapleSpike-Version': '0.1.0',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

@@ -281,10 +281,8 @@ function generateState(requestId: string): string {
 async function exchangeCodeForToken(code: string): Promise<string> {
   const response = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(15000),
     body: JSON.stringify({
       client_id: GITHUB_CLIENT_ID,
       client_secret: GITHUB_CLIENT_SECRET,
@@ -312,6 +310,7 @@ async function fetchGitHubUser(accessToken: string): Promise<GitHubProfile> {
       Accept: 'application/json',
       'User-Agent': 'MapleSpike-Canada',
     },
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!response.ok) {
@@ -328,6 +327,7 @@ async function fetchGitHubEmails(accessToken: string): Promise<any[]> {
       Accept: 'application/json',
       'User-Agent': 'MapleSpike-Canada',
     },
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!response.ok) {
