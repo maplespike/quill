@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # Usage Control & Rate Limiting
 
 MapleSpike's API server implements a MapleSpike-standard three-layer usage control system: authentication, rate limiting, and quota enforcement.

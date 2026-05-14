@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike — Ultra Grandmaster Comprehensive Master Endpoints Catalog
 
 > Scorched-Earth "Library of Alexandria" Edition — Verified May 13, 2026
