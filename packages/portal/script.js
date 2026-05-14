@@ -295,33 +295,14 @@
     // Skip if the inline script already rendered the chart
     const chart = document.getElementById('usageChart');
     if (!chart || chart.children.length > 0) return;
-    // Fallback: generate sample bars if inline script didn't fire
-    const data = [23, 45, 38, 52, 41, 67, 42];
-    const max = Math.max(...data);
-
-    const dayLabels = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      dayLabels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
-    }
-
-    data.forEach((val, i) => {
-      const bar = document.createElement('div');
-      bar.className = 'usage-bar' + (i === 6 ? ' today' : '');
-
-      const label = document.createElement('span');
-      label.className = 'bar-label';
-      label.textContent = dayLabels[i];
-      bar.appendChild(label);
-
-      // Set height via style (animation starts from 0 via @keyframes)
-      const pct = Math.max((val / max) * 100, 4);
-      bar.style.height = pct + '%';
-      bar.style.animationDelay = (i * 0.08) + 's';
-      bar.title = dayLabels[i] + ': ' + val + ' calls';
-      chart.appendChild(bar);
-    });
+    // Fallback: try fetching usage from API
+    fetchLiveStats();
+    // If still empty after fetch, show unavailable
+    setTimeout(() => {
+      if (chart.children.length === 0) {
+        chart.innerHTML = '<div class="empty-chart-msg" style="text-align:center;padding:2rem;color:var(--text-muted);">Usage data unavailable</div>';
+      }
+    }, 3000);
   }
 
   // ── Live Stats (dashboard) ──────────────────────────────────
@@ -334,9 +315,14 @@
 
     // Fetch live stats from the API every 30 seconds
     async function fetchLiveStats() {
+      const cfg = window.MAPLESPIKE || {};
+      const base = cfg.apiBase || 'http://127.0.0.1:8085';
+      const key = cfg.apiKey || 'maplespike-dev-key';
+      const to = cfg.timeout || {};
       try {
-        const resp = await fetch('http://127.0.0.1:8084/v1/usage', {
-          headers: { 'Authorization': 'Bearer maplespike-dev-key' }
+        const resp = await fetch(base + '/v1/usage', {
+          headers: { 'Authorization': 'Bearer ' + key },
+          signal: AbortSignal.timeout(to.default || 8000)
         });
         const data = await resp.json();
         if (data?.success && data?.data) {
@@ -420,9 +406,14 @@
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Regenerating...'; }
 
     try {
-      const resp = await fetch('http://127.0.0.1:8084/v1/keys', {
+      const cfg = window.MAPLESPIKE || {};
+      const base = cfg.apiBase || 'http://127.0.0.1:8085';
+      const key = cfg.apiKey || 'maplespike-dev-key';
+      const to = cfg.timeout || {};
+      const resp = await fetch(base + '/v1/keys', {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer maplespike-dev-key' }
+        headers: { 'Authorization': 'Bearer ' + key },
+        signal: AbortSignal.timeout(to.default || 8000)
       });
       const data = await resp.json();
 
@@ -551,7 +542,7 @@
   console.log('%c  ⡇ Canadian public data infrastructure ⡇  ', 'color:#D4A017;font-size:10px;');
   console.log('%c  ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⡇  ', 'color:#C23030;font-size:10px;');
   console.log('%c  Open source · Self-hosted · AGPL-3.0', 'color:#0891B2;font-size:11px;');
-  console.log('%c  https://github.com/reverb256/maplespike', 'color:#6B7280;font-size:11px;');──────────────────────────────────────────────────
+  console.log('%c  https://github.com/reverb256/maplespike', 'color:#6B7280;font-size:11px;');
 
   async function init() {
     initTheme();
@@ -586,7 +577,10 @@
     const ticker = document.querySelector('.ticker-inner');
     if (!ticker) return; // Page doesn't have a ticker
     try {
-      const resp = await fetch('http://127.0.0.1:8085/v1/health', { signal: AbortSignal.timeout(3000) });
+      const cfg = window.MAPLESPIKE || {};
+      const base = cfg.apiBase || 'http://127.0.0.1:8085';
+      const to = cfg.timeout || {};
+      const resp = await fetch(base + '/v1/health', { signal: AbortSignal.timeout(to.health || 3000) });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
       const d = json.data || {};

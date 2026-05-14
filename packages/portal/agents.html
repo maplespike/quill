@@ -50,6 +50,7 @@
   <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+  <script src="/config.js"></script>
 </head>
 <body>
 
@@ -59,7 +60,9 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/guide/what-is-maplespike.html"><span class="nav-bracket">[</span>GUIDE<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/api/endpoints.html"><span class="nav-bracket">[</span>API<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/mcp/tools.html"><span class="nav-bracket">[</span>MCP<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -328,7 +331,7 @@ response = client.chat.completions.create(
   </div>
 
   <p style="margin-top:24px;padding:16px;background:var(--accent-dim);border-radius:var(--radius-sm);">
-    <strong>💡 All pipelines run on your own K3s cluster via cron jobs.</strong> No external dependencies, no cloud, no data leaves your infrastructure. See <a href="/docs/">How it Works</a> for deployment.
+    <strong>💡 All pipelines run on your own K3s cluster via cron jobs.</strong> No external dependencies, no cloud, no data leaves your infrastructure. See <a href="/docs/guide/what-is-maplespike.html">How it Works</a> for deployment.
   </p>
 </div>
 
@@ -367,7 +370,7 @@ response = client.chat.completions.create(
       <ul>
         <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
         <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
-        <li><a href="/docs/" data-i18n="nav.howItWorks">How it Works</a></li>
+        <li><a href="/docs/guide/what-is-maplespike.html" data-i18n="nav.howItWorks">How it Works</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
       </ul>
     </div>
@@ -397,5 +400,6 @@ response = client.chat.completions.create(
 </footer>
 
 <script src="script.js"></script>
+<script src="/nav.js"></script>
 </body>
 </html>
