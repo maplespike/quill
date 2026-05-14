@@ -1,0 +1,260 @@
+/**
+ * MapleSpike — Passkey Authentication (WebAuthn)
+ *
+ * Uses @simplewebauthn/server for WebAuthn ceremony handling.
+ * Flow:
+ *   1. Registration: generate registration options → browser creates credential → verify
+ *   2. Login: generate assertion options → browser signs challenge → verify → issue JWT
+ *
+ * Credentials stored in-memory (replace with DB for production).
+ */
+
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server';
+import type {
+  AuthenticatorTransportFuture,
+  GenerateRegistrationOptionsOpts,
+} from '@simplewebauthn/server';
+import { generateToken } from './jwt.js';
+import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
+
+/* ------------------------------------------------------------------ */
+/*  Configuration                                                     */
+/* ------------------------------------------------------------------ */
+
+const RP_NAME = 'MapleSpike';
+const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
+const ORIGIN = process.env.MAPLESPIKE_ORIGIN || `https://${RP_ID}`;
+
+/* ------------------------------------------------------------------ */
+/*  In-memory credential store (replace with DB in production)        */
+/* ------------------------------------------------------------------ */
+
+interface PasskeyCredential {
+  id: string;
+  publicKey: Uint8Array;
+  counter: number;
+  transports: AuthenticatorTransportFuture[];
+  userId: string;
+  deviceName: string;
+  createdAt: string;
+}
+
+const credentials = new Map<string, PasskeyCredential>();
+
+/* ------------------------------------------------------------------ */
+/*  Registration                                                      */
+/* ------------------------------------------------------------------ */
+
+export interface PasskeyRegisterBeginRequest {
+  userId: string;
+  userName: string;
+  deviceName?: string;
+}
+
+export interface PasskeyRegisterBeginResponse {
+  options: Record<string, unknown>;
+  registrationId: string;
+}
+
+export interface PasskeyRegisterCompleteRequest {
+  registrationId: string;
+  credential: Record<string, unknown>;
+  deviceName?: string;
+}
+
+/**
+ * Step 1a: Generate WebAuthn registration options for the browser.
+ */
+export async function beginRegistration(
+  req: PasskeyRegisterBeginRequest,
+): Promise<PasskeyRegisterBeginResponse> {
+  const registrationId = generateNonce();
+
+  const options = await generateRegistrationOptions({
+    rpName: RP_NAME,
+    rpID: RP_ID,
+    userName: req.userName,
+    userDisplayName: req.userName,
+    attestationType: 'none',
+    excludeCredentials: [],
+    authenticatorSelection: {
+      residentKey: 'preferred',
+      userVerification: 'preferred',
+    },
+  });
+
+  // Store the challenge for verification
+  setChallenge(`passkey:register:${registrationId}`, (options as any).challenge as string, req.userId);
+
+  return {
+    options: options as unknown as Record<string, unknown>,
+    registrationId,
+  };
+}
+
+/**
+ * Step 1b: Verify the browser's registration response and store the credential.
+ */
+export async function completeRegistration(
+  req: PasskeyRegisterCompleteRequest,
+): Promise<{ credentialId: string; userId: string }> {
+  const stored = consumeChallenge(`passkey:register:${req.registrationId}`);
+  if (!stored) {
+    throw new Error('Registration session expired. Please try again.');
+  }
+
+  const verification = await verifyRegistrationResponse({
+    response: req.credential as any,
+    expectedChallenge: stored.challenge,
+    expectedOrigin: ORIGIN,
+    expectedRPID: RP_ID,
+  });
+
+  if (!verification.verified || !verification.registrationInfo) {
+    throw new Error('Passkey registration verification failed');
+  }
+
+  const regInfo = verification.registrationInfo as any;
+  const credentialPublicKey: Uint8Array = regInfo.credentialPublicKey;
+  const credentialID: Uint8Array = regInfo.credentialID;
+  const counter: number = regInfo.counter;
+
+  const credential: PasskeyCredential = {
+    id: Buffer.from(credentialID).toString('base64url'),
+    publicKey: new Uint8Array(credentialPublicKey),
+    counter,
+    transports: (req.credential as any)?.response?.transports || [],
+    userId: stored.address || 'anon',
+    deviceName: req.deviceName || 'Passkey',
+    createdAt: new Date().toISOString(),
+  };
+
+  credentials.set(credential.id, credential);
+
+  return { credentialId: credential.id, userId: credential.userId };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Authentication (Login)                                            */
+/* ------------------------------------------------------------------ */
+
+export interface PasskeyLoginBeginRequest {
+  userId?: string;
+}
+
+export interface PasskeyLoginBeginResponse {
+  options: Record<string, unknown>;
+  loginId: string;
+}
+
+export interface PasskeyLoginCompleteRequest {
+  loginId: string;
+  credential: Record<string, unknown>;
+}
+
+/**
+ * Step 2a: Generate WebAuthn assertion options for the browser.
+ */
+export function beginLogin(
+  req: PasskeyLoginBeginRequest,
+): PasskeyLoginBeginResponse {
+  const loginId = generateNonce();
+
+  // Find credentials for this user, or allow any credential
+  const allowedCredentials = req.userId
+    ? Array.from(credentials.values())
+        .filter(c => c.userId === req.userId)
+        .map(c => ({
+          id: c.id,
+          transports: c.transports as AuthenticatorTransportFuture[],
+        }))
+    : [];
+
+  const options = generateAuthenticationOptions({
+    rpID: RP_ID,
+    allowCredentials: allowedCredentials.length > 0 ? allowedCredentials : undefined,
+    userVerification: 'preferred',
+  });
+
+  setChallenge(`passkey:login:${loginId}`, (options as any).challenge as string);
+
+  return {
+    options: options as unknown as Record<string, unknown>,
+    loginId,
+  };
+}
+
+/**
+ * Step 2b: Verify the assertion and issue a JWT.
+ */
+export async function completeLogin(
+  req: PasskeyLoginCompleteRequest,
+): Promise<{ token: string; userId: string }> {
+  const stored = consumeChallenge(`passkey:login:${req.loginId}`);
+  if (!stored) {
+    throw new Error('Login session expired. Please try again.');
+  }
+
+  const credentialRaw = req.credential as any;
+  const credentialId = Buffer.from(credentialRaw.id as string, 'base64url').toString('base64url');
+
+  const credential = credentials.get(credentialId);
+  if (!credential) {
+    throw new Error('Passkey not found. Please register first.');
+  }
+
+  const verification = await verifyAuthenticationResponse({
+    response: credentialRaw,
+    expectedChallenge: stored.challenge,
+    expectedOrigin: ORIGIN,
+    expectedRPID: RP_ID,
+    credential: {
+      id: credential.id as any,
+      publicKey: new Uint8Array(credential.publicKey) as any,
+      counter: credential.counter,
+      transports: credential.transports,
+    },
+  });
+
+  if (!verification.verified) {
+    throw new Error('Passkey authentication verification failed');
+  }
+
+  // Update credential counter
+  if (verification.authenticationInfo) {
+    credential.counter = verification.authenticationInfo.newCounter;
+  }
+
+  // Issue JWT
+  const token = generateToken({
+    sub: credential.userId,
+    tier: 'free',
+  });
+
+  return { token, userId: credential.userId };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Utility                                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * List passkey credentials for a user.
+ */
+export function listCredentials(userId: string): Array<{ id: string; deviceName: string; createdAt: string }> {
+  return Array.from(credentials.values())
+    .filter(c => c.userId === userId)
+    .map(c => ({ id: c.id, deviceName: c.deviceName, createdAt: c.createdAt }));
+}
+
+/**
+ * Delete a passkey credential.
+ */
+export function deleteCredential(credentialId: string): boolean {
+  return credentials.delete(credentialId);
+}
