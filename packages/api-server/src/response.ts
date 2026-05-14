@@ -18,6 +18,8 @@ import type {
 import type { Tenant } from './types.js';
 import { TIER_LIMITS } from './types.js';
 
+export type { CitationMeta, QualityMeta };
+
 /* ------------------------------------------------------------------ */
 /*  Default Citation                                                   */
 /* ------------------------------------------------------------------ */
@@ -60,12 +62,14 @@ export function enrichCitation(meta: CitationMeta): CitationMeta {
 /*  Builders — Internal                                                */
 /* ------------------------------------------------------------------ */
 
-function buildQualityMeta(ctx: { tenant: Tenant; requestId: string; startTime: number }): QualityMeta {
+export function buildQualityMeta(ctx: { tenant: Tenant; requestId: string; startTime: number }): QualityMeta {
   return {
     freshness_seconds: Math.floor((Date.now() - ctx.startTime) / 1000),
     source_uptime_7d: 0.98,
     confidence: 'high',
     certainty_score: 0.923,
+    last_verified: new Date().toISOString(),
+    data_completeness: 'complete',
   };
 }
 
@@ -76,7 +80,7 @@ function buildResponseMeta(
     action: string;
     authMethod: string;
     creditsCharged: number;
-    cacheStatus: 'hit' | 'miss';
+    cacheStatus: 'hit' | 'miss' | 'mock';
     durationMs: number;
   }>,
 ): ResponseMeta {
@@ -198,7 +202,7 @@ export interface BuildContext {
     action: string;
     authMethod: string;
     creditsCharged: number;
-    cacheStatus: 'hit' | 'miss';
+    cacheStatus: 'hit' | 'miss' | 'mock';
     durationMs: number;
   }>;
 }

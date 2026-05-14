@@ -22,9 +22,10 @@ const MAPLESPIKE_STORAGE = (process.env.MAPLESPIKE_STORAGE || 'memory').toLowerC
 const MAPLESPIKE_DB_PATH = process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
 
 const env = {
-  ENVIRONMENT: 'development',
-  MAPLESPIKE_VERSION: '0.1.0',
-  MAPLESPIKE_NAME: 'MapleSpike (dev)',
+  MAPLESPIKE_API_KEY: process.env.MAPLESPIKE_API_KEY || 'maplespike-dev-key',
+  MAPLESPIKE_VERSION: process.env.MAPLESPIKE_VERSION || '0.1.0',
+  MAPLESPIKE_NAME: process.env.MAPLESPIKE_NAME || 'MapleSpike',
+  ENVIRONMENT: process.env.ENVIRONMENT || 'development',
   AI_ENDPOINT,
   AI_MODEL,
   JWT_SECRET: process.env.JWT_SECRET || 'maplespike-jwt-secret-change-in-production',

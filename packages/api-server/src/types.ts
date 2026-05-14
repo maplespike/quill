@@ -155,6 +155,10 @@ export interface QualityMeta {
   source_uptime_7d: number;
   confidence: 'high' | 'medium' | 'low';
   certainty_score: number;
+  /** ISO timestamp of when this data was last verified against the source */
+  last_verified?: string;
+  /** Completeness indicator: 'complete' | 'partial' | 'estimated' */
+  data_completeness?: string;
 }
 
 export interface UsageMeta {
@@ -172,7 +176,7 @@ export interface ResponseMeta {
   action: string;
   authMethod: string;
   creditsCharged: number;
-  cacheStatus: 'hit' | 'miss';
+  cacheStatus: 'hit' | 'miss' | 'mock';
   durationMs: number;
 }
 

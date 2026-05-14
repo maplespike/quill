@@ -76,6 +76,11 @@ registerBuiltIn();
 /* ------------------------------------------------------------------ */
 
 function loadDynamicProviders(): void {
+  // Helper: read a prefixed env var with fallback
+  function getEnv(providerUpper: string, suffix: string, fallback: string): string {
+    return process.env[`MAPLESPIKE_OAUTH_${providerUpper}_${suffix}`] ?? fallback;
+  }
+
   // Scan env vars for MAPLESPIKE_OAUTH_*_CLIENT_ID patterns
   for (const key of Object.keys(process.env)) {
     const match = key.match(/^MAPLESPIKE_OAUTH_(\w+)_CLIENT_ID$/);
@@ -87,15 +92,33 @@ function loadDynamicProviders(): void {
     const clientSecret = process.env[`MAPLESPIKE_OAUTH_${match[1]}_CLIENT_SECRET`] || '';
     if (!clientId || !clientSecret) continue;
 
-    // Generic OAuth 2.0 — requires provider to implement standard endpoints
+    const pUpper = match[1]; // keep original case for env var construction
+
+    // Optional URL overrides — when unset, fall back to conventional <name>.com patterns
+    const authorizeOverride = getEnv(pUpper, 'AUTHORIZE_URL', '');
+    const tokenOverride = getEnv(pUpper, 'TOKEN_URL', '');
+    const userInfoOverride = getEnv(pUpper, 'USER_INFO_URL', '');
+    const scopeOverride = getEnv(pUpper, 'SCOPE', '');
+
+    const hasOverrides = !!(authorizeOverride || tokenOverride || userInfoOverride);
+
+    // Build URLs: if overrides exist, use them directly; otherwise use convention
+    const authorizeUrl = authorizeOverride
+      ? `${authorizeOverride}?client_id=${clientId}&redirect_uri=${BASE_REDIRECT}/${providerName}/callback&response_type=code&scope=${encodeURIComponent(scopeOverride || 'openid email profile')}`
+      : `https://${providerName}.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${BASE_REDIRECT}/${providerName}/callback&response_type=code&scope=openid+email+profile`;
+
+    const tokenUrl = tokenOverride || `https://oauth2.${providerName}.com/token`;
+    const userInfoUrl = userInfoOverride || `https://openidconnect.${providerName}.com/v1/userinfo`;
+    const scope = scopeOverride || 'openid email profile';
+
     PROVIDERS[providerName] = {
       name: match[1],
       clientId,
       clientSecret,
-      authorizeUrl: `https://${providerName}.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${BASE_REDIRECT}/${providerName}/callback&response_type=code&scope=openid+email+profile`,
-      tokenUrl: `https://oauth2.${providerName}.com/token`,
-      userInfoUrl: `https://openidconnect.${providerName}.com/v1/userinfo`,
-      scope: 'openid email profile',
+      authorizeUrl,
+      tokenUrl,
+      userInfoUrl,
+      scope,
       mapProfile: (raw) => ({
         provider: providerName,
         providerId: String(raw.sub ?? raw.id ?? ''),

@@ -33,9 +33,10 @@ import { D1Storage, KVCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { globalCache } from './cache.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
-import { getMockData, MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES } from './mock-data.js';
+import { getMockData, MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES, MOCK_DATA_MAP } from './mock-data.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
+import { parseAgentAction, mockHandler } from './routes/mock.js';
 
 interface Route {
   pattern: RegExp;
@@ -614,6 +615,8 @@ function compactObject(value: unknown): unknown {
 
 /**
  * Handle _mock=true requests — return curated sample data for testing/demo.
+ * First tries the new agent/action pattern (/v1/:agent/:action), then falls
+ * back to the legacy flat-source pattern for backward compatibility.
  */
 async function handleMockRequest(
   request: Request,
@@ -622,6 +625,41 @@ async function handleMockRequest(
 ): Promise<Response> {
   const startTime = Date.now();
   const requestId = 'mock-' + crypto.randomUUID().slice(0, 12);
+  const pathname = url.pathname;
+
+  // Try the new agent/action pattern first
+  const agentAction = parseAgentAction(pathname);
+  if (agentAction) {
+    const bc: BuildContext = {
+      tenant: { id: 'dev', name: 'Dev User', tier: 'pro', isActive: true, journalismMode: false },
+      requestId,
+      startTime,
+      queryOptions,
+      metaOverrides: { cacheStatus: 'mock', durationMs: 0 },
+    };
+
+    // Build RouteContext-like params for mockHandler
+    const routeParams = { agent: agentAction.agent, action: agentAction.action };
+    return mockHandler(request, {
+      tenant: bc.tenant,
+      apiKeyId: '',
+      requestId,
+      startTime,
+      env: {},
+      db: undefined as unknown as MapleSpikeStorage,
+      cache: undefined as unknown as MapleSpikeCache,
+    }, routeParams);
+  }
+
+  // Legacy fallback for flat-source paths (/_mock=true on /v1/gov/search, etc.)
+  const source = pathname === '/v1/search' || pathname === '/v1/gov/search'
+    ? 'hoc'
+    : pathname.replace(/^\/v1\//, '').replace(/[^a-zA-Z]/g, '');
+
+  const data = getMockData(source);
+  const allSources = url.searchParams.has('_sources')
+    ? MOCK_DATA_SOURCES
+    : undefined;
 
   const bc: BuildContext = {
     tenant: { id: 'dev', name: 'Dev User', tier: 'pro', isActive: true, journalismMode: false },
@@ -630,16 +668,6 @@ async function handleMockRequest(
     queryOptions,
     metaOverrides: { cacheStatus: 'mock', durationMs: 0 },
   };
-
-  const pathname = url.pathname.replace(/^\/v1\//, '');
-  const source = pathname === 'search' || pathname === 'gov/search'
-    ? 'hoc'
-    : pathname.replace(/[^a-zA-Z]/g, '');
-
-  const data = getMockData(source);
-  const allSources = url.searchParams.has('_sources')
-    ? MOCK_DATA_SOURCES
-    : undefined;
 
   return jsonResponse(buildSuccess({
     results: data,
