@@ -40,19 +40,19 @@
   </div>
 </nav>
 
-<div class="docs-page" style="max-width:860px;">
+<div class="docs-page">
 
   <!-- ═══ 00: QUICKSTART ═══ -->
   <div class="section-bracket fade-in-init s1">
     <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Quickstart</span>
-    <span class="badge badge-green" style="margin-left:8px;font-size:0.65rem;">LIVE</span>
+    <span>Quickstart</span>
+    <span class="badge badge-green" class="doc-badge">LIVE</span>
   </div>
   <h1 class="fade-in-init s2">One API key.<br>Every Canadian government source. Every response cited.</h1>
 
-  <p style="color:var(--text-secondary);margin:16px 0 24px;">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
+  <p class="doc-head-text">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
 
-  <div class="code-block" style="margin:24px 0;">
+  <div class="code-block" class="doc-code-block">
 <span style="color:var(--text-muted);">// 30-second quickstart</span><br><br>
 <span style="color:var(--text-muted);">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br>
 &nbsp;&nbsp;-H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> \<br>
@@ -71,37 +71,37 @@
 }
   </div>
 
-  <div class="info-box" style="background:var(--accent-dim);border-left:3px solid var(--accent);padding:12px 16px;border-radius:var(--radius-sm);margin:0 0 20px;">
+  <div class="info-box" class="doc-info">
     <strong style="color:var(--accent);">No key?</strong>
-    <span style="color:var(--text-secondary);font-size:0.9rem;">Get one free at <a href="workspace.html" style="color:var(--accent-cyan);">workspace.html</a> — 1,000 calls/month included. Or pass <code style="font-size:0.85em;">_mock=true</code> for sample data with no upstream hit.</span>
+    <span style="color:var(--text-secondary);font-size:0.9rem;">Get one free at <a href="workspace.html" style="color:var(--accent-cyan);">workspace.html</a> — 1,000 calls/month included. Or pass <code class="doc-inline-code">_mock=true</code> for sample data with no upstream hit.</span>
   </div>
 
   <!-- ═══ 01: AUTHENTICATION ═══ -->
-  <div class="section-bracket fade-in-init s3" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s3">
     <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Authentication</span>
+    <span>Authentication</span>
   </div>
   <h2>API keys and how to use them</h2>
   <p>Two ways to authenticate — both issued from the same <a href="workspace.html" style="color:var(--accent-cyan);">workspace</a>.</p>
 
   <h3>API Key (recommended for servers)</h3>
-  <p>Create a key from the workspace, then send it as the <code style="font-size:0.85em;">X-API-Key</code> header:</p>
+  <p>Create a key from the workspace, then send it as the <code class="doc-inline-code">X-API-Key</code> header:</p>
   <div class="code-block">
 <span style="color:var(--text-muted);">$</span> curl -H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> https://api.maplespike.ca/v1/health
   </div>
 
   <h3>JWT (recommended for user-facing apps)</h3>
-  <p>Get a JWT via <code style="font-size:0.85em;">POST /v1/auth/login</code>, then send as Bearer token:</p>
+  <p>Get a JWT via <code class="doc-inline-code">POST /v1/auth/login</code>, then send as Bearer token:</p>
   <div class="code-block">
 <span style="color:var(--text-muted);">$</span> curl -H <span style="color:#D4A017;">"Authorization: Bearer eyJhbGc..."</span> https://api.maplespike.ca/v1/me
   </div>
 
-  <p style="color:var(--text-secondary);font-size:0.9rem;">Keys are hashed with SHA-256 at rest. Rotate or revoke from the workspace at any time.</p>
+  <p>Keys are hashed with SHA-256 at rest. Rotate or revoke from the workspace at any time.</p>
 
   <!-- ═══ 02: REQUEST + RESPONSE ═══ -->
-  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s4">
     <span class="bracket">[</span><span class="num">02</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Request + Response</span>
+    <span>Request + Response</span>
   </div>
   <h2>One envelope. Every endpoint.</h2>
   <p>Every response carries the same structure — data, quality score, citation metadata, and usage info. Your agent always knows where the answer came from.</p>
@@ -130,44 +130,44 @@
   </div>
 
   <!-- ═══ 03: ENDPOINTS ═══ -->
-  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s4">
     <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
+    <span>API Reference</span>
   </div>
   <h2>REST endpoints</h2>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Method</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Path</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Description</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/health</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">System status and usage</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/gov/releases</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Latest government data releases</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/gov/search?query=</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Search across all sources</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/citation/:hash</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Verify a data point by SHA-256 hash</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/usage</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Usage and quota info</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">List API keys</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:#10B981;">POST</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Create a new API key</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/auth/me</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Current user profile</td></tr>
+  <table class="doc-table">
+    <tr><th>Method</th><th>Path</th><th>Description</th></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/health</td><td>System status and usage</td></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/gov/releases</td><td>Latest government data releases</td></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/gov/search?query=</td><td>Search across all sources</td></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/citation/:hash</td><td>Verify a data point by SHA-256 hash</td></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/usage</td><td>Usage and quota info</td></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/keys</td><td>List API keys</td></tr>
+    <tr><td class="method-post">POST</td><td class="code">/v1/keys</td><td>Create a new API key</td></tr>
+    <tr><td class="method-get">GET</td><td class="code">/v1/auth/me</td><td>Current user profile</td></tr>
   </table>
 
   <!-- ═══ 04: TOKEN OPTIMIZATION ═══ -->
-  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s4">
     <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Token Optimization</span>
+    <span>Token Optimization</span>
   </div>
   <h2>Trim responses for AI agents</h2>
   <p>Every token saved is money earned. These params go in the same request body — they're extracted before validation.</p>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Param</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Type</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Effect</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_fields</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">string[]</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Return only named fields</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_format</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">"full" \ "compact"</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Compact strips null/empty</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_limit</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">number</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Cap array results</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_page</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">number</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Pagination offset</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_summary</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">boolean</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Return aggregates, not rows</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_mock</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">true</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Sample data, free, no upstream hit</td></tr>
+  <table class="doc-table">
+    <tr><th>Param</th><th>Type</th><th>Effect</th></tr>
+    <tr><td class="method-get">_fields</td><td>string[]</td><td>Return only named fields</td></tr>
+    <tr><td class="method-get">_format</td><td>"full" \ "compact"</td><td>Compact strips null/empty</td></tr>
+    <tr><td class="method-get">_limit</td><td>number</td><td>Cap array results</td></tr>
+    <tr><td class="method-get">_page</td><td>number</td><td>Pagination offset</td></tr>
+    <tr><td class="method-get">_summary</td><td>boolean</td><td>Return aggregates, not rows</td></tr>
+    <tr><td class="method-get">_mock</td><td>true</td><td>Sample data, free, no upstream hit</td></tr>
   </table>
 
   <!-- ═══ 05: CITATION CONTRACT ═══ -->
-  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Citation Contract</span>
+    <span>Citation Contract</span>
   </div>
   <h2>Every response. Every endpoint. Verifiable.</h2>
   <p>Data, Signal, Ask — all return the same citation block. One integration gives you auditable AI across the stack.</p>
@@ -185,16 +185,16 @@
 }
   </div>
 
-  <p><code style="font-size:0.85em;">data_hash</code> is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.</p>
+  <p><code class="doc-inline-code">data_hash</code> is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.</p>
 
   <!-- ═══ 06: MCP TOOLS ═══ -->
-  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">06</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">MCP Tools</span>
-    <span class="badge badge-cyan" style="margin-left:8px;font-size:0.65rem;">14 TOOLS</span>
+    <span>MCP Tools</span>
+    <span class="badge badge-cyan" class="doc-badge">14 TOOLS</span>
   </div>
   <h2>Data tools for AI agents</h2>
-  <p>All tools return the same <code style="font-size:0.85em;">{ data, quality, citation }</code> envelope. Connect any MCP client:</p>
+  <p>All tools return the same <code class="doc-inline-code">{ data, quality, citation }</code> envelope. Connect any MCP client:</p>
 
   <div class="code-block">
 {<br>
@@ -208,87 +208,87 @@
 }
   </div>
 
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Category</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Tool</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Description</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">query_gov_data</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Search StatCan, CKAN, provincial portals</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">fact_check</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Verify claims against official data</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">get_citation</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Retrieve SHA-256 citation hash</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">latest_releases</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Recent government releases</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Parliament</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_committees</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">HoC + Senate committees, evidence, in-camera</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Corporate</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_corporate</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Lobbying, procurement, exec statements</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Influence</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_influence</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">32 tracked actors, funding, connections</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Regulatory</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_gazette</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Canada Gazette Parts I+II regulations</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Appointments</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_gic</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Governor-in-Council appointments</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Elections</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_elections</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Third-party advertising, spending</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Provincial</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_provincial_lobbying</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">ON lobbying registry (BC/QC stubbed)</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Oversight</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_oversight</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">OAG, PBO, Ethics, CB, CRTC reports</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Legal</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_canlii</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Court decisions, citations via CanLII</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Labour</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_lmia</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">LMIA quarterly data, TFW program</td></tr>
+  <table class="doc-table">
+    <tr><th>Category</th><th>Tool</th><th>Description</th></tr>
+    <tr><td class="tag-cat">General</td><td class="method-get">query_gov_data</td><td>Search StatCan, CKAN, provincial portals</td></tr>
+    <tr><td class="tag-cat">General</td><td class="method-get">fact_check</td><td>Verify claims against official data</td></tr>
+    <tr><td class="tag-cat">General</td><td class="method-get">get_citation</td><td>Retrieve SHA-256 citation hash</td></tr>
+    <tr><td class="tag-cat">General</td><td class="method-get">latest_releases</td><td>Recent government releases</td></tr>
+    <tr><td class="tag-cat">Parliament</td><td class="method-get">search_committees</td><td>HoC + Senate committees, evidence, in-camera</td></tr>
+    <tr><td class="tag-cat">Corporate</td><td class="method-get">search_corporate</td><td>Lobbying, procurement, exec statements</td></tr>
+    <tr><td class="tag-cat">Influence</td><td class="method-get">search_influence</td><td>32 tracked actors, funding, connections</td></tr>
+    <tr><td class="tag-cat">Regulatory</td><td class="method-get">search_gazette</td><td>Canada Gazette Parts I+II regulations</td></tr>
+    <tr><td class="tag-cat">Appointments</td><td class="method-get">search_gic</td><td>Governor-in-Council appointments</td></tr>
+    <tr><td class="tag-cat">Elections</td><td class="method-get">search_elections</td><td>Third-party advertising, spending</td></tr>
+    <tr><td class="tag-cat">Provincial</td><td class="method-get">search_provincial_lobbying</td><td>ON lobbying registry (BC/QC stubbed)</td></tr>
+    <tr><td class="tag-cat">Oversight</td><td class="method-get">search_oversight</td><td>OAG, PBO, Ethics, CB, CRTC reports</td></tr>
+    <tr><td class="tag-cat">Legal</td><td class="method-get">search_canlii</td><td>Court decisions, citations via CanLII</td></tr>
+    <tr><td class="tag-cat">Labour</td><td class="method-get">search_lmia</td><td>LMIA quarterly data, TFW program</td></tr>
   </table>
 
   <!-- ═══ 07: RATE LIMITS ═══ -->
-  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">07</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Rate Limits</span>
+    <span>Rate Limits</span>
   </div>
   <h2>Per-plan caps</h2>
   <p>Rate limits are per-second and per-month. Hitting the per-second limit returns 429 with a Retry-After header.</p>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Plan</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Per sec</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Per month</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Overage</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Free</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">2/s</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">1,000</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">Hard cap (402)</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Pro</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">25/s</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">50,000</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">$1/1K (planned)</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Business</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">100/s</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">250,000</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">$0.80/1K (planned)</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Enterprise</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Custom</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Custom</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Negotiated</td></tr>
+  <table class="doc-table">
+    <tr><th>Plan</th><th>Per sec</th><th>Per month</th><th>Overage</th></tr>
+    <tr><td>Free</td><td>2/s</td><td>1,000</td><td class="tag-free">Hard cap (402)</td></tr>
+    <tr><td>Pro</td><td>25/s</td><td>50,000</td><td>$1/1K (planned)</td></tr>
+    <tr><td>Business</td><td>100/s</td><td>250,000</td><td>$0.80/1K (planned)</td></tr>
+    <tr><td>Enterprise</td><td>Custom</td><td>Custom</td><td>Negotiated</td></tr>
   </table>
 
   <!-- ═══ 08: ERRORS ═══ -->
-  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">08</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Errors</span>
+    <span>Errors</span>
   </div>
   <h2>One shape. Specific categories.</h2>
-  <p>All error responses carry <code style="font-size:0.85em;">success: false</code>, a stable error code, and a human-readable message.</p>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Code</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Status</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Retry</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Meaning</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">auth_invalid</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">401</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Fix API key or JWT</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">rate_limited</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">429</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--success);">Yes</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Respect Retry-After header</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">quota_exhausted</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">402</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Upgrade plan or wait for reset</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">input_invalid</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--warning);">400</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Check input schema</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">source_unavailable</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--warning);">502</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--success);">Yes</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Upstream source down, retry later</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">not_found</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);">404</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Resource doesn't exist</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">server_error</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">500</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--success);">Yes</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Backoff, report if persistent</td></tr>
+  <p>All error responses carry <code class="doc-inline-code">success: false</code>, a stable error code, and a human-readable message.</p>
+  <table class="doc-table">
+    <tr><th>Code</th><th>Status</th><th>Retry</th><th>Meaning</th></tr>
+    <tr><td class="method-get">auth_invalid</td><td class="tag-free">401</td><td>No</td><td>Fix API key or JWT</td></tr>
+    <tr><td class="method-get">rate_limited</td><td class="tag-free">429</td><td class="tag-ok">Yes</td><td>Respect Retry-After header</td></tr>
+    <tr><td class="method-get">quota_exhausted</td><td class="tag-free">402</td><td>No</td><td>Upgrade plan or wait for reset</td></tr>
+    <tr><td class="method-get">input_invalid</td><td class="tag-warn">400</td><td>No</td><td>Check input schema</td></tr>
+    <tr><td class="method-get">source_unavailable</td><td class="tag-warn">502</td><td class="tag-ok">Yes</td><td>Upstream source down, retry later</td></tr>
+    <tr><td class="method-get">not_found</td><td class="tag-muted">404</td><td>No</td><td>Resource doesn't exist</td></tr>
+    <tr><td class="method-get">server_error</td><td class="tag-free">500</td><td class="tag-ok">Yes</td><td>Backoff, report if persistent</td></tr>
   </table>
 
   <!-- ═══ 09: FAQ ═══ -->
-  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+  <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">09</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">FAQ</span>
+    <span>FAQ</span>
   </div>
   <h2>Common questions</h2>
 
-  <div style="margin:16px 0;">
+  <div class="doc-faq">
     <p><strong style="color:var(--text-primary);">Do I need a credit card to start?</strong></p>
-    <p style="color:var(--text-secondary);font-size:0.9rem;">No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit.</p>
+    <p>No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit.</p>
   </div>
 
-  <div style="margin:16px 0;">
+  <div class="doc-faq">
     <p><strong style="color:var(--text-primary);">What makes the citations verifiable?</strong></p>
-    <p style="color:var(--text-secondary);font-size:0.9rem;">Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw.</p>
+    <p>Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw.</p>
   </div>
 
-  <div style="margin:16px 0;">
+  <div class="doc-faq">
     <p><strong style="color:var(--text-primary);">Which AI frameworks are supported?</strong></p>
-    <p style="color:var(--text-secondary);font-size:0.9rem;">MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs.</p>
+    <p>MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs.</p>
   </div>
 
-  <div style="margin:16px 0;">
+  <div class="doc-faq">
     <p><strong style="color:var(--text-primary);">How fresh is the data?</strong></p>
-    <p style="color:var(--text-secondary);font-size:0.9rem;">Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field so your agent always knows.</p>
+    <p>Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field so your agent always knows.</p>
   </div>
 
-  <div style="margin:16px 0;">
+  <div class="doc-faq">
     <p><strong style="color:var(--text-primary);">Is my API key secure?</strong></p>
-    <p style="color:var(--text-secondary);font-size:0.9rem;">Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.</p>
+    <p>Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.</p>
   </div>
 
 </div>
