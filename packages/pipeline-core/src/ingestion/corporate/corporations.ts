@@ -1,5 +1,5 @@
 /**
- * Corporations Canada Registry Connector — Frostbite Data Pipeline
+ * Corporations Canada Registry Connector — MapleSpike Pipeline
  *
  * Searches the Corporations Canada online registry for federal corporate
  * entity information.

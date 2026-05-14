@@ -1,5 +1,5 @@
 /**
- * Influence Connections — Frostbite Data Pipeline
+ * Influence Connections — MapleSpike Pipeline
  *
  * Cross-references tracked influence actors against:
  *   - Parliamentary committee appearances (already ingested)

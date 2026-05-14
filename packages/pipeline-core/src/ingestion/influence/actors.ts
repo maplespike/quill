@@ -1,5 +1,5 @@
 /**
- * Influence Actors Connector — Frostbite Data Pipeline
+ * Influence Actors Connector — MapleSpike Pipeline
  *
  * Enriches tracked influence actors with data from:
  *   - CRA Charity listing (every registered Canadian charity)

@@ -79,4 +79,66 @@ void describe('@maplespike/sdk', () => {
     const { getAgent } = require('../dist/index.cjs');
     assert.throws(() => getAgent('nonexistent'), /Unknown agent/);
   });
+
+  // ─── Smoke Test: Empty Results ────────────────────────────────────────────
+
+  void it('query in mock mode handles responses with empty/sparse data', async () => {
+    const { MapleSpike } = require('../dist/index.cjs');
+    const ms = new MapleSpike({ apiKey: 'test' });
+
+    // Use _mock: true so no real HTTP call is made
+    const result = await ms.query('committees', 'committee-membership', {}, { _mock: true });
+
+    // Verify the full MapleSpikeResponse shape is intact
+    assert.ok(result, 'result should be defined');
+    assert.ok(Array.isArray(result.data), 'data should be an array');
+    assert.ok(result.data.length > 0, 'mock committees should have data');
+    assert.ok(result.meta, 'meta should exist');
+    assert.equal(result.meta.cacheStatus, 'mock', 'cacheStatus should be mock');
+    assert.equal(result.meta.agent, 'committees', 'agent should match');
+    assert.equal(result.meta.action, 'committee-membership', 'action should match');
+    assert.ok(result.quality, 'quality should exist');
+    assert.ok(result.quality.confidence >= 0, 'confidence should be valid');
+    assert.ok(result.citation, 'citation should exist');
+    assert.ok(result.citation.source_name, 'citation should have source_name');
+
+    // Also test that querying an unknown agent+action yields a fallback response
+    // (simulating empty/sparse results from the API)
+    const fallback = await ms.query('unknownAgent', 'unknownAction', {}, { _mock: true });
+    assert.ok(fallback, 'fallback result should be defined');
+    assert.ok(fallback.data, 'fallback should have data');
+    assert.ok(fallback.meta, 'fallback should have meta');
+    assert.equal(fallback.meta.cacheStatus, 'mock');
+    // The fallback data should be an object with a message field (not an array)
+    assert.equal(typeof fallback.data, 'object', 'fallback data should be an object');
+    assert.ok('message' in (fallback.data as Record<string, unknown>),
+      'fallback data should contain a message');
+  });
+
+  // ─── Smoke Test: Auth Module API Key Format ───────────────────────────────
+
+  void it('auth module can store and validate a well-formed API key', () => {
+    const { setApiKey, getApiKey, isAuthenticated, clearAuth } = require('../dist/index.cjs');
+
+    // A well-formed MapleSpike API key pattern: ms_live_<token>
+    const validKey = 'ms_live_a1b2c3d4e5f6g7h8i9j0';
+
+    // Set the key and verify it's stored
+    setApiKey(validKey);
+    assert.equal(getApiKey(), validKey, 'getApiKey should return the stored key');
+
+    // isAuthenticated should return true when a key is set
+    assert.ok(isAuthenticated(), 'isAuthenticated should be true with an API key set');
+
+    // Clear auth and verify state
+    clearAuth();
+    assert.equal(getApiKey(), undefined, 'getApiKey should be undefined after clear');
+    assert.equal(isAuthenticated(), false, 'isAuthenticated should be false after clear');
+
+    // Verify the key format follows expected conventions
+    const keyPattern = /^ms_(live|test)_[a-z0-9]+$/;
+    assert.ok(keyPattern.test(validKey), 'API key should match expected format');
+    assert.ok(keyPattern.test('ms_test_xyz789'), 'test key should also match format');
+    assert.equal(keyPattern.test('invalid-key'), false, 'invalid key should not match format');
+  });
 });

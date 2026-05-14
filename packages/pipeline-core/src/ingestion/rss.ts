@@ -1,7 +1,7 @@
 /**
- * RSS Ingestion Module — Frostbite Data Pipeline
+ * RSS Ingestion Module — MapleSpike Pipeline
  *
- * Extracted from Frostbite Gazette Cloudflare Worker.
+ * Extracted from MapleSpike Cloudflare Worker.
  * Provides RSS feed fetching, parsing, deduplication, and source management.
  *
  * Originally defined in: cloudflare/worker/src/index.ts (lines 26-71, 104-172, 1093-1101)
@@ -47,7 +47,7 @@ export interface RawArticle {
 /* ------------------------------------------------------------------ */
 
 /**
- * 43+ Canadian news outlets used by the Frostbite Gazette pipeline.
+ * 43+ Canadian news outlets used by the MapleSpike pipeline.
  * Single source of truth — the Worker and ingest-rss.js both derive from this.
  */
 export const RSS_SOURCES: RSSSource[] = [

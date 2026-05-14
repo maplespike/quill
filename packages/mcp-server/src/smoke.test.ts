@@ -250,3 +250,67 @@ describe('MCP Tool Handler async contract', () => {
     }
   });
 });
+
+describe('MCP Server Unknown Tool Handling', () => {
+  it('returns error for unknown tool name', async () => {
+    const { McpServer } = await import('./server.js');
+    const server = new McpServer();
+
+    // Register a known tool so the server is set up
+    server.registerTool(
+      { name: 'test_tool', description: 'A test tool', inputSchema: { type: 'object' as const } },
+      async () => ({ content: 'ok' }),
+    );
+
+    // Collect responses
+    const responses: unknown[] = [];
+    const send = (r: unknown) => { responses.push(r); };
+
+    // Call an unknown tool name
+    await server.handleMessage(
+      { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'nonexistent_tool' } },
+      'en-CA',
+      send,
+    );
+
+    assert.equal(responses.length, 1, 'Expected exactly one response');
+    const response = responses[0] as Record<string, unknown>;
+    assert.ok(response.error, 'Expected an error response for unknown tool');
+    const error = response.error as Record<string, unknown>;
+    assert.equal(error.code, -32602);
+    assert.ok((error.message as string).includes('Unknown tool'));
+    assert.ok((error.message as string).includes('nonexistent_tool'));
+  });
+});
+
+describe('system_health Tool', () => {
+  it('has correct definition schema', async () => {
+    const systemHealth = await import('./tools/system-health.js');
+    assert.equal(systemHealth.definition.name, 'system_health');
+    assert.equal(systemHealth.definition.inputSchema.type, 'object');
+    assert.ok(systemHealth.definition.description);
+    assert.ok(systemHealth.definition.description.length > 0);
+    // schema should accept no params
+    assert.deepEqual(systemHealth.definition.inputSchema.properties, {});
+    assert.equal(typeof systemHealth.handler, 'function');
+  });
+
+  it('returns correct result shape (content has tool, status, service fields)', async () => {
+    const systemHealth = await import('./tools/system-health.js');
+    const result = await systemHealth.handler({});
+    assert.ok(result !== null && typeof result === 'object');
+    assert.ok('content' in result);
+    const content = result.content as Record<string, unknown>;
+    assert.equal(content.tool, 'system_health');
+    // Should have status field (either 'ok' or 'error' depending on API reachability)
+    assert.ok(content.status !== undefined);
+    assert.equal(typeof content.status, 'string');
+    // Service field should exist if status is 'ok'
+    if (content.status === 'ok') {
+      assert.ok(content.service !== undefined);
+      assert.ok(content.version !== undefined);
+      assert.ok(content.tier !== undefined);
+      assert.ok(content.usage !== undefined);
+    }
+  });
+});

@@ -1,5 +1,5 @@
 /**
- * Influence Tracking Types — Frostbite Data Pipeline
+ * Influence Tracking Types — MapleSpike Pipeline
  *
  * Types for tracking organizations that influence Canadian government
  * policy: international organizations, NGOs, think tanks, consultancies,

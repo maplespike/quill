@@ -1,6 +1,6 @@
 # Usage Control & Rate Limiting
 
-MapleSpike's API server implements a Katzilla-compatible three-layer usage control system: authentication, rate limiting, and quota enforcement.
+MapleSpike's API server implements a MapleSpike-standard three-layer usage control system: authentication, rate limiting, and quota enforcement.
 
 ---
 

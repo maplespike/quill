@@ -1,5 +1,5 @@
 /**
- * Government Data API Clients — Frostbite Data Pipeline
+ * Government Data API Clients — MapleSpike Pipeline
  *
  * Fetchers for Canadian open government data sources.
  * Implements StatCan WDS/SDMX and CKAN portals.
@@ -317,9 +317,9 @@ export const GOV_DATA_SOURCES = [
   { name: 'BC Data Catalogue', jurisdiction: 'bc', api: 'CKAN', endpoint: 'https://catalogue.data.gov.bc.ca' },
   { name: 'Alberta Open Data', jurisdiction: 'alberta', api: 'CKAN', endpoint: 'https://open.alberta.ca' },
   { name: 'Québec Données', jurisdiction: 'quebec', api: 'CKAN', endpoint: 'https://donneesquebec.ca' },
-  { name: 'Saskatchewan Open Data', jurisdiction: 'saskatchewan', api: 'CKAN', endpoint: 'https://data.saskatchewan.ca', notes: 'Provincial CKAN portal' },
+  { name: 'Saskatchewan Open Data', jurisdiction: 'saskatchewan', api: 'CKAN', endpoint: 'https://dashboard.saskatchewan.ca', notes: 'Provincial CKAN portal' },
   { name: 'Manitoba Open Data', jurisdiction: 'manitoba', api: 'CKAN', endpoint: 'https://data.gov.mb.ca', notes: 'Provincial CKAN portal' },
-  { name: 'Newfoundland & Labrador Open Data', jurisdiction: 'newfoundland', api: 'CKAN', endpoint: 'https://data.gov.nl.ca', notes: 'Provincial CKAN portal' },
+  { name: 'Newfoundland & Labrador Open Data', jurisdiction: 'newfoundland', api: 'CKAN', endpoint: 'https://opendata.gov.nl.ca', notes: 'Provincial CKAN portal' },
 
   // --- Territorial CKAN portals ---
   { name: 'Yukon Open Data', jurisdiction: 'yukon', api: 'CKAN', endpoint: 'https://data.yukon.ca', notes: 'Territorial CKAN portal' },
@@ -327,9 +327,9 @@ export const GOV_DATA_SOURCES = [
   // --- Provincial CKAN portals (converted from Socrata / ArcGIS / other) ---
   { name: 'Nova Scotia Open Data', jurisdiction: 'nova-scotia', api: 'CKAN', endpoint: 'https://data.novascotia.ca', notes: 'Provincial CKAN portal' },
   { name: 'Prince Edward Island Open Data', jurisdiction: 'pei', api: 'CKAN', endpoint: 'https://data.princeedwardisland.ca', notes: 'Provincial CKAN portal' },
-  { name: 'New Brunswick Open Data', jurisdiction: 'new-brunswick', api: 'CKAN', endpoint: 'https://data.gnb.ca', notes: 'Provincial CKAN portal' },
+  { name: 'New Brunswick Open Data', jurisdiction: 'new-brunswick', api: 'CKAN', endpoint: 'https://data.snb.ca', notes: 'Provincial CKAN portal' },
 
   // --- Territorial CKAN portals (converted from OTHER / NONE) ---
-  { name: 'NWT Open Data', jurisdiction: 'northwest-territories', api: 'CKAN', endpoint: 'https://www.gov.nt.ca/data', notes: 'Territorial CKAN portal' },
+  { name: 'NWT Open Data', jurisdiction: 'northwest-territories', api: 'CKAN', endpoint: 'https://opendata.gov.nt.ca', notes: 'Territorial CKAN portal' },
   { name: 'Nunavut Open Data', jurisdiction: 'nunavut', api: 'CKAN', endpoint: 'https://data.gov.nu.ca', notes: 'Territorial CKAN portal' },
 ];

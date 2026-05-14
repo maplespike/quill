@@ -1,5 +1,5 @@
 /**
- * Corporate Ingestion — Frostbite Data Pipeline
+ * Corporate Ingestion — MapleSpike Pipeline
  *
  * Orchestrates corporate/business data ingestion across all sources:
  *   1. Lobbying Registry — who's influencing government

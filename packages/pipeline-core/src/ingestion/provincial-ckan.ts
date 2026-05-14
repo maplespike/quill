@@ -1,5 +1,5 @@
 /**
- * Provincial CKAN Portal Stubs — Frostbite Data Pipeline
+ * Provincial CKAN Portal Stubs — MapleSpike Pipeline
  *
  * Convenience wrappers around fetchCKANPackages for all 13 Canadian
  * provincial/territorial CKAN portals.

@@ -74,8 +74,8 @@ jobs:
               docker tag ghcr.io/reverb256/maplespike-$img:latest nexus:5000/maplespike-$img:latest
               docker push nexus:5000/maplespike-$img:latest
             done
-            kubectl rollout restart deployment/civint-mcp -n ai-inference --timeout=120s
-            kubectl rollout restart deployment/civint-api -n ai-inference --timeout=120s
+            kubectl rollout restart deployment/maplespike-mcp -n ai-inference --timeout=120s
+            kubectl rollout restart deployment/maplespike-api -n ai-inference --timeout=120s
 
   # ── Step 3: Deploy portal to GitHub Pages ──
   deploy-portal:

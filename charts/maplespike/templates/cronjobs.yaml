@@ -22,7 +22,7 @@ spec:
             image: "{{ $.Values.image.registry }}/maplespike-ingest:{{ $.Values.image.tag }}"
             imagePullPolicy: {{ $.Values.image.pullPolicy }}
             env:
-            - name: CIVINT_PIPELINE
+            - name: MAPLESPIKE_PIPELINE
               value: {{ $name }}
             - name: NODE_ENV
               value: production

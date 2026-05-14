@@ -1,8 +1,8 @@
 /**
- * Audit Logging — Frostbite Data Pipeline
+ * Audit Logging — MapleSpike Pipeline
  *
  * Immutable audit trail for every AI decision made by the pipeline.
- * This is **new code** — the original Frostbite Gazette Worker had no audit logging.
+ * This is **new code** — the original MapleSpike Worker had no audit logging.
  *
  * Supports structured logging for provenance tracking,
  * enabling traceability of model inputs, outputs, confidence scores, and decisions.

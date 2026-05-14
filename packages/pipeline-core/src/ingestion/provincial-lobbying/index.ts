@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Ingestion — Frostbite Data Pipeline
+ * Provincial Lobbying Ingestion — MapleSpike Pipeline
  *
  * Orchestrates provincial lobbying registry data ingestion across
  * Canadian provinces. Starts with Ontario (the largest and most active
@@ -663,7 +663,7 @@ export async function findCrossJurisdictionActivity(
 
 /**
  * Run ingestion for all configured provinces.
- * Currently only Ontario is implemented; others are stubbed.
+ * ON, BC, AB, QC have full implementations; others are stubbed.
  */
 export async function ingestAllProvincial(
   db: D1Database | null,

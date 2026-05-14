@@ -1,5 +1,5 @@
 /**
- * Influence Database — Frostbite Data Pipeline
+ * Influence Database — MapleSpike Pipeline
  *
  * D1 SQLite persistence for influence tracking tables:
  *   - influence_actors

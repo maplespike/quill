@@ -3,12 +3,12 @@
 /**
  * MapleSpike Ingestion Runner — K8s CronJob CLI entrypoint
  *
- * Reads CIVINT_PIPELINE env var and dispatches to the correct
+ * Reads MAPLESPIKE_PIPELINE env var and dispatches to the correct
  * ingestAll*() function from pipeline-core.
  *
  * Usage:
- *   CIVINT_PIPELINE=committee node dist/cli/ingest.js
- *   CIVINT_PIPELINE=corporate node dist/cli/ingest.js
+ *   MAPLESPIKE_PIPELINE=committee node dist/cli/ingest.js
+ *   MAPLESPIKE_PIPELINE=corporate node dist/cli/ingest.js
  *
  * Supported pipelines:
  *   committee, corporate, influence, gazette, gic,
@@ -145,10 +145,10 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
 };
 
 async function main(): Promise<void> {
-  const pipeline = process.env.CIVINT_PIPELINE || '';
+  const pipeline = process.env.MAPLESPIKE_PIPELINE || '';
 
   if (!pipeline || !PIPELINE_MAP[pipeline]) {
-    console.error(`[maplespike-ingest] Unknown or missing CIVINT_PIPELINE. Supported: ${Object.keys(PIPELINE_MAP).join(', ')}`);
+    console.error(`[maplespike-ingest] Unknown or missing MAPLESPIKE_PIPELINE. Supported: ${Object.keys(PIPELINE_MAP).join(', ')}`);
     process.exit(1);
   }
 
