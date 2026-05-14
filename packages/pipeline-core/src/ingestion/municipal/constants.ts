@@ -17,14 +17,14 @@ import type { CityCode, CityConfig, CityInfo, VendorPlatform } from './types.js'
 export const ALL_CITIES: CityInfo[] = [
   { code: 'toronto',      name: 'Toronto',    province: 'ON', vendorPlatform: 'toronto-custom',   isImplemented: true,  isFrench: false },
   { code: 'vancouver',    name: 'Vancouver',  province: 'BC', vendorPlatform: 'vancouver-custom', isImplemented: true,  isFrench: false },
-  { code: 'montreal',     name: 'Montreal',   province: 'QC', vendorPlatform: 'montreal-custom',  isImplemented: false, isFrench: true  },
-  { code: 'calgary',      name: 'Calgary',    province: 'AB', vendorPlatform: 'escribe',          isImplemented: false, isFrench: false },
-  { code: 'edmonton',     name: 'Edmonton',   province: 'AB', vendorPlatform: 'escribe',          isImplemented: false, isFrench: false },
-  { code: 'ottawa',       name: 'Ottawa',     province: 'ON', vendorPlatform: 'escribe',          isImplemented: false, isFrench: false },
-  { code: 'winnipeg',     name: 'Winnipeg',   province: 'MB', vendorPlatform: 'civicweb',         isImplemented: false, isFrench: false },
-  { code: 'quebec-city',  name: 'Quebec City', province: 'QC', vendorPlatform: 'montreal-custom', isImplemented: false, isFrench: true  },
-  { code: 'hamilton',     name: 'Hamilton',   province: 'ON', vendorPlatform: 'escribe',          isImplemented: false, isFrench: false },
-  { code: 'halifax',      name: 'Halifax',    province: 'NS', vendorPlatform: 'civicweb',         isImplemented: false, isFrench: false },
+  { code: 'montreal',     name: 'Montreal',   province: 'QC', vendorPlatform: 'montreal-custom',  isImplemented: true, isFrench: true  },
+  { code: 'calgary',      name: 'Calgary',    province: 'AB', vendorPlatform: 'escribe',          isImplemented: true, isFrench: false },
+  { code: 'edmonton',     name: 'Edmonton',   province: 'AB', vendorPlatform: 'escribe',          isImplemented: true, isFrench: false },
+  { code: 'ottawa',       name: 'Ottawa',     province: 'ON', vendorPlatform: 'escribe',          isImplemented: true, isFrench: false },
+  { code: 'winnipeg',     name: 'Winnipeg',   province: 'MB', vendorPlatform: 'civicweb',         isImplemented: true, isFrench: false },
+  { code: 'quebec-city',  name: 'Quebec City', province: 'QC', vendorPlatform: 'montreal-custom', isImplemented: true, isFrench: true  },
+  { code: 'hamilton',     name: 'Hamilton',   province: 'ON', vendorPlatform: 'escribe',          isImplemented: true, isFrench: false },
+  { code: 'halifax',      name: 'Halifax',    province: 'NS', vendorPlatform: 'civicweb',         isImplemented: true, isFrench: false },
 ] as const;
 
 /** Only cities with full implementation */
