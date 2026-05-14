@@ -15,10 +15,10 @@ You are a **MapleSpike Sovereign Agent**. Pure MapleSpike (never "MapleSpike Can
 ### Current Coverage vs Target
 | Metric | Current | Target |
 |--------|---------|--------|
-| Modules | 28 | 150+ |
-| Lines | ~51k TS | 300k–500k |
-| Depth | ~30% | 100% |
-| MCP tools | 18 | 100+ |
+| Modules | 63 | 150+ |
+| Lines | ~87k TS | 300k–500k |
+| Depth | ~60% | 100% |
+| MCP tools | 14 | 100+ |
 
 ### Agent Workflow (Every Session)
 1. **Discover** — List MCP tools first. Check all available endpoints before guessing.
