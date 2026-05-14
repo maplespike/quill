@@ -33,6 +33,7 @@ import { D1Storage, KVCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { globalCache } from './cache.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
+import { getMockData, MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES } from './mock-data.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
 
@@ -187,6 +188,12 @@ export async function handleRequest(
   const startTime = Date.now();
   const url = new URL(request.url);
   const queryOptions = parseQueryOptions(url);
+
+  // --- Mock mode ---
+  // If _mock=true, return curated sample data for dev/testing
+  if (queryOptions._mock) {
+    return handleMockRequest(request, url, queryOptions);
+  }
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
@@ -603,6 +610,43 @@ function compactObject(value: unknown): unknown {
     return Object.keys(result).length > 0 ? result : undefined;
   }
   return value;
+}
+
+/**
+ * Handle _mock=true requests — return curated sample data for testing/demo.
+ */
+async function handleMockRequest(
+  request: Request,
+  url: URL,
+  queryOptions: QueryOptions,
+): Promise<Response> {
+  const startTime = Date.now();
+  const requestId = 'mock-' + crypto.randomUUID().slice(0, 12);
+
+  const bc: BuildContext = {
+    tenant: { id: 'dev', name: 'Dev User', tier: 'pro', isActive: true, journalismMode: false },
+    requestId,
+    startTime,
+    queryOptions,
+    metaOverrides: { cacheStatus: 'mock', durationMs: 0 },
+  };
+
+  const pathname = url.pathname.replace(/^\/v1\//, '');
+  const source = pathname === 'search' || pathname === 'gov/search'
+    ? 'hoc'
+    : pathname.replace(/[^a-zA-Z]/g, '');
+
+  const data = getMockData(source);
+  const allSources = url.searchParams.has('_sources')
+    ? MOCK_DATA_SOURCES
+    : undefined;
+
+  return jsonResponse(buildSuccess({
+    results: data,
+    totalCount: data.length,
+    sources: ALL_MOCK_CATEGORIES,
+    mockData: allSources,
+  }, bc));
 }
 
 export default {
