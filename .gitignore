@@ -29,3 +29,4 @@ packages/engine/src/**/*.d.ts.map
 __pycache__/
 *.pyc
 *.pyo
+.hermes/
