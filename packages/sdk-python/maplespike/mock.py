@@ -30,13 +30,18 @@ _base_quality = ResponseQuality(
 
 
 def _base_citation(source: str = 'Mock Source', url: str = 'https://example.com/mock') -> Citation:
+    retrieved = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    date_str = retrieved.split('T')[0]
     return Citation(
         source_name=source,
         source_url=url,
         license='Mock Data — For Development Only',
         data_hash='mock',
-        retrieved_at=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        retrieved_at=retrieved,
         update_frequency='mock',
+        original_format='JSON',
+        citation_text=f'{source}, retrieved {date_str}. Mock Data. {url}',
+        citation_footnote=f'{source}, Mock',
     )
 
 

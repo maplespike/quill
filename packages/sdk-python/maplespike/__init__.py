@@ -41,6 +41,7 @@ from .client import (
 from .mock import get_mock_response
 from .auth import get_api_key, set_api_key, get_jwt_token, set_jwt_token, clear_auth, is_authenticated
 from .agents import AGENTS, get_agent, list_agents, list_actions
+from .langchain_adapter import get_maplespike_tools
 
 __all__ = [
     'MapleSpike',
@@ -63,6 +64,7 @@ __all__ = [
     'clear_auth',
     'is_authenticated',
     'AGENTS',
+    'get_maplespike_tools',
 ]
 
 
