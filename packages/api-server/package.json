@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@maplespike/pipeline-core": "workspace:*",
-    "better-sqlite3": "^11.0.0"
+    "@simplewebauthn/server": "^13.3.0",
+    "better-sqlite3": "^11.0.0",
+    "viem": "^2.48.11"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241201.0",
