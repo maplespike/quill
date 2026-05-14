@@ -1,5 +1,5 @@
 /**
- * CivInt API Bridge — REST endpoints wrapping MCP tools.
+ * MapleSpike API Bridge — REST endpoints wrapping MCP tools.
  * Serves JSON data to the dashboard frontend.
  *
  * Run: node api-bridge.mjs
@@ -270,7 +270,7 @@ const server = http.createServer(async (req, res) => {
 // ─── Start ────────────────────────────────
 await loadTools();
 server.listen(PORT, HOST, () => {
-  console.log(`[bridge] CivInt API Bridge running on http://${HOST}:${PORT}`);
+  console.log(`[bridge] MapleSpike API Bridge running on http://${HOST}:${PORT}`);
   console.log(`[bridge] Try: curl http://localhost:${PORT}/api/health`);
   console.log(`[bridge]      curl http://localhost:${PORT}/api/latest-releases?limit=3`);
   console.log(`[bridge]      curl http://localhost:${PORT}/api/search-committees?q=finance`);

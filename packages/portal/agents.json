@@ -1,10 +1,10 @@
 {
   "name": "MapleSpike",
-  "description": "Canadian government data API — 53 modules, 79 endpoints, SHA-256 verified citations",
+  "description": "Canadian government data API — 64+ modules, 30+ MCP tools, SHA-256 verified citations",
   "url": "https://maplespike.ca",
   "moduleCount": 27,
   "actionCount": 79,
-  "updatedAt": "2026-05-14T05:15:13.729Z",
+  "updatedAt": "2026-05-14T05:22:44.935Z",
   "tools": [
     {
       "name": "committees",

@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: civint-portal
+  name: maplespike-portal
   namespace: ai-inference
   labels:
-    app: civint-portal
+    app: maplespike-portal
     component: frontend
     tier: web
 spec:
   nodeName: nexus
   containers:
-    - name: civint-portal
-      image: nexus:5000/civint-portal:latest
+    - name: maplespike-portal
+      image: nexus:5000/maplespike-portal:latest
       imagePullPolicy: Always
       ports:
         - containerPort: 8080
@@ -39,10 +39,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: civint-portal
+  name: maplespike-portal
   namespace: ai-inference
   labels:
-    app: civint-portal
+    app: maplespike-portal
     component: frontend
     tier: web
 spec:
@@ -54,4 +54,4 @@ spec:
       nodePort: 30964
       protocol: TCP
   selector:
-    app: civint-portal
+    app: maplespike-portal
