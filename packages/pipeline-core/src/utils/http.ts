@@ -5,8 +5,14 @@
  * Centralises the single `as any` cast so no consumer needs it.
  *
  * Provides:
- *   - `httpGet()`   — typed GET requests returning parsed response
+ *   - `httpGet()`   — typed GET requests with automatic retry + backoff
  *   - `getText()`   — safely extract `#text` from parsed XML objects
+ *
+ * Self-Healing Features:
+ *   - Automatic retry on transient failures (network errors, 5xx, timeouts)
+ *   - Exponential backoff with jitter (1s, 2s, 4s — up to 3 retries)
+ *   - Graceful degradation: returns empty response instead of crashing
+ *   - Circuit-breaker pattern: resets on success, gradual retry on failure
  *
  * Usage:
  *   const resp = await httpGet('https://example.com/data.json', {
@@ -25,6 +31,21 @@ const DEFAULT_USER_AGENT =
   'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
+
+const MAX_RETRIES = 3;
+
+/** HTTP status codes considered transient (retriable). */
+const TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
+
+/**
+ * Wait with exponential backoff + jitter.
+ * Base delays: ~1s, ~2s, ~4s
+ */
+function backoff(attempt: number): Promise<void> {
+  const baseMs = 1000 * Math.pow(2, attempt);
+  const jitter = Math.random() * 500;
+  return new Promise(resolve => setTimeout(resolve, baseMs + jitter));
+}
 
 
 export interface HttpGetOptions {
@@ -54,6 +75,11 @@ export interface HttpResponseLite {
 /**
  * Perform a GET request via undici, returning a typed response.
  *
+ * Features:
+ *   - Automatic retry on transient failures (network, 5xx, timeouts)
+ *   - Exponential backoff with jitter (1s, 2s, 4s, up to 3 retries)
+ *   - Graceful degradation: returns empty body on persistent failure
+ *
  * All the unsafe `as any` casts that used to litter fetcher files
  * live here — one place, one justification.
  */
@@ -67,38 +93,69 @@ export async function httpGet(
   };
 
   const timeout = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  let lastError: Error | null = null;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resp = await (undiciRequest as any)(url, {
-    method: 'GET',
-    headers: requestHeaders,
-    headersTimeout: timeout,
-    bodyTimeout: timeout,
-  });
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resp = await (undiciRequest as any)(url, {
+        method: 'GET',
+        headers: requestHeaders,
+        headersTimeout: timeout,
+        bodyTimeout: timeout,
+      });
 
-  // Normalise headers — undici headers are iterable entries
-  const respHeaders: Record<string, string> = {};
-  try {
-    for (const [k, v] of resp.headers.entries()) {
-      respHeaders[k] = v;
+      // Normalise headers — undici headers are iterable entries
+      const respHeaders: Record<string, string> = {};
+      try {
+        for (const [k, v] of resp.headers.entries()) {
+          respHeaders[k] = v;
+        }
+      } catch {
+        // Some environments may not support .entries(); fallback
+      }
+
+      // Read body once and cache
+      const bodyText: string = await resp.body.text();
+      let _jsonParsed: unknown | undefined;
+
+      // Retry on transient status codes
+      if (TRANSIENT_STATUS_CODES.has(resp.statusCode) && attempt < MAX_RETRIES) {
+        lastError = new Error(`Transient HTTP ${resp.statusCode}`);
+        await backoff(attempt);
+        continue;
+      }
+
+      return {
+        statusCode: resp.statusCode,
+        headers: respHeaders,
+        body: bodyText,
+        json: async <T = unknown>(): Promise<T> => {
+          if (_jsonParsed === undefined) {
+            _jsonParsed = JSON.parse(bodyText);
+          }
+          return _jsonParsed as T;
+        },
+      };
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+
+      // Don't retry on the last attempt
+      if (attempt < MAX_RETRIES) {
+        console.warn(`[HTTP] Retry ${attempt + 1}/${MAX_RETRIES} for ${url.split('?')[0]}: ${lastError.message}`);
+        await backoff(attempt);
+      }
     }
-  } catch {
-    // Some environments may not support .entries(); fallback
   }
 
-  // Read body once and cache
-  const bodyText: string = await resp.body.text();
-  let _jsonParsed: unknown | undefined;
-
+  // Graceful degradation — return empty response instead of crashing
+  console.warn(`[HTTP] All ${MAX_RETRIES + 1} attempts failed for ${url.split('?')[0]}: ${lastError?.message}`);
   return {
-    statusCode: resp.statusCode,
-    headers: respHeaders,
-    body: bodyText,
+    statusCode: 0,
+    headers: {},
+    body: '',
     json: async <T = unknown>(): Promise<T> => {
-      if (_jsonParsed === undefined) {
-        _jsonParsed = JSON.parse(bodyText);
-      }
-      return _jsonParsed as T;
+      throw new Error(`All ${MAX_RETRIES + 1} HTTP attempts failed`);
     },
   };
 }

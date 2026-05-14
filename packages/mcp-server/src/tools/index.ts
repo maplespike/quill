@@ -1,3 +1,7 @@
+/**
+ * Tool registry — loads all MapleSpike MCP tools
+ */
+
 import type { ToolDefinition, ToolHandler } from './types.js';
 import * as queryGovData from './query-gov-data.js';
 import * as factCheck from './fact-check.js';
@@ -13,6 +17,13 @@ import * as searchProvincialLobbying from './search-provincial-lobbying.js';
 import * as searchOversight from './search-oversight.js';
 import * as searchCanlii from './search-canlii.js';
 import * as searchLmia from './search-lmia.js';
+import * as searchImmigration from './search-immigration.js';
+import * as searchScience from './search-science.js';
+import * as searchTribunals from './search-tribunals.js';
+import * as aiAsk from './ai-ask.js';
+import * as aiAnalyze from './ai-analyze.js';
+import * as aiSearchSemantic from './ai-search-semantic.js';
+import * as systemHealth from './system-health.js';
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -35,6 +46,13 @@ export function getAllTools(): ToolModule[] {
     searchOversight,
     searchCanlii,
     searchLmia,
+    searchImmigration,
+    searchScience,
+    searchTribunals,
+    aiAsk,
+    aiAnalyze,
+    aiSearchSemantic,
+    systemHealth,
   ];
 }
 

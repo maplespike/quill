@@ -89,7 +89,7 @@
             name = "maplespike-api";
             cmd = [ "node" "packages/api-server/dist/dev-server.js" ];
             port = 8082;
-            extraEnv = [ "CIVINT_STORAGE=sqlite" ];
+            extraEnv = [ "MAPLESPIKE_STORAGE=sqlite" ];
           };
 
           maplespike-ingest-image = mkImage {

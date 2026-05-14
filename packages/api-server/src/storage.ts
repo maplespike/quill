@@ -186,7 +186,7 @@ export class MemoryStorage implements MapleSpikeStorage {
     // Seed: internal tenant for FG
     const internalTenant: Tenant = {
       id: 'fg-internal',
-      name: 'Frostbite Gazette',
+      name: 'MapleSpike',
       tier: 'internal',
       isActive: true,
       journalismMode: true,

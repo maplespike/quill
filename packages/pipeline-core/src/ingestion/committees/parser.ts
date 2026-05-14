@@ -1,5 +1,5 @@
 /**
- * Committee XML Parser — Frostbite Data Pipeline
+ * Committee XML Parser — MapleSpike Pipeline
  *
  * Parses the House of Commons Hansard XML (evidence transcript) into
  * structured CommitteeMeeting and Intervention records.

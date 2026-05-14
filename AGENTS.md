@@ -224,7 +224,7 @@ Tools: `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `searc
 
 **Local run:**
 ```bash
-export CIVINT_API_KEY=dev-key
+export MAPLESPIKE_API_KEY=dev-key
 cd packages/mcp-server
 pnpm start
 ```
@@ -255,9 +255,9 @@ pnpm start
 
 | Variable | Default | Where used |
 |----------|---------|------------|
-| `CIVINT_API_KEY` | `dev-key` | mcp-server |
+| `MAPLESPIKE_API_KEY` | `dev-key` | mcp-server |
 | `PORT` | `3001` | mcp-server (SSE mode) |
-| `CIVINT_DB_PATH` | `./maplespike.db` | api-server (SQLite path) |
+| `MAPLESPIKE_DB_PATH` | `./maplespike.db` | api-server (SQLite path) |
 
 ---
 

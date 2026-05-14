@@ -2,7 +2,7 @@
  * MapleSpike — API Server Types
  *
  * Shared types for the multi-tenant API gateway.
- * Katzilla-quality response envelope with quality, citation, and token optimization.
+ * MapleSpike-quality response envelope with quality, citation, and token optimization.
  */
 
 /* ------------------------------------------------------------------ */
@@ -130,7 +130,7 @@ export function parseQueryOptions(url: URL): QueryOptions {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Response Envelope (Katzilla-compatible)                            */
+/*  Response Envelope (MapleSpike-compatible)                            */
 /* ------------------------------------------------------------------ */
 
 export interface ApiError {
@@ -278,8 +278,8 @@ export interface Env {
     put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
   };
   ENVIRONMENT?: string;
-  CIVINT_VERSION?: string;
-  CIVINT_NAME?: string;
+  MAPLESPIKE_VERSION?: string;
+  MAPLESPIKE_NAME?: string;
   FREE_LIMIT?: string;
   PRO_LIMIT?: string;
   BUSINESS_LIMIT?: string;

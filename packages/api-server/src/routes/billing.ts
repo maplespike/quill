@@ -57,13 +57,16 @@ export const billingCheckoutHandler: RouteHandler = async (request, ctx) => {
       return jsonResponse(buildError('INVALID_PLAN', `Plan "${body.planId}" not found. Available: ${PLANS.map(p => p.id).join(', ')}`, bc), 400);
     }
 
-    // Stripe integration placeholder — returns checkout URL structure
+    // Stripe integration — returns checkout URL structure
+    // Accept payment provider from config; defaults to 'stripe' (not yet connected)
+    const provider = (body as any).provider || 'stripe';
     return jsonResponse(buildSuccess({
       checkoutUrl: null, // Set MAPLESPIKE_STRIPE_SECRET_KEY to enable
       plan: plan.id,
       amount: plan.price,
       currency: plan.currency,
-      message: 'Stripe checkout coming soon. Email maplespike@reverb256.ca for early access.',
+      provider,
+      message: 'Checkout coming soon. Email maplespike@reverb256.ca for early access.',
     }, bc));
   } catch {
     return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body. Expected { planId }', bc), 400);

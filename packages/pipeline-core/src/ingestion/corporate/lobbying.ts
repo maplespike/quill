@@ -1,5 +1,5 @@
 /**
- * Lobbying Registry Connector — Frostbite Data Pipeline
+ * Lobbying Registry Connector — MapleSpike Pipeline
  *
  * Fetches federal lobbying registration data from the Office of the
  * Commissioner of Lobbying of Canada (OCL).

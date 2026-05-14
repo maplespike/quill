@@ -2,7 +2,7 @@
  * MapleSpike — Response Envelope
  *
  * Consistent API response format for all endpoints.
- * Katzilla-quality envelope: success/data/error/meta/quality/citation.
+ * MapleSpike-quality envelope: success/data/error/meta/quality/citation.
  * Applies token optimization (_fields, _format).
  */
 

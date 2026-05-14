@@ -1,5 +1,5 @@
 /**
- * British Columbia Lobbying Fetcher — Frostbite Data Pipeline
+ * British Columbia Lobbying Fetcher — MapleSpike Pipeline
  *
  * Searches the BC Lobbyists Registry (lobbyists.bc.ca) for lobbying records.
  * Uses undici for HTTP (consistent with the rest of the pipeline).

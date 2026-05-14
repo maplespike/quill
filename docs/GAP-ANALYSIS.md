@@ -62,7 +62,7 @@
 
 ## 1. IMMIGRATION & BORDERS — ✅ Module built (🔴 CRITICAL)
 
-> **Status:** Module exists at `packages/pipeline-core/src/ingestion/immigration/`. Covers IRCC permanent residents, Express Entry, IRB RPD decisions, CBSA enforcement. MCP tool `search_immigration` registered. CLI pipeline `CIVINT_PIPELINE=immigration`. Builds clean.
+> **Status:** Module exists at `packages/pipeline-core/src/ingestion/immigration/`. Covers IRCC permanent residents, Express Entry, IRB RPD decisions, CBSA enforcement. MCP tool `search_immigration` registered. CLI pipeline `MAPLESPIKE_PIPELINE=immigration`. Builds clean.
 
 
 

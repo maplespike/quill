@@ -1,5 +1,5 @@
 /**
- * Provincial Lobbying Parser — Frostbite Data Pipeline
+ * Provincial Lobbying Parser — MapleSpike Pipeline
  *
  * Normalizes provincial lobbying registry records to the federal
  * LobbyingRecord schema. This enables cross-jurisdiction queries

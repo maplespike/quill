@@ -18,7 +18,7 @@ import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
-const API_KEY = process.env.CIVINT_API_KEY ?? 'dev-key';
+const API_KEY = process.env.MAPLESPIKE_API_KEY ?? 'dev-key';
 
 const server = new McpServer();
 
