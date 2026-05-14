@@ -42,6 +42,8 @@ def build_url(
 
     if options:
         # Map QueryOptions to URL parameters
+        if options.get('mock') is not None:
+            all_params['_mock'] = str(options['mock'])
         if options.get('fields'):
             all_params['_fields'] = options['fields']
         if options.get('format'):
@@ -147,6 +149,8 @@ def parse_response(
         source_uptime_7d=quality_dict.get('source_uptime_7d', 1.0),
         confidence=quality_dict.get('confidence', 0.95),
         certainty_score=quality_dict.get('certainty_score', 0.9),
+        last_verified=quality_dict.get('last_verified', ''),
+        data_completeness=quality_dict.get('data_completeness', ''),
     )
 
     citation = Citation(
@@ -156,6 +160,9 @@ def parse_response(
         data_hash=citation_dict.get('data_hash', ''),
         retrieved_at=citation_dict.get('retrieved_at', ''),
         update_frequency=citation_dict.get('update_frequency', ''),
+        original_format=citation_dict.get('original_format', ''),
+        citation_text=citation_dict.get('citation_text', ''),
+        citation_footnote=citation_dict.get('citation_footnote', ''),
     )
 
     return MapleSpikeResponse(
