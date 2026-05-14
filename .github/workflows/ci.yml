@@ -29,6 +29,20 @@ jobs:
       # Build all JS/TS packages (Turbo respects dependency order)
       - run: pnpm -r build
 
+      # ── Start API server for MCP integration tests ──────────
+
+      - name: Start API server (background)
+        run: |
+          node packages/api-server/dist/dev-server.js &
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8082/v1/health > /dev/null 2>&1; then
+              echo "API server ready on port 8082"
+              break
+            fi
+            echo "Waiting for API server... ($i/30)"
+            sleep 1
+          done
+
       # ── Test packages that have tests ────────────────────────
 
       - name: Test pipeline-core
@@ -38,6 +52,9 @@ jobs:
       - name: Test mcp-server
         run: pnpm test
         working-directory: packages/mcp-server
+        env:
+          MAPLESPIKE_API_URL: http://localhost:8082/v1
+          MAPLESPIKE_API_KEY: maplespike-dev-key
 
       - name: Test engine
         run: pnpm test
