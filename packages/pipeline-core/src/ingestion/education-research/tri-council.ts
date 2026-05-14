@@ -25,6 +25,7 @@ import {
 import type { D1Database } from '../committees/db.js';
 import type { TriCouncilAgency, TriCouncilGrant, EduIngestionResult } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -210,33 +211,7 @@ export function findBestResource(resources: CkanResource[]): CkanResource | null
 /*  CSV Parsing                                                        */
 /* ------------------------------------------------------------------ */
 
-/**
- * Parse a CSV header into columns.
- */
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-  return fields;
-}
 
 /**
  * Parse CSV text into an array of row objects using the header row.

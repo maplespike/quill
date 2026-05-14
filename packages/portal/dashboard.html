@@ -493,7 +493,7 @@
    491|
 <script>
 // ─── API configuration ───
-const API_BRIDGE = 'http://127.0.0.1:8084/v1/';
+const API_BRIDGE = 'http://127.0.0.1:8082/v1/';
 const DEV_API_KEY='maples...-key';
 
 // ─── Load dashboard data from live pipeline-data.json ───
@@ -572,7 +572,71 @@ function renderActivity(activity) {
     if (container) container.innerHTML = '<div class="stat-dash" style="grid-column:1/-1;text-align:center;"><span class="stat-dash-label">Run <code>node scripts/generate-pipeline-data.mjs</code> to populate dashboard</span></div>';
   }
 })();
+
+// ─── Search handler: wire the dashboard search box to gov/search API ───
+(function() {
+  const searchInput = document.getElementById('dash-search-input');
+  const searchResults = document.getElementById('live-search-results');
+  const searchBox = document.getElementById('live-search-box');
+  const searchStatus = document.getElementById('search-status');
+  const searchLinks = document.querySelectorAll('a[data-search]');
+
+  if (!searchInput || !searchResults) return;
+
+  async function doSearch(query) {
+    if (!query.trim()) return;
+    searchStatus.textContent = 'searching...';
+    searchResults.style.display = 'block';
+    searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--text-muted);">Searching...</p>';
+    try {
+      const resp = await fetch('http://127.0.0.1:8082/v1/gov/search?query=' + encodeURIComponent(query) + '&limit=8', {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (!data?.success || !data?.data?.results) throw new Error('Invalid response');
+
+      const pipeline = data.data.results.pipeline || [];
+      const ckan = data.data.results.ckan || [];
+      const all = [...pipeline, ...ckan].slice(0, 8);
+
+      if (all.length === 0) {
+        searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--text-muted);">No results found for "' + query + '"</p>';
+      } else {
+        searchResults.innerHTML = '<div style="font-size:0.82rem;">' +
+          all.map(r =>
+            '<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">' +
+            '<span style="font-size:0.72rem;color:var(--accent-cyan);font-weight:500;">' + (r.organization?.title || r.source || 'Gov') + '</span>' +
+            '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (r.title || r.name || 'Dataset') + '</span>' +
+            (r.url ? '<a href="' + r.url + '" target="_blank" style="color:var(--text-muted);text-decoration:none;">↗</a>' : '') +
+            '</div>'
+          ).join('') +
+          '</div>';
+      }
+      searchStatus.textContent = '\u23ce enter';
+    } catch (e) {
+      searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--accent);">Could not reach the API server. Make sure the MapleSpike API is running on <code>http://127.0.0.1:8082</code></p>';
+      searchStatus.textContent = '\u23ce enter';
+    }
+  }
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      doSearch(searchInput.value);
+    }
+  });
+
+  // Wire suggestion links
+  searchLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      searchInput.value = link.getAttribute('data-search');
+      doSearch(searchInput.value);
+    });
+  });
+})();
 </script>
- 
+
 </body>
 </html>

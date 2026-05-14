@@ -2,6 +2,7 @@ import { SOURCES } from './constants.js';
 import type { ResearchGrant } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 export async function fetchMitacsGrants(): Promise<ResearchGrant[]> {
   const grants: ResearchGrant[] = [];
   const now = new Date().toISOString();
@@ -47,19 +48,7 @@ export async function fetchMitacsGrants(): Promise<ResearchGrant[]> {
   return grants;
 }
 
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (const ch of line) {
-    if (ch === '"') { inQuotes = !inQuotes; continue; }
-    if (ch === ',' && !inQuotes) { result.push(current.trim()); current = ''; continue; }
-    current += ch;
-  }
-  result.push(current.trim());
-  return result;
-}
 
 function detectRecipientType(name: string): ResearchGrant['recipientType'] {
   const lc = name.toLowerCase();

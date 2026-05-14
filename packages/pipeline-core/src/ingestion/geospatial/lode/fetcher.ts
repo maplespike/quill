@@ -22,6 +22,7 @@ import type {
 } from './types.js';
 import type { LodeDatabaseInfo } from './constants.js';
 
+import { parseCsvLine } from '../../../utils/csv.js';
 async function fetchJson(url: string): Promise<any> {
   try {
     const c = new AbortController();
@@ -42,25 +43,7 @@ async function fetchCsv(url: string): Promise<string | null> {
   } catch { return null; }
 }
 
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
-        current += '"'; i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (ch === ',' && !inQuotes) {
-      result.push(current.trim()); current = '';
-    } else { current += ch; }
-  }
-  result.push(current.trim());
-  return result;
-}
+
 
 function safeFloat(val: string | undefined): number | null {
   if (!val || val.trim() === '') return null;

@@ -30,6 +30,7 @@ import type {
   WdsErrorResponse,
 } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  Custom Error Class                                                 */
 /* ------------------------------------------------------------------ */
@@ -381,35 +382,7 @@ export function parseCsvResponse(
   return { headers, rows };
 }
 
-/**
- * Parse a single CSV line respecting quoted fields.
- */
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        // Escaped quote
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  result.push(current.trim());
-
-  return result;
-}
 
 /* ------------------------------------------------------------------ */
 /*  JSON-stat Parsing Utility                                          */
