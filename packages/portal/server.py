@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 
 PORT = int(os.environ.get("PORT", "4321"))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+DOCS_DIR = os.path.join(DIRECTORY, "docs-dist")
 
 # ── Markdown conversion helpers ─────────────────────────────────────
 
@@ -113,7 +114,33 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
-        path = parsed.path
+        p = parsed.path
+
+        # ── Serve Vitepress docs under /docs/ ────────────────────────
+        if p.startswith("/docs/") or p == "/docs":
+            rel = p.removeprefix("/docs/")
+            if not rel:
+                rel = "index.html"
+            docs_path = os.path.join(DOCS_DIR, rel)
+            if os.path.isdir(docs_path):
+                docs_path = os.path.join(docs_path, "index.html")
+            if os.path.isfile(docs_path):
+                ext = os.path.splitext(docs_path)[1]
+                ct = {"": "text/html", ".html": "text/html", ".css": "text/css",
+                      ".js": "application/javascript", ".svg": "image/svg+xml",
+                      ".png": "image/png", ".ico": "image/x-icon",
+                      ".json": "application/json", ".woff2": "font/woff2"}.get(ext, "text/plain")
+                with open(docs_path, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", ct)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+
+        # ── Serve portal pages ───────────────────────────────────────
+        path = p
 
         # ── Rewrite /index.md or /page-name.md ──
         if path.endswith(".md"):

@@ -145,6 +145,9 @@ export interface CitationMeta {
   data_hash: string;
   license: string;
   update_frequency: string;
+  original_format?: string;
+  citation_text?: string;
+  citation_footnote?: string;
 }
 
 export interface QualityMeta {
