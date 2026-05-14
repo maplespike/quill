@@ -1,38 +1,11 @@
-# CivInt Canada — robots.txt
-# https://civint.ca/robots.txt
-
-# Allow all standard crawlers
 User-agent: *
 Allow: /
+Allow: /dashboard
+Allow: /docs
+Allow: /agents
+Allow: /explorer
+Disallow: /workspace
+Disallow: /ask
+Disallow: /signal
 
-# LLM / AI crawlers — explicitly allowed for AI SEO
-User-agent: GPTBot
-Allow: /
-Allow: /llms.txt$
-Allow: /llms-full.txt$
-Allow: /docs.html$
-Allow: /agents.html$
-Allow: /openapi.json$
-
-User-agent: ClaudeBot
-Allow: /
-Allow: /llms.txt$
-Allow: /llms-full.txt$
-Allow: /docs.html$
-Allow: /agents.html$
-
-User-agent: PerplexityBot
-Allow: /
-Allow: /llms.txt$
-Allow: /llms-full.txt$
-Allow: /docs.html$
-Allow: /agents.html$
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-# Sitemap (once published with a public domain)
-# Sitemap: https://civint.ca/sitemap.xml
+Sitemap: https://maplespike.ca/sitemap.xml
