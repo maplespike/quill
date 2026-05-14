@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maplespike-dev
+  namespace: maplespike-dev
+  annotations:
+    caddy.ingress.kubernetes.io/rewrite-to: "/{path}"
+spec:
+  ingressClassName: caddy
+  tls:
+    - hosts:
+        - dev.maplespike.lan
+      secretName: maplespike-tls
+  rules:
+    - host: dev.maplespike.lan
+      http:
+        paths:
+          - path: /api/v1/health
+            pathType: Exact
+            backend:
+              service:
+                name: maplespike-api
+                port:
+                  number: 8082
+          - path: /api/v1/
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-api
+                port:
+                  number: 8082
+          - path: /mcp/health
+            pathType: Exact
+            backend:
+              service:
+                name: maplespike-mcp
+                port:
+                  number: 3001
+          - path: /mcp/
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-mcp
+                port:
+                  number: 3001
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-portal
+                port:
+                  number: 8080

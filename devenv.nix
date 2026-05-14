@@ -31,7 +31,7 @@
     # K8s tooling
     kubectl
     # Python packaging
-    nodePackages.pyright
+    pyright
   ];
 
   # Environment variables for native module compilation
@@ -73,7 +73,7 @@
     echo "🍁 MapleSpike Development Environment"
     echo "======================================"
     echo ""
-    echo "53 modules  |  81,857 lines  |  1,141 endpoints  |  0 stubs"
+    echo "65 modules  |  113k lines TS  |  1,141 endpoints  |  22 MCP tools"
     echo ""
     echo "Available commands:"
     echo "  pnpm dev       - Start development server"
