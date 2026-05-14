@@ -1,17 +1,1010 @@
 {
   "name": "MapleSpike",
-  "description": "Canadian government data API with SHA-256 verified citations",
+  "description": "Canadian government data API — 53 modules, 79 endpoints, SHA-256 verified citations",
   "url": "https://maplespike.ca",
+  "moduleCount": 27,
+  "actionCount": 79,
+  "updatedAt": "2026-05-14T05:15:13.729Z",
   "tools": [
     {
-      "name": "query_gov_data",
-      "description": "Search across all Canadian government data sources",
-      "parameters": { "query": "string", "source": "string", "limit": "number" }
+      "name": "committees",
+      "description": "Parliamentary committee information — membership, meetings, reports, witnesses",
+      "actions": [
+        {
+          "id": "committee-membership",
+          "description": "List members of parliamentary committees and their roles",
+          "requiredParams": [],
+          "optionalParams": [
+            "committee",
+            "parliament",
+            "chamber",
+            "party",
+            "limit"
+          ]
+        },
+        {
+          "id": "committee-meetings",
+          "description": "Schedule and records of committee meetings",
+          "requiredParams": [],
+          "optionalParams": [
+            "committee",
+            "date_from",
+            "date_to",
+            "parliament",
+            "limit"
+          ]
+        },
+        {
+          "id": "committee-reports",
+          "description": "Published committee reports and findings",
+          "requiredParams": [],
+          "optionalParams": [
+            "committee",
+            "parliament",
+            "keyword",
+            "limit"
+          ]
+        },
+        {
+          "id": "committee-witnesses",
+          "description": "Witness appearances before committees",
+          "requiredParams": [],
+          "optionalParams": [
+            "committee",
+            "witness",
+            "date_from",
+            "date_to",
+            "limit"
+          ]
+        }
+      ]
     },
     {
-      "name": "get_citation",
-      "description": "Verify a data point by its SHA-256 citation hash",
-      "parameters": { "hash": "string" }
+      "name": "corporate",
+      "description": "Corporate registry data — profiles, filings, directors, lobbying",
+      "actions": [
+        {
+          "id": "corporation-profile",
+          "description": "Profile information for a Canadian corporation",
+          "requiredParams": [
+            "business_number"
+          ],
+          "optionalParams": [
+            "jurisdiction",
+            "include_directors"
+          ]
+        },
+        {
+          "id": "corporation-filings",
+          "description": "Corporate filings and annual returns",
+          "requiredParams": [
+            "business_number"
+          ],
+          "optionalParams": [
+            "year",
+            "filing_type",
+            "limit"
+          ]
+        },
+        {
+          "id": "director-registry",
+          "description": "Corporate director registrations and history",
+          "requiredParams": [],
+          "optionalParams": [
+            "business_number",
+            "director_name",
+            "limit"
+          ]
+        },
+        {
+          "id": "lobbying-activities",
+          "description": "Registered lobbying activities and communications",
+          "requiredParams": [],
+          "optionalParams": [
+            "lobbyist",
+            "client",
+            "subject",
+            "date_from",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "influence",
+      "description": "Political influence tracking — donations, fundraising, media ownership",
+      "actions": [
+        {
+          "id": "political-contributions",
+          "description": "Political donation records and trends",
+          "requiredParams": [],
+          "optionalParams": [
+            "donor",
+            "party",
+            "year",
+            "limit",
+            "sort"
+          ]
+        },
+        {
+          "id": "fundraising-events",
+          "description": "Political fundraising events and ticket prices",
+          "requiredParams": [],
+          "optionalParams": [
+            "party",
+            "date_from",
+            "date_to",
+            "limit"
+          ]
+        },
+        {
+          "id": "media-ownership",
+          "description": "Media ownership structures and cross-holdings",
+          "requiredParams": [],
+          "optionalParams": [
+            "media_group",
+            "outlet",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "regulations",
+      "description": "Regulatory activity — proposals, decisions, consultations",
+      "actions": [
+        {
+          "id": "regulatory-proposals",
+          "description": "Proposed regulatory changes open for comment",
+          "requiredParams": [],
+          "optionalParams": [
+            "agency",
+            "status",
+            "keyword",
+            "published_after",
+            "limit"
+          ]
+        },
+        {
+          "id": "regulatory-decisions",
+          "description": "Final regulatory decisions and rulings",
+          "requiredParams": [],
+          "optionalParams": [
+            "agency",
+            "decision_type",
+            "date_from",
+            "limit"
+          ]
+        },
+        {
+          "id": "consultation-comments",
+          "description": "Public comments submitted during regulatory consultations",
+          "requiredParams": [],
+          "optionalParams": [
+            "proposal_id",
+            "commenter",
+            "keyword",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "courts",
+      "description": "Court system — decisions, case tracking, tribunal rulings",
+      "actions": [
+        {
+          "id": "court-decisions",
+          "description": "Published court decisions and judgments",
+          "requiredParams": [],
+          "optionalParams": [
+            "court",
+            "date_from",
+            "keyword",
+            "citation",
+            "limit"
+          ]
+        },
+        {
+          "id": "case-tracking",
+          "description": "Track ongoing court cases and their status",
+          "requiredParams": [],
+          "optionalParams": [
+            "case_number",
+            "court",
+            "party_name",
+            "status",
+            "limit"
+          ]
+        },
+        {
+          "id": "tribunal-rulings",
+          "description": "Administrative tribunal rulings and orders",
+          "requiredParams": [],
+          "optionalParams": [
+            "tribunal",
+            "date_from",
+            "keyword",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "oversight",
+      "description": "Government oversight — audits, watchdogs, ATIP, conflict of interest",
+      "actions": [
+        {
+          "id": "auditor-reports",
+          "description": "Auditor General reports and performance audits",
+          "requiredParams": [],
+          "optionalParams": [
+            "agency",
+            "year",
+            "keyword",
+            "limit"
+          ]
+        },
+        {
+          "id": "watchdog-reports",
+          "description": "Ombudsman and watchdog office reports",
+          "requiredParams": [],
+          "optionalParams": [
+            "office",
+            "year",
+            "keyword",
+            "limit"
+          ]
+        },
+        {
+          "id": "access-to-information",
+          "description": "ATIP request summaries and processing metrics",
+          "requiredParams": [],
+          "optionalParams": [
+            "institution",
+            "year",
+            "keyword",
+            "limit"
+          ]
+        },
+        {
+          "id": "conflict-of-interest",
+          "description": "Conflict of interest disclosures and commissioner findings",
+          "requiredParams": [],
+          "optionalParams": [
+            "public_office_holder",
+            "year",
+            "finding",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "data",
+      "description": "Government data — spending, elections, demographics, salaries",
+      "actions": [
+        {
+          "id": "government-spending",
+          "description": "Federal and provincial government expenditure data",
+          "requiredParams": [],
+          "optionalParams": [
+            "department",
+            "year",
+            "category",
+            "limit",
+            "min_amount"
+          ]
+        },
+        {
+          "id": "election-results",
+          "description": "Historical and current election results",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "riding",
+            "party",
+            "type",
+            "limit"
+          ]
+        },
+        {
+          "id": "population-statistics",
+          "description": "Population and demographic statistics",
+          "requiredParams": [],
+          "optionalParams": [
+            "region",
+            "year",
+            "demographic",
+            "limit"
+          ]
+        },
+        {
+          "id": "public-salary-disclosure",
+          "description": "Public sector salary disclosures (sunshine lists)",
+          "requiredParams": [],
+          "optionalParams": [
+            "employer",
+            "year",
+            "min_salary",
+            "name",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "immigration",
+      "description": "Immigration data — permanent residents, study permits, work permits, refugee decisions, CBSA enforcement",
+      "actions": [
+        {
+          "id": "permanent-residents",
+          "description": "Permanent resident admissions by province, category, country",
+          "requiredParams": [],
+          "optionalParams": [
+            "province",
+            "year",
+            "category",
+            "limit"
+          ]
+        },
+        {
+          "id": "study-permits",
+          "description": "Study permit holders by country, institution type, gender",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "country",
+            "limit"
+          ]
+        },
+        {
+          "id": "work-permits",
+          "description": "Work permit holders by program (TFWP/IMP), province, skill level",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "program",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "refugee-decisions",
+          "description": "IRB refugee protection division decisions and outcomes",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "country",
+            "outcome",
+            "limit"
+          ]
+        },
+        {
+          "id": "cbsa-enforcement",
+          "description": "CBSA enforcement actions, removals, and port statistics",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "type",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "indigenous",
+      "description": "Indigenous relations data — land claims, ISC spending, FN transparency, TRC calls to action",
+      "actions": [
+        {
+          "id": "land-claims",
+          "description": "CIRNAC specific claims and comprehensive land claims",
+          "requiredParams": [],
+          "optionalParams": [
+            "status",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "isc-spending",
+          "description": "Indigenous Services Canada health, education, infrastructure spending",
+          "requiredParams": [],
+          "optionalParams": [
+            "program",
+            "province",
+            "year",
+            "limit"
+          ]
+        },
+        {
+          "id": "fn-transparency",
+          "description": "First Nations financial transparency and salary disclosure",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "first_nation",
+            "limit"
+          ]
+        },
+        {
+          "id": "trc-progress",
+          "description": "Truth and Reconciliation Commission calls to action status",
+          "requiredParams": [],
+          "optionalParams": [
+            "call_number",
+            "status",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "criminal-justice",
+      "description": "Criminal justice — corrections population, parole decisions, RCMP crime stats, PPSC prosecutions",
+      "actions": [
+        {
+          "id": "corrections-population",
+          "description": "CSC incarceration rates, demographics, costs per inmate",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "province",
+            "type"
+          ]
+        },
+        {
+          "id": "parole-decisions",
+          "description": "Parole Board of Canada decisions and registry",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "outcome",
+            "limit"
+          ]
+        },
+        {
+          "id": "rcmp-crime-stats",
+          "description": "RCMP incident-based crime statistics by violation",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "province",
+            "violation",
+            "limit"
+          ]
+        },
+        {
+          "id": "prosecutions",
+          "description": "PPSC caseloads, outcomes, stay rates",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "province",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "defence",
+      "description": "National Defence — Regular Force personnel by rank, procurement contracts",
+      "actions": [
+        {
+          "id": "personnel",
+          "description": "DND Regular Force and Reserve personnel counts by rank, trade",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "rank",
+            "trade",
+            "limit"
+          ]
+        },
+        {
+          "id": "procurement",
+          "description": "Defence procurement contracts and major projects",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "vendor",
+            "value_min",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "municipal",
+      "description": "Municipal council data — meetings, decisions, budgets across 19 Canadian cities",
+      "actions": [
+        {
+          "id": "meetings",
+          "description": "Council meeting agendas, minutes, decisions by city",
+          "requiredParams": [],
+          "optionalParams": [
+            "city",
+            "year",
+            "type",
+            "limit"
+          ]
+        },
+        {
+          "id": "budgets",
+          "description": "Municipal budget data and financial reports",
+          "requiredParams": [],
+          "optionalParams": [
+            "city",
+            "year",
+            "limit"
+          ]
+        },
+        {
+          "id": "open-data",
+          "description": "Municipal open data portal datasets",
+          "requiredParams": [],
+          "optionalParams": [
+            "city",
+            "keyword",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "transport",
+      "description": "Transport safety and infrastructure — TSB occurrences, TC recalls, CTA rulings, Infrastructure Canada",
+      "actions": [
+        {
+          "id": "tsb-occurrences",
+          "description": "Transportation Safety Board occurrence data (air, rail, marine, pipeline)",
+          "requiredParams": [],
+          "optionalParams": [
+            "mode",
+            "year",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "tc-recalls",
+          "description": "Transport Canada vehicle recalls and safety violations",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "make",
+            "type",
+            "limit"
+          ]
+        },
+        {
+          "id": "cta-rulings",
+          "description": "Canadian Transportation Agency rulings and decisions",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "keyword",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "realtime",
+      "description": "Real-time Canadian data — weather alerts, border wait times, parole decisions",
+      "actions": [
+        {
+          "id": "weather-alerts",
+          "description": "Environment Canada weather alerts (CAP-CP format)",
+          "requiredParams": [],
+          "optionalParams": [
+            "province",
+            "severity",
+            "limit"
+          ]
+        },
+        {
+          "id": "border-waits",
+          "description": "CBSA border wait times at Canada-US crossings",
+          "requiredParams": [],
+          "optionalParams": [
+            "port",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "parole-registry",
+          "description": "Parole Board of Canada decision registry",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "media",
+      "description": "Media and broadcasting data — CRTC market reports, ownership charts, Canada Media Fund, Telefilm",
+      "actions": [
+        {
+          "id": "crtc-market-reports",
+          "description": "CRTC communications market data: broadcasting, telecom, internet",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "sector",
+            "limit"
+          ]
+        },
+        {
+          "id": "ownership-charts",
+          "description": "CRTC broadcasting ownership charts",
+          "requiredParams": [],
+          "optionalParams": [
+            "sector",
+            "limit"
+          ]
+        },
+        {
+          "id": "cmf-data",
+          "description": "Canada Media Fund investment data",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "program",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "education",
+      "description": "Education and research data — Tri-Council grants, Canada Research Chairs, CFI, student loans, university financials",
+      "actions": [
+        {
+          "id": "tri-council-grants",
+          "description": "CIHR, NSERC, SSHRC grant awards by institution and researcher",
+          "requiredParams": [],
+          "optionalParams": [
+            "agency",
+            "institution",
+            "year",
+            "limit"
+          ]
+        },
+        {
+          "id": "research-chairs",
+          "description": "Canada Research Chair allocations",
+          "requiredParams": [],
+          "optionalParams": [
+            "institution",
+            "tier",
+            "limit"
+          ]
+        },
+        {
+          "id": "student-loans",
+          "description": "Canada Student Loan program statistics",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "cudo-data",
+          "description": "Council of Ontario Universities data: enrolment, funding, faculty",
+          "requiredParams": [],
+          "optionalParams": [
+            "institution",
+            "year",
+            "metric",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "social-programs",
+      "description": "Social program data — CCB, CPP/OAS, EI, poverty statistics, food security, social assistance",
+      "actions": [
+        {
+          "id": "ccb-data",
+          "description": "Canada Child Benefit payments by federal riding",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "riding",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "cpp-oas",
+          "description": "CPP, OAS, GIS beneficiary counts",
+          "requiredParams": [],
+          "optionalParams": [
+            "program",
+            "year",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "ei-statistics",
+          "description": "EI claims and benefits by province and industry",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "id": "poverty-data",
+          "description": "Poverty rates: LICO, LIM, MBM thresholds by province",
+          "requiredParams": [],
+          "optionalParams": [
+            "measure",
+            "year",
+            "province",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "bank-of-canada",
+      "description": "Bank of Canada — interest rate decisions, monetary policy, financial system reviews",
+      "actions": [
+        {
+          "id": "rate-decisions",
+          "description": "Overnight rate target decisions and history",
+          "requiredParams": [],
+          "optionalParams": [
+            "date_from",
+            "date_to",
+            "limit"
+          ]
+        },
+        {
+          "id": "monetary-policy",
+          "description": "Monetary Policy Reports and summaries",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sedi",
+      "description": "Insider trading reports — C-Suite executive stock transactions at Canadian public companies",
+      "actions": [
+        {
+          "id": "insider-transactions",
+          "description": "Insider trade reports by issuer, insider, and transaction type",
+          "requiredParams": [],
+          "optionalParams": [
+            "issuer",
+            "insider",
+            "transaction_type",
+            "date_from",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unions",
+      "description": "Union data — membership, revenue, assets for major Canadian unions (CUPE, Unifor, PSAC, etc.)",
+      "actions": [
+        {
+          "id": "union-reports",
+          "description": "Union annual report data including membership and financials",
+          "requiredParams": [],
+          "optionalParams": [
+            "union_name",
+            "year",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "universities",
+      "description": "University data — CUDO enrolment, per-institution CKAN datasets",
+      "actions": [
+        {
+          "id": "university-data",
+          "description": "University financial, enrolment, and research data",
+          "requiredParams": [],
+          "optionalParams": [
+            "institution",
+            "year",
+            "province",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "crtc",
+      "description": "CRTC regulatory decisions and broadcasting ownership data",
+      "actions": [
+        {
+          "id": "decisions",
+          "description": "CRTC broadcasting and telecom regulatory decisions",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "type",
+            "applicant",
+            "limit"
+          ]
+        },
+        {
+          "id": "ownership",
+          "description": "CRTC broadcasting ownership and control information",
+          "requiredParams": [],
+          "optionalParams": [
+            "owner",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cra-charity",
+      "description": "CRA registered charity T3010 data — finances, political spending, programs",
+      "actions": [
+        {
+          "id": "charity-search",
+          "description": "Search registered charities by name, BN, or category",
+          "requiredParams": [],
+          "optionalParams": [
+            "query",
+            "category",
+            "year",
+            "limit"
+          ]
+        },
+        {
+          "id": "political-spending",
+          "description": "Charity political activity spending disclosure",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "provincial-regulators",
+      "description": "273 provincial regulators across 21 categories — securities, financial services, law societies, policing, engineering, etc.",
+      "actions": [
+        {
+          "id": "regulator-search",
+          "description": "Find regulators by province, category, or name",
+          "requiredParams": [],
+          "optionalParams": [
+            "province",
+            "category",
+            "query",
+            "limit"
+          ]
+        },
+        {
+          "id": "regulator-coverage",
+          "description": "Coverage summary of regulators across provinces",
+          "requiredParams": [],
+          "optionalParams": []
+        }
+      ]
+    },
+    {
+      "name": "a2aj",
+      "description": "A2AJ Canadian legal data — search 116K+ court/tribunal decisions and 5K+ statutes/regulations via api.a2aj.ca (no API key needed)",
+      "actions": [
+        {
+          "id": "legal-search",
+          "description": "Search case law or legislation by full text with boolean operators",
+          "requiredParams": [
+            "query"
+          ],
+          "optionalParams": [
+            "doc_type",
+            "dataset",
+            "size",
+            "start_date",
+            "end_date"
+          ]
+        },
+        {
+          "id": "legal-fetch",
+          "description": "Fetch full text of a case or law by citation",
+          "requiredParams": [
+            "citation"
+          ],
+          "optionalParams": [
+            "doc_type"
+          ]
+        },
+        {
+          "id": "legal-coverage",
+          "description": "List all available court/tribunal/legislation datasets with document counts",
+          "requiredParams": [],
+          "optionalParams": [
+            "doc_type"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "legislation",
+      "description": "Canadian legislation — Justice Canada consolidated federal laws (XML), Ontario e-Laws, BC Laws, provincial CKAN",
+      "actions": [
+        {
+          "id": "federal-acts",
+          "description": "Federal consolidated Acts from Justice Canada XML repository",
+          "requiredParams": [],
+          "optionalParams": [
+            "keyword",
+            "limit"
+          ]
+        },
+        {
+          "id": "federal-regulations",
+          "description": "Federal consolidated Regulations from Justice Canada XML repository",
+          "requiredParams": [],
+          "optionalParams": [
+            "keyword",
+            "limit"
+          ]
+        },
+        {
+          "id": "provincial-legislation",
+          "description": "Provincial legislation from Ontario e-Laws, BC Laws, and CKAN portals",
+          "requiredParams": [],
+          "optionalParams": [
+            "province",
+            "keyword",
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "goc-spending",
+      "description": "Government of Canada spending data from GoC-Spending GitHub repository — federal contracts by department and vendor",
+      "actions": [
+        {
+          "id": "contracts",
+          "description": "Federal contracts data by year, department, and vendor",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "department",
+            "vendor",
+            "limit"
+          ]
+        },
+        {
+          "id": "spending-summary",
+          "description": "Aggregate spending statistics by department",
+          "requiredParams": [],
+          "optionalParams": [
+            "year",
+            "department",
+            "limit"
+          ]
+        }
+      ]
     }
   ]
 }
