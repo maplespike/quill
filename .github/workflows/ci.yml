@@ -5,8 +5,8 @@
 # ─────────────────────────────────────────────────────────────────
 name: CI
 on:
-  pull_request: { branches: [main] }
-  push: { branches: [main] }
+  pull_request: { branches: [main, prod] }
+  push: { branches: [main, prod] }
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
