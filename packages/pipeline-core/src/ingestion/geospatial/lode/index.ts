@@ -4,6 +4,6 @@ export type { LodeDatabaseInfo } from './constants.js';
 export type {
   LodeAddress, LodeBuilding, LodeHealthcareFacility, LodeRecreationalFacility,
   LodeEducationalFacility, LodeCulturalFacility, LodeBusiness, LodeInfrastructure,
-  LodeGreenhouse, LodePedestrianNetwork, LodeTransitStop, LodeCyclingNetwork,
+  LodeGreenhouse, LodePedestrianNetwork, LodeTransitStop, LodeTransitRoute, LodeCyclingNetwork,
   LodeRecord, LodeIngestionResult, LodeSearchParams, LodeSearchResult,
 } from './types.js';
