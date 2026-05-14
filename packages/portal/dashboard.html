@@ -227,24 +227,24 @@
    207|<style>
    208|nav { top: 22px !important; }
    209|body { padding-top: calc(22px + 64px); }
-   210|</style>
-   211|
-   212|<nav>
-   213|  <div class="nav-inner">
-   214|    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
-   215|    <ul class="nav-links">
-   216|      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-   217|      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-   218|      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-   219|      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-   220|      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+</style>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
-   221|      <li><a href="dashboard.html" class="btn btn-sm btn-primary">Dashboard</a></li>
-   222|      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
-   223|    </ul>
-   224|    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
-   225|  </div>
-   226|</nav>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+  </div>
+</nav>
    227|
    228|
    229|<div class="dash">
@@ -570,13 +570,28 @@ function renderStats(sources) {
   }).join('');
 }
 
-// ─── Populate activity feed ───
+// ─── Populate activity feed (terminal log format) ───
 function renderActivity(activity) {
   const container = document.getElementById('activity-feed');
   if (!container || !activity?.length) return;
-  container.innerHTML = activity.slice(0, 10).map(a =>
-    `<div class="activity-item"><span class="activity-date">${a.date || ''}</span><span class="activity-text">${a.text || a.title || ''}</span></div>`
-  ).join('');
+  const colors = {
+    'lobbying': '#C23030', 'committee': '#0891B2', 'contract': '#10B981',
+    'regulation': '#D4A017', 'court': '#8B5CF6', 'oversight': '#F97316',
+    'election': '#D946EF', 'default': '#6B7280'
+  };
+  container.innerHTML = activity.slice(0, 10).map(a => {
+    const cat = (a.category || 'default').toLowerCase();
+    const dotColor = colors[cat] || colors['default'];
+    const time = a.date ? new Date(a.date).toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'}) : '--:--';
+    return `<div class="feed-item">
+  <span class="feed-time">${time}</span>
+  <span class="feed-dot" style="background:${dotColor};"></span>
+  <span class="feed-text">${a.text || a.title || ''}</span>
+  <span class="feed-source">${a.source ? '└─ source: ' + a.source : ''}</span>
+</div>`;
+  }).join('');
+  const ts = document.getElementById('feed-timestamp');
+  if (ts) ts.textContent = 'Last updated: ' + new Date().toLocaleString('en-CA');
 }
 
 // ─── Main ───
