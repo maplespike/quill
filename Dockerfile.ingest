@@ -44,6 +44,9 @@ RUN pnpm install --frozen-lockfile --prod
 # Copy compiled output
 COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
 
+# Copy heartbeat script
+COPY packages/pipeline-core/scripts/push-heartbeat.mjs scripts/push-heartbeat.mjs
+
 ENV NODE_ENV=production
 
 # CIVINT_PIPELINE must be set at runtime (e.g. "committee", "corporate")
