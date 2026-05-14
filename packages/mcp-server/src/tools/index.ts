@@ -20,6 +20,7 @@ import * as searchLmia from './search-lmia.js';
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
+import * as systemHealth from './system-health.js';
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -45,6 +46,7 @@ export function getAllTools(): ToolModule[] {
     aiAsk,
     aiAnalyze,
     aiSearchSemantic,
+    systemHealth,
   ];
 }
 
