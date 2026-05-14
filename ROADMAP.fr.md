@@ -1,4 +1,4 @@
-# MapleSpike Canada — Feuille de route
+# MapleSpike — Feuille de route
 
 > [Version anglaise](ROADMAP.md) · English version available
 > **Dernière mise à jour :** 2026-05-13
