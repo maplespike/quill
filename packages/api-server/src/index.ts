@@ -54,6 +54,11 @@ import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import {
+  oauthLoginHandler,
+  oauthCallbackHandler,
+  oauthProvidersHandler,
+} from './routes/auth-oauth.js';
+import {
   passkeyRegisterBeginHandler,
   passkeyRegisterCompleteHandler,
   passkeyLoginBeginHandler,
@@ -62,7 +67,7 @@ import {
   passkeyDeleteHandler,
 } from './routes/auth-passkey.js';
 // signalsHandler is lazy-loaded dynamically — see ROUTES
-import { listKeysHandler, createKeyHandler, deleteKeyHandler } from './routes/keys.js';
+import { listKeysHandler, createKeyHandler, deleteKeyHandler, rotateKeyHandler } from './routes/keys.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -84,10 +89,16 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
+  { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },
   { pattern: /^\/v1\/openapi\.json\/?$/, method: 'GET', params: [], handler: openApiHandler },
   { pattern: /^\/v1\/?$/, method: 'GET', params: [], handler: openApiHandler }, // Root redirect to spec
 
   // --- Auth routes ---
+  // Generic OAuth
+  { pattern: /^\/v1\/auth\/oauth\/providers\/?$/, method: 'GET', params: [], handler: oauthProvidersHandler },
+  { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/?$/, method: 'GET', params: ['provider'], handler: oauthLoginHandler },
+  { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/callback\/?$/, method: 'GET', params: ['provider'], handler: oauthCallbackHandler },
+  // Legacy GitHub-specific (kept for backward compat)
   { pattern: /^\/v1\/auth\/github\/?$/, method: 'GET', params: [], handler: githubLoginHandler },
   { pattern: /^\/v1\/auth\/github\/callback\/?$/, method: 'GET', params: [], handler: githubCallbackHandler },
   { pattern: /^\/v1\/auth\/refresh\/?$/, method: 'POST', params: [], handler: refreshTokenHandler },
@@ -195,14 +206,19 @@ export async function handleRequest(
 
   const { route, params } = matched;
 
-  // Authentication (public routes: health, register, github login/callback, refresh, logout)
+  // Authentication (public routes: health, openapi, register, github login/callback, refresh, logout)
   const authExempt = route.handler === healthHandler
+    || route.handler === openApiHandler
     || route.handler === getCitationHandler
     || route.handler === registerHandler
     || route.handler === githubLoginHandler
     || route.handler === githubCallbackHandler
     || route.handler === refreshTokenHandler
     || route.handler === logoutHandler
+    // Generic OAuth entry points
+    || route.handler === oauthProvidersHandler
+    || route.handler === oauthLoginHandler
+    || route.handler === oauthCallbackHandler
     // Web3 + Passkey auth entry points
     || route.handler === web3ChallengeHandler
     || route.handler === web3LoginHandler
