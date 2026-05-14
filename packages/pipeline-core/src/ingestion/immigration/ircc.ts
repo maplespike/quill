@@ -29,6 +29,7 @@ import type {
   ImmigrationIngestionResult,
 } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  CKAN Metadata Fetch                                                */
 /* ------------------------------------------------------------------ */
@@ -73,30 +74,7 @@ export async function fetchCkanDataset(datasetId: string): Promise<{
 /*  IRCC Open Data CSV Parser (Generic)                                */
 /* ------------------------------------------------------------------ */
 
-/**
- * Parse a line of IRCC open data CSV into fields.
- * IRCC CSVs have headers in row 1, data from row 2.
- * Format is comma-delimited with possible quoted fields.
- */
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-  return fields;
-}
 
 /**
  * Parse IRCC-style CSV content into rows (array of field arrays).

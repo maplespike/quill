@@ -29,6 +29,7 @@ import {
   CRA_STATUS_MAP,
 } from './constants.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 
 /* ------------------------------------------------------------------ */
 /*  Main Parse Entry Points                                            */
@@ -395,37 +396,7 @@ function normalizeHeader(h: string): string {
 /*  CSV Line Parser                                                    */
 /* ------------------------------------------------------------------ */
 
-/**
- * Parse a single CSV line into fields, handling quoted fields
- * with embedded commas and escaped quotes.
- */
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const next = line[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current);
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current);
-
-  return fields;
-}
 
 
 /* ------------------------------------------------------------------ */

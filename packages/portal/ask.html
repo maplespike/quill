@@ -225,8 +225,8 @@
    224|  const sendBtn = document.getElementById('ask-send-btn');
    225|  const suggestions = document.querySelectorAll('.suggestion-chip');
    226|
-  const API_ENDPOINT = 'http://127.0.0.1:8084/v1/ai_ask';
-  const GOV_SEARCH_ENDPOINT = 'http://127.0.0.1:8084/v1/gov/search';
+  const API_ENDPOINT = 'http://127.0.0.1:8082/v1/ai_ask';
+  const GOV_SEARCH_ENDPOINT = 'http://127.0.0.1:8082/v1/gov/search';
 
   // ── Call gov/search API and format results ──
   async function govSearch(query) {
@@ -382,7 +382,7 @@
         citations = aiResult.citations;
       } catch (aiErr) {
         // Both APIs unreachable — graceful fallback message
-        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike AI backend or the government data search API. This usually means the API server isn't running on this machine.\n\nTry these instead:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**\n\nIf you're running the server locally, make sure the API is started on port 8084.`;
+        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike API server. This usually means the server isn't running.\n\n**To fix this:** start the MapleSpike API server:\n  \`node api-server.mjs\`   (defaults to port 8082)\n\nThen refresh this page and try again.\n\nIn the meantime, you can:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**`;
         citations = [];
       }
     }

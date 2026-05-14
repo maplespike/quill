@@ -21,6 +21,7 @@
 import { LmiaOutcome, LmiaStream, type LmiaRecord } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 
 /**
  * Maps raw stream descriptions from the CSV to canonical LmiaStream values.
@@ -419,37 +420,7 @@ export function classifyOccupation(noc: string | null): {
 }
 
 
-/**
- * Parse a CSV line into fields, handling quoted fields with embedded commas.
- */
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = [];
-  let current = '';
-  let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const next = line[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        // Escaped quote
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      fields.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  fields.push(current.trim());
-
-  return fields;
-}
 
 function safeTrim(val: string | undefined): string {
   return (val || '').replace(/^["'\s]+|["'\s]+$/g, '').trim();

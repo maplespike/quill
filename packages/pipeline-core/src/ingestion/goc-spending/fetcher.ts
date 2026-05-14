@@ -19,6 +19,7 @@ import {
 } from './constants.js';
 import type { GoCContract, GoCDeptSpending, GoCVendorSpending, GoCIngestionResult } from './types.js';
 
+import { parseCsvLine } from '../../utils/csv.js';
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -33,18 +34,7 @@ async function fetchJson(url: string): Promise<any> {
   return JSON.parse(text);
 }
 
-/** Parse a CSV line into columns, handling quoted values */
-function parseCsvLine(line: string): string[] {
-  const cols: string[] = [];
-  let cur = '', inQ = false;
-  for (const ch of line) {
-    if (ch === '"') { inQ = !inQ; continue; }
-    if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; continue; }
-    cur += ch;
-  }
-  cols.push(cur.trim());
-  return cols;
-}
+
 
 /** Parse CSV text into array of row objects */
 function parseCsvToObjects(csv: string): Record<string, string>[] {
