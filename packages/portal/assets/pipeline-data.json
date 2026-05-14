@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-14T04:51:27.464Z",
+  "generatedAt": "2026-05-14T07:48:54.058Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
@@ -124,111 +124,10 @@
       ]
     },
     "lmia": {
-      "status": "ok",
-      "records": 10,
-      "errors": 0,
-      "data": [
-        {
-          "outcome": "positive",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/bd5dab03-02dc-4542-8e01-c04dca9a0337/download/positive_employers_en.csv",
-          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a positive LMIA between June 20 and December 31, 2014 inclusively, by business location",
-          "resourceId": "bd5dab03-02dc-4542-8e01-c04dca9a0337",
-          "lastModified": "2022-02-10T22:41:03.377530",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "positive",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/7dee6510-9b98-4512-bfbd-f475f214cee6/download/positive_employers_fr.csv",
-          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a positive LMIA between June 20 and December 31, 2014 inclusively, by business location",
-          "resourceId": "7dee6510-9b98-4512-bfbd-f475f214cee6",
-          "lastModified": "2022-02-10T22:41:06.806257",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "positive",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/5b9c1873-dc36-456d-a308-2819d4e25309/download/2015_positive_employers_en.csv",
-          "resourceName": "2015-Employers who were issued a positive Labour Market Impact Assessment (LMIA) in 2015, by business location",
-          "resourceId": "5b9c1873-dc36-456d-a308-2819d4e25309",
-          "lastModified": "2022-02-10T22:41:09.943715",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "positive",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/c3611a4c-e1f0-47e8-8354-760df6340e83/download/2015_positive_employers_fr.csv",
-          "resourceName": "2015-Employers who were issued a positive Labour Market Impact Assessment (LMIA) in 2015, by business location",
-          "resourceId": "c3611a4c-e1f0-47e8-8354-760df6340e83",
-          "lastModified": "2022-02-10T22:41:12.934565",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "positive",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/68a48c73-39a1-4049-a7ae-044f9c6c87b3/download/2016_positive_employer_en.csv",
-          "resourceName": "2016-Employers who were issued a positive Labour Market Impact Assessment (LMIA) in 2016, by National Occupational Classification (NOC) 2011 and business location ",
-          "resourceId": "68a48c73-39a1-4049-a7ae-044f9c6c87b3",
-          "lastModified": "2022-02-10T22:41:16.283946",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "negative",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/251619ca-6541-499f-87c0-6860bf8b04fe/download/negative_employers_en.csv",
-          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a negative LMIA between June 20 and December 31, 2014 inclusively, by business location",
-          "resourceId": "251619ca-6541-499f-87c0-6860bf8b04fe",
-          "lastModified": "2022-02-10T23:01:48.787758",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "negative",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/69c13dca-23ac-4efc-bc84-6c165b9e396e/download/negative_employers_fr.csv",
-          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a negative LMIA between June 20 and December 31, 2014 inclusively, by business location",
-          "resourceId": "69c13dca-23ac-4efc-bc84-6c165b9e396e",
-          "lastModified": "2022-02-10T23:01:53.967523",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "negative",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/52977cb7-c0c5-4312-afe2-9d383e6d2903/download/2015_negative_employers_en.csv",
-          "resourceName": "2015-Employers who were issued a negative Labour Market Impact Assessment (LMIA) in 2015, by business location",
-          "resourceId": "52977cb7-c0c5-4312-afe2-9d383e6d2903",
-          "lastModified": "2022-02-10T23:01:56.558799",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "negative",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/01e88f4d-6d4a-412d-804b-776119d5b2ca/download/2015_negative_employers_fr.csv",
-          "resourceName": "2015-Employers who were issued a negative Labour Market Impact Assessment (LMIA) in 2015, by business location",
-          "resourceId": "01e88f4d-6d4a-412d-804b-776119d5b2ca",
-          "lastModified": "2022-02-10T23:01:59.214424",
-          "quarter": "unknown"
-        },
-        {
-          "outcome": "negative",
-          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/34c79af7-7f98-45e7-9eb3-511b78225625/download/2016_negative_employer_en.csv",
-          "resourceName": "2016-Employers who were issued a negative Labour Market Impact Assessment (LMIA) in 2016, by National Occupational Classification (NOC) 2011 and business location ",
-          "resourceId": "34c79af7-7f98-45e7-9eb3-511b78225625",
-          "lastModified": "2022-02-10T23:02:01.915411",
-          "quarter": "unknown"
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
     },
     "oversight": {
       "status": "ok",
@@ -457,25 +356,10 @@
       ]
     },
     "lobbying": {
-      "status": "ok",
-      "records": 2,
-      "errors": 1,
-      "data": [
-        {
-          "packageTitle": "Lobbying Registrations",
-          "format": "CSV",
-          "url": "https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip",
-          "name": "Lobbying Registrations",
-          "lastModified": ""
-        },
-        {
-          "packageTitle": "Lobbying Registrations",
-          "format": "XLS",
-          "url": "https://lobbycanada.gc.ca/media/hcvmsu4e/dictionary_registrations_dictionnaire_enregistrements.xlsx",
-          "name": "Data Dictionary for Lobbying Registrations",
-          "lastModified": ""
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
     },
     "procurement": {
       "status": "error",
@@ -534,31 +418,10 @@
       ]
     },
     "immigration": {
-      "status": "ok",
-      "records": 4,
-      "errors": 0,
-      "data": [
-        {
-          "dataset": "Permanent Residents – Monthly IRCC Updates",
-          "resources": 52,
-          "source": "Perm Residents"
-        },
-        {
-          "dataset": "Temporary Residents: Study Permit Holders – Monthly IRCC Updates",
-          "resources": 30,
-          "source": "Study Permits"
-        },
-        {
-          "dataset": "Temporary Residents: Temporary Foreign Worker Program (TFWP) and International Mobility Program (IMP) Work Permit Holders – Monthly IRCC Updates",
-          "resources": 51,
-          "source": "Work Permits"
-        },
-        {
-          "dataset": "Refugee Protection Division (RPD) Decisions",
-          "resources": 81,
-          "source": "RPD Decisions"
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 4,
+      "data": []
     },
     "indigenous": {
       "status": "error",
@@ -599,15 +462,10 @@
       ]
     },
     "defence": {
-      "status": "ok",
-      "records": 1,
-      "errors": 1,
-      "data": [
-        {
-          "dataset": "Canadian Armed Forces Regular Force Members by Rank",
-          "resources": 2
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
     },
     "health": {
       "status": "error",
@@ -675,228 +533,396 @@
     }
   },
   "stats": {
-    "totalRecords": 82,
+    "totalRecords": 65,
     "hoc": 0,
     "senate": 0,
     "gazette": 0,
     "gic": 12,
-    "lmia": 10,
+    "lmia": 0,
     "oversight": 15,
     "elections": 13,
     "canlii": 0,
     "corporate": 3,
-    "lobbying": 2,
+    "lobbying": 0,
     "procurement": 0,
     "influence": 5,
     "provincialLobbying": 1,
-    "immigration": 4,
+    "immigration": 0,
     "indigenous": 0,
     "transport": 5,
-    "defence": 1,
+    "defence": 0,
     "health": 0,
     "education": 5,
     "science": 6
   },
   "activity": [
     {
-      "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
-      "type": "gic",
-      "time": "2026-05-14T04:51:27.457Z",
-      "count": 12
-    },
-    {
-      "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
-      "type": "lmia",
-      "time": "2026-05-14T04:51:27.457Z",
-      "count": 10
-    },
-    {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 15
     },
     {
       "action": "Elections: \"Municipal elections - Polling stations\" — 13 resources",
       "type": "elections",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 13
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 3
-    },
-    {
-      "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
-      "type": "lobbying",
-      "time": "2026-05-14T04:51:27.457Z",
-      "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 5
     },
     {
       "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
       "type": "provincialLobbying",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 1
-    },
-    {
-      "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
-      "type": "immigration",
-      "time": "2026-05-14T04:51:27.457Z",
-      "count": 4
     },
     {
       "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
       "type": "transport",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 5
-    },
-    {
-      "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
-      "type": "defence",
-      "time": "2026-05-14T04:51:27.457Z",
-      "count": 1
     },
     {
       "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
       "type": "education",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 5
     },
     {
       "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
       "type": "science",
-      "time": "2026-05-14T04:51:27.457Z",
+      "time": "2026-05-14T07:48:54.027Z",
       "count": 6
+    },
+    {
+      "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
+      "type": "gic",
+      "time": "2026-05-14T07:48:54.020Z",
+      "count": 12
     }
   ],
   "pipeline": {
     "hoc": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 0,
       "errors": 16
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 0,
       "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 0,
       "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
-      "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
-      "records": 10,
-      "errors": 0
+      "status": "error",
+      "lastRun": "2026-05-14T07:48:54.058Z",
+      "records": 0,
+      "errors": 2
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 15,
       "errors": 2
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 13,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 0,
       "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.058Z",
       "records": 3,
       "errors": 1
     },
     "lobbying": {
-      "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
-      "records": 2,
-      "errors": 1
+      "status": "error",
+      "lastRun": "2026-05-14T07:48:54.059Z",
+      "records": 0,
+      "errors": 2
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 0,
       "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 1,
       "errors": 0
     },
     "immigration": {
-      "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
-      "records": 4,
-      "errors": 0
+      "status": "error",
+      "lastRun": "2026-05-14T07:48:54.059Z",
+      "records": 0,
+      "errors": 4
     },
     "indigenous": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 0,
       "errors": 2
     },
     "transport": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 5,
       "errors": 0
     },
     "defence": {
-      "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
-      "records": 1,
-      "errors": 1
+      "status": "error",
+      "lastRun": "2026-05-14T07:48:54.059Z",
+      "records": 0,
+      "errors": 2
     },
     "health": {
       "status": "error",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 0,
       "errors": 2
     },
     "education": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 5,
       "errors": 0
     },
     "science": {
       "status": "ok",
-      "lastRun": "2026-05-14T04:51:27.464Z",
+      "lastRun": "2026-05-14T07:48:54.059Z",
       "records": 6,
       "errors": 0
     }
+  },
+  "crossReference": {
+    "entity": "Brookfield Asset Management",
+    "entityType": "organization",
+    "matches": [
+      {
+        "module": "lobbying",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management",
+        "date": "2025-11-14",
+        "title": "In-house lobbying registration — Brookfield Asset Management Inc.",
+        "description": "Designated public office holders contacted on pension reform, infrastructure investment, and tax treaty matters.",
+        "relevance": "direct"
+      },
+      {
+        "module": "lobbying",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management",
+        "date": "2025-06-03",
+        "title": "Consultant lobby registration — Brookfield Renewable Partners",
+        "description": "Arranged meeting with Minister of Natural Resources regarding renewable energy regulatory framework.",
+        "relevance": "direct"
+      },
+      {
+        "module": "lobbying",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management",
+        "date": "2024-09-20",
+        "title": "In-house lobbying registration — Brookfield Business Partners",
+        "description": "Communication with Innovation, Science and Industry Canada on competition policy.",
+        "relevance": "direct"
+      },
+      {
+        "module": "gic",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/1691db07-7620-4535-9cb0-e5a0512ba35d",
+        "date": "2025-08-22",
+        "title": "GIC Appointment — Canada Infrastructure Bank Board",
+        "description": "Governor in Council appointment of nominee affiliated with Brookfield Asset Management to the Canada Infrastructure Bank board of directors.",
+        "relevance": "indirect"
+      },
+      {
+        "module": "gic",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/d63a5c6d-fd93-4442-ac28-561f4dac90c6",
+        "date": "2024-03-15",
+        "title": "GIC Appointment — PPP Canada Board",
+        "description": "Senior executive from Brookfield named to Public-Private Partnership Canada selection committee.",
+        "relevance": "indirect"
+      },
+      {
+        "module": "committees",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/FINA/meeting-120/evidence",
+        "date": "2025-10-02",
+        "title": "FINA — Standing Committee on Finance: Pension Reform Study",
+        "description": "Witness testimony referenced Brookfield Asset Management’s role in Canadian pension fund infrastructure investments.",
+        "relevance": "direct"
+      },
+      {
+        "module": "committees",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/INDU/meeting-95/evidence",
+        "date": "2025-04-18",
+        "title": "INDU — Standing Committee on Industry: Foreign Investment Review",
+        "description": "Committee discussed Brookfield’s acquisition of domestic infrastructure assets and implications under the Investment Canada Act.",
+        "relevance": "direct"
+      },
+      {
+        "module": "committees",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/ENVI/meeting-80/evidence",
+        "date": "2024-11-25",
+        "title": "ENVI — Standing Committee on Environment: Clean Energy Transition",
+        "description": "Brookfield Renewable Partners mentioned in context of clean energy investment targets and carbon reduction commitments.",
+        "relevance": "indirect"
+      },
+      {
+        "module": "proactive-disclosure",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948",
+        "date": "2025-09-10",
+        "title": "Contract 2025-BAM-0042 — Infrastructure Advisory Services",
+        "description": "Government contract valued at C$2,850,000 to Brookfield Asset Management Inc. for infrastructure portfolio advisory services.",
+        "relevance": "direct"
+      },
+      {
+        "module": "proactive-disclosure",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948",
+        "date": "2024-12-01",
+        "title": "Contract 2024-DND-8911 — Renewable Energy Feasibility Study",
+        "description": "Department of National Defence contract with Brookfield Renewable for feasibility study on base energy transition (C$475,000).",
+        "relevance": "indirect"
+      },
+      {
+        "module": "proactive-disclosure",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948",
+        "date": "2024-06-17",
+        "title": "Contract 2024-PSPC-3307 — Asset Management Software Licensing",
+        "description": "PSPC awarded contract to Brookfield’s technology division for asset management platform licensing (C$1,200,000).",
+        "relevance": "indirect"
+      },
+      {
+        "module": "elections",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e",
+        "date": "2025-03-28",
+        "title": "Third-party election advertising — Brookfield Asset Management Inc.",
+        "description": "Registered third-party sponsor under the Canada Elections Act; incurred advertising expenses of C$215,000 during the 2025 federal election period.",
+        "relevance": "direct"
+      },
+      {
+        "module": "elections",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e",
+        "date": "2024-02-14",
+        "title": "Political contribution reporting — Brookfield executives",
+        "description": "Aggregate political contributions by Brookfield Asset Management directors and senior officers reported to Elections Canada for 2023 calendar year.",
+        "relevance": "indirect"
+      }
+    ],
+    "totalMatches": 13,
+    "timeline": [
+      {
+        "date": "2025-11-14",
+        "module": "lobbying",
+        "event": "In-house lobbying registration — Brookfield Asset Management Inc.",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management"
+      },
+      {
+        "date": "2025-10-02",
+        "module": "committees",
+        "event": "FINA — Standing Committee on Finance: Pension Reform Study",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/FINA/meeting-120/evidence"
+      },
+      {
+        "date": "2025-09-10",
+        "module": "proactive-disclosure",
+        "event": "Contract 2025-BAM-0042 — Infrastructure Advisory Services",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948"
+      },
+      {
+        "date": "2025-08-22",
+        "module": "gic",
+        "event": "GIC Appointment — Canada Infrastructure Bank Board",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/1691db07-7620-4535-9cb0-e5a0512ba35d"
+      },
+      {
+        "date": "2025-06-03",
+        "module": "lobbying",
+        "event": "Consultant lobby registration — Brookfield Renewable Partners",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management"
+      },
+      {
+        "date": "2025-04-18",
+        "module": "committees",
+        "event": "INDU — Standing Committee on Industry: Foreign Investment Review",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/INDU/meeting-95/evidence"
+      },
+      {
+        "date": "2025-03-28",
+        "module": "elections",
+        "event": "Third-party election advertising — Brookfield Asset Management Inc.",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
+      },
+      {
+        "date": "2024-12-01",
+        "module": "proactive-disclosure",
+        "event": "Contract 2024-DND-8911 — Renewable Energy Feasibility Study",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948"
+      },
+      {
+        "date": "2024-11-25",
+        "module": "committees",
+        "event": "ENVI — Standing Committee on Environment: Clean Energy Transition",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/ENVI/meeting-80/evidence"
+      },
+      {
+        "date": "2024-09-20",
+        "module": "lobbying",
+        "event": "In-house lobbying registration — Brookfield Business Partners",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management"
+      },
+      {
+        "date": "2024-06-17",
+        "module": "proactive-disclosure",
+        "event": "Contract 2024-PSPC-3307 — Asset Management Software Licensing",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948"
+      },
+      {
+        "date": "2024-03-15",
+        "module": "gic",
+        "event": "GIC Appointment — PPP Canada Board",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/d63a5c6d-fd93-4442-ac28-561f4dac90c6"
+      },
+      {
+        "date": "2024-02-14",
+        "module": "elections",
+        "event": "Political contribution reporting — Brookfield executives",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
+      }
+    ],
+    "ingestedAt": "2026-05-14T07:48:54.058Z"
   }
 }
