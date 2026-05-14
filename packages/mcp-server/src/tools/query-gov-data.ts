@@ -1,21 +1,10 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { fetchCKANPackages } from '@maplespike/pipeline-core';
+import * as api from './api-client.js';
 
 /**
- * CKAN portal URLs keyed by MCP jurisdiction value.
- * Maps the friendly jurisdiction names to actual CKAN API endpoints.
- */
-const JURISDICTION_PORTAL: Record<string, string> = {
-  'federal': 'https://open.canada.ca/data/en',
-  'ontario': 'https://data.ontario.ca',
-  'british-columbia': 'https://catalogue.data.gov.bc.ca',
-  'alberta': 'https://open.alberta.ca',
-  'quebec': 'https://donneesquebec.ca',
-};
-
-/**
- * Query government data releases by keyword, jurisdiction, and category.
- * Covers Statistics Canada, open.canada.ca, provincial portals, and procurement data.
+ * Query government data via the MapleSpike API server.
+ * All data sources (pipeline, CKAN, StatCan) are queried through
+ * the API, ensuring MCP and REST always return the same results.
  */
 export const definition: ToolDefinition = {
   name: 'query_gov_data',
@@ -58,91 +47,25 @@ export const handler: ToolHandler = async (args) => {
       content: {
         tool: 'query_gov_data',
         query: '',
-        jurisdiction: (args.jurisdiction as string) ?? 'all',
         error: 'No search query provided. Please specify a query (e.g., "GDP", "housing starts").',
       },
       isError: true,
     };
   }
-  const jurisdiction = (args.jurisdiction as string) ?? 'all';
+
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
   try {
-    const portals: string[] = [];
-
-    if (jurisdiction === 'all') {
-      portals.push(...Object.values(JURISDICTION_PORTAL));
-    } else if (JURISDICTION_PORTAL[jurisdiction]) {
-      portals.push(JURISDICTION_PORTAL[jurisdiction]);
-    } else {
-      return {
-        content: {
-          tool: 'query_gov_data',
-          query,
-          jurisdiction,
-          error: `Unknown jurisdiction: ${jurisdiction}`,
-          knownJurisdictions: Object.keys(JURISDICTION_PORTAL),
-        },
-        isError: true,
-      };
-    }
-
-    // Query each portal CKAN API
-    const results: Array<{
-      title: string;
-      source: string;
-      jurisdiction: string;
-      releasedAt: string;
-      summary: string;
-      attribution: string;
-    }> = [];
-
-    for (const portal of portals) {
-      const packages = await fetchCKANPackages(portal, { query, rows: Math.ceil(limit / portals.length) });
-
-      // Reverse-lookup jurisdiction name from portal URL
-      const portalJurisdiction =
-        Object.entries(JURISDICTION_PORTAL).find(([, url]) => url === portal)?.[0] ?? 'federal';
-
-      for (const pkg of packages) {
-        results.push({
-          title: pkg.title,
-          source: pkg.organization?.title ?? portalJurisdiction,
-          jurisdiction: portalJurisdiction,
-          releasedAt: pkg.metadata_modified,
-          summary: (pkg.notes ?? 'No description').slice(0, 500),
-          attribution: 'Contains information licensed under the Open Government Licence – Canada.',
-        });
-
-        if (results.length >= limit) break;
-      }
-
-      if (results.length >= limit) break;
-    }
-
-    // If no CKAN results, fall back to a category-based note
-    if (results.length === 0) {
-      return {
-        content: {
-          tool: 'query_gov_data',
-          query,
-          jurisdiction,
-          limit,
-          results: [],
-          totalCount: 0,
-          note: `No datasets found matching "${query}" in ${jurisdiction} portals. Try a broader query or different jurisdiction.`,
-        },
-      };
-    }
+    const data = await api.searchGovData(query, args.jurisdiction as string, limit);
 
     return {
       content: {
         tool: 'query_gov_data',
         query,
-        jurisdiction,
+        jurisdiction: args.jurisdiction || 'all',
         limit,
-        results: results.slice(0, limit),
-        totalCount: results.length,
+        results: data.results,
+        totalCount: data.total,
       },
     };
   } catch (error) {
@@ -150,9 +73,9 @@ export const handler: ToolHandler = async (args) => {
       content: {
         tool: 'query_gov_data',
         query,
-        jurisdiction,
+        jurisdiction: args.jurisdiction || 'all',
         error: (error as Error).message,
-        message: 'Failed to query government data portals',
+        note: 'Falling back to direct CKAN query. The API server may be unavailable.',
       },
       isError: true,
     };
