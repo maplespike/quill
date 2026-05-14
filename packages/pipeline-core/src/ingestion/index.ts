@@ -482,26 +482,10 @@ export type {
 } from './lmia/types.js';
 
 // LODE Geospatial — BC Land Ownership Data Exchange & GeoMet weather Canada WFS/WMS
-export {
-  discoverLayers,
-  fetchFeatures,
-  fetchLODEData,
-} from './geospatial/fetcher.js';
-export {
-  LODE_SOURCES,
-  WFS_VERSION,
-  WMS_VERSION,
-} from './geospatial/constants.js';
-export type {
-  LodeSourceKey,
-} from './geospatial/constants.js';
-export type {
-  GeoPoint,
-  BoundingBox,
-  GeoFeature,
-  GeoLayer,
-  LODEResult,
-} from './geospatial/types.js';
+// CKAN-based geospatial search across all federal and provincial portals
+import { ingestAllGeospatial } from './geospatial/index.js';
+export { ingestAllGeospatial } from './geospatial/index.js';
+export type { GeospatialRecord, GeospatialIngestionResult } from './geospatial/types.js';
 
 // Proactive Disclosure — federal contracts over $10K, travel, hospitality, reclassification
 export {
