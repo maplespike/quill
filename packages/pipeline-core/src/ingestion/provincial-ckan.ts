@@ -1,8 +1,8 @@
 /**
  * Provincial CKAN Portal Stubs — Frostbite Data Pipeline
  *
- * Convenience wrappers around fetchCKANPackages for the 9 Canadian
- * provincial/territorial CKAN portals added to GOV_DATA_SOURCES.
+ * Convenience wrappers around fetchCKANPackages for all 13 Canadian
+ * provincial/territorial CKAN portals.
  *
  * Each province code maps to a known CKAN endpoint so callers can
  * fetch datasets without remembering the full URL.
@@ -30,6 +30,32 @@ export interface ProvincialCkanSource {
  *   NT, NU, YT               — territories
  */
 export const PROVINCIAL_CKAN_SOURCES: Record<string, ProvincialCkanSource> = {
+  // Big 4 provinces (most important — highest dataset counts)
+  ON: {
+    name: 'Ontario Open Data',
+    jurisdiction: 'ontario',
+    endpoint: 'https://data.ontario.ca',
+    notes: '~2,948 datasets — lobbying, sunshine list, AG reports, health, education',
+  },
+  BC: {
+    name: 'British Columbia Open Data',
+    jurisdiction: 'british-columbia',
+    endpoint: 'https://catalogue.data.gov.bc.ca',
+    notes: 'Thousands of datasets — lobbying, BCUC, WorkSafeBC, AG',
+  },
+  AB: {
+    name: 'Alberta Open Data',
+    jurisdiction: 'alberta',
+    endpoint: 'https://open.alberta.ca',
+    notes: '33,335+ datasets — lobbying, AUC, WCB, AG, ASC',
+  },
+  QC: {
+    name: 'Quebec Open Data (Données Québec)',
+    jurisdiction: 'quebec',
+    endpoint: 'https://www.donneesquebec.ca',
+    notes: 'Thousands of datasets — AMF, Régie énergie, CNESST, AG',
+  },
+  // Territories + smaller provinces
   SK: {
     name: 'Saskatchewan Open Data',
     jurisdiction: 'saskatchewan',
