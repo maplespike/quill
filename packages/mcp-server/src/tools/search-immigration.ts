@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search immigration data — IRCC permanent residents, Express Entry, IRB refugee decisions,
@@ -66,18 +66,10 @@ export const handler: ToolHandler = async (args) => {
   if (source === 'irb' || source === 'all') sourceKeys.push('immigration'); // same key for v0
   if (source === 'cbsa' || source === 'all') sourceKeys.push('immigration');
 
-  let results: any[];
-  let total: number;
-
-  if (getPipelineData()) {
-    const result = searchRecords(sourceKeys, query + (year ? ` ${year}` : ''), limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(sourceKeys, query + (year ? ` ${year}` : ''), limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  const q = query + (year ? ` ${year}` : '');
+  const result = await searchGovData(q, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   return {
     content: {

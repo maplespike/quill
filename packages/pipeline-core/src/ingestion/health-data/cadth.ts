@@ -2,12 +2,11 @@
  * CADTH Ingestion — Canadian Agency for Drugs and Technologies in Health
  *
  * Ingests CADTH drug recommendation reports (CDR/pCODR) from the CADTH
- * public website. CADTH publishes structured HTML pages and PDFs of drug
- * reviews and reimbursement recommendations.
+ * public website and Government of Canada Open Data Portal (CKAN).
  *
  * Data sources:
  *   - CADTH public website: drug recommendation and review pages
- *   - CKAN (supplementary): any CADTH-related datasets
+ *   - CKAN: CADTH-related datasets on open.canada.ca
  *
  * CADTH recommendation types:
  *   - CDR (Common Drug Review): for drugs reviewed under the pan-Canadian
@@ -26,6 +25,7 @@ import {
   CADTH_RECOMMENDATIONS_DDL,
   DEFAULT_MAX_RECORDS,
   HTTP_TIMEOUT_MS,
+  DEFAULT_CKAN_ROWS,
   HealthDataError,
 } from './constants.js';
 import type { CadthRecommendation } from './types.js';
@@ -48,166 +48,55 @@ export interface D1PreparedStatement {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Known CADTH Drug Recommendation Dataset (curated)                  */
+/*  CKAN Helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-/**
- * Known drugs that have gone through CADTH review with publicly available
- * recommendation outcomes. This curated list maps to CADTH's published
- * CDR and pCODR recommendation database.
- *
- * In production, this would be dynamically scraped from CADTH's search
- * and filter pages.
- */
-interface KnownCadthDrug {
-  drugName: string;
-  brandName: string;
-  manufacturer: string;
-  indication: string;
-  recommendation: string;
-  recommendationType: string;
-  reviewType: string;
-  submissionDate: string;
-  recommendationDate: string;
-  reimbursementCondition: string;
-  therapeuticArea: string;
+interface CkanResource {
+  id: string;
+  name?: string;
+  format?: string;
+  url?: string;
+  package_id?: string;
 }
 
-const KNOWN_CADTH_RECOMMENDATIONS: KnownCadthDrug[] = [
-  {
-    drugName: 'Nusinersen',
-    brandName: 'Spinraza',
-    manufacturer: 'Biogen Canada Inc.',
-    indication: 'Treatment of 5q spinal muscular atrophy (SMA)',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2021-03-01',
-    recommendationDate: '2021-09-15',
-    reimbursementCondition: 'Treatment of patients with SMA types I-III',
-    therapeuticArea: 'Neurology',
-  },
-  {
-    drugName: 'Semaglutide',
-    brandName: 'Ozempic',
-    manufacturer: 'Novo Nordisk Canada Inc.',
-    indication: 'Treatment of type 2 diabetes mellitus',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2020-06-15',
-    recommendationDate: '2021-01-20',
-    reimbursementCondition: 'Limited to patients with inadequate glycemic control on metformin',
-    therapeuticArea: 'Endocrinology',
-  },
-  {
-    drugName: 'Pembrolizumab',
-    brandName: 'Keytruda',
-    manufacturer: 'Merck Canada Inc.',
-    indication: 'Treatment of advanced melanoma and other cancers',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'pCODR',
-    submissionDate: '2022-02-10',
-    recommendationDate: '2022-08-25',
-    reimbursementCondition: 'First-line treatment of advanced melanoma',
-    therapeuticArea: 'Oncology',
-  },
-  {
-    drugName: 'Nivolumab',
-    brandName: 'Opdivo',
-    manufacturer: 'Bristol-Myers Squibb Canada',
-    indication: 'Treatment of advanced renal cell carcinoma',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'pCODR',
-    submissionDate: '2021-10-01',
-    recommendationDate: '2022-04-15',
-    reimbursementCondition: 'In combination with ipilimumab for intermediate/poor risk',
-    therapeuticArea: 'Oncology',
-  },
-  {
-    drugName: 'Tofacitinib',
-    brandName: 'Xeljanz',
-    manufacturer: 'Pfizer Canada Inc.',
-    indication: 'Treatment of rheumatoid arthritis',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2021-05-01',
-    recommendationDate: '2021-11-10',
-    reimbursementCondition: 'For patients who have failed or are intolerant to bDMARDs',
-    therapeuticArea: 'Rheumatology',
-  },
-  {
-    drugName: 'Burosumab',
-    brandName: 'Crysvita',
-    manufacturer: 'Ultragenyx Pharmaceutical Inc.',
-    indication: 'Treatment of X-linked hypophosphatemia (XLH)',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2022-03-01',
-    recommendationDate: '2022-09-20',
-    reimbursementCondition: 'For adult and pediatric patients with confirmed XLH',
-    therapeuticArea: 'Endocrinology',
-  },
-  {
-    drugName: 'Bimekizumab',
-    brandName: 'Bimzelx',
-    manufacturer: 'UCB Canada Inc.',
-    indication: 'Treatment of moderate to severe plaque psoriasis',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2022-08-01',
-    recommendationDate: '2023-02-15',
-    reimbursementCondition: 'For patients with inadequate response to systemic therapy',
-    therapeuticArea: 'Dermatology',
-  },
-  {
-    drugName: 'Tafamidis',
-    brandName: 'Vyndaqel',
-    manufacturer: 'Pfizer Canada Inc.',
-    indication: 'Treatment of transthyretin amyloidosis cardiomyopathy',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2021-11-01',
-    recommendationDate: '2022-05-30',
-    reimbursementCondition: 'Limited to patients with NYHA class I-II symptoms',
-    therapeuticArea: 'Cardiology',
-  },
-  {
-    drugName: 'Risankizumab',
-    brandName: 'Skyrizi',
-    manufacturer: 'AbbVie Corporation',
-    indication: 'Treatment of moderate to severe plaque psoriasis',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2020-09-01',
-    recommendationDate: '2021-03-15',
-    reimbursementCondition: 'For patients with inadequate response to systemic therapy or phototherapy',
-    therapeuticArea: 'Dermatology',
-  },
-  {
-    drugName: 'Tezepelumab',
-    brandName: 'Tezspire',
-    manufacturer: 'AstraZeneca Canada Inc.',
-    indication: 'Add-on maintenance treatment of severe asthma',
-    recommendation: 'Reimburse',
-    recommendationType: 'Conditional',
-    reviewType: 'CDR',
-    submissionDate: '2022-06-01',
-    recommendationDate: '2022-12-15',
-    reimbursementCondition: 'For patients with severe eosinophilic or allergic asthma',
-    therapeuticArea: 'Respiratory',
-  },
-];
+interface CkanPackage {
+  id: string;
+  title: string;
+  notes?: string;
+  resources?: CkanResource[];
+}
+
+interface CkanSearchResult {
+  result?: {
+    results?: CkanPackage[];
+    count?: number;
+  };
+}
+
+async function searchCkanPackages(
+  query: string,
+  rows: number = DEFAULT_CKAN_ROWS,
+): Promise<CkanPackage[]> {
+  const base = 'https://open.canada.ca/data/api/3/action/';
+  const url = `${base}package_search?q=${encodeURIComponent(query)}&rows=${rows}`;
+  const resp = await httpGet(url, { timeoutMs: HTTP_TIMEOUT_MS });
+  const text = resp.body;
+  const parsed: CkanSearchResult = JSON.parse(text);
+  return parsed?.result?.results ?? [];
+}
+
+async function fetchCkanResourceJson(url: string): Promise<unknown[]> {
+  const resp = await httpGet(url, { timeoutMs: HTTP_TIMEOUT_MS });
+  const text = resp.body;
+  const parsed = JSON.parse(text);
+  if (Array.isArray(parsed)) return parsed;
+  if (parsed?.result?.results && Array.isArray(parsed.result.results)) return parsed.result.results;
+  if (parsed?.results && Array.isArray(parsed.results)) return parsed.results;
+  return [];
+}
 
 /* ------------------------------------------------------------------ */
-/*  CADTH: Fetch Recommendations (HTML scrape + curated list)          */
+/*  CADTH: Fetch Recommendations (HTML scrape + CKAN)                  */
 /* ------------------------------------------------------------------ */
 
 async function fetchCadthRecommendations(maxRecords: number): Promise<CadthRecommendation[]> {
@@ -261,37 +150,100 @@ async function fetchCadthRecommendations(maxRecords: number): Promise<CadthRecom
       });
     }
   } catch {
-    // Fall through to curated data
+    // Fall through to CKAN
   }
 
-  // Phase 2: Supplement with curated known CADTH recommendations
-  const drugsToUse = maxRecords < KNOWN_CADTH_RECOMMENDATIONS.length
-    ? KNOWN_CADTH_RECOMMENDATIONS.slice(0, maxRecords)
-    : KNOWN_CADTH_RECOMMENDATIONS;
+  // Phase 2: Search CKAN for CADTH datasets
+  try {
+    const packages = await searchCkanPackages('cadth drug recommendations', DEFAULT_CKAN_ROWS);
+    for (const pkg of packages.slice(0, 3)) {
+      const resources = pkg.resources ?? [];
+      for (const res of resources.slice(0, 3)) {
+        if (!res.url) continue;
+        try {
+          const rows = await fetchCkanResourceJson(res.url);
+          for (const row of rows.slice(0, Math.floor(maxRecords / 3))) {
+            const r = row as Record<string, unknown>;
+            const drugName = String(r.drug_name ?? r.drug ?? r.DrugName ?? r.drugName ?? r.brand_name ?? r.BrandName ?? '');
+            if (!drugName) continue;
 
-  for (const drug of drugsToUse) {
-    const content = JSON.stringify(drug);
-    const id = await computeHash(content, 'sha256');
+            const content = JSON.stringify(r);
+            const id = await computeHash(content, 'sha256');
 
-    // Skip duplicates already scraped
-    if (records.some((r) => r.id === id || r.drug_name === drug.drugName)) continue;
+            // Deduplicate against scraped records
+            if (records.some((rec) => rec.id === id || rec.drug_name === drugName)) continue;
 
-    records.push({
-      id,
-      drug_name: drug.drugName,
-      brand_name: drug.brandName,
-      manufacturer: drug.manufacturer,
-      indication: drug.indication,
-      recommendation: drug.recommendation,
-      recommendation_type: drug.recommendationType,
-      review_type: drug.reviewType,
-      submission_date: drug.submissionDate,
-      recommendation_date: drug.recommendationDate,
-      reimbursement_condition: drug.reimbursementCondition,
-      therapeutic_area: drug.therapeuticArea,
-      source_url: `${baseUrl}/cdr-recommendations`,
-      ingested_at: now,
-    });
+            records.push({
+              id,
+              drug_name: drugName,
+              brand_name: String(r.brand_name ?? r.brandName ?? r.BrandName ?? '') || null,
+              manufacturer: String(r.manufacturer ?? r.Manufacturer ?? r.company ?? '') || null,
+              indication: String(r.indication ?? r.Indication ?? r.therapeutic_area ?? '') || null,
+              recommendation: String(r.recommendation ?? r.Recommendation ?? r.outcome ?? '') || null,
+              recommendation_type: String(r.recommendation_type ?? r.recommendationType ?? r.type ?? '') || null,
+              review_type: String(r.review_type ?? r.reviewType ?? r.program ?? '') || null,
+              submission_date: String(r.submission_date ?? r.submissionDate ?? r.date_submitted ?? '') || null,
+              recommendation_date: String(r.recommendation_date ?? r.recommendationDate ?? r.date ?? r.decision_date ?? '') || null,
+              reimbursement_condition: String(r.reimbursement_condition ?? r.conditions ?? r.condition ?? '') || null,
+              therapeutic_area: String(r.therapeutic_area ?? r.therapeuticArea ?? r.therapeutic_class ?? r.disease_area ?? '') || null,
+              source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
+              ingested_at: now,
+            });
+          }
+        } catch {
+          // skip resource that could not be fetched
+        }
+      }
+    }
+
+    // Try additional search terms for more CADTH data
+    if (records.length < maxRecords / 2) {
+      const altPackages = await searchCkanPackages('common drug review cdr recommendation', DEFAULT_CKAN_ROWS);
+      for (const pkg of altPackages.slice(0, 2)) {
+        const resources = pkg.resources ?? [];
+        for (const res of resources.slice(0, 2)) {
+          if (!res.url) continue;
+          try {
+            const rows = await fetchCkanResourceJson(res.url);
+            for (const row of rows.slice(0, Math.floor(maxRecords / 4))) {
+              const r = row as Record<string, unknown>;
+              const drugName = String(r.drug_name ?? r.drug ?? r.DrugName ?? r.drugName ?? r.brand_name ?? '');
+              if (!drugName) continue;
+
+              const content = JSON.stringify(r);
+              const id = await computeHash(content, 'sha256');
+
+              if (records.some((rec) => rec.id === id || rec.drug_name === drugName)) continue;
+
+              records.push({
+                id,
+                drug_name: drugName,
+                brand_name: String(r.brand_name ?? r.brandName ?? '') || null,
+                manufacturer: String(r.manufacturer ?? r.Manufacturer ?? r.company ?? '') || null,
+                indication: String(r.indication ?? r.Indication ?? '') || null,
+                recommendation: String(r.recommendation ?? r.Recommendation ?? r.outcome ?? r.decision ?? '') || null,
+                recommendation_type: String(r.recommendation_type ?? r.type ?? '') || null,
+                review_type: String(r.review_type ?? r.program ?? '') || null,
+                submission_date: String(r.submission_date ?? r.submissionDate ?? '') || null,
+                recommendation_date: String(r.recommendation_date ?? r.recommendationDate ?? r.date ?? '') || null,
+                reimbursement_condition: String(r.reimbursement_condition ?? r.conditions ?? '') || null,
+                therapeutic_area: String(r.therapeutic_area ?? r.therapeuticArea ?? r.therapeutic_class ?? '') || null,
+                source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
+                ingested_at: now,
+              });
+            }
+          } catch {
+            // skip
+          }
+        }
+      }
+    }
+  } catch {
+    // Fall through — return whatever we got from scraping
+  }
+
+  if (records.length === 0) {
+    throw new HealthDataError('CADTH recommendations: No data could be fetched from any source', 'cadth');
   }
 
   return records.slice(0, maxRecords);

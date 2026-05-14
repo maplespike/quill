@@ -78,24 +78,15 @@ export const listReleasesHandler: RouteHandler = async (request, ctx) => {
   const category = url.searchParams.get('category');
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
 
-  // Primary: load locally-saved pipeline data (works offline)
-  const pipelineData = loadPipelineData();
+  // Fetch live data from pipeline-core (StatCan WDS API)
   let releases: GovRelease[] = [];
-
-  if (pipelineData) {
-    releases = pipelineDataToReleases(pipelineData);
-  }
-
-  // Secondary: try live data from pipeline-core (StatCan WDS API)
-  if (releases.length === 0) {
-    try {
-      const statCanReleases = await fetchStatCanReleases({ limit: 5 });
-      if (statCanReleases.length > 0) {
-        releases = statCanReleases;
-      }
-    } catch {
-      // Live fetch failed — fall through to sample data if we have nothing
+  try {
+    const statCanReleases = await fetchStatCanReleases({ limit: 5 });
+    if (statCanReleases.length > 0) {
+      releases = statCanReleases;
     }
+  } catch {
+    // Live fetch failed
   }
 
   // Tertiary: hardcoded sample releases for development

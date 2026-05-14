@@ -96,193 +96,63 @@ async function fetchCkanResourceJson(url: string): Promise<unknown[]> {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Known PMPRB Pricing Decisions (curated dataset)                    */
-/* ------------------------------------------------------------------ */
-
-/**
- * Curated PMPRB pricing decisions for high-profile patented drugs.
- * These represent real PMPRB price reviews and hearings that have been
- * reported in public annual reports and press releases.
- *
- * In production, this list would be dynamically populated from CKAN
- * datasets and PMPRB's own published decision registry.
- */
-interface KnownPricingDecision {
-  drugName: string;
-  manufacturer: string;
-  decisionType: string;
-  decisionDate: string;
-  status: string;
-  therapeuticCategory: string;
-  proposedPriceCad: number | null;
-  approvedPriceCad: number | null;
-  foreignPriceComparison: string;
-  comparisonCountries: string;
-  atcClass: string;
-  din: string;
-}
-
-const KNOWN_PMPRB_DECISIONS: KnownPricingDecision[] = [
-  {
-    drugName: 'Nusinersen',
-    manufacturer: 'Biogen Canada Inc.',
-    decisionType: 'Voluntary Compliance Undertaking (VCU)',
-    decisionDate: '2022-03-15',
-    status: 'Compliant',
-    therapeuticCategory: 'Neurology',
-    proposedPriceCad: 708_000,
-    approvedPriceCad: 420_000,
-    foreignPriceComparison: 'Price reduction to align with international median',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'M09AX',
-    din: '02462176',
-  },
-  {
-    drugName: 'Pembrolizumab',
-    manufacturer: 'Merck Canada Inc.',
-    decisionType: 'Hearing',
-    decisionDate: '2021-11-30',
-    status: 'Excessive Price Found',
-    therapeuticCategory: 'Oncology',
-    proposedPriceCad: 120_000,
-    approvedPriceCad: 85_000,
-    foreignPriceComparison: 'Exceeded median of comparator countries by 42%',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'L01FF',
-    din: '02465785',
-  },
-  {
-    drugName: 'Nivolumab',
-    manufacturer: 'Bristol-Myers Squibb Canada',
-    decisionType: 'Voluntary Compliance Undertaking (VCU)',
-    decisionDate: '2022-06-20',
-    status: 'Compliant',
-    therapeuticCategory: 'Oncology',
-    proposedPriceCad: 95_000,
-    approvedPriceCad: 72_000,
-    foreignPriceComparison: 'Reduced to maximum average price of comparator countries',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'L01FF',
-    din: '02448612',
-  },
-  {
-    drugName: 'Ranibizumab',
-    manufacturer: 'Novartis Pharmaceuticals Canada Inc.',
-    decisionType: 'Board Order',
-    decisionDate: '2020-09-10',
-    status: 'Price Ceiling Set',
-    therapeuticCategory: 'Ophthalmology',
-    proposedPriceCad: 1_250,
-    approvedPriceCad: 900,
-    foreignPriceComparison: 'Exceeded highest price in comparator countries',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'S01LA',
-    din: '02279920',
-  },
-  {
-    drugName: 'Apremilast',
-    manufacturer: 'Amgen Canada Inc.',
-    decisionType: 'Voluntary Compliance Undertaking (VCU)',
-    decisionDate: '2023-01-25',
-    status: 'Compliant',
-    therapeuticCategory: 'Dermatology / Rheumatology',
-    proposedPriceCad: 22_000,
-    approvedPriceCad: 18_500,
-    foreignPriceComparison: 'Reduced to median international price',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'L04AA',
-    din: '02422937',
-  },
-  {
-    drugName: 'Tafamidis',
-    manufacturer: 'Pfizer Canada Inc.',
-    decisionType: 'Under Review',
-    decisionDate: '2023-06-01',
-    status: 'Pending',
-    therapeuticCategory: 'Cardiology',
-    proposedPriceCad: 246_000,
-    approvedPriceCad: null,
-    foreignPriceComparison: 'Under review for compliance with pricing guidelines',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'N07XX',
-    din: '02473383',
-  },
-  {
-    drugName: 'Risankizumab',
-    manufacturer: 'AbbVie Corporation',
-    decisionType: 'Voluntary Compliance Undertaking (VCU)',
-    decisionDate: '2023-04-10',
-    status: 'Compliant',
-    therapeuticCategory: 'Dermatology',
-    proposedPriceCad: 35_000,
-    approvedPriceCad: 28_000,
-    foreignPriceComparison: 'Adjusted to international median',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'L04AC',
-    din: '02471362',
-  },
-  {
-    drugName: 'Tezepelumab',
-    manufacturer: 'AstraZeneca Canada Inc.',
-    decisionType: 'New Drug Price Review',
-    decisionDate: '2023-09-01',
-    status: 'Under Review',
-    therapeuticCategory: 'Respiratory',
-    proposedPriceCad: 31_000,
-    approvedPriceCad: null,
-    foreignPriceComparison: 'Initial price screening in progress',
-    comparisonCountries: 'FR, DE, IT, UK, SE',
-    atcClass: 'R03DX',
-    din: '02521208',
-  },
-  {
-    drugName: 'Bimekizumab',
-    manufacturer: 'UCB Canada Inc.',
-    decisionType: 'New Drug Price Review',
-    decisionDate: '2023-07-15',
-    status: 'Compliant',
-    therapeuticCategory: 'Dermatology',
-    proposedPriceCad: 29_500,
-    approvedPriceCad: 29_500,
-    foreignPriceComparison: 'Within guidelines — no exceedance',
-    comparisonCountries: 'FR, DE, IT, UK, US',
-    atcClass: 'L04AC',
-    din: '02518540',
-  },
-  {
-    drugName: 'Burosumab',
-    manufacturer: 'Ultragenyx Pharmaceutical Inc.',
-    decisionType: 'Voluntary Compliance Undertaking (VCU)',
-    decisionDate: '2023-02-28',
-    status: 'Compliant',
-    therapeuticCategory: 'Endocrinology',
-    proposedPriceCad: 180_000,
-    approvedPriceCad: 145_000,
-    foreignPriceComparison: 'Reduced to align with international comparator prices',
-    comparisonCountries: 'FR, DE, IT, UK, US, CH, SE',
-    atcClass: 'M05BX',
-    din: '02480721',
-  },
-];
-
-/* ------------------------------------------------------------------ */
-/*  PMPRB: Fetch Pricing Decisions (CKAN + curated)                    */
+/*  PMPRB: Fetch Pricing Decisions (CKAN only)                         */
 /* ------------------------------------------------------------------ */
 
 async function fetchPmprbPricing(maxRecords: number): Promise<PmprbPricing[]> {
   const records: PmprbPricing[] = [];
   const now = new Date().toISOString();
 
-  // Phase 1: Try CKAN datasets for structured PMPRB data
-  try {
-    const packages = await searchCkanPackages('patented medicine prices review board', DEFAULT_CKAN_ROWS);
-    for (const pkg of packages.slice(0, 3)) {
+  // Phase 1: Search CKAN for PMPRB datasets
+  const packages = await searchCkanPackages('patented medicine prices review board', DEFAULT_CKAN_ROWS);
+  for (const pkg of packages.slice(0, 5)) {
+    const resources = pkg.resources ?? [];
+    for (const res of resources.slice(0, 3)) {
+      if (!res.url) continue;
+      try {
+        const rows = await fetchCkanResourceJson(res.url);
+        for (const row of rows.slice(0, Math.floor(maxRecords / 5))) {
+          const r = row as Record<string, unknown>;
+          const drug = String(r.drug_name ?? r.drug ?? r.medicine ?? r.MedicineName ?? r.product_name ?? r.medicine_name ?? '');
+          if (!drug) continue;
+
+          const content = JSON.stringify(r);
+          const id = await computeHash(content, 'sha256');
+
+          records.push({
+            id,
+            drug_name: drug,
+            manufacturer: String(r.manufacturer ?? r.company ?? r.Manufacturer ?? r.manufacturer_name ?? '') || null,
+            decision_type: String(r.decision_type ?? r.DecisionType ?? r.type ?? r.decisionType ?? '') || null,
+            decision_date: String(r.decision_date ?? r.date ?? r.DecisionDate ?? r.decisionDate ?? r.year ?? '') || null,
+            status: String(r.status ?? r.Status ?? r.compliance_status ?? r.complianceStatus ?? '') || null,
+            therapeutic_category: String(r.therapeutic_category ?? r.therapeutic_class ?? r.category ?? r.therapeuticCategory ?? r.atc_class ?? r.ATC ?? '') || null,
+            proposed_price_cad: r.proposed_price_cad ? Number(r.proposed_price_cad) : (r.proposedPriceCad ? Number(r.proposedPriceCad) : (r.proposed_price ? Number(r.proposed_price) : null)),
+            approved_price_cad: r.approved_price_cad ? Number(r.approved_price_cad) : (r.approvedPriceCad ? Number(r.approvedPriceCad) : (r.approved_price ? Number(r.approved_price) : null)),
+            foreign_price_comparison: String(r.foreign_price_comparison ?? r.foreignPriceComparison ?? '') || null,
+            comparison_countries: String(r.comparison_countries ?? r.comparisonCountries ?? r.countries ?? '') || null,
+            atc_class: String(r.atc_class ?? r.ATCCode ?? r.atcClass ?? r.atc_code ?? '') || null,
+            din: String(r.din ?? r.DIN ?? r.drug_identification_number ?? r.drugIdentificationNumber ?? '') || null,
+            source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
+            ingested_at: now,
+          });
+        }
+      } catch {
+        // skip resource that could not be fetched
+      }
+    }
+  }
+
+  // Phase 2: Try additional search terms for more data
+  if (records.length < maxRecords / 2) {
+    const altPackages = await searchCkanPackages('pmprb pricing decision', DEFAULT_CKAN_ROWS);
+    for (const pkg of altPackages.slice(0, 3)) {
       const resources = pkg.resources ?? [];
       for (const res of resources.slice(0, 3)) {
         if (!res.url) continue;
         try {
           const rows = await fetchCkanResourceJson(res.url);
-          for (const row of rows.slice(0, Math.floor(maxRecords / 3))) {
+          for (const row of rows.slice(0, Math.floor(maxRecords / 5))) {
             const r = row as Record<string, unknown>;
             const drug = String(r.drug_name ?? r.drug ?? r.medicine ?? r.MedicineName ?? r.product_name ?? '');
             if (!drug) continue;
@@ -290,19 +160,21 @@ async function fetchPmprbPricing(maxRecords: number): Promise<PmprbPricing[]> {
             const content = JSON.stringify(r);
             const id = await computeHash(content, 'sha256');
 
+            if (records.some((rec) => rec.id === id)) continue;
+
             records.push({
               id,
               drug_name: drug,
               manufacturer: String(r.manufacturer ?? r.company ?? r.Manufacturer ?? '') || null,
-              decision_type: String(r.decision_type ?? r.DecisionType ?? r.type ?? '') || null,
-              decision_date: String(r.decision_date ?? r.date ?? r.DecisionDate ?? '') || null,
-              status: String(r.status ?? r.Status ?? r.compliance_status ?? '') || null,
-              therapeutic_category: String(r.therapeutic_category ?? r.therapeutic_class ?? r.category ?? '') || null,
-              proposed_price_cad: r.proposed_price_cad ? Number(r.proposed_price_cad) : null,
-              approved_price_cad: r.approved_price_cad ? Number(r.approved_price_cad) : null,
+              decision_type: String(r.decision_type ?? r.type ?? r.decisionType ?? '') || null,
+              decision_date: String(r.decision_date ?? r.date ?? r.decisionDate ?? r.year ?? '') || null,
+              status: String(r.status ?? r.compliance_status ?? '') || null,
+              therapeutic_category: String(r.therapeutic_category ?? r.therapeutic_class ?? r.category ?? r.atc_class ?? '') || null,
+              proposed_price_cad: r.proposed_price_cad ? Number(r.proposed_price_cad) : (r.proposed_price ? Number(r.proposed_price) : null),
+              approved_price_cad: r.approved_price_cad ? Number(r.approved_price_cad) : (r.approved_price ? Number(r.approved_price) : null),
               foreign_price_comparison: String(r.foreign_price_comparison ?? '') || null,
-              comparison_countries: String(r.comparison_countries ?? '') || null,
-              atc_class: String(r.atc_class ?? r.ATCCode ?? '') || null,
+              comparison_countries: String(r.comparison_countries ?? r.countries ?? '') || null,
+              atc_class: String(r.atc_class ?? r.ATCCode ?? r.atc_code ?? '') || null,
               din: String(r.din ?? r.DIN ?? r.drug_identification_number ?? '') || null,
               source_url: `https://open.canada.ca/data/dataset/${pkg.id}`,
               ingested_at: now,
@@ -313,37 +185,53 @@ async function fetchPmprbPricing(maxRecords: number): Promise<PmprbPricing[]> {
         }
       }
     }
-  } catch {
-    // fall through to curated list
   }
 
-  // Phase 2: Supplement with curated known pricing decisions
-  for (const decision of KNOWN_PMPRB_DECISIONS.slice(0, maxRecords)) {
-    const content = JSON.stringify(decision);
-    const id = await computeHash(content, 'sha256');
+  // Phase 3: Try PMPRB's own published data
+  if (records.length === 0) {
+    try {
+      const reportUrl = HEALTH_DATA_SOURCES.PMPRB.ANNUAL_REPORT;
+      const resp = await httpGet(reportUrl, { timeoutMs: HTTP_TIMEOUT_MS });
+      const html = resp.body;
 
-    // Skip duplicates already loaded from CKAN
-    if (records.some((r) => r.drug_name === decision.drugName && r.manufacturer === decision.manufacturer)) {
-      continue;
+      // Try to extract pricing decision information from HTML tables
+      const rows = html.match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) ?? [];
+      for (const row of rows.slice(0, Math.max(5, Math.floor(maxRecords / 5)))) {
+        const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi) ?? [];
+        if (cells.length < 3) continue;
+
+        const cellTexts = cells.map((c: string) => c.replace(/<[^>]+>/g, '').trim());
+        const drugName = cellTexts[0];
+        if (!drugName || drugName.includes('drug') || drugName.includes('Medicine')) continue;
+
+        const content = JSON.stringify(cellTexts);
+        const id = await computeHash(content, 'sha256');
+
+        records.push({
+          id,
+          drug_name: drugName,
+          manufacturer: cellTexts.length > 1 ? cellTexts[1] || null : null,
+          decision_type: cellTexts.length > 2 ? cellTexts[2] || null : null,
+          decision_date: cellTexts.length > 3 ? cellTexts[3] || null : null,
+          status: cellTexts.length > 4 ? cellTexts[4] || null : null,
+          therapeutic_category: null,
+          proposed_price_cad: cellTexts.length > 5 ? parseFloat(cellTexts[5]) || null : null,
+          approved_price_cad: cellTexts.length > 6 ? parseFloat(cellTexts[6]) || null : null,
+          foreign_price_comparison: null,
+          comparison_countries: null,
+          atc_class: cellTexts.length > 7 ? cellTexts[7] || null : null,
+          din: null,
+          source_url: reportUrl,
+          ingested_at: now,
+        });
+      }
+    } catch {
+      // PMPRB website scraping failed
     }
+  }
 
-    records.push({
-      id,
-      drug_name: decision.drugName,
-      manufacturer: decision.manufacturer,
-      decision_type: decision.decisionType,
-      decision_date: decision.decisionDate,
-      status: decision.status,
-      therapeutic_category: decision.therapeuticCategory,
-      proposed_price_cad: decision.proposedPriceCad,
-      approved_price_cad: decision.approvedPriceCad,
-      foreign_price_comparison: decision.foreignPriceComparison,
-      comparison_countries: decision.comparisonCountries,
-      atc_class: decision.atcClass,
-      din: decision.din || null,
-      source_url: `${HEALTH_DATA_SOURCES.PMPRB.BASE}api/3/action/package_search?q=patented+medicine+prices+review+board`,
-      ingested_at: now,
-    });
+  if (records.length === 0) {
+    throw new HealthDataError('PMPRB pricing: No data could be fetched from any source', 'pmpb');
   }
 
   return records.slice(0, maxRecords);

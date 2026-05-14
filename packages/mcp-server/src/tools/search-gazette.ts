@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchRecords, getPipelineData, liveFetch } from './pipeline-data.js';
+import { searchGovData } from './api-client.js';
 
 /**
  * Search the Canada Gazette — official newspaper of the Government of Canada
@@ -54,18 +54,10 @@ export const handler: ToolHandler = async (args) => {
   const part = (args.part as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  // Try cached pipeline data first; fall back to live fetch if unavailable
-  let results: any[];
-  let total: number;
-  if (getPipelineData()) {
-    const result = searchRecords(['gazette'], query, limit);
-    results = result.results;
-    total = result.total;
-  } else {
-    const liveResult = await liveFetch(['gazette'], query, limit);
-    results = liveResult.results;
-    total = liveResult.total;
-  }
+  // Live search via API server
+  const result = await searchGovData(query, 'all', limit);
+  let results = result.results;
+  let total = result.total;
 
   // Apply part filter if provided
   let filteredResults = results;
