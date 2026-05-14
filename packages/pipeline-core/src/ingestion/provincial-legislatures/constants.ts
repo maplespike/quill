@@ -9,7 +9,7 @@
  *   - BC: leg.bc.ca (Hansard XML archives, committee pages)
  *   - Alberta: assembly.ab.ca (Hansard HTML, committee hearings)
  *   - Quebec: assnat.qc.ca (Hansard XML, bilingual)
- *   - Others: various formats — stubs provided for future implementation
+ *   - Others: various formats — generic HTML-based fetchers provided
  */
 
 import type { ProvinceLegislatureConfig } from './types.js';
