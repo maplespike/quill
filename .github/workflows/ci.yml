@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Clean stale build artifacts
+        run: rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo
+
       - name: Build all packages
         run: pnpm -r build
 
