@@ -44,19 +44,13 @@ interface CkanPackageResult {
 // ─── CKAN Discovery ─────────────────────────────────────────────────────
 
 /**
- * Search CKAN for poverty datasets by measure type.
+ * Search CKAN for poverty datasets by query string.
  */
 export async function searchPovertyDatasets(
-  measure: PovertyMeasure,
+  query: string = 'low+income+measure+poverty+canada',
 ): Promise<CkanPackageResult[]> {
-  const queries: Record<PovertyMeasure, string> = {
-    lico: SOCIAL_CKAN_QUERIES.LICO,
-    lim: SOCIAL_CKAN_QUERIES.LIM,
-    mbm: SOCIAL_CKAN_QUERIES.MBM,
-  };
-
   try {
-    const url = ckanSearchUrl(queries[measure]);
+    const url = ckanSearchUrl(query);
     const resp = await httpGet(url, {
       headers: { 'User-Agent': SOCIAL_UA },
       timeoutMs: 20_000,
