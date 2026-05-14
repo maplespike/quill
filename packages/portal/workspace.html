@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing</title>
+  <script src="/config.js"></script>
   <link rel="canonical" href="https://maplespike.ca/workspace">
   <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace">
   <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/workspace">
@@ -66,7 +67,9 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/guide/what-is-maplespike.html"><span class="nav-bracket">[</span>GUIDE<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/api/endpoints.html"><span class="nav-bracket">[</span>API<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/mcp/tools.html"><span class="nav-bracket">[</span>MCP<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="active"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -115,19 +118,19 @@
           <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 2</div>
           <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Make your first API call</div>
           <div class="code-block" style="font-size:0.75rem;margin:0;">
-            <span class="prompt">$</span> curl http://127.0.0.1:8085/v1/health
+            <span class="prompt">$</span> curl <span class="config-api-base">http://127.0.0.1:8085</span>/v1/health
           </div>
         </div>
         <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
           <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 3</div>
           <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Search government data</div>
           <div class="code-block" style="font-size:0.75rem;margin:0;">
-            <span class="prompt">$</span> curl "http://127.0.0.1:8085/v1/gov/search?q=housing" -H "X-API-Key: maplespike-dev-key"
+            <span class="prompt">$</span> curl "<span class="config-api-base">http://127.0.0.1:8085</span>/v1/gov/search?q=housing" -H "X-API-Key: <span class="config-api-key">maplespike-dev-key</span>"
           </div>
         </div>
       </div>
       <div style="margin-top:12px;font-size:0.8rem;color:var(--text-muted);">
-        The workspace panels below connect to <code>http://127.0.0.1:8085</code> when the API server is running.
+        The workspace panels below connect to <code class="config-api-base">http://127.0.0.1:8085</code> when the API server is running.
         Start the server above to see live usage stats and API keys.
       </div>
     </div>
@@ -349,7 +352,8 @@
   }
 
   async function apiFetch(path, options = {}) {
-    const base = 'http://127.0.0.1:8085';
+    const _cfg = window.MAPLESPIKE || {};
+    const base = _cfg.apiBase || 'http://127.0.0.1:8085';
     const headers = { ...getAuthHeaders(), ...options.headers };
     const resp = await fetch(base + path, { ...options, headers });
     return resp;
@@ -690,6 +694,15 @@
   setInterval(fetchUsage, 30000);
   loadOAuthProviders();
   checkAuth();
+})();
+
+// ── Replace inline config placeholders with live values ──
+(function() {
+  const cfg = window.MAPLESPIKE || {};
+  const base = cfg.apiBase;
+  const key = cfg.apiKey;
+  if (base) document.querySelectorAll('.config-api-base').forEach(el => el.textContent = base);
+  if (key) document.querySelectorAll('.config-api-key').forEach(el => el.textContent = key);
 })();
 </script>
 </body>

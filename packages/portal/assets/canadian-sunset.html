@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canadian Sunset — MapleSpike</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050308;overflow:hidden;height:100vh;user-select:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+#title{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:1;pointer-events:none;text-align:center}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="title"></div>
+<script type="module">
+import { prepareWithSegments, layoutWithLines } from "https://esm.sh/@chenglou/pretext@0.0.6";
+
+// ─── Canvas ──────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, cw, ch;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cw = W / 140;
+  ch = H / 60;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─── Pretext Title ───────────────────────────────────────────
+(async () => {
+  const txt = 'CANADA';
+  const fnt = '700 56px Georgia,Palatino,"Times New Roman",serif';
+  const prepared = prepareWithSegments(txt, fnt);
+  const { lines } = layoutWithLines(prepared, W * 0.7, 64);
+  const div = document.getElementById('title');
+  if (lines?.length) {
+    div.textContent = lines[0].text;
+    div.style.font = fnt;
+    div.style.letterSpacing = '0.2em';
+    div.style.opacity = '0';
+    div.style.transition = 'opacity 2s ease';
+    requestAnimationFrame(() => { div.style.opacity = '0.04'; });
+  }
+})();
+
+// ─── Constants ───────────────────────────────────────────────
+const COLS = 140, ROWS = 60, WATER = 43;
+const cw_ = () => W / COLS;
+const ch_ = () => H / ROWS;
+
+// ─── Mountain Generator ──────────────────────────────────────
+// Mountains are stored as {col, topRow} where topRow is the sky row
+// at which the mountain starts (smaller = taller).
+// Each mountain is a triangle from peak down to base.
+const BASE_ROW = WATER - 1;  // where mountains meet water
+const peaks = [
+  // {cx, height (rows from base up), baseHalf (half-width at base)}
+  { cx: 12,  height: 14, baseHalf: 18 },
+  { cx: 38,  height: 26, baseHalf: 28 },
+  { cx: 55,  height: 20, baseHalf: 22 },
+  { cx: 70,  height: 30, baseHalf: 32 }, // tallest
+  { cx: 88,  height: 22, baseHalf: 24 },
+  { cx: 105, height: 27, baseHalf: 28 },
+  { cx: 125, height: 16, baseHalf: 20 },
+];
+
+// Mountain layer 1 (foreground, warmer/darker)
+const peaksFg = [
+  { cx: 25,  height: 12, baseHalf: 20 },
+  { cx: 48,  height: 18, baseHalf: 24 },
+  { cx: 65,  height: 14, baseHalf: 18 },
+  { cx: 80,  height: 10, baseHalf: 16 },
+  { cx: 95,  height: 16, baseHalf: 22 },
+  { cx: 115, height: 12, baseHalf: 18 },
+];
+
+// For a given column, what's the mountain top row and left/right edge info?
+// Returns null if no mountain at this column.
+function mountainAt(col, peaksList) {
+  let result = null; // {topRow, leftEdge, rightEdge, peakCx, isLeftEdge, isRightEdge, depth}
+  for (const p of peaksList) {
+    const leftCol  = Math.max(0, p.cx - p.baseHalf);
+    const rightCol = Math.min(COLS - 1, p.cx + p.baseHalf);
+    if (col < leftCol || col > rightCol) continue;
+
+    const topRow = BASE_ROW - p.height;
+    // Width of the mountain at row r
+    // At topRow, width is 0 (just the peak)
+    // At BASE_ROW, width is baseHalf*2
+    // Linear interpolation
+    const progress = (col - p.cx) / p.baseHalf; // -1 to 1
+    // Where this column hits the triangle sides
+    const leftEdgeCol  = p.cx - p.baseHalf * (1 - (col - leftCol) / (rightCol - leftCol));
+    // Actually simpler: for each row, compute the left and right edge columns
+    // topRow: leftEdge = rightEdge = cx
+    // BASE_ROW: leftEdge = cx - baseHalf, rightEdge = cx + baseHalf
+
+    // For a given row r:
+    // frac = (BASE_ROW - r) / p.height  (0 at base, 1 at peak)
+    // halfWidth = baseHalf * frac
+    // leftEdge = cx - halfWidth, rightEdge = cx + halfWidth
+
+    // Reverse: given column c, find the top-most row that includes this column
+    // halfWidth = |col - cx|
+    // frac = |col - cx| / baseHalf
+    // topRow = BASE_ROW - p.height * frac
+    const frac = Math.abs(col - p.cx) / p.baseHalf;
+    const thisTopRow = BASE_ROW - Math.round(p.height * frac);
+
+    if (!result || thisTopRow < result.topRow) {
+      const leftEdgeFrac = (col - p.cx) / p.baseHalf;
+      const isLeftEdge  = col > 0 && Math.abs(leftEdgeFrac) < 0.15;
+      const isRightEdge = col < COLS - 1 && Math.abs(leftEdgeFrac) > 0.85;
+      // Depth: how far from the edge, 0=edge, 1=center
+      const depth = 1 - Math.abs(leftEdgeFrac);
+      result = { topRow: thisTopRow, isLeftEdge, isRightEdge, depth, peakCx: p.cx, height: p.height };
+    }
+  }
+  return result;
+}
+
+// ─── Stars ───────────────────────────────────────────────────
+const stars = [];
+for (let i = 0; i < 50; i++)
+  stars.push({
+    x: Math.random() * W, y: Math.random() * (WATER * 0.3) * ch,
+    p: Math.random() * 6.28, r: 0.3 + Math.random() * 0.8,
+  });
+
+// ─── Water ───────────────────────────────────────────────────
+const wp = new Float64Array(COLS);
+for (let c = 0; c < COLS; c++) wp[c] = Math.random() * 6.28;
+
+// ─── Sky gradient (same as before) ──────────────────────────
+function skyColor(r) {
+  const t = r / WATER;
+  if (t < 0.15) return [10, 5, 25];
+  if (t < 0.28) return [40, 10, 45];
+  if (t < 0.42) return [85, 22, 50];
+  if (t < 0.55) return [140, 45, 55];
+  if (t < 0.67) return [190, 75, 55];
+  if (t < 0.78) return [220, 120, 50];
+  if (t < 0.88) return [240, 170, 60];
+  return [250, 210, 90];
+}
+
+// ─── ASCII ramps ────────────────────────────────────────────
+const DENSITY = '@%#&Oo*+=-:.· ';  // dark → light
+const SNOW    = '"·`\'';             // snow cap chars
+
+// ─── Frame ───────────────────────────────────────────────────
+function frame(now) {
+  const cw = W / COLS;
+  const ch = H / ROWS;
+  const fs = Math.min(cw, ch);
+  ctx.font = `${fs + 0.5}px monospace`;
+  ctx.textBaseline = 'bottom';
+
+  // ── Sky gradient ──
+  for (let r = 0; r < WATER; r++) {
+    const y = (r + 0.8) * ch;
+    const [sr, sg, sb] = skyColor(r);
+    ctx.fillStyle = `rgb(${sr},${sg},${sb})`;
+    ctx.fillRect(0, y, W, ch + 1);
+  }
+
+  // ── Stars ──
+  for (const s of stars) {
+    const t = 0.3 * (0.5 + 0.5 * Math.sin(now * 0.001 * s.r + s.p));
+    if (t < 0.05) continue;
+    ctx.fillStyle = `rgba(200,180,220,${t})`;
+    ctx.fillText('·', s.x, s.y);
+  }
+
+  // ── Sun ──
+  const sunCol = 45, sunRow = WATER - 7;
+  const sunY = (sunRow + 0.8) * ch;
+  const sunX = sunCol * cw;
+
+  const sGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, cw * 7);
+  sGrad.addColorStop(0, 'rgba(255,200,80,0.30)');
+  sGrad.addColorStop(0.3, 'rgba(255,150,50,0.12)');
+  sGrad.addColorStop(1, 'rgba(255,100,20,0)');
+  ctx.fillStyle = sGrad;
+  ctx.fillRect(sunX - cw * 7, sunY - cw * 7, cw * 14, cw * 14);
+
+  ctx.font = `${fs + 3}px monospace`;
+  ctx.fillStyle = 'rgba(255,220,100,0.9)';
+  ctx.fillText('◉', sunX, sunY);
+  ctx.fillStyle = 'rgba(255,248,210,0.6)';
+  ctx.fillText('○', sunX, sunY);
+
+  // ── Clouds (horizontal bands) ──
+  ctx.font = `${fs + 0.5}px monospace`;
+  const cloudRows = [18, 22, 26, 30];
+  for (let ci = 0; ci < cloudRows.length; ci++) {
+    const r = cloudRows[ci];
+    const y = (r + 0.8) * ch;
+    const offset = (now * 0.00003 * (0.3 + ci * 0.15) * 200) % (COLS * cw);
+    const [cr, cg, cb] = skyColor(r);
+    // Cloud band: mix of `-`, `~`, `=` characters
+    let str = '';
+    for (let c = 0; c < COLS; c++) {
+      const px = (c * cw + offset) % (COLS * cw);
+      const choice = (c + ci * 7) % 11;
+      str += choice < 3 ? '~' : choice < 6 ? '-' : ' ';
+    }
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.10)`;
+    ctx.fillText(str, -offset, y);
+    ctx.fillText(str, COLS * cw - offset, y);
+  }
+
+  // ── Mountains (back layer, lighter) ──
+  ctx.font = `${fs + 0.5}px monospace`;
+  for (let r = 0; r < BASE_ROW; r++) {
+    const y = (r + 0.8) * ch;
+    let buf = '', col = null, sc = -1;
+
+    function flush() {
+      if (buf && col !== null && sc >= 0) {
+        ctx.fillStyle = col;
+        ctx.fillText(buf, sc * cw, y);
+      }
+      buf = '';
+    }
+
+    for (let c = 0; c < COLS; c++) {
+      const mt = mountainAt(c, peaks);
+      if (!mt || r < mt.topRow) { flush(); continue; }
+
+      // Determine character
+      let chc, co;
+
+      if (r === mt.topRow) {
+        // Peak / ridge line
+        chc = '▲'; co = 'rgba(25,18,22,0.6)';
+      } else if (mt.depth < 0.08) {
+        // Near peak — narrow, use rock character
+        chc = DENSITY[2]; co = 'rgba(30,22,25,0.55)';
+      } else {
+        // Shading based on depth + height
+        const heightFrac = (BASE_ROW - r) / mt.height;
+        const shade = Math.min(1, mt.depth * (0.4 + 0.6 * heightFrac));
+        const di = Math.min(DENSITY.length - 1, Math.floor((1 - shade) * DENSITY.length));
+        chc = DENSITY[di];
+        // Color: warm dark with some variation
+        const bright = 20 + shade * 25;
+        co = `rgba(${bright|0},${15+shade*12|0},${18+shade*10|0},0.55)`;
+      }
+
+      if (co !== col) { flush(); col = co; sc = c; }
+      buf += chc;
+    }
+    flush();
+  }
+
+  // ── Mountains (front layer, darker/warmer) ──
+  for (let r = 0; r < BASE_ROW; r++) {
+    const y = (r + 0.8) * ch;
+    let buf = '', col = null, sc = -1;
+
+    function flush() {
+      if (buf && col !== null && sc >= 0) {
+        ctx.fillStyle = col;
+        ctx.fillText(buf, sc * cw, y);
+      }
+      buf = '';
+    }
+
+    for (let c = 0; c < COLS; c++) {
+      const mt = mountainAt(c, peaksFg);
+      if (!mt || r < mt.topRow) { flush(); continue; }
+
+      const heightFrac = (BASE_ROW - r) / mt.height;
+      const shade = Math.min(1, mt.depth * (0.5 + 0.5 * heightFrac));
+      const di = Math.min(DENSITY.length - 1, Math.floor((1 - shade) * DENSITY.length));
+
+      let chc, co;
+      if (r === mt.topRow) {
+        chc = '▲';
+        co = 'rgba(10,8,8,0.95)';
+      } else {
+        chc = DENSITY[di];
+        const bright = 8 + shade * 8;
+        co = `rgba(${bright|0},${6+shade*4|0},${6+shade*4|0},0.95)`;
+      }
+
+      if (co !== col) { flush(); col = co; sc = c; }
+      buf += chc;
+    }
+    flush();
+  }
+
+  // ── Trees at the base ──
+  const treePositions = [];
+  for (let c = 0; c < COLS; c++) {
+    const mtFg = mountainAt(c, peaksFg);
+    if (!mtFg || mtFg.topRow > BASE_ROW - 3) continue;
+    if (mtFg.depth > 0.6 && c % 4 === 0) {
+      const height = 2 + (Math.sin(c * 2.3) * 1.5 + 1.5) | 0;
+      treePositions.push({ col: c, height });
+    }
+  }
+
+  for (const t of treePositions) {
+    const baseY = BASE_ROW;
+    for (let r = 0; r < t.height; r++) {
+      const y = (baseY - t.height + r + 0.8) * ch;
+      const x = t.col * cw;
+      const isTop = r === 0;
+      const isMid = r < t.height - 1;
+      const isBottom = r === t.height - 1;
+      ctx.fillStyle = 'rgba(5,4,3,0.95)';
+      if (isTop) ctx.fillText('▲', x, y);
+      else if (isMid) ctx.fillText('│', x, y);
+      else ctx.fillText('│', x, y);
+    }
+  }
+
+  // ── Lake gradient ──
+  const wy = WATER * ch;
+  const lg = ctx.createLinearGradient(0, wy, 0, H);
+  lg.addColorStop(0, 'rgba(180,100,40,0.45)');
+  lg.addColorStop(0.2, 'rgba(120,60,50,0.25)');
+  lg.addColorStop(0.5, 'rgba(30,20,40,0.15)');
+  lg.addColorStop(1, 'rgba(5,3,8,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(0, wy, W, H - wy);
+
+  // ── Water reflection ──
+  const WATER_CHARS = ' ░░▒▒▓≈≈~~·';
+  for (let r = WATER + 1; r < ROWS; r++) {
+    const y = (r + 0.8) * ch;
+    const dist = r - WATER;
+    const fade = Math.max(0, 1 - dist / (ROWS - WATER) * 1.6);
+    if (fade < 0.02) continue;
+
+    for (let c = 0; c < COLS; c++) {
+      const ri = Math.sin(now * 0.0012 + c * cw * 0.018 + wp[c]) * 2.8
+               + Math.sin(now * 0.0007 + c * cw * 0.028 + wp[c] * 1.4) * 1.3;
+      const sc = Math.round(c + ri);
+      if (sc < 0 || sc >= COLS) continue;
+      const sr = BASE_ROW - 1 - dist;
+      if (sr < 0) continue;
+
+      // Check if source column has a mountain
+      const mt = mountainAt(sc, peaks) || mountainAt(sc, peaksFg);
+      if (!mt || sr < mt.topRow) continue;
+
+      const refInt = fade * (0.3 + 0.2 * Math.abs(Math.sin(now * 0.0015 + c * cw * 0.025)));
+      const gi = Math.min(WATER_CHARS.length - 1, Math.floor(refInt * WATER_CHARS.length));
+      const chc = WATER_CHARS[gi];
+
+      const [skR, skG, skB] = skyColor(sr);
+      ctx.fillStyle = `rgba(${skR * 0.25 | 0},${skG * 0.35 | 0},${skB * 0.45 | 0},${refInt * 0.5})`;
+      ctx.fillText(chc, c * cw, y);
+    }
+  }
+
+  // ── Horizon glow wave ──
+  ctx.strokeStyle = 'rgba(255,180,60,0.10)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let c = 0; c < COLS; c++) {
+    const wwy = wy + Math.sin(now * 0.0015 + c * cw * 0.035) * 1.5;
+    c === 0 ? ctx.moveTo(c * cw, wwy) : ctx.lineTo(c * cw, wwy);
+  }
+  ctx.stroke();
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
