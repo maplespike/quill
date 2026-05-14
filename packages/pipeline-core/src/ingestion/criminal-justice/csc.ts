@@ -69,6 +69,63 @@ function parseCsv(content: string, hasHeader = true): string[][] {
   return lines.slice(startIdx).map(parseCsvLine);
 }
 
+/**
+ * Parse CSV content using the header row for column mapping.
+ * Header names are normalized to lowercase snake_case for flexible matching.
+ * Returns an array of row objects keyed by normalized column name.
+ */
+function parseCsvWithHeaders(csvContent: string): Record<string, string>[] {
+  const lines = csvContent.split('\n');
+  const dataLines = lines.filter(l => l.trim().length > 0);
+  if (dataLines.length < 2) return [];
+
+  const rawHeaders = parseCsvLine(dataLines[0]);
+  const headers = rawHeaders.map(h =>
+    h.toLowerCase()
+      .replace(/[\s\-]+/g, '_')
+      .replace(/[^a-z0-9_]/g, '')
+      .replace(/^_|_$/g, ''),
+  );
+
+  const result: Record<string, string>[] = [];
+  for (let i = 1; i < dataLines.length; i++) {
+    const values = parseCsvLine(dataLines[i]);
+    if (values.length === 0 || values.every(v => v.trim() === '')) continue;
+
+    const row: Record<string, string> = {};
+    headers.forEach((header, idx) => {
+      row[header] = idx < values.length ? values[idx].trim() : '';
+    });
+    result.push(row);
+  }
+  return result;
+}
+
+/**
+ * Extract CSV download URLs from an HTML page by finding hrefs pointing to .csv files.
+ * Resolves relative URLs against the page URL.
+ */
+function extractCsvUrlsFromHtml(html: string, pageUrl: string): string[] {
+  const urls: string[] = [];
+  const baseUrl = pageUrl.substring(0, pageUrl.lastIndexOf('/') + 1);
+  const hrefRegex = /href\s*=\s*["']([^"']*\.csv[^"']*)["']/gi;
+
+  let match: RegExpExecArray | null;
+  while ((match = hrefRegex.exec(html)) !== null) {
+    let url = match[1].trim();
+    if (url.startsWith('//')) {
+      url = 'https:' + url;
+    } else if (url.startsWith('/')) {
+      url = 'https://www.csc-scc.gc.ca' + url;
+    } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = baseUrl + url;
+    }
+    urls.push(url);
+  }
+
+  return [...new Set(urls)];
+}
+
 /* ------------------------------------------------------------------ */
 /*  CKAN Metadata Fetch                                                */
 /* ------------------------------------------------------------------ */
@@ -182,12 +239,40 @@ async function fetchCscPopulationDirect(
     const resp = await httpGet(sourceUrl, { timeoutMs: 15_000 });
     if (resp.statusCode >= 400) return records;
 
-    // Return empty array — real data needs CSV parsing from known patterns
-    // This is a stub for future enhancement
-    return records;
+    // Extract CSV download URLs from the open data HTML page and parse the first CSV found
+    const csvUrls = extractCsvUrlsFromHtml(resp.body, sourceUrl);
+    if (csvUrls.length === 0) return records;
+
+    const csvUrl = csvUrls[0];
+    const csvResp = await httpGet(csvUrl, { timeoutMs: 20_000 });
+    if (csvResp.statusCode >= 400) return records;
+
+    const parsedRows = parseCsvWithHeaders(csvResp.body);
+    for (const row of parsedRows) {
+      if (records.length >= maxRecords) break;
+
+      try {
+        records.push({
+          id: await computeHash(`csc-pop-${JSON.stringify(row)}`, 'sha256'),
+          fiscalYear: row.fiscal_year || row.fiscalyear || row.year || row.reference_period || '',
+          institution: row.institution || row.institution_name || row.institutionname || row.location || '',
+          region: row.region || '',
+          count: parseInt(row.count || row.population || row.number || row.total || '0', 10) || 0,
+          populationType: row.population_type || row.populationtype || row.type || 'In Custody',
+          gender: row.gender || 'Total',
+          securityLevel: row.security_level || row.securitylevel || row.security || null,
+          sourceUrl: csvUrl,
+          ingestedAt: new Date().toISOString(),
+        });
+      } catch {
+        continue;
+      }
+    }
   } catch {
     return records;
   }
+
+  return records;
 }
 
 /* ------------------------------------------------------------------ */
