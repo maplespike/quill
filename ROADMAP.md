@@ -1,6 +1,6 @@
 # MapleSpike Pipeline — Master Roadmap
 
-> **Updated:** 2026-05-13 (portal visual uplift, docs refresh)
+> **Updated:** 2026-05-13 (pricing page, nav coherence, Katzilla content gap analysis)
 > **Repository:** `/data/projects/own/maplespike`
 > **Working branch:** main
 > **Deployment target:** GitHub Pages (portal) + K3s cluster (backend)
@@ -86,29 +86,47 @@
 
 ---
 
-## PHASE 2: MCP SERVER — Complete
+## PHASE 2: MCP SERVER — Complete (14 data tools) + AI tools exist but unwired
 
 | Item | Status | Notes |
 |------|--------|-------|
 | ✅ MCP protocol (JSON-RPC 2.0) | DONE | stdio + SSE transports |
 | ✅ SSE HTTP server | DONE | Port 3001, health endpoint, auth |
-| ✅ Nix-OCI container image | DONE | `dockerTools.buildImage`, pushed to nexus:5000 |
-| ✅ K8s deployment | DONE | `maplespike-mcp` pod running, health: `{"status":"ok","tools":14}` |
+| ✅ Nix-OCI container image | DONE | `dockerTools.buildImage` in flake.nix |
+| ✅ K8s deployment | DONE | `maplespike-mcp` pod running |
 | ✅ Pure nix build | DONE | No `--impure` flags |
-| ✅ Tool: `query_gov_data` | DONE | CKAN search across federal + provincial portals |
-| ✅ Tool: `fact_check` | DONE | Basic verification tool |
-| ✅ Tool: `get_citation` | DONE | Citation hash retrieval |
-| ✅ Tool: `latest_releases` | DONE | Recent government data releases |
-| ✅ Tool: `search_committees` | DONE | Full-text committee intervention search (HoC + Senate) |
-| ✅ Tool: `search_corporate` | DONE | Lobbying registry + procurement query |
-| ✅ Tool: `search_influence` | DONE | Influence actor investigation |
-| ✅ Tool: `search_gazette` | DONE | Canada Gazette regulation search |
-| ✅ Tool: `search_gic` | DONE | GIC appointment lookup |
-| ✅ Tool: `search_elections` | DONE | Elections Canada third-party advertiser search |
-| ✅ Tool: `search_provincial_lobbying` | DONE | BC/ON/QC lobbying registry search |
-| ✅ Tool: `search_oversight` | DONE | OAG/PBO/Ethics/Competition Bureau/CRTC search |
-| ✅ Tool: `search_canlii` | DONE | Court decision search via CanLII |
-| ✅ Tool: `search_lmia` | DONE | LMIA quarterly data search |
+| ✅ 14 data tools operational | DONE | All return real data from pipeline-data.json with live-fetch fallbacks |
+| ✅ Bilingual tool descriptions | DONE | All 14 tools have `descriptions: { 'fr-CA': '...' }`, locale-aware via Accept-Language |
+| 🟡 3 AI tools exist but NOT registered | TODO | `ai_analyze`, `ai_ask`, `ai_search_semantic` files exist in `src/tools/` and `src/ai/` (gateway.ts, qdrant.ts) but aren't wired into `getAllTools()`. Need registration + AI Gateway connection |
+
+---
+
+## PHASE 2B: PORTAL — Complete
+
+| Item | Status | Notes |
+|------|--------|-------|
+| ✅ Landing page hero with particles + CSS grid background | DONE | Katzilla-quality hero with mouse-interactive canvas particles |
+| ✅ 10 HTML pages: index, dashboard, explorer, workspace, docs, pricing, ask, signal, agents, 404 | DONE | All share identical bracket-style nav and footer |
+| ✅ Nav coherence across all pages | DONE | DATA → PRICING → DOCS → EXPLORER → WORKSPACE → Get API Key |
+| ✅ Footer with status indicator on all pages | DONE | ALL SYSTEMS OPERATIONAL with live badge |
+| ✅ Mobile full-screen overlay menu | DONE | Body scroll lock, Escape key, staggered links |
+| ✅ System fonts (no Google Fonts) | DONE | -apple-system + ui-monospace stack |
+| ✅ Canadian heritage palette (red #C23030, gold #D4A017) | DONE | Base16 token system |
+| ✅ Custom scrollbar + selection colors | DONE | 6px thin scrollbar, Canadian-red ::selection |
+| ✅ Console Easter egg | DONE | ASCII logo + GitHub link on dev tools open |
+| ✅ Theme toggle (dark/light) with localStorage persistence | DONE | Consistent across all pages |
+| ✅ Quickstart curl + SDK + MCP demo | DONE | Interactive curl block with Run button |
+| ✅ Live stats from API (requests, sources, uptime) | DONE | Fetches from /v1/health |
+| ✅ Dedicated /pricing.html page | DONE | Free/Pro/Business tiers, monthly/annual toggle, FAQ |
+| ✅ Data Explorer with category chips | DONE | 5 categories, search bar, filter |
+| ✅ Workspace with API key management | DONE | Key display, regenerate, usage stats |
+| ✅ Docs page with comprehensive API reference | DONE | Quickstart, Auth, Request/Response, Endpoints, Token Optimization, Citation Contract, 14-Tool Catalog, Rate Limits, Error Codes, FAQ — 10 sections matching Katzilla |
+| ✅ SIGNAL + ASK removed from nav (Katzilla-like naming) | DONE | Will return when services get proper names |
+| 🔴 blog.maplespike.ca | TODO | Even minimal index + RSS |
+| 🔴 Changelog | TODO | Release notes |
+| 🔴 SDK tabstrip in hero (curl/SDK/MCP) | TODO | Katzilla has 3-tab quickstart |
+| 🔴 Data Explorer depth (20+ categories, action counts) | TODO | Katzilla has 21 categories with expandable cards |
+| 🔴 Contact/Support page | TODO | |
 
 ---
 
@@ -165,15 +183,27 @@
 | ✅ Competition Bureau rulings | MEDIUM | Low | Mergers + enforcement decisions via oversight module |
 | ✅ Elections Canada data | LOW | Medium | Third-party advertiser registry, spending reports, cross-references |
 | ✅ Lobbying investigation reports | LOW | Low | HTML reports from Commissioner of Lobbying via oversight module |
-| 🔴 SEDI insider trading scraper | HIGH | Medium | Executive stock trades, C-Suite selling patterns |
+| ✅ SEDI insider trading scraper | HIGH | Medium | Executive stock trades, C-Suite selling patterns. Built at `ingestion/sedi/` |
+| ✅ Bank of Canada rate decisions | MEDIUM | Low | Interest rate announcements, monetary policy reports. Built at `ingestion/bank-of-canada/` |
+| ✅ Patent/trademark data (CIPO) | LOW | Medium | Canadian Intellectual Property Office. Built at `ingestion/cipo/` |
+| ✅ CMHC housing data | MEDIUM | Medium | Canada Mortgage and Housing Corporation data. Built at `ingestion/cmhc/` |
+| ✅ CRA charity financials (T3010) | MEDIUM | Medium | Detailed revenue sources, directors, grants paid. Built at `ingestion/cra-charity/` |
+| ✅ Crown corporation disclosures | MEDIUM | Medium | Built at `ingestion/crown-corporations/` |
+| ✅ CRTC decisions | MEDIUM | Low | Built at `ingestion/crtc/` (separate from oversight module) |
+| ✅ Federal budget data | MEDIUM | Low | Built at `ingestion/federal-budget/` |
+| ✅ Global Affairs Canada data | MEDIUM | Low | Built at `ingestion/global-canada/` |
+| ✅ Health Canada drug database | MEDIUM | Low | Built at `ingestion/health-canada/` |
+| ✅ Impact assessment data | MEDIUM | Low | Built at `ingestion/impact-assessment/` |
+| ✅ Municipal council meeting data | MEDIUM | High | eScribe, iCompass, CivicWeb vendor platforms. Built at `ingestion/municipal/` |
+| ✅ NPRI emissions data | MEDIUM | Low | National Pollutant Release Inventory. Built at `ingestion/npri/` |
+| ✅ Proactive disclosure data | MEDIUM | Low | Built at `ingestion/proactive-disclosure/` |
+| ✅ Provincial legislative committees | HIGH | High | Different HTML formats per province. Built at `ingestion/provincial-legislatures/` |
+| ✅ Species at Risk data | MEDIUM | Low | Built at `ingestion/species-at-risk/` |
+| 🔴 Provincial lobbyist registries (BC/AB/QC) | HIGH | Medium | BC/AB/QC registries are commented-out stubs in `ingestion/provincial-lobbying/` |
 | 🔴 SEDAR+ corporate filings | HIGH | Medium | Quarterly/annual reports, prospectuses, insider reports |
 | 🔴 Corporations Canada registry | HIGH | Low | Who owns what, director names, incorporation dates |
-| 🔴 Provincial legislative committees | HIGH | High | Different HTML formats per province |
-| 🔴 Municipal council meeting data | MEDIUM | High | eScribe, iCompass, CivicWeb vendor platforms |
 | 🔴 OSFI financial institution data | MEDIUM | Medium | Bank financial health indicators |
-| 🔴 CRA charity financials (T3010) | MEDIUM | Medium | Detailed revenue sources, directors, grants paid |
-| 🔴 Bank of Canada rate decisions | MEDIUM | Low | Interest rate announcements, monetary policy reports |
-| 🔴 Patent/trademark data (CIPO) | LOW | Medium | Canadian Intellectual Property Office |
+| 🔴 US EDGAR cross-border | LOW | High | Canadian companies filing with SEC |
 | 🔴 US EDGAR cross-border | LOW | High | Canadian companies filing with SEC |
 
 ---
@@ -199,31 +229,34 @@
 
 | Item | Priority | Effort | Notes |
 |------|----------|--------|-------|
-| ✅ API auth + rate-limit + usage tracking | DONE | — | `api-server` already has Bearer auth, daily/monthly caps, SQLite usage logs |
-| ✅ Multi-tenant DB schema | DONE | — | `tenants`, `api_keys`, `usage_logs` tables exist |
-| ✅ Static pricing/dashboard pages | DONE | — | Portal has HTML dashboard, pricing with monthly/annual toggle |
+| ✅ API auth + rate-limit + usage tracking | DONE | Bearer auth, sliding-window rate limiter, SQLite usage logs. 402 quota_exhausted response for free tier hard cap |
+| ✅ Multi-tenant DB schema | DONE | `tenants`, `api_keys`, `usage_logs` tables |
+| ✅ GitHub OAuth login + JWT tokens | DONE | `/v1/auth/github`, `/v1/auth/github/callback`, `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/auth/me` |
+| ✅ API key CRUD endpoints | DONE | `/v1/keys` GET (list) + POST (create) + DELETE (revoke) |
+| ✅ Static pricing/dashboard pages | DONE | Portal has HTML dashboard, pricing with monthly/annual toggle |
+| ✅ Quota enforcement (hard cap on free) | DONE | HTTP 402 `quota_exhausted` with Retry-After header, `X-RateLimit-Remaining`/`X-RateLimit-Reset` headers on all responses |
 | 🔴 Stripe integration | HIGH | 2 days | Checkout sessions + webhooks for subscription lifecycle. Cards only via Stripe |
-| 🔴 Crypto payments (BTC/ETH) | HIGH | 2 days | Self-custody via BTCPay Server or Coinbase Commerce. Generate addresses, poll for confirmations, provision API keys on payment |
-| 🔴 Interac e-Transfer (Canada) | HIGH | 3 days | Automated via Interac e-Transfer for Business API or polling a dedicated email inbox. Manual verification fallback for low-volume |
-| 🔴 Tiered plan enforcement | HIGH | 1 day | Enforce Free (1K/mo), Pro ($49/100K), Business ($199/500K) limits at the api-server rate-limiter using subscription data |
+| 🔴 Crypto payments (BTC/ETH) | HIGH | 2 days | Self-custody via BTCPay Server or Coinbase Commerce |
+| 🔴 Interac e-Transfer (Canada) | HIGH | 3 days | Automated via Interac e-Transfer for Business API |
 | 🔴 Public signup flow | HIGH | 2 days | Web form → Stripe Checkout / crypto payment page / Interac instructions → API key provisioning |
-| 🔴 API key management UI | MEDIUM | 2 days | In-dashboard: generate, revoke, rotate keys. Track usage per key |
-| 🔴 Usage dashboard (live) | MEDIUM | 3 days | Daily/monthly usage graphs, quota remaining, overage warnings |
-| 🔴 Developer console (live) | MEDIUM | 2 weeks | Wiring the static HTML pages to real API data — key list, usage stats, billing history, data catalog explorer, API playground, Ask chat, Signal builder |
-| 🔴 Public docs / quickstart | LOW | 1 day | Onboarding flow for new developers |
+| 🔴 Usage dashboard (live data) | MEDIUM | 2 days | Workspace page has HTML, needs live API wiring |
+| 🔴 Overage billing (Stripe metered) | MEDIUM | 2 days | Soft-cap for Pro/Business, $1/1K overage |
 
 ### Console Features Required
 
 | Feature | Status | Effort |
 |---------|--------|--------|
-| API key management (create/rotate/revoke in UI) | 🔴 Static key in env | 2 days |
-| Usage counter dashboard | 🔴 API tracks it, no UI | 3 days |
-| Data catalog explorer (browse all tools) | 🔴 MCP tools list only | 3 days |
-| API playground (live try-it) | 🟡 Run button on portal | 2 days |
+| API key management (create/rotate/revoke in UI) | ✅ API endpoints exist, workspace page has HTML | 1 day to wire |
+| Usage counter dashboard | ✅ `/v1/usage` returns live data, workspace HTML exists | 1 day to wire |
+| GitHub OAuth login | ✅ `/v1/auth/github` + `/v1/auth/github/callback` | Done |
+| JWT sessions + refresh | ✅ `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/auth/me` | Done |
+| Quota enforcement (402) | ✅ Hard cap on free, Retry-After header | Done |
+| Token optimization params | ✅ `_fields`, `_format`, `_limit`, `_page`, `_summary`, `_mock` | Done |
+| Data catalog explorer (browse all tools) | ✅ Explorer page with category chips + search | Done |
+| API playground (live try-it) | 🟡 Run button on portal curl demo | 1 day |
 | Natural-language Ask (chat UI) | 🔴 MCP-only (external) | 1 week |
 | Signal/monitor builder (source+filter+delivery) | 🔴 Code-based only | 1 week |
-| User accounts / sign-up | 🟡 Register endpoint exists | 3 days |
-| Billing / checkout | 🔴 Static pricing page | 3 days |
+| Billing / checkout | 🔴 Static pricing page only | 3 days |
 
 ### Pricing Tiers
 
@@ -411,20 +444,20 @@ NixOS (nexus):
 
 ## TOP 10: WHAT TO BUILD NEXT
 
-Sorted by impact-to-effort ratio (updated 2026-05-13 — SaaS console priorities elevated):
+Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 
 | # | Task | Phase | Impact | Effort |
 |---|------|-------|--------|--------|
-| 1 | **Deploy CronJobs on K3s** — committee, corporate, influence, gazette, gic, oversight, provincial, canlii, lmia | P3 | Critical — keeps all pipelines fresh | 2 days |
-| 2 | **User accounts** — OAuth (Google/GitHub) or magic-link, session management | P6 | Critical — unlocks all console features | 3 days |
-| 3 | **API key management UI** — create/rotate/revoke in dashboard | P6 | High — developer self-service | 2 days |
-| 4 | **Usage dashboard** — live counter, rate limit viz, quota warnings | P6 | High — developer experience | 3 days |
-| 5 | **Stripe + Crypto + Interac billing** — payment processing, webhooks, tier enforcement | P6 | High — unlocks revenue | 3-5 days |
-| 6 | **Public signup flow** — web form → payment → API key provisioning | P6 | High — user acquisition | 2 days |
-| 7 | **API playground** — live endpoint test with JSON output (replace static curl blocks) | P6 | Medium — interactive demo | 2 days |
-| 8 | **Data catalog explorer** — searchable tool/action browser for all 14 MCP tools | P6 | Medium — discovery | 3 days |
-| 9 | **Engine integration** — entity resolution + signal detection reads shared DB, produces briefs | P4 | High — unlocks analytics | 3 days |
-| 10 | **BC/AB/QC provincial lobbying** — wire up remaining province registries | P4 | Medium — fills coverage gap | 2 days |
+| 1 | **Wire AI MCP tools** — register `ai_analyze`, `ai_ask`, `ai_search_semantic` in `getAllTools()`, connect to AI Gateway | P2 | High — 3 tools exist but are dead code | 1 day |
+| 2 | **Deploy CronJobs on K3s** — apply all 9 pipeline manifests | P3 | Critical — keeps ingestion fresh | 2 days |
+| 3 | **Wire workspace to live API** — connect API key management and usage stats pages to `/v1/keys` and `/v1/usage` endpoints | P7 | High — developer self-service | 1 day |
+| 4 | **Stripe billing** — Checkout sessions, webhooks, tier enforcement | P7 | High — unlocks revenue | 2 days |
+| 5 | **Fix engine tests** — 17 failing tests (better-sqlite3 in-memory DB) | P4 | Medium — 93/110 pass | 1 day |
+| 6 | **Blog** — minimal index page + RSS feed | P2B | Medium — shows activity | 1 day |
+| 7 | **Data Explorer depth** — 20+ category buttons with action counts | P2B | Medium — Katzilla has 21 categories | 1 day |
+| 8 | **Changelog** — release notes page | P2B | Medium — standard dev tool practice | 4 hours |
+| 9 | **Contact/Support page** | P2B | Low | 2 hours |
+| 10 | **Deploy Uptime Kuma** — pod for uptime monitoring + status page | P4 | Medium — observability | 1 day |
 
 ---
 
@@ -444,5 +477,9 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — SaaS console priorities
 | 2026-05-13 | Portal visual uplift applied | fade-in opacity fix, particle background, hero refined, all text visible, script.js wired |
 
 | 2026-05-13 | SaaS confirmed as business model | "Not a SaaS" removed from PRD non-goals. Phase 6 expanded with console features and build order |
-| 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs, and package READMEs updated to reflect current state |
-| 2026-05-13 | Infrastructure overhaul: Nix + Docker + K8s | flake.nix fixed (4 images: mcp, api, ingest, engine). Dockerfiles created for ingest + engine. Stale k8s.yaml removed. API Service + Ingress added. 9 CronJobs fixed to use maplespike-ingest image. Ingestion CLI entrypoint created. Portal K8s manifest removed (moved to GitHub Pages) |
+|| 2026-05-13 | All documentation refreshed | ROADMAP, PRD, MRD, MVP-SCOPE, READMEs updated |
+| 2026-05-13 | Roadmap audited against codebase | Phase 2: 3 AI tools exist but unwired. Phase 7: auth/keys/JWT/GitHub OAuth/402 enforcement all ✅, Stripe/crypto ❌. Docs page expanded from 5→10 sections. Top 10 reordered to match reality |
+|| 2026-05-13 | Infrastructure overhaul | flake.nix fixed, Dockerfiles for ingest + engine, 9 CronJobs fixed |
+|| 2026-05-13 | Katzilla content gap analysis | 7 gaps: pricing page (done), blog, changelog, docs expansion, explorer depth, SDK tabstrip, support page |
+|| 2026-05-13 | Nav coherence pass | All 9 pages identical bracket-style nav. SIGNAL+ASK removed. Footers on all pages. Titles standardized |
+|| 2026-05-13 | Pricing page launched | /pricing.html with Free/Pro/Business, annual toggle, FAQ, enterprise CTA |
