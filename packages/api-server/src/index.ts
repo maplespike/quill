@@ -44,7 +44,7 @@ interface Route {
 }
 
 import { healthHandler } from './routes/health.js';
-import { listReleasesHandler, searchGovHandler, dataHandler } from './routes/gov.js';
+import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
 import { usageHandler } from './routes/usage.js';
@@ -82,7 +82,7 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: meHandler },
   { pattern: /^\/v1\/gov\/releases\/?$/, method: 'GET', params: [], handler: listReleasesHandler },
   { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: searchGovHandler },
-  { pattern: /^\/v1\/gov\/data\/?$/, method: 'GET', params: [], handler: dataHandler },
+
   { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: getCitationHandler },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
@@ -127,7 +127,7 @@ const ROUTES: Route[] = [
  * Map route handler to a source name for freshness tracking.
  */
 function getSourceName(handler: RouteHandler): string {
-  if (handler === listReleasesHandler || handler === searchGovHandler || handler === dataHandler) return 'open.canada.ca';
+  if (handler === listReleasesHandler || handler === searchGovHandler) return 'open.canada.ca';
   // signals handler is dynamically loaded — not referenced here
   // Default source for freshness fallback
   return 'open.canada.ca';
