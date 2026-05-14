@@ -1,5 +1,5 @@
 /**
- * @maplespike/pipeline-core — MapleSpike Canada Data Pipeline
+ * @maplespike/pipeline-core — MapleSpike Data Pipeline
  *
  * Canadian sovereign data pipeline core.
  * Single entry point for all extraction modules.
