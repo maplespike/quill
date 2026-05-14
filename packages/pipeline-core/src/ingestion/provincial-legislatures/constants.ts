@@ -246,9 +246,75 @@ export const PEI_CONFIG: ProvinceLegislatureConfig = {
 };
 
 /* ------------------------------------------------------------------ */
+/*  Territory Configurations                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Yukon Legislative Assembly configuration.
+ *
+ * Hansard:  https://yukonassembly.ca/hansard
+ * Committees: https://yukonassembly.ca/committees
+ */
+export const YUKON_CONFIG: ProvinceLegislatureConfig = {
+  province: 'YT',
+  name: 'Yukon',
+  assemblyName: 'Yukon Legislative Assembly',
+  baseUrl: 'https://yukonassembly.ca',
+  hansardUrl: 'https://yukonassembly.ca/hansard',
+  committeesUrl: 'https://yukonassembly.ca/committees',
+  billsUrl: 'https://yukonassembly.ca/bills',
+  hasXmlHansard: false,
+  hasCommitteeApi: false,
+  hasBillsApi: false,
+  notes: 'Hansard as HTML/PDF. Cloudflare-protected site.',
+};
+
+/**
+ * Northwest Territories Legislative Assembly configuration.
+ *
+ * Hansard:  https://www.ntlegislativeassembly.ca/documents-proceedings/hansard
+ * Committees: https://www.ntlegislativeassembly.ca/committees
+ */
+export const NWT_CONFIG: ProvinceLegislatureConfig = {
+  province: 'NT',
+  name: 'Northwest Territories',
+  assemblyName: 'Legislative Assembly of the Northwest Territories',
+  baseUrl: 'https://www.ntlegislativeassembly.ca',
+  hansardUrl: 'https://www.ntlegislativeassembly.ca/documents-proceedings/hansard',
+  committeesUrl: 'https://www.ntlegislativeassembly.ca/committees',
+  billsUrl: 'https://www.ntlegislativeassembly.ca/documents-proceedings/bills',
+  hasXmlHansard: false,
+  hasCommitteeApi: false,
+  hasBillsApi: false,
+  notes: 'Hansard as HTML/PDF. Structured table with dates, Word, and PDF links.',
+};
+
+/**
+ * Nunavut Legislative Assembly configuration.
+ *
+ * Hansard:  https://assembly.nu.ca/hansard
+ * Committees: https://assembly.nu.ca/standing-and-special-committees
+ */
+export const NUNAVUT_CONFIG: ProvinceLegislatureConfig = {
+  province: 'NU',
+  name: 'Nunavut',
+  assemblyName: 'Legislative Assembly of Nunavut',
+  baseUrl: 'https://assembly.nu.ca',
+  hansardUrl: 'https://assembly.nu.ca/hansard',
+  committeesUrl: 'https://assembly.nu.ca/standing-and-special-committees',
+  billsUrl: 'https://assembly.nu.ca/bills-and-legislation',
+  hasXmlHansard: false,
+  hasCommitteeApi: false,
+  hasBillsApi: false,
+  notes: 'Hansard as PDF. "The Blues" unedited transcripts available next day. Bilingual (EN/FR/IU).',
+};
+
+/* ------------------------------------------------------------------ */
 /*  Province Registry                                                  */
 /* ------------------------------------------------------------------ */
 
+/**
+ * All province legislature configurations keyed by province code.
 /**
  * All province legislature configurations keyed by province code.
  */
@@ -263,6 +329,9 @@ export const PROVINCE_CONFIGS: Record<string, ProvinceLegislatureConfig> = {
   NB: NEW_BRUNSWICK_CONFIG,
   NL: NFLD_CONFIG,
   PE: PEI_CONFIG,
+  YT: YUKON_CONFIG,
+  NT: NWT_CONFIG,
+  NU: NUNAVUT_CONFIG,
 };
 
 /**
@@ -277,6 +346,16 @@ export const IMPLEMENTED_PROVINCES: ProvinceLegislatureConfig[] = [
   ONTARIO_CONFIG,
   BC_CONFIG,
   ALBERTA_CONFIG,
+  QUEBEC_CONFIG,
+  SASKATCHEWAN_CONFIG,
+  MANITOBA_CONFIG,
+  NOVA_SCOTIA_CONFIG,
+  NEW_BRUNSWICK_CONFIG,
+  NFLD_CONFIG,
+  PEI_CONFIG,
+  YUKON_CONFIG,
+  NWT_CONFIG,
+  NUNAVUT_CONFIG,
 ];
 
 /**
