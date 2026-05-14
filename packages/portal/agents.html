@@ -55,18 +55,14 @@
 
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo">
-      <span class="logo-icon">C</span>
-      <span data-i18n="nav.logo">MapleSpike</span>
-    </a>
+    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
     <ul class="nav-links">
-      <li><a href="dashboard.html" class="product-nav-item"><span class="nav-icon">▦</span> DATA</a></li>
-      <li><a href="signal.html" class="product-nav-item"><span class="nav-icon">◐</span> SIGNAL</a></li>
-      <li><a href="ask.html" class="product-nav-item active"><span class="nav-icon">✦</span> ASK</a></li>
-      <li><a href="docs.html" data-i18n="nav.howItWorks">Docs</a></li>
-      <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
-      <li><a href="dashboard.html" class="btn btn-sm btn-primary">Console</a></li>
-      <li><button class="lang-toggle" data-lang="fr-CA" aria-label="Switch to French">FR</button></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="agents.html" class="active"><span class="nav-bracket">[</span>AGENTS<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
     <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
@@ -83,7 +79,7 @@
 
 <h1 class="fade-in-init s2">Connect MapleSpike to your AI tools</h1>
 <p class="hero-subtitle fade-in-init s3" style="margin-bottom:40px;">
-  MapleSpike speaks the <span data-term="mcp">MCP</span> protocol — the standard that lets AI tools fetch live data. Add it once and your AI can answer questions about Canadian government in real time.
+  MapleSpike speaks the <span data-term="mcp">MCP</span> protocol — the standard that lets AI tools fetch live data. Add it once and your AI gains <strong>27 specialized agents</strong> with <strong>79 actions</strong> to query Canadian government data in real time.
 </p>
 
 <!-- ═══ WHAT YOU CAN ASK ═══ -->
@@ -119,6 +115,51 @@
       <p style="margin-top:8px;">"Which committee meetings went in-camera (closed to the public) this week?"</p>
     </div>
   </div>
+</div>
+
+<!-- ═══ KEY AGENTS ═══ -->
+<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;border:1px solid var(--border);">
+  <h2 style="margin-top:0;">Available Agents</h2>
+  <p>MapleSpike exposes <strong>27 agents</strong> with <strong>79 actions</strong> over MCP. Each agent specializes in a specific area of Canadian government data. Here are the key agents:</p>
+  <table>
+    <tr><th>Agent</th><th>Description</th><th>Key Actions</th></tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Committees</span></td>
+      <td>Parliamentary committee meetings, evidence, Hansard transcripts, witness lists, in-camera flags</td>
+      <td><code>search_transcripts</code>, <code>get_committee</code>, <code>get_in_camera</code></td>
+    </tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Lobbying</span></td>
+      <td>Lobbying registry, monthly communications reports, registrations, spending</td>
+      <td><code>search_lobbying</code>, <code>get_lobbyist</code>, <code>track_organization</code></td>
+    </tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Procurement</span></td>
+      <td>Government contracts, CanadaBuys RSS, proactive disclosure, sole-source flagging</td>
+      <td><code>get_contract</code>, <code>search_procurement</code>, <code>flag_sole_source</code></td>
+    </tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Elections</span></td>
+      <td>Elections Canada contributions, candidate profiles, electoral district data</td>
+      <td><code>search_contributions</code>, <code>get_candidate</code>, <code>get_district</code></td>
+    </tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Influence</span></td>
+      <td>Think tanks, NGOs, IOs, consultancies — funding sources, committee appearances, lobbying connections</td>
+      <td><code>track_entity</code>, <code>get_signals</code>, <code>cross_reference</code></td>
+    </tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Legal</span></td>
+      <td>Federal court judgments, tribunal decisions, regulatory registries</td>
+      <td><code>search_judgments</code>, <code>get_regulation</code>, <code>search_decisions</code></td>
+    </tr>
+    <tr>
+      <td><span style="color:var(--accent-cyan);">Cross-Reference</span> <span class="tag tag-green">Pro+</span></td>
+      <td>Entity resolution engine — links people and organizations across committees, lobbying, procurement, and all other sources</td>
+      <td><code>resolve_entity</code>, <code>track_entity</code>, <code>cross_reference</code></td>
+    </tr>
+  </table>
+  <p style="margin-top:16px;font-size:0.85rem;color:var(--text-secondary);">All agents are available on every plan via MCP. The Cross-Reference agent's entity resolution engine requires a Pro+ subscription.</p>
 </div>
 
 <!-- ═══ PLATFORM-SPECIFIC SETUP ═══ -->
