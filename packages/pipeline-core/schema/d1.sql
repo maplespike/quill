@@ -1897,4 +1897,115 @@ CREATE INDEX IF NOT EXISTS idx_gc_topic ON global_canada_records(topic_area);
 CREATE INDEX IF NOT EXISTS idx_gc_geo_focus ON global_canada_records(geographic_focus);
 CREATE INDEX IF NOT EXISTS idx_gc_source_type ON global_canada_records(source_system, record_type);
 CREATE INDEX IF NOT EXISTS idx_gc_date_source ON global_canada_records(date DESC, source_system);
+
+-- Immigration & Refugee Tables
+--
+-- Tracks IRCC permanent and temporary resident admissions,
+-- IRB refugee protection decisions, and CBSA enforcement data.
+-- All open government / public domain sources.
+--
+
+-- IRCC permanent resident admissions (monthly updates)
+CREATE TABLE IF NOT EXISTS immigration_permanent_residents (
+  id TEXT PRIMARY KEY,
+  immigration_category TEXT NOT NULL,
+  sub_category TEXT,
+  province_territory TEXT,
+  country_of_citizenship TEXT,
+  year INTEGER NOT NULL,
+  month INTEGER,
+  count INTEGER NOT NULL DEFAULT 0,
+  gender TEXT,
+  age_range TEXT,
+  source_url TEXT NOT NULL,
+  ckan_dataset_id TEXT NOT NULL,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(year, province_territory, immigration_category, country_of_citizenship)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ipr_category ON immigration_permanent_residents(immigration_category);
+CREATE INDEX IF NOT EXISTS idx_ipr_year ON immigration_permanent_residents(year DESC);
+CREATE INDEX IF NOT EXISTS idx_ipr_province ON immigration_permanent_residents(province_territory);
+CREATE INDEX IF NOT EXISTS idx_ipr_country ON immigration_permanent_residents(country_of_citizenship);
+CREATE INDEX IF NOT EXISTS idx_ipr_year_category ON immigration_permanent_residents(year DESC, immigration_category);
+
+-- IRCC study permit holders (monthly updates)
+CREATE TABLE IF NOT EXISTS immigration_study_permits (
+  id TEXT PRIMARY KEY,
+  year INTEGER NOT NULL,
+  quarter INTEGER,
+  country_of_citizenship TEXT,
+  province_territory TEXT,
+  institution TEXT,
+  study_level TEXT,
+  count INTEGER NOT NULL DEFAULT 0,
+  source_url TEXT NOT NULL,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(year, province_territory, country_of_citizenship, study_level)
+);
+
+CREATE INDEX IF NOT EXISTS idx_isp_year ON immigration_study_permits(year DESC);
+CREATE INDEX IF NOT EXISTS idx_isp_province ON immigration_study_permits(province_territory);
+CREATE INDEX IF NOT EXISTS idx_isp_country ON immigration_study_permits(country_of_citizenship);
+
+-- IRCC work permit holders (TFWP and IMP, monthly)
+CREATE TABLE IF NOT EXISTS immigration_work_permits (
+  id TEXT PRIMARY KEY,
+  year INTEGER NOT NULL,
+  quarter INTEGER,
+  program_type TEXT NOT NULL CHECK(program_type IN ('TFWP', 'IMP')),
+  noc_level TEXT,
+  country_of_citizenship TEXT,
+  province_territory TEXT,
+  count INTEGER NOT NULL DEFAULT 0,
+  source_url TEXT NOT NULL,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(year, program_type, province_territory, noc_level, country_of_citizenship)
+);
+
+CREATE INDEX IF NOT EXISTS idx_iwp_year ON immigration_work_permits(year DESC);
+CREATE INDEX IF NOT EXISTS idx_iwp_program ON immigration_work_permits(program_type);
+CREATE INDEX IF NOT EXISTS idx_iwp_province ON immigration_work_permits(province_territory);
+CREATE INDEX IF NOT EXISTS idx_iwp_noc ON immigration_work_permits(noc_level);
+
+-- IRB refugee protection division decisions (quarterly)
+CREATE TABLE IF NOT EXISTS immigration_rpd_decisions (
+  id TEXT PRIMARY KEY,
+  decision_id TEXT,
+  year INTEGER NOT NULL,
+  quarter INTEGER,
+  country_of_origin TEXT,
+  language TEXT,
+  outcome TEXT NOT NULL CHECK(outcome IN ('accepted', 'rejected', 'abandoned', 'withdrawn', 'other')),
+  represented INTEGER,
+  gender TEXT,
+  age_group TEXT,
+  hearing_type TEXT,
+  source_url TEXT NOT NULL,
+  ingested_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_irpd_year ON immigration_rpd_decisions(year DESC);
+CREATE INDEX IF NOT EXISTS idx_irpd_country ON immigration_rpd_decisions(country_of_origin);
+CREATE INDEX IF NOT EXISTS idx_irpd_outcome ON immigration_rpd_decisions(outcome);
+CREATE INDEX IF NOT EXISTS idx_irpd_year_outcome ON immigration_rpd_decisions(year DESC, outcome);
+CREATE INDEX IF NOT EXISTS idx_irpd_country_year ON immigration_rpd_decisions(country_of_origin, year DESC);
+
+-- CBSA enforcement penalties (AMPS)
+CREATE TABLE IF NOT EXISTS immigration_cbsa_penalties (
+  id TEXT PRIMARY KEY,
+  year INTEGER NOT NULL,
+  violation_type TEXT NOT NULL,
+  penalty_amount REAL NOT NULL DEFAULT 0,
+  count INTEGER NOT NULL DEFAULT 1,
+  source_url TEXT NOT NULL,
+  ingested_at TEXT NOT NULL,
+  UNIQUE(year, violation_type)
+);
+
+CREATE INDEX IF NOT EXISTS idx_icbsa_year ON immigration_cbsa_penalties(year DESC);
+CREATE INDEX IF NOT EXISTS idx_icbsa_type ON immigration_cbsa_penalties(violation_type);
+CREATE INDEX IF NOT EXISTS idx_icbsa_amount ON immigration_cbsa_penalties(penalty_amount DESC);
+
+-- end immigration
 CREATE INDEX IF NOT EXISTS idx_gc_ingested ON global_canada_records(ingested_at DESC);
