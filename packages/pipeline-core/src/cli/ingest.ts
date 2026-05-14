@@ -30,6 +30,8 @@ import {
   ingestAllImmigration,
   ingestAllIndigenous,
   ingestAllDefence,
+  ingestAllScience,
+  ingestAllTribunals,
 } from '../ingestion/index.js';
 
 import type { D1Database } from '../ingestion/committees/db.js';
@@ -98,10 +100,7 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
     name: 'Immigration Data Ingestion (IRCC, IRB, CBSA)',
     run: () => ingestAllImmigration(OPTIONS as any),
   },
-  science: {
-    name: 'Science & Research Data Ingestion (CSA, Mitacs, ONC, Polar)',
-    run: () => ingestAllScience(),
-  },
+
   tribunals: {
     name: 'Federal Tribunal Data Ingestion (SST, CITT, CHRT, Copyright Board, etc.)',
     run: () => ingestAllTribunals(),
