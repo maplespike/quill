@@ -137,7 +137,7 @@
   </h1>
 
   <p class="hero-subtitle fade-in-init s3">
-    Parliament, lobbying, regulations, courts, oversight — 47 data modules from official Canadian government portals, unified through a single API with <strong>SHA-256 verified citations</strong> on every response.
+    Parliament, lobbying, regulations, courts, oversight — 53 data modules from official Canadian government portals, unified through a single API with <strong>SHA-256 verified citations</strong> on every response.
   </p>
 
   <!-- Live Stats Bar -->
@@ -335,7 +335,7 @@
       <div class="card-number">[01]</div>
       <div class="card-icon" style="background:rgba(194,48,48,0.12);font-size:1.5rem;">▦</div>
       <h3>DATA — API Access</h3>
-      <p>Full REST + MCP access to all 28 Canadian government datasets. Every response includes a SHA-256 citation hash you can verify independently. Use it from curl, Python, Node, or any HTTP client.</p>
+      <p>Full REST + MCP access to all 53 Canadian government data modules. Every response includes a SHA-256 citation hash you can verify independently. Use it from curl, Python, Node, or any HTTP client.</p>
       <div style="margin-top:12px;">
         <span class="badge badge-green" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--base19);color:var(--success);border:1px solid rgba(16,185,129,0.2);font-family:var(--font-mono);">CURATED</span>
         <span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(194,48,48,0.2);font-family:var(--font-mono);margin-left:6px;">CITATED</span>
@@ -792,7 +792,7 @@
         const pd = await pdResp.json();
         const sourceCount = pd.sources ? Object.keys(pd.sources).length : 13;
         const totalRecords = pd.stats?.totalRecords || 0;
-        if (sourcesEl) sourcesEl.textContent = String(Math.max(sourceCount, 47));
+        if (sourcesEl) sourcesEl.textContent = String(Math.max(sourceCount, 53));
       }
     } catch {}
     try {
