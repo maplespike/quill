@@ -26,6 +26,8 @@ import {
   ingestAllBodies,
   ingestDecisions,
   ingestAllLmia,
+  ingestAllImmigration,
+  ingestAllIndigenous,
 } from '../ingestion/index.js';
 
 import type { D1Database } from '../ingestion/committees/db.js';
@@ -81,6 +83,14 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   lmia: {
     name: 'LMIA Data Ingestion',
     run: () => ingestAllLmia(null, OPTIONS as any),
+  },
+  indigenous: {
+    name: 'Indigenous Relations Ingestion (CIRNAC, ISC, TRC)',
+    run: () => ingestAllIndigenous(null, OPTIONS as any),
+  },
+  immigration: {
+    name: 'Immigration Data Ingestion (IRCC, IRB, CBSA)',
+    run: () => ingestAllImmigration(OPTIONS as any),
   },
 };
 

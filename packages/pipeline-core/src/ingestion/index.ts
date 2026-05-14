@@ -1329,6 +1329,15 @@ export type {
   RawGlobalCanadaRecord,
 } from './global-canada/types.js';
 
+// Indigenous Relations — CIRNAC land claims, ISC spending, TRC Calls to Action
+export {
+  ingestAllIndigenous,
+} from './indigenous-relations/index.js';
+export type {
+  LandClaim, IscCommunitySpending, FnTransparencyRecord,
+  TrcCallToAction, SelfGovernmentAgreement, IndigenousIngestionResult,
+} from './indigenous-relations/types.js';
+
 // Immigration & Refugee — IRCC admissions, IRB decisions, CBSA enforcement
 export {
   ingestAllImmigration,
