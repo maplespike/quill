@@ -225,49 +225,54 @@
    224|  const sendBtn = document.getElementById('ask-send-btn');
    225|  const suggestions = document.querySelectorAll('.suggestion-chip');
    226|
-   227|  const API_ENDPOINT = 'http://127.0.0.1:8084/v1/ai_ask';
-   228|
-   229|  // ── Mock fallback responses ──
-   230|  const MOCK_RESPONSES = {
-   231|    'ethics committee': {
-   232|      answer: `Based on recent parliamentary records, the House of Commons Ethics Committee (ETHI) has been actively examining issues related to conflict of interest and lobbying compliance.\n\n**Recent Discussion Topics:**\n• Review of the Conflict of Interest Act amendments\n• Examination of lobbying activities by major consulting firms\n• In-camera session regarding ongoing investigations into ministerial conduct\n• Witness testimony from the Ethics Commissioner\n\nThe committee has held 4 meetings this session, including 2 in-camera sessions flagged by MapleSpike's detection system.`,
-   233|      citations: [
-   234|        { source: 'ourcommons.ca', title: 'ETHI — Meeting 124', url: 'https://www.ourcommons.ca/DocumentViewer/en/44-1/ETHI/meeting-124/evidence', hash: 'sha256:a1b2c3d4e5f6...' },
-   235|        { source: 'ourcommons.ca', title: 'ETHI — Meeting 123', url: 'https://www.ourcommons.ca/DocumentViewer/en/44-1/ETHI/meeting-123/evidence', hash: 'sha256:f6e5d4c3b2a1...' },
-   236|        { source: 'ciec-ccie.gc.ca', title: 'Office of the Ethics Commissioner', url: 'https://ciec-ccie.gc.ca/', hash: 'sha256:9i8u7y6t5r4e...' }
-   237|      ]
-   238|    },
-   239|    'lobbying': {
-   240|      answer: `**Lobbying Activity by RBC (Royal Bank of Canada)**\n\nRBC has been actively lobbying federal departments on topics including:\n\n• **Banking regulations** — consultations on OSFI guidelines (B-20, capital adequacy)\n• **Housing policy** — mortgage regulations and housing affordability measures\n• **Digital currencies** — CBDC framework and payments modernization\n• **Climate disclosure** — sustainable finance taxonomy\n\n**Registered lobbyists:** 12\n**Targeted departments:** Finance Canada, OSFI, CMHC, Bank of Canada\n**Total communications (last 6 months):** 34`,
-   241|      citations: [
-   242|        { source: 'lobbycanada.gc.ca', title: 'RBC — Registry of Lobbyists', url: 'https://lobbycanada.gc.ca/app/secure/ocl/lrs/do/guestSolrSearch', hash: 'sha256:b2c3d4e5f6a7...' },
-   243|        { source: 'lobbycanada.gc.ca', title: 'Monthly Communication Reports', url: 'https://lobbycanada.gc.ca/', hash: 'sha256:c3d4e5f6a7b8...' }
-   244|      ]
-   245|    },
-   246|    'oag': {
-   247|      answer: `**Office of the Auditor General — Recent Audits and Findings**\n\nThe Office of the Auditor General (OAG) has released the following reports recently:\n\n1. **2025 Spring Reports** — Includes audits on:\n   • ArriveCan procurement (Performance Audit)\n   • Indigenous Services Canada — Health services delivery\n   • Canada Revenue Agency — Tax compliance enforcement\n   • Climate adaptation spending\n\n2. **Key Findings:**\n   • Procurement irregularities identified in multiple departments\n   • Gaps in oversight of sole-source contracting\n   • Recommendations for improved data collection on program outcomes\n\n3. **Status:** All reports published to Parliament. The Standing Committee on Public Accounts (PACP) is reviewing findings.`,
-   248|      citations: [
-   249|        { source: 'oag-bvg.gc.ca', title: 'Spring 2025 Reports', url: 'https://www.oag-bvg.gc.ca/internet/English/parl_lp_e_41.html', hash: 'sha256:d4e5f6a7b8c9...' },
-   250|        { source: 'ourcommons.ca', title: 'PACP — Committee Review', url: 'https://www.ourcommons.ca/Committees/en/PACP', hash: 'sha256:e5f6a7b8c9d0...' }
-   251|      ]
-   252|    },
-   253|    'default': {
-   254|      answer: `Based on available government data sources, I found relevant information for your query.\n\n**Summary:**\nMapleSpike's data pipeline covers 28 Canadian government sources including parliamentary committees (House of Commons & Senate), the Lobbying Registry, Canada Gazette, CanLII court decisions, OAG audits, PBO reports, Elections Canada data, and more.\n\nFor the most specific results, try narrowing your query — for example:\n• Mention a specific committee (\"ETHI\", \"FINA\", \"HUMA\")\n• Reference a specific company or organization\n• Ask about a specific department or policy area\n\nYour query has been logged and will help improve the system's response accuracy.`,
-   255|      citations: [
-   256|        { source: 'ourcommons.ca', title: 'House of Commons Committees', url: 'https://www.ourcommons.ca/Committees/en/Home', hash: 'sha256:f6a7b8c9d0e1...' },
-   257|        { source: 'lobbycanada.gc.ca', title: 'Lobbying Registry', url: 'https://lobbycanada.gc.ca/', hash: 'sha256:a7b8c9d0e1f2...' },
-   258|        { source: 'gazette.gc.ca', title: 'Canada Gazette', url: 'https://gazette.gc.ca/', hash: 'sha256:b8c9d0e1f2a3...' }
-   259|      ]
-   260|    }
-   261|  };
-   262|
-   263|  function getMockResponse(query) {
-   264|    const lower = query.toLowerCase();
-   265|    if (lower.includes('ethics') || lower.includes('ethi')) return MOCK_RESPONSES['ethics committee'];
-   266|    if (lower.includes('lobby') || lower.includes('rbc')) return MOCK_RESPONSES['lobbying'];
-   267|    if (lower.includes('oag') || lower.includes('audit') || lower.includes('auditor')) return MOCK_RESPONSES['oag'];
-   268|    return MOCK_RESPONSES['default'];
-   269|  }
+  const API_ENDPOINT = 'http://127.0.0.1:8084/v1/ai_ask';
+  const GOV_SEARCH_ENDPOINT = 'http://127.0.0.1:8084/v1/gov/search';
+
+  // ── Call gov/search API and format results ──
+  async function govSearch(query) {
+    const resp = await fetch(`${GOV_SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&limit=8`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data?.success || !data?.data?.results) throw new Error('Invalid response from gov/search');
+
+    const pipeline = data.data.results.pipeline || [];
+    const ckan = data.data.results.ckan || [];
+    const allResults = [...pipeline, ...ckan].slice(0, 8);
+
+    if (allResults.length === 0) throw new Error('No results found');
+
+    const answer = `**Search results for "${query}"**\n\nFound ${allResults.length} relevant government data sources:\n\n${allResults.map((r, i) =>
+      `${i + 1}. **${r.title || r.name || 'Dataset'}**${r.description ? '\n   ' + r.description.substring(0, 120) : ''}${r.url ? '\n   🔗 ' + r.url : ''}`
+    ).join('\n\n')}\n\n— Results from MapleSpike's pipeline data and Government of Canada open data portals.`;
+    const citations = allResults.map(r => ({
+      source: r.organization?.title || r.source || 'Government of Canada',
+      title: r.title || r.name || 'Dataset',
+      url: r.url || '#',
+      hash: '',
+    }));
+    return { answer, citations };
+  }
+
+  // ── Call ai_ask endpoint (secondary / MCP endpoint) ──
+  async function aiAsk(query) {
+    const resp = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (data.success && data.data) {
+      return {
+        answer: data.data.answer || data.data.response || data.data.text || 'No response available.',
+        citations: data.data.citations || data.data.sources || [],
+      };
+    }
+    throw new Error(data.error || 'Invalid response from ai_ask');
+  }
    270|
    271|  // ── Add message to chat ──
    272|  function addMessage(role, text, citations) {
@@ -362,30 +367,25 @@
    361|    // Show typing indicator
    362|    showTyping();
    363|
-   364|    let answer, citations;
-   365|
-   366|    try {
-   367|      const resp = await fetch(API_ENDPOINT, {
-   368|        method: 'POST',
-   369|        headers: { 'Content-Type': 'application/json' },
-   370|        body: JSON.stringify({ query: text })
-   371|      });
-   372|
-   373|      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-   374|
-   375|      const data = await resp.json();
-   376|      if (data.success && data.data) {
-   377|        answer = data.data.answer || data.data.response || data.data.text || 'No response available.';
-   378|        citations = data.data.citations || data.data.sources || [];
-   379|      } else {
-   380|        throw new Error(data.error || 'Invalid response');
-   381|      }
-   382|    } catch (err) {
-   383|      // Fallback to mock
-   384|      const mock = getMockResponse(text);
-   385|      answer = mock.answer;
-   386|      citations = mock.citations;
-   387|    }
+    let answer, citations;
+
+    // Primary: gov/search API (GET with query param)
+    try {
+      const govResult = await govSearch(text);
+      answer = govResult.answer;
+      citations = govResult.citations;
+    } catch (govErr) {
+      // Fallback: ai_ask endpoint (POST / MCP-style)
+      try {
+        const aiResult = await aiAsk(text);
+        answer = aiResult.answer;
+        citations = aiResult.citations;
+      } catch (aiErr) {
+        // Both APIs unreachable — graceful fallback message
+        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike AI backend or the government data search API. This usually means the API server isn't running on this machine.\n\nTry these instead:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**\n\nIf you're running the server locally, make sure the API is started on port 8084.`;
+        citations = [];
+      }
+    }
    388|
    389|    hideTyping();
    390|    addMessage('assistant', answer, citations);

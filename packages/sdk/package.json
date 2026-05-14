@@ -13,7 +13,9 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -29,9 +31,16 @@
     "node": ">=18"
   },
   "keywords": [
-    "canada", "civic-tech", "government", "open-data",
-    "parliament", "lobbying", "immigration", "elections",
-    "transparency", "maplespike"
+    "canada",
+    "civic-tech",
+    "government",
+    "open-data",
+    "parliament",
+    "lobbying",
+    "immigration",
+    "elections",
+    "transparency",
+    "maplespike"
   ],
   "license": "MIT",
   "homepage": "https://maplespike.ca",
@@ -46,5 +55,6 @@
     "tsup": "^8.5.1",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
-  }
+  },
+  "sideEffects": false
 }

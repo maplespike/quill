@@ -11,6 +11,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { computeHash } from '@maplespike/pipeline-core';
 
 /* ------------------------------------------------------------------ */
 /*  Pipeline data loader                                               */
@@ -47,18 +48,6 @@ function loadPipelineData(): Record<string, any> | null {
   }
   console.error('[citation] Pipeline data not found at any path');
   return null;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Hash computation                                                  */
-/* ------------------------------------------------------------------ */
-
-async function computeHash(content: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(content);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /* ------------------------------------------------------------------ */

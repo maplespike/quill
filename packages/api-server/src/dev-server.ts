@@ -17,8 +17,8 @@ import { SqliteStorage, SqliteStorageCache } from './sqlite-storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
-const AI_ENDPOINT = process.env.AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
-const AI_MODEL = process.env.AI_MODEL || 'qwen3.5-27b';
+const AI_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
+const AI_MODEL = process.env.MAPLESPIKE_AI_MODEL || 'qwen3.5-27b';
 const MAPLESPIKE_STORAGE = (process.env.MAPLESPIKE_STORAGE || 'memory').toLowerCase();
 const MAPLESPIKE_DB_PATH = process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
 
@@ -124,7 +124,7 @@ if (!verifyStorageHealth()) {
 }
 
 server.listen(PORT, '0.0.0.0', () => {
-  const devKey = process.env.DEV_API_KEY || 'maplespike-dev-key';
+  const devKey = process.env.MAPLESPIKE_DEV_API_KEY || 'maplespike-dev-key';
   const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
 
   console.log(`\n  MapleSpike API (dev)`);

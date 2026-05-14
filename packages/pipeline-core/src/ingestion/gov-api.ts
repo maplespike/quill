@@ -4,7 +4,7 @@
  * Fetchers for Canadian open government data sources.
  * Implements StatCan WDS/SDMX and CKAN portals.
  *
- * Originally planned in: docs/plans/2026-05-10-civic-intelligence-upgrade.md
+ * Originally planned in: docs/plans/2026-05-10-intelligence-upgrade.md
  * Gov data schema: cloudflare/schema.sql (gov_releases_cache table)
  */
 

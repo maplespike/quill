@@ -190,7 +190,7 @@ export async function initializeHealthDataTables(db: D1Database): Promise<void> 
 /*  Health-Data Ingestion Options Defaults                             */
 /* ------------------------------------------------------------------ */
 
-export { DEFAULT_MAX_RECORDS as HEALTH_DATA_DEFAULT_MAX_RECORDS } from './constants.js';
+export { ALL_HEALTH_DATA_SOURCES, HEALTH_DATA_DDL, DEFAULT_MAX_RECORDS as HEALTH_DATA_DEFAULT_MAX_RECORDS } from './constants.js';
 export { HealthDataError } from './constants.js';
 
 /* ------------------------------------------------------------------ */
