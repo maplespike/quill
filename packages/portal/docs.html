@@ -45,7 +45,7 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="docs.html" class="active"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/" class="active"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -212,19 +212,24 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
   </div>
   <h2>Every response. Every endpoint. Verifiable.</h2>
   <p>Every MapleSpike endpoint returns the same citation block — whether you're using the REST API, MCP tools, or cross-reference engine. One integration gives you auditable data across the stack.</p>
-
-  <div class="code-block">
-{<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_name"</span>: <span style="color:#0891B2;">"open.canada.ca"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_url"</span>: <span style="color:#0891B2;">"https://open.canada.ca/..."</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"retrieved_at"</span>: <span style="color:#0891B2;">"2026-05-13T12:00Z"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"update_frequency"</span>: <span style="color:#0891B2;">"daily"</span><br>
-&nbsp;&nbsp;}<br>
+  <div class="json-example">
+  <pre style="font-size:0.82rem;line-height:1.7;overflow-x:auto;">
+{
+  <span style="color:#D4A017;">"success"</span>: <span style="color:#10B981;">true</span>,
+  <span style="color:#D4A017;">"data"</span>: { ... },
+  <span style="color:#D4A017;">"citation"</span>: {
+    <span style="color:#D4A017;">"source_name"</span>: <span style="color:#0891B2;">"open.canada.ca"</span>,
+    <span style="color:#D4A017;">"source_url"</span>: <span style="color:#0891B2;">"https://open.canada.ca/..."</span>,
+    <span style="color:#D4A017;">"retrieved_at"</span>: <span style="color:#0891B2;">"2026-05-13T12:00Z"</span>,
+    <span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span>,
+    <span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span>,
+    <span style="color:#D4A017;">"update_frequency"</span>: <span style="color:#0891B2;">"daily"</span>,
+    <span style="color:#D4A017;">"original_format"</span>: <span style="color:#0891B2;">"JSON"</span>,
+    <span style="color:#D4A017;">"citation_text"</span>: <span style="color:#0891B2;">"open.canada.ca, retrieved 2026-05-13. OGL-C. https://..."</span>,
+    <span style="color:#D4A017;">"citation_footnote"</span>: <span style="color:#0891B2;">"open.canada.ca, May 2026"</span>
+  }
 }
-  </div>
+  </pre>
 
   <p><code class="doc-inline-code">data_hash</code> is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.</p>
 
@@ -362,7 +367,7 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
       <h4>AI Tools</h4>
       <ul>
         <li><a href="agents.html">MCP Setup</a></li>
-        <li><a href="docs.html">Documentation</a></li>
+        <li><a href="/docs/">Documentation</a></li>
       </ul>
     </div>
     <div>

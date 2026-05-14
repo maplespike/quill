@@ -5,6 +5,7 @@ FROM python:3.13-alpine
 WORKDIR /app
 
 COPY packages/portal/ /app/
+COPY packages/portal/docs-dist/ /app/docs-dist/
 
 EXPOSE 8080
 
