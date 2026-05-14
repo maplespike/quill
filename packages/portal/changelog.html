@@ -59,6 +59,26 @@
   <p style="color:var(--text-secondary);margin-bottom:32px;">Track changes, improvements, and fixes to the MapleSpike platform.</p>
 
   <div class="cl-entry">
+    <div class="cl-date">2026-05-14</div>
+    <div class="cl-version">v0.3.0 — Library of Alexandria</div>
+    <div>
+      <span class="cl-tag cl-tag-new">New</span>
+      <span class="cl-tag cl-tag-api">API</span>
+    </div>
+    <ul>
+      <li>63 total ingestion modules — all 13 provinces/territories, 19 cities, 1,141+ unique endpoints</li>
+      <li>21 MCP tools — restored immigration, science, tribunals, AI analysis, system health</li>
+      <li><strong>OpenAPI spec:</strong> 5,938 lines, 79 endpoints, 27 agent definitions</li>
+      <li><strong>SDK:</strong> @maplespike/sdk v0.2.0 with 26 domain method groups, tsup dual CJS/ESM build</li>
+      <li><strong>Live AI:</strong> /v1/ai_ask endpoint routing through AI Inference Gateway with CKAN fallback</li>
+      <li><strong>Provincial regulators:</strong> 75+ known bodies across 14 categories, all 13 provinces</li>
+      <li><strong>Real-time feeds:</strong> ECCC weather alerts, CBSA border wait times, parole board decisions</li>
+      <li><strong>Full stack:</strong> Grafana dashboard, Prometheus monitoring, Uptime Kuma</li>
+      <li><strong>CI/CD:</strong> Auto-merge main→prod after tests pass, K3s deploy, GitHub Pages</li>
+    </ul>
+  </div>
+
+  <div class="cl-entry">
     <div class="cl-date">2026-05-13</div>
     <div class="cl-version">v0.2.0 — Auth &amp; Docs</div>
     <div>
@@ -86,7 +106,7 @@
     <ul>
       <li>14 MCP data tools with bilingual (EN/FR) descriptions</li>
       <li>REST API with auth, rate limiting, usage tracking, and 402 quota enforcement</li>
-      <li>63 ingestion modules covering Canadian government data</li>
+      <li>28 ingestion modules covering Canadian government data</li>
       <li>Infrastructure: K3s deployment, Nix builds, Docker images, CronJob manifests</li>
       <li>i18n support: en-CA/fr-CA translation files with 178 strings each</li>
       <li>Portal with dark terminal aesthetic, hero code demo, source grid, data explorer</li>
