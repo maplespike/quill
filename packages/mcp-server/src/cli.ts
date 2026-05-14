@@ -22,10 +22,11 @@
 import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { createInterface } from 'readline';
+import * as http from 'http';
 
 const server = new McpServer();
 
-// Register all 6 tools
+// Register all tools
 const tools = getAllTools();
 for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
@@ -33,9 +34,88 @@ for (const tool of tools) {
 
 const CLI_LOCALE = process.env.MAPLESPIKE_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
 
-console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
+// ─── SSE / HTTP Mode (when PORT is set) ────────────────────────────────
+// Use this mode in Kubernetes deployments where stdin is detached.
 
-// ─── stdio transport ───────────────────────────────────────────────────
+const PORT = parseInt(process.env.PORT || '', 10);
+if (PORT > 0) {
+  const srv = http.createServer(async (req, res) => {
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const pathname = url.pathname;
+
+    // GET /health — Kubernetes probes
+    if (pathname === '/health' || pathname === '/readyz') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: 'ok',
+        tools: server.getToolCount(),
+        transport: 'sse',
+      }));
+      return;
+    }
+
+    // GET /sse — MCP Server-Sent Events transport
+    if (pathname === '/sse') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      });
+      res.write(`data: ${JSON.stringify({ type: 'endpoint', endpoint: '/messages' })}\n\n`);
+
+      req.on('close', () => {
+        res.end();
+      });
+      return;
+    }
+
+    // POST /messages — handle MCP JSON-RPC messages
+    if (pathname === '/messages' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
+      req.on('end', async () => {
+        try {
+          const parsed = JSON.parse(body);
+          const response = await new Promise<any>((resolve) => {
+            server.handleMessage(parsed, CLI_LOCALE, (resp) => resolve(resp));
+          });
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(response));
+        } catch (err) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid JSON-RPC', message: (err as Error).message }));
+        }
+      });
+      return;
+    }
+
+    // Not found
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not found', path: pathname }));
+  });
+
+  srv.listen(PORT, '0.0.0.0', () => {
+    console.error(`[maplespike-mcp] SSE transport — ${server.getToolCount()} tools registered, listening on port ${PORT} (locale: ${CLI_LOCALE})`);
+  });
+
+  // Graceful shutdown
+  process.on('SIGINT', () => { console.error('[maplespike-mcp] SIGINT received, shutting down'); srv.close(() => process.exit(0)); });
+  process.on('SIGTERM', () => { console.error('[maplespike-mcp] SIGTERM received, shutting down'); srv.close(() => process.exit(0)); });
+
+} else {
+  // ─── stdio transport ───────────────────────────────────────────────────
+  console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
 // Read JSON-RPC messages from stdin, write responses to stdout
 
 const rl = createInterface({
@@ -79,3 +159,4 @@ process.on('SIGTERM', () => {
   console.error('[maplespike-mcp] SIGTERM received, shutting down');
   process.exit(0);
 });
+}
