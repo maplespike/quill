@@ -1,5 +1,5 @@
 # =============================================================================
-# CivInt Canada — MCP Server Dockerfile
+# MapleSpike — MCP Server Dockerfile
 # Multi-stage build for packages/mcp-server
 # =============================================================================
 
@@ -22,10 +22,11 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY packages/mcp-server/ packages/mcp-server/
 COPY packages/pipeline-core/ packages/pipeline-core/
+COPY tsconfig.json ./
 
 # Build pipeline-core first (dependency), then mcp-server
-RUN pnpm --filter @civint/pipeline-core run build
-RUN pnpm --filter @civint/mcp-server run build
+RUN pnpm --filter @maplespike/pipeline-core run build
+RUN pnpm --filter @maplespike/mcp-server run build
 
 # ---- Stage 2: Production ----
 FROM node:22-alpine
