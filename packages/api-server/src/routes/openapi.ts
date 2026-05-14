@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — OpenAPI Specification
+ * MapleSpike — OpenAPI Specification
  *
  * GET /v1/openapi.json — Auto-generated OpenAPI 3.1 spec
  */
@@ -18,7 +18,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       version: config.version,
       description: `Canada's sovereign, AI-native government data layer. One API key gives you access to every major Canadian government dataset — Statistics Canada, open.canada.ca, provincial portals, AI-curated news from 43+ sources, citation verification, bias analysis, and immutable audit trails.`,
       contact: {
-        name: 'MapleSpike Canada',
+        name: 'MapleSpike',
         url: 'https://maplespike.ca',
       },
       license: {

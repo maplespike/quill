@@ -1,5 +1,5 @@
 /**
- * MapleSpike Canada — Usage Endpoint
+ * MapleSpike — Usage Endpoint
  *
  * GET /v1/usage — Current period consumption
  */
