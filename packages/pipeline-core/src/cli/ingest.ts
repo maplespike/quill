@@ -13,7 +13,7 @@
  * Supported pipelines:
  *   committee, corporate, influence, gazette, gic,
  *   elections, provincial-lobbying, oversight, canlii, lmia,
- *   immigration, indigenous, science
+ *   immigration, indigenous, science, tribunals
  */
 
 import {
@@ -29,7 +29,7 @@ import {
   ingestAllLmia,
   ingestAllImmigration,
   ingestAllIndigenous,
-  ingestAllScience,
+  ingestAllDefence,
 } from '../ingestion/index.js';
 
 import type { D1Database } from '../ingestion/committees/db.js';
@@ -90,6 +90,10 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
     name: 'Indigenous Relations Ingestion (CIRNAC, ISC, TRC)',
     run: () => ingestAllIndigenous(null, OPTIONS as any),
   },
+  defence: {
+    name: 'National Defence Ingestion (DND personnel, procurement)',
+    run: () => ingestAllDefence(null, OPTIONS as any),
+  },
   immigration: {
     name: 'Immigration Data Ingestion (IRCC, IRB, CBSA)',
     run: () => ingestAllImmigration(OPTIONS as any),
@@ -97,6 +101,10 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   science: {
     name: 'Science & Research Data Ingestion (CSA, Mitacs, ONC, Polar)',
     run: () => ingestAllScience(),
+  },
+  tribunals: {
+    name: 'Federal Tribunal Data Ingestion (SST, CITT, CHRT, Copyright Board, etc.)',
+    run: () => ingestAllTribunals(),
   },
 };
 
