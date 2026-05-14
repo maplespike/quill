@@ -17,9 +17,6 @@ import { computeHash } from '@maplespike/pipeline-core';
 /*  Pipeline data loader                                               */
 /* ------------------------------------------------------------------ */
 
-import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,25 +58,8 @@ interface CitationResult {
 }
 
 async function findRecordByHash(targetHash: string): Promise<CitationResult | null> {
-  const data = loadPipelineData();
-  if (!data) return null;
-
-  const sources = data.sources || {};
-  const sourceKeys = Object.keys(sources);
-
-  for (const sourceKey of sourceKeys) {
-    const source = sources[sourceKey];
-    if (!source?.data || !Array.isArray(source.data)) continue;
-
-    for (const record of source.data) {
-      const serialized = JSON.stringify(record);
-      const hash = await computeHash(serialized);
-      if (hash === targetHash) {
-        return { source: sourceKey, record, computedHash: hash };
-      }
-    }
-  }
-
+  // Citation lookup from pipeline data file removed.
+  // Citations are verified via the MCP server which queries the live database.
   return null;
 }
 
