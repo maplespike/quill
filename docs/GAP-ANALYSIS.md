@@ -515,7 +515,7 @@ Have some via oversight module. Missing:
 | Regulatory (Gazette, CRTC, CER) | Partial | 2-3 more |
 | Environment & health (surface) | Light | 5+ more (deepen) |
 | **Immigration** | **🟢 Built** | **1 module, 4 connectors ✅** |
-| **Indigenous relations** | **🟡 Stubs started** | **1 module, 8+ connectors** |
+| **Indigenous relations** | **🟡 Module built, CLI registered** | **CIRNAC, ISC, FN transparency, TRC — types + fetchers, index.ts, compiled** |
 | **Criminal justice** | **🟡 Stubs started** | **1 module, 6+ connectors** |
 | **Transport & infrastructure** | **🟡 Stubs started** | **1 module, 5+ connectors** |
 | **Defence & veterans** | **Zero** | **1 module, 5+ connectors** |
