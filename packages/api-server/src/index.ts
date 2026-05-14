@@ -53,6 +53,7 @@ import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
+import { billingPlansHandler, billingCheckoutHandler } from './routes/billing.js';
 import {
   oauthLoginHandler,
   oauthCallbackHandler,
@@ -86,6 +87,9 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: getCitationHandler },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
+  // Billing
+  { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },
+  { pattern: /^\/v1\/billing\/checkout\/?$/, method: 'POST', params: [], handler: billingCheckoutHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
@@ -211,6 +215,8 @@ export async function handleRequest(
     || route.handler === openApiHandler
     || route.handler === getCitationHandler
     || route.handler === registerHandler
+    || route.handler === billingPlansHandler
+    || route.handler === billingCheckoutHandler
     || route.handler === githubLoginHandler
     || route.handler === githubCallbackHandler
     || route.handler === refreshTokenHandler
