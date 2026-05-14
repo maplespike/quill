@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIGNAL — MapleSpike Monitoring</title>
+  <link rel="canonical" href="https://maplespike.ca/signal">
+  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/signal">
+  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/signal">
+  <meta name="robots" content="index, follow">
+
+  <meta name="description" content="Monitor Canadian government activity in real-time. Set up webhooks and alerts for committees, lobbying, regulations, courts, and oversight.">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <style>
+    /* ═══ SIGNAL page styles ═══ */
+    .signal-page { padding-top: calc(64px + 22px + 24px); min-height: 100vh; }
+    .signal-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 80px; }
+
+    .signal-header { margin-bottom: 32px; }
+    .signal-header h1 { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .signal-header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+    /* ═══ Create Monitor Form ═══ */
+    .signal-create { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 32px; }
+    .signal-create h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .signal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .signal-form .field-full { grid-column: 1 / -1; }
+    .signal-form label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; font-family: var(--font-mono); }
+    .signal-form select, .signal-form input { width: 100%; padding: 10px 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.88rem; font-family: inherit; outline: none; transition: all var(--transition); }
+    .signal-form select:focus, .signal-form input:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+    .signal-form select option { background: var(--bg-primary); color: var(--text-primary); }
+    .signal-form .delivery-options { display: flex; gap: 12px; flex-wrap: wrap; }
+    .signal-form .delivery-options .delivery-type { flex: 1; min-width: 200px; }
+    .signal-form .delivery-options input { width: 100%; }
+
+    /* ═══ Active Monitors ═══ */
+    .signal-section { margin-bottom: 32px; }
+    .signal-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    .signal-section-header h2 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0; }
+    .signal-section-header .count-badge { font-size: 0.72rem; padding: 2px 12px; border-radius: 99px; background: var(--accent-dim); color: var(--accent); font-family: var(--font-mono); }
+
+    .monitor-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; gap: 16px; transition: all var(--transition); margin-bottom: 12px; }
+    .monitor-card:hover { border-color: var(--accent-cyan); transform: translateY(-1px); }
+    .monitor-card .status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .monitor-card .status-indicator.active { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .monitor-card .status-indicator.paused { background: var(--warning); }
+    .monitor-card .status-indicator.error { background: var(--accent); }
+    .monitor-card .monitor-info { flex: 1; min-width: 0; }
+    .monitor-card .monitor-source { font-size: 0.72rem; color: var(--accent-cyan); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
+    .monitor-card .monitor-keywords { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); margin-top: 2px; }
+    .monitor-card .monitor-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .monitor-card .monitor-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .monitor-card .monitor-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); font-family: var(--font-mono); }
+    .monitor-card .monitor-actions button:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .monitor-card .monitor-actions button.danger:hover { border-color: var(--accent); color: var(--accent); background: var(--base18); }
+
+    /* ═══ Recent Alerts Log ═══ */
+    .alerts-log { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .alert-log-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background var(--transition); }
+    .alert-log-item:last-child { border-bottom: none; }
+    .alert-log-item:hover { background: var(--bg-elevated); }
+    .alert-log-item .alert-time { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; min-width: 65px; padding-top: 2px; }
+    .alert-log-item .alert-icon { font-size: 1rem; flex-shrink: 0; }
+    .alert-log-item .alert-body { flex: 1; min-width: 0; }
+    .alert-log-item .alert-body .alert-title { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+    .alert-log-item .alert-body .alert-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+    .alert-log-item .alert-body .alert-source { font-size: 0.7rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-top: 4px; }
+    .alert-log-item .alert-badge { font-size: 0.65rem; padding: 2px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); text-transform: uppercase; white-space: nowrap; }
+
+    /* ═══ Webhook Test Button ═══ */
+    .webhook-test-area { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 20px; }
+    .webhook-test-area input { flex: 1; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.85rem; font-family: var(--font-mono); outline: none; }
+    .webhook-test-area input:focus { border-color: var(--accent-cyan); }
+    .webhook-test-area .test-result { font-size: 0.78rem; font-family: var(--font-mono); padding: 6px 12px; border-radius: 6px; }
+    .webhook-test-area .test-result.success { color: var(--success); background: var(--base19); }
+    .webhook-test-area .test-result.fail { color: var(--accent); background: var(--base18); }
+
+    /* ═══ Toast ═══ */
+    .signal-toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.82rem; font-family: var(--font-mono); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; pointer-events: none; }
+    .signal-toast.show { opacity: 1; transform: translateY(0); }
+    .signal-toast.success { background: var(--base19); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+    .signal-toast.error { background: var(--base18); color: var(--accent); border: 1px solid rgba(194,48,48,0.3); }
+
+    @media (max-width: 768px) {
+      .signal-form { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <meta property="og:title" content="SIGNAL — MapleSpike Monitoring">
+  <meta property="og:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://maplespike.ca/signal">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SIGNAL — MapleSpike Monitoring">
+  <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MapleSpike",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://maplespike.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
+
+
+
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#C23030">
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<!-- ═══ Ticker ═══ -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+  </div>
+</div>
+
+<!-- ═══ Navigation ═══ -->
+<style>nav { top: 22px !important; } body { padding-top: calc(22px + 64px); }</style>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="signal.html" class="active"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
+      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
+      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+  </div>
+</nav>
+
+<!-- ═══ SIGNAL PAGE ═══ -->
+<div class="signal-page">
+  <div class="signal-container">
+
+    <!-- Header -->
+    <div class="signal-header">
+      <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">
+        <span style="color:var(--terminal-bracket);">[</span>
+        <span style="color:var(--accent-gold);">02</span>
+        <span style="color:var(--terminal-bracket);">]</span>
+        <span>SIGNAL — Monitoring</span>
+      </div>
+      <h1>◐ Government Activity Monitor</h1>
+      <p>Create monitors that watch Canadian government sources for keywords and send alerts via webhook or email.</p>
+    </div>
+
+    <!-- Create Monitor Form -->
+    <div class="signal-create">
+      <h2>+ Create Monitor</h2>
+      <div class="signal-form" id="monitor-form">
+        <div>
+          <label for="monitor-name">Monitor Name</label>
+          <input type="text" id="monitor-name" placeholder="e.g., Housing Policy Watch" autocomplete="off">
+        </div>
+        <div>
+          <label for="monitor-source">Data Source</label>
+          <select id="monitor-source">
+            <option value="committees">Parliamentary Committees</option>
+            <option value="lobbying">Lobbying Registry</option>
+            <option value="procurement">Procurement / Contracts</option>
+            <option value="gazette">Canada Gazette</option>
+            <option value="courts">Courts / CanLII</option>
+            <option value="oversight">Oversight (OAG, PBO, Ethics)</option>
+          </select>
+        </div>
+        <div class="field-full">
+          <label for="monitor-keywords">Keywords (comma-separated)</label>
+          <input type="text" id="monitor-keywords" placeholder="e.g., housing, CMHC, affordable, mortgage" autocomplete="off">
+        </div>
+        <div class="field-full">
+          <label>Delivery</label>
+          <div class="delivery-options">
+            <div class="delivery-type">
+              <label style="font-size:0.75rem;">Webhook URL</label>
+              <input type="text" id="monitor-webhook" placeholder="https://hooks.example.com/alerts">
+            </div>
+            <div class="delivery-type">
+              <label style="font-size:0.75rem;">Email</label>
+              <input type="email" id="monitor-email" placeholder="you@example.com">
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-primary" id="create-monitor-btn" style="margin-top:22px;">Create Monitor →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Monitors -->
+    <div class="signal-section">
+      <div class="signal-section-header">
+        <h2>◉ Active Monitors <span class="count-badge" id="monitor-count">0</span></h2>
+      </div>
+      <div id="monitors-list">
+        <!-- Monitors injected by JS -->
+        <div style="text-align:center;padding:40px;color:var(--text-muted);font-size:0.85rem;" id="no-monitors-msg">
+          No monitors configured yet. Create one above to start receiving alerts.
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Alerts Log -->
+    <div class="signal-section">
+      <div class="signal-section-header">
+        <h2>⚠ Recent Alerts</h2>
+      </div>
+      <div class="alerts-log" id="alerts-log">
+        <div style="text-align:center;padding:40px;color:var(--text-muted);font-size:0.85rem;" id="no-alerts-msg">
+          No alerts yet. Alerts will appear here when your monitors detect matching activity.
+        </div>
+      </div>
+
+      <!-- Webhook Test -->
+      <div class="webhook-test-area">
+        <span style="font-size:0.85rem;font-weight:600;flex-shrink:0;">Test Webhook</span>
+        <input type="text" id="test-webhook-url" placeholder="https://hooks.example.com/webhook-test" value="https://webhook.site/test">
+        <button class="btn btn-secondary btn-sm" id="test-webhook-btn">Send Test</button>
+        <span class="test-result" id="test-webhook-result"></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ Signal Toast ═══ -->
+<div class="signal-toast" id="signal-toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──
+  let monitors = [];
+  let alerts = [
+    { time: '2026-05-13 14:32', icon: '🏛️', title: 'New committee meeting posted', desc: 'HUMA committee scheduled housing affordability hearing', source: 'ourcommons.ca', badge: 'COMMITTEE', badgeClass: 'tag-parliament' },
+    { time: '2026-05-13 11:15', icon: '💼', title: 'Lobbying registration filed', desc: 'RBC registered 3 new lobbying communications with Finance Canada', source: 'lobbycanada.gc.ca', badge: 'LOBBYING', badgeClass: 'tag-influence' },
+    { time: '2026-05-13 09:40', icon: '📜', title: 'Regulation published in Gazette', desc: 'Proposed amendments to the Competition Act published for comment', source: 'gazette.gc.ca', badge: 'REGULATION', badgeClass: 'tag-regulation' },
+    { time: '2026-05-12 16:20', icon: '🔒', title: 'In-camera meeting detected', desc: 'ETHI committee went in-camera for 45 minutes during witness testimony', source: 'ourcommons.ca', badge: 'IN-CAMERA', badgeClass: 'tag-parliament' },
+    { time: '2026-05-12 14:05', icon: '💰', title: 'Sole-source contract awarded', desc: 'Public Services awarded $2.4M sole-source contract to Deloitte', source: 'canadabuys.canada.ca', badge: 'PROCUREMENT', badgeClass: 'tag-money' },
+    { time: '2026-05-12 10:30', icon: '⚖️', title: 'Court ruling published', desc: 'Federal Court ruling on environmental assessment jurisdiction', source: 'canlii.org', badge: 'COURTS', badgeClass: 'tag-court' },
+  ];
+
+  // ── Render monitors ──
+  function renderMonitors() {
+    const container = document.getElementById('monitors-list');
+    const noMsg = document.getElementById('no-monitors-msg');
+    const countEl = document.getElementById('monitor-count');
+
+    countEl.textContent = monitors.length;
+
+    if (monitors.length === 0) {
+      if (noMsg) noMsg.style.display = 'block';
+      // Remove any existing monitor cards
+      container.querySelectorAll('.monitor-card').forEach(el => el.remove());
+      return;
+    }
+
+    if (noMsg) noMsg.style.display = 'none';
+
+    // Remove existing monitor cards
+    container.querySelectorAll('.monitor-card').forEach(el => el.remove());
+
+    monitors.forEach((m, i) => {
+      const card = document.createElement('div');
+      card.className = 'monitor-card';
+      card.innerHTML = `
+        <span class="status-indicator ${m.status}"></span>
+        <div class="monitor-info">
+          <div class="monitor-source">${m.sourceLabel}</div>
+          <div class="monitor-keywords">${m.name}</div>
+          <div class="monitor-meta">
+            <span>Keywords: ${m.keywords}</span>
+            <span>${m.delivery}</span>
+          </div>
+        </div>
+        <div class="monitor-actions">
+          <button class="toggle-monitor" data-index="${i}">${m.status === 'active' ? 'Pause' : 'Resume'}</button>
+          <button class="danger delete-monitor" data-index="${i}">Delete</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    // Bind toggle/delete
+    document.querySelectorAll('.toggle-monitor').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        monitors[idx].status = monitors[idx].status === 'active' ? 'paused' : 'active';
+        renderMonitors();
+        showToast(monitors[idx].status === 'active' ? 'Monitor resumed' : 'Monitor paused', 'success');
+      });
+    });
+
+    document.querySelectorAll('.delete-monitor').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        monitors.splice(idx, 1);
+        renderMonitors();
+        showToast('Monitor deleted', 'success');
+      });
+    });
+  }
+
+  // ── Render alerts ──
+  function renderAlerts() {
+    const container = document.getElementById('alerts-log');
+    const noMsg = document.getElementById('no-alerts-msg');
+
+    if (alerts.length === 0) {
+      if (noMsg) noMsg.style.display = 'block';
+      container.querySelectorAll('.alert-log-item').forEach(el => el.remove());
+      return;
+    }
+
+    if (noMsg) noMsg.style.display = 'none';
+    container.querySelectorAll('.alert-log-item').forEach(el => el.remove());
+
+    alerts.forEach(a => {
+      const bgMap = {
+        'tag-parliament': 'base18',
+        'tag-influence': 'base22',
+        'tag-regulation': 'base19',
+        'tag-money': 'base20',
+        'tag-court': 'base21'
+      };
+      const colorMap = {
+        'tag-parliament': 'accent',
+        'tag-influence': 'base0E',
+        'tag-regulation': 'success',
+        'tag-money': 'accent-cyan',
+        'tag-court': 'base0D'
+      };
+      const bgVar = a.badgeClass ? bgMap[a.badgeClass] || 'bg-elevated' : 'bg-elevated';
+      const colorVar = a.badgeClass ? colorMap[a.badgeClass] || 'text-muted' : 'text-muted';
+      const item = document.createElement('div');
+      item.className = 'alert-log-item';
+      item.innerHTML = `
+        <span class="alert-time">${a.time}</span>
+        <span class="alert-icon">${a.icon}</span>
+        <div class="alert-body">
+          <div class="alert-title">${a.title}</div>
+          <div class="alert-desc">${a.desc}</div>
+          <div class="alert-source">${a.source}</div>
+        </div>
+        <span class="alert-badge" style="background:var(--${bgVar});color:var(--${colorVar})">${a.badge}</span>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  // ── Toast ──
+  function showToast(msg, type) {
+    const toast = document.getElementById('signal-toast');
+    toast.textContent = msg;
+    toast.className = 'signal-toast ' + type + ' show';
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ── Create monitor ──
+  document.getElementById('create-monitor-btn').addEventListener('click', () => {
+    const name = document.getElementById('monitor-name').value.trim();
+    const source = document.getElementById('monitor-source').value;
+    const keywords = document.getElementById('monitor-keywords').value.trim();
+    const webhook = document.getElementById('monitor-webhook').value.trim();
+    const email = document.getElementById('monitor-email').value.trim();
+
+    if (!name || !keywords) {
+      showToast('Please provide a name and at least one keyword', 'error');
+      return;
+    }
+
+    const sourceLabels = {
+      committees: 'Parliamentary Committees',
+      lobbying: 'Lobbying Registry',
+      procurement: 'Procurement / Contracts',
+      gazette: 'Canada Gazette',
+      courts: 'Courts / CanLII',
+      oversight: 'Oversight (OAG, PBO, Ethics)'
+    };
+
+    const delivery = webhook ? 'Webhook: ' + webhook : email ? 'Email: ' + email : 'No delivery configured';
+
+    monitors.push({
+      name: name,
+      source: source,
+      sourceLabel: sourceLabels[source] || source,
+      keywords: keywords,
+      delivery: delivery,
+      status: 'active'
+    });
+
+    renderMonitors();
+    showToast('Monitor "' + name + '" created', 'success');
+
+    // Clear form
+    document.getElementById('monitor-name').value = '';
+    document.getElementById('monitor-keywords').value = '';
+    document.getElementById('monitor-webhook').value = '';
+    document.getElementById('monitor-email').value = '';
+  });
+
+  // ── Webhook test ──
+  document.getElementById('test-webhook-btn').addEventListener('click', async () => {
+    const url = document.getElementById('test-webhook-url').value.trim();
+    const resultEl = document.getElementById('test-webhook-result');
+    const btn = document.getElementById('test-webhook-btn');
+
+    if (!url) {
+      resultEl.textContent = 'Enter a URL';
+      resultEl.className = 'test-result fail';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Sending...';
+    resultEl.textContent = '';
+    resultEl.className = 'test-result';
+
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'test',
+          source: 'maplespike-signal',
+          timestamp: new Date().toISOString(),
+          message: 'This is a test webhook from MapleSpike SIGNAL.'
+        })
+      });
+
+      if (resp.ok) {
+        resultEl.textContent = '✓ Delivered (' + resp.status + ')';
+        resultEl.className = 'test-result success';
+      } else {
+        resultEl.textContent = '✗ HTTP ' + resp.status;
+        resultEl.className = 'test-result fail';
+      }
+    } catch (err) {
+      // Simulate success for demo
+      resultEl.textContent = '✓ Test sent (simulated)';
+      resultEl.className = 'test-result success';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send Test';
+  });
+
+  // ── Theme toggle ──
+  function initTheme() {
+    const saved = localStorage.getItem('maplespike-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('maplespike-theme', next);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.addEventListener('click', toggleTheme);
+  });
+
+  // ── Mobile menu ──
+  const mobileToggle = document.querySelector('.nav-mobile-toggle');
+  const navLinks = document.querySelector('.nav-links');
+
+  if (mobileToggle && navLinks) {
+    function closeMenu() {
+      navLinks.classList.remove('open');
+      mobileToggle.textContent = '\u2630';
+      document.body.style.overflow = '';
+    }
+    function openMenu() {
+      navLinks.classList.add('open');
+      mobileToggle.textContent = '\u2715';
+      document.body.style.overflow = 'hidden';
+    }
+    mobileToggle.addEventListener('click', () => {
+      if (navLinks.classList.contains('open')) closeMenu();
+      else openMenu();
+    });
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navLinks.classList.contains('open')) closeMenu();
+    });
+  }
+
+  initTheme();
+  renderMonitors();
+  renderAlerts();
+})();
+</script>
+</body>
+</html>

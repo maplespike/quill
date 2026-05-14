@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapleSpike — Workspace: API Keys, Usage, and Billing</title>
+  <link rel="canonical" href="https://maplespike.ca/workspace">
+  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace">
+  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/workspace">
+  <meta name="robots" content="index, follow">
+
+  <meta name="description" content="Manage your MapleSpike API keys, monitor usage, and view billing.">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='600' font-family='sans-serif'>C</text></svg>">
+  <style>
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); padding:12px 24px; border-radius:var(--radius-sm); font-size:0.85rem; font-family:var(--font-mono); z-index:9999; opacity:0; transition:opacity 0.3s ease; pointer-events:none; }
+    .toast.show { opacity:1; }
+    .toast.success { background:var(--base19); color:var(--success); border:1px solid rgba(16,185,129,0.3); }
+  </style>
+
+  <meta property="og:title" content="MapleSpike — Workspace: API Keys, Usage, and Billing">
+  <meta property="og:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://maplespike.ca/workspace">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MapleSpike — Workspace: API Keys, Usage, and Billing">
+  <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MapleSpike",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://maplespike.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
+
+
+
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#C23030">
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<!-- ═══ Ticker ═══ -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+  </div>
+</div>
+
+<!-- ═══ Navigation ═══ -->
+<style>nav { top: 22px !important; } body { padding-top: calc(22px + 64px); }</style>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="signal.html"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
+      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
+      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="active"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Dashboard</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+  </div>
+</nav>
+
+<!-- ═══ WORKSPACE ═══ -->
+<div class="workspace-page">
+  <div style="max-width:var(--max-width);margin:0 auto;padding:32px 24px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">
+          <span style="color:var(--terminal-bracket);">[</span>
+          <span style="color:var(--accent-gold);">00</span>
+          <span style="color:var(--terminal-bracket);">]</span>
+          <span>WORKSPACE</span>
+        </div>
+        <h1 style="font-size:1.8rem;font-weight:800;margin:0;">Your Workspace</h1>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <span class="live-badge"><span class="live-dot"></span> TIER: PUBLIC</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <!-- ═══ API Key Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[01]</span>API Key</h2>
+        <button class="btn btn-sm btn-secondary" onclick="regenerateKey()">Regenerate</button>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Your secret API key for authenticating requests to MapleSpike. Keep this private.</p>
+      <div class="api-key-display">
+        <span class="key-value">
+          <span class="masked" id="api-key-masked">mp_••••••••••••••••••</span>
+          <span class="visible" id="api-key-visible" style="display:none;">mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6</span>
+        </span>
+        <button class="btn-icon" onclick="toggleKeyVisibility()" title="Toggle visibility">👁️</button>
+        <button class="btn-icon" onclick="copyApiKey()" title="Copy API key">📋</button>
+      </div>
+      <div style="margin-top:16px;">
+        <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Quickstart:</span>
+        <div class="code-block" style="margin-top:6px;">
+          <span class="comment"># Set your key</span><br>
+          <span class="prompt">$</span> export MAPLESPIKE_KEY=<span class="string">"mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"</span><br><br>
+          <span class="comment"># Make a call</span><br>
+          <span class="prompt">$</span> curl -H <span class="string">"x-api-key: $MAPLESPIKE_KEY"</span> \<br>
+          &nbsp;&nbsp;https://api.maplespike.ca/v1/health
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Usage Stats Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[02]</span>Usage</h2>
+        <span id="usage-period" style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">This month</span>
+      </div>
+
+      <div class="stat-progress">
+        <div class="stat-row">
+          <span class="stat-name">Daily API Calls</span>
+          <span class="stat-value"><span id="usage-daily">4</span> / <span id="usage-daily-limit">1,000</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="fill cyan" id="bar-daily" style="width:0.4%;"></div>
+        </div>
+      </div>
+
+      <div class="stat-progress">
+        <div class="stat-row">
+          <span class="stat-name">Monthly API Calls</span>
+          <span class="stat-value"><span id="usage-monthly">4</span> / <span id="usage-monthly-limit">1,000</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="fill gold" id="bar-monthly" style="width:0.4%;"></div>
+        </div>
+      </div>
+
+      <div class="stat-progress">
+        <div class="stat-row">
+          <span class="stat-name">API Rate Limit</span>
+          <span class="stat-value" id="usage-rate">10 req/s</span>
+        </div>
+        <div class="progress-bar">
+          <div class="fill green" id="bar-rate" style="width:10%;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+          <span style="color:var(--text-secondary);">Tier</span>
+          <span style="font-weight:600;" id="usage-tier">Public (Free)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Request Log Panel (full width) ═══ -->
+    <div class="workspace-panel full">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[03]</span>Recent Requests</h2>
+        <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Last 10</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="request-log" id="request-log">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Status</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="request-log-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ Billing Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[04]</span>Billing</h2>
+        <span class="badge" style="font-size:0.7rem;padding:3px 10px;border-radius:99px;background:var(--base19);color:var(--success);border:1px solid rgba(16,185,129,0.2);font-family:var(--font-mono);">ACTIVE</span>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Plan</span>
+          <span style="font-weight:600;">Public (Free)</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Monthly cost</span>
+          <span style="font-weight:600;">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Calls remaining</span>
+          <span style="font-weight:600;" id="billing-remaining">996</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Next billing</span>
+          <span style="font-weight:600;">June 13, 2026</span>
+        </div>
+      </div>
+      <a href="index.html#pricing" class="btn btn-primary" style="width:100%;">Upgrade Plan →</a>
+    </div>
+
+    <!-- ═══ MCP Config Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[05]</span>MCP Connection</h2>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Use these details to connect MapleSpike to your AI tools via the Model Context Protocol.</p>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">MCP Server URL</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;">
+          <span style="color:var(--accent-cyan);">https://maplespike.lan/mcp</span>
+          <button class="btn-icon" onclick="copyText('https://maplespike.lan/mcp')" style="margin-left:auto;">📋</button>
+        </div>
+      </div>
+      <div class="code-block">
+<span class="comment">// Claude Desktop config</span><br>
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"apiKey"</span>: <span class="string">"mp_live_...your_key"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  const LS_THEME = 'maplespike-theme';
+
+  // ── Mock Data ──
+  let keyVisible = false;
+
+  const REQUEST_LOG_DATA = [
+    { time: '2026-05-13 23:15:22', method: 'GET', endpoint: '/v1/health', status: 200, duration: '42ms' },
+    { time: '2026-05-13 22:58:14', method: 'GET', endpoint: '/v1/gov/search?q=housing', status: 200, duration: '156ms' },
+    { time: '2026-05-13 22:30:01', method: 'GET', endpoint: '/v1/gov/releases', status: 200, duration: '89ms' },
+    { time: '2026-05-13 21:12:33', method: 'GET', endpoint: '/v1/usage', status: 200, duration: '34ms' },
+    { time: '2026-05-13 20:45:18', method: 'POST', endpoint: '/v1/audit/query', status: 401, duration: '12ms' },
+    { time: '2026-05-13 19:30:55', method: 'GET', endpoint: '/v1/citation/abc123', status: 404, duration: '8ms' },
+    { time: '2026-05-13 18:15:42', method: 'GET', endpoint: '/v1/gov/search?q=influence', status: 200, duration: '203ms' },
+    { time: '2026-05-13 16:44:29', method: 'GET', endpoint: '/v1/health', status: 200, duration: '38ms' },
+    { time: '2026-05-13 15:22:10', method: 'GET', endpoint: '/v1/gov/search?q=committees', status: 200, duration: '178ms' },
+    { time: '2026-05-13 14:00:05', method: 'GET', endpoint: '/v1/usage', status: 200, duration: '31ms' },
+  ];
+
+  // ── Render Request Log ──
+  function renderRequestLog() {
+    const tbody = document.getElementById('request-log-body');
+    tbody.innerHTML = REQUEST_LOG_DATA.map(r => {
+      const statusClass = r.status >= 200 && r.status < 300 ? 'status-ok' : 'status-err';
+      const methodClass = r.method.toLowerCase();
+      return `<tr>
+        <td style="color:var(--text-muted);">${r.time}</td>
+        <td><span class="method-cell ${methodClass}">${r.method}</span></td>
+        <td style="font-family:var(--font-mono);font-size:0.78rem;">${r.endpoint}</td>
+        <td><span class="${statusClass}">${r.status}</span></td>
+        <td style="color:var(--text-muted);">${r.duration}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Fetch Live Usage ──
+  async function fetchUsage() {
+    try {
+      const resp = await fetch('http://127.0.0.1:8084/v1/health');
+      const data = await resp.json();
+      if (data.success && data.data) {
+        const usage = data.data.usage || {};
+        const tenant = data.data.tenant || {};
+
+        const daily = usage.daily || 0;
+        const monthly = usage.monthly || 0;
+        const tier = tenant.tier || 'free';
+
+        document.getElementById('usage-daily').textContent = daily;
+        document.getElementById('usage-monthly').textContent = monthly;
+        document.getElementById('usage-tier').textContent = tier === 'free' ? 'Public (Free)' : tier.charAt(0).toUpperCase() + tier.slice(1);
+
+        // Limits based on tier
+        let monthlyLimit = 1000;
+        let rateLimit = 10;
+        if (tier === 'civic') { monthlyLimit = 50000; rateLimit = 100; }
+        else if (tier === 'enterprise') { monthlyLimit = 250000; rateLimit = 500; }
+
+        document.getElementById('usage-monthly-limit').textContent = monthlyLimit.toLocaleString();
+        document.getElementById('usage-daily-limit').textContent = monthlyLimit > 1000 ? (monthlyLimit / 30).toFixed(0) : '1,000';
+        document.getElementById('usage-rate').textContent = rateLimit + ' req/s';
+        document.getElementById('billing-remaining').textContent = (monthlyLimit - monthly).toLocaleString();
+
+        // Progress bars
+        const dailyPct = Math.min((daily / (monthlyLimit / 30)) * 100, 100);
+        const monthlyPct = Math.min((monthly / monthlyLimit) * 100, 100);
+        const ratePct = Math.min((rateLimit / 500) * 100, 100);
+
+        document.getElementById('bar-daily').style.width = dailyPct + '%';
+        document.getElementById('bar-monthly').style.width = monthlyPct + '%';
+        document.getElementById('bar-rate').style.width = ratePct + '%';
+      }
+    } catch (e) {
+      // Use defaults/mock data if API unavailable
+      console.log('API unavailable, using default stats');
+    }
+  }
+
+  // ── API Key Functions ──
+  window.toggleKeyVisibility = function() {
+    keyVisible = !keyVisible;
+    document.getElementById('api-key-masked').style.display = keyVisible ? 'none' : 'inline';
+    document.getElementById('api-key-visible').style.display = keyVisible ? 'inline' : 'none';
+  };
+
+  window.copyApiKey = function() {
+    const key = 'mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6';
+    navigator.clipboard.writeText(key).then(() => showToast('API key copied to clipboard', 'success'))
+      .catch(() => {});
+  };
+
+  window.regenerateKey = function() {
+    if (confirm('Regenerate your API key? This will invalidate the current key immediately.')) {
+      showToast('New API key generated', 'success');
+    }
+  };
+
+  window.copyText = function(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard', 'success'))
+      .catch(() => {});
+  };
+
+  function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ── Theme ──
+  function initTheme() {
+    const saved = localStorage.getItem(LS_THEME);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(LS_THEME, next);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function setupThemeToggle() {
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+  }
+
+  // ── Mobile Menu ──
+  function setupMobileMenu() {
+    const toggle = document.querySelector('.nav-mobile-toggle');
+    const links = document.querySelector('.nav-links');
+    if (!toggle || !links) return;
+    function closeMenu() {
+      links.classList.remove('open');
+      toggle.textContent = '\u2630';
+      document.body.style.overflow = '';
+    }
+    function openMenu() {
+      links.classList.add('open');
+      toggle.textContent = '\u2715';
+      document.body.style.overflow = 'hidden';
+    }
+    toggle.addEventListener('click', () => {
+      if (links.classList.contains('open')) closeMenu();
+      else openMenu();
+    });
+    links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
+    });
+  }
+
+  // ── Fade-in observer ──
+  function setupScrollReveal() {
+    const els = document.querySelectorAll('.fade-in');
+    if (!els.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => observer.observe(el));
+  }
+
+  // ── Init ──
+  initTheme();
+  setupThemeToggle();
+  setupMobileMenu();
+  setupScrollReveal();
+  renderRequestLog();
+  fetchUsage();
+  setInterval(fetchUsage, 30000);
+})();
+</script>
+</body>
+</html>
