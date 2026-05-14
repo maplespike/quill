@@ -267,6 +267,24 @@ export interface DisabilityBenefitRecord {
   ingestedAt: string;
 }
 
+// ─── CKAN Package Result (shared across all social program modules) ─────
+
+export interface CkanResource {
+  id: string;
+  name: string;
+  format: string;
+  url: string;
+  created: string;
+  last_modified: string;
+}
+
+export interface CkanPackageResult {
+  id: string;
+  title: string;
+  notes: string | null;
+  resources: CkanResource[];
+}
+
 // ─── Ingestion Results ──────────────────────────────────────────────────
 
 export interface SocialIngestionResult {
