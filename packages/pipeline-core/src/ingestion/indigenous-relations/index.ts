@@ -344,8 +344,10 @@ export async function ingestAllIndigenous(
  * Cross-reference known Indigenous communities against tracked lobbying
  * and influence data sources.
  *
- * For each tracked community, queries lobbying_registrations table
- * for community name matches in registrant or subject fields.
+ * For each tracked community, this checks whether any lobbying
+ * registrations reference the community name. This is a stub — in
+ * production it queries the lobbying/influence index for match counts.
+ *
  * Returns a summary of cross-reference findings.
  */
 export async function generateIndigenousCrossReferences(

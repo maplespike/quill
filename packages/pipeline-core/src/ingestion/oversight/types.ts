@@ -20,12 +20,7 @@ export type OversightBody =
   | 'PrivacyCommissioner'
   | 'InformationCommissioner'
   | 'OfficialLanguagesCommissioner'
-  | 'CanadianHumanRightsCommission'
-  // Financial sector regulators
-  | 'OSFI'        // Office of the Superintendent of Financial Institutions
-  | 'FCAC'        // Financial Consumer Agency of Canada
-  | 'FINTRAC'     // Financial Transactions and Reports Analysis Centre
-  | 'CDIC';       // Canada Deposit Insurance Corporation
+  | 'CanadianHumanRightsCommission';
 
 
 export type OversightReportType =
@@ -299,16 +294,6 @@ export interface RawCRTCItem {
   affectedParties: string[];
   /** Decision number (e.g., 2024-123) */
   decisionNumber: string | null;
-}
-
-/** Generic report item used by financial regulators and similar bodies. */
-export interface RawReportItem {
-  title: string;
-  date: string;
-  url: string;
-  bodyHtml: string;
-  source: string;
-  reportType: string;
 }
 
 /**

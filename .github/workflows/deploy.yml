@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - prod
     paths:
       - 'packages/mcp-server/**'
       - 'packages/api-server/**'
@@ -20,21 +19,36 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -50,43 +64,13 @@ jobs:
         working-directory: packages/engine
         run: pnpm test
 
-  merge-to-prod:
+  # ── Backend: Build Docker images on nexus ──
+  build-backend:
     needs: test
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure git
-        run: |
-          git config user.name 'maplespike-bot'
-          git config user.email 'bot@maplespike.ca'
-
-      - name: Strip dev artifacts before merge
-        run: |
-          rm -rf .devenv .hermes 2>/dev/null || true
-          git add -A 2>/dev/null || true
-          git diff --cached --quiet || git commit -n -m 'chore: strip dev artifacts for prod'
-
-      - name: Merge main into prod
-        run: |
-          git fetch origin prod
-          git checkout prod
-          git merge origin/main --ff-only
-          git push origin prod
-
-  # ── Deploy to K3s (runs on push to main OR prod) ──
-  deploy-k3s:
-    needs: [test, merge-to-prod]
-    if: always() && (github.ref == 'refs/heads/prod')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: prod
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Build and deploy on nexus via SSH
         uses: appleboy/ssh-action@v1
@@ -98,43 +82,33 @@ jobs:
           script: |
             set -e
             cd /data/projects/own/maplespike
-            git fetch origin prod
-            git checkout prod
-            git pull origin prod
+            git fetch origin main
+            git checkout main
+            git pull origin main
 
-            # Build all Docker images
+            # Build all 4 Docker images
             docker build -f Dockerfile.mcp     -t nexus:5000/maplespike-mcp:latest     .
             docker build -f Dockerfile.api     -t nexus:5000/maplespike-api:latest     .
             docker build -f Dockerfile.ingest  -t nexus:5000/maplespike-ingest:latest  .
             docker build -f Dockerfile.engine  -t nexus:5000/maplespike-engine:latest  .
 
-            # Build and push portal image for K3s
-            docker build -f packages/portal/Dockerfile -t nexus:5000/maplespike-portal:latest packages/portal
-
+            # Push to local registry
             docker push nexus:5000/maplespike-mcp:latest
             docker push nexus:5000/maplespike-api:latest
             docker push nexus:5000/maplespike-ingest:latest
             docker push nexus:5000/maplespike-engine:latest
-            docker push nexus:5000/maplespike-portal:latest
 
             # Rollout K8s deployments
-            kubectl rollout restart deployment/maplespike-mcp -n ai-inference 2>/dev/null || \
-              kubectl rollout restart deployment/civint-mcp -n ai-inference
-            kubectl rollout status deployment/maplespike-mcp -n ai-inference --timeout=120s 2>/dev/null || \
-              kubectl rollout status deployment/civint-mcp -n ai-inference --timeout=120s
+            kubectl rollout restart deployment/civint-mcp -n ai-inference
+            kubectl rollout status deployment/civint-mcp -n ai-inference --timeout=120s
 
-            kubectl rollout restart deployment/maplespike-api -n ai-inference 2>/dev/null || \
-              kubectl rollout restart deployment/civint-api -n ai-inference
-            kubectl rollout status deployment/maplespike-api -n ai-inference --timeout=120s 2>/dev/null || \
-              kubectl rollout status deployment/civint-api -n ai-inference --timeout=120s
-
-            kubectl rollout restart deployment/maplespike-portal -n ai-inference 2>/dev/null || \
-              kubectl apply -f packages/portal/k8s/deploy.yaml
-            kubectl rollout status deployment/maplespike-portal -n ai-inference --timeout=60s 2>/dev/null || true
+            kubectl rollout restart deployment/civint-api -n ai-inference
+            kubectl rollout status deployment/civint-api -n ai-inference --timeout=120s
 
   # ── Portal: Deploy static site to GitHub Pages ──
   deploy-portal:
     needs: test
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
@@ -143,16 +117,19 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Inject analytics domain
         run: |
           if [ -n "${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}" ]; then
             sed -i "s/__MAPLESPIKE_ANALYTICS_DOMAIN__/${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}/g" packages/portal/*.html
+            echo "Analytics domain injected: ${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}"
           else
+            # Disable analytics — remove the script tags entirely
             sed -i '/plausible/d' packages/portal/*.html
+            echo "No analytics domain set — analytics disabled"
           fi
 
       - name: Upload Pages Artifact

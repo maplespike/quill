@@ -209,43 +209,6 @@ export const OVERSIGHT_BODIES: Record<OversightBody, OversightBodyConfig> = {
     rssUrl: null,
     apiUrl: null,
   },
-  // ── Financial Sector Regulators ──────────────────────────────────
-  OSFI: {
-    body: 'OSFI',
-    nameEn: 'Office of the Superintendent of Financial Institutions',
-    nameFr: "Bureau du surintendant des institutions financières",
-    baseUrl: 'https://www.osfi-bsif.gc.ca',
-    reportsUrl: 'https://www.osfi-bsif.gc.ca/Eng/osfi-bsif/ar-ra/Pages/default.aspx',
-    rssUrl: 'https://www.osfi-bsif.gc.ca/Eng/Pages/sysrss.aspx',
-    apiUrl: null,
-  },
-  FCAC: {
-    body: 'FCAC',
-    nameEn: 'Financial Consumer Agency of Canada',
-    nameFr: 'Agence de la consommation en matière financière du Canada',
-    baseUrl: 'https://www.canada.ca/en/financial-consumer-agency.html',
-    reportsUrl: 'https://www.canada.ca/en/financial-consumer-agency/corporate/transparency/open-data.html',
-    rssUrl: 'https://www.canada.ca/en/financial-consumer-agency/rss.xml',
-    apiUrl: null,
-  },
-  FINTRAC: {
-    body: 'FINTRAC',
-    nameEn: 'Financial Transactions and Reports Analysis Centre of Canada',
-    nameFr: "Centre d'analyse des opérations et déclarations financières du Canada",
-    baseUrl: 'https://www.fintrac-canafe.gc.ca',
-    reportsUrl: 'https://www.fintrac-canafe.gc.ca/reports/1',
-    rssUrl: null,
-    apiUrl: null,
-  },
-  CDIC: {
-    body: 'CDIC',
-    nameEn: 'Canada Deposit Insurance Corporation',
-    nameFr: 'Société d assurance-dépôts du Canada',
-    baseUrl: 'https://www.cdic.ca',
-    reportsUrl: 'https://www.cdic.ca/about-cdic/corporate-information/annual-reports/',
-    rssUrl: null,
-    apiUrl: null,
-  },
 } as const;
 
 /** Report type keyword mappings for body-specific type labels */

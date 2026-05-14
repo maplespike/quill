@@ -21,7 +21,6 @@ import {
   ingestAllFisheries,
   ingestAllAgriculture,
   ingestAllCulture,
-  ingestAllSocialPrograms,
   ingestAllNgoRss,
   ingestAllRegional,
   ingestAllCommittees,
@@ -116,7 +115,6 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
   fisheries: { name: "Fisheries & Oceans Data Ingestion", run: () => ingestAllFisheries(), },
   agriculture: { name: "Agriculture & Agri-Food Data Ingestion", run: () => ingestAllAgriculture(), },
   culture: { name: "Culture & Heritage Data Ingestion", run: () => ingestAllCulture(), },
-  'social-programs': { name: "Social Programs Data (CCB, CPP/OAS, EI, Poverty, Food Security, Social Assistance)", run: () => ingestAllSocialPrograms(), },
   'ngo-rss': { name: "NGO / Influence RSS Narrative Tracking", run: () => ingestAllNgoRss(), },
   'regional-authorities': { name: "Regional Authorities Data (Peel, York, Durham, Metro Vancouver, CRD, etc.)", run: () => ingestAllRegional(), },
 };
