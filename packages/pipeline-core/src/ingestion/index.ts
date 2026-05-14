@@ -3,7 +3,7 @@ export { fetchStatCanReleases, fetchCKANPackages, fetchOpenDataPortal, getGovDat
 export type { RSSItem, RSSFeed, RSSSource, RawArticle } from './rss.js';
 export type { GovRelease, CKANPackage, StatCanRelease, OpenDataPortalDataset, OpenDataPortalConfig } from './gov-api.js';
 
-// Provincial CKAN portal stubs
+// Provincial CKAN portal fetchers
 export {
   PROVINCIAL_CKAN_SOURCES,
   fetchProvincialCkan,
