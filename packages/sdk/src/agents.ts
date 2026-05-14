@@ -367,12 +367,13 @@ export const AGENTS: Record<string, AgentDefinition> = {
 /** Resolve an agent by name (case-insensitive). Throws if not found. */
 export function getAgent(name: string): AgentDefinition {
   const key = name.toLowerCase();
-  const agent = AGENTS[key];
-  if (!agent) {
+  // Case-insensitive lookup: find the first key that lowercases to the target
+  const agentKey = Object.keys(AGENTS).find(k => k.toLowerCase() === key);
+  if (!agentKey) {
     const available = Object.keys(AGENTS).join(', ');
     throw new Error(`Unknown agent "${name}". Available agents: ${available}`);
   }
-  return agent;
+  return AGENTS[agentKey];
 }
 
 /** List all agent definitions with their actions */

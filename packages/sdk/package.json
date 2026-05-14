@@ -18,7 +18,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "test": "node --test dist/**/*.test.js",
+    "test": "pnpm build && tsx --test src/*.test.ts",
     "prepublishOnly": "pnpm build"
   },
   "publishConfig": {
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsup": "^8.5.1",
+    "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
 }
