@@ -1686,3 +1686,8 @@ export type { LegislationRecord, LegislationIngestionResult } from './legislatio
 import { ingestAllGoCSpending, listDataFiles } from './goc-spending/index.js';
 export { ingestAllGoCSpending, listDataFiles } from './goc-spending/index.js';
 export type { GoCContract, GoCIngestionResult } from './goc-spending/types.js';
+
+/* ── Cross-Reference Engine ───────────────────────────── */
+import { searchCrossReference, CROSS_REF_MODULES } from './cross-reference/index.js';
+export { searchCrossReference, CROSS_REF_MODULES } from './cross-reference/index.js';
+export type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery } from './cross-reference/types.js';
