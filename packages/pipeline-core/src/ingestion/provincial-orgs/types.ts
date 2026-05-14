@@ -1,20 +1,15 @@
-/** Province/territory code */
-export type ProvinceCode =
-  | 'AB' | 'BC' | 'MB' | 'NB' | 'NL' | 'NS' | 'NT'
-  | 'NU' | 'ON' | 'PE' | 'QC' | 'SK' | 'YT';
+export type ProvinceCode = 'AB' | 'BC' | 'MB' | 'NB' | 'NL' | 'NS' | 'NT' | 'NU' | 'ON' | 'PE' | 'QC' | 'SK' | 'YT';
 
-/** Type of provincial oversight body */
 export type OversightBodyType =
-  | 'auditor-general'
-  | 'ombudsman'
-  | 'human-rights-tribunal'
-  | 'campaign-finance'
-  | 'ethics-commissioner'
-  | 'sunshine-list'
-  | 'energy-utilities-regulator'
-  | 'procurement-oversight';
+  | 'auditor-general' | 'ombudsman' | 'human-rights-tribunal'
+  | 'campaign-finance' | 'ethics-commissioner' | 'sunshine-list'
+  | 'energy-utilities-regulator' | 'procurement-oversight'
+  | 'securities-regulator' | 'financial-services-regulator' | 'insurance-regulator'
+  | 'law-society' | 'legal-aid'
+  | 'police-oversight' | 'police-complaint' | 'police-siu'
+  | 'engineering-regulator' | 'accounting-regulator'
+  | 'medical-regulator' | 'nursing-regulator' | 'teaching-regulator' | 'real-estate-regulator';
 
-/** Configuration for a single provincial oversight body */
 export interface ProvincialOrgConfig {
   code: string;
   name: string;
@@ -28,7 +23,6 @@ export interface ProvincialOrgConfig {
   enabled: boolean;
 }
 
-/** A record fetched from a provincial oversight body */
 export interface ProvincialOrgRecord {
   bodyCode: string;
   bodyName: string;
@@ -42,7 +36,6 @@ export interface ProvincialOrgRecord {
   ingestedAt: string;
 }
 
-/** Result of a provincial-orgs ingestion run */
 export interface ProvincialOrgIngestionResult {
   records: ProvincialOrgRecord[];
   sourcesAttempted: number;
