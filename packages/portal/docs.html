@@ -17,6 +17,21 @@
   <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MapleSpike",
+    "url": "https://maplespike.ca",
+    "description": "Canadian government data pipeline with verified citations",
+    "applicationCategory": "Data API",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CAD"
+    }
+  }
+  </script>
 </head>
 <body>
 
@@ -32,6 +47,7 @@
       <li><a href="#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li><a href="docs.html" class="active"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
@@ -81,22 +97,47 @@
     <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
     <span>Authentication</span>
   </div>
-  <h2>API keys and how to use them</h2>
-  <p>Two ways to authenticate — both issued from the same <a href="workspace.html" style="color:var(--accent-cyan);">workspace</a>.</p>
+  <h2>Multiple ways to authenticate</h2>
+  <p>Four authentication methods, one JWT token format. All methods issue the same JWT — pick the one that fits your use case.</p>
 
   <h3>API Key (recommended for servers)</h3>
-  <p>Create a key from the workspace, then send it as the <code class="doc-inline-code">X-API-Key</code> header:</p>
+  <p>Create a key from the <a href="workspace.html" style="color:var(--accent-cyan);">workspace</a>, then send it as the <code class="doc-inline-code">X-API-Key</code> header:</p>
   <div class="code-block">
 <span style="color:var(--text-muted);">$</span> curl -H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> https://api.maplespike.ca/v1/health
   </div>
 
-  <h3>JWT (recommended for user-facing apps)</h3>
-  <p>Get a JWT via <code class="doc-inline-code">POST /v1/auth/login</code>, then send as Bearer token:</p>
+  <h3>OAuth (recommended for web apps)</h3>
+  <p>Sign in with GitHub, Google, or any OIDC provider. Redirect to the provider, get a JWT on callback:</p>
   <div class="code-block">
-<span style="color:var(--text-muted);">$</span> curl -H <span style="color:#D4A017;">"Authorization: Bearer eyJhbGc..."</span> https://api.maplespike.ca/v1/me
+<span style="color:var(--text-muted);"># List configured providers</span><br>
+<span style="color:var(--text-muted);">$</span> curl https://api.maplespike.ca/v1/auth/oauth/providers<br><br>
+<span style="color:var(--text-muted);"># Redirect user to provider (browser):</span><br>
+GET /v1/auth/oauth/github
+  </div>
+  <p style="font-size:0.82rem;color:var(--text-secondary);">Configure providers via <code class="doc-inline-code">MAPLESPIKE_OAUTH_{NAME}_CLIENT_ID</code> env vars.</p>
+
+  <h3>Web3 Wallet (sign-in with Ethereum)</h3>
+  <p>Sign a SIWE (EIP-4361) message with your wallet, verify the signature, get a JWT:</p>
+  <div class="code-block">
+<span style="color:var(--text-muted);"># Request a challenge</span><br>
+POST /v1/auth/web3/challenge { <span style="color:#D4A017;">"address"</span>: <span style="color:#0891B2;">"0x..."</span> }<br><br>
+<span style="color:var(--text-muted);"># Sign the message with your wallet, then:</span><br>
+POST /v1/auth/web3/login { <span style="color:#D4A017;">"message"</span>: <span style="color:#0891B2;">"..."</span>, <span style="color:#D4A017;">"signature"</span>: <span style="color:#0891B2;">"0x..."</span>, <span style="color:#D4A017;">"address"</span>: <span style="color:#0891B2;">"0x..."</span> }
   </div>
 
-  <p>Keys are hashed with SHA-256 at rest. Rotate or revoke from the workspace at any time.</p>
+  <h3>Passkey / FIDO2 (biometric)</h3>
+  <p>Register a passkey (Touch ID, Windows Hello, Android biometric, YubiKey), then authenticate with it:</p>
+  <div class="code-block">
+<span style="color:var(--text-muted);"># Register a passkey</span><br>
+POST /v1/auth/passkey/register/begin { <span style="color:#D4A017;">"userId"</span>: <span style="color:#0891B2;">"..."</span>, <span style="color:#D4A017;">"userName"</span>: <span style="color:#0891B2;">"..."</span> }<br>
+POST /v1/auth/passkey/register/complete { <span style="color:#D4A017;">"registrationId"</span>: <span style="color:#0891B2;">"..."</span>, <span style="color:#D4A017;">"credential"</span>: { ... } }<br><br>
+<span style="color:var(--text-muted);"># Authenticate</span><br>
+POST /v1/auth/passkey/login/begin<br>
+POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</span>: <span style="color:#0891B2;">"..."</span>, <span style="color:#D4A017;">"credential"</span>: { ... } }
+  </div>
+  <p style="font-size:0.82rem;color:var(--text-secondary);">Works with Bitwarden, iCloud Keychain, Google Password Manager, Windows Hello, and any FIDO2 authenticator.</p>
+
+  <p style="font-size:0.85rem;color:var(--text-muted);">All methods issue JWTs with the same format. Use the token as a Bearer header or session cookie. Keys are hashed with SHA-256 at rest.</p>
 
   <!-- ═══ 02: REQUEST + RESPONSE ═══ -->
   <div class="section-bracket fade-in-init s4">

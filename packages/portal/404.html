@@ -1,49 +1,67 @@
-<!DOCTYPE html>
-<html lang="en-CA" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 — Page Not Found · MapleSpike</title>
+     1|<!DOCTYPE html>
+     2|<html lang="en-CA" data-theme="dark">
+     3|<head>
+     4|  <meta charset="UTF-8">
+     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|  <title>404 — Page Not Found · MapleSpike</title>
+     7|
+     8|  <link rel="stylesheet" href="styles.css">
+     9|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+    10|  <meta name="robots" content="noindex, follow">
+    11|  <style>
+    12|    .error-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; text-align:center; padding:40px 24px; }
+    13|    .error-code { font-size:6rem; font-weight:800; font-family:var(--font-mono); color:var(--accent); line-height:1; opacity:0.3; }
+    14|    .error-msg { font-size:1.2rem; color:var(--text-secondary); margin:16px 0 32px; }
+    15|    .error-detail { font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:32px; }
+    16|    .error-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+    17|  </style>
+    18|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+    19|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    20|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+    21|  <script type="application/ld+json">
+    22|  {
+    23|    "@context": "https://schema.org",
+    24|    "@type": "WebApplication",
+    25|    "name": "MapleSpike",
+    26|    "url": "https://maplespike.ca",
+    27|    "description": "Canadian government data pipeline with verified citations",
+    28|    "applicationCategory": "Data API",
+    29|    "offers": {
+    30|      "@type": "Offer",
+    31|      "price": "0",
+    32|      "priceCurrency": "CAD"
+    33|    }
+    34|  }
+    35|  </script>
+    36|</head>
+    37|<body>
+    38|  <nav>
+    39|    <div class="nav-inner">
+    40|      <a href="index.html" class="logo"><span class="logo-icon">C</span> MapleSpike</a>
+    41|      <ul class="nav-links">
+    42|        <li><a href="dashboard.html" class="product-nav-item"><span class="nav-icon">▦</span> DATA</a></li>
+    43|        <li><a href="dashboard.html?tab=signals" class="product-nav-item"><span class="nav-icon">◐</span> SIGNAL</a></li>
+    44|        <li><a href="agents.html" class="product-nav-item"><span class="nav-icon">✦</span> ASK</a></li>
+    45|        <li><a href="docs.html">Docs</a></li>
+    46|        <li><a href="index.html#pricing">Pricing</a></li>
+    47|        <li><a href="dashboard.html" class="btn btn-sm btn-primary">Console</a></li>
+    48|        <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    49|      </ul>
+    50|      <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+    51|    </div>
+    52|  </nav>
+    53|  <div class="error-page">
+    54|    <div class="error-code">404</div>
+    55|    <div class="error-msg">This page doesn't exist in our dataset.</div>
+    56|    <div class="error-detail">// The requested resource was not found in any of our 28 data sources</div>
+    57|    <div class="error-actions">
+    58|      <a href="index.html" class="btn btn-primary">← Back to Home</a>
+    59|      <a href="explorer.html" class="btn btn-secondary">Browse Data Sources</a>
+    60|      <a href="dashboard.html" class="btn btn-ghost">Console</a>
+    61|    </div>
+    62|  </div>
+    63|
 
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <meta name="robots" content="noindex, follow">
-  <style>
-    .error-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; text-align:center; padding:40px 24px; }
-    .error-code { font-size:6rem; font-weight:800; font-family:var(--font-mono); color:var(--accent); line-height:1; opacity:0.3; }
-    .error-msg { font-size:1.2rem; color:var(--text-secondary); margin:16px 0 32px; }
-    .error-detail { font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:32px; }
-    .error-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  </style>
-  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-</head>
-<body>
-  <nav>
-    <div class="nav-inner">
-      <a href="index.html" class="logo"><span class="logo-icon">C</span> MapleSpike</a>
-      <ul class="nav-links">
-        <li><a href="dashboard.html" class="product-nav-item"><span class="nav-icon">▦</span> DATA</a></li>
-        <li><a href="dashboard.html?tab=signals" class="product-nav-item"><span class="nav-icon">◐</span> SIGNAL</a></li>
-        <li><a href="agents.html" class="product-nav-item"><span class="nav-icon">✦</span> ASK</a></li>
-        <li><a href="docs.html">Docs</a></li>
-        <li><a href="index.html#pricing">Pricing</a></li>
-        <li><a href="dashboard.html" class="btn btn-sm btn-primary">Console</a></li>
-        <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
-      </ul>
-      <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
-    </div>
-  </nav>
-  <div class="error-page">
-    <div class="error-code">404</div>
-    <div class="error-msg">This page doesn't exist in our dataset.</div>
-    <div class="error-detail">// The requested resource was not found in any of our 28 data sources</div>
-    <div class="error-actions">
-      <a href="index.html" class="btn btn-primary">← Back to Home</a>
-      <a href="explorer.html" class="btn btn-secondary">Browse Data Sources</a>
-      <a href="dashboard.html" class="btn btn-ghost">Console</a>
-    </div>
-  </div>
 </body>
-</html>
+    64|</html>
+    65|
