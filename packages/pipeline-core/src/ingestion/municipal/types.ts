@@ -47,7 +47,16 @@ export type CityCode =
   | 'winnipeg'
   | 'quebec-city'
   | 'hamilton'
-  | 'halifax';
+  | 'halifax'
+  | 'mississauga'
+  | 'surrey'
+  | 'london'
+  | 'saskatoon'
+  | 'regina'
+  | 'laval'
+  | 'gatineau'
+  | 'longueuil'
+  | 'levis';
 
 /** Status of a municipal meeting */
 export type MeetingStatus =
@@ -77,6 +86,8 @@ export interface CityConfig {
   province: string;
   /** Known vendor platform (null if custom/bespoke) */
   vendorPlatform: VendorPlatform | null;
+  /** Open data portal type for this city (null = vendor scrape only) */
+  portalType?: 'ckan' | 'socrata' | 'arcgis-hub' | 'custom-api' | 'donnees-quebec';
   /** Primary base URL for council info */
   baseUrl: string;
   /** URL template for meeting list (use {year} placeholder) */
