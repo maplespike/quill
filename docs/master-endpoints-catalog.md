@@ -298,19 +298,19 @@ All major cities use CKAN or Socrata with `/api/3/action/package_list`.
 ## 16. Integrated Pipeline Architecture
 
 ```
-CKAN Federated Discovery → 
+CKAN Federated Discovery →
   └─ package_list (47k+ datasets across gov portals)
   └─ package_show → resource list
   └─ resource_show → direct CSV/XLSX URLs
-  
+
 StatCan WDS →
   └─ getAllCubesList → cube metadata
   └─ getFullTableDownloadCSV → CSV for any time-series
-  
+
 RSS (Gov + NGO + Think Tank) →
   └─ 6-hour cron → parse → hash → store
   └─ semantic fingerprinting → 5GW classification
-  
+
 Provincial/Municipal CKAN →
   └─ Same /api/3/action/package_list pattern
   └─ Federated via open.canada.ca search
