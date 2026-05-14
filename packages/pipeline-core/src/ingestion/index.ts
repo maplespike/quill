@@ -482,7 +482,6 @@ export type {
 } from './lmia/types.js';
 export type {
   CkanResource,
-  CkanPackageResponse,
 } from './lmia/index.js';
 
 // LODE Geospatial — BC Land Ownership Data Exchange & GeoMet weather Canada WFS/WMS
@@ -1649,3 +1648,38 @@ export type {
 
   RegulatorCoverage,
 } from './provincial-regulators/types.js';
+
+/* ── Municipal Long-Tail ──────────────────────────────── */
+import { ingestMunicipalLongTail } from './municipal-long-tail/index.js';
+export { ingestMunicipalLongTail } from './municipal-long-tail/index.js';
+export type { MunicipalDataset, MunicipalLongTailIngestionResult } from './municipal-long-tail/types.js';
+
+/* ── Universities Deep ────────────────────────────────── */
+import { ingestAllUniversities } from './universities-deep/index.js';
+export { ingestAllUniversities } from './universities-deep/index.js';
+export type { UniversityRecord, UniversitiesIngestionResult } from './universities-deep/types.js';
+
+/* ── Unions Deep ──────────────────────────────────────── */
+import { ingestAllUnions } from './unions-deep/index.js';
+export { ingestAllUnions } from './unions-deep/index.js';
+export type { UnionRecord, UnionsIngestionResult } from './unions-deep/types.js';
+
+/* ── Corporate Filings ────────────────────────────────── */
+import { ingestAllFilings } from './corporate-filings/index.js';
+export { ingestAllFilings } from './corporate-filings/index.js';
+export type { CorporateFiling, CorporateFilingsIngestionResult } from './corporate-filings/types.js';
+
+/* ── Culture & Heritage Deep ──────────────────────────── */
+import { ingestAllCultureDeep } from './culture-deep/index.js';
+export { ingestAllCultureDeep } from './culture-deep/index.js';
+export type { CultureGrant, CultureDeepIngestionResult } from './culture-deep/types.js';
+
+/* ── Provincial Deep ──────────────────────────────────── */
+import { ingestAllProvincialDeep } from './provincial-deep/index.js';
+export { ingestAllProvincialDeep } from './provincial-deep/index.js';
+export type { ProvincialDataset, ProvincialDeepIngestionResult } from './provincial-deep/types.js';
+
+/* ── Federal Deep ──────────────────────────────────────── */
+import { ingestAllFederalDeep } from './federal-deep/index.js';
+export { ingestAllFederalDeep } from './federal-deep/index.js';
+export type { FederalDataset, FederalDeepIngestionResult } from './federal-deep/types.js';
