@@ -18,6 +18,7 @@ import * as searchOversight from './search-oversight.js';
 import * as searchCanlii from './search-canlii.js';
 import * as searchLmia from './search-lmia.js';
 import * as searchImmigration from './search-immigration.js';
+import * as searchScience from './search-science.js';
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
@@ -45,6 +46,7 @@ export function getAllTools(): ToolModule[] {
     searchCanlii,
     searchLmia,
     searchImmigration,
+    searchScience,
     aiAsk,
     aiAnalyze,
     aiSearchSemantic,
