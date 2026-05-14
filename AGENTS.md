@@ -20,7 +20,7 @@ Quick reference for AI agents working in this repo. Don't guess—check here fir
 |---------|---------|-------------|
 | `pipeline-core` | Ingestion, verification, audit | `dist/index.js` |
 | `engine` | Entity resolution, graph, signals, briefs | `src/index.ts` |
-| `api-server` | REST API gateway (8 endpoints) | `dist/index.js` |
+| `api-server` | REST API gateway (10+ endpoints) | `dist/index.js` |
 | `mcp-server` | MCP protocol server (14 tools) | `dist/cli.js` |
 | `sdk` | TypeScript client library | `dist/index.js` |
 | `portal` | Static HTML landing page | `.` (no build) |
@@ -65,6 +65,37 @@ cd packages/portal
 pnpm run dev           # npx serve . -p 4321
 python3 -m http.server 4321  # alt: native Python
 ```
+
+---
+
+## API Server Auth
+
+Three auth methods are supported, checked in order:
+
+1. **`X-API-Key` header** — legacy server-to-server (in-memory map)
+2. **`Authorization: Bearer <key>`** — API key or JWT (auto-detected by format)
+3. **`Authorization: Bearer <jwt>`** — JWT from Passkey/Web3/OIDC login
+
+Storage-backed auth (`db.authenticate()`) is used as fallback when the legacy in-memory map misses. The storage layer supports **auto-rotation** — keys within 7 days of expiry are silently replaced, with the new key returned via response headers.
+
+### Key Lifecycle
+
+| Event | Mechanism |
+|-------|-----------|
+| Initial creation | POST `/v1/register` or POST `/v1/keys` |
+| Manual rotation | POST `/v1/keys/:id/rotate` |
+| Auto-rotation | On usage when ≤7 days to expiry (SQLite/D1 only) |
+| Expiration | Default 90-day TTL, hard rejected at auth layer |
+| Revocation | DELETE `/v1/keys/:id` or auto-rotated old key deactivation |
+
+### Response Headers
+
+| Header | When | Meaning |
+|--------|------|---------|
+| `X-Key-Rotated` | `true` | Key was auto-rotated on this request |
+| `X-New-Key` | string | The new raw API key (shown once) |
+| `X-New-Key-Id` | string | ID of the new key record |
+| `X-New-Key-Expires` | ISO date | New key expiry date |
 
 ---
 
@@ -140,6 +171,7 @@ pnpm start
 |----------|---------|------------|
 | `CIVINT_API_KEY` | `dev-key` | mcp-server |
 | `PORT` | `3001` | mcp-server (SSE mode) |
+| `CIVINT_DB_PATH` | `./maplespike.db` | api-server (SQLite path) |
 
 ---
 
