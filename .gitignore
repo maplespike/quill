@@ -19,3 +19,7 @@ test-results/
 .playwright-mcp/
 .sisyphus/
 landing-page.png
+*.bak
+packages/engine/src/**/*.js
+packages/engine/src/**/*.d.ts
+packages/engine/src/**/*.js.map
