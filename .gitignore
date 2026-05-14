@@ -24,3 +24,8 @@ packages/engine/src/**/*.js
 packages/engine/src/**/*.d.ts
 packages/engine/src/**/*.js.map
 packages/engine/src/**/*.d.ts.map
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
