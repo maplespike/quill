@@ -1,5 +1,5 @@
 # =============================================================================
-# CivInt Canada — Engine Sweep Dockerfile
+# MapleSpike — Engine Sweep Dockerfile
 # Multi-stage build for the SweepEngine CronJob (entity resolution, signals, briefs)
 # =============================================================================
 

@@ -137,9 +137,29 @@
    137|
    138|/* ── Glossary tooltip (restored) ── */
    139|.glossary-term { border-bottom: 1px dashed var(--text-muted); cursor: help; position: relative; }
-   140|.glossary-tip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--base03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: var(--text-secondary); width: 240px; box-shadow: var(--shadow-lg); z-index: 100; pointer-events: none; }
-   141|.glossary-term:hover .glossary-tip { display: block; }
-   142|</style>
+.glossary-tip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--base03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: var(--text-secondary); width: 240px; box-shadow: var(--shadow-lg); z-index: 100; pointer-events: none; }
+.glossary-term:hover .glossary-tip { display: block; }
+
+/* ── Terminal-style Activity Feed ── */
+.activity-feed { display: flex; flex-direction: column; gap: 0; margin-bottom: 32px; }
+.feed-item {
+  display: grid;
+  grid-template-columns: 56px 14px 1fr;
+  gap: 8px 12px;
+  align-items: baseline;
+  padding: 12px 20px;
+  border-left: 2px solid var(--base04);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  transition: all var(--transition);
+}
+.feed-item:hover { border-left-color: var(--accent); background: var(--base01); }
+.feed-item:last-child { border-bottom: 1px solid var(--base04); }
+.feed-time { color: var(--text-muted); font-size: 0.72rem; text-align: right; white-space: nowrap; }
+.feed-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-top: 6px; }
+.feed-text { color: var(--text-primary); grid-column: 3; }
+.feed-source { color: var(--text-muted); font-size: 0.72rem; grid-column: 3; }
+</style>
    143|
    144|  <meta property="og:title" content="MapleSpike — Civic Pulse Dashboard: Live Canadian Government Data">
    145|  <meta property="og:description" content="Live dashboard of Canadian government activity — track Parliament, lobbying, regulations, court decisions, real-time weather alerts, border wait times, and more. Updated automatically from official sources.">
@@ -274,6 +294,17 @@
    272|    <div class="stat-dash shimmer">&nbsp;</div>
    273|    <div class="stat-dash shimmer">&nbsp;</div>
    274|  </div>
+
+   276|  <!-- ═══ Activity Feed (Terminal Log) ═══ -->
+   277|  <div class="section-head">
+   278|    <h2 data-i18n="dashboard.sections.activityFeed">📟 Activity Log</h2>
+   279|    <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);" id="feed-timestamp"></span>
+   280|  </div>
+   281|  <div class="activity-feed" id="activity-feed">
+   282|    <div class="feed-item shimmer" style="height:48px;">&nbsp;</div>
+   283|    <div class="feed-item shimmer" style="height:48px;">&nbsp;</div>
+   284|    <div class="feed-item shimmer" style="height:48px;">&nbsp;</div>
+   285|  </div>
    275|
    276|  <!-- In-camera spotlight -->
   <div class="spotlight-banner">

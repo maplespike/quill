@@ -324,123 +324,60 @@
   </div>
 </section>
 
-<!-- ═══ CAPABILITIES ═══ -->
-<section class="section" id="capabilities">
+<!-- ═══ LIVE API DEMO ═══ -->
+<section class="section" id="api-demo">
   <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Three Access Modes</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Live API Demo</span>
   </div>
   <div class="section-header fade-in">
-    <h2>API. Intelligence. Monitoring.<br>Three ways to use Canadian government data.</h2>
-    <p>Pull data into your app, search across every module from one endpoint, or get alerts when government activity changes.</p>
+    <h2>Try it yourself — pick a source</h2>
+    <p>Every response includes a SHA-256 citation hash you can verify independently</p>
   </div>
 
-  <div class="bento-grid">
-    <div class="bento-card fade-in">
-      <div class="card-number">[01]</div>
-      <div class="card-icon" style="background:rgba(194,48,48,0.12);font-size:1.5rem;">▦</div>
-      <h3>DATA — API Access</h3>
-      <p>Full REST + MCP access to all 53 Canadian government data modules. Every response includes a SHA-256 citation hash you can verify independently. Use it from curl, Python, Node, or any HTTP client.</p>
-      <div style="margin-top:12px;">
-        <span class="badge badge-green" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--base19);color:var(--success);border:1px solid rgba(16,185,129,0.2);font-family:var(--font-mono);">53 MODULES</span>
-        <span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(194,48,48,0.2);font-family:var(--font-mono);margin-left:6px;">CITATED</span>
-      </div>
+  <div class="api-demo fade-in">
+    <div class="api-demo-header">
+      <span class="api-demo-prompt">$</span>
+      <span class="api-demo-command">curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=committees" -d "_limit=3" -d "_format=compact"</span>
     </div>
-
-    <div class="bento-card fade-in stagger-1">
-      <div class="card-number">[02]</div>
-      <div class="card-icon" style="background:rgba(139,92,246,0.12);font-size:1.5rem;">✦</div>
-      <h3>SEARCH — Cross-Reference Engine</h3>
-      <p>Search across every module at once. Give us a company or person name and get their complete government footprint — lobbying meetings, committee testimony, contracts won, board appointments, court cases, campaign donations — in a unified timeline.</p>
-      <div style="margin-top:12px;">
-        <span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--base22);color:#C084FC;border:1px solid rgba(139,92,246,0.2);font-family:var(--font-mono);">UNIFIED</span>
-        <span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);margin-left:6px;">27 AGENTS</span>
-      </div>
+    <div class="api-demo-response" id="api-demo-response">
+      <pre><span class="json-key">{
+  "success":</span> <span class="json-boolean">true</span><span class="json-key">,
+  "data":</span> [
+    {
+      <span class="json-key">"source":</span> <span class="json-string">"ourcommons.ca"</span>,
+      <span class="json-key">"committee":</span> <span class="json-string">"HUMA"</span>,
+      <span class="json-key">"title":</span> <span class="json-string">"Housing Committee Meeting #45"</span>,
+      <span class="json-key">"date":</span> <span class="json-string">"2026-05-14"</span>
+    },
+    {
+      <span class="json-key">"source":</span> <span class="json-string">"lobbycanada.gc.ca"</span>,
+      <span class="json-key">"registrant":</span> <span class="json-string">"RBC"</span>,
+      <span class="json-key">"subject":</span> <span class="json-string">"National Housing Strategy"</span>
+    },
+    {
+      <span class="json-key">"source":</span> <span class="json-string">"fja-cmf.gc.ca"</span>,
+      <span class="json-key">"court":</span> <span class="json-string">"FCA"</span>,
+      <span class="json-key">"title":</span> <span class="json-string">"Canada v. Smith"</span>
+    }
+  ],
+  <span class="json-key">"citation":</span> {
+    <span class="json-key">"source_name":</span> <span class="json-string">"open.canada.ca"</span>,
+    <span class="json-key">"data_hash":</span> <span class="json-string">"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"</span>,
+    <span class="json-key">"license":</span> <span class="json-string">"OGL-C"</span>
+  }
+}</pre>
     </div>
-
-    <div class="bento-card fade-in stagger-2">
-      <div class="card-number">[03]</div>
-      <div class="card-icon" style="background:rgba(212,160,23,0.12);font-size:1.5rem;">◐</div>
-      <h3>ALERTS — Signal Detection</h3>
-      <p>Real-time alerts when government activity changes. New committee meetings, lobbying filings, regulation proposals, court decisions, and oversight reports. Automatic in-camera meeting flagging, sole-source contract detection, and lobbying spike identification.</p>
-      <div style="margin-top:12px;">
-        <span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 10px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);">REAL-TIME</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ FEATURES (Bento) ═══ -->
-<section class="section" id="features">
-  <div class="section-bracket fade-in">
-    <span class="bracket">[</span><span class="num">02</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">What You Get</span>
-  </div>
-  <div class="section-header fade-in">
-    <h2>Every corner of Canadian governance,<br>tracked and connected</h2>
-    <p>Think of MapleSpike like a newsroom that never sleeps — it reads every public document so you don't have to.</p>
-  </div>
-
-  <div class="bento-grid">
-    <div class="bento-card fade-in">
-      <div class="card-number">[01]</div>
-      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🏛️</div>
-      <h3>Parliament — HoC &amp; Senate</h3>
-      <p>Every House of Commons and Senate committee meeting, witness, and question. In-camera session detection across both chambers.</p>
-      <div style="margin-top:10px;"><span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;padding:2px 10px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);" data-freshness="parliament">Loading...</span></div>
-    </div>
-
-    <div class="bento-card fade-in stagger-1">
-      <div class="card-number">[02]</div>
-      <div class="card-icon" style="background:rgba(59,130,246,0.12);">📜</div>
-      <h3>Regulations — Canada Gazette</h3>
-      <p>Proposed and final regulations from Canada Gazette Parts I+II. See what rules the government plans before they become law.</p>
-      <div style="margin-top:10px;"><span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;padding:2px 10px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);" data-freshness="gazette">Updated within 24h</span></div>
-    </div>
-
-    <div class="bento-card fade-in stagger-2">
-      <div class="card-number">[03]</div>
-      <div class="card-icon" style="background:rgba(251,191,36,0.12);">💰</div>
-      <h3>Corporate Influence</h3>
-      <p>Lobbying reports, government contracts, and executive influence. See which companies meet with which departments.</p>
-      <div style="margin-top:10px;"><span class="badge" style="display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;padding:2px 10px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);" data-freshness="lobbying">Loading...</span></div>
-    </div>
-
-    <div class="bento-card fade-in stagger-3">
-      <div class="card-number">[04]</div>
-      <div class="card-icon" style="background:rgba(139,92,246,0.12);">🗳️</div>
-      <h3>Elections &amp; Lobbying</h3>
-      <p>Third-party election advertising, political financing, and provincial lobbying. Track who's spending to influence voters.</p>
-    </div>
-
-    <div class="bento-card fade-in stagger-4">
-      <div class="card-number">[05]</div>
-      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🌐</div>
-      <h3>Influence Networks</h3>
-      <p>From think tanks to NGOs — track organizations that shape Canadian policy. Government funding, lobbying, and connections.</p>
-    </div>
-
-    <div class="bento-card fade-in stagger-5">
-      <div class="card-number">[06]</div>
-      <div class="card-icon" style="background:rgba(232,69,69,0.12);">🔍</div>
-      <h3>Oversight &amp; Courts</h3>
-      <p>OAG and PBO audits, Ethics Commissioner investigations, CRTC decisions, and CanLII court rulings. Full accountability tracking.</p>
-    </div>
-
-    <div class="bento-card span-2 fade-in stagger-6">
-      <div class="card-number">[07]</div>
-      <div class="card-icon" style="background:rgba(16,185,129,0.12);">🔗</div>
-      <h3>Connect the Dots</h3>
-      <p>The same people show up everywhere — sitting on committees, lobbying departments, winning contracts, appearing in court cases. MapleSpike links them together so you can see the full picture. Our signal detectors flag revolving doors, lobbying overlaps, and cross-jurisdictional connections automatically.</p>
-    </div>
-
-    <div class="bento-card span-2 highlight fade-in stagger-7">
-      <div class="card-number">[08]</div>
-      <div class="card-icon" style="background:rgba(232,69,69,0.2);">🍁</div>
-      <h3>Built for Canadians, Running in Canada</h3>
-      <p>Every piece of information comes from official public sources — Parliament, the Lobbying Registry, the Canada Gazette, open court data, oversight bodies. Everything is verified and citable. No spin, no opinion, just the facts that are already public, organized so you can actually use them.</p>
+    <div class="api-demo-tabs">
+      <button class="api-demo-tab active" data-source="committees">[committees]</button>
+      <button class="api-demo-tab" data-source="lobbying">[lobbying]</button>
+      <button class="api-demo-tab" data-source="procurement">[procurement]</button>
+      <button class="api-demo-tab" data-source="gazette">[gazette]</button>
+      <button class="api-demo-tab" data-source="courts">[courts]</button>
     </div>
   </div>
+
+  <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:16px;">// Click a source above to swap the API call inline. No card grid — the code IS the illustration.</p>
 </section>
 
 <!-- ═══ IN-CAMERA SPOTLIGHT ═══ -->
@@ -957,6 +894,17 @@
       setTimeout(() => btn.textContent = orig, 2000);
     }).catch(() => {});
   };
+
+  // ─── API Demo tab switching ───
+  document.querySelectorAll('.api-demo-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.api-demo-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const source = btn.dataset.source;
+      const header = document.querySelector('.api-demo-command');
+      if (header) header.textContent = 'curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=' + source + '" -d "_limit=3" -d "_format=compact"';
+    });
+  });
 
   // ── Init ──
   initTheme();
