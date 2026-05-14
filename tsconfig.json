@@ -19,7 +19,8 @@
     { "path": "packages/pipeline-core" },
     { "path": "packages/engine" },
     { "path": "packages/api-server" },
-    { "path": "packages/mcp-server" }
+    { "path": "packages/mcp-server" },
+    { "path": "packages/sdk" }
   ],
   "exclude": ["node_modules", "dist"]
 }
