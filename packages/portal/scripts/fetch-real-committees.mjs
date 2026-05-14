@@ -54,7 +54,7 @@ const realCommittees = results.filter(r => !r.error).slice(0, 50);
 const inCamera = realCommittees.filter(r => r.inCamera);
 
 const fs = await import('fs');
-fs.writeFileSync('/data/projects/own/civint/packages/portal/assets/real-committees.json', JSON.stringify({
+fs.writeFileSync('/data/projects/own/maplespike/packages/portal/assets/real-committees.json', JSON.stringify({
   generatedAt: new Date().toISOString(),
   totalFetched: results.length,
   totalOk: realCommittees.length,

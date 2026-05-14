@@ -1,70 +1,64 @@
+# ─────────────────────────────────────────────────────────────────
+# MapleSpike Deploy — builds + pushes Docker images to GHCR,
+# deploys backends to K3s, and publishes portal to GitHub Pages
+# ─────────────────────────────────────────────────────────────────
 name: Deploy
-
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
-      - 'packages/mcp-server/**'
-      - 'packages/api-server/**'
-      - 'packages/pipeline-core/**'
-      - 'packages/engine/**'
-      - 'packages/sdk/**'
-      - 'packages/portal/**'
+      - 'packages/**'
       - 'Dockerfile.*'
       - 'k8s/**'
       - '.github/workflows/deploy.yml'
-
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
+  packages: write
+  id-token: write
+  pages: write
 
 jobs:
+  # ── Step 1: Test ──
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
+        with: { version: 9 }
       - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      - run: pnpm test && cd ../mcp-server && pnpm test && cd ../engine && pnpm test
+        working-directory: packages/sdk
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Type-check all packages
-        run: |
-          cd packages/pipeline-core && npx tsc --noEmit &
-          cd packages/mcp-server && npx tsc --noEmit &
-          cd packages/sdk && npx tsc --noEmit &
-          cd packages/api-server && npx tsc --noEmit &
-          wait
-
-      - name: Build all packages
-        run: pnpm -r build
-
-      - name: Run all tests
-        run: |
-          cd packages/sdk && pnpm test &
-          cd packages/pipeline-core && pnpm test &
-          cd packages/mcp-server && pnpm test &
-          cd packages/engine && pnpm test &
-          cd packages/api-server && pnpm test &
-          wait
-
-  # ── Backend: Build Docker images on nexus ──
+  # ── Step 2: Build + push Docker images to GHCR + nexus ──
   build-backend:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build and deploy on nexus via SSH
+
+      # Login to GHCR
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build + push all 4 images to GHCR
+      - run: |
+          for img in mcp api ingest engine; do
+            docker build -f Dockerfile.$img -t ghcr.io/reverb256/maplespike-$img:latest .
+            docker push ghcr.io/reverb256/maplespike-$img:latest
+          done
+
+      # Deploy to K3s via SSH
+      - name: Deploy to K3s
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.NEXUS_HOST }}
@@ -74,71 +68,32 @@ jobs:
           script: |
             set -e
             cd /data/projects/own/maplespike
-            git fetch origin main
-            git checkout main
-            git pull origin main
+            git fetch origin main && git checkout main && git pull origin main
+            for img in mcp api ingest engine; do
+              docker pull ghcr.io/reverb256/maplespike-$img:latest
+              docker tag ghcr.io/reverb256/maplespike-$img:latest nexus:5000/maplespike-$img:latest
+              docker push nexus:5000/maplespike-$img:latest
+            done
+            kubectl rollout restart deployment/civint-mcp -n ai-inference --timeout=120s
+            kubectl rollout restart deployment/civint-api -n ai-inference --timeout=120s
 
-            # Build images with local nexus tags
-            docker build -f Dockerfile.mcp     -t nexus:5000/maplespike-mcp:latest     .
-            docker build -f Dockerfile.api     -t nexus:5000/maplespike-api:latest     .
-            docker build -f Dockerfile.ingest  -t nexus:5000/maplespike-ingest:latest  .
-            docker build -f Dockerfile.engine  -t nexus:5000/maplespike-engine:latest  .
-
-            # Push to local nexus registry
-            docker push nexus:5000/maplespike-mcp:latest
-            docker push nexus:5000/maplespike-api:latest
-            docker push nexus:5000/maplespike-ingest:latest
-            docker push nexus:5000/maplespike-engine:latest
-
-            # Also tag and push to GHCR if GITHUB_TOKEN is available
-            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
-              echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-              docker tag nexus:5000/maplespike-mcp:latest     ghcr.io/reverb256/maplespike-mcp:latest
-              docker tag nexus:5000/maplespike-api:latest     ghcr.io/reverb256/maplespike-api:latest
-              docker tag nexus:5000/maplespike-ingest:latest  ghcr.io/reverb256/maplespike-ingest:latest
-              docker tag nexus:5000/maplespike-engine:latest  ghcr.io/reverb256/maplespike-engine:latest
-              docker push ghcr.io/reverb256/maplespike-mcp:latest
-              docker push ghcr.io/reverb256/maplespike-api:latest
-              docker push ghcr.io/reverb256/maplespike-ingest:latest
-              docker push ghcr.io/reverb256/maplespike-engine:latest
-            fi
-
-            kubectl rollout restart deployment/civint-mcp -n ai-inference
-            kubectl rollout status deployment/civint-mcp -n ai-inference --timeout=120s
-
-            kubectl rollout restart deployment/civint-api -n ai-inference
-            kubectl rollout status deployment/civint-api -n ai-inference --timeout=120s
-
-  # ── Portal: Deploy static site to GitHub Pages ──
+  # ── Step 3: Deploy portal to GitHub Pages ──
   deploy-portal:
     needs: test
-    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Inject analytics domain
-        run: |
-          if [ -n "${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}" ]; then
-            sed -i "s/__MAPLESPIKE_ANALYTICS_DOMAIN__/${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}/g" packages/portal/*.html
-            echo "Analytics domain injected: ${{ secrets.MAPLESPIKE_ANALYTICS_DOMAIN }}"
-          else
-            sed -i '/plausible/d' packages/portal/*.html
-            echo "No analytics domain set — analytics disabled"
-          fi
-
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: packages/portal
-
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - name: Build agents.json from SDK
+        run: node packages/portal/scripts/generate-agents-json.mjs
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: packages/portal }
+      - id: deployment
         uses: actions/deploy-pages@v4

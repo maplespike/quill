@@ -36,7 +36,7 @@ const tools = Object.entries(agentMap).map(([key, agent]) => ({
 
 const manifest = {
   name: 'MapleSpike',
-  description: 'Canadian government data API — 53 modules, 79 endpoints, SHA-256 verified citations',
+  description: 'Canadian government data API — 64+ modules, 30+ MCP tools, SHA-256 verified citations',
   url: 'https://maplespike.ca',
   moduleCount: agents.length,
   actionCount: agents.reduce((sum, a) => sum + a.actions.length, 0),

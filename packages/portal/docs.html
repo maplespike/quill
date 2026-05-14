@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleSpike — Docs</title>
-  <meta name="description" content="MapleSpike documentation — quickstart, API reference, MCP setup, pipeline architecture.">
+  <title>MapleSpike — API Documentation: Quickstart, Reference, MCP Setup</title>
+  <meta name="description" content="Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, pipeline architecture, and SDK usage. Start querying Canadian government data in minutes.">
 
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://www.google.com" crossorigin>
   <link rel="manifest" href="/manifest.json">
   <meta name="msapplication-config" content="/browserconfig.xml">
+  <link rel="canonical" href="https://maplespike.ca/docs">
   <meta name="theme-color" content="#C23030">
   <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
@@ -64,7 +65,7 @@
     <span>Quickstart</span>
     <span class="badge badge-green" class="doc-badge">LIVE</span>
   </div>
-  <h1 class="fade-in-init s2">One API key.<br>Every Canadian government source. Every response cited.</h1>
+  <h1 class="fade-in-init s2">One API key.<br>53 Canadian government data modules. Every response cited.</h1>
 
   <p class="doc-head-text">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
 
@@ -211,7 +212,7 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
     <span>Citation Contract</span>
   </div>
   <h2>Every response. Every endpoint. Verifiable.</h2>
-  <p>Data, Signal, Ask — all return the same citation block. One integration gives you auditable AI across the stack.</p>
+  <p>Every MapleSpike endpoint returns the same citation block — whether you're using the REST API, MCP tools, or cross-reference engine. One integration gives you auditable data across the stack.</p>
 
   <div class="code-block">
 {<br>
@@ -232,10 +233,10 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
   <div class="section-bracket fade-in-init s5">
     <span class="bracket">[</span><span class="num">06</span><span class="bracket">]</span>
     <span>MCP Tools</span>
-    <span class="badge badge-cyan" class="doc-badge">14 TOOLS</span>
+    <span class="badge badge-cyan" class="doc-badge">18 TOOLS</span>
   </div>
   <h2>Data tools for AI agents</h2>
-  <p>All tools return the same <code class="doc-inline-code">{ data, quality, citation }</code> envelope. Connect any MCP client:</p>
+  <p>All tools return the same <code class="doc-inline-code">{ data, quality, citation }</code> envelope. Connect any MCP client — or use the REST API directly:</p>
 
   <div class="code-block">
 {<br>
@@ -264,6 +265,7 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
     <tr><td class="tag-cat">Provincial</td><td class="method-get">search_provincial_lobbying</td><td>ON lobbying registry (BC/QC stubbed)</td></tr>
     <tr><td class="tag-cat">Oversight</td><td class="method-get">search_oversight</td><td>OAG, PBO, Ethics, CB, CRTC reports</td></tr>
     <tr><td class="tag-cat">Legal</td><td class="method-get">search_canlii</td><td>Court decisions, citations via CanLII</td></tr>
+    <tr><td class="tag-cat">Cross-Reference</td><td class="method-get">search_cross_reference</td><td>Search all modules at once — entity timeline across lobbying, GIC, committees, contracts, elections</td></tr>
     <tr><td class="tag-cat">Labour</td><td class="method-get">search_lmia</td><td>LMIA quarterly data, TFW program</td></tr>
   </table>
 
@@ -328,6 +330,11 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
   </div>
 
   <div class="doc-faq">
+    <p><strong style="color:var(--text-primary);">What is the cross-reference engine?</strong></p>
+    <p>Search for any person or company and get their complete government footprint — lobbying meetings, committee testimony, GIC board appointments, procurement contracts, court cases, and campaign donations — in a unified timeline. One call replaces manually querying 53 separate modules.</p>
+  </div>
+
+  <div class="doc-faq">
     <p><strong style="color:var(--text-primary);">Is my API key secure?</strong></p>
     <p>Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.</p>
   </div>
@@ -349,14 +356,13 @@ POST /v1/auth/passkey/login/complete { <span style="color:#D4A017;">"loginId"</s
         <li><a href="explorer.html">Data Explorer</a></li>
         <li><a href="workspace.html">API Keys</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="signal.html">Monitors</a></li>
+        <li><a href="explorer.html">Data Explorer</a></li>
       </ul>
     </div>
     <div>
       <h4>AI Tools</h4>
       <ul>
         <li><a href="agents.html">MCP Setup</a></li>
-        <li><a href="ask.html">✦ Ask (AI Chat)</a></li>
         <li><a href="docs.html">Documentation</a></li>
       </ul>
     </div>
