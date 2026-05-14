@@ -17,6 +17,10 @@
  */
 
 import {
+  ingestAllVeterans,
+  ingestAllFisheries,
+  ingestAllAgriculture,
+  ingestAllCulture,
   ingestAllCommittees,
   ingestAllCorporate,
   ingestAllInfluence,
@@ -105,6 +109,10 @@ const PIPELINE_MAP: Record<string, { name: string; run: () => Promise<unknown> }
     name: 'Federal Tribunal Data Ingestion (SST, CITT, CHRT, Copyright Board, etc.)',
     run: () => ingestAllTribunals(),
   },
+  veterans: { name: "Veterans Affairs Data Ingestion", run: () => ingestAllVeterans(), },
+  fisheries: { name: "Fisheries & Oceans Data Ingestion", run: () => ingestAllFisheries(), },
+  agriculture: { name: "Agriculture & Agri-Food Data Ingestion", run: () => ingestAllAgriculture(), },
+  culture: { name: "Culture & Heritage Data Ingestion", run: () => ingestAllCulture(), },
 };
 
 async function main(): Promise<void> {
