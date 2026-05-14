@@ -8,9 +8,8 @@ dist
 *.md
 *.log
 .env
-.env.*
+*.env.*
 !.env.example
-pnpm-lock.yaml
 tsconfig.tsbuildinfo
 coverage
 .turbo
