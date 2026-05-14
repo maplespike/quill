@@ -1,14 +1,20 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Static HTML/CSS/JS (portal)
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 65 modules, 22 MCP tools, ~113K lines TS, 10 packages.
 
 ---
 
 ## What it is
 
-MapleSpike ingests, verifies, and surfaces **53 data modules** of Canadian public-domain government data across every sector.
+MapleSpike ingests, verifies, and surfaces **65 data modules** of Canadian public-domain government data across every sector.
 
 **Coverage:**
 - **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
@@ -23,11 +29,11 @@ MapleSpike ingests, verifies, and surfaces **53 data modules** of Canadian publi
 - **Universities**: CUDO enrolment data, Tri-Council grants, per-institution CKAN
 - **Media & broadcasting**: CRTC market reports, ownership charts, Canada Media Fund, Telefilm, Online News Act
 - **Defence & veterans**: DND personnel, procurement
-- **SDK**: @maplespike/sdk — typed TypeScript client covering all 53 modules, dual CJS/ESM
+- **SDK**: @maplespike/sdk — typed TypeScript client (dual CJS/ESM). See [docs/metrics.json](./docs/metrics.json) for current module coverage.
 
 Every record includes SHA-256 citation hashes, source provenance, and audit trails for independent verification.
 
-**Current state:** 53 modules, 81,857 lines, 1,141 external endpoints, zero stubs. All 7 packages compile clean. 5/5 SDK tests passing. Cross-reference engine connects lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections.
+**Current metrics:** [See docs/metrics.json](./docs/metrics.json) for current module/tool/line counts. All packages compile clean, SDK tests passing. Cross-reference engine connects lobbying ↔ committees ↔ GIC ↔ contracts ↔ elections.
 
 ---
 
@@ -40,12 +46,18 @@ maplespike/
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── pretext-civic/    # React component library (charts, geo) — orphaned
 │   ├── portal/           # Developer portal & landing page (static HTML)
-│   ├── api-server/       # REST API gateway (8 endpoints, auth, rate limits)
-│   └── mcp-server/       # MCP protocol server (✅ 14 real tools)
-├── docs/                 # Architecture docs, roadmap, market analysis
+│   ├── api-server/       # REST API gateway (auth, rate limits, usage)
+│   ├── mcp-server/       # MCP protocol server (✅ 22 tools, all live)
+│   ├── sdk/              # TypeScript client library
+│   ├── sdk-python/       # Python client library
+│   ├── legal-core/       # Legal data SDK
+│   └── legislation/      # Legislation XML parser
+├── docs/                 # Architecture docs, roadmap, gap analysis
+├── CONTRIBUTING.md       # Contributor guide
 ├── .hermes/              # Analysis plans and retrospectives
-├── flake.nix             # Nix build (13-line stub, delegates to nixos-config)
-├── ROADMAP.md            # Full phased roadmap & file inventory (402+ lines)
+├── .sisyphus/            # Orchestration plans
+├── flake.nix             # Nix build (delegates to nixos-config)
+├── ROADMAP.md            # Full phased roadmap & file inventory
 └── tsconfig.json         # Shared TypeScript configuration
 ```
 
@@ -54,24 +66,24 @@ maplespike/
 ## Build Plan (7 Phases)
 
 ```
-pipeline-core ──→ SQLite DB ──→ MCP server (14 real tools) ──→ Dashboard / Console
+pipeline-core ──→ SQLite DB ──→ MCP server (22 live tools) ──→ Dashboard / Console
      │                                                             │
      └── Engine reads same DB ──→ briefs/signals ─────────────────┘
-                                                                   │
+                                                                    │
                                         Portal (static marketing) ──┘
 ```
 
-| Phase | What | Why | Status |
-|-------|------|-----|--------|
-| 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | Gates everything — without DB, nothing persists | ✅ DONE |
-| 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | Fill the empty tables with real data | ✅ DONE |
-| 3 | **Wire MCP** — 10 stub tools → real DB queries | All 14 tools return real results | ✅ DONE |
-| 4 | **Engine integration** — entity resolution + brief gen reads shared DB | Use the data already collected | ⏳ TODO |
-| 5 | **Live Dashboard** — React dashboard hits MCP/API for live data | Replace static mockups with live data | ⏳ TODO |
-| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, signup, tier enforcement, developer console (API keys, usage, catalog, playground, Ask, Signal) | Revenue + developer self-service | 🔴 TODO |
-| 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | Scale + enterprise | 🔴 TODO |
+| Phase | What | Status |
+|-------|------|--------|
+| 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | ✅ DONE |
+| 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | ✅ DONE |
+| 3 | **Wire MCP** — 22 tools all returning real DB results | ✅ DONE |
+| 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ⏳ TODO |
+| 5 | **Live Dashboard** — hits MCP/API for live data | ⏳ TODO |
+| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🔴 TODO |
+| 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | 🔴 TODO |
 
-See [ROADMAP.md](./ROADMAP.md) for the full phased plan.
+See [ROADMAP.md](./ROADMAP.md) for the full phased plan. Detailed architecture: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ---
 
@@ -89,7 +101,7 @@ cd packages/mcp-server
 pnpm start
 ```
 
-**All 14 MCP tools return real data** from `pipeline-data.json` — committees, corporate, influence, and government data are all searchable. No external database configuration required for MCP tools.
+**All 22 MCP tools return real data** from `pipeline-data.json` — committees, corporate, influence, and government data are all searchable. No external database configuration required for MCP tools.
 
 ---
 

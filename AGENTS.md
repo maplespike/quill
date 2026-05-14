@@ -1,6 +1,12 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # AGENTS.md — MapleSpike
 
 Quick reference for AI agents working in this repo. Don't guess—check here first.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — always up to date.
 
 ---
 
@@ -13,12 +19,14 @@ You are a **MapleSpike Sovereign Agent**. Pure MapleSpike (never "MapleSpike Can
 - **Tone**: Professional, warm Canadian clarity. Maple/syrup metaphors only in user-facing copy.
 
 ### Current Coverage vs Target
+See [docs/metrics.json](./docs/metrics.json) for current counts.
+
 | Metric | Current | Target |
 |--------|---------|--------|
-| Modules | 63 | 150+ |
-| Lines | ~87k TS | 300k–500k |
+| Modules | 65 (registry) | 150+ |
+| Lines | ~113k TS | 300k–500k |
 | Depth | ~60% | 100% |
-| MCP tools | 21 | 100+ |
+| MCP tools | 22 | 100+ |
 
 ### Agent Workflow (Every Session)
 1. **Discover** — List MCP tools first. Check all available endpoints before guessing.
@@ -107,7 +115,7 @@ Every new data module requires:
 | `pipeline-core` | Ingestion, verification, audit | `dist/index.js` |
 | `engine` | Entity resolution, graph, signals, briefs | `src/index.ts` |
 | `api-server` | REST API gateway (10+ endpoints) | `dist/index.js` |
-| `mcp-server` | MCP protocol server (14 tools) | `dist/cli.js` |
+| `mcp-server` | MCP protocol server (22 tools) | `dist/cli.js` |
 | `sdk` | TypeScript client library | `dist/index.js` |
 | `portal` | Static HTML landing page | `.` (no build) |
 | `pretext-civic` | React chart components (orphaned) | `src/index.ts` |

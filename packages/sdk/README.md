@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike SDK · `@maplespike/sdk`
 
 > **Canadian civic data, one import away.**  

@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-14
+status: active
+---
+
 # MapleSpike — Journalist Quickstart
 
 > **Access Canadian government data through MCP tools. No more scraping portals or waiting on ATI.**
@@ -8,7 +13,7 @@
 
 ## Quick Intro
 
-MapleSpike ingests 13+ modules of Canadian government data — House of Commons and Senate committees, federal lobbying, procurement, Canada Gazette, GIC appointments, provincial lobbying registries, Elections Canada third-party advertising, oversight bodies (OAG, PBO, Ethics Commissioner, Competition Bureau, CRTC), CanLII court decisions, and LMIA data.
+MapleSpike ingests **65 data modules** of Canadian government data — House of Commons and Senate committees, federal lobbying, procurement, Canada Gazette, GIC appointments, provincial lobbying registries, Elections Canada third-party advertising, oversight bodies (OAG, PBO, Ethics Commissioner, Competition Bureau, CRTC), CanLII court decisions, LMIA data, immigration data, defence, criminal justice, health, education, and more.
 
 Every record includes SHA-256 citation hashes for independent verification.
 
@@ -18,7 +23,7 @@ Every record includes SHA-256 citation hashes for independent verification.
 
 ### 1. MCP Server (Recommended)
 
-The MapleSpike MCP server exposes 14 tools for AI agents. If you have access to the K3s cluster, you can connect Claude Desktop, Cursor, or any MCP-compatible client to the hosted SSE endpoint.
+The MapleSpike MCP server exposes **22 tools** for AI agents. All return real data from live databases.
 
 **Configure Claude Desktop:**
 
@@ -32,34 +37,40 @@ The MapleSpike MCP server exposes 14 tools for AI agents. If you have access to 
 }
 ```
 
-**Available MCP tools:**
+**All MCP tools are live and return real data:**
 
-| Tool | Status | Description |
-|------|--------|-------------|
-| `query_gov_data` | ✅ LIVE | Query government data by keyword/jurisdiction |
-| `fact_check` | ✅ LIVE | Check a claim against official data |
-| `get_citation` | ✅ LIVE | Retrieve and verify SHA-256 citation hash |
-| `latest_releases` | ✅ LIVE | Recent government data releases |
-| `search_committees` | 🟡 COMING | Full-text committee intervention search — returns empty pending database deployment |
-| `search_corporate` | 🟡 COMING | Lobbying + procurement search |
-| `search_influence` | 🟡 COMING | Influence actor investigation |
-| `search_gazette` | 🟡 COMING | Canada Gazette regulation search |
-| `search_gic` | 🟡 COMING | GIC appointment lookup |
-| `search_elections` | 🟡 COMING | Elections Canada third-party advertiser search |
-| `search_provincial_lobbying` | 🟡 COMING | BC/ON/QC lobbying registry search |
-| `search_oversight` | 🟡 COMING | OAG/PBO/Ethics/Competition Bureau/CRTC search |
-| `search_canlii` | 🟡 COMING | Court decision search via CanLII |
-| `search_lmia` | 🟡 COMING | LMIA quarterly data search |
+| Tool | Description |
+|------|-------------|
+| `query_gov_data` | Query government data by keyword/jurisdiction |
+| `fact_check` | Check a claim against official data |
+| `get_citation` | Retrieve and verify SHA-256 citation hash |
+| `latest_releases` | Recent government data releases |
+| `search_committees` | Full-text committee intervention search — 50 HoC + Senate committees |
+| `search_corporate` | Lobbying + procurement search |
+| `search_influence` | Influence actor investigation (32 tracked actors) |
+| `search_gazette` | Canada Gazette regulation search (Parts I, II) |
+| `search_gic` | GIC appointment lookup |
+| `search_elections` | Elections Canada third-party advertiser search |
+| `search_provincial_lobbying` | Ontario/BC/AB/QC lobbying registry search |
+| `search_oversight` | OAG/PBO/Ethics/Competition Bureau/CRTC search |
+| `search_canlii` | Court decision search via CanLII |
+| `search_lmia` | LMIA quarterly data search |
+| `search_immigration` | IRCC, IRB, CBSA immigration data |
+| `search_science` | Science and research data |
+| `search_tribunals` | Federal tribunal decisions |
+| `search_lode` | Open Database of Addresses geospatial data |
+| `ai_ask` | Natural language Q&A across all datasets |
+| `ai_analyze` | AI-powered data analysis |
+| `ai_search_semantic` | Semantic search across datasets |
+| `system_health` | System health and usage metrics |
 
-> ⚠️ **4 tools are live now** (green). The remaining 10 search tools are in development — they accept queries but return empty results while the database layer is being deployed. See the [ROADMAP](../ROADMAP.md) for timeline.
+### 2. REST API
 
-### 2. REST API (If Deployed)
-
-If the api-server is deployed on the cluster, you can make direct HTTP calls:
+If the api-server is deployed on the cluster, make direct HTTP calls:
 
 ```bash
 # Search government data releases
-curl -H "Authorization: Bearer *** \
+curl -H "Authorization: Bearer <your-key>" \
   "http://maplespike-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&category=spending&limit=10"
 ```
 
@@ -77,71 +88,50 @@ cd packages/mcp-server
 pnpm start
 ```
 
-Then connect your MCP client to `stdio` transport.
-
 ---
 
 ## Five Queries Every Canadian Journalist Should Run
 
-> 🟡 These search tools are being wired — they accept queries but return empty until the database layer deploys. The examples below show the tool name and expected parameters.
+### 1. Find Recent Committee Meetings on a Topic
 
-### 1. Find Recent Committee Meetings on a Topic (Coming Soon)
+**Ask your AI agent:** *"Search committee transcripts for recent mentions of housing policy"*
 
-Ask your AI agent: **"Search committee transcripts for recent mentions of housing policy"**
+Uses `search_committees` to find interventions across all 50 committees (30 HoC + 20 Senate). Returns speaker, party, riding, date, and transcript excerpts.
 
-This uses the `search_committees` tool to find interventions across all 50 committees (30 HoC + 20 Senate). Once DB is live, this searches `committee_interventions` via `searchTranscripts()`.
+### 2. Track Lobbying Activity Around a Bill
 
-### 2. Track Lobbying Activity Around a Bill (Coming Soon)
+**Ask your AI agent:** *"Search for lobbying records related to Bill C-27"*
 
-Ask your AI agent: **"Search for lobbying records related to Bill C-27"**
+Uses `search_corporate` to query the federal lobbying registry — who's lobbying whom about what.
 
-This uses the `search_corporate` tool to query the federal lobbying registry. Requires corporate ingestion DB persistence to be deployed.
+### 3. Find Sole-Source Contracts by Department
 
-### 3. Find Sole-Source Contracts by Department (Coming Soon)
+**Ask your AI agent:** *"Find sole-source contracts awarded by Department of National Defence in the last quarter"*
 
-Ask your AI agent: **"Find sole-source contracts awarded by Department of National Defence in the last quarter"**
+Uses `search_corporate` with the `isSoleSource()` flag.
 
-This uses the `search_corporate` tool with the `isSoleSource()` flag. Requires procurement DB persistence.
+### 4. Investigate an Organization's Influence Footprint
 
-### 4. Investigate an Organization's Influence Footprint (Coming Soon)
+**Ask your AI agent:** *"Search for all data on the influence activity of the Fraser Institute"*
 
-Ask your AI agent: **"Search for all data on the influence activity of the Fraser Institute"**
+Uses `search_influence` to find committee appearances, lobbying, funding, and CRA charity status.
 
-This uses `search_influence` to find committee appearances, lobbying, funding, and CRA charity status. Requires influence tracking data pipeline deployed.
+### 5. Verify a Data Point by Citation Hash
 
-### 5. Verify a Data Point by Citation Hash (LIVE NOW)
+**Ask your AI agent:** *"Verify citation cit-001 and show the verification command"*
 
-Ask your AI agent: **"Verify citation cit-001 and show the verification command"**
-
-This uses `get_citation` to retrieve the SHA-256 hash and verify data integrity. **Works today.**
-
----
-
-## Working Tools You Can Use Right Now
-
-These 4 tools return real data immediately with no database dependency:
-
-| Tool | What it queries | Example prompt |
-|------|----------------|----------------|
-| `latest_releases` | Statistics Canada WDS API | "What are the latest StatCan data releases?" |
-| `query_gov_data` | CKAN portals (fed + provincial) | "Search open.canada.ca for GDP data" |
-| `fact_check` | StatCan + CKAN evidence | "Fact check: Canada's unemployment rate is 6.5%" |
-| `get_citation` | Citation hash store | "Verify citation cit-001" |
+Uses `get_citation` to retrieve the SHA-256 hash and verify data integrity.
 
 ---
 
 ## Citation Verification
 
-Every record includes a SHA-256 content hash. You can verify data integrity from any terminal:
+Every record includes a SHA-256 content hash. Verify data integrity from any terminal:
 
 ```bash
 # Get citation details
-curl -H "Authorization: Bearer *** \
+curl -H "Authorization: Bearer <your-key>" \
   "http://maplespike-api.ai-inference.svc.lan/v1/citation/cit-001"
-
-# Verify via sha256sum:
-echo -n "$(curl -s -H 'Authorization: Bearer *** \
-  'http://maplespike-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&limit=1')" | sha256sum
 ```
 
 ---
@@ -152,19 +142,18 @@ All responses using Canadian government data include OGL-C attribution:
 
 > *"Contains information licensed under the Open Government Licence – Canada."*
 
-When publishing stories based on MapleSpike data, include this attribution in your article or data visualization.
+When publishing stories based on MapleSpike data, include this attribution.
 
 ---
 
-## What's NOT Available (Not Built)
+## What's NOT Available (Not Yet Built)
 
-- Public signup / developer portal with API key generation
+- Public signup / developer portal with self-serve API key generation
 - Usage dashboard or billing portal
 - Web-based API explorer (Swagger UI)
 - Journalism mode with editorial overrides
-- Story pack export bundles
+- Email notifications / alerting
 - Shareable citation pages (human-readable HTML)
-- Email notifications
 
 ---
 
@@ -172,4 +161,4 @@ When publishing stories based on MapleSpike data, include this attribution in yo
 
 - **Repo:** [https://github.com/reverb256/maplespike](https://github.com/reverb256/maplespike)
 - **Docs:** See [README.md](../README.md) and [ROADMAP.md](../ROADMAP.md)
-- **MCP configuration:** See MCP server docs in `packages/mcp-server/`
+- **MCP configuration:** See `packages/mcp-server/README.md`
