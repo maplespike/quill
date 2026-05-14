@@ -130,11 +130,11 @@ The root `pnpm build` builds in correct topological order.
 
 ---
 
-## MCP Server (14 Tools)
+## MCP Server (18 Tools)
 
-All 14 tools return real data from `pipeline-data.json`. No external DB required for local dev.
+All 18 tools return real data. 14 search tools proxy through the API server (via `api-client.ts`) to guarantee MCP ↔ REST alignment. `query_gov_data` now uses the same API server endpoint as the REST API. `system_health` surfaces `/v1/health` + `/v1/usage` data. No external DB required for local dev.
 
-Tools: `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `search_committees`, `search_corporate`, `search_influence`, `search_gazette`, `search_gic`, `search_elections`, `search_provincial_lobbying`, `search_oversight`, `search_canlii`, `search_lmia`
+Tools: `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `search_committees`, `search_corporate`, `search_influence`, `search_gazette`, `search_gic`, `search_elections`, `search_provincial_lobbying`, `search_oversight`, `search_canlii`, `search_lmia`, `ai_analyze`, `ai_ask`, `ai_search_semantic`, `system_health`
 
 **Local run:**
 ```bash
