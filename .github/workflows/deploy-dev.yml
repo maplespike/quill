@@ -1,7 +1,7 @@
 # =============================================================================
 # MapleSpike — Deploy Dev
-# Builds Docker images + deploys to K3s dev namespace on merge to main
-# Tests must pass before build/deploy
+# Builds Docker images for dev on merge to main.
+# Actual K8s deployment is handled by cluster CronJob (auto-deploy).
 # =============================================================================
 name: Deploy Dev
 
@@ -41,21 +41,15 @@ jobs:
       - run: pnpm run clean
       - run: pnpm -r build
 
-      # Rebuild native modules (better-sqlite3) for CI runner's Node version
-      - run: pnpm rebuild better-sqlite3
-
       - name: Test pipeline-core
         run: pnpm test
         working-directory: packages/pipeline-core
-
       - name: Test mcp-server
         run: pnpm test
         working-directory: packages/mcp-server
-
       - name: Test engine
         run: pnpm test
         working-directory: packages/engine
-
       - name: Test sdk
         run: pnpm test
         working-directory: packages/sdk
@@ -63,11 +57,9 @@ jobs:
       - name: Build-check legal-core
         run: pnpm build
         working-directory: packages/legal-core
-
       - name: Build-check legislation
         run: pnpm build
         working-directory: packages/legislation
-
       - name: Build-check api-server
         run: pnpm build
         working-directory: packages/api-server
@@ -89,7 +81,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # ── Build images that dev actually uses ──
       - name: Build & push API (dev)
         uses: docker/build-push-action@v5
         with:
@@ -125,59 +116,3 @@ jobs:
             ghcr.io/reverb256/maplespike-portal:${{ github.sha }}
           cache-from: type=gha,scope=portal-dev
           cache-to: type=gha,mode=max,scope=portal-dev
-
-  # ── Step 3: Deploy to K3s dev namespace ─────────────────
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to K3s (dev)
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.NEXUS_HOST }}
-          port: ${{ secrets.NEXUS_PORT || '22' }}
-          username: ${{ secrets.NEXUS_USER }}
-          key: ${{ secrets.NEXUS_SSH_KEY }}
-          script: |
-            set -e
-
-            # Authenticate with GHCR to pull private images
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin 2>/dev/null || true
-
-            cd /data/projects/own/maplespike
-
-            # Update to latest code
-            git fetch origin main
-            git checkout main
-            git pull origin main
-
-            # Pull dev images from GHCR, retag for local registry
-            for img in api mcp portal; do
-              echo "=== Pulling maplespike-$img:dev ==="
-              docker pull ghcr.io/reverb256/maplespike-$img:dev 2>/dev/null || echo "Warning: pull failed for $img"
-              docker tag ghcr.io/reverb256/maplespike-$img:dev nexus:5000/maplespike-$img:dev 2>/dev/null || true
-              docker push nexus:5000/maplespike-$img:dev 2>/dev/null || \
-                podman push --tls-verify=false nexus:5000/maplespike-$img:dev 2>/dev/null || true
-            done
-
-            # Ensure dev namespace exists
-            kubectl create namespace maplespike-dev 2>/dev/null || true
-
-            # Apply all dev manifests
-            for f in k8s/dev/*.yaml; do
-              kubectl apply -f "$f" --wait=true 2>&1 || true
-            done
-
-            # Restart deployments to pick up new images
-            for deploy in maplespike-api maplespike-mcp maplespike-portal; do
-              kubectl rollout restart deployment/$deploy -n maplespike-dev --timeout=120s 2>/dev/null || true
-            done
-
-            # Wait for readiness
-            kubectl rollout status deployment/maplespike-api -n maplespike-dev --timeout=120s || true
-            kubectl rollout status deployment/maplespike-mcp -n maplespike-dev --timeout=120s || true
-            kubectl rollout status deployment/maplespike-portal -n maplespike-dev --timeout=60s || true
-
-            # Report
-            echo "=== Dev Deployment Complete ==="
-            kubectl get pods -n maplespike-dev
