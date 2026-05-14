@@ -20,12 +20,12 @@ export class D1Storage implements MapleSpikeStorage {
     this.db = db;
   }
 
-  async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
+  async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
     const keyHash = await hashApiKey(rawKey);
 
     const row = await this.db.prepare(`
       SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,
-             k.id AS key_id, k.is_active AS key_active
+             k.id AS key_id, k.is_active AS key_active, k.expires_at
       FROM api_keys k
       JOIN tenants t ON t.id = k.tenant_id
       WHERE k.key_hash = ?1
@@ -34,7 +34,12 @@ export class D1Storage implements MapleSpikeStorage {
     if (!row) return null;
     if (!row.key_active || !row.is_active) return null;
 
-    // Update last_used_at
+    const expiresAt = row.expires_at as string | null;
+    const now = new Date();
+    if (expiresAt && new Date(expiresAt) < now) {
+      return null;
+    }
+
     await this.db.prepare('UPDATE api_keys SET last_used_at = datetime(\'now\') WHERE id = ?1')
       .bind(row.key_id).run();
 
@@ -201,7 +206,7 @@ export class MemoryStorage implements MapleSpikeStorage {
     this.keyToTenant.set(keyHash, { tenantId: tenant.id, keyId });
   }
 
-  async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
+  async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
     const keyHash = await hashApiKey(rawKey);
     const mapping = this.keyToTenant.get(keyHash);
     if (!mapping) return null;
