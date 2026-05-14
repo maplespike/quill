@@ -8,7 +8,7 @@
  *   BC (leg.bc.ca)       — XML Hansard archives, committee HTML pages
  *   Alberta (assembly.ab.ca) — HTML Hansard, committee hearing pages
  *   Quebec (assnat.qc.ca)    — XML Hansard (bilingual), committee HTML
- *   Others                — HTML/PDF, stubs returning empty arrays
+ *   All 13 provinces/territories with real fetchers
  *
  * The main entry point is fetchProvincialHansard(province, date) which
  * dispatches to the appropriate province-specific fetcher.
