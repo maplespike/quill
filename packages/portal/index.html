@@ -26,13 +26,11 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+    "@type": "WebApplication",
     "name": "MapleSpike",
-    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
     "url": "https://maplespike.ca",
-    "applicationCategory": "Government Data API",
-    "foundingDate": "2025",
-    "funder": { "@type": "Organization", "name": "Reverb256" },
+    "description": "Canadian government data pipeline with verified citations",
+    "applicationCategory": "Data API",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -51,6 +49,12 @@
     .fade-in-init.s3 { animation-delay:0.3s; }
     .fade-in-init.s4 { animation-delay:0.4s; }
     .fade-in-init.s5 { animation-delay:0.5s; }
+    .demo-tabs { display:flex; gap:2px; margin-left:12px; }
+    .demo-tab { background:var(--base02); border:1px solid var(--base04); color:var(--text-secondary); padding:4px 14px; font-size:0.72rem; font-family:var(--font-mono); cursor:pointer; border-radius:4px 4px 0 0; transition:all 0.15s; }
+    .demo-tab.active { background:var(--base01); border-bottom-color:var(--base01); color:var(--text-primary); }
+    .demo-tab:hover { background:var(--base03); }
+    .demo-code-block { display:none; }
+    .demo-code-block.active { display:block; }
   </style>
 
 
@@ -97,11 +101,10 @@
     </a>
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-      <li><a href="signal.html"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
-      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
-      <li><a href="#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
@@ -127,12 +130,6 @@
   <div style="position:absolute;top:0;left:0;right:0;z-index:0;pointer-events:none;height:1px;background:linear-gradient(90deg,rgba(0,0,0,0),rgba(212,160,23,0.3),rgba(0,0,0,0));"></div>
 
   <div class="hero-watermark" style="z-index:1;"></div>
-
-  <div class="product-badges fade-in-init s1">
-    <span class="product-badge"><span class="product-icon">▦</span> DATA</span>
-    <span class="product-badge"><span class="product-icon">◐</span> SIGNAL</span>
-    <span class="product-badge"><span class="product-icon">✦</span> ASK</span>
-  </div>
 
   <h1 class="fade-in-init s2">
     Track every government decision.<br>
@@ -168,10 +165,14 @@
         <span class="curl-demo-dot yellow"></span>
         <span class="curl-demo-dot green"></span>
       </div>
-      <span class="curl-demo-title">Quickstart — curl</span>
-      <button class="copy-btn" onclick="copyCurl()" style="opacity:1;position:relative;top:0;right:0;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:0.7rem;color:var(--text-muted);cursor:pointer;transition:all var(--transition);font-family:var(--font-mono);">Copy</button>
+      <div class="demo-tabs">
+        <button class="demo-tab active" data-lang="curl">curl</button>
+        <button class="demo-tab" data-lang="ts">TypeScript SDK</button>
+        <button class="demo-tab" data-lang="py">Python SDK</button>
+      </div>
+      <button class="copy-btn" onclick="copyActiveTabCode()" style="opacity:1;position:relative;top:0;right:0;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:0.7rem;color:var(--text-muted);cursor:pointer;transition:all var(--transition);font-family:var(--font-mono);">Copy</button>
     </div>
-    <div class="curl-demo-body" id="curl-demo-body">
+    <div class="curl-demo-body demo-code-block active" id="demo-curl">
       <span class="comment">// Make your first MapleSpike API call</span><br>
       <span class="prompt">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br>
       &nbsp;&nbsp;-H <span class="string">"x-api-key: YOUR_KEY"</span> \<br>
@@ -194,6 +195,30 @@
       &nbsp;&nbsp;}<br>
       }</span>
       </div>
+    </div>
+    <!-- TypeScript SDK code block -->
+    <div class="demo-code-block" id="demo-ts">
+      <span class="comment">// Make your first MapleSpike API call with TypeScript SDK</span><br>
+      import { MapleSpike } from "@maplespike/sdk"<br>
+      <br>
+      const ms = new MapleSpike({ apiKey: "ms_..." })<br>
+      const releases = await ms.query("gov", "releases", {<br>
+      &nbsp;&nbsp;source: "committees", limit: 3<br>
+      })<br>
+      console.log(releases.data)<br>
+      console.log(releases.citation)<br>
+    </div>
+    <!-- Python SDK code block -->
+    <div class="demo-code-block" id="demo-py">
+      <span class="comment"># Make your first MapleSpike API call with Python SDK</span><br>
+      from maplespike import MapleSpike<br>
+      <br>
+      ms = MapleSpike(api_key="ms_...")<br>
+      releases = ms.query("gov", "releases",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;source="committees", limit=3<br>
+      )<br>
+      print(releases.data)<br>
+      print(releases.citation)<br>
     </div>
     <div class="curl-demo-footer">
       <button class="btn btn-ghost btn-sm curl-run-btn" onclick="runCurlDemo()">▶ Run</button>
@@ -587,70 +612,11 @@
     <span style="color:var(--text-muted);font-size:0.85rem;">Pricing</span>
   </div>
   <div class="section-header fade-in">
-    <h2>Simple, transparent pricing</h2>
-    <p>Start for free. Scale as you grow. No hidden fees, no contracts, no surprise bills.</p>
+    <h2>Simple, transparent pricing.</h2>
+    <p>Free tier for journalists and researchers. Pro for production. Business for teams. No hidden fees, no contracts.</p>
   </div>
-
-  <div class="pricing-toggle fade-in">
-    <span class="toggle-label" data-off>Monthly</span>
-    <div class="toggle-track" role="button" tabindex="0" aria-label="Toggle annual pricing"></div>
-    <span class="toggle-label" data-on>Annual <span class="save-badge">Save ~15%</span></span>
-  </div>
-
-  <div class="pricing-grid">
-    <div class="pricing-card fade-in">
-      <div class="plan-name">Public</div>
-      <div class="price" data-monthly="$0" data-yearly="$0"><span class="amount">$0</span> <span class="period">/mo</span></div>
-      <div class="description">Free civic access for all Canadians. Transparency for everyone.</div>
-      <ul class="features">
-        <li>1,000 API calls/month</li>
-        <li>REST + MCP access</li>
-        <li>Community support</li>
-        <li>Attribution required</li>
-        <li>Rate-limited (10 req/s)</li>
-      </ul>
-      <a href="workspace.html" class="btn btn-secondary">Get Started</a>
-    </div>
-
-    <div class="pricing-card featured fade-in stagger-1">
-      <div class="popular-badge">POPULAR</div>
-      <div class="plan-name">Civic</div>
-      <div class="price" data-monthly="$49" data-yearly="$499" data-months-free="2"><span class="amount">$49</span> <span class="period">/mo</span></div>
-      <div class="description">For journalists, researchers, and civic tech teams.</div>
-      <ul class="features">
-        <li>50,000 API calls/month</li>
-        <li>Priority rate limits (100 req/s)</li>
-        <li>Bias analysis &amp; trust scores</li>
-        <li>SHA-256 citation hashes</li>
-        <li>Email support (48h SLA)</li>
-      </ul>
-      <a href="mailto:maplespike@reverb256.ca" class="btn btn-primary">Subscribe →</a>
-    </div>
-
-    <div class="pricing-card fade-in stagger-2">
-      <div class="plan-name">Enterprise</div>
-      <div class="price" data-monthly="$199" data-yearly="$1,999" data-months-free="2"><span class="amount">$199</span> <span class="period">/mo</span></div>
-      <div class="description">For newsrooms, civic orgs, and production apps.</div>
-      <ul class="features">
-        <li>250,000 API calls/month</li>
-        <li>Custom rate limits (500 req/s)</li>
-        <li>Audit log export &amp; provenance chain</li>
-        <li>Custom MCP tool definitions</li>
-        <li>SLA with 24h support</li>
-      </ul>
-      <a href="mailto:maplespike@reverb256.ca" class="btn btn-secondary">Subscribe →</a>
-    </div>
-  </div>
-
-  <div class="pricing-enterprise fade-in">
-    <h3>Need more?</h3>
-    <p>Enterprise tier for government agencies and large organizations. Self-hosted option, unlimited calls, dedicated MCP server, full audit and provenance package with SLA.</p>
-    <a href="mailto:maplespike@reverb256.ca" class="btn btn-primary">Contact Sales</a>
-  </div>
-
-  <div class="pricing-footer fade-in">
-    <span class="badge badge-green">&#x2713; AIDA-compliant audit trails</span>
-    <span class="badge" style="margin-left:8px;display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;padding:3px 12px;border-radius:99px;background:var(--base20);color:var(--accent-cyan);border:1px solid rgba(8,145,178,0.2);font-family:var(--font-mono);">Bill C-27 ready</span>
+  <div style="text-align:center;padding:32px 0;">
+    <a href="pricing.html" class="btn btn-primary btn-hero" style="font-size:1.05rem;padding:16px 40px;">See Full Pricing →</a>
   </div>
 </section>
 
@@ -700,7 +666,7 @@
       <h4>Product</h4>
       <ul>
         <li><a href="explorer.html">Data Sources</a></li>
-        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
         <li><a href="docs.html">Documentation</a></li>
         <li><a href="workspace.html">Workspace</a></li>
       </ul>
@@ -949,14 +915,27 @@
     });
   }
 
-  // ── Copy Curl ──
-  window.copyCurl = function() {
-    const curlText = `curl -s https://api.maplespike.ca/v1/gov/search \\
-  -H "x-api-key: YOUR_KEY" \\
-  -G -d "query=housing" \\
-  -d "jurisdiction=federal" \\
-  -d "limit=2" | jq .`;
-    navigator.clipboard.writeText(curlText).then(() => {
+  // ── Demo Tab Switching ──
+  function setupDemoTabs() {
+    document.querySelectorAll('.demo-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.demo-code-block').forEach(b => b.classList.remove('active'));
+        const block = document.getElementById('demo-' + tab.dataset.lang);
+        if (block) block.classList.add('active');
+      });
+    });
+  }
+
+  // ── Copy Active Tab Code ──
+  window.copyActiveTabCode = function() {
+    const active = document.querySelector('.demo-tab.active');
+    if (!active) return;
+    const block = document.getElementById('demo-' + active.dataset.lang);
+    if (!block) return;
+    const text = block.textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
       const btn = document.querySelector('.curl-demo .copy-btn');
       const orig = btn.textContent;
       btn.textContent = 'Copied!';
@@ -972,6 +951,7 @@
   setupStatCounters();
   setupDemoBox();
   setupPricingToggle();
+  setupDemoTabs();
   fetchLiveStats();
   // Refresh stats every 60s
   setInterval(fetchLiveStats, 60000);

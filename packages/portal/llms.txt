@@ -1,78 +1,28 @@
-# CivInt Canada — API & Documentation Index
+# MapleSpike — Canadian Government Data API
+> Primary-source infrastructure for AI agents that cite.
 
-> CivInt Canada is Canada's sovereign, AI-native government data layer: one REST + MCP API for
-> government datasets (Parliamentary committees, Lobbying Registry, Canada Gazette, CanadaBuys,
-> federal/provincial data portals) with built-in SHA-256 verification and provenance audit trails.
+## Docs
+- Docs: https://maplespike.ca/docs
+- API Reference: https://maplespike.ca/docs#api-reference
+- Workspace: https://maplespike.ca/workspace
+- Pricing: https://maplespike.ca/pricing
 
-- **Pipeline Source:** https://github.com/reverb256/civint
-- **API Base URL:** https://civint.lan/api/v1/ (internal network)
-- **MCP Endpoint:** https://civint.lan/mcp (SSE transport, internal network)
-- **OpenAPI Spec:** /v1/openapi.json
-- **GitHub:** https://github.com/reverb256/civint
-- **License:** Attribution required. Government data under OGL-C.
+## API
+Base URL: https://api.maplespike.ca/v1
+Auth: X-API-Key header
+Response format: { success, data, quality, citation, meta }
 
----
+### Endpoints
+- GET /v1/gov/releases — Latest government data releases
+- GET /v1/gov/search?query= — Full-text search across all sources
+- GET /v1/citation/:hash — Retrieve citation by SHA-256 hash
 
-## Pipeline Modules
-
-CivInt runs 13 data ingestion modules on your K3s cluster via cron jobs:
-
-| Module | Source | Schedule |
-|--------|--------|----------|
-| Committees (HoC) | ourcommons.ca XML | Daily |
-| Senate Committees | sencanada.ca XML | Daily |
-| Lobbying Registry | lobbycanada.gc.ca CSV | Monthly |
-| Ontario Lobbying | lobbying.ontario.ca CSV | Daily |
-| Procurement | open.canada.ca / CanadaBuys | Daily |
-| Canada Gazette | gazette.gc.ca | Daily |
-| GIC Appointments | open.canada.ca | Weekly |
-| Election Advertising | elections.ca | Per election |
-| Oversight Bodies | OAG, PBO, Ethics, CRTC | Varies |
-| Court Decisions | canlii.ca API | Daily |
-| LMIA Data | open.canada.ca | Quarterly |
-| Influence Actors | CRA charities, committee data | Weekly |
-| Entity Resolution | Cross-source engine | On sweep |
-
----
-
-## MCP Tools (14 tools)
-
-- `query_gov_data` — Query government data (StatCan, CKAN, provincial portals)
-- `fact_check` — Check a claim against government data
-- `get_citation` — Retrieve/verify SHA-256 citation hash
-- `latest_releases` — Latest government data releases and indicators
-- `search_committees` — House and Senate committee evidence, transcripts, proceedings
-- `search_corporate` — Lobbying registry, procurement contracts, executive statements
-- `search_influence` — Influence actors, CRA charities, think tanks, funding flows
-- `search_gazette` — Canada Gazette proposed and enacted regulations
-- `search_gic` — Governor-in-Council appointments, salary ranges
-- `search_elections` — Elections Canada third-party advertiser registry
-- `search_provincial_lobbying` — Ontario, BC, Quebec lobbying registries
-- `search_oversight` — OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
-- `search_canlii` — Federal and provincial court decisions, citation graphs
-- `search_lmia` — LMIA employer data, TFW program usage by employer
-
----
-
-## Documentation
-
-- [Docs](/docs.html) — Full documentation
-- [Quickstart](/docs.html#quickstart) — Get started in 3 steps
-- [Dashboard](/dashboard.html) — Developer portal
-
-## Plans & Pricing
-
-| Tier | Monthly | Annual | Rate Limit |
-|------|---------|--------|------------|
-| Free | $0 | $0 | 10 req/s |
-| Pro | $49/mo | $499/yr | 100 req/s |
-| Business | $199/mo | $1,999/yr | 500 req/s |
-| Enterprise | Custom | Custom | Custom |
-
-## Full documentation
-
-All documentation is available as single-file Markdown at /llms-full.txt, or browse individual pages:
-
-- /docs.html — Quickstart, MCP setup, API reference, FAQ
-- /dashboard.html — Developer dashboard
-- /index.html — Landing page, features, pricing
+### Data Categories
+- committees — House of Commons and Senate committee evidence
+- lobbying — Federal lobbying registry communications
+- procurement — CanadaBuys contract awards and tenders
+- gazette — Canada Gazette Parts I, II, III
+- elections — Third-party advertiser registry, election data
+- oversight — OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
+- courts — Federal court decisions via CanLII
+- influence — Tracked IOs, NGOs, think tanks

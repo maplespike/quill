@@ -1,0 +1,17 @@
+{
+  "name": "MapleSpike",
+  "description": "Canadian government data API with SHA-256 verified citations",
+  "url": "https://maplespike.ca",
+  "tools": [
+    {
+      "name": "query_gov_data",
+      "description": "Search across all Canadian government data sources",
+      "parameters": { "query": "string", "source": "string", "limit": "number" }
+    },
+    {
+      "name": "get_citation",
+      "description": "Verify a data point by its SHA-256 citation hash",
+      "parameters": { "hash": "string" }
+    }
+  ]
+}
