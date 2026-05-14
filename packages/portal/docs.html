@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Docs — MapleSpike</title>
+  <title>MapleSpike — Docs</title>
   <meta name="description" content="MapleSpike documentation — quickstart, API reference, MCP setup, pipeline architecture.">
 
   <link rel="stylesheet" href="styles.css">
@@ -28,8 +28,7 @@
     </a>
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-      <li><a href="signal.html"><span class="nav-bracket">[</span>SIGNAL<span class="nav-bracket">]</span></a></li>
-      <li><a href="ask.html"><span class="nav-bracket">[</span>ASK<span class="nav-bracket">]</span></a></li>
+
       <li><a href="#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li><a href="docs.html" class="active"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
@@ -43,6 +42,7 @@
 
 <div class="docs-page" style="max-width:860px;">
 
+  <!-- ═══ 00: QUICKSTART ═══ -->
   <div class="section-bracket fade-in-init s1">
     <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
     <span style="color:var(--text-muted);font-size:0.85rem;">Quickstart</span>
@@ -50,156 +50,246 @@
   </div>
   <h1 class="fade-in-init s2">One API key.<br>Every Canadian government source. Every response cited.</h1>
 
+  <p style="color:var(--text-secondary);margin:16px 0 24px;">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
+
   <div class="code-block" style="margin:24px 0;">
 <span style="color:var(--text-muted);">// 30-second quickstart</span><br><br>
-<span style="color:var(--text-muted);">$</span> npm install @maplespike/sdk<br><br>
-<span style="color:var(--text-muted);">// Initialize and query</span><br>
-import { MapleSpike } from <span style="color:#D4A017;">'@maplespike/sdk'</span><br>
-const ms = new MapleSpike({ apiKey: <span style="color:#D4A017;">'ms_live_...'</span> })<br><br>
-const result = await ms<br>
-&nbsp;&nbsp;.agent(<span style="color:#D4A017;">'committees'</span>)<br>
-&nbsp;&nbsp;.action(<span style="color:#D4A017;">'search'</span>, { query: <span style="color:#D4A017;">'housing'</span> })<br><br>
-console.log(result.data)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--text-muted);">// structured data</span><br>
-console.log(result.quality)&nbsp;&nbsp;<span style="color:var(--text-muted);">// freshness, confidence</span><br>
-console.log(result.citation)&nbsp;<span style="color:var(--text-muted);">// source_url, license, hash</span>
-  </div>
-
-  <div class="info-box" style="background:var(--accent-dim);border-left:3px solid var(--accent);padding:12px 16px;border-radius:var(--radius-sm);margin:20px 0;">
-    <strong style="color:var(--accent);">No key? Use mock mode.</strong>
-    <span style="color:var(--text-secondary);font-size:0.9rem;"> Pass <code style="font-size:0.85em;">_mock=true</code> on any API endpoint to get sample data. Free on every plan, no upstream calls.</span>
-  </div>
-
-  <p style="margin-top:24px;">Or with curl:</p>
-  <div class="code-block">
-<span style="color:var(--text-muted);">$</span> curl https://api.maplespike.ca/v1/gov/search \<br>
+<span style="color:var(--text-muted);">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br>
 &nbsp;&nbsp;-H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> \<br>
-&nbsp;&nbsp;-d <span style="color:#D4A017;">'{"query":"housing","_limit":3}'</span><br><br>
+&nbsp;&nbsp;-G -d <span style="color:#D4A017;">"query=housing"</span> \<br>
+&nbsp;&nbsp;-d <span style="color:#D4A017;">"jurisdiction=federal"</span> \<br>
+&nbsp;&nbsp;-d <span style="color:#D4A017;">"_limit=2"</span> | jq .<br><br>
 {<br>
 &nbsp;&nbsp;<span style="color:#D4A017;">"success"</span>: true,<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"data"</span>: { <span style="color:#D4A017;">"committees"</span>: [...] },<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"quality"</span>: { <span style="color:#D4A017;">"freshness_seconds"</span>: 47, <span style="color:#D4A017;">"confidence"</span>: <span style="color:#D4A017;">"high"</span> },<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: { <span style="color:#D4A017;">"license"</span>: <span style="color:#D4A017;">"OGL-C"</span>, <span style="color:#D4A017;">"data_hash"</span>: <span style="color:#D4A017;">"sha256:a1f3..."</span> }<br>
-}
-  </div>
-
-  <!-- Pipeline -->
-  <div class="section-bracket fade-in-init s3" style="margin-top:48px;">
-    <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Pipeline</span>
-  </div>
-  <h2>How data flows</h2>
-  <p>Each of the <strong>28 data modules</strong> follows the same 4-stage pipeline:</p>
-  <ol style="color:var(--text-secondary);line-height:1.9;">
-    <li><strong>Ingestion</strong> — Dedicated fetcher downloads from each source (XML, CSV, RSS, JSON, HTML)</li>
-    <li><strong>Parsing</strong> — Raw data is cleaned and structured into typed records with consistent fields</li>
-    <li><strong>Verification</strong> — Every record gets a SHA-256 content hash for independent citation verification</li>
-    <li><strong>Cross-referencing</strong> — Entity resolution links people and organizations across all sources, detecting patterns that become signals</li>
-  </ol>
-  <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:8px;">CLI: <code style="font-family:var(--font-mono);">pnpm --filter @maplespike/engine sweep --full</code> — runs all modules.</p>
-
-  <!-- API Reference -->
-  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
-    <span class="bracket">[</span><span class="num">02</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
-  </div>
-
-  <h2>Endpoints</h2>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Method</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Path</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Description</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/health</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">System status and usage</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/gov/search?query=</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Search government sources</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/citation/:hash</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Verify a data point by hash</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/usage</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Usage and quota</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">List API keys</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">POST</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Create API key</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">/v1/auth/me</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Current user profile</td></tr>
-  </table>
-
-  <h2>Response envelope</h2>
-  <p>Every endpoint returns the same structure:</p>
-  <div class="code-block">
-{<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"success"</span>: true,<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"data"</span>: { /* structured result */ },<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"meta"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"authMethod"</span>: <span style="color:#0891B2;">"api-key"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"creditsCharged"</span>: 0,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"cacheStatus"</span>: <span style="color:#0891B2;">"hit"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"durationMs"</span>: 1<br>
-&nbsp;&nbsp;},<br>
-&nbsp;&nbsp;<span style="color:#D4A017;">"quality"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"freshness_seconds"</span>: 47,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"confidence"</span>: <span style="color:#0891B2;">"high"</span><br>
-&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"data"</span>: { <span style="color:#D4A017;">"releases"</span>: [...] },<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"quality"</span>: { <span style="color:#D4A017;">"freshness_seconds"</span>: 47, <span style="color:#D4A017;">"confidence"</span>: <span style="color:#10B981;">"high"</span> },<br>
 &nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_name"</span>: <span style="color:#0891B2;">"open.canada.ca"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span><br>
 &nbsp;&nbsp;}<br>
 }
   </div>
 
-  <h2>Token optimization</h2>
-  <p>Trim responses for AI agents — every token saved is money earned:</p>
+  <div class="info-box" style="background:var(--accent-dim);border-left:3px solid var(--accent);padding:12px 16px;border-radius:var(--radius-sm);margin:0 0 20px;">
+    <strong style="color:var(--accent);">No key?</strong>
+    <span style="color:var(--text-secondary);font-size:0.9rem;">Get one free at <a href="workspace.html" style="color:var(--accent-cyan);">workspace.html</a> — 1,000 calls/month included. Or pass <code style="font-size:0.85em;">_mock=true</code> for sample data with no upstream hit.</span>
+  </div>
+
+  <!-- ═══ 01: AUTHENTICATION ═══ -->
+  <div class="section-bracket fade-in-init s3" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Authentication</span>
+  </div>
+  <h2>API keys and how to use them</h2>
+  <p>Two ways to authenticate — both issued from the same <a href="workspace.html" style="color:var(--accent-cyan);">workspace</a>.</p>
+
+  <h3>API Key (recommended for servers)</h3>
+  <p>Create a key from the workspace, then send it as the <code style="font-size:0.85em;">X-API-Key</code> header:</p>
+  <div class="code-block">
+<span style="color:var(--text-muted);">$</span> curl -H <span style="color:#D4A017;">"X-API-Key: ms_live_..."</span> https://api.maplespike.ca/v1/health
+  </div>
+
+  <h3>JWT (recommended for user-facing apps)</h3>
+  <p>Get a JWT via <code style="font-size:0.85em;">POST /v1/auth/login</code>, then send as Bearer token:</p>
+  <div class="code-block">
+<span style="color:var(--text-muted);">$</span> curl -H <span style="color:#D4A017;">"Authorization: Bearer eyJhbGc..."</span> https://api.maplespike.ca/v1/me
+  </div>
+
+  <p style="color:var(--text-secondary);font-size:0.9rem;">Keys are hashed with SHA-256 at rest. Rotate or revoke from the workspace at any time.</p>
+
+  <!-- ═══ 02: REQUEST + RESPONSE ═══ -->
+  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">02</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Request + Response</span>
+  </div>
+  <h2>One envelope. Every endpoint.</h2>
+  <p>Every response carries the same structure — data, quality score, citation metadata, and usage info. Your agent always knows where the answer came from.</p>
+
+  <h3>Response shape</h3>
+  <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"success"</span>: true,<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"data"</span>: { /* structured payload */ },<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"quality"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"freshness_seconds"</span>: 47,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"confidence"</span>: <span style="color:#10B981;">"high"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"certainty_score"</span>: 0.923<br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_name"</span>: <span style="color:#0891B2;">"open.canada.ca"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_url"</span>: <span style="color:#0891B2;">"https://..."</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span><br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"meta"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"creditsCharged"</span>: 0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"cacheStatus"</span>: <span style="color:#0891B2;">"hit"</span><br>
+&nbsp;&nbsp;}<br>
+}
+  </div>
+
+  <!-- ═══ 03: ENDPOINTS ═══ -->
+  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
+  </div>
+  <h2>REST endpoints</h2>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Method</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Path</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Description</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/health</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">System status and usage</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/gov/releases</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Latest government data releases</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/gov/search?query=</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Search across all sources</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/citation/:hash</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Verify a data point by SHA-256 hash</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/usage</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Usage and quota info</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">List API keys</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:#10B981;">POST</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/keys</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Create a new API key</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">GET</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);font-family:var(--font-mono);">/v1/auth/me</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Current user profile</td></tr>
+  </table>
+
+  <!-- ═══ 04: TOKEN OPTIMIZATION ═══ -->
+  <div class="section-bracket fade-in-init s4" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Token Optimization</span>
+  </div>
+  <h2>Trim responses for AI agents</h2>
+  <p>Every token saved is money earned. These params go in the same request body — they're extracted before validation.</p>
   <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
     <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Param</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Type</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Effect</th></tr>
     <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_fields</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">string[]</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Return only named fields</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_format</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">full|compact</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">compact strips nulls</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_format</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">"full" \ "compact"</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Compact strips null/empty</td></tr>
     <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_limit</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">number</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Cap array results</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_page</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">number</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Pagination offset</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_summary</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">boolean</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Return aggregates, not rows</td></tr>
     <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">_mock</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">true</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Sample data, free, no upstream hit</td></tr>
   </table>
 
-  <!-- MCP Setup -->
+  <!-- ═══ 05: CITATION CONTRACT ═══ -->
   <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
-    <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">MCP Setup</span>
-    <span class="badge badge-cyan" style="margin-left:8px;font-size:0.65rem;">18 TOOLS</span>
+    <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Citation Contract</span>
   </div>
-  <h2>Connect from any AI client</h2>
-  <p>MapleSpike exposes <strong>18 tools</strong> (15 data + 3 AI) through the Model Context Protocol. Add this to your MCP client config:</p>
+  <h2>Every response. Every endpoint. Verifiable.</h2>
+  <p>Data, Signal, Ask — all return the same citation block. One integration gives you auditable AI across the stack.</p>
+
+  <div class="code-block">
+{<br>
+&nbsp;&nbsp;<span style="color:#D4A017;">"citation"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_name"</span>: <span style="color:#0891B2;">"open.canada.ca"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"source_url"</span>: <span style="color:#0891B2;">"https://open.canada.ca/..."</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"retrieved_at"</span>: <span style="color:#0891B2;">"2026-05-13T12:00Z"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"data_hash"</span>: <span style="color:#0891B2;">"sha256:a1f3..."</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"license"</span>: <span style="color:#0891B2;">"OGL-C"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"update_frequency"</span>: <span style="color:#0891B2;">"daily"</span><br>
+&nbsp;&nbsp;}<br>
+}
+  </div>
+
+  <p><code style="font-size:0.85em;">data_hash</code> is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.</p>
+
+  <!-- ═══ 06: MCP TOOLS ═══ -->
+  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">06</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">MCP Tools</span>
+    <span class="badge badge-cyan" style="margin-left:8px;font-size:0.65rem;">14 TOOLS</span>
+  </div>
+  <h2>Data tools for AI agents</h2>
+  <p>All tools return the same <code style="font-size:0.85em;">{ data, quality, citation }</code> envelope. Connect any MCP client:</p>
+
   <div class="code-block">
 {<br>
 &nbsp;&nbsp;<span style="color:#D4A017;">"mcpServers"</span>: {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"maplespike"</span>: {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"command"</span>: <span style="color:#0891B2;">"npx"</span>,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"args"</span>: [<span style="color:#0891B2;">"@maplespike/mcp-server"</span>]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"args"</span>: [<span style="color:#0891B2;">"@maplespike/mcp"</span>],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#D4A017;">"env"</span>: { <span style="color:#D4A017;">"MAPLESPIKE_API_KEY"</span>: <span style="color:#0891B2;">"ms_live_..."</span> }<br>
 &nbsp;&nbsp;&nbsp;&nbsp;}<br>
 &nbsp;&nbsp;}<br>
 }
   </div>
-  <p style="margin-top:8px;">Works with Claude Desktop, ChatGPT, Cursor, Windsurf, Gemini, and any MCP-compatible client. See the <a href="agents.html" style="color:var(--accent);">AI Tools page</a> for per-platform setup.</p>
-
-  <!-- Architecture -->
-  <div class="section-bracket fade-in-init s6" style="margin-top:48px;">
-    <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">Architecture</span>
-  </div>
-  <h2>Open source, self-hosted</h2>
-  <p>Everything runs on your own K3s cluster. No data leaves your infrastructure.</p>
-  <div class="code-block">
-maplespike/<br>
-├── packages/<br>
-│   ├── pipeline-core/&nbsp;&nbsp;# 28 ingestion modules + verification + audit<br>
-│   ├── engine/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Entity resolution, graph, signals, briefs<br>
-│   ├── api-server/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# REST API with Katzilla-quality envelope<br>
-│   ├── mcp-server/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 18 MCP tools for AI agents<br>
-│   ├── sdk/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# TypeScript SDK (zero deps)<br>
-│   ├── sdk-python/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Python SDK (zero deps)<br>
-│   ├── portal/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# This dashboard (static HTML)<br>
-│   └── pretext-civic/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Chart component library<br>
-└── flake.nix&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Nix build for container deployment
-  </div>
 
   <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
-    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Layer</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Stack</th></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Ingestion</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">TypeScript, Node.js, undici</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">AI Inference</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Local AI Gateway — 122 models</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Vector Search</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Qdrant (maplespike collection, 2048-dim)</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">API</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Node.js HTTP, in-memory cache</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">SDKs</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">TypeScript + Python, zero deps</td></tr>
-    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Infrastructure</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">K3s on NixOS, Caddy reverse proxy</td></tr>
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Category</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Tool</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Description</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">query_gov_data</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Search StatCan, CKAN, provincial portals</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">fact_check</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Verify claims against official data</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">get_citation</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Retrieve SHA-256 citation hash</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">General</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">latest_releases</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Recent government releases</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Parliament</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_committees</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">HoC + Senate committees, evidence, in-camera</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Corporate</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_corporate</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Lobbying, procurement, exec statements</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Influence</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_influence</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">32 tracked actors, funding, connections</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Regulatory</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_gazette</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Canada Gazette Parts I+II regulations</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Appointments</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_gic</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Governor-in-Council appointments</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Elections</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_elections</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Third-party advertising, spending</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Provincial</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_provincial_lobbying</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">ON lobbying registry (BC/QC stubbed)</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Oversight</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_oversight</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">OAG, PBO, Ethics, CB, CRTC reports</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Legal</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_canlii</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Court decisions, citations via CanLII</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono);">Labour</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">search_lmia</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">LMIA quarterly data, TFW program</td></tr>
   </table>
 
-  <p style="margin-top:16px;">Open source: <a href="https://github.com/reverb256/maplespike" style="color:var(--accent);">github.com/reverb256/maplespike</a> — AGPL-3.0 (pipeline) / MIT (SDKs, portal).</p>
+  <!-- ═══ 07: RATE LIMITS ═══ -->
+  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">07</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Rate Limits</span>
+  </div>
+  <h2>Per-plan caps</h2>
+  <p>Rate limits are per-second and per-month. Hitting the per-second limit returns 429 with a Retry-After header.</p>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Plan</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Per sec</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Per month</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Overage</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Free</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">2/s</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">1,000</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">Hard cap (402)</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Pro</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">25/s</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">50,000</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">$1/1K (planned)</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Business</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">100/s</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">250,000</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">$0.80/1K (planned)</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Enterprise</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Custom</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Custom</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Negotiated</td></tr>
+  </table>
+
+  <!-- ═══ 08: ERRORS ═══ -->
+  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">08</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Errors</span>
+  </div>
+  <h2>One shape. Specific categories.</h2>
+  <p>All error responses carry <code style="font-size:0.85em;">success: false</code>, a stable error code, and a human-readable message.</p>
+  <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:0.85rem;">
+    <tr><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Code</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Status</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Retry</th><th style="text-align:left;padding:8px 12px;color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500;font-family:var(--font-mono);font-size:0.75rem;">Meaning</th></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">auth_invalid</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">401</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Fix API key or JWT</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">rate_limited</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">429</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--success);">Yes</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Respect Retry-After header</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">quota_exhausted</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">402</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Upgrade plan or wait for reset</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">input_invalid</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--warning);">400</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Check input schema</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">source_unavailable</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--warning);">502</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--success);">Yes</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Upstream source down, retry later</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">not_found</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-muted);">404</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">No</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Resource doesn't exist</td></tr>
+    <tr><td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:var(--font-mono);color:var(--accent-cyan);">server_error</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--accent);">500</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--success);">Yes</td><td style="padding:6px 12px;border-bottom:1px solid var(--border);color:var(--text-secondary);">Backoff, report if persistent</td></tr>
+  </table>
+
+  <!-- ═══ 09: FAQ ═══ -->
+  <div class="section-bracket fade-in-init s5" style="margin-top:48px;">
+    <span class="bracket">[</span><span class="num">09</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">FAQ</span>
+  </div>
+  <h2>Common questions</h2>
+
+  <div style="margin:16px 0;">
+    <p><strong style="color:var(--text-primary);">Do I need a credit card to start?</strong></p>
+    <p style="color:var(--text-secondary);font-size:0.9rem;">No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit.</p>
+  </div>
+
+  <div style="margin:16px 0;">
+    <p><strong style="color:var(--text-primary);">What makes the citations verifiable?</strong></p>
+    <p style="color:var(--text-secondary);font-size:0.9rem;">Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw.</p>
+  </div>
+
+  <div style="margin:16px 0;">
+    <p><strong style="color:var(--text-primary);">Which AI frameworks are supported?</strong></p>
+    <p style="color:var(--text-secondary);font-size:0.9rem;">MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs.</p>
+  </div>
+
+  <div style="margin:16px 0;">
+    <p><strong style="color:var(--text-primary);">How fresh is the data?</strong></p>
+    <p style="color:var(--text-secondary);font-size:0.9rem;">Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field so your agent always knows.</p>
+  </div>
+
+  <div style="margin:16px 0;">
+    <p><strong style="color:var(--text-primary);">Is my API key secure?</strong></p>
+    <p style="color:var(--text-secondary);font-size:0.9rem;">Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.</p>
+  </div>
 
 </div>
 
