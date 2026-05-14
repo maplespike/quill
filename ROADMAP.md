@@ -1,9 +1,9 @@
 # MapleSpike Pipeline — Master Roadmap
 
-> **Updated:** 2026-05-13 (pricing page, nav coherence, Katzilla content gap analysis)
+> **Updated:** 2026-05-14 (module registry refactor, MCP data access unification, .d.ts cleanup)
 > **Repository:** `/data/projects/own/maplespike`
 > **Working branch:** main
-> **Deployment target:** GitHub Pages (portal) + K3s cluster (backend)
+> **Deployment target:** K3s cluster (api.maplespike.lan, mcp.maplespike.lan, civint.lan)
 
 ---
 
@@ -23,10 +23,10 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| ✅ Monorepo structure (pnpm workspace) | DONE | 6 packages: pipeline-core, engine, mcp-server, api-server, portal, pretext-civic |
+| ✅ Monorepo structure (pnpm workspace) | DONE | 10 packages: pipeline-core, engine, mcp-server, api-server, portal, pretext-civic, sdk, sdk-python, legal-core, legislation |
 | ✅ TypeScript + strict mode | DONE | ES2022 target, bundler resolution |
-| ✅ Pipeline core barrel exports | DONE | Single `@maplespike/pipeline-core` entry point |
-| ✅ Build compilation | DONE | `tsc -b` clean across all packages |
+| ✅ Pipeline core barrel exports → module registry | DONE | 1707→91 lines, `getModule()` / `runModule()` API replaces 230 individual exports |
+| ✅ Build compilation | DONE | `tsc -b` clean across all packages — 112,910 lines TS |
 | ✅ Core ingestion: RSS feeds | DONE | Parse, hash, deduplicate |
 | ✅ Core ingestion: StatCan/CKAN | DONE | `fetchStatCanReleases`, `fetchCKANPackages` |
 | ✅ Verification hashing (SHA-256) | DONE | Citation integrity for every record |
@@ -34,6 +34,11 @@
 | ✅ Trust scoring (>=60% threshold) | DONE | Bias/foreign-influence detection |
 | ✅ 5GW analysis module | DONE | 730-line analysis engine for fifth-generation warfare indicators |
 | ✅ Unified schema (1042+ lines, 38 tables) | DONE | articles, gov_releases, committees, corporate, influence, gazette, gic, oversight, provincial-lobbying, elections, canlii, lmia, plus auth/users |
+| ✅ 61 ingestion modules, 20 categories | DONE | All registered in module registry, discoverable via getModulesByCategory() |
+| ✅ Module registry (registry.ts) | DONE | 61 modules with metadata, dynamic import, runModule() dispatch |
+| ✅ 15 generated .d.ts files removed | DONE | All from engine/src — were build artifacts committed to source |
+| ✅ Dynamic import in dev-server | DONE | SQLite native module only loaded when storage=sqlite |
+| ✅ API server + MCP server deployed | DONE | K8s pods on nexus, NodePorts 30882 (API) + 32537 (MCP) |
 
 ---
 
@@ -97,6 +102,7 @@
 | ✅ Pure nix build | DONE | No `--impure` flags |
 | ✅ 14 data tools operational | DONE | All return real data from pipeline-data.json with live-fetch fallbacks |
 | ✅ Bilingual tool descriptions | DONE | All 14 tools have `descriptions: { 'fr-CA': '...' }`, locale-aware via Accept-Language |
+| ✅ Unified MCP data access | DONE | All 14 tools route through `api-client.ts`. `pipeline-data.ts` reduced 340→60 lines as thin re-export wrapper. Single API client with pipeline-data fallback. |
 | 🟡 3 AI tools exist but NOT registered | TODO | `ai_analyze`, `ai_ask`, `ai_search_semantic` files exist in `src/tools/` and `src/ai/` (gateway.ts, qdrant.ts) but aren't wired into `getAllTools()`. Need registration + AI Gateway connection |
 
 ---
@@ -134,7 +140,11 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| ✅ K8s deployment manifests | DONE | `maplespike-mcp` in `ai-inference` namespace |
+| ✅ K8s deployment manifests | DONE | `maplespike-mcp` + `maplespike-api` in `ai-inference` namespace |
+| ✅ API server running on K3s | DONE | maplespike-api pod, NodePort 30882, /v1/health returns ok |
+| ✅ MCP server running on K3s | DONE | maplespike-mcp pod, NodePort 32537, /health returns ok |
+| ✅ Portal on K3s | DONE | civint.lan → Caddy → nexus:30964 |
+| ✅ NixOS Caddy routes + DNS | DONE | maplespike-api.lan, maplespike-mcp.lan, civint.lan — all .lan domains, TLS via cluster CA |
 | ✅ NixOS overlay registration | DONE | `maplespike-mcp-image` in overlay |
 | ✅ Pure nix build pipeline | DONE | Flake input -> dockerTools -> push. Local flake.nix is 13-line stub delegating to nixos-config |
 | 🔴 CI: GitHub Actions workflow | TODO | No `.github/` directory exists at all |
@@ -297,10 +307,19 @@ MapleSpike is purpose-built for deep Canadian government data — parliamentary 
 
 ## COMPLETE FILE INVENTORY
 
-### Ingestion modules
+### Ingestion modules (61 total — registry.ts provides discoverable API)
+
+**Module Registry** (`packages/pipeline-core/src/ingestion/registry.ts`):
+- 61 modules in 20 categories
+- `getModule(name)` — lookup by name
+- `getModulesByCategory(cat)` — filter by category
+- `runModule(name)` — dynamically import and run
+- `runAllModules()` — run all modules
+- Replaced 1707-line barrel (230 exports) with 91-line clean API
 
 **Committees** (`packages/pipeline-core/src/ingestion/committees/`):
 ```
+constants.ts   — 30 HoC + 20 Senate committees, evidence URL patterns, Parliament 45-1
 constants.ts   — 30 HoC + 20 Senate committees, evidence URL patterns, Parliament 45-1
 types.ts       — CommitteeMeeting, Intervention, CommitteeSpeaker
 fetcher.ts     — HTML-to-XML extraction for ourcommons.ca + sencanada.ca
@@ -454,16 +473,16 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 
 | # | Task | Phase | Impact | Effort |
 |---|------|-------|--------|--------|
-| 1 | ~~Wire AI MCP tools~~ — already registered in `getAllTools()`, build passes | P2 | ✅ DONE | — |
-| 2 | **Deploy CronJobs on K3s** — apply all 9 pipeline manifests | P3 | Critical — keeps ingestion fresh | 2 days |
-| 3 | **Wire workspace to live API** — connect API key management and usage stats pages to `/v1/keys` and `/v1/usage` endpoints | P7 | High — developer self-service | 1 day |
-| 4 | **Stripe billing** — Checkout sessions, webhooks, tier enforcement | P7 | High — unlocks revenue | 2 days |
-| 5 | ~~Fix engine tests~~ — rebuilt better-sqlite3 native addon against correct Node.js ABI | P4 | ✅ DONE — 133/133 pass | — |
-| 6 | ~~Blog~~ — index page + RSS feed with 4 initial posts | P2B | ✅ DONE | — |
-| 7 | **Data Explorer depth** — 20+ category buttons with action counts | P2B | Medium — partially built | 1 day |
-| 8 | ~~Changelog~~ — release notes page | P2B | ✅ DONE | — |
-| 9 | ~~Contact/Support page~~ — email, FAQ, response times | P2B | ✅ DONE | — |
-| 10 | **Deploy Uptime Kuma** — pod for uptime monitoring + status page | P4 | Medium — observability | 1 day |
+| 1 | **Deploy CronJobs on K3s** — apply all 9 pipeline manifests | P3 | Critical — keeps ingestion fresh | 2 days |
+| 2 | **Wire workspace to live API** — connect API key management and usage stats pages to `/v1/keys` and `/v1/usage` endpoints | P7 | High — developer self-service | 1 day |
+| 3 | **Stripe billing** — Checkout sessions, webhooks, tier enforcement | P7 | High — unlocks revenue | 2 days |
+| 4 | **Wire AI tools into getAllTools()** — register ai_analyze, ai_ask, ai_search_semantic | P2 | Medium — 3 unwired AI tools | 1 day |
+| 5 | **Data Explorer depth** — 20+ category buttons with action counts | P2B | Medium — partially built | 1 day |
+| 6 | **Deploy Uptime Kuma** — pod for uptime monitoring + status page | P4 | Medium — observability | 1 day |
+| 7 | **BC/AB/QC provincial lobbying** — 3 commented-out stubs | P5 | Medium — provincial gap | 1 day |
+| 8 | **SEDAR+ corporate filings** — ingest module exists, needs scraper | P5 | Medium | 2 days |
+| 9 | **Corporations Canada registry** — constant URL only, no connector | P5 | Low — nice to have | 2 days |
+| 10 | **Cron: committee + corporate + influence + gazette + oversight** | P3 | Critical — automated freshness | 2 days |
 
 ---
 
@@ -493,3 +512,7 @@ Sorted by impact-to-effort ratio (updated 2026-05-13 — post-audit):
 || 2026-05-13 | Nav coherence pass | All 9 pages identical bracket-style nav. SIGNAL+ASK removed. Footers on all pages. Titles standardized |
 || 2026-05-13 | Pricing page launched | /pricing.html with Free/Pro/Business, annual toggle, FAQ, enterprise CTA |
 || 2026-05-13 | Portal modernization plan created | 5 tasks: AI readability layer, SDK tabstrip, anti-grid brutalism, dashboard feed, explorer depth. Written to .hermes/plans/2026-05-13-portal-modernization.md |
+|| 2026-05-14 | Ingestion barrel refactored: 1707→91 lines | Module registry (registry.ts) with 61 modules, getModule/runModule API. CLI ingest.ts uses registry instead of 40+ direct imports. |
+|| 2026-05-14 | 15 generated .d.ts files removed from engine/src | Build artifacts committed to source — all from types/, entity/, graph/, sources/, seed/ |
+|| 2026-05-14 | MCP data access unified through api-client.ts | pipeline-data.ts reduced 340→60 lines as thin re-export wrapper. All 12 search tools route through unified API client. |
+|| 2026-05-14 | API server deployed + NixOS DNS/routes | maplespike-api pod at nexus:30882, maplespike-mcp at nexus:32537, civint.lan through Caddy. Dynamic import fix for sqlite-storage. |
