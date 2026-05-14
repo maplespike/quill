@@ -82,7 +82,7 @@ export async function searchSocialPrograms(query: string): Promise<{
     searchCcbDatasets(query),
     searchCppOasDatasets(query),
     searchEiDatasets(query),
-    searchPovertyDatasets(query as any),
+    searchPovertyDatasets(query),
   ]);
   const records: Record<string, unknown>[] = [];
   const errors: string[] = [];
