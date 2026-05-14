@@ -9,22 +9,24 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
-# Copy dependency manifests
+# Copy dependency manifests + tsconfigs for project references
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY tsconfig.json ./
 COPY packages/mcp-server/package.json packages/mcp-server/package.json
+COPY packages/mcp-server/tsconfig.json packages/mcp-server/tsconfig.json
 COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
+COPY packages/pipeline-core/tsconfig.json packages/pipeline-core/tsconfig.json
 
-# Install all dependencies (including devDependencies for build)
-RUN pnpm install --frozen-lockfile
+# Install all dependencies
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
 COPY packages/mcp-server/ packages/mcp-server/
 COPY packages/pipeline-core/ packages/pipeline-core/
-COPY tsconfig.json ./
 
-# Build pipeline-core first (dependency), then mcp-server
+# Build pipeline-core first, then mcp-server
 RUN pnpm --filter @maplespike/pipeline-core run build
 RUN pnpm --filter @maplespike/mcp-server run build
 
@@ -33,24 +35,18 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Install pnpm (needed for workspace dependency resolution)
-RUN corepack enable && corepack prepare pnpm@9 --activate
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
-# Copy dependency manifests
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/mcp-server/package.json packages/mcp-server/package.json
 COPY packages/pipeline-core/package.json packages/pipeline-core/package.json
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --no-frozen-lockfile --prod
 
-# Copy compiled output
 COPY --from=builder /app/packages/mcp-server/dist packages/mcp-server/dist
 COPY --from=builder /app/packages/pipeline-core/dist packages/pipeline-core/dist
 
-# Expose the MCP port
 EXPOSE 3001
-
 ENV NODE_ENV=production
 
-CMD ["node", "packages/mcp-server/dist/index.js"]
+CMD ["node", "packages/mcp-server/dist/cli.js", "--sse"]
