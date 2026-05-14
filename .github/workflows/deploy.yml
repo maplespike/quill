@@ -78,15 +78,30 @@ jobs:
             git checkout main
             git pull origin main
 
+            # Build images with local nexus tags
             docker build -f Dockerfile.mcp     -t nexus:5000/maplespike-mcp:latest     .
             docker build -f Dockerfile.api     -t nexus:5000/maplespike-api:latest     .
             docker build -f Dockerfile.ingest  -t nexus:5000/maplespike-ingest:latest  .
             docker build -f Dockerfile.engine  -t nexus:5000/maplespike-engine:latest  .
 
+            # Push to local nexus registry
             docker push nexus:5000/maplespike-mcp:latest
             docker push nexus:5000/maplespike-api:latest
             docker push nexus:5000/maplespike-ingest:latest
             docker push nexus:5000/maplespike-engine:latest
+
+            # Also tag and push to GHCR if GITHUB_TOKEN is available
+            if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+              echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+              docker tag nexus:5000/maplespike-mcp:latest     ghcr.io/reverb256/maplespike-mcp:latest
+              docker tag nexus:5000/maplespike-api:latest     ghcr.io/reverb256/maplespike-api:latest
+              docker tag nexus:5000/maplespike-ingest:latest  ghcr.io/reverb256/maplespike-ingest:latest
+              docker tag nexus:5000/maplespike-engine:latest  ghcr.io/reverb256/maplespike-engine:latest
+              docker push ghcr.io/reverb256/maplespike-mcp:latest
+              docker push ghcr.io/reverb256/maplespike-api:latest
+              docker push ghcr.io/reverb256/maplespike-ingest:latest
+              docker push ghcr.io/reverb256/maplespike-engine:latest
+            fi
 
             kubectl rollout restart deployment/civint-mcp -n ai-inference
             kubectl rollout status deployment/civint-mcp -n ai-inference --timeout=120s

@@ -1,0 +1,44 @@
+{{- range $name, $schedule := .Values.ingestion.schedules }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "maplespike.fullname" $ }}-ingest-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: maplespike-ingest
+    pipeline: {{ $name }}
+spec:
+  schedule: "{{ $schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: ingest
+            image: "{{ $.Values.image.registry }}/maplespike-ingest:{{ $.Values.image.tag }}"
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            env:
+            - name: CIVINT_PIPELINE
+              value: {{ $name }}
+            - name: NODE_ENV
+              value: production
+            - name: PROMETHEUS_PUSHGATEWAY
+              value: "http://prometheus-pushgateway.observability:9091"
+            resources:
+              requests:
+                cpu: {{ $.Values.ingestion.resources.requests.cpu }}
+                memory: {{ $.Values.ingestion.resources.requests.memory }}
+              limits:
+                cpu: {{ $.Values.ingestion.resources.limits.cpu }}
+                memory: {{ $.Values.ingestion.resources.limits.memory }}
+          {{- if $.Values.secrets.canliiApiKey }}
+            envFrom:
+            - secretRef:
+                name: maplespike-secrets
+          {{- end }}
+---
+{{- end }}
