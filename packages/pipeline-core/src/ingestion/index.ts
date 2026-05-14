@@ -1328,3 +1328,55 @@ export type {
   GlobalCanadaIngestionResult,
   RawGlobalCanadaRecord,
 } from './global-canada/types.js';
+
+// Immigration & Refugee — IRCC admissions, IRB decisions, CBSA enforcement
+export {
+  ingestAllImmigration,
+  ingestPermanentResidents,
+  ingestTempResidents,
+  ingestRpdDecisions,
+  ingestCbsaEnforcement,
+  generateImmigrationLobbyingLinks,
+} from './immigration/index.js';
+export {
+  fetchPermanentResidentsByProvince,
+  fetchPermanentResidentsByCitizenship,
+  fetchStudyPermitHolders,
+  fetchWorkPermitImp,
+  fetchWorkPermitTfwp,
+  searchIrccData,
+} from './immigration/ircc.js';
+export {
+  fetchRpdDecisionsQuarter,
+  fetchRecentRpdDecisions,
+  searchRpdDecisions,
+  computeRpdStats,
+} from './immigration/irb.js';
+export {
+  fetchAmpsStats,
+  fetchCbsaCkanMetadata,
+  searchCbsaData,
+} from './immigration/cbsa.js';
+export {
+  IMMIGRATION_SOURCES,
+  IRCC_DATASETS,
+  IRB_DATASETS,
+  CBSA_DATASETS,
+  IRCC_CSV_FILES,
+  IMMIGRATION_SOURCE_NAMES,
+  rpdDecisionsUrl,
+  ImmigrationFetchError,
+  DEFAULT_MAX_RECORDS as IMMIGRATION_DEFAULT_MAX_RECORDS,
+} from './immigration/constants.js';
+export type {
+  PermanentResidentAdmission,
+  StudyPermitHolder,
+  WorkPermitHolder,
+  TemporaryResidentVisa,
+  CitizenshipGrant,
+  RefugeeDecision,
+  CbsaEnforcement,
+  CbsaPenalty,
+  ImmigrationLobbyingLink,
+  ImmigrationIngestionResult,
+} from './immigration/types.js';
