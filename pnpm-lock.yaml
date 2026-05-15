@@ -33,6 +33,9 @@ importers:
       better-sqlite3:
         specifier: ^11.0.0
         version: 11.10.0
+      pg:
+        specifier: ^8.20.0
+        version: 8.20.0
       viem:
         specifier: ^2.48.11
         version: 2.48.11(typescript@5.9.3)(zod@3.25.76)
@@ -46,6 +49,9 @@ importers:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.19
+      '@types/pg':
+        specifier: ^8.20.0
+        version: 8.20.0
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
