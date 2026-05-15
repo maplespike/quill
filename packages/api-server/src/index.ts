@@ -92,7 +92,7 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },
   { pattern: /^\/v1\/billing\/checkout\/?$/, method: 'POST', params: [], handler: billingCheckoutHandler },
   // AI
-  { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
+  { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
   { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
@@ -219,11 +219,9 @@ export async function handleRequest(
   const authExempt = route.handler === healthHandler
     || route.handler === searchGovHandler
     || route.handler === openApiHandler
-    || route.handler === openApiHandler
     || route.handler === getCitationHandler
     || route.handler === registerHandler
     || route.handler === billingPlansHandler
-    || route.handler === billingCheckoutHandler
     || route.handler === githubLoginHandler
     || route.handler === githubCallbackHandler
     || route.handler === refreshTokenHandler
