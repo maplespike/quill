@@ -28,6 +28,7 @@
   }
 
   let currentLocale = detectLocale();
+  let i18nData = null;
 
   async function loadI18n(locale) {
     try {
@@ -47,6 +48,7 @@
 
   function applyI18n(data) {
     if (!data) return;
+    i18nData = data;
     document.documentElement.lang = data.meta?.locale || currentLocale;
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -63,10 +65,23 @@
 
       el.textContent = value;
     });
+
+    // Update language toggle button text
+    updateLangToggleUI();
+  }
+
+  function updateLangToggleUI() {
+    const otherLocale = currentLocale === 'en-CA' ? 'fr-CA' : 'en-CA';
+    document.querySelectorAll('.lang-toggle').forEach(btn => {
+      btn.textContent = otherLocale === 'en-CA' ? 'FR → EN' : 'EN → FR';
+      btn.setAttribute('data-lang', otherLocale);
+    });
   }
 
   async function setLocale(locale) {
     if (!SUPPORTED_LOCALES.includes(locale)) return;
+
+    console.log('[i18n] Switching locale:', currentLocale, '->', locale);
     currentLocale = locale;
     localStorage.setItem(LS_LOCALE, locale);
 
@@ -75,13 +90,21 @@
     window.history.replaceState({}, '', url);
 
     const data = await loadI18n(locale);
-    applyI18n(data);
+    if (data) {
+      applyI18n(data);
+      console.log('[i18n] Locale applied successfully:', locale);
+    }
   }
 
   function setupLangToggle() {
+    updateLangToggleUI();
     document.querySelectorAll('.lang-toggle').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.getAttribute('data-lang');
+      // Remove old listeners by cloning
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+
+      newBtn.addEventListener('click', () => {
+        const target = newBtn.getAttribute('data-lang');
         if (target) setLocale(target);
       });
     });
@@ -102,7 +125,6 @@
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem(LS_THEME, next);
 
-    // Update toggle button icon
     document.querySelectorAll('.theme-toggle').forEach(btn => {
       btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
     });
@@ -121,35 +143,83 @@
   function setupMobileMenu() {
     const toggle = document.querySelector('.nav-mobile-toggle');
     const links = document.querySelector('.nav-links');
-    if (!toggle || !links) return;
+    const overlay = document.querySelector('.nav-mobile-overlay');
 
-    function closeMenu() {
-      links.classList.remove('open');
-      toggle.textContent = '\u2630';
-      document.body.style.overflow = '';
+    if (!toggle || !links) {
+      console.warn('[Mobile Menu] Toggle or links not found');
+      return;
     }
+
+    // Create overlay if it doesn't exist
+    if (!overlay) {
+      const newOverlay = document.createElement('div');
+      newOverlay.className = 'nav-mobile-overlay';
+      newOverlay.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(newOverlay);
+    }
+
+    let isOpen = false;
 
     function openMenu() {
+      isOpen = true;
       links.classList.add('open');
-      toggle.textContent = '\u2715';
+      document.querySelector('.nav-mobile-overlay').classList.add('active');
       document.body.style.overflow = 'hidden';
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.textContent = '\u2715';
+      console.log('[Mobile Menu] Opened');
     }
 
-    toggle.addEventListener('click', () => {
-      const isOpen = links.classList.contains('open');
-      if (isOpen) closeMenu();
-      else openMenu();
+    function closeMenu() {
+      isOpen = false;
+      links.classList.remove('open');
+      document.querySelector('.nav-mobile-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.textContent = '\u2630';
+      console.log('[Mobile Menu] Closed');
+    }
+
+    function toggleMenu() {
+      isOpen ? closeMenu() : openMenu();
+    }
+
+    // Toggle button click
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMenu();
     });
+
+    // Close on overlay click
+    document.querySelector('.nav-mobile-overlay').addEventListener('click', closeMenu);
 
     // Close on link click
     links.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', closeMenu);
+      link.addEventListener('click', () => {
+        setTimeout(closeMenu, 100);
+      });
     });
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
+      if (e.key === 'Escape' && isOpen) {
+        closeMenu();
+      }
     });
+
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (window.innerWidth > 900 && isOpen) {
+          closeMenu();
+        }
+      }, 250);
+    });
+
+    console.log('[Mobile Menu] Initialized');
   }
 
   // ── Scroll-Reveal (IntersectionObserver) ─────────────────────
@@ -181,7 +251,6 @@
         if (entry.isIntersecting) {
           const el = entry.target;
           const text = el.textContent;
-          // Only animate if it looks like a number
           const num = parseFloat(text.replace(/[^0-9.]/g, ''));
           if (isNaN(num)) return;
 
@@ -192,14 +261,13 @@
           function update(now) {
             const elapsed = now - start;
             const progress = Math.min(elapsed / duration, 1);
-            // Ease out cubic
             const eased = 1 - Math.pow(1 - progress, 3);
             const current = Math.round(eased * num);
             el.textContent = current.toLocaleString() + suffix;
             if (progress < 1) {
               requestAnimationFrame(update);
             } else {
-              el.textContent = text; // Restore original
+              el.textContent = text;
             }
           }
           requestAnimationFrame(update);
@@ -250,10 +318,8 @@
 
   function setupCopyButtons() {
     document.querySelectorAll('.code-block').forEach(block => {
-      // Add copy button if not already present
       if (block.querySelector('.copy-btn')) return;
 
-      // Only add to blocks with content
       const text = block.textContent.trim();
       if (!text || text.length < 10) return;
 
@@ -292,12 +358,9 @@
   // ── Usage Chart (dashboard) ─────────────────────────────────
 
   function setupUsageChart() {
-    // Skip if the inline script already rendered the chart
     const chart = document.getElementById('usageChart');
     if (!chart || chart.children.length > 0) return;
-    // Fallback: try fetching usage from API
     fetchLiveStats();
-    // If still empty after fetch, show unavailable
     setTimeout(() => {
       if (chart.children.length === 0) {
         chart.innerHTML = '<div class="empty-chart-msg" style="text-align:center;padding:2rem;color:var(--text-muted);">Usage data unavailable</div>';
@@ -313,7 +376,6 @@
     const remainEl = document.getElementById('remaining');
     if (!callsEl && !monthEl && !remainEl) return;
 
-    // Fetch live stats from the API every 30 seconds
     async function fetchLiveStats() {
       const cfg = window.MAPLESPIKE || {};
       const base = cfg.apiBase || 'http://127.0.0.1:8085';
@@ -336,7 +398,6 @@
           if (remainEl) remainEl.textContent = remaining;
         }
       } catch (err) {
-        // Silently fall back — inline renderUsageStats handles initial load
       }
     }
 
@@ -388,7 +449,6 @@
       });
     });
 
-    // Keyboard support
     track.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -420,7 +480,6 @@
       if (data?.success && data?.data?.key) {
         const keyEl = document.getElementById('apiKeyDisplay');
         if (keyEl) keyEl.textContent = data.data.key;
-        // Refresh the keys list
         if (window.renderApiKeys && data.data.keys) {
           window.renderApiKeys(data.data.keys);
         }
@@ -429,7 +488,6 @@
         alert('Failed to regenerate key: ' + (data?.error || 'unknown error'));
       }
     } catch (err) {
-      // Fallback: generate a client-side key if API is unreachable
       const chars = 'abcdef0123456789';
       let key = 'maplespike-';
       for (let i = 0; i < 32; i++) key += chars[Math.floor(Math.random() * chars.length)];
@@ -466,7 +524,6 @@
     const terms = document.querySelectorAll('[data-term]');
     if (!terms.length) return;
 
-    // Create tooltip container
     let tip = document.getElementById('glossary-tip');
     if (!tip) {
       tip = document.createElement('div');
@@ -515,7 +572,6 @@
     }
 
     terms.forEach(el => {
-      // Style the term
       el.style.cursor = 'help';
       el.style.borderBottom = '1px dashed var(--accent)';
       el.style.color = 'var(--accent)';
@@ -534,7 +590,7 @@
     });
   }
 
-  // ── Console signature (non-template touch) ────────────────
+  // ── Console signature ──────────────────────────────────────
   console.log(
     '%c⡏⠉⠉⠉⠉⠉⠉⠉⠉⠉⢹ %cMapleSpike',
     'color:#C23030;font-size:10px;', 'color:#C23030;font-size:14px;font-weight:bold;'
@@ -544,7 +600,90 @@
   console.log('%c  Open source · Self-hosted · AGPL-3.0', 'color:#0891B2;font-size:11px;');
   console.log('%c  https://github.com/reverb256/maplespike', 'color:#6B7280;font-size:11px;');
 
+  // ── SDK Tabstrip: multi-language code tabs ──────────────────
+  function setupSdkTabs() {
+    const tabs = document.querySelectorAll('.sdk-tab');
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Deactivate all tabs and panels in this tabstrip
+        const strip = tab.closest('.sdk-tabstrip');
+        if (!strip) return;
+
+        strip.querySelectorAll('.sdk-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        strip.querySelectorAll('.sdk-panel').forEach(p => p.classList.remove('active'));
+
+        // Activate clicked tab and corresponding panel
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        const panelId = 'sdk-' + tab.getAttribute('data-tab');
+        const panel = document.getElementById(panelId);
+        if (panel) panel.classList.add('active');
+      });
+    });
+  }
+
+  // ── Live API Code Demo: category switching ─────────────────
+  const DEMO_SAMPLES = {
+    committees: {
+      response: `{\n  "source": "committees",\n  "total": 42,\n  "results": [\n    {\n      "committee": "ENVI",\n      "title": "Climate Adaptation Research",\n      "date": "2025-11-14",\n      "status": "Report Tabled"\n    },\n    {\n      "committee": "FINA",\n      "title": "Carbon Pricing Review",\n      "date": "2025-11-10",\n      "status": "Hearing"\n    }\n  ],\n  "citation": {\n    "hash": "sha256:a1b2c3d4e5f6...",\n    "verified": true\n  }\n}`
+    },
+    lobbying: {
+      response: `{\n  "source": "lobbying",\n  "total": 28,\n  "results": [\n    {\n      "organization": "GreenTech Corp",\n      "subject": "Carbon Pricing Policy",\n      "date": "2025-11-10",\n      "type": "Oral Presentation"\n    },\n    {\n      "organization": "CanEnergy Assoc",\n      "subject": "Emissions Regulations",\n      "date": "2025-11-08",\n      "type": "Written Submission"\n    }\n  ],\n  "citation": {\n    "hash": "sha256:d4e5f6g7h8i9...",\n    "verified": true\n  }\n}`
+    },
+    procurement: {
+      response: `{\n  "source": "procurement",\n  "total": 156,\n  "results": [\n    {\n      "vendor": "DataSys Solutions",\n      "value": "$2,400,000",\n      "department": "PSPC",\n      "type": "Sole Source"\n    },\n    {\n      "vendor": "GreenBuild Inc",\n      "value": "$890,000",\n      "department": "ECCC",\n      "type": "Competitive"\n    }\n  ],\n  "citation": {\n    "hash": "sha256:g7h8i9j0k1l2...",\n    "verified": true\n  }\n}`
+    },
+    gazette: {
+      response: `{\n  "source": "gazette",\n  "total": 12,\n  "results": [\n    {\n      "regulation": "Clean Fuel Standard Amendment",\n      "status": "Pre-publication",\n      "date": "2025-11-01",\n      "department": "ECCC"\n    },\n    {\n      "regulation": "Methane Emissions Reporting",\n      "status": "Final Regulation",\n      "date": "2025-10-15",\n      "department": "ECCC"\n    }\n  ],\n  "citation": {\n    "hash": "sha256:j0k1l2m3n4o5...",\n    "verified": true\n  }\n}`
+    },
+    courts: {
+      response: `{\n  "source": "courts",\n  "total": 7,\n  "results": [\n    {\n      "case": "R. v. Northern Pipeline Corp",\n      "court": "SCC",\n      "date": "2025-10-28",\n      "type": "Appeal Heard"\n    },\n    {\n      "case": "Green Alliance v. Canada (ECCC)",\n      "court": "FCA",\n      "date": "2025-10-20",\n      "type": "Judgment Reserved"\n    }\n  ],\n  "citation": {\n    "hash": "sha256:m3n4o5p6q7r8...",\n    "verified": true\n  }\n}`
+    }
+  };
+
+  function setupCodeDemo() {
+    const demoEl = document.getElementById('live-demo');
+    if (!demoEl) return;
+
+    const responseContainer = document.getElementById('demo-response-json');
+    if (!responseContainer) return;
+
+    const cats = demoEl.querySelectorAll('.code-demo-cat');
+
+    function renderResponse(source) {
+      const sample = DEMO_SAMPLES[source] || DEMO_SAMPLES.committees;
+      const json = sample.response;
+
+      // Simple syntax highlighting for JSON
+      const highlighted = json
+        .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+        .replace(/: "([^"]+)"/g, ': <span class="json-string">"$1"</span>')
+        .replace(/: (\d+)/g, ': <span class="json-number">$1</span>')
+        .replace(/: (true|false)/g, ': <span class="json-boolean">$1</span>')
+        .replace(/: (null)/g, ': <span class="json-null">$1</span>');
+
+      responseContainer.innerHTML = highlighted;
+    }
+
+    // Set default
+    renderResponse('committees');
+
+    cats.forEach(btn => {
+      btn.addEventListener('click', () => {
+        cats.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderResponse(btn.getAttribute('data-source'));
+      });
+    });
+  }
+
   async function init() {
+    console.log('[Init] Starting...');
     initTheme();
     setupThemeToggle();
     initTicker();
@@ -564,6 +703,10 @@
     setupLiveStats();
     setupDashboardCopy();
     setupPricingToggle();
+    setupSdkTabs();
+    setupCodeDemo();
+
+    console.log('[Init] Complete. Locale:', currentLocale);
   }
 
   if (document.readyState === 'loading') {
@@ -575,7 +718,7 @@
   // ── Ticker: live data from API ──
   async function initTicker() {
     const ticker = document.querySelector('.ticker-inner');
-    if (!ticker) return; // Page doesn't have a ticker
+    if (!ticker) return;
     try {
       const cfg = window.MAPLESPIKE || {};
       const base = cfg.apiBase || 'http://127.0.0.1:8085';
@@ -598,11 +741,9 @@
         { text: daily > 0 ? daily + ' sources queried' : 'Pipeline active', color: daily > 0 ? '#C23030' : '#D4A017' },
         { text: 'v' + (d.version || '0.1.0'), color: '#8B5CF6' },
       ];
-      // Build ticker HTML (items repeated for seamless loop)
       const html = items.map(i => `<span class="ticker-item"><span class="ticker-dot" style="background:${i.color};"></span> ${i.text}</span>`).join('');
       ticker.innerHTML = html + html;
     } catch (e) {
-      // API unavailable — show minimal honest message
       ticker.innerHTML = '<span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Live data unavailable</span><span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Live data unavailable</span>';
     }
   }
