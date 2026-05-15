@@ -48,7 +48,6 @@ const DEFAULT_CONFIG: Required<FiveGWDefenseConfig> = {
   flagThreshold: 30,
   adversarialSources: [
     'rt.com', 'sputniknews.com', 'tass.com', 'russia-news',
-    'cgtn.com', 'xinhuanet.com', 'globaltimes.cn',
     'farsnews.ir', 'presstv.ir',
     'almanar.com.lb', 'almayadeen.net',
   ],
