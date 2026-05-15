@@ -26,6 +26,7 @@
  */
 
 import { getModule, runModule, runAllModules } from '../ingestion/registry.js';
+
 import type { D1Database } from '../ingestion/committees/db.js';
 
 const NULL_DB: D1Database = {
@@ -80,6 +81,7 @@ const PIPELINE_CONFIG: Record<string, string> = {
   'social-programs': 'social-programs',
   statcan: 'statcan',
   'transport-infrastructure': 'transport-infrastructure',
+
 };
 
 async function main() {
