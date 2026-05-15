@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 PORT = int(os.environ.get("PORT", "4321"))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-DOCS_DIR = os.path.join(DIRECTORY, "docs-dist")
+DOCS_DIR = os.path.join(DIRECTORY, "docs")
 
 # ── Markdown conversion helpers ─────────────────────────────────────
 
@@ -116,7 +116,7 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         p = parsed.path
 
-        # ── Serve Vitepress docs under /docs/ ────────────────────────
+        # ── Serve docs under /docs/ ────────────────────────
         if p.startswith("/docs/") or p == "/docs":
             rel = p.removeprefix("/docs/")
             if not rel:
