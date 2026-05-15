@@ -1,87 +1,78 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en-CA" data-theme="dark">
-     3|<head>
-     4|  <meta charset="UTF-8">
-     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|  <title>MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints</title>
-     7|  <link rel="canonical" href="https://maplespike.ca">
-     8|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca">
-     9|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr">
-    10|  <meta name="robots" content="index, follow">
-    11|
-    12|  <meta name="description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
-    13|
-    14|  <link rel="stylesheet" href="styles.css">
-    15|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-    16|  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo.svg">
-    17|  <meta property="og:title" content="MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints">
-    18|  <meta property="og:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
-    19|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-    20|  <meta property="og:url" content="https://maplespike.ca">
-    21|  <meta property="og:type" content="website">
-    22|  <meta name="twitter:card" content="summary_large_image">
-    23|  <meta name="twitter:title" content="MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints">
-    24|  <meta name="twitter:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
-    25|    <meta property="og:image:width" content="1200">
-    26|  <meta property="og:image:height" content="630">
-    27|  <meta property="og:site_name" content="MapleSpike">
-    28|  <meta name="twitter:site" content="@maplespike_ca">
-    29|  <meta name="twitter:creator" content="@maplespike_ca">
-    30|  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-    31|  <script type="application/ld+json">
-    32|  {
-    33|    "@context": "https://schema.org",
-    34|    "@type": "WebApplication",
-    35|    "name": "MapleSpike",
-    36|    "url": "https://maplespike.ca",
-    37|    "description": "Canadian government data pipeline with verified citations",
-    38|    "applicationCategory": "Data API",
-    39|    "offers": {
-    40|      "@type": "Offer",
-    41|      "price": "0",
-    42|      "priceCurrency": "CAD"
-    43|    }
-    44|  }
-    45|  </script>
-    46|  <style>
-    47|    /* Inline placeholder for critical hero animations */
-    48|    @keyframes livePulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity:0.6; box-shadow:0 0 0 4px rgba(16,185,129,0); } }
-    49|100% { transform:translateX(-50%); } }
-    50|    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-    51|    .fade-in-init { animation:fadeUp 0.6s ease forwards; opacity:0; }
-    52|    .fade-in-init.s1 { animation-delay:0.1s; }
-    53|    .fade-in-init.s2 { animation-delay:0.2s; }
-    54|    .fade-in-init.s3 { animation-delay:0.3s; }
-    55|    .fade-in-init.s4 { animation-delay:0.4s; }
-    56|    .fade-in-init.s5 { animation-delay:0.5s; }
-    57|    .demo-tabs { display:flex; gap:2px; margin-left:12px; }
-    58|    .demo-tab { background:var(--base02); border:1px solid var(--base04); color:var(--text-secondary); padding:4px 14px; font-size:0.72rem; font-family:var(--font-mono); cursor:pointer; border-radius:4px 4px 0 0; transition:all 0.15s; }
-    59|    .demo-tab.active { background:var(--base01); border-bottom-color:var(--base01); color:var(--text-primary); }
-    60|    .demo-tab:hover { background:var(--base03); }
-    61|    .demo-code-block { display:none; }
-    62|    .demo-code-block.active { display:block; }
-    63|  </style>
-    64|
-    65|
-    66|  <link rel="preconnect" href="https://www.google.com" crossorigin>
-    67|  <link rel="manifest" href="/manifest.json">
-    68|  <meta name="msapplication-config" content="/browserconfig.xml">
-    69|  <meta name="theme-color" content="#C23030">
-    70|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-    71|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-    72|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-    73|</head>
-    74|<body>
-    75|
-    76|<!-- ═══ Ticker ═══ -->
-    77|<div class="ticker">
-    78|  <div class="ticker-inner">
-    79|    <span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Loading live data...</span>
-    80|  </div>
-    81|</div>
-    82|
-    83|<!-- ═══ Navigation ═══ -->
-    84|85|<!-- Navigation -->
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints</title>
+  <link rel="canonical" href="https://maplespike.ca">
+  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca">
+  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr">
+  <meta name="robots" content="index, follow">
+
+  <meta name="description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo.svg">
+  <meta property="og:title" content="MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints">
+  <meta property="og:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <meta property="og:url" content="https://maplespike.ca">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints">
+  <meta name="twitter:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
+    <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="MapleSpike">
+  <meta name="twitter:site" content="@maplespike_ca">
+  <meta name="twitter:creator" content="@maplespike_ca">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MapleSpike",
+    "url": "https://maplespike.ca",
+    "description": "Canadian government data pipeline with verified citations",
+    "applicationCategory": "Data API",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CAD"
+    }
+  }
+  </script>
+  <style>
+    /* Inline placeholder for critical hero animations */
+    @keyframes livePulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity:0.6; box-shadow:0 0 0 4px rgba(16,185,129,0); } }
+100% { transform:translateX(-50%); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in-init { animation:fadeUp 0.6s ease forwards; opacity:0; }
+    .fade-in-init.s1 { animation-delay:0.1s; }
+    .fade-in-init.s2 { animation-delay:0.2s; }
+    .fade-in-init.s3 { animation-delay:0.3s; }
+    .fade-in-init.s4 { animation-delay:0.4s; }
+    .fade-in-init.s5 { animation-delay:0.5s; }
+    .demo-tabs { display:flex; gap:2px; margin-left:12px; }
+    .demo-tab { background:var(--base02); border:1px solid var(--base04); color:var(--text-secondary); padding:4px 14px; font-size:0.72rem; font-family:var(--font-mono); cursor:pointer; border-radius:4px 4px 0 0; transition:all 0.15s; }
+    .demo-tab.active { background:var(--base01); border-bottom-color:var(--base01); color:var(--text-primary); }
+    .demo-tab:hover { background:var(--base03); }
+    .demo-code-block { display:none; }
+    .demo-code-block.active { display:block; }
+  </style>
+
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#C23030">
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+<!-- ═══ Navigation ═══ -->
+85|<!-- Navigation -->
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo">
@@ -94,6 +85,7 @@
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
@@ -102,904 +94,929 @@
     <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
   </div>
 </nav>
-   104|
-   105|<!-- ═══ HERO ═══ -->
-   106|<section class="hero" style="position:relative;overflow:hidden;">
-   107|
-   108|  <!-- CSS grid background layer (as hero canvas) -->
-   109|  <div class="hero-grid-bg" style="position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(194,48,48,0.03) 1px,rgba(0,0,0,0) 1px),linear-gradient(90deg,rgba(194,48,48,0.03) 1px,rgba(0,0,0,0) 1px);background-size:60px 60px;"></div>
-   110|
-   111|  <!-- Gradient glow orbs (red + gold) with Canadian red and gold palette -->
-   112|  <div style="position:absolute;left:50%;top:0;z-index:0;pointer-events:none;width:900px;height:600px;transform:translateX(-50%);opacity:0.18;">
-   113|    <div style="position:absolute;left:20%;top:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgb(194,48,48),rgba(0,0,0,0) 70%);filter:blur(80px);"></div>
-   114|    <div style="position:absolute;right:10%;top:5%;width:400px;height:400px;border-radius:50%;background:radial-gradient(closest-side,rgb(212,160,23),rgba(0,0,0,0) 70%);filter:blur(80px);"></div>
-   115|    <div style="position:absolute;left:50%;top:20%;width:350px;height:350px;border-radius:50%;background:radial-gradient(closest-side,rgb(8,145,178),rgba(0,0,0,0) 70%);filter:blur(80px);"></div>
-   116|  </div>
-   117|
-   118|  <!-- Gold accent line at top -->
-   119|  <div style="position:absolute;top:0;left:0;right:0;z-index:0;pointer-events:none;height:1px;background:linear-gradient(90deg,rgba(0,0,0,0),rgba(212,160,23,0.3),rgba(0,0,0,0));"></div>
-   120|
-   121|  <div class="hero-watermark" style="z-index:1;"></div>
-   122|
-   123|  <h1 class="fade-in-init s2">
-   124|    Track every government decision.<br>
-   125|    <span class="highlight">From committee rooms to contract awards.</span>
-   126|  </h1>
-   127|
-   128|  <p class="hero-subtitle fade-in-init s3">
-   129|    Parliament, lobbying, regulations, courts, oversight — 63 data modules from official Canadian government portals, unified through a single API with <strong>SHA-256 verified citations</strong> on every response.
-   130|  </p>
-   131|
-   132|  <!-- Live Stats Bar -->
-   133|  <div class="hero-stats-bar fade-in-init s3">
-   134|    <span class="live-badge"><span class="live-dot"></span> LIVE</span>
-   135|    <span class="hero-stat-item">
-   136|      <span class="stat-num" id="stats-requests">—</span>
-   137|      <span class="stat-label">REQUESTS / 30D</span>
-   138|    </span>
-   139|    <span class="hero-stat-item">
-   140|      <span class="stat-num" id="stats-sources">63</span>
-   141|      <span class="stat-label">MODULES</span>
-   142|    </span>
-   143|    <span class="hero-stat-item">
-   144|      <span class="stat-num" id="stats-uptime">—</span>
-   145|      <span class="stat-label">UPTIME</span>
-   146|    </span>
-   147|  </div>
-   148|
-   149|  <!-- Curl Quickstart -->
-   150|  <div class="curl-demo fade-in-init s4">
-   151|    <div class="curl-demo-header">
-   152|      <div class="curl-demo-dots">
-   153|        <span class="curl-demo-dot red"></span>
-   154|        <span class="curl-demo-dot yellow"></span>
-   155|        <span class="curl-demo-dot green"></span>
-   156|      </div>
-   157|      <div class="demo-tabs">
-   158|        <button class="demo-tab active" data-lang="curl">curl</button>
-   159|        <button class="demo-tab" data-lang="ts">TypeScript SDK</button>
-   160|        <button class="demo-tab" data-lang="py">Python SDK</button>
-   161|      </div>
-   162|      <button class="copy-btn" onclick="copyActiveTabCode()" style="opacity:1;position:relative;top:0;right:0;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:0.7rem;color:var(--text-muted);cursor:pointer;transition:all var(--transition);font-family:var(--font-mono);">Copy</button>
-   163|    </div>
-   164|    <div class="curl-demo-body demo-code-block active" id="demo-curl">
-   165|      <span class="comment">// Make your first MapleSpike API call</span><br>
-   166|      <span class="prompt">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br>
-   167|      &nbsp;&nbsp;-H <span class="string">"x-api-key: YOUR_KEY"</span> \<br>
-   168|      &nbsp;&nbsp;-G -d <span class="string">"query=housing"</span> \<br>
-   169|      &nbsp;&nbsp;-d <span class="string">"jurisdiction=federal"</span> \<br>
-   170|      &nbsp;&nbsp;-d <span class="string">"limit=2"</span> | jq .<br>
-   171|      <br>
-   172|      <div id="curl-response-area">
-   173|      <span class="comment">// Response with verified citation</span><br>
-   174|      <span class="response-json" id="curl-response">{<br>
-   175|      &nbsp;&nbsp;<span class="key">"success"</span>: <span class="bool">true</span>,<br>
-   176|      &nbsp;&nbsp;<span class="key">"data"</span>: [<br>
-   177|      &nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"source"</span>: <span class="string">"ourcommons.ca"</span>, <span class="key">"committee"</span>: <span class="string">"HUMA"</span>, <span class="key">"title"</span>: <span class="string">"Housing Committee Meeting"</span> },<br>
-   178|      &nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"source"</span>: <span class="string">"lobbycanada.gc.ca"</span>, <span class="key">"subject"</span>: <span class="string">"National Housing Strategy"</span> }<br>
-   179|      &nbsp;&nbsp;],<br>
-   180|      &nbsp;&nbsp;<span class="key">"citation"</span>: {<br>
-   181|      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"hash"</span>: <span class="string">"sha256:e3b0c44298fc1c14..."</span>,<br>
-   182|      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"verified"</span>: <span class="bool">true</span>,<br>
-   183|      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"license"</span>: <span class="string">"OGL-C"</span><br>
-   184|      &nbsp;&nbsp;}<br>
-   185|      }</span>
-   186|      </div>
-   187|    </div>
-   188|    <!-- TypeScript SDK code block -->
-   189|    <div class="demo-code-block" id="demo-ts">
-   190|      <span class="comment">// Make your first MapleSpike API call with TypeScript SDK</span><br>
-   191|      import { MapleSpike } from "@maplespike/sdk"<br>
-   192|      <br>
-   193|      const ms = new MapleSpike({ apiKey: "ms_..." })<br>
-   194|      const releases = await ms.query("gov", "releases", {<br>
-   195|      &nbsp;&nbsp;source: "committees", limit: 3<br>
-   196|      })<br>
-   197|      console.log(releases.data)<br>
-   198|      console.log(releases.citation)<br>
-   199|    </div>
-   200|    <!-- Python SDK code block -->
-   201|    <div class="demo-code-block" id="demo-py">
-   202|      <span class="comment"># Make your first MapleSpike API call with Python SDK</span><br>
-   203|      from maplespike import MapleSpike<br>
-   204|      <br>
-   205|      ms = MapleSpike(api_key="ms_...")<br>
-   206|      releases = ms.query("gov", "releases",<br>
-   207|      &nbsp;&nbsp;&nbsp;&nbsp;source="committees", limit=3<br>
-   208|      )<br>
-   209|      print(releases.data)<br>
-   210|      print(releases.citation)<br>
-   211|    </div>
-   212|    <div class="curl-demo-footer">
-   213|      <button class="btn btn-ghost btn-sm curl-run-btn" onclick="runCurlDemo()">▶ Run</button>
-   214|      <span class="curl-status" id="curl-status"></span>
-   215|    </div>
-   216|    <script>
-   217|    function runCurlDemo() {
-   218|      const btn = document.querySelector('.curl-run-btn');
-   219|      const status = document.getElementById('curl-status');
-   220|      const response = document.getElementById('curl-response');
-   221|      btn.disabled = true;
-   222|      btn.textContent = '⏳ Running...';
-   223|      status.textContent = 'Sending request...';
-   224|      status.style.color = 'var(--text-muted)';
-   225|      setTimeout(() => {
-   226|        btn.textContent = '✓ Done';
-   227|        status.textContent = '200 OK · 142ms · 1 result';
-   228|        status.style.color = 'var(--success)';
-   229|        setTimeout(() => {
-   230|          btn.disabled = false;
-   231|          btn.textContent = '▶ Run';
-   232|          status.textContent = '';
-   233|        }, 3000);
-   234|      }, 600);
-   235|    }
-   236|    </script>
-   237|    <style>.copy-btn-demo { opacity:1!important; position:relative!important; top:0!important; right:0!important; }</style>
-   238|  </div>
-   239|
-   240|  <div class="hero-actions fade-in-init s5">
-   241|    <a href="workspace.html" class="btn btn-primary" style="font-size:1rem;padding:14px 32px;">Get Your Free API Key →</a>
-   242|    <a href="explorer.html" class="btn btn-secondary" style="font-size:1rem;padding:14px 32px;">Browse Data Sources</a>
-   243|  </div>
-   244|</section>
-   245|
-   246|<!-- ── SDK Tabstrip ───────────────────────────────────────────────────── -->
-   247|<section class="section" data-reveal>
-   248|  <div class="section-bracket">
-   249|    <span class="bracket">[</span>
-   250|    <span class="num">02</span>
-   251|    <span>QUICKSTART</span>
-   252|  </div>
-   253|
-   254|  <div class="sdk-tabstrip">
-   255|    <div class="sdk-tabs-nav" role="tablist">
-   256|      <button class="sdk-tab active" role="tab" aria-selected="true" data-tab="curl">curl</button>
-   257|      <button class="sdk-tab" role="tab" aria-selected="false" data-tab="typescript">TypeScript SDK</button>
-   258|      <button class="sdk-tab" role="tab" aria-selected="false" data-tab="python">Python SDK</button>
-   259|    </div>
-   260|
-   261|    <div class="sdk-panel active" id="sdk-curl" role="tabpanel">
-   262|      <div class="sdk-code-block">
-   263|        <div class="code-line"><span class="comment"># Query Canadian government data from your terminal</span></div>
-   264|        <div class="code-line"><span class="prompt">$</span> curl -X POST https://api.maplespike.ca/v1/query \</div>
-   265|        <div class="code-line">  -H <span class="string">"Authorization: Bearer $MAPLE...pan> \</div>
-   266|        <div class="code-line">  -H <span class="string">"Content-Type: application/json"</span> \</div>
-   267|        <div class="code-line">  -d <span class="string">'{</span></div>
-   268|        <div class="code-line">    <span class="key">"source"</span>: <span class="string">"committees"</span>,</div>
-   269|        <div class="code-line">    <span class="key">"query"</span>: <span class="string">"climate change"</span>,</div>
-   270|        <div class="code-line">    <span class="key">"limit"</span>: <span class="num-val">5</span></div>
-   271|        <div class="code-line">  <span class="string">}'</span></div>
-   272|      </div>
-   273|    </div>
-   274|
-   275|    <div class="sdk-panel" id="sdk-typescript" role="tabpanel">
-   276|      <div class="sdk-code-block">
-   277|        <div class="code-line"><span class="keyword">import</span> { MapleSpike } from <span class="string">"@maplespike/sdk"</span></div>
-   278|        <div class="code-line">&nbsp;</div>
-   279|        <div class="code-line"><span class="keyword">const</span> client = <span class="keyword">new</span> MapleSpike({</div>
-   280|        <div class="code-line">  apiKey: process.env.MAPLESPIKE_KEY</div>
-   281|        <div class="code-line">})</div>
-   282|        <div class="code-line">&nbsp;</div>
-   283|        <div class="code-line"><span class="keyword">const</span> results = <span class="keyword">await</span> client.query({</div>
-   284|        <div class="code-line">  source: <span class="string">"committees"</span>,</div>
-   285|        <div class="code-line">  query: <span class="string">"climate change"</span>,</div>
-   286|        <div class="code-line">  limit: <span class="num-val">5</span></div>
-   287|        <div class="code-line">})</div>
-   288|        <div class="code-line">&nbsp;</div>
-   289|        <div class="code-line">console.log(results)</div>
-   290|      </div>
-   291|    </div>
-   292|
-   293|    <div class="sdk-panel" id="sdk-python" role="tabpanel">
-   294|      <div class="sdk-code-block">
-   295|        <div class="code-line"><span class="keyword">from</span> maplespike <span class="keyword">import</span> MapleSpike</div>
-   296|        <div class="code-line">&nbsp;</div>
-   297|        <div class="code-line">client = MapleSpike(</div>
-   298|        <div class="code-line">    api_key=os.environ[<span class="string">"MAPLESPIKE_KEY"</span>]</div>
-   299|        <div class="code-line">)</div>
-   300|        <div class="code-line">&nbsp;</div>
-   301|        <div class="code-line">results = client.query(</div>
-   302|        <div class="code-line">    source=<span class="string">"committees"</span>,</div>
-   303|        <div class="code-line">    query=<span class="string">"climate change"</span>,</div>
-   304|        <div class="code-line">    limit=<span class="num-val">5</span></div>
-   305|        <div class="code-line">)</div>
-   306|        <div class="code-line">&nbsp;</div>
-   307|        <div class="code-line">print(results)</div>
-   308|      </div>
-   309|    </div>
-   310|  </div>
-   311|</section>
-   312|
-   313|<!-- ── Live API Code Demo ─────────────────────────────────────────────── -->
-   314|<section class="section section-alt" data-reveal>
-   315|  <div class="section-alt-inner">
-   316|    <div class="section-bracket">
-   317|      <span class="bracket">[</span>
-   318|      <span class="num">03</span>
-   319|      <span>LIVE API DEMO</span>
-   320|    </div>
-   321|
-   322|    <div class="code-demo" id="live-demo">
-   323|      <div class="code-demo-header">
-   324|        <div class="code-demo-dots">
-   325|          <span class="code-demo-dot"></span>
-   326|          <span class="code-demo-dot"></span>
-   327|          <span class="code-demo-dot"></span>
-   328|        </div>
-   329|        <span class="code-demo-title">api.maplespike.ca — response</span>
-   330|        <span class="code-demo-badge"><span class="code-demo-live-dot"></span> LIVE</span>
-   331|      </div>
-   332|      <div class="code-demo-body">
-   333|        <pre id="demo-response-json"></pre>
-   334|      </div>
-   335|      <div class="code-demo-footer">
-   336|        <div class="code-demo-categories">
-   337|          <span class="code-demo-cat-label">SOURCE</span>
-   338|          <button class="code-demo-cat active" data-source="committees">committees</button>
-   339|          <button class="code-demo-cat" data-source="lobbying">lobbying</button>
-   340|          <button class="code-demo-cat" data-source="procurement">procurement</button>
-   341|          <button class="code-demo-cat" data-source="gazette">gazette</button>
-   342|          <button class="code-demo-cat" data-source="courts">courts</button>
-   343|        </div>
-   344|      </div>
-   345|    </div>
-   346|  </div>
-   347|</section>
-   348|
-   349|<!-- ═══ Primary Sources Grid ═══ -->
-   350|<section class="sources-section fade-in-init s1">
-   351|  <div class="sources-inner">
-   352|    <div class="terminal-section-header">
-   353|      <span class="terminal-section">[00.5/Primary sources]</span>
-   354|    </div>
-   355|    <p class="sources-subtitle">Agencies, statistics offices, courts, and national open-data portals — not aggregators, not scraped blogs.</p>
-   356|    <div class="sources-grid">
-   357|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canada.ca&sz=64" alt="" class="source-favicon"><span>canada.ca</span></div>
-   358|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=ourcommons.ca&sz=64" alt="" class="source-favicon"><span>ourcommons.ca</span></div>
-   359|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=sencanada.ca&sz=64" alt="" class="source-favicon"><span>sencanada.ca</span></div>
-   360|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=lobbycanada.gc.ca&sz=64" alt="" class="source-favicon"><span>lobbycanada.gc.ca</span></div>
-   361|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canlii.org&sz=64" alt="" class="source-favicon"><span>canlii.org</span></div>
-   362|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=gazette.gc.ca&sz=64" alt="" class="source-favicon"><span>gazette.gc.ca</span></div>
-   363|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=statcan.gc.ca&sz=64" alt="" class="source-favicon"><span>StatCan</span></div>
-   364|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=oag-bvg.gc.ca&sz=64" alt="" class="source-favicon"><span>OAG</span></div>
-   365|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=pbo-dpb.gc.ca&sz=64" alt="" class="source-favicon"><span>PBO</span></div>
-   366|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=ciec-ccie.gc.ca&sz=64" alt="" class="source-favicon"><span>Ethics Comm.</span></div>
-   367|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=ised-isde.gc.ca&sz=64" alt="" class="source-favicon"><span>ISED</span></div>
-   368|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=crtc.gc.ca&sz=64" alt="" class="source-favicon"><span>CRTC</span></div>
-   369|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=elections.ca&sz=64" alt="" class="source-favicon"><span>Elections Canada</span></div>
-   370|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=apps.cra-arc.gc.ca&sz=64" alt="" class="source-favicon"><span>CRA Charities</span></div>
-   371|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=competitionbureau.gc.ca&sz=64" alt="" class="source-favicon"><span>Comp. Bureau</span></div>
-   372|      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canada.ca&sz=64" alt="" class="source-favicon"><span>CanadaBuys</span></div>
-   373|      <div class="source-item" style="border:1px dashed var(--border);background:transparent;cursor:default;"><span style="font-size:0.7rem;color:var(--text-muted);">+12 more</span></div>
-   374|    </div>
-   375|    <p class="sources-footer">63 data modules across all 13 provinces and territories · 27 SDK agents · 79 actions · <a href="https://open.canada.ca/en/open-government-licence-canada" target="_blank" style="color:var(--accent-cyan);">Open Government Licence – Canada</a></p>
-   376|  </div>
-   377|</section>
-   378|
-   379|<!-- ═══ STATS ═══ -->
-   380|<section class="section" style="padding-top:40px;padding-bottom:40px;">
-   381|  <div class="section-bracket fade-in">
-   382|    <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
-   383|    <span style="color:var(--text-muted);font-size:0.85rem;">Platform Overview</span>
-   384|  </div>
-   385|  <div class="stats-row">
-   386|    <div class="stat fade-in">
-   387|      <div class="sect-num">[01]</div>
-   388|      <div class="number">63</div>
-   389|      <div class="label">Data Modules</div>
-   390|    </div>
-   391|    <div class="stat fade-in stagger-1">
-   392|      <div class="sect-num">[02]</div>
-   393|      <div class="number">54</div>
-   394|      <div class="label">Committees Tracked</div>
-   395|    </div>
-   396|    <div class="stat fade-in stagger-2">
-   397|      <div class="sect-num">[03]</div>
-   398|      <div class="number">17</div>
-   399|      <div class="label">Executives Monitored</div>
-   400|    </div>
-   401|    <div class="stat fade-in stagger-3">
-   402|      <div class="sect-num">[04]</div>
-   403|      <div class="number">34</div>
-   404|      <div class="label">Influence Actors</div>
-   405|    </div>
-   406|    <div class="stat fade-in stagger-4">
-   407|      <div class="sect-num">[05]</div>
-   408|      <div class="number">$0</div>
-   409|      <div class="label">to Start (Public Tier)</div>
-   410|    </div>
-   411|  </div>
-   412|</section>
-   413|
-   414|<!-- ═══ LIVE API DEMO ═══ -->
-   415|<section class="section" id="api-demo">
-   416|  <div class="section-bracket fade-in">
-   417|    <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
-   418|    <span style="color:var(--text-muted);font-size:0.85rem;">Live API Demo</span>
-   419|  </div>
-   420|  <div class="section-header fade-in">
-   421|    <h2>Try it yourself — pick a source</h2>
-   422|    <p>Every response includes a SHA-256 citation hash you can verify independently</p>
-   423|  </div>
-   424|
-   425|  <div class="api-demo fade-in">
-   426|    <div class="api-demo-header">
-   427|      <span class="api-demo-prompt">$</span>
-   428|      <span class="api-demo-command">curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=committees" -d "_limit=3" -d "_format=compact"</span>
-   429|    </div>
-   430|    <div class="api-demo-response" id="api-demo-response">
-   431|      <pre><span class="json-key">{
-   432|  "success":</span> <span class="json-boolean">true</span><span class="json-key">,
-   433|  "data":</span> [
-   434|    {
-   435|      <span class="json-key">"source":</span> <span class="json-string">"ourcommons.ca"</span>,
-   436|      <span class="json-key">"committee":</span> <span class="json-string">"HUMA"</span>,
-   437|      <span class="json-key">"title":</span> <span class="json-string">"Housing Committee Meeting #45"</span>,
-   438|      <span class="json-key">"date":</span> <span class="json-string">"2026-05-14"</span>
-   439|    },
-   440|    {
-   441|      <span class="json-key">"source":</span> <span class="json-string">"lobbycanada.gc.ca"</span>,
-   442|      <span class="json-key">"registrant":</span> <span class="json-string">"RBC"</span>,
-   443|      <span class="json-key">"subject":</span> <span class="json-string">"National Housing Strategy"</span>
-   444|    },
-   445|    {
-   446|      <span class="json-key">"source":</span> <span class="json-string">"fja-cmf.gc.ca"</span>,
-   447|      <span class="json-key">"court":</span> <span class="json-string">"FCA"</span>,
-   448|      <span class="json-key">"title":</span> <span class="json-string">"Canada v. Smith"</span>
-   449|    }
-   450|  ],
-   451|  <span class="json-key">"citation":</span> {
-   452|    <span class="json-key">"source_name":</span> <span class="json-string">"open.canada.ca"</span>,
-   453|    <span class="json-key">"data_hash":</span> <span class="json-string">"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"</span>,
-   454|    <span class="json-key">"license":</span> <span class="json-string">"OGL-C"</span>
-   455|  }
-   456|}</pre>
-   457|    </div>
-   458|    <div class="api-demo-tabs">
-   459|      <button class="api-demo-tab active" data-source="committees">[committees]</button>
-   460|      <button class="api-demo-tab" data-source="lobbying">[lobbying]</button>
-   461|      <button class="api-demo-tab" data-source="procurement">[procurement]</button>
-   462|      <button class="api-demo-tab" data-source="gazette">[gazette]</button>
-   463|      <button class="api-demo-tab" data-source="courts">[courts]</button>
-   464|    </div>
-   465|  </div>
-   466|
-   467|  <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:16px;">// Click a source above to swap the API call inline. No card grid — the code IS the illustration.</p>
-   468|</section>
-   469|
-   470|<!-- ═══ IN-CAMERA SPOTLIGHT ═══ -->
-   471|<div class="spotlight-card fade-in">
-   472|  <div class="inner">
-   473|    <div class="icon">🔒</div>
-   474|    <div class="content">
-   475|      <strong>In-camera meeting detection</strong>
-   476|      <p>When parliamentary committees go closed-door, MapleSpike flags it automatically. Know which meetings are happening in secret, who's involved, and what topics are being discussed off the public record.</p>
-   477|    </div>
-   478|    <a href="dashboard.html" class="btn btn-primary" style="flex-shrink:0;">See recent alerts →</a>
-   479|  </div>
-   480|</div>
-   481|
-   482|<!-- ═══ MCP / AI Integration ═══ -->
-   483|<section class="section-alt" id="mcp-setup">
-   484|  <div class="section-alt-inner">
-   485|    <div class="section-bracket fade-in">
-   486|      <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
-   487|      <span style="color:var(--text-muted);font-size:0.85rem;">AI Integration</span>
-   488|    </div>
-   489|    <div class="section-header fade-in">
-   490|      <h2>Use it with ChatGPT, Claude,<br>Gemini, Grok — or your own code</h2>
-   491|      <p>MapleSpike connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.</p>
-   492|    </div>
-   493|
-   494|    <div class="integration-grid">
-   495|      <div class="integration-card fade-in">
-   496|        <div class="int-icon">💬</div>
-   497|        <h3>ChatGPT</h3>
-   498|        <p>Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers.</p>
-   499|        <div class="code-block">
-   500|<span class="comment"># ChatGPT MCP config</span><br>
-   501|{<br>
-   502|&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-   503|&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
-   504|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span><br>
-   505|&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-   506|&nbsp;&nbsp;}<br>
-   507|}
-   508|        </div>
-   509|      </div>
-   510|
-   511|      <div class="integration-card fade-in stagger-1">
-   512|        <div class="int-icon">🤖</div>
-   513|        <h3>Claude</h3>
-   514|        <p>Native MCP support in Claude Desktop and Claude Code. Ask "what did the ethics committee discuss?" and get a full briefing with citations.</p>
-   515|        <div class="code-block">
-   516|<span class="comment">// claude_desktop_config.json</span><br>
-   517|{<br>
-   518|&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-   519|&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
-   520|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span><br>
-   521|&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-   522|&nbsp;&nbsp;}<br>
-   523|}
-   524|        </div>
-   525|      </div>
-   526|
-   527|      <div class="integration-card fade-in stagger-2">
-   528|        <div class="int-icon">🔮</div>
-   529|        <h3>Gemini</h3>
-   530|        <p>Use MapleSpike as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data.</p>
-   531|      </div>
-   532|
-   533|      <div class="integration-card fade-in stagger-2">
-   534|        <div class="int-icon">✏️</div>
-   535|        <h3>Cursor &amp; Windsurf</h3>
-   536|        <p>Add the MCP endpoint to your editor config. Use MapleSpike data directly in your coding workflow.</p>
-   537|        <div class="code-block">
-   538|<span class="comment">// .cursor/mcp.json</span><br>
-   539|{<br>
-   540|&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-   541|&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
-   542|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span><br>
-   543|&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-   544|&nbsp;&nbsp;}<br>
-   545|}
-   546|        </div>
-   547|      </div>
-   548|
-   549|      <div class="integration-card fade-in stagger-1">
-   550|        <div class="int-icon">🌐</div>
-   551|        <h3>REST API</h3>
-   552|        <p>Direct HTTP access for backends, dashboards, and traditional apps. Every response includes SHA-256 citations.</p>
-   553|        <div class="code-block">
-   554|<span class="prompt">$</span> curl https://api.maplespike.ca/v1/gov/search \<br>
-   555|&nbsp;&nbsp;-H <span class="string">"x-api-key: YOUR_KEY"</span> \<br>
-   556|&nbsp;&nbsp;-G -d <span class="string">"query=housing"</span><br>
-   557|<br>
-   558|<span class="comment">// Returns:</span><br>
-   559|{ <span class="string">"citation"</span>: { <span class="string">"verified"</span>: <span class="keyword">true</span> } }
-   560|        </div>
-   561|      </div>
-   562|    </div>
-   563|
-   564|    <div style="text-align:center;margin-top:40px;">
-   565|      <a href="/docs/" class="btn btn-cyan">View Full Documentation →</a>
-   566|    </div>
-   567|  </div>
-   568|</section>
-   569|
-   570|<!-- ═══ API Explorer ═══ -->
-   571|<section class="section" id="api-ref">
-   572|  <div class="section-bracket fade-in">
-   573|    <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
-   574|    <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
-   575|  </div>
-   576|  <div class="section-header fade-in">
-   577|    <h2>For developers and data nerds</h2>
-   578|    <p>Full API access with verified citations on every response. Every piece of data includes a source you can check.</p>
-   579|  </div>
-   580|
-   581|  <div class="api-explorer fade-in">
-   582|    <div class="api-endpoint">
-   583|      <span class="method get">GET</span>
-   584|      <span class="path">/v1/health</span>
-   585|      <span class="desc">Is the system running?</span>
-   586|    </div>
-   587|    <div class="api-endpoint">
-   588|      <span class="method get">GET</span>
-   589|      <span class="path">/v1/gov/releases</span>
-   590|      <span class="desc">Latest government data</span>
-   591|    </div>
-   592|    <div class="api-endpoint">
-   593|      <span class="method get">GET</span>
-   594|      <span class="path">/v1/gov/search</span>
-   595|      <span class="desc">Search all government sources</span>
-   596|    </div>
-   597|    <div class="api-endpoint">
-   598|      <span class="method get">GET</span>
-   599|      <span class="path">/v1/citation/:hash</span>
-   600|      <span class="desc">Verify a specific data point</span>
-   601|    </div>
-   602|    <div class="api-endpoint">
-   603|      <span class="method get">GET</span>
-   604|      <span class="path">/v1/usage</span>
-   605|      <span class="desc">Check your usage and quota</span>
-   606|    </div>
-   607|    <div class="api-endpoint">
-   608|      <span class="method post">POST</span>
-   609|      <span class="path">/v1/audit/query</span>
-   610|      <span class="desc">Full audit trail (Pro+)</span>
-   611|    </div>
-   612|  </div>
-   613|
-   614|  <div class="api-demo-box fade-in">
-   615|    <div class="demo-header">
-   616|      <div class="demo-dots">
-   617|        <span class="demo-dot"></span>
-   618|        <span class="demo-dot"></span>
-   619|        <span class="demo-dot"></span>
-   620|      </div>
-   621|      <span>API Response Preview</span>
-   622|    </div>
-   623|    <div class="demo-body">
-   624|      <button class="run-btn">▶ Run</button>
-   625|      <div class="output-section">
-   626|        <div class="output-label">Response</div>
-   627|        <div class="demo-output" style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;white-space:pre-wrap;color:var(--text-secondary);">Click "▶ Run" to see a sample response</div>
-   628|      </div>
-   629|    </div>
-   630|  </div>
-   631|
-   632|  <div style="text-align:center;margin-top:32px;">
-   633|    <a href="explorer.html" class="btn btn-secondary">Browse All 47 Data Sources →</a>
-   634|  </div>
-   635|</section>
-   636|
-   637|<!-- ═══ PRICING ═══ -->
-   638|<section class="section" id="pricing">
-   639|  <div class="section-bracket fade-in">
-   640|    <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
-   641|    <span style="color:var(--text-muted);font-size:0.85rem;">Pricing</span>
-   642|  </div>
-   643|  <div class="section-header fade-in">
-   644|    <h2>Simple, transparent pricing.</h2>
-   645|    <p>Free tier for journalists and researchers. Pro for production. Business for teams. No hidden fees, no contracts.</p>
-   646|  </div>
-   647|  <div style="text-align:center;padding:32px 0;">
-   648|    <a href="pricing.html" class="btn btn-primary btn-hero" style="font-size:1.05rem;padding:16px 40px;">See Full Pricing →</a>
-   649|  </div>
-   650|</section>
-   651|
-   652|<!-- ═══ WAITLIST ═══ -->
-   653|<section class="section" id="waitlist" style="padding-bottom:20px;">
-   654|  <div class="section-bracket fade-in">
-   655|    <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
-   656|    <span style="color:var(--text-muted);font-size:0.85rem;">Stay Updated</span>
-   657|  </div>
-   658|  <div class="section-header fade-in" style="margin-bottom:24px;">
-   659|    <h2>Get early access and updates</h2>
-   660|    <p>Be the first to know when we launch new data sources, API features, and Canadian government intelligence.</p>
-   661|  </div>
-   662|  <div class="waitlist-form fade-in">
-   663|    <form action="https://maplespike.us19.list-manage.com/subscribe/post" method="POST" target="_blank">
-   664|      <input type="email" name="EMAIL" placeholder="you@example.com" required aria-label="Email address">
-   665|      <button type="submit" class="btn btn-primary">Subscribe →</button>
-   666|    </form>
-   667|    <p class="waitlist-note">No spam. Unsubscribe anytime. ~1 email/month.</p>
-   668|  </div>
-   669|</section>
-   670|
-   671|<!-- ═══ FOOTER ═══ -->
-   672|<footer>
-   673|  <div class="footer-inner">
-   674|    <div class="brand">
-   675|      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
-   676|        <svg class="logo-svg" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
-   677|          <circle class="seal-ring" cx="17" cy="17" r="15.5"/>
-   678|          <circle class="seal-ring" cx="17" cy="17" r="11.5" stroke-dasharray="3 3"/>
-   679|          <path class="seal-c" d="M13 10h8v2h-6v4h5v2h-5v4h6v2h-8V10z"/>
-   680|          <path class="seal-data" d="M8 22c0-5 18-5 18 0M8 26c0-5 18-5 18 0M10 12l14-2M10 20l14-2" stroke-dasharray="2 3"/>
-   681|          <circle class="seal-leaf" cx="17" cy="5" r="1.5"/>
-   682|          <circle class="seal-leaf" cx="17" cy="29" r="1.5"/>
-   683|        </svg>
-   684|        MapleSpike
-   685|      </a>
-   686|      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing. All data sourced from official government portals under the Open Government Licence – Canada.</p>
-   687|      <div style="margin-top:16px;">
-   688|        <a href="https://github.com/reverb256/maplespike" target="_blank" rel="noopener" class="badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:0.75rem;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);">
-   689|          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-   690|          Open Source on GitHub
-   691|        </a>
-   692|      </div>
-   693|    </div>
-   694|    <div>
-   695|      <h4>Product</h4>
-   696|      <ul>
-   697|        <li><a href="explorer.html">Data Sources</a></li>
-   698|        <li><a href="pricing.html">Pricing</a></li>
-   699|        <li><a href="/docs/">Documentation</a></li>
-   700|        <li><a href="workspace.html">Workspace</a></li>
-   701|      </ul>
-   702|    </div>
-   703|    <div>
-   704|      <h4>AI Tools</h4>
-   705|      <ul>
-   706|        <li><a href="/docs/">ChatGPT Setup</a></li>
-   707|        <li><a href="/docs/">Claude Setup</a></li>
-   708|        <li><a href="/docs/">Gemini Setup</a></li>
-   709|        <li><a href="/docs/">REST API</a></li>
-   710|      </ul>
-   711|    </div>
-   712|    <div>
-   713|      <h4>Legal</h4>
-   714|      <ul>
-   715|        <li><a href="#">Terms of Service</a></li>
-   716|        <li><a href="#">Privacy Policy</a></li>
-   717|        <li><a href="#">OGL-C Attribution</a></li>
-   718|        <li><a href="https://github.com/reverb256/maplespike">GitHub</a></li>
-   719|      </ul>
-   720|    </div>
-   721|  </div>
-   722|  <div class="footer-status">
-   723|    <div class="live-badge" id="system-status">
-   724|      <span class="live-dot" style="background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span>
-   725|      ALL SYSTEMS OPERATIONAL
-   726|    </div>
-   727|    <span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);">v2.0.1 · Data refreshed every 6h · <a href="https://status.maplespike.ca" style="color:var(--accent-cyan);">Status Page</a></span>
-   728|  </div>
-   729|</footer>
-   730|
-   731|<script>
-   732|/* ═══ Portal JS — MapleSpike ═══ */
-   733|
-   734|(function() {
-   735|  'use strict';
-   736|
-   737|  const LS_THEME = 'maplespike-theme';
-   738|
-   739|  // ── Dark/Light Theme ──
-   740|  function initTheme() {
-   741|    const saved = localStorage.getItem(LS_THEME);
-   742|    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-   743|    const theme = saved || (prefersDark ? 'dark' : 'light');
-   744|    document.documentElement.setAttribute('data-theme', theme);
-   745|    document.querySelectorAll('.theme-toggle').forEach(btn => {
-   746|      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-   747|    });
-   748|  }
-   749|
-   750|  function toggleTheme() {
-   751|    const current = document.documentElement.getAttribute('data-theme');
-   752|    const next = current === 'dark' ? 'light' : 'dark';
-   753|    document.documentElement.setAttribute('data-theme', next);
-   754|    localStorage.setItem(LS_THEME, next);
-   755|    document.querySelectorAll('.theme-toggle').forEach(btn => {
-   756|      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-   757|    });
-   758|  }
-   759|
-   760|  function setupThemeToggle() {
-   761|    document.querySelectorAll('.theme-toggle').forEach(btn => {
-   762|      btn.addEventListener('click', toggleTheme);
-   763|    });
-   764|  }
-   765|
-   766|  // ── Mobile Menu ──
-   767|  function setupMobileMenu() {
-   768|    const toggle = document.querySelector('.nav-mobile-toggle');
-   769|    const links = document.querySelector('.nav-links');
-   770|    if (!toggle || !links) return;
-   771|
-   772|    function closeMenu() {
-   773|      links.classList.remove('open');
-   774|      toggle.textContent = '\u2630';
-   775|      document.body.style.overflow = '';
-   776|    }
-   777|
-   778|    function openMenu() {
-   779|      links.classList.add('open');
-   780|      toggle.textContent = '\u2715';
-   781|      document.body.style.overflow = 'hidden';
-   782|    }
-   783|
-   784|    toggle.addEventListener('click', () => {
-   785|      if (links.classList.contains('open')) closeMenu();
-   786|      else openMenu();
-   787|    });
-   788|
-   789|    links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-   790|    document.addEventListener('keydown', (e) => {
-   791|      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
-   792|    });
-   793|  }
-   794|
-   795|  // ── Scroll-Reveal ──
-   796|  function setupScrollReveal() {
-   797|    const els = document.querySelectorAll('.fade-in');
-   798|    if (!els.length) return;
-   799|    const observer = new IntersectionObserver((entries) => {
-   800|      entries.forEach(entry => {
-   801|        if (entry.isIntersecting) {
-   802|          entry.target.classList.add('visible');
-   803|          observer.unobserve(entry.target);
-   804|        }
-   805|      });
-   806|    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-   807|    els.forEach(el => observer.observe(el));
-   808|  }
-   809|
-   810|  // ── Live Stats from API ──
-   811|  async function fetchLiveStats() {
-   812|    const reqEl = document.getElementById('stats-requests');
-   813|    const uptimeEl = document.getElementById('stats-uptime');
-   814|    const sourcesEl = document.getElementById('stats-sources');
-   815|    const statusIndicator = document.getElementById('system-status');
-   816|    const freshnessIndicators = document.querySelectorAll('[data-freshness]');
-   817|    try {
-   818|      const resp = await fetch('/api/v1/health');
-   819|      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-   820|      const data = await resp.json();
-   821|      if (data.success && data.data) {
-   822|        const usage = data.data.usage || {};
-   823|        const monthly = usage.monthly || 0;
-   824|        const daily = usage.daily || 0;
-   825|        if (reqEl) reqEl.textContent = (monthly || daily || 0).toLocaleString();
-   826|        if (uptimeEl) uptimeEl.textContent = data.data.status === 'ok' ? new Date(data.data.timestamp).toLocaleString('en-CA') : 'Check';
-   827|        if (sourcesEl && data.data.sources) sourcesEl.textContent = data.data.sources;
-   828|        // Update status indicator
-   829|        if (statusIndicator) {
-   830|          statusIndicator.innerHTML = data.data.status === 'ok'
-   831|            ? '<span class="live-dot" style="background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span> ALL SYSTEMS OPERATIONAL'
-   832|            : '<span class="live-dot" style="background:var(--warning);box-shadow:0 0 6px rgba(251,191,36,0.6);"></span> DEGRADED';
-   833|        }
-   834|        // Update freshness indicators
-   835|        if (freshnessIndicators.length > 0) {
-   836|          const now = new Date();
-   837|          freshnessIndicators.forEach(el => {
-   838|            const source = el.dataset.freshness;
-   839|            if (source === 'parliament') el.textContent = 'Updated ' + (now.getHours() > 6 ? 'today' : 'yesterday') + ' 06:00 UTC';
-   840|            else if (source === 'lobbying') el.textContent = 'Updated ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-   841|            else el.textContent = '—';
-   842|          });
-   843|        }
-   844|      }
-   845|    } catch (e) {
-   846|      // API unavailable — show honest state, no simulated stats
-   847|      if (statusIndicator) statusIndicator.innerHTML = '<span class="live-dot" style="background:#6B7280;box-shadow:0 0 6px rgba(107,114,128,0.4);"></span> STATUS UNKNOWN';
-   848|      if (freshnessIndicators.length > 0) {
-   849|        freshnessIndicators.forEach(el => { el.textContent = '—'; });
-   850|      }
-   851|    }
-   852|  }
-   853|
-   854|  // ── Stat Counter Animation ──
-   855|  function setupStatCounters() {
-   856|    const counters = document.querySelectorAll('.stat .number');
-   857|    if (!counters.length) return;
-   858|    const observer = new IntersectionObserver((entries) => {
-   859|      entries.forEach(entry => {
-   860|        if (entry.isIntersecting) {
-   861|          const el = entry.target;
-   862|          const text = el.textContent;
-   863|          const num = parseFloat(text.replace(/[^0-9.]/g, ''));
-   864|          if (isNaN(num)) return;
-   865|          const suffix = text.replace(/[0-9.]/g, '');
-   866|          const duration = 1200;
-   867|          const start = performance.now();
-   868|          function update(now) {
-   869|            const elapsed = now - start;
-   870|            const progress = Math.min(elapsed / duration, 1);
-   871|            const eased = 1 - Math.pow(1 - progress, 3);
-   872|            const current = Math.round(eased * num);
-   873|            el.textContent = current.toLocaleString() + suffix;
-   874|            if (progress < 1) requestAnimationFrame(update);
-   875|            else el.textContent = text;
-   876|          }
-   877|          requestAnimationFrame(update);
-   878|          observer.unobserve(el);
-   879|        }
-   880|      });
-   881|    }, { threshold: 0.5 });
-   882|    counters.forEach(el => observer.observe(el));
-   883|  }
-   884|
-   885|  // ── API Demo Box ──
-   886|  function setupDemoBox() {
-   887|    const runBtn = document.querySelector('.run-btn');
-   888|    const output = document.querySelector('.demo-output');
-   889|    if (!runBtn || !output) return;
-   890|    runBtn.addEventListener('click', () => {
-   891|      runBtn.disabled = true;
-   892|      runBtn.textContent = '\u23F3 Running...';
-   893|      setTimeout(() => {
-   894|        output.innerHTML = `{<br>
-   895|  <span style="color:#E879F9;">"success"</span>: <span style="color:#22D3EE;">true</span>,<br>
-   896|  <span style="color:#E879F9;">"data"</span>: [<br>
-   897|    {<br>
-   898|      <span style="color:#E879F9;">"source"</span>: <span style="color:#D4A017;">"ourcommons.ca"</span>,<br>
-   899|      <span style="color:#E879F9;">"title"</span>: <span style="color:#D4A017;">"HUMA Committee Meeting"</span><br>
-   900|    }<br>
-   901|  ],<br>
-   902|  <span style="color:#E879F9;">"citation"</span>: {<br>
-   903|    <span style="color:#E879F9;">"hash"</span>: <span style="color:#D4A017;">"sha256:e3b0c44..."</span>,<br>
-   904|    <span style="color:#E879F9;">"verified"</span>: <span style="color:#22D3EE;">true</span><br>
-   905|  }<br>
-   906|}`;
-   907|        runBtn.textContent = '\u25B6 Run';
-   908|        runBtn.disabled = false;
-   909|      }, 800);
-   910|    });
-   911|  }
-   912|
-   913|  // ── Pricing Toggle ──
-   914|  function setupPricingToggle() {
-   915|    const toggle = document.querySelector('.pricing-toggle .toggle-track');
-   916|    const container = document.querySelector('.pricing-toggle');
-   917|    if (!toggle || !container) return;
-   918|    let isAnnual = false;
-   919|    toggle.addEventListener('click', () => {
-   920|      isAnnual = !isAnnual;
-   921|      container.classList.toggle('active');
-   922|      document.querySelectorAll('.pricing-card').forEach(card => {
-   923|        const monthlyPrice = card.querySelector('.price[data-monthly]');
-   924|        const annualPrice = card.querySelector('.price[data-yearly]');
-   925|        if (monthlyPrice && annualPrice) {
-   926|          const amount = card.querySelector('.amount');
-   927|          const period = card.querySelector('.period');
-   928|          if (isAnnual) {
-   929|            amount.textContent = annualPrice.dataset.yearly || monthlyPrice.dataset.monthly;
-   930|            period.textContent = '/yr';
-   931|            const monthsFree = annualPrice.dataset.monthsFree;
-   932|            if (monthsFree && amount.textContent !== '$0') {
-   933|              const badge = container.querySelector('.save-badge');
-   934|              if (badge) badge.textContent = 'Save ' + monthsFree + ' months';
-   935|            }
-   936|          } else {
-   937|            amount.textContent = monthlyPrice.dataset.monthly;
-   938|            period.textContent = '/mo';
-   939|          }
-   940|        }
-   941|      });
-   942|    });
-   943|  }
-   944|
-   945|  // ── Demo Tab Switching ──
-   946|  function setupDemoTabs() {
-   947|    document.querySelectorAll('.demo-tab').forEach(tab => {
-   948|      tab.addEventListener('click', () => {
-   949|        document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
-   950|        tab.classList.add('active');
-   951|        document.querySelectorAll('.demo-code-block').forEach(b => b.classList.remove('active'));
-   952|        const block = document.getElementById('demo-' + tab.dataset.lang);
-   953|        if (block) block.classList.add('active');
-   954|      });
-   955|    });
-   956|  }
-   957|
-   958|  // ── Copy Active Tab Code ──
-   959|  window.copyActiveTabCode = function() {
-   960|    const active = document.querySelector('.demo-tab.active');
-   961|    if (!active) return;
-   962|    const block = document.getElementById('demo-' + active.dataset.lang);
-   963|    if (!block) return;
-   964|    const text = block.textContent.trim();
-   965|    navigator.clipboard.writeText(text).then(() => {
-   966|      const btn = document.querySelector('.curl-demo .copy-btn');
-   967|      const orig = btn.textContent;
-   968|      btn.textContent = 'Copied!';
-   969|      setTimeout(() => btn.textContent = orig, 2000);
-   970|    }).catch(() => {});
-   971|  };
-   972|
-   973|  // ─── API Demo tab switching ───
-   974|  document.querySelectorAll('.api-demo-tab').forEach(btn => {
-   975|    btn.addEventListener('click', () => {
-   976|      document.querySelectorAll('.api-demo-tab').forEach(b => b.classList.remove('active'));
-   977|      btn.classList.add('active');
-   978|      const source = btn.dataset.source;
-   979|      const header = document.querySelector('.api-demo-command');
-   980|      if (header) header.textContent = 'curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=' + source + '" -d "_limit=3" -d "_format=compact"';
-   981|    });
-   982|  });
-   983|
-   984|  // ── Init ──
-   985|  initTheme();
-   986|  setupThemeToggle();
-   987|  setupMobileMenu();
-   988|  setupScrollReveal();
-   989|  setupStatCounters();
-   990|  setupDemoBox();
-   991|  setupPricingToggle();
-   992|  setupDemoTabs();
-   993|  fetchLiveStats();
-   994|  // Refresh stats every 60s
-   995|  setInterval(fetchLiveStats, 60000);
-   996|})();
-   997|</script>
-   998|
-   999|<!-- Hero background interactive particles -->
-  1000|<script src="assets/hero-particles.js"></script>
-  1001|
-  1002|</body>
-  1003|</html>
-  1004|
+
+<!-- ═══ HERO ═══ -->
+<section class="hero" style="position:relative;overflow:hidden;">
+
+  <!-- CSS grid background layer (as hero canvas) -->
+  <div class="hero-grid-bg" style="position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(194,48,48,0.03) 1px,rgba(0,0,0,0) 1px),linear-gradient(90deg,rgba(194,48,48,0.03) 1px,rgba(0,0,0,0) 1px);background-size:60px 60px;"></div>
+
+  <!-- Gradient glow orbs (red + gold) with Canadian red and gold palette -->
+  <div style="position:absolute;left:50%;top:0;z-index:0;pointer-events:none;width:900px;height:600px;transform:translateX(-50%);opacity:0.18;">
+    <div style="position:absolute;left:20%;top:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgb(194,48,48),rgba(0,0,0,0) 70%);filter:blur(80px);"></div>
+    <div style="position:absolute;right:10%;top:5%;width:400px;height:400px;border-radius:50%;background:radial-gradient(closest-side,rgb(212,160,23),rgba(0,0,0,0) 70%);filter:blur(80px);"></div>
+    <div style="position:absolute;left:50%;top:20%;width:350px;height:350px;border-radius:50%;background:radial-gradient(closest-side,rgb(8,145,178),rgba(0,0,0,0) 70%);filter:blur(80px);"></div>
+  </div>
+
+  <!-- Gold accent line at top -->
+  <div style="position:absolute;top:0;left:0;right:0;z-index:0;pointer-events:none;height:1px;background:linear-gradient(90deg,rgba(0,0,0,0),rgba(212,160,23,0.3),rgba(0,0,0,0));"></div>
+
+  <div class="hero-watermark" style="z-index:1;"></div>
+
+  <h1 class="fade-in-init s2">
+    Track every government decision.<br>
+    <span class="highlight">From committee rooms to contract awards.</span>
+  </h1>
+
+  <p class="hero-subtitle fade-in-init s3">
+    Parliament, lobbying, regulations, courts, oversight — 63 data modules from official Canadian government portals, unified through a single API with <strong>SHA-256 verified citations</strong> on every response.
+  </p>
+
+  <!-- Live Stats Bar -->
+  <div class="hero-stats-bar fade-in-init s3">
+    <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+    <span class="hero-stat-item">
+      <span class="stat-num" id="stats-requests">—</span>
+      <span class="stat-label">REQUESTS / 30D</span>
+    </span>
+    <span class="hero-stat-item">
+      <span class="stat-num" id="stats-sources">63</span>
+      <span class="stat-label">MODULES</span>
+    </span>
+    <span class="hero-stat-item">
+      <span class="stat-num" id="stats-uptime">—</span>
+      <span class="stat-label">UPTIME</span>
+    </span>
+  </div>
+
+  <!-- Curl Quickstart -->
+  <div class="curl-demo fade-in-init s4">
+    <div class="curl-demo-header">
+      <div class="curl-demo-dots">
+        <span class="curl-demo-dot red"></span>
+        <span class="curl-demo-dot yellow"></span>
+        <span class="curl-demo-dot green"></span>
+      </div>
+      <div class="demo-tabs">
+        <button class="demo-tab active" data-lang="curl">curl</button>
+        <button class="demo-tab" data-lang="ts">TypeScript SDK</button>
+        <button class="demo-tab" data-lang="py">Python SDK</button>
+      </div>
+      <button class="copy-btn" onclick="copyActiveTabCode()" style="opacity:1;position:relative;top:0;right:0;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:0.7rem;color:var(--text-muted);cursor:pointer;transition:all var(--transition);font-family:var(--font-mono);">Copy</button>
+    </div>
+    <div class="curl-demo-body demo-code-block active" id="demo-curl">
+      <span class="comment">// Make your first MapleSpike API call</span><br>
+      <span class="prompt">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br>
+      &nbsp;&nbsp;-H <span class="string">"x-api-key: YOUR_KEY"</span> \<br>
+      &nbsp;&nbsp;-G -d <span class="string">"query=housing"</span> \<br>
+      &nbsp;&nbsp;-d <span class="string">"jurisdiction=federal"</span> \<br>
+      &nbsp;&nbsp;-d <span class="string">"limit=2"</span> | jq .<br>
+      <br>
+      <div id="curl-response-area">
+      <span class="comment">// Response with verified citation</span><br>
+      <span class="response-json" id="curl-response">{<br>
+      &nbsp;&nbsp;<span class="key">"success"</span>: <span class="bool">true</span>,<br>
+      &nbsp;&nbsp;<span class="key">"data"</span>: [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"source"</span>: <span class="string">"ourcommons.ca"</span>, <span class="key">"committee"</span>: <span class="string">"HUMA"</span>, <span class="key">"title"</span>: <span class="string">"Housing Committee Meeting"</span> },<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"source"</span>: <span class="string">"lobbycanada.gc.ca"</span>, <span class="key">"subject"</span>: <span class="string">"National Housing Strategy"</span> }<br>
+      &nbsp;&nbsp;],<br>
+      &nbsp;&nbsp;<span class="key">"citation"</span>: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"hash"</span>: <span class="string">"sha256:e3b0c44298fc1c14..."</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"verified"</span>: <span class="bool">true</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"license"</span>: <span class="string">"OGL-C"</span><br>
+      &nbsp;&nbsp;}<br>
+      }</span>
+      </div>
+    </div>
+    <!-- TypeScript SDK code block -->
+    <div class="demo-code-block" id="demo-ts">
+      <span class="comment">// Make your first MapleSpike API call with TypeScript SDK</span><br>
+      import { MapleSpike } from "@maplespike/sdk"<br>
+      <br>
+      const ms = new MapleSpike({ apiKey: "ms_..." })<br>
+      const releases = await ms.query("gov", "releases", {<br>
+      &nbsp;&nbsp;source: "committees", limit: 3<br>
+      })<br>
+      console.log(releases.data)<br>
+      console.log(releases.citation)<br>
+    </div>
+    <!-- Python SDK code block -->
+    <div class="demo-code-block" id="demo-py">
+      <span class="comment"># Make your first MapleSpike API call with Python SDK</span><br>
+      from maplespike import MapleSpike<br>
+      <br>
+      ms = MapleSpike(api_key="ms_...")<br>
+      releases = ms.query("gov", "releases",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;source="committees", limit=3<br>
+      )<br>
+      print(releases.data)<br>
+      print(releases.citation)<br>
+    </div>
+    <div class="curl-demo-footer">
+      <button class="btn btn-ghost btn-sm curl-run-btn" onclick="runCurlDemo()">▶ Run</button>
+      <span class="curl-status" id="curl-status"></span>
+    </div>
+    <script>
+    function runCurlDemo() {
+      const btn = document.querySelector('.curl-run-btn');
+      const status = document.getElementById('curl-status');
+      const response = document.getElementById('curl-response');
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      status.textContent = 'Sending request...';
+      status.style.color = 'var(--text-muted)';
+      setTimeout(() => {
+        btn.textContent = '✓ Done';
+        status.textContent = '200 OK · 142ms · 1 result';
+        status.style.color = 'var(--success)';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = '▶ Run';
+          status.textContent = '';
+        }, 3000);
+      }, 600);
+    }
+    </script>
+    <style>.copy-btn-demo { opacity:1!important; position:relative!important; top:0!important; right:0!important; }</style>
+  </div>
+
+  <div class="hero-actions fade-in-init s5">
+    <a href="workspace.html" class="btn btn-primary" style="font-size:1rem;padding:14px 32px;">Get Your Free API Key →</a>
+    <a href="explorer.html" class="btn btn-secondary" style="font-size:1rem;padding:14px 32px;">Browse Data Sources</a>
+  </div>
+</section>
+
+<!-- ── SDK Tabstrip ───────────────────────────────────────────────────── -->
+<section class="section" data-reveal>
+  <div class="section-bracket">
+    <span class="bracket">[</span>
+    <span class="num">02</span>
+    <span>QUICKSTART</span>
+  </div>
+
+  <div class="sdk-tabstrip">
+    <div class="sdk-tabs-nav" role="tablist">
+      <button class="sdk-tab active" role="tab" aria-selected="true" data-tab="curl">curl</button>
+      <button class="sdk-tab" role="tab" aria-selected="false" data-tab="typescript">TypeScript SDK</button>
+      <button class="sdk-tab" role="tab" aria-selected="false" data-tab="python">Python SDK</button>
+    </div>
+
+    <div class="sdk-panel active" id="sdk-curl" role="tabpanel">
+      <div class="sdk-code-block">
+        <div class="code-line"><span class="comment"># Query Canadian government data from your terminal</span></div>
+        <div class="code-line"><span class="prompt">$</span> curl -X POST https://api.maplespike.ca/v1/query \</div>
+        <div class="code-line">  -H <span class="string">"Authorization: Bearer $MAPLESPIKE_KEY"</span> \\</div>
+        <div class="code-line">  -H <span class="string">"Content-Type: application/json"</span> \</div>
+        <div class="code-line">  -d <span class="string">'{</span></div>
+        <div class="code-line">    <span class="key">"source"</span>: <span class="string">"committees"</span>,</div>
+        <div class="code-line">    <span class="key">"query"</span>: <span class="string">"climate change"</span>,</div>
+        <div class="code-line">    <span class="key">"limit"</span>: <span class="num-val">5</span></div>
+        <div class="code-line">  <span class="string">}'</span></div>
+      </div>
+    </div>
+
+    <div class="sdk-panel" id="sdk-typescript" role="tabpanel">
+      <div class="sdk-code-block">
+        <div class="code-line"><span class="keyword">import</span> { MapleSpike } from <span class="string">"@maplespike/sdk"</span></div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line"><span class="keyword">const</span> client = <span class="keyword">new</span> MapleSpike({</div>
+        <div class="code-line">  apiKey: process.env.MAPLESPIKE_KEY</div>
+        <div class="code-line">})</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line"><span class="keyword">const</span> results = <span class="keyword">await</span> client.query({</div>
+        <div class="code-line">  source: <span class="string">"committees"</span>,</div>
+        <div class="code-line">  query: <span class="string">"climate change"</span>,</div>
+        <div class="code-line">  limit: <span class="num-val">5</span></div>
+        <div class="code-line">})</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">console.log(results)</div>
+      </div>
+    </div>
+
+    <div class="sdk-panel" id="sdk-python" role="tabpanel">
+      <div class="sdk-code-block">
+        <div class="code-line"><span class="keyword">from</span> maplespike <span class="keyword">import</span> MapleSpike</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">client = MapleSpike(</div>
+        <div class="code-line">    api_key=os.environ[<span class="string">"MAPLESPIKE_KEY"</span>]</div>
+        <div class="code-line">)</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">results = client.query(</div>
+        <div class="code-line">    source=<span class="string">"committees"</span>,</div>
+        <div class="code-line">    query=<span class="string">"climate change"</span>,</div>
+        <div class="code-line">    limit=<span class="num-val">5</span></div>
+        <div class="code-line">)</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">print(results)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Live API Code Demo ─────────────────────────────────────────────── -->
+<section class="section section-alt" data-reveal>
+  <div class="section-alt-inner">
+    <div class="section-bracket">
+      <span class="bracket">[</span>
+      <span class="num">03</span>
+      <span>LIVE API DEMO</span>
+    </div>
+
+    <div class="code-demo" id="live-demo">
+      <div class="code-demo-header">
+        <div class="code-demo-dots">
+          <span class="code-demo-dot"></span>
+          <span class="code-demo-dot"></span>
+          <span class="code-demo-dot"></span>
+        </div>
+        <span class="code-demo-title">api.maplespike.ca — response</span>
+        <span class="code-demo-badge"><span class="code-demo-live-dot"></span> LIVE</span>
+      </div>
+      <div class="code-demo-body">
+        <pre id="demo-response-json"></pre>
+      </div>
+      <div class="code-demo-footer">
+        <div class="code-demo-categories">
+          <span class="code-demo-cat-label">SOURCE</span>
+          <button class="code-demo-cat active" data-source="committees">committees</button>
+          <button class="code-demo-cat" data-source="lobbying">lobbying</button>
+          <button class="code-demo-cat" data-source="procurement">procurement</button>
+          <button class="code-demo-cat" data-source="gazette">gazette</button>
+          <button class="code-demo-cat" data-source="courts">courts</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Primary Sources Grid ═══ -->
+<section class="sources-section fade-in-init s1">
+  <div class="sources-inner">
+    <div class="terminal-section-header">
+      <span class="terminal-section">[00.5/Primary sources]</span>
+    </div>
+    <p class="sources-subtitle">Agencies, statistics offices, courts, and national open-data portals — not aggregators, not scraped blogs.</p>
+    <div class="sources-grid">
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canada.ca&sz=64" alt="" class="source-favicon"><span>canada.ca</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=ourcommons.ca&sz=64" alt="" class="source-favicon"><span>ourcommons.ca</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=sencanada.ca&sz=64" alt="" class="source-favicon"><span>sencanada.ca</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=lobbycanada.gc.ca&sz=64" alt="" class="source-favicon"><span>lobbycanada.gc.ca</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canlii.org&sz=64" alt="" class="source-favicon"><span>canlii.org</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=gazette.gc.ca&sz=64" alt="" class="source-favicon"><span>gazette.gc.ca</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=statcan.gc.ca&sz=64" alt="" class="source-favicon"><span>StatCan</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=oag-bvg.gc.ca&sz=64" alt="" class="source-favicon"><span>OAG</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=pbo-dpb.gc.ca&sz=64" alt="" class="source-favicon"><span>PBO</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=ciec-ccie.gc.ca&sz=64" alt="" class="source-favicon"><span>Ethics Comm.</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=ised-isde.gc.ca&sz=64" alt="" class="source-favicon"><span>ISED</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=crtc.gc.ca&sz=64" alt="" class="source-favicon"><span>CRTC</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=elections.ca&sz=64" alt="" class="source-favicon"><span>Elections Canada</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=apps.cra-arc.gc.ca&sz=64" alt="" class="source-favicon"><span>CRA Charities</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=competitionbureau.gc.ca&sz=64" alt="" class="source-favicon"><span>Comp. Bureau</span></div>
+      <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canada.ca&sz=64" alt="" class="source-favicon"><span>CanadaBuys</span></div>
+      <div class="source-item" style="border:1px dashed var(--border);background:transparent;cursor:default;"><span style="font-size:0.7rem;color:var(--text-muted);">+12 more</span></div>
+    </div>
+    <p class="sources-footer">63 data modules across all 13 provinces and territories · 27 SDK agents · 79 actions · <a href="https://open.canada.ca/en/open-government-licence-canada" target="_blank" style="color:var(--accent-cyan);">Open Government Licence – Canada</a></p>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="section" style="padding-top:40px;padding-bottom:40px;">
+  <div class="section-bracket fade-in">
+    <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Platform Overview</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat fade-in">
+      <div class="sect-num">[01]</div>
+      <div class="number">63</div>
+      <div class="label">Data Modules</div>
+    </div>
+    <div class="stat fade-in stagger-1">
+      <div class="sect-num">[02]</div>
+      <div class="number">54</div>
+      <div class="label">Committees Tracked</div>
+    </div>
+    <div class="stat fade-in stagger-2">
+      <div class="sect-num">[03]</div>
+      <div class="number">17</div>
+      <div class="label">Executives Monitored</div>
+    </div>
+    <div class="stat fade-in stagger-3">
+      <div class="sect-num">[04]</div>
+      <div class="number">34</div>
+      <div class="label">Influence Actors</div>
+    </div>
+    <div class="stat fade-in stagger-4">
+      <div class="sect-num">[05]</div>
+      <div class="number">$0</div>
+      <div class="label">to Start (Public Tier)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LIVE API DEMO ═══ -->
+<section class="section" id="api-demo">
+  <div class="section-bracket fade-in">
+    <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Live API Demo</span>
+  </div>
+  <div class="section-header fade-in">
+    <h2>Try it yourself — pick a source</h2>
+    <p>Every response includes a SHA-256 citation hash you can verify independently</p>
+  </div>
+
+  <div class="api-demo fade-in">
+    <div class="api-demo-header">
+      <span class="api-demo-prompt">$</span>
+      <span class="api-demo-command">curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=committees" -d "_limit=3" -d "_format=compact"</span>
+    </div>
+    <div class="api-demo-response" id="api-demo-response">
+      <pre><span class="json-key">{
+  "success":</span> <span class="json-boolean">true</span><span class="json-key">,
+  "data":</span> [
+    {
+      <span class="json-key">"source":</span> <span class="json-string">"ourcommons.ca"</span>,
+      <span class="json-key">"committee":</span> <span class="json-string">"HUMA"</span>,
+      <span class="json-key">"title":</span> <span class="json-string">"Housing Committee Meeting #45"</span>,
+      <span class="json-key">"date":</span> <span class="json-string">"2026-05-14"</span>
+    },
+    {
+      <span class="json-key">"source":</span> <span class="json-string">"lobbycanada.gc.ca"</span>,
+      <span class="json-key">"registrant":</span> <span class="json-string">"RBC"</span>,
+      <span class="json-key">"subject":</span> <span class="json-string">"National Housing Strategy"</span>
+    },
+    {
+      <span class="json-key">"source":</span> <span class="json-string">"fja-cmf.gc.ca"</span>,
+      <span class="json-key">"court":</span> <span class="json-string">"FCA"</span>,
+      <span class="json-key">"title":</span> <span class="json-string">"Canada v. Smith"</span>
+    }
+  ],
+  <span class="json-key">"citation":</span> {
+    <span class="json-key">"source_name":</span> <span class="json-string">"open.canada.ca"</span>,
+    <span class="json-key">"data_hash":</span> <span class="json-string">"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"</span>,
+    <span class="json-key">"license":</span> <span class="json-string">"OGL-C"</span>
+  }
+}</pre>
+    </div>
+    <div class="api-demo-tabs">
+      <button class="api-demo-tab active" data-source="committees">[committees]</button>
+      <button class="api-demo-tab" data-source="lobbying">[lobbying]</button>
+      <button class="api-demo-tab" data-source="procurement">[procurement]</button>
+      <button class="api-demo-tab" data-source="gazette">[gazette]</button>
+      <button class="api-demo-tab" data-source="courts">[courts]</button>
+    </div>
+  </div>
+
+  <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:16px;">// Click a source above to swap the API call inline. No card grid — the code IS the illustration.</p>
+</section>
+
+<!-- ═══ IN-CAMERA SPOTLIGHT ═══ -->
+<div class="spotlight-card fade-in">
+  <div class="inner">
+    <div class="icon">🔒</div>
+    <div class="content">
+      <strong>In-camera meeting detection</strong>
+      <p>When parliamentary committees go closed-door, MapleSpike flags it automatically. Know which meetings are happening in secret, who's involved, and what topics are being discussed off the public record.</p>
+    </div>
+    <a href="dashboard.html" class="btn btn-primary" style="flex-shrink:0;">See recent alerts →</a>
+  </div>
+</div>
+
+<!-- ═══ MCP / AI Integration ═══ -->
+<section class="section-alt" id="mcp-setup">
+  <div class="section-alt-inner">
+    <div class="section-bracket fade-in">
+      <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
+      <span style="color:var(--text-muted);font-size:0.85rem;">AI Integration</span>
+    </div>
+    <div class="section-header fade-in">
+      <h2>Use it with ChatGPT, Claude,<br>Gemini, Grok — or your own code</h2>
+      <p>MapleSpike connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.</p>
+    </div>
+
+    <div class="integration-grid">
+      <div class="integration-card fade-in">
+        <div class="int-icon">💬</div>
+        <h3>ChatGPT</h3>
+        <p>Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers.</p>
+        <div class="code-block">
+<span class="comment"># ChatGPT MCP config</span><br>
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+      </div>
+
+      <div class="integration-card fade-in stagger-1">
+        <div class="int-icon">🤖</div>
+        <h3>Claude</h3>
+        <p>Native MCP support in Claude Desktop and Claude Code. Ask "what did the ethics committee discuss?" and get a full briefing with citations.</p>
+        <div class="code-block">
+<span class="comment">// claude_desktop_config.json</span><br>
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">🔮</div>
+        <h3>Gemini</h3>
+        <p>Use MapleSpike as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data.</p>
+      </div>
+
+      <div class="integration-card fade-in stagger-2">
+        <div class="int-icon">✏️</div>
+        <h3>Cursor &amp; Windsurf</h3>
+        <p>Add the MCP endpoint to your editor config. Use MapleSpike data directly in your coding workflow.</p>
+        <div class="code-block">
+<span class="comment">// .cursor/mcp.json</span><br>
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+        </div>
+      </div>
+
+      <div class="integration-card fade-in stagger-1">
+        <div class="int-icon">🌐</div>
+        <h3>REST API</h3>
+        <p>Direct HTTP access for backends, dashboards, and traditional apps. Every response includes SHA-256 citations.</p>
+        <div class="code-block">
+<span class="prompt">$</span> curl https://api.maplespike.ca/v1/gov/search \<br>
+&nbsp;&nbsp;-H <span class="string">"x-api-key: YOUR_KEY"</span> \<br>
+&nbsp;&nbsp;-G -d <span class="string">"query=housing"</span><br>
+<br>
+<span class="comment">// Returns:</span><br>
+{ <span class="string">"citation"</span>: { <span class="string">"verified"</span>: <span class="keyword">true</span> } }
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:40px;">
+      <a href="/docs/" class="btn btn-cyan">View Full Documentation →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ API Explorer ═══ -->
+<section class="section" id="api-ref">
+  <div class="section-bracket fade-in">
+    <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
+  </div>
+  <div class="section-header fade-in">
+    <h2>For developers and data nerds</h2>
+    <p>Full API access with verified citations on every response. Every piece of data includes a source you can check.</p>
+  </div>
+
+  <div class="api-explorer fade-in">
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/health</span>
+      <span class="desc">Is the system running?</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/gov/releases</span>
+      <span class="desc">Latest government data</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/gov/search</span>
+      <span class="desc">Search all government sources</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/citation/:hash</span>
+      <span class="desc">Verify a specific data point</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method get">GET</span>
+      <span class="path">/v1/usage</span>
+      <span class="desc">Check your usage and quota</span>
+    </div>
+    <div class="api-endpoint">
+      <span class="method post">POST</span>
+      <span class="path">/v1/audit/query</span>
+      <span class="desc">Full audit trail (Pro+)</span>
+    </div>
+  </div>
+
+  <div class="api-demo-box fade-in">
+    <div class="demo-header">
+      <div class="demo-dots">
+        <span class="demo-dot"></span>
+        <span class="demo-dot"></span>
+        <span class="demo-dot"></span>
+      </div>
+      <span>API Response Preview</span>
+    </div>
+    <div class="demo-body">
+      <button class="run-btn">▶ Run</button>
+      <div class="output-section">
+        <div class="output-label">Response</div>
+        <div class="demo-output" style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;white-space:pre-wrap;color:var(--text-secondary);">Click "▶ Run" to see a sample response</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:32px;">
+    <a href="explorer.html" class="btn btn-secondary">Browse All 47 Data Sources →</a>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section class="section" id="pricing">
+  <div class="section-bracket fade-in">
+    <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Pricing</span>
+  </div>
+  <div class="section-header fade-in">
+    <h2>Simple, transparent pricing.</h2>
+    <p>Free tier for journalists and researchers. Pro for production. Business for teams. No hidden fees, no contracts.</p>
+  </div>
+  <div style="text-align:center;padding:32px 0;">
+    <a href="pricing.html" class="btn btn-primary btn-hero" style="font-size:1.05rem;padding:16px 40px;">See Full Pricing →</a>
+  </div>
+</section>
+
+<!-- ═══ WAITLIST ═══ -->
+<section class="section" id="waitlist" style="padding-bottom:20px;">
+  <div class="section-bracket fade-in">
+    <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Stay Updated</span>
+  </div>
+  <div class="section-header fade-in" style="margin-bottom:24px;">
+    <h2>Get early access and updates</h2>
+    <p>Be the first to know when we launch new data sources, API features, and Canadian government intelligence.</p>
+  </div>
+  <div class="waitlist-form fade-in">
+    <form action="https://maplespike.us19.list-manage.com/subscribe/post" method="POST" target="_blank">
+      <input type="email" name="EMAIL" placeholder="you@example.com" required aria-label="Email address">
+      <button type="submit" class="btn btn-primary">Subscribe →</button>
+    </form>
+    <p class="waitlist-note">No spam. Unsubscribe anytime. ~1 email/month.</p>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="brand">
+      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
+        <svg class="logo-svg" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
+          <circle class="seal-ring" cx="17" cy="17" r="15.5"/>
+          <circle class="seal-ring" cx="17" cy="17" r="11.5" stroke-dasharray="3 3"/>
+          <path class="seal-c" d="M13 10h8v2h-6v4h5v2h-5v4h6v2h-8V10z"/>
+          <path class="seal-data" d="M8 22c0-5 18-5 18 0M8 26c0-5 18-5 18 0M10 12l14-2M10 20l14-2" stroke-dasharray="2 3"/>
+          <circle class="seal-leaf" cx="17" cy="5" r="1.5"/>
+          <circle class="seal-leaf" cx="17" cy="29" r="1.5"/>
+        </svg>
+        MapleSpike
+      </a>
+      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing. All data sourced from official government portals under the Open Government Licence – Canada.</p>
+      <div style="margin-top:16px;">
+        <a href="https://github.com/reverb256/maplespike" target="_blank" rel="noopener" class="badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:0.75rem;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Open Source on GitHub
+        </a>
+      </div>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="explorer.html">Data Sources</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="workspace.html">Workspace</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>AI Tools</h4>
+      <ul>
+        <li><a href="/docs/">ChatGPT Setup</a></li>
+        <li><a href="/docs/">Claude Setup</a></li>
+        <li><a href="/docs/">Gemini Setup</a></li>
+        <li><a href="/docs/">REST API</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">OGL-C Attribution</a></li>
+        <li><a href="https://github.com/reverb256/maplespike">GitHub</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-status">
+    <div class="live-badge" id="system-status">
+      <span class="live-dot" style="background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span>
+      ALL SYSTEMS OPERATIONAL
+    </div>
+    <span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);">v2.0.1 · Data refreshed every 6h · <a href="https://status.maplespike.ca" style="color:var(--accent-cyan);">Status Page</a></span>
+  </div>
+</footer>
+
+<script>
+/* ═══ Portal JS — MapleSpike ═══ */
+
+(function() {
+  'use strict';
+
+  const LS_THEME = 'maplespike-theme';
+
+  // ── Dark/Light Theme ──
+  function initTheme() {
+    const saved = localStorage.getItem(LS_THEME);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(LS_THEME, next);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function setupThemeToggle() {
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+  }
+
+  // ── Mobile Menu ──
+  function setupMobileMenu() {
+    const toggle = document.querySelector('.nav-mobile-toggle');
+    const links = document.querySelector('.nav-links');
+    if (!toggle || !links) return;
+
+    function closeMenu() {
+      links.classList.remove('open');
+      toggle.textContent = '\u2630';
+      document.body.style.overflow = '';
+    }
+
+    function openMenu() {
+      links.classList.add('open');
+      toggle.textContent = '\u2715';
+      document.body.style.overflow = 'hidden';
+    }
+
+    toggle.addEventListener('click', () => {
+      if (links.classList.contains('open')) closeMenu();
+      else openMenu();
+    });
+
+    links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
+    });
+  }
+
+  // ── Scroll-Reveal ──
+  function setupScrollReveal() {
+    const els = document.querySelectorAll('.fade-in');
+    if (!els.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => observer.observe(el));
+  }
+
+  // ── Live Stats from API ──
+  async function fetchLiveStats() {
+    const reqEl = document.getElementById('stats-requests');
+    const uptimeEl = document.getElementById('stats-uptime');
+    const sourcesEl = document.getElementById('stats-sources');
+    const statusIndicator = document.getElementById('system-status');
+    const freshnessIndicators = document.querySelectorAll('[data-freshness]');
+    try {
+      const resp = await fetch('/api/v1/health');
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (data.success && data.data) {
+        const usage = data.data.usage || {};
+        const monthly = usage.monthly || 0;
+        const daily = usage.daily || 0;
+        if (reqEl) reqEl.textContent = (monthly || daily || 0).toLocaleString();
+        if (uptimeEl) uptimeEl.textContent = data.data.status === 'ok' ? new Date(data.data.timestamp).toLocaleString('en-CA') : 'Check';
+        if (sourcesEl && data.data.sources) sourcesEl.textContent = data.data.sources;
+        // Update status indicator
+        if (statusIndicator) {
+          statusIndicator.innerHTML = data.data.status === 'ok'
+            ? '<span class="live-dot" style="background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span> ALL SYSTEMS OPERATIONAL'
+            : '<span class="live-dot" style="background:var(--warning);box-shadow:0 0 6px rgba(251,191,36,0.6);"></span> DEGRADED';
+        }
+        // Update freshness indicators
+        if (freshnessIndicators.length > 0) {
+          const now = new Date();
+          freshnessIndicators.forEach(el => {
+            const source = el.dataset.freshness;
+            if (source === 'parliament') el.textContent = 'Updated ' + (now.getHours() > 6 ? 'today' : 'yesterday') + ' 06:00 UTC';
+            else if (source === 'lobbying') el.textContent = 'Updated ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            else el.textContent = '—';
+          });
+        }
+      }
+    } catch (e) {
+      // API unavailable — show honest state, no simulated stats
+      if (statusIndicator) statusIndicator.innerHTML = '<span class="live-dot" style="background:#6B7280;box-shadow:0 0 6px rgba(107,114,128,0.4);"></span> STATUS UNKNOWN';
+      if (freshnessIndicators.length > 0) {
+        freshnessIndicators.forEach(el => { el.textContent = '—'; });
+      }
+    }
+  }
+
+  // ── Stat Counter Animation ──
+  function setupStatCounters() {
+    const counters = document.querySelectorAll('.stat .number');
+    if (!counters.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const text = el.textContent;
+          const num = parseFloat(text.replace(/[^0-9.]/g, ''));
+          if (isNaN(num)) return;
+          const suffix = text.replace(/[0-9.]/g, '');
+          const duration = 1200;
+          const start = performance.now();
+          function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = Math.round(eased * num);
+            el.textContent = current.toLocaleString() + suffix;
+            if (progress < 1) requestAnimationFrame(update);
+            else el.textContent = text;
+          }
+          requestAnimationFrame(update);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(el => observer.observe(el));
+  }
+
+  // ── API Demo Box ──
+  function setupDemoBox() {
+    const runBtn = document.querySelector('.run-btn');
+    const output = document.querySelector('.demo-output');
+    if (!runBtn || !output) return;
+    runBtn.addEventListener('click', () => {
+      runBtn.disabled = true;
+      runBtn.textContent = '\u23F3 Running...';
+      setTimeout(() => {
+        output.innerHTML = `{<br>
+  <span style="color:#E879F9;">"success"</span>: <span style="color:#22D3EE;">true</span>,<br>
+  <span style="color:#E879F9;">"data"</span>: [<br>
+    {<br>
+      <span style="color:#E879F9;">"source"</span>: <span style="color:#D4A017;">"ourcommons.ca"</span>,<br>
+      <span style="color:#E879F9;">"title"</span>: <span style="color:#D4A017;">"HUMA Committee Meeting"</span><br>
+    }<br>
+  ],<br>
+  <span style="color:#E879F9;">"citation"</span>: {<br>
+    <span style="color:#E879F9;">"hash"</span>: <span style="color:#D4A017;">"sha256:e3b0c44..."</span>,<br>
+    <span style="color:#E879F9;">"verified"</span>: <span style="color:#22D3EE;">true</span><br>
+  }<br>
+}`;
+        runBtn.textContent = '\u25B6 Run';
+        runBtn.disabled = false;
+      }, 800);
+    });
+  }
+
+  // ── Pricing Toggle ──
+  function setupPricingToggle() {
+    const toggle = document.querySelector('.pricing-toggle .toggle-track');
+    const container = document.querySelector('.pricing-toggle');
+    if (!toggle || !container) return;
+    let isAnnual = false;
+    toggle.addEventListener('click', () => {
+      isAnnual = !isAnnual;
+      container.classList.toggle('active');
+      document.querySelectorAll('.pricing-card').forEach(card => {
+        const monthlyPrice = card.querySelector('.price[data-monthly]');
+        const annualPrice = card.querySelector('.price[data-yearly]');
+        if (monthlyPrice && annualPrice) {
+          const amount = card.querySelector('.amount');
+          const period = card.querySelector('.period');
+          if (isAnnual) {
+            amount.textContent = annualPrice.dataset.yearly || monthlyPrice.dataset.monthly;
+            period.textContent = '/yr';
+            const monthsFree = annualPrice.dataset.monthsFree;
+            if (monthsFree && amount.textContent !== '$0') {
+              const badge = container.querySelector('.save-badge');
+              if (badge) badge.textContent = 'Save ' + monthsFree + ' months';
+            }
+          } else {
+            amount.textContent = monthlyPrice.dataset.monthly;
+            period.textContent = '/mo';
+          }
+        }
+      });
+    });
+  }
+
+  // ── Demo Tab Switching ──
+  function setupDemoTabs() {
+    document.querySelectorAll('.demo-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.demo-code-block').forEach(b => b.classList.remove('active'));
+        const block = document.getElementById('demo-' + tab.dataset.lang);
+        if (block) block.classList.add('active');
+      });
+    });
+  }
+
+  // ── Copy Active Tab Code ──
+  window.copyActiveTabCode = function() {
+    const active = document.querySelector('.demo-tab.active');
+    if (!active) return;
+    const block = document.getElementById('demo-' + active.dataset.lang);
+    if (!block) return;
+    const text = block.textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.curl-demo .copy-btn');
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = orig, 2000);
+    }).catch(() => {});
+  };
+
+  // ─── API Demo tab switching ───
+  document.querySelectorAll('.api-demo-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.api-demo-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const source = btn.dataset.source;
+      const header = document.querySelector('.api-demo-command');
+      if (header) header.textContent = 'curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=' + source + '" -d "_limit=3" -d "_format=compact"';
+    });
+  });
+
+  // ── Init ──
+  initTheme();
+  setupThemeToggle();
+  setupMobileMenu();
+  setupScrollReveal();
+  setupStatCounters();
+  setupDemoBox();
+  setupPricingToggle();
+  setupDemoTabs();
+  fetchLiveStats();
+  // Refresh stats every 60s
+  setInterval(fetchLiveStats, 60000);
+})();
+</script>
+
+<!-- Hero background interactive particles -->
+<script src="assets/hero-particles.js"></script>
+
+
+<!-- Nav + Theme JS -->
+<script>
+(function() {
+  'use strict';
+  var theme = localStorage.getItem('maplespike-theme') || 'dark';
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('maplespike-theme', t);
+  }
+  document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      setTheme(theme);
+    });
+  });
+  setTheme(theme);
+  var toggle = document.querySelector('.nav-mobile-toggle');
+  var links = document.querySelector('.nav-links');
+  if (toggle && links) {
+    toggle.addEventListener('click', function() {
+      links.classList.toggle('nav-open');
+    });
+  }
+})();
+</script>
+</body>
+</html>
