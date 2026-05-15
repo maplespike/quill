@@ -1,0 +1,34 @@
+{{/*
+  MapleSpike — API + MCP Services
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "maplespike.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: maplespike-api
+spec:
+  type: NodePort
+  ports:
+  - port: {{ .Values.api.port }}
+    targetPort: {{ .Values.api.port }}
+    nodePort: 31283
+  selector:
+    app: maplespike-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "maplespike.fullname" . }}-mcp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: maplespike-mcp
+spec:
+  type: NodePort
+  ports:
+  - port: {{ .Values.mcp.port }}
+    targetPort: {{ .Values.mcp.port }}
+    nodePort: 31745
+  selector:
+    app: maplespike-mcp
