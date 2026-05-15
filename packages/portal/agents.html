@@ -1,405 +1,409 @@
-<!DOCTYPE html>
-<html lang="en-CA" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleSpike — AI Agent Setup: ChatGPT, Claude, Gemini, Grok Integration</title>
-  <link rel="canonical" href="https://maplespike.ca/agents">
-  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/agents">
-  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/agents">
-  <meta name="robots" content="index, follow">
-
-  <meta name="description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. 27 data agents, 79 actions — your AI can query Canadian government data through natural language.">
-
-    <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo.svg">
-  <link rel="apple-touch-icon" href="assets/maplespike_logo.svg">
-  <meta property="og:title" content="MapleSpike — AI Agent Setup: ChatGPT, Claude, Gemini, Grok Integration">
-  <meta property="og:description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. 27 data agents, 79 actions — your AI can query Canadian government data through natural language.">
-  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://maplespike.ca/agents.html">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MapleSpike — AI Agent Setup: ChatGPT, Claude, Gemini, Grok Integration">
-  <meta name="twitter:description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. 27 data agents, 79 actions — your AI can query Canadian government data through natural language.">
-  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "MapleSpike",
-    "url": "https://maplespike.ca",
-    "description": "Canadian government data pipeline with verified citations",
-    "applicationCategory": "Data API",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "CAD"
-    }
-  }
-  </script>
-
-
-  <link rel="preconnect" href="https://www.google.com" crossorigin>
-  <link rel="manifest" href="/manifest.json">
-  <meta name="msapplication-config" content="/browserconfig.xml">
-  <meta name="theme-color" content="#C23030">
-  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-  <script src="/config.js"></script>
-</head>
-<body>
-
+     1|<!DOCTYPE html>
+     2|<html lang="en-CA" data-theme="dark">
+     3|<head>
+     4|  <meta charset="UTF-8">
+     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|  <title>MapleSpike — AI Agent Setup: ChatGPT, Claude, Gemini, Grok Integration</title>
+     7|  <link rel="canonical" href="https://maplespike.ca/agents">
+     8|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/agents">
+     9|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/agents">
+    10|  <meta name="robots" content="index, follow">
+    11|
+    12|  <meta name="description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. 27 data agents, 79 actions — your AI can query Canadian government data through natural language.">
+    13|
+    14|    <link rel="stylesheet" href="styles.css">
+    15|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+    16|  <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo.svg">
+    17|  <link rel="apple-touch-icon" href="assets/maplespike_logo.svg">
+    18|  <meta property="og:title" content="MapleSpike — AI Agent Setup: ChatGPT, Claude, Gemini, Grok Integration">
+    19|  <meta property="og:description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. 27 data agents, 79 actions — your AI can query Canadian government data through natural language.">
+    20|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+    21|  <meta property="og:image:width" content="1200">
+    22|  <meta property="og:image:height" content="630">
+    23|  <meta property="og:url" content="https://maplespike.ca/agents.html">
+    24|  <meta property="og:type" content="website">
+    25|  <meta name="twitter:card" content="summary_large_image">
+    26|  <meta name="twitter:title" content="MapleSpike — AI Agent Setup: ChatGPT, Claude, Gemini, Grok Integration">
+    27|  <meta name="twitter:description" content="Connect MapleSpike to ChatGPT, Claude, Gemini, and Grok. 27 data agents, 79 actions — your AI can query Canadian government data through natural language.">
+    28|  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+    29|  <script type="application/ld+json">
+    30|  {
+    31|    "@context": "https://schema.org",
+    32|    "@type": "WebApplication",
+    33|    "name": "MapleSpike",
+    34|    "url": "https://maplespike.ca",
+    35|    "description": "Canadian government data pipeline with verified citations",
+    36|    "applicationCategory": "Data API",
+    37|    "offers": {
+    38|      "@type": "Offer",
+    39|      "price": "0",
+    40|      "priceCurrency": "CAD"
+    41|    }
+    42|  }
+    43|  </script>
+    44|
+    45|
+    46|  <link rel="preconnect" href="https://www.google.com" crossorigin>
+    47|  <link rel="manifest" href="/manifest.json">
+    48|  <meta name="msapplication-config" content="/browserconfig.xml">
+    49|  <meta name="theme-color" content="#C23030">
+    50|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+    51|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    52|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+    53|  <script src="/config.js"></script>
+    54|</head>
+    55|<body>
+    56|
+    57|<!-- Navigation -->
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
     <ul class="nav-links">
-      <li><a href="/explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-      <li><a href="/explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-      <li><a href="/pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-      <li class="nav-separator" aria-hidden="true"></li>
-      <li><a href="/changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
-      <li><a href="/workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
-    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
   </div>
 </nav>
-
-
-<div class="docs-page">
-
-<div class="section-bracket fade-in-init s1">
-  <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
-  <span style="color:var(--text-muted);font-size:0.85rem;">AI Agent Setup</span>
-</div>
-
-<h1 class="fade-in-init s2">Connect MapleSpike to your AI tools</h1>
-<p class="hero-subtitle fade-in-init s3" style="margin-bottom:40px;">
-  MapleSpike speaks the <span data-term="mcp">MCP</span> protocol — the standard that lets AI tools fetch live data. Add it once and your AI gains <strong>27 specialized agents</strong> with <strong>79 actions</strong> to query Canadian government data in real time.
-</p>
-
-<!-- ═══ WHAT YOU CAN ASK ═══ -->
-<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;border:1px solid var(--border);">
-  <h2 style="margin-top:0;">Things you can ask once it's connected</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent-cyan);font-size:1.2rem;">🗳️</span>
-      <p style="margin-top:8px;">"What did the ethics committee discuss yesterday?"</p>
-    </div>
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent-cyan);font-size:1.2rem;">💰</span>
-      <p style="margin-top:8px;">"Which companies lobbied the defence department this month?"</p>
-    </div>
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent-cyan);font-size:1.2rem;">🔗</span>
-      <p style="margin-top:8px;">"Show me everything about Catherine Tait across all sources"</p>
-    </div>
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent-cyan);font-size:1.2rem;">🏛️</span>
-      <p style="margin-top:8px;">"Which meetings this week were in-camera (closed to the public)?"</p>
-    </div>
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent-cyan);font-size:1.2rem;">📄</span>
-      <p style="margin-top:8px;">"Get me the full transcript from last week's finance committee"</p>
-    </div>
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent-cyan);font-size:1.2rem;">⚠️</span>
-      <p style="margin-top:8px;">"Flag any sole-source contracts over $1M this quarter"</p>
-    </div>
-    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
-      <span style="color:var(--accent);font-size:1.2rem;">🔒</span>
-      <p style="margin-top:8px;">"Which committee meetings went in-camera (closed to the public) this week?"</p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ KEY AGENTS ═══ -->
-<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;border:1px solid var(--border);">
-  <h2 style="margin-top:0;">Available Agents</h2>
-  <p>MapleSpike exposes <strong>27 agents</strong> with <strong>79 actions</strong> over MCP. Each agent specializes in a specific area of Canadian government data. Here are the key agents:</p>
-  <table>
-    <tr><th>Agent</th><th>Description</th><th>Key Actions</th></tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Committees</span></td>
-      <td>Parliamentary committee meetings, evidence, Hansard transcripts, witness lists, in-camera flags</td>
-      <td><code>search_transcripts</code>, <code>get_committee</code>, <code>get_in_camera</code></td>
-    </tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Lobbying</span></td>
-      <td>Lobbying registry, monthly communications reports, registrations, spending</td>
-      <td><code>search_lobbying</code>, <code>get_lobbyist</code>, <code>track_organization</code></td>
-    </tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Procurement</span></td>
-      <td>Government contracts, CanadaBuys RSS, proactive disclosure, sole-source flagging</td>
-      <td><code>get_contract</code>, <code>search_procurement</code>, <code>flag_sole_source</code></td>
-    </tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Elections</span></td>
-      <td>Elections Canada contributions, candidate profiles, electoral district data</td>
-      <td><code>search_contributions</code>, <code>get_candidate</code>, <code>get_district</code></td>
-    </tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Influence</span></td>
-      <td>Think tanks, NGOs, IOs, consultancies — funding sources, committee appearances, lobbying connections</td>
-      <td><code>track_entity</code>, <code>get_signals</code>, <code>cross_reference</code></td>
-    </tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Legal</span></td>
-      <td>Federal court judgments, tribunal decisions, regulatory registries</td>
-      <td><code>search_judgments</code>, <code>get_regulation</code>, <code>search_decisions</code></td>
-    </tr>
-    <tr>
-      <td><span style="color:var(--accent-cyan);">Cross-Reference</span> <span class="tag tag-green">Pro+</span></td>
-      <td>Entity resolution engine — links people and organizations across committees, lobbying, procurement, and all other sources</td>
-      <td><code>resolve_entity</code>, <code>track_entity</code>, <code>cross_reference</code></td>
-    </tr>
-  </table>
-  <p style="margin-top:16px;font-size:0.85rem;color:var(--text-secondary);">All agents are available on every plan via MCP. The Cross-Reference agent's entity resolution engine requires a Pro+ subscription.</p>
-</div>
-
-<!-- ═══ PLATFORM-SPECIFIC SETUP ═══ -->
-<h2>Setup by platform</h2>
-
-<!-- ChatGPT -->
-<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <span style="font-size:2rem;">💬</span>
-    <h3 style="margin:0;">ChatGPT</h3>
-  </div>
-  <p>OpenAI's ChatGPT supports MCP through the ChatGPT desktop app and GPT Actions. Add MapleSpike as an MCP server to let ChatGPT answer questions about Canadian government data.</p>
-
-  <h4>Desktop App (macOS/Windows)</h4>
-  <p>Configure in <code>~/.chatgpt/mcp.json</code>. You can connect via the SSE endpoint (recommended) or run the MCP server from source:</p>
-  <div class="code-block">
-{
-  "mcpServers": {
-    "maplespike-canada": {
-      "url": "https://maplespike.lan/mcp"
-    }
-  }
-}
-  </div>
-  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">Note: The MCP server runs as a service on your K3s cluster. Ask your cluster admin for the endpoint URL and API key. To run locally, build from the repo: <code>pnpm --filter @maplespike/mcp-server start</code></p>
-
-  <h4>Or use the ChatGPT Actions API</h4>
-  <p>Point a GPT Action to MapleSpike's MCP endpoint at <code>https://maplespike.lan/mcp</code> (local) or the hosted MCP server endpoint.</p>
-</div>
-
-<!-- Claude -->
-<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <span style="font-size:2rem;">🤖</span>
-    <h3 style="margin:0;">Claude (Anthropic)</h3>
-  </div>
-  <p>Claude was the first major AI to adopt MCP natively. Both Claude Desktop and Claude Code support MapleSpike out of the box.</p>
-
-  <h4>Claude Desktop</h4>
-  <p>Add to <code>claude_desktop_config.json</code>. Connect via the SSE endpoint (recommended):</p>
-  <div class="code-block">
-{
-  "mcpServers": {
-    "maplespike-canada": {
-      "url": "https://maplespike.lan/mcp"
-    }
-  }
-}
-  </div>
-  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">The MCP server runs as a cluster service. Ask your cluster admin for the endpoint URL. The API key is managed by the operator — set <code>MAPLESPIKE_API_KEY</code> in the server environment.</p>
-
-  <h4>Claude Code (CLI)</h4>
-  <div class="code-block">
-claude mcp add maplespike-canada -- https://maplespike.lan/mcp
-  </div>
-
-  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using the MapleSpike MCP tools, find me all lobbyist meetings with Innovation department this quarter and check if any of those companies also have sole-source contracts."</em></p>
-</div>
-
-<!-- Google Gemini -->
-<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <span style="font-size:2rem;">🔮</span>
-    <h3 style="margin:0;">Google Gemini</h3>
-  </div>
-  <p>Gemini supports MCP through Google AI Studio and the Gemini API. Use the MCP client library to connect MapleSpike as a tool.</p>
-
-  <h4>Via Google AI Studio</h4>
-  <p>Use the built-in MCP client in AI Studio to add MapleSpike as a tool. Configure with:</p>
-  <div class="code-block">
-MCP Server URL: https://maplespike.lan/mcp
-Authentication: Bearer token (your MapleSpike API key)
-  </div>
-
-  <h4>Via Gemini API (Vertex AI / custom apps)</h4>
-  <div class="code-block">
-# Python example
-from google import genai
-from mcp import Client
-
-client = Client("https://maplespike.lan/mcp")
-tools = await client.list_tools()
-
-response = client.generate(
-  model="gemini-2.5-pro",
-  tools=tools,
-  prompt="What happened in committees this week?"
-)
-  </div>
-
-  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using MapleSpike, list all meetings of the Standing Committee on Public Accounts from the last month and summarize the main topics."</em></p>
-</div>
-
-<!-- Grok -->
-<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <span style="font-size:2rem;">𝕏</span>
-    <h3 style="margin:0;">Grok (xAI)</h3>
-  </div>
-  <p>Grok supports MCP tools through xAI's API. Connect MapleSpike to enable Grok to answer questions about Canadian government data with verified sources.</p>
-
-  <h4>Via xAI API</h4>
-  <div class="code-block">
-# Python example
-from openai import OpenAI
-import json
-
-client = OpenAI(
-  api_key="<ask-operator>",
-  base_url="https://api.x.ai/v1"
-)
-
-# MapleSpike MCP tools are called as function calls
-response = client.chat.completions.create(
-  model="grok-3",
-  messages=[{"role": "user", "content": "Who lobbied the most this month?"}],
-  tools=[{
-    "type": "function",
-    "function": {
-      "name": "query_gov_data",
-      "description": "Search Canadian government data"
-    }
-  }]
-)
-  </div>
-
-  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using MapleSpike, check which telecom CEOs have appeared before parliamentary committees this year and cross-reference with their company's lobbying activity."</em></p>
-</div>
-
-<!-- ═══ YOUR OWN PIPELINES ═══ -->
-<div style="background:var(--bg-card);border:2px solid var(--accent);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;margin-top:48px;">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-    <span style="font-size:2rem;">⚙️</span>
-    <h3 style="margin:0;color:var(--accent);">Your Own Pipelines</h3>
-  </div>
-  <p style="font-size:1.1rem;">MapleSpike isn't just for AI chat — it's a full data pipeline that runs on your own infrastructure. Every ingestion module is also available as a local tool or script.</p>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
-    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
-      <h4 style="margin:0 0 8px;">🏛️ Committees Pipeline</h4>
-      <p>Ingests all 30 House of Commons committees daily. Captures evidence XML, Hansard transcripts, speaker attribution, and in-camera flags.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core committees --ingest-all</div>
-    </div>
-    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
-      <h4 style="margin:0 0 8px;">💰 Lobbying Pipeline</h4>
-      <p>Monthly CSV dumps from the Office of the Commissioner of Lobbying. Tracks who is lobbying which department, on what topic, and how much they're spending.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core lobbying --ingest</div>
-    </div>
-    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
-      <h4 style="margin:0 0 8px;">📄 Procurement Pipeline</h4>
-      <p>CanadaBuys RSS feed + proactive disclosure contracts. Flags sole-source awards and cross-references with lobbying data.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core procurement --check-sole-source</div>
-    </div>
-    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
-      <h4 style="margin:0 0 8px;">🌐 Influence Pipeline</h4>
-      <p>32 tracked IOs, NGOs, think tanks, and consultancies. Cross-references committee appearances, lobbying, funding, and CRA charity data.</p>
-      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core influence --ingest-all</div>
-    </div>
-  </div>
-
-  <div style="margin-top:24px;padding:20px;background:var(--bg-secondary);border-radius:var(--radius);">
-    <h4 style="margin:0 0 8px;">🔗 Entity Resolution Engine</h4>
-    <p>The engine package links people and organizations across all data sources. When the same person appears on a committee, in a lobbying report, and as a contract signatory — MapleSpike connects them. Runs 7 signal detectors for revolving doors, lobbying overlaps, and sole-source flagging.</p>
-    <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/engine sweep --full</div>
-  </div>
-
-  <p style="margin-top:24px;padding:16px;background:var(--accent-dim);border-radius:var(--radius-sm);">
-    <strong>💡 All pipelines run on your own K3s cluster via cron jobs.</strong> No external dependencies, no cloud, no data leaves your infrastructure. See <a href="/docs/guide/what-is-maplespike.html">How it Works</a> for deployment.
-  </p>
-</div>
-
-<!-- ═══ MCP TOOLS REFERENCE ═══ -->
-<h2>All MapleSpike MCP Tools</h2>
-<p>These tools become available in your AI once connected. Each returns verified data with source citations.</p>
-
-<table>
-  <tr><th>Tool</th><th>What it does</th><th>Best for</th></tr>
-  <tr><td><code>query_gov_data</code></td><td>Search all government data sources by keyword, jurisdiction, date</td><td>General research <span class="tag tag-green" style="margin-left:6px;">LIVE</span></td></tr>
-  <tr><td><code>fact_check</code></td><td>Verify a claim against official data</td><td>Journalism <span class="tag tag-green">LIVE</span></td></tr>
-  <tr><td><code>get_citation</code></td><td>Verify a SHA-256 citation hash</td><td>Source verification <span class="tag tag-green">LIVE</span></td></tr>
-  <tr><td><code>latest_releases</code></td><td>Latest government data releases</td><td>Monitoring <span class="tag tag-green">LIVE</span></td></tr>
-  <tr><td><code>search_transcripts</code></td><td>Search committee evidence and Hansard transcripts</td><td>Committee monitoring <span class="tag tag-cyan">PLANNED</span></td></tr>
-  <tr><td><code>get_committee</code></td><td>Get details of a specific committee meeting</td><td>Deep dives <span class="tag tag-cyan">PLANNED</span></td></tr>
-  <tr><td><code>search_lobbying</code></td><td>Search lobbying registry by company, department, date</td><td>Influence tracking <span class="tag tag-cyan">PLANNED</span></td></tr>
-  <tr><td><code>get_contract</code></td><td>Look up procurement contracts by vendor or department</td><td>Spending analysis <span class="tag tag-cyan">PLANNED</span></td></tr>
-  <tr><td><code>track_entity</code></td><td>Find every mention of a person or org across all sources</td><td>Cross-referencing <span class="tag tag-cyan">PLANNED</span></td></tr>
-  <tr><td><code>get_in_camera</code></td><td>List all in-camera (closed) committee meetings</td><td>Transparency tracking <span class="tag tag-cyan">PLANNED</span></td></tr>
-  <tr><td><code>get_signals</code></td><td>Get recent detected signals (revolving doors, overlaps, etc.)</td><td>Alerting <span class="tag tag-cyan">PLANNED</span></td></tr>
-</table>
-
-</div>
-
-<footer>
-  <div class="footer-inner">
-    <div class="brand">
-      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
-      <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
-      MapleSpike
-      </a>
-      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
-    </div>
-    <div>
-      <h4>Product</h4>
-      <ul>
-        <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
-        <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
-        <li><a href="/docs/guide/what-is-maplespike.html" data-i18n="nav.howItWorks">How it Works</a></li>
-        <li><a href="dashboard.html">Dashboard</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>AI Tools</h4>
-      <ul>
-        <li><a href="agents.html">ChatGPT Setup</a></li>
-        <li><a href="agents.html">Claude Setup</a></li>
-        <li><a href="agents.html">Gemini Setup</a></li>
-        <li><a href="agents.html">Grok Setup</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Legal</h4>
-      <ul>
-        <li>Terms of Service</li>
-        <li>Privacy Policy</li>
-        <li>OGL-C Attribution</li>
-        <li><a href="https://github.com/reverb256">GitHub</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 MapleSpike. All rights reserved.</span>
-    <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
-  </div>
-</footer>
-
-<script src="script.js"></script>
-<script src="/nav.js"></script>
-</body>
-</html>
+    75|
+    76|
+    77|<div class="docs-page">
+    78|
+    79|<div class="section-bracket fade-in-init s1">
+    80|  <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
+    81|  <span style="color:var(--text-muted);font-size:0.85rem;">AI Agent Setup</span>
+    82|</div>
+    83|
+    84|<h1 class="fade-in-init s2">Connect MapleSpike to your AI tools</h1>
+    85|<p class="hero-subtitle fade-in-init s3" style="margin-bottom:40px;">
+    86|  MapleSpike speaks the <span data-term="mcp">MCP</span> protocol — the standard that lets AI tools fetch live data. Add it once and your AI gains <strong>27 specialized agents</strong> with <strong>79 actions</strong> to query Canadian government data in real time.
+    87|</p>
+    88|
+    89|<!-- ═══ WHAT YOU CAN ASK ═══ -->
+    90|<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;border:1px solid var(--border);">
+    91|  <h2 style="margin-top:0;">Things you can ask once it's connected</h2>
+    92|  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    93|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+    94|      <span style="color:var(--accent-cyan);font-size:1.2rem;">🗳️</span>
+    95|      <p style="margin-top:8px;">"What did the ethics committee discuss yesterday?"</p>
+    96|    </div>
+    97|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+    98|      <span style="color:var(--accent-cyan);font-size:1.2rem;">💰</span>
+    99|      <p style="margin-top:8px;">"Which companies lobbied the defence department this month?"</p>
+   100|    </div>
+   101|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+   102|      <span style="color:var(--accent-cyan);font-size:1.2rem;">🔗</span>
+   103|      <p style="margin-top:8px;">"Show me everything about Catherine Tait across all sources"</p>
+   104|    </div>
+   105|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+   106|      <span style="color:var(--accent-cyan);font-size:1.2rem;">🏛️</span>
+   107|      <p style="margin-top:8px;">"Which meetings this week were in-camera (closed to the public)?"</p>
+   108|    </div>
+   109|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+   110|      <span style="color:var(--accent-cyan);font-size:1.2rem;">📄</span>
+   111|      <p style="margin-top:8px;">"Get me the full transcript from last week's finance committee"</p>
+   112|    </div>
+   113|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+   114|      <span style="color:var(--accent-cyan);font-size:1.2rem;">⚠️</span>
+   115|      <p style="margin-top:8px;">"Flag any sole-source contracts over $1M this quarter"</p>
+   116|    </div>
+   117|    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-sm);">
+   118|      <span style="color:var(--accent);font-size:1.2rem;">🔒</span>
+   119|      <p style="margin-top:8px;">"Which committee meetings went in-camera (closed to the public) this week?"</p>
+   120|    </div>
+   121|  </div>
+   122|</div>
+   123|
+   124|<!-- ═══ KEY AGENTS ═══ -->
+   125|<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;border:1px solid var(--border);">
+   126|  <h2 style="margin-top:0;">Available Agents</h2>
+   127|  <p>MapleSpike exposes <strong>27 agents</strong> with <strong>79 actions</strong> over MCP. Each agent specializes in a specific area of Canadian government data. Here are the key agents:</p>
+   128|  <table>
+   129|    <tr><th>Agent</th><th>Description</th><th>Key Actions</th></tr>
+   130|    <tr>
+   131|      <td><span style="color:var(--accent-cyan);">Committees</span></td>
+   132|      <td>Parliamentary committee meetings, evidence, Hansard transcripts, witness lists, in-camera flags</td>
+   133|      <td><code>search_transcripts</code>, <code>get_committee</code>, <code>get_in_camera</code></td>
+   134|    </tr>
+   135|    <tr>
+   136|      <td><span style="color:var(--accent-cyan);">Lobbying</span></td>
+   137|      <td>Lobbying registry, monthly communications reports, registrations, spending</td>
+   138|      <td><code>search_lobbying</code>, <code>get_lobbyist</code>, <code>track_organization</code></td>
+   139|    </tr>
+   140|    <tr>
+   141|      <td><span style="color:var(--accent-cyan);">Procurement</span></td>
+   142|      <td>Government contracts, CanadaBuys RSS, proactive disclosure, sole-source flagging</td>
+   143|      <td><code>get_contract</code>, <code>search_procurement</code>, <code>flag_sole_source</code></td>
+   144|    </tr>
+   145|    <tr>
+   146|      <td><span style="color:var(--accent-cyan);">Elections</span></td>
+   147|      <td>Elections Canada contributions, candidate profiles, electoral district data</td>
+   148|      <td><code>search_contributions</code>, <code>get_candidate</code>, <code>get_district</code></td>
+   149|    </tr>
+   150|    <tr>
+   151|      <td><span style="color:var(--accent-cyan);">Influence</span></td>
+   152|      <td>Think tanks, NGOs, IOs, consultancies — funding sources, committee appearances, lobbying connections</td>
+   153|      <td><code>track_entity</code>, <code>get_signals</code>, <code>cross_reference</code></td>
+   154|    </tr>
+   155|    <tr>
+   156|      <td><span style="color:var(--accent-cyan);">Legal</span></td>
+   157|      <td>Federal court judgments, tribunal decisions, regulatory registries</td>
+   158|      <td><code>search_judgments</code>, <code>get_regulation</code>, <code>search_decisions</code></td>
+   159|    </tr>
+   160|    <tr>
+   161|      <td><span style="color:var(--accent-cyan);">Cross-Reference</span> <span class="tag tag-green">Pro+</span></td>
+   162|      <td>Entity resolution engine — links people and organizations across committees, lobbying, procurement, and all other sources</td>
+   163|      <td><code>resolve_entity</code>, <code>track_entity</code>, <code>cross_reference</code></td>
+   164|    </tr>
+   165|  </table>
+   166|  <p style="margin-top:16px;font-size:0.85rem;color:var(--text-secondary);">All agents are available on every plan via MCP. The Cross-Reference agent's entity resolution engine requires a Pro+ subscription.</p>
+   167|</div>
+   168|
+   169|<!-- ═══ PLATFORM-SPECIFIC SETUP ═══ -->
+   170|<h2>Setup by platform</h2>
+   171|
+   172|<!-- ChatGPT -->
+   173|<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+   174|  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+   175|    <span style="font-size:2rem;">💬</span>
+   176|    <h3 style="margin:0;">ChatGPT</h3>
+   177|  </div>
+   178|  <p>OpenAI's ChatGPT supports MCP through the ChatGPT desktop app and GPT Actions. Add MapleSpike as an MCP server to let ChatGPT answer questions about Canadian government data.</p>
+   179|
+   180|  <h4>Desktop App (macOS/Windows)</h4>
+   181|  <p>Configure in <code>~/.chatgpt/mcp.json</code>. You can connect via the SSE endpoint (recommended) or run the MCP server from source:</p>
+   182|  <div class="code-block">
+   183|{
+   184|  "mcpServers": {
+   185|    "maplespike-canada": {
+   186|      "url": "https://maplespike.lan/mcp"
+   187|    }
+   188|  }
+   189|}
+   190|  </div>
+   191|  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">Note: The MCP server runs as a service on your K3s cluster. Ask your cluster admin for the endpoint URL and API key. To run locally, build from the repo: <code>pnpm --filter @maplespike/mcp-server start</code></p>
+   192|
+   193|  <h4>Or use the ChatGPT Actions API</h4>
+   194|  <p>Point a GPT Action to MapleSpike's MCP endpoint at <code>https://maplespike.lan/mcp</code> (local) or the hosted MCP server endpoint.</p>
+   195|</div>
+   196|
+   197|<!-- Claude -->
+   198|<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+   199|  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+   200|    <span style="font-size:2rem;">🤖</span>
+   201|    <h3 style="margin:0;">Claude (Anthropic)</h3>
+   202|  </div>
+   203|  <p>Claude was the first major AI to adopt MCP natively. Both Claude Desktop and Claude Code support MapleSpike out of the box.</p>
+   204|
+   205|  <h4>Claude Desktop</h4>
+   206|  <p>Add to <code>claude_desktop_config.json</code>. Connect via the SSE endpoint (recommended):</p>
+   207|  <div class="code-block">
+   208|{
+   209|  "mcpServers": {
+   210|    "maplespike-canada": {
+   211|      "url": "https://maplespike.lan/mcp"
+   212|    }
+   213|  }
+   214|}
+   215|  </div>
+   216|  <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:6px;">The MCP server runs as a cluster service. Ask your cluster admin for the endpoint URL. The API key is managed by the operator — set <code>MAPLESPIKE_API_KEY</code> in the server environment.</p>
+   217|
+   218|  <h4>Claude Code (CLI)</h4>
+   219|  <div class="code-block">
+   220|claude mcp add maplespike-canada -- https://maplespike.lan/mcp
+   221|  </div>
+   222|
+   223|  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using the MapleSpike MCP tools, find me all lobbyist meetings with Innovation department this quarter and check if any of those companies also have sole-source contracts."</em></p>
+   224|</div>
+   225|
+   226|<!-- Google Gemini -->
+   227|<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+   228|  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+   229|    <span style="font-size:2rem;">🔮</span>
+   230|    <h3 style="margin:0;">Google Gemini</h3>
+   231|  </div>
+   232|  <p>Gemini supports MCP through Google AI Studio and the Gemini API. Use the MCP client library to connect MapleSpike as a tool.</p>
+   233|
+   234|  <h4>Via Google AI Studio</h4>
+   235|  <p>Use the built-in MCP client in AI Studio to add MapleSpike as a tool. Configure with:</p>
+   236|  <div class="code-block">
+   237|MCP Server URL: https://maplespike.lan/mcp
+   238|Authentication: Bearer token (your MapleSpike API key)
+   239|  </div>
+   240|
+   241|  <h4>Via Gemini API (Vertex AI / custom apps)</h4>
+   242|  <div class="code-block">
+   243|# Python example
+   244|from google import genai
+   245|from mcp import Client
+   246|
+   247|client = Client("https://maplespike.lan/mcp")
+   248|tools = await client.list_tools()
+   249|
+   250|response = client.generate(
+   251|  model="gemini-2.5-pro",
+   252|  tools=tools,
+   253|  prompt="What happened in committees this week?"
+   254|)
+   255|  </div>
+   256|
+   257|  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using MapleSpike, list all meetings of the Standing Committee on Public Accounts from the last month and summarize the main topics."</em></p>
+   258|</div>
+   259|
+   260|<!-- Grok -->
+   261|<div style="background:var(--bg-card);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;border:1px solid var(--border);">
+   262|  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+   263|    <span style="font-size:2rem;">𝕏</span>
+   264|    <h3 style="margin:0;">Grok (xAI)</h3>
+   265|  </div>
+   266|  <p>Grok supports MCP tools through xAI's API. Connect MapleSpike to enable Grok to answer questions about Canadian government data with verified sources.</p>
+   267|
+   268|  <h4>Via xAI API</h4>
+   269|  <div class="code-block">
+   270|# Python example
+   271|from openai import OpenAI
+   272|import json
+   273|
+   274|client = OpenAI(
+   275|  api_key="<ask-operator>",
+   276|  base_url="https://api.x.ai/v1"
+   277|)
+   278|
+   279|# MapleSpike MCP tools are called as function calls
+   280|response = client.chat.completions.create(
+   281|  model="grok-3",
+   282|  messages=[{"role": "user", "content": "Who lobbied the most this month?"}],
+   283|  tools=[{
+   284|    "type": "function",
+   285|    "function": {
+   286|      "name": "query_gov_data",
+   287|      "description": "Search Canadian government data"
+   288|    }
+   289|  }]
+   290|)
+   291|  </div>
+   292|
+   293|  <p style="margin-top:12px;"><strong>Try asking:</strong> <em>"Using MapleSpike, check which telecom CEOs have appeared before parliamentary committees this year and cross-reference with their company's lobbying activity."</em></p>
+   294|</div>
+   295|
+   296|<!-- ═══ YOUR OWN PIPELINES ═══ -->
+   297|<div style="background:var(--bg-card);border:2px solid var(--accent);border-radius:var(--radius-lg);padding:32px;margin-bottom:48px;margin-top:48px;">
+   298|  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+   299|    <span style="font-size:2rem;">⚙️</span>
+   300|    <h3 style="margin:0;color:var(--accent);">Your Own Pipelines</h3>
+   301|  </div>
+   302|  <p style="font-size:1.1rem;">MapleSpike isn't just for AI chat — it's a full data pipeline that runs on your own infrastructure. Every ingestion module is also available as a local tool or script.</p>
+   303|
+   304|  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
+   305|    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+   306|      <h4 style="margin:0 0 8px;">🏛️ Committees Pipeline</h4>
+   307|      <p>Ingests all 30 House of Commons committees daily. Captures evidence XML, Hansard transcripts, speaker attribution, and in-camera flags.</p>
+   308|      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core committees --ingest-all</div>
+   309|    </div>
+   310|    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+   311|      <h4 style="margin:0 0 8px;">💰 Lobbying Pipeline</h4>
+   312|      <p>Monthly CSV dumps from the Office of the Commissioner of Lobbying. Tracks who is lobbying which department, on what topic, and how much they're spending.</p>
+   313|      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core lobbying --ingest</div>
+   314|    </div>
+   315|    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+   316|      <h4 style="margin:0 0 8px;">📄 Procurement Pipeline</h4>
+   317|      <p>CanadaBuys RSS feed + proactive disclosure contracts. Flags sole-source awards and cross-references with lobbying data.</p>
+   318|      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core procurement --check-sole-source</div>
+   319|    </div>
+   320|    <div style="background:var(--bg-secondary);padding:20px;border-radius:var(--radius);">
+   321|      <h4 style="margin:0 0 8px;">🌐 Influence Pipeline</h4>
+   322|      <p>32 tracked IOs, NGOs, think tanks, and consultancies. Cross-references committee appearances, lobbying, funding, and CRA charity data.</p>
+   323|      <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/pipeline-core influence --ingest-all</div>
+   324|    </div>
+   325|  </div>
+   326|
+   327|  <div style="margin-top:24px;padding:20px;background:var(--bg-secondary);border-radius:var(--radius);">
+   328|    <h4 style="margin:0 0 8px;">🔗 Entity Resolution Engine</h4>
+   329|    <p>The engine package links people and organizations across all data sources. When the same person appears on a committee, in a lobbying report, and as a contract signatory — MapleSpike connects them. Runs 7 signal detectors for revolving doors, lobbying overlaps, and sole-source flagging.</p>
+   330|    <div class="code-block" style="margin-top:12px;">pnpm --filter @maplespike/engine sweep --full</div>
+   331|  </div>
+   332|
+   333|  <p style="margin-top:24px;padding:16px;background:var(--accent-dim);border-radius:var(--radius-sm);">
+   334|    <strong>💡 All pipelines run on your own K3s cluster via cron jobs.</strong> No external dependencies, no cloud, no data leaves your infrastructure. See <a href="/docs/guide/what-is-maplespike.html">How it Works</a> for deployment.
+   335|  </p>
+   336|</div>
+   337|
+   338|<!-- ═══ MCP TOOLS REFERENCE ═══ -->
+   339|<h2>All MapleSpike MCP Tools</h2>
+   340|<p>These tools become available in your AI once connected. Each returns verified data with source citations.</p>
+   341|
+   342|<table>
+   343|  <tr><th>Tool</th><th>What it does</th><th>Best for</th></tr>
+   344|  <tr><td><code>query_gov_data</code></td><td>Search all government data sources by keyword, jurisdiction, date</td><td>General research <span class="tag tag-green" style="margin-left:6px;">LIVE</span></td></tr>
+   345|  <tr><td><code>fact_check</code></td><td>Verify a claim against official data</td><td>Journalism <span class="tag tag-green">LIVE</span></td></tr>
+   346|  <tr><td><code>get_citation</code></td><td>Verify a SHA-256 citation hash</td><td>Source verification <span class="tag tag-green">LIVE</span></td></tr>
+   347|  <tr><td><code>latest_releases</code></td><td>Latest government data releases</td><td>Monitoring <span class="tag tag-green">LIVE</span></td></tr>
+   348|  <tr><td><code>search_transcripts</code></td><td>Search committee evidence and Hansard transcripts</td><td>Committee monitoring <span class="tag tag-cyan">PLANNED</span></td></tr>
+   349|  <tr><td><code>get_committee</code></td><td>Get details of a specific committee meeting</td><td>Deep dives <span class="tag tag-cyan">PLANNED</span></td></tr>
+   350|  <tr><td><code>search_lobbying</code></td><td>Search lobbying registry by company, department, date</td><td>Influence tracking <span class="tag tag-cyan">PLANNED</span></td></tr>
+   351|  <tr><td><code>get_contract</code></td><td>Look up procurement contracts by vendor or department</td><td>Spending analysis <span class="tag tag-cyan">PLANNED</span></td></tr>
+   352|  <tr><td><code>track_entity</code></td><td>Find every mention of a person or org across all sources</td><td>Cross-referencing <span class="tag tag-cyan">PLANNED</span></td></tr>
+   353|  <tr><td><code>get_in_camera</code></td><td>List all in-camera (closed) committee meetings</td><td>Transparency tracking <span class="tag tag-cyan">PLANNED</span></td></tr>
+   354|  <tr><td><code>get_signals</code></td><td>Get recent detected signals (revolving doors, overlaps, etc.)</td><td>Alerting <span class="tag tag-cyan">PLANNED</span></td></tr>
+   355|</table>
+   356|
+   357|</div>
+   358|
+   359|<footer>
+   360|  <div class="footer-inner">
+   361|    <div class="brand">
+   362|      <a href="index.html" class="logo" style="font-size:1.1rem;font-weight:700;color:var(--accent);">
+   363|      <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
+   364|      MapleSpike
+   365|      </a>
+   366|      <p>MapleSpike makes Canadian public data useful — for journalists, researchers, and anyone who wants to know what their government is doing.</p>
+   367|    </div>
+   368|    <div>
+   369|      <h4>Product</h4>
+   370|      <ul>
+   371|        <li><a href="index.html#features" data-i18n="nav.whatItDoes">What it does</a></li>
+   372|        <li><a href="index.html#pricing" data-i18n="nav.pricing">Pricing</a></li>
+   373|        <li><a href="/docs/guide/what-is-maplespike.html" data-i18n="nav.howItWorks">How it Works</a></li>
+   374|        <li><a href="dashboard.html">Dashboard</a></li>
+   375|      </ul>
+   376|    </div>
+   377|    <div>
+   378|      <h4>AI Tools</h4>
+   379|      <ul>
+   380|        <li><a href="agents.html">ChatGPT Setup</a></li>
+   381|        <li><a href="agents.html">Claude Setup</a></li>
+   382|        <li><a href="agents.html">Gemini Setup</a></li>
+   383|        <li><a href="agents.html">Grok Setup</a></li>
+   384|      </ul>
+   385|    </div>
+   386|    <div>
+   387|      <h4>Legal</h4>
+   388|      <ul>
+   389|        <li>Terms of Service</li>
+   390|        <li>Privacy Policy</li>
+   391|        <li>OGL-C Attribution</li>
+   392|        <li><a href="https://github.com/reverb256">GitHub</a></li>
+   393|      </ul>
+   394|    </div>
+   395|  </div>
+   396|  <div class="footer-bottom">
+   397|    <span>© 2026 MapleSpike. All rights reserved.</span>
+   398|    <span>Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
+   399|  </div>
+   400|</footer>
+   401|
+   402|<script src="script.js"></script>
+   403|<script src="/nav.js"></script>
+   404|</body>
+   405|</html>
+   406|

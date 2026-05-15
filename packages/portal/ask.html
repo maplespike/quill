@@ -1,459 +1,460 @@
-<!DOCTYPE html>
-<html lang="en-CA" data-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MapleSpike ASK — AI-Powered Government Data Search</title>
-  <script src="/config.js"></script>
-<link rel="canonical" href="https://maplespike.ca/ask">
-<link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/ask">
-<link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/ask">
-<meta name="robots" content="index, follow">
-
-<meta name="description" content="Ask natural language questions about Canadian government data — Parliament, lobbying, courts, immigration, regulations, and more. Powered by MapleSpike's 53-module data pipeline.">
-
-    <link rel="stylesheet" href="styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-<style>
-/* ═══ ASK page styles ═══ */
-.ask-page { padding-top: calc(64px + 22px + 24px); min-height: 100vh; display: flex; flex-direction: column; }
-.ask-container { max-width: 900px; margin: 0 auto; padding: 32px 24px; width: 100%; flex: 1; display: flex; flex-direction: column; }
-.ask-header { text-align: center; margin-bottom: 24px; }
-.ask-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
-.ask-header p { color: var(--text-muted); font-size: 0.85rem; }
-
-/* ═══ Chat area ═══ */
-.ask-chat { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; }
-.ask-chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; min-height: 300px; max-height: 500px; }
-.ask-chat-messages:empty ~ .ask-empty-state { display: block; }
-.ask-empty-state { display: none; padding: 48px 24px; text-align: center; }
-.ask-empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.6; }
-.ask-empty-state h3 { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 8px; }
-.ask-empty-state p { font-size: 0.85rem; color: var(--text-muted); max-width: 400px; margin: 0 auto; line-height: 1.5; }
-.ask-empty-state .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
-.ask-empty-state .suggestion-chip { padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-family: var(--font-mono); background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
-.ask-empty-state .suggestion-chip:hover { border-color: var(--accent); color: var(--text-primary); background: var(--accent-dim); }
-
-/* ═══ Message bubbles ═══ */
-.msg { display: flex; gap: 12px; animation: fadeInUp 0.3s ease; }
-.msg.user { flex-direction: row-reverse; }
-.msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; font-weight: 700; }
-.msg.user .msg-avatar { background: var(--accent); color: #fff; }
-.msg.assistant .msg-avatar { background: var(--base0E); color: #fff; }
-.msg-bubble { max-width: 80%; padding: 12px 16px; border-radius: var(--radius); font-size: 0.88rem; line-height: 1.6; }
-.msg.user .msg-bubble { background: var(--accent-dim); color: var(--text-primary); border: 1px solid rgba(194,48,48,0.2); border-bottom-right-radius: 4px; }
-.msg.assistant .msg-bubble { background: var(--bg-secondary); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-.msg-bubble .msg-text { white-space: pre-wrap; }
-.msg-bubble .msg-text p { margin-bottom: 8px; }
-.msg-bubble .msg-text p:last-child { margin-bottom: 0; }
-
-/* ═══ Citations ═══ */
-.msg-citations { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-.msg-citations summary { font-size: 0.72rem; color: var(--text-muted); cursor: pointer; font-family: var(--font-mono); }
-.msg-citations summary:hover { color: var(--accent-cyan); }
-.msg-citations .cite-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin-top: 6px; background: var(--bg-elevated); border-radius: 6px; font-size: 0.78rem; }
-.msg-citations .cite-item .cite-source { color: var(--accent-cyan); font-weight: 500; }
-.msg-citations .cite-item .cite-link { color: var(--text-muted); margin-left: auto; text-decoration: none; }
-.msg-citations .cite-item .cite-link:hover { color: var(--accent); }
-.msg-citations .cite-item .cite-hash { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.65rem; }
-
-/* ═══ Typing indicator ═══ */
-.typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
-.typing-indicator span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typingDot 1.4s infinite; }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingDot { 0%,60%,100% { opacity: 0.3; transform: scale(1); } 30% { opacity: 1; transform: scale(1.3); } }
-
-/* ═══ Input area ═══ */
-.ask-input-area { border-top: 1px solid var(--border); padding: 16px 20px; background: var(--bg-secondary); }
-.ask-input-row { display: flex; gap: 8px; }
-.ask-input-row input { flex: 1; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.9rem; font-family: inherit; outline: none; transition: all var(--transition); }
-.ask-input-row input:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
-.ask-input-row input::placeholder { color: var(--text-muted); }
-.ask-input-row button { padding: 12px 20px; background: var(--gradient-primary); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all var(--transition); font-size: 0.9rem; }
-.ask-input-row button:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(194,48,48,0.3); }
-.ask-input-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.ask-footer { padding: 8px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); background: var(--bg-secondary); }
-.ask-footer .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; padding: 2px 8px; border-radius: 99px; font-family: var(--font-mono); }
-.ask-footer .badge-green { background: var(--base19); color: var(--success); }
-.ask-footer .badge-cyan { background: var(--base20); color: var(--accent-cyan); }
-
-/* ═══ Error state ═══ */
-.msg.error .msg-bubble { background: rgba(232,69,69,0.1); border-color: var(--accent); color: var(--accent); }
-.msg.error .msg-avatar { background: var(--accent); }
-</style>
-
-<meta property="og:title" content="MapleSpike ASK — AI-Powered Government Data Search">
-<meta property="og:description" content="Ask natural language questions about Canadian government data — Parliament, lobbying, courts, immigration, regulations, and more. Powered by MapleSpike's 53-module data pipeline.">
-<meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:url" content="https://maplespike.ca/ask">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MapleSpike ASK — AI-Powered Government Data Search">
-<meta name="twitter:description" content="Ask natural language questions about Canadian government data — Parliament, lobbying, courts, immigration, regulations, and more. Powered by MapleSpike's 53-module data pipeline.">
-<meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-
-
-<script type="application/ld+json">
-{
-"@context": "https://schema.org",
-"@type": "WebApplication",
-"name": "MapleSpike",
-"url": "https://maplespike.ca",
-"description": "Canadian government data pipeline with verified citations",
-"applicationCategory": "Data API",
-"offers": {
-"@type": "Offer",
-"price": "0",
-"priceCurrency": "CAD"
-}
-}
-</script>
-
-
-
-<link rel="preconnect" href="https://www.google.com" crossorigin>
-<link rel="manifest" href="/manifest.json">
-<meta name="msapplication-config" content="/browserconfig.xml">
-<meta name="theme-color" content="#C23030">
-<!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-<script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-</head>
-<body>
-
-<!-- ═══ Ticker ═══ -->
-<div class="ticker">
-  <div class="ticker-inner">
-    <span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Loading live data...</span>
-  </div>
-</div>
-
-<!-- ═══ Navigation ═══ -->
-<style>nav { top: 22px !important; } body { padding-top: calc(22px + 64px); }</style>
-  <nav>
-    <div class="nav-inner">
-<a href="index.html" class="logo">
-<span class="logo-icon">C</span>
-<span>MapleSpike</span>
-</a>
+     1|<!DOCTYPE html>
+     2|<html lang="en-CA" data-theme="dark">
+     3|<head>
+     4|<meta charset="UTF-8">
+     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|<title>MapleSpike ASK — AI-Powered Government Data Search</title>
+     7|  <script src="/config.js"></script>
+     8|<link rel="canonical" href="https://maplespike.ca/ask">
+     9|<link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/ask">
+    10|<link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/ask">
+    11|<meta name="robots" content="index, follow">
+    12|
+    13|<meta name="description" content="Ask natural language questions about Canadian government data — Parliament, lobbying, courts, immigration, regulations, and more. Powered by MapleSpike's 53-module data pipeline.">
+    14|
+    15|    <link rel="stylesheet" href="styles.css">
+    16|<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+    17|<style>
+    18|/* ═══ ASK page styles ═══ */
+    19|.ask-page { padding-top: var(--nav-height, 64px); min-height: 100vh; display: flex; flex-direction: column; }
+    20|.ask-container { max-width: 900px; margin: 0 auto; padding: 32px 24px; width: 100%; flex: 1; display: flex; flex-direction: column; }
+    21|.ask-header { text-align: center; margin-bottom: 24px; }
+    22|.ask-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+    23|.ask-header p { color: var(--text-muted); font-size: 0.85rem; }
+    24|
+    25|/* ═══ Chat area ═══ */
+    26|.ask-chat { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; }
+    27|.ask-chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; min-height: 300px; max-height: 500px; }
+    28|.ask-chat-messages:empty ~ .ask-empty-state { display: block; }
+    29|.ask-empty-state { display: none; padding: 48px 24px; text-align: center; }
+    30|.ask-empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.6; }
+    31|.ask-empty-state h3 { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 8px; }
+    32|.ask-empty-state p { font-size: 0.85rem; color: var(--text-muted); max-width: 400px; margin: 0 auto; line-height: 1.5; }
+    33|.ask-empty-state .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
+    34|.ask-empty-state .suggestion-chip { padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-family: var(--font-mono); background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all var(--transition); }
+    35|.ask-empty-state .suggestion-chip:hover { border-color: var(--accent); color: var(--text-primary); background: var(--accent-dim); }
+    36|
+    37|/* ═══ Message bubbles ═══ */
+    38|.msg { display: flex; gap: 12px; animation: fadeInUp 0.3s ease; }
+    39|.msg.user { flex-direction: row-reverse; }
+    40|.msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; font-weight: 700; }
+    41|.msg.user .msg-avatar { background: var(--accent); color: #fff; }
+    42|.msg.assistant .msg-avatar { background: var(--base0E); color: #fff; }
+    43|.msg-bubble { max-width: 80%; padding: 12px 16px; border-radius: var(--radius); font-size: 0.88rem; line-height: 1.6; }
+    44|.msg.user .msg-bubble { background: var(--accent-dim); color: var(--text-primary); border: 1px solid rgba(194,48,48,0.2); border-bottom-right-radius: 4px; }
+    45|.msg.assistant .msg-bubble { background: var(--bg-secondary); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    46|.msg-bubble .msg-text { white-space: pre-wrap; }
+    47|.msg-bubble .msg-text p { margin-bottom: 8px; }
+    48|.msg-bubble .msg-text p:last-child { margin-bottom: 0; }
+    49|
+    50|/* ═══ Citations ═══ */
+    51|.msg-citations { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    52|.msg-citations summary { font-size: 0.72rem; color: var(--text-muted); cursor: pointer; font-family: var(--font-mono); }
+    53|.msg-citations summary:hover { color: var(--accent-cyan); }
+    54|.msg-citations .cite-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; margin-top: 6px; background: var(--bg-elevated); border-radius: 6px; font-size: 0.78rem; }
+    55|.msg-citations .cite-item .cite-source { color: var(--accent-cyan); font-weight: 500; }
+    56|.msg-citations .cite-item .cite-link { color: var(--text-muted); margin-left: auto; text-decoration: none; }
+    57|.msg-citations .cite-item .cite-link:hover { color: var(--accent); }
+    58|.msg-citations .cite-item .cite-hash { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.65rem; }
+    59|
+    60|/* ═══ Typing indicator ═══ */
+    61|.typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
+    62|.typing-indicator span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typingDot 1.4s infinite; }
+    63|.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    64|.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    65|@keyframes typingDot { 0%,60%,100% { opacity: 0.3; transform: scale(1); } 30% { opacity: 1; transform: scale(1.3); } }
+    66|
+    67|/* ═══ Input area ═══ */
+    68|.ask-input-area { border-top: 1px solid var(--border); padding: 16px 20px; background: var(--bg-secondary); }
+    69|.ask-input-row { display: flex; gap: 8px; }
+    70|.ask-input-row input { flex: 1; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.9rem; font-family: inherit; outline: none; transition: all var(--transition); }
+    71|.ask-input-row input:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+    72|.ask-input-row input::placeholder { color: var(--text-muted); }
+    73|.ask-input-row button { padding: 12px 20px; background: var(--gradient-primary); color: #fff; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all var(--transition); font-size: 0.9rem; }
+    74|.ask-input-row button:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(194,48,48,0.3); }
+    75|.ask-input-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    76|.ask-footer { padding: 8px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); background: var(--bg-secondary); }
+    77|.ask-footer .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; padding: 2px 8px; border-radius: 99px; font-family: var(--font-mono); }
+    78|.ask-footer .badge-green { background: var(--base19); color: var(--success); }
+    79|.ask-footer .badge-cyan { background: var(--base20); color: var(--accent-cyan); }
+    80|
+    81|/* ═══ Error state ═══ */
+    82|.msg.error .msg-bubble { background: rgba(232,69,69,0.1); border-color: var(--accent); color: var(--accent); }
+    83|.msg.error .msg-avatar { background: var(--accent); }
+    84|</style>
+    85|
+    86|<meta property="og:title" content="MapleSpike ASK — AI-Powered Government Data Search">
+    87|<meta property="og:description" content="Ask natural language questions about Canadian government data — Parliament, lobbying, courts, immigration, regulations, and more. Powered by MapleSpike's 53-module data pipeline.">
+    88|<meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+    89|<meta property="og:image:width" content="1200">
+    90|<meta property="og:image:height" content="630">
+    91|<meta property="og:url" content="https://maplespike.ca/ask">
+    92|<meta property="og:type" content="website">
+    93|<meta name="twitter:card" content="summary_large_image">
+    94|<meta name="twitter:title" content="MapleSpike ASK — AI-Powered Government Data Search">
+    95|<meta name="twitter:description" content="Ask natural language questions about Canadian government data — Parliament, lobbying, courts, immigration, regulations, and more. Powered by MapleSpike's 53-module data pipeline.">
+    96|<meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+    97|
+    98|
+    99|<script type="application/ld+json">
+   100|{
+   101|"@context": "https://schema.org",
+   102|"@type": "WebApplication",
+   103|"name": "MapleSpike",
+   104|"url": "https://maplespike.ca",
+   105|"description": "Canadian government data pipeline with verified citations",
+   106|"applicationCategory": "Data API",
+   107|"offers": {
+   108|"@type": "Offer",
+   109|"price": "0",
+   110|"priceCurrency": "CAD"
+   111|}
+   112|}
+   113|</script>
+   114|
+   115|
+   116|
+   117|<link rel="preconnect" href="https://www.google.com" crossorigin>
+   118|<link rel="manifest" href="/manifest.json">
+   119|<meta name="msapplication-config" content="/browserconfig.xml">
+   120|<meta name="theme-color" content="#C23030">
+   121|<!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+   122|<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+   123|<script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+   124|</head>
+   125|<body>
+   126|
+   127|<!-- ═══ Ticker ═══ -->
+   128|<div class="ticker">
+   129|  <div class="ticker-inner">
+   130|    <span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Loading live data...</span>
+   131|  </div>
+   132|</div>
+   133|
+   134|<!-- ═══ Navigation ═══ -->
+   135|
+136|  <!-- Navigation -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
     <ul class="nav-links">
-      <li><a href="/explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-      <li><a href="/explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-      <li><a href="/pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-      <li class="nav-separator" aria-hidden="true"></li>
-      <li><a href="/changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
-      <li><a href="/workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
-<button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
-    </div>
-  </nav>
-
-<!-- ═══ ASK PAGE ═══ -->
-<div class="ask-page">
-<div class="ask-container">
-<div class="ask-header">
-<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">
-<span style="color:var(--terminal-bracket);">[</span>
-<span style="color:var(--accent-gold);">01</span>
-<span style="color:var(--terminal-bracket);">]</span>
-<span>ASK — AI Queries</span>
-    </div>
-<h1>Ask about Canadian government</h1>
-<p>Natural language queries with sourced answers. Every response includes verified citations.</p>
-    </div>
-
-<div class="ask-chat">
-<!-- Messages -->
-<div class="ask-chat-messages" id="ask-messages"></div>
-
-<!-- Empty state -->
-<div class="ask-empty-state" id="ask-empty-state">
-<div class="icon">✦</div>
-<h3>Ask anything about Canadian government</h3>
-<p>Questions are answered using MapleSpike's official data sources. Every response includes citations you can verify.</p>
-<div class="suggestions">
-<button class="suggestion-chip" data-prompt="What did the ethics committee discuss recently?">What did the ethics committee discuss?</button>
-<button class="suggestion-chip" data-prompt="Show me lobbying activity by RBC">Show me lobbying by RBC</button>
-<button class="suggestion-chip" data-prompt="Recent OAG audits and findings">Recent OAG audits</button>
-<button class="suggestion-chip" data-prompt="What committees is Pierre Poilievre on?">Committees Pierre Poilievre</button>
-<button class="suggestion-chip" data-prompt="Sole-source contracts awarded in 2025">Sole-source contracts 2025</button>
-<button class="suggestion-chip" data-prompt="In-camera meetings this month">In-camera meetings this month</button>
-    </div>
-    </div>
-
-<!-- Input -->
-<div class="ask-input-area">
-<div class="ask-input-row">
-<input type="text" id="ask-input" placeholder="Ask about Parliament, lobbying, regulations..." autocomplete="off">
-<button id="ask-send-btn">Ask →</button>
-    </div>
-    </div>
-<div class="ask-footer">
-<span>Powered by MapleSpike MCP · Cited responses</span>
-<span class="badge badge-green">● VERIFIED</span>
-    </div>
-    </div>
-    </div>
-    </div>
-
-<script>
-(function() {
-'use strict';
-
-const messagesEl = document.getElementById('ask-messages');
-const emptyState = document.getElementById('ask-empty-state');
-const input = document.getElementById('ask-input');
-const sendBtn = document.getElementById('ask-send-btn');
-const suggestions = document.querySelectorAll('.suggestion-chip');
-
-const _cfg = window.MAPLESPIKE || {};
-const _base = _cfg.apiBase || 'http://127.0.0.1:8085';
-const _to = _cfg.timeout || {};
-const API_ENDPOINT = _base + '/v1/ai_ask';
-const GOV_SEARCH_ENDPOINT = _base + '/v1/gov/search';
-
-  // ── Call gov/search API and format results ──
-  async function govSearch(query) {
-    const resp = await fetch(`${GOV_SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&limit=8`, {
-      signal: AbortSignal.timeout(_to.default || 8000),
-    });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (!data?.success || !data?.data?.results) throw new Error('Invalid response from gov/search');
-
-    const pipeline = data.data.results.pipeline || [];
-    const ckan = data.data.results.ckan || [];
-    const allResults = [...pipeline, ...ckan].slice(0, 8);
-
-    if (allResults.length === 0) throw new Error('No results found');
-
-    const answer = `**Search results for "${query}"**\n\nFound ${allResults.length} relevant government data sources:\n\n${allResults.map((r, i) =>
-      `${i + 1}. **${r.title || r.name || 'Dataset'}**${r.description ? '\n   ' + r.description.substring(0, 120) : ''}${r.url ? '\n   🔗 ' + r.url : ''}`
-    ).join('\n\n')}\n\n— Results from MapleSpike's pipeline data and Government of Canada open data portals.`;
-    const citations = allResults.map(r => ({
-      source: r.organization?.title || r.source || 'Government of Canada',
-      title: r.title || r.name || 'Dataset',
-      url: r.url || '#',
-      hash: '',
-    }));
-    return { answer, citations };
-  }
-
-  // ── Call ai_ask endpoint (secondary / MCP endpoint) ──
-  async function aiAsk(query) {
-    const resp = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query }),
-      signal: AbortSignal.timeout(_to.default || 8000),
-    });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (data.success && data.data) {
-      return {
-        answer: data.data.answer || data.data.response || data.data.text || 'No response available.',
-        citations: data.data.citations || data.data.sources || [],
-      };
-    }
-    throw new Error(data.error || 'Invalid response from ai_ask');
-  }
-
-// ── Add message to chat ──
-function addMessage(role, text, citations) {
-const msg = document.createElement('div');
-msg.className = 'msg ' + role;
-
-const avatar = document.createElement('div');
-avatar.className = 'msg-avatar';
-avatar.textContent = role === 'user' ? 'U' : 'AI';
-
-const bubble = document.createElement('div');
-bubble.className = 'msg-bubble';
-
-const textDiv = document.createElement('div');
-textDiv.className = 'msg-text';
-textDiv.innerHTML = text;
-bubble.appendChild(textDiv);
-
-if (citations && citations.length > 0) {
-const details = document.createElement('details');
-details.className = 'msg-citations';
-const summary = document.createElement('summary');
-summary.textContent = citations.length + ' citation' + (citations.length > 1 ? 's' : '');
-details.appendChild(summary);
-
-citations.forEach(c => {
-const item = document.createElement('div');
-item.className = 'cite-item';
-item.innerHTML = `
-<span class="cite-source">${c.source}</span>
-<span style="font-size:0.72rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.title}</span>
-<span class="cite-hash">${c.hash}</span>
-<a href="${c.url}" target="_blank" class="cite-link">↗</a>
-`;
-details.appendChild(item);
-});
-bubble.appendChild(details);
-}
-
-if (role === 'assistant') {
-msg.appendChild(avatar);
-msg.appendChild(bubble);
-} else {
-msg.appendChild(bubble);
-msg.appendChild(avatar);
-}
-
-messagesEl.appendChild(msg);
-messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-// ── Typing indicator ──
-function showTyping() {
-const el = document.createElement('div');
-el.className = 'msg assistant';
-el.id = 'typing-msg';
-const avatar = document.createElement('div');
-avatar.className = 'msg-avatar';
-avatar.textContent = 'AI';
-const bubble = document.createElement('div');
-bubble.className = 'msg-bubble';
-const indicator = document.createElement('div');
-indicator.className = 'typing-indicator';
-for (let i = 0; i < 3; i++) {
-const dot = document.createElement('span');
-indicator.appendChild(dot);
-}
-bubble.appendChild(indicator);
-el.appendChild(avatar);
-el.appendChild(bubble);
-messagesEl.appendChild(el);
-messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-function hideTyping() {
-const el = document.getElementById('typing-msg');
-if (el) el.remove();
-}
-
-// ── Send query ──
-async function sendQuery(text) {
-if (!text.trim()) return;
-
-// Hide empty state
-emptyState.style.display = 'none';
-
-// Add user message
-addMessage('user', text);
-input.value = '';
-sendBtn.disabled = true;
-
-// Show typing indicator
-showTyping();
-
-    let answer, citations;
-
-    // Primary: gov/search API (GET with query param)
-    try {
-      const govResult = await govSearch(text);
-      answer = govResult.answer;
-      citations = govResult.citations;
-    } catch (govErr) {
-      // Fallback: ai_ask endpoint (POST / MCP-style)
-      try {
-        const aiResult = await aiAsk(text);
-        answer = aiResult.answer;
-        citations = aiResult.citations;
-      } catch (aiErr) {
-        // Both APIs unreachable — graceful fallback message
-        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike API server. This usually means the server isn't running.\n\n**To fix this:** start the MapleSpike API server from the project root:\n  \`cd packages/api-server && PORT=8085 node dist/dev-server.js\`\n\nThen refresh this page and try again.\n\nIn the meantime, you can:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**`;
-        citations = [];
-      }
-    }
-
-hideTyping();
-addMessage('assistant', answer, citations);
-sendBtn.disabled = false;
-}
-
-// ── Event handlers ──
-sendBtn.addEventListener('click', () => sendQuery(input.value));
-input.addEventListener('keydown', (e) => {
-if (e.key === 'Enter' && !e.shiftKey) {
-e.preventDefault();
-sendQuery(input.value);
-}
-});
-
-suggestions.forEach(chip => {
-chip.addEventListener('click', () => {
-sendQuery(chip.dataset.prompt);
-});
-});
-
-// ── Theme toggle (local, not relying on script.js) ──
-function initTheme() {
-const saved = localStorage.getItem('maplespike-theme');
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const theme = saved || (prefersDark ? 'dark' : 'light');
-document.documentElement.setAttribute('data-theme', theme);
-document.querySelectorAll('.theme-toggle').forEach(btn => {
-btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-});
-}
-
-function toggleTheme() {
-const current = document.documentElement.getAttribute('data-theme');
-const next = current === 'dark' ? 'light' : 'dark';
-document.documentElement.setAttribute('data-theme', next);
-localStorage.setItem('maplespike-theme', next);
-document.querySelectorAll('.theme-toggle').forEach(btn => {
-btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-});
-}
-
-document.querySelectorAll('.theme-toggle').forEach(btn => {
-btn.addEventListener('click', toggleTheme);
-});
-
-// ── Mobile menu ──
-const mobileToggle = document.querySelector('.nav-mobile-toggle');
-const navLinks = document.querySelector('.nav-links');
-
-if (mobileToggle && navLinks) {
-function closeMenu() {
-navLinks.classList.remove('open');
-mobileToggle.textContent = '\u2630';
-document.body.style.overflow = '';
-}
-function openMenu() {
-navLinks.classList.add('open');
-mobileToggle.textContent = '\u2715';
-document.body.style.overflow = 'hidden';
-}
-mobileToggle.addEventListener('click', () => {
-if (navLinks.classList.contains('open')) closeMenu();
-else openMenu();
-});
-navLinks.querySelectorAll('a').forEach(link => {
-link.addEventListener('click', closeMenu);
-});
-document.addEventListener('keydown', (e) => {
-if (e.key === 'Escape' && navLinks.classList.contains('open')) closeMenu();
-});
-}
-
-initTheme();
-})();
-</script>
-
-
-</body>
-</html>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
+  </div>
+</nav>
+   157|
+   158|<!-- ═══ ASK PAGE ═══ -->
+   159|<div class="ask-page">
+   160|<div class="ask-container">
+   161|<div class="ask-header">
+   162|<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">
+   163|<span style="color:var(--terminal-bracket);">[</span>
+   164|<span style="color:var(--accent-gold);">01</span>
+   165|<span style="color:var(--terminal-bracket);">]</span>
+   166|<span>ASK — AI Queries</span>
+   167|    </div>
+   168|<h1>Ask about Canadian government</h1>
+   169|<p>Natural language queries with sourced answers. Every response includes verified citations.</p>
+   170|    </div>
+   171|
+   172|<div class="ask-chat">
+   173|<!-- Messages -->
+   174|<div class="ask-chat-messages" id="ask-messages"></div>
+   175|
+   176|<!-- Empty state -->
+   177|<div class="ask-empty-state" id="ask-empty-state">
+   178|<div class="icon">✦</div>
+   179|<h3>Ask anything about Canadian government</h3>
+   180|<p>Questions are answered using MapleSpike's official data sources. Every response includes citations you can verify.</p>
+   181|<div class="suggestions">
+   182|<button class="suggestion-chip" data-prompt="What did the ethics committee discuss recently?">What did the ethics committee discuss?</button>
+   183|<button class="suggestion-chip" data-prompt="Show me lobbying activity by RBC">Show me lobbying by RBC</button>
+   184|<button class="suggestion-chip" data-prompt="Recent OAG audits and findings">Recent OAG audits</button>
+   185|<button class="suggestion-chip" data-prompt="What committees is Pierre Poilievre on?">Committees Pierre Poilievre</button>
+   186|<button class="suggestion-chip" data-prompt="Sole-source contracts awarded in 2025">Sole-source contracts 2025</button>
+   187|<button class="suggestion-chip" data-prompt="In-camera meetings this month">In-camera meetings this month</button>
+   188|    </div>
+   189|    </div>
+   190|
+   191|<!-- Input -->
+   192|<div class="ask-input-area">
+   193|<div class="ask-input-row">
+   194|<input type="text" id="ask-input" placeholder="Ask about Parliament, lobbying, regulations..." autocomplete="off">
+   195|<button id="ask-send-btn">Ask →</button>
+   196|    </div>
+   197|    </div>
+   198|<div class="ask-footer">
+   199|<span>Powered by MapleSpike MCP · Cited responses</span>
+   200|<span class="badge badge-green">● VERIFIED</span>
+   201|    </div>
+   202|    </div>
+   203|    </div>
+   204|    </div>
+   205|
+   206|<script>
+   207|(function() {
+   208|'use strict';
+   209|
+   210|const messagesEl = document.getElementById('ask-messages');
+   211|const emptyState = document.getElementById('ask-empty-state');
+   212|const input = document.getElementById('ask-input');
+   213|const sendBtn = document.getElementById('ask-send-btn');
+   214|const suggestions = document.querySelectorAll('.suggestion-chip');
+   215|
+   216|const _cfg = window.MAPLESPIKE || {};
+   217|const _base = _cfg.apiBase || 'http://127.0.0.1:8085';
+   218|const _to = _cfg.timeout || {};
+   219|const API_ENDPOINT = _base + '/v1/ai_ask';
+   220|const GOV_SEARCH_ENDPOINT = _base + '/v1/gov/search';
+   221|
+   222|  // ── Call gov/search API and format results ──
+   223|  async function govSearch(query) {
+   224|    const resp = await fetch(`${GOV_SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&limit=8`, {
+   225|      signal: AbortSignal.timeout(_to.default || 8000),
+   226|    });
+   227|    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+   228|    const data = await resp.json();
+   229|    if (!data?.success || !data?.data?.results) throw new Error('Invalid response from gov/search');
+   230|
+   231|    const pipeline = data.data.results.pipeline || [];
+   232|    const ckan = data.data.results.ckan || [];
+   233|    const allResults = [...pipeline, ...ckan].slice(0, 8);
+   234|
+   235|    if (allResults.length === 0) throw new Error('No results found');
+   236|
+   237|    const answer = `**Search results for "${query}"**\n\nFound ${allResults.length} relevant government data sources:\n\n${allResults.map((r, i) =>
+   238|      `${i + 1}. **${r.title || r.name || 'Dataset'}**${r.description ? '\n   ' + r.description.substring(0, 120) : ''}${r.url ? '\n   🔗 ' + r.url : ''}`
+   239|    ).join('\n\n')}\n\n— Results from MapleSpike's pipeline data and Government of Canada open data portals.`;
+   240|    const citations = allResults.map(r => ({
+   241|      source: r.organization?.title || r.source || 'Government of Canada',
+   242|      title: r.title || r.name || 'Dataset',
+   243|      url: r.url || '#',
+   244|      hash: '',
+   245|    }));
+   246|    return { answer, citations };
+   247|  }
+   248|
+   249|  // ── Call ai_ask endpoint (secondary / MCP endpoint) ──
+   250|  async function aiAsk(query) {
+   251|    const resp = await fetch(API_ENDPOINT, {
+   252|      method: 'POST',
+   253|      headers: { 'Content-Type': 'application/json' },
+   254|      body: JSON.stringify({ query }),
+   255|      signal: AbortSignal.timeout(_to.default || 8000),
+   256|    });
+   257|    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+   258|    const data = await resp.json();
+   259|    if (data.success && data.data) {
+   260|      return {
+   261|        answer: data.data.answer || data.data.response || data.data.text || 'No response available.',
+   262|        citations: data.data.citations || data.data.sources || [],
+   263|      };
+   264|    }
+   265|    throw new Error(data.error || 'Invalid response from ai_ask');
+   266|  }
+   267|
+   268|// ── Add message to chat ──
+   269|function addMessage(role, text, citations) {
+   270|const msg = document.createElement('div');
+   271|msg.className = 'msg ' + role;
+   272|
+   273|const avatar = document.createElement('div');
+   274|avatar.className = 'msg-avatar';
+   275|avatar.textContent = role === 'user' ? 'U' : 'AI';
+   276|
+   277|const bubble = document.createElement('div');
+   278|bubble.className = 'msg-bubble';
+   279|
+   280|const textDiv = document.createElement('div');
+   281|textDiv.className = 'msg-text';
+   282|textDiv.innerHTML = text;
+   283|bubble.appendChild(textDiv);
+   284|
+   285|if (citations && citations.length > 0) {
+   286|const details = document.createElement('details');
+   287|details.className = 'msg-citations';
+   288|const summary = document.createElement('summary');
+   289|summary.textContent = citations.length + ' citation' + (citations.length > 1 ? 's' : '');
+   290|details.appendChild(summary);
+   291|
+   292|citations.forEach(c => {
+   293|const item = document.createElement('div');
+   294|item.className = 'cite-item';
+   295|item.innerHTML = `
+   296|<span class="cite-source">${c.source}</span>
+   297|<span style="font-size:0.72rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.title}</span>
+   298|<span class="cite-hash">${c.hash}</span>
+   299|<a href="${c.url}" target="_blank" class="cite-link">↗</a>
+   300|`;
+   301|details.appendChild(item);
+   302|});
+   303|bubble.appendChild(details);
+   304|}
+   305|
+   306|if (role === 'assistant') {
+   307|msg.appendChild(avatar);
+   308|msg.appendChild(bubble);
+   309|} else {
+   310|msg.appendChild(bubble);
+   311|msg.appendChild(avatar);
+   312|}
+   313|
+   314|messagesEl.appendChild(msg);
+   315|messagesEl.scrollTop = messagesEl.scrollHeight;
+   316|}
+   317|
+   318|// ── Typing indicator ──
+   319|function showTyping() {
+   320|const el = document.createElement('div');
+   321|el.className = 'msg assistant';
+   322|el.id = 'typing-msg';
+   323|const avatar = document.createElement('div');
+   324|avatar.className = 'msg-avatar';
+   325|avatar.textContent = 'AI';
+   326|const bubble = document.createElement('div');
+   327|bubble.className = 'msg-bubble';
+   328|const indicator = document.createElement('div');
+   329|indicator.className = 'typing-indicator';
+   330|for (let i = 0; i < 3; i++) {
+   331|const dot = document.createElement('span');
+   332|indicator.appendChild(dot);
+   333|}
+   334|bubble.appendChild(indicator);
+   335|el.appendChild(avatar);
+   336|el.appendChild(bubble);
+   337|messagesEl.appendChild(el);
+   338|messagesEl.scrollTop = messagesEl.scrollHeight;
+   339|}
+   340|
+   341|function hideTyping() {
+   342|const el = document.getElementById('typing-msg');
+   343|if (el) el.remove();
+   344|}
+   345|
+   346|// ── Send query ──
+   347|async function sendQuery(text) {
+   348|if (!text.trim()) return;
+   349|
+   350|// Hide empty state
+   351|emptyState.style.display = 'none';
+   352|
+   353|// Add user message
+   354|addMessage('user', text);
+   355|input.value = '';
+   356|sendBtn.disabled = true;
+   357|
+   358|// Show typing indicator
+   359|showTyping();
+   360|
+   361|    let answer, citations;
+   362|
+   363|    // Primary: gov/search API (GET with query param)
+   364|    try {
+   365|      const govResult = await govSearch(text);
+   366|      answer = govResult.answer;
+   367|      citations = govResult.citations;
+   368|    } catch (govErr) {
+   369|      // Fallback: ai_ask endpoint (POST / MCP-style)
+   370|      try {
+   371|        const aiResult = await aiAsk(text);
+   372|        answer = aiResult.answer;
+   373|        citations = aiResult.citations;
+   374|      } catch (aiErr) {
+   375|        // Both APIs unreachable — graceful fallback message
+   376|        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike API server. This usually means the server isn't running.\n\n**To fix this:** start the MapleSpike API server from the project root:\n  \`cd packages/api-server && PORT=8085 node dist/dev-server.js\`\n\nThen refresh this page and try again.\n\nIn the meantime, you can:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**`;
+   377|        citations = [];
+   378|      }
+   379|    }
+   380|
+   381|hideTyping();
+   382|addMessage('assistant', answer, citations);
+   383|sendBtn.disabled = false;
+   384|}
+   385|
+   386|// ── Event handlers ──
+   387|sendBtn.addEventListener('click', () => sendQuery(input.value));
+   388|input.addEventListener('keydown', (e) => {
+   389|if (e.key === 'Enter' && !e.shiftKey) {
+   390|e.preventDefault();
+   391|sendQuery(input.value);
+   392|}
+   393|});
+   394|
+   395|suggestions.forEach(chip => {
+   396|chip.addEventListener('click', () => {
+   397|sendQuery(chip.dataset.prompt);
+   398|});
+   399|});
+   400|
+   401|// ── Theme toggle (local, not relying on script.js) ──
+   402|function initTheme() {
+   403|const saved = localStorage.getItem('maplespike-theme');
+   404|const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+   405|const theme = saved || (prefersDark ? 'dark' : 'light');
+   406|document.documentElement.setAttribute('data-theme', theme);
+   407|document.querySelectorAll('.theme-toggle').forEach(btn => {
+   408|btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+   409|});
+   410|}
+   411|
+   412|function toggleTheme() {
+   413|const current = document.documentElement.getAttribute('data-theme');
+   414|const next = current === 'dark' ? 'light' : 'dark';
+   415|document.documentElement.setAttribute('data-theme', next);
+   416|localStorage.setItem('maplespike-theme', next);
+   417|document.querySelectorAll('.theme-toggle').forEach(btn => {
+   418|btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+   419|});
+   420|}
+   421|
+   422|document.querySelectorAll('.theme-toggle').forEach(btn => {
+   423|btn.addEventListener('click', toggleTheme);
+   424|});
+   425|
+   426|// ── Mobile menu ──
+   427|const mobileToggle = document.querySelector('.nav-mobile-toggle');
+   428|const navLinks = document.querySelector('.nav-links');
+   429|
+   430|if (mobileToggle && navLinks) {
+   431|function closeMenu() {
+   432|navLinks.classList.remove('open');
+   433|mobileToggle.textContent = '\u2630';
+   434|document.body.style.overflow = '';
+   435|}
+   436|function openMenu() {
+   437|navLinks.classList.add('open');
+   438|mobileToggle.textContent = '\u2715';
+   439|document.body.style.overflow = 'hidden';
+   440|}
+   441|mobileToggle.addEventListener('click', () => {
+   442|if (navLinks.classList.contains('open')) closeMenu();
+   443|else openMenu();
+   444|});
+   445|navLinks.querySelectorAll('a').forEach(link => {
+   446|link.addEventListener('click', closeMenu);
+   447|});
+   448|document.addEventListener('keydown', (e) => {
+   449|if (e.key === 'Escape' && navLinks.classList.contains('open')) closeMenu();
+   450|});
+   451|}
+   452|
+   453|initTheme();
+   454|})();
+   455|</script>
+   456|
+   457|
+   458|</body>
+   459|</html>
+   460|
