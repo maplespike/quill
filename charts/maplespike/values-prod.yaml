@@ -1,0 +1,82 @@
+# MapleSpike — Production Values
+# helm upgrade --install maplespike charts/maplespike -n maplespike -f charts/maplespike/values-prod.yaml
+
+image:
+  registry: ghcr.io/reverb256
+  tag: latest
+  pullPolicy: Always
+
+# API Server
+api:
+  replicas: 2
+  port: 8082
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    MAPLESPIKE_API_URL: "http://maplespike-api:8082/v1"
+    NODE_ENV: "production"
+    MAPLESPIKE_STORAGE: "postgres"
+    MAPLESPIKE_DB_HOST: "maplespike-db"
+    MAPLESPIKE_DB_PORT: "5432"
+    MAPLESPIKE_DB_NAME: "maplespike"
+  ingress:
+    host: api.maplespike.ca
+    tls: true
+
+# MCP Server
+mcp:
+  replicas: 1
+  port: 3001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  ingress:
+    host: mcp.maplespike.ca
+    tls: true
+
+# PostgreSQL Database
+database:
+  enabled: true
+  image: postgres:17-alpine
+  user: maplespike
+  database: maplespike
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  nodeName: nexus
+
+# Portal (static HTML)
+portal:
+  enabled: true
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+  ingress:
+    host: maplespike.ca
+    tls: true
+
+# Secrets (override via --set or external secret management)
+secrets:
+  apiKey: ""
+  jwtSecret: ""
+  dbPassword: ""
