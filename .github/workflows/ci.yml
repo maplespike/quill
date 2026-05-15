@@ -29,6 +29,9 @@ jobs:
       # Build all JS/TS packages (Turbo respects dependency order)
       - run: pnpm -r build
 
+      # Build docs pages from markdown source
+      - run: node scripts/build-docs.mjs
+
       # Rebuild native modules (better-sqlite3) for CI runner's Node version
       - run: pnpm rebuild better-sqlite3
 

@@ -3,7 +3,7 @@
 // Output: packages/portal/docs/{section}/{slug}.html
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { resolve, join, basename } from 'path';
+import { resolve, join } from 'path';
 import { marked } from 'marked';
 import { fileURLToPath } from 'url';
 
@@ -71,17 +71,6 @@ const SECTIONS = [
   },
 ];
 
-// ── Determine which top-nav section is active for a given page ──
-function activeNavSection(sectionKey) {
-  const map = {
-    guide: '/docs/guide/what-is-maplespike.html',
-    api: '/docs/api/endpoints.html',
-    mcp: '/docs/mcp/tools.html',
-    modules: '/docs/modules/overview.html',
-  };
-  return map[sectionKey] || '';
-}
-
 // ── Build sidebar HTML ──────────────────────────────────────
 function buildSidebar(currentSection, currentSlug) {
   let html = '<nav class="docs-sidebar">\n';
@@ -103,17 +92,20 @@ function buildSidebar(currentSection, currentSlug) {
 }
 
 // ── Build top nav HTML ──────────────────────────────────────
-function buildNav(currentSectionKey) {
-  const activeHref = activeNavSection(currentSectionKey);
-  const links = [
-    { href: '/explorer.html', label: 'DATA' },
-    { href: '/pricing.html', label: 'PRICING' },
-    { href: '/docs/guide/what-is-maplespike.html', label: 'GUIDE', match: 'guide' },
-    { href: '/docs/api/endpoints.html', label: 'API', match: 'api' },
-    { href: '/docs/mcp/tools.html', label: 'MCP', match: 'mcp' },
-    { href: '/explorer.html', label: 'EXPLORER' },
-    { href: '/changelog.html', label: 'CHANGELOG' },
-    { href: '/workspace.html', label: 'WORKSPACE' },
+function buildNav() {
+  const groups = [
+    [
+      { href: '/explorer.html', label: 'DATA' },
+      { href: '/explorer.html', label: 'EXPLORER' },
+      { href: '/pricing.html', label: 'PRICING' },
+    ],
+    [
+      { href: '/docs/', label: 'DOCS', active: true },
+    ],
+    [
+      { href: '/changelog.html', label: 'CHANGELOG' },
+      { href: '/workspace.html', label: 'WORKSPACE' },
+    ],
   ];
 
   let html = `<nav>
@@ -124,10 +116,16 @@ function buildNav(currentSectionKey) {
     </a>
     <ul class="nav-links">`;
 
-  for (const link of links) {
-    const isActive = link.match === currentSectionKey;
-    html += `
+  for (const group of groups) {
+    if (group !== groups[0]) {
+      html += `
+      <li class="nav-separator" aria-hidden="true"></li>`;
+    }
+    for (const link of group) {
+      const isActive = link.active;
+      html += `
       <li><a href="${link.href}"${isActive ? ' class="active"' : ''}><span class="nav-bracket">[</span>${link.label}<span class="nav-bracket">]</span></a></li>`;
+    }
   }
 
   html += `
@@ -142,7 +140,7 @@ function buildNav(currentSectionKey) {
 
 // ── Full page template ──────────────────────────────────────
 function buildPage(title, description, sectionKey, slug, bodyHtml) {
-  const nav = buildNav(sectionKey);
+  const nav = buildNav();
   const sidebar = buildSidebar(sectionKey, slug);
 
   return `<!DOCTYPE html>
@@ -364,6 +362,7 @@ ${bodyHtml}
 
 <script src="/script.js"></script>
 <script src="/nav.js"></script>
+<script type="module" src="/docs-pretext.js"></script>
 </body>
 </html>`;
 }
