@@ -1,71 +1,75 @@
-<!DOCTYPE html>
-<html lang="en-CA" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 — Page Not Found · MapleSpike</title>
-  <script src="/config.js"></script>
-
-    <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <meta name="robots" content="noindex, follow">
-  <style>
-    .error-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; text-align:center; padding:40px 24px; }
-    .error-code { font-size:6rem; font-weight:800; font-family:var(--font-mono); color:var(--accent); line-height:1; opacity:0.3; }
-    .error-msg { font-size:1.2rem; color:var(--text-secondary); margin:16px 0 32px; }
-    .error-detail { font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:32px; }
-    .error-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  </style>
-  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "MapleSpike",
-    "url": "https://maplespike.ca",
-    "description": "Canadian government data pipeline with verified citations",
-    "applicationCategory": "Data API",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "CAD"
-    }
-  }
-  </script>
-</head>
-<body>
-  <nav>
-    <div class="nav-inner">
-      <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
-      <ul class="nav-links">
-        <li><a href="/explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-        <li><a href="/explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-        <li><a href="/pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-        <li class="nav-separator" aria-hidden="true"></li>
-        <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-        <li class="nav-separator" aria-hidden="true"></li>
-        <li><a href="/changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
-        <li><a href="/workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
-        <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
-        <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
-      </ul>
-      <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
-    </div>
-  </nav>
-  <div class="error-page">
-    <div class="error-code">404</div>
-    <div class="error-msg">This page doesn't exist in our dataset.</div>
-    <div class="error-detail">// The requested resource was not found in any of our 63 data modules</div>
-    <div class="error-actions">
-      <a href="index.html" class="btn btn-primary">← Back to Home</a>
-      <a href="explorer.html" class="btn btn-secondary">Browse Data Sources</a>
-      <a href="dashboard.html" class="btn btn-ghost">Console</a>
-    </div>
+     1|<!DOCTYPE html>
+     2|<html lang="en-CA" data-theme="dark">
+     3|<head>
+     4|  <meta charset="UTF-8">
+     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|  <title>404 — Page Not Found · MapleSpike</title>
+     7|  <script src="/config.js"></script>
+     8|
+     9|    <link rel="stylesheet" href="styles.css">
+    10|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+    11|  <meta name="robots" content="noindex, follow">
+    12|  <style>
+    13|    .error-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; text-align:center; padding:40px 24px; }
+    14|    .error-code { font-size:6rem; font-weight:800; font-family:var(--font-mono); color:var(--accent); line-height:1; opacity:0.3; }
+    15|    .error-msg { font-size:1.2rem; color:var(--text-secondary); margin:16px 0 32px; }
+    16|    .error-detail { font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono); margin-bottom:32px; }
+    17|    .error-actions { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+    18|  </style>
+    19|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+    20|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    21|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+    22|  <script type="application/ld+json">
+    23|  {
+    24|    "@context": "https://schema.org",
+    25|    "@type": "WebApplication",
+    26|    "name": "MapleSpike",
+    27|    "url": "https://maplespike.ca",
+    28|    "description": "Canadian government data pipeline with verified citations",
+    29|    "applicationCategory": "Data API",
+    30|    "offers": {
+    31|      "@type": "Offer",
+    32|      "price": "0",
+    33|      "priceCurrency": "CAD"
+    34|    }
+    35|  }
+    36|  </script>
+    37|</head>
+    38|<body>
+    39|  <!-- Navigation -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li class="nav-separator" aria-hidden="true"></li>
+      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
+      <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
   </div>
-
-
-<script src="/nav.js"></script>
-</body>
-</html>
+</nav>
+    57|  <div class="error-page">
+    58|    <div class="error-code">404</div>
+    59|    <div class="error-msg">This page doesn't exist in our dataset.</div>
+    60|    <div class="error-detail">// The requested resource was not found in any of our 63 data modules</div>
+    61|    <div class="error-actions">
+    62|      <a href="index.html" class="btn btn-primary">← Back to Home</a>
+    63|      <a href="explorer.html" class="btn btn-secondary">Browse Data Sources</a>
+    64|      <a href="dashboard.html" class="btn btn-ghost">Console</a>
+    65|    </div>
+    66|  </div>
+    67|
+    68|
+    69|<script src="/nav.js"></script>
+    70|</body>
+    71|</html>
+    72|
