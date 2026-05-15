@@ -5,13 +5,14 @@
  */
 
 import type { RouteHandler } from '../types.js';
-import { buildSuccess, jsonResponse } from '../response.js';
+import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { loadConfig } from '../config.js';
 
 export const openApiHandler: RouteHandler = async (_request, ctx) => {
-  const config = loadConfig(ctx.env);
+  try {
+    const config = loadConfig(ctx.env);
 
-  const spec = {
+    const spec = {
     openapi: '3.1.0',
     info: {
       title: config.name,
@@ -89,6 +90,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
     paths: {
       '/v1/health': {
         get: {
+          tags: ['Health'],
           summary: 'Service health check',
           description: 'Returns service status, tenant info, and current usage. Use this to verify your API key is working.',
           security: [{ BearerAuth: [] }],
@@ -102,6 +104,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
       '/v1/gov/releases': {
         get: {
+          tags: ['Government Data'],
           summary: 'List government data releases',
           description: 'Returns recent releases from Statistics Canada, CKAN portals, and other government data sources.',
           parameters: [
@@ -114,6 +117,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
       '/v1/gov/search': {
         get: {
+          tags: ['Government Data'],
           summary: 'Search across all government data sources',
           description: 'Unified search across Statistics Canada, CKAN portals, and provincial data catalogues.',
           parameters: [
@@ -125,6 +129,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
       '/v1/citation/{id}': {
         get: {
+          tags: ['Citations'],
           summary: 'Verify a citation hash',
           description: 'Returns the SHA-256 hash for an article, enabling independent verification that content has not been altered.',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
@@ -133,6 +138,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
       '/v1/usage': {
         get: {
+          tags: ['Usage'],
           summary: 'Get current usage',
           description: 'Returns daily and monthly API call counts, limits, and remaining quota for your tier.',
           responses: { '200': { description: 'Usage statistics' } },
@@ -140,6 +146,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
       '/v1/audit/query': {
         post: {
+          tags: ['Audit'],
           summary: 'Query audit log (Business tier+)',
           description: 'Returns immutable audit log entries. Requires Business tier or higher.',
           security: [{ BearerAuth: [] }],
@@ -163,17 +170,314 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
           responses: { '200': { description: 'Audit log entries' } },
         },
       },
+
+      // ── Key Management ──
+
+      '/v1/keys': {
+        get: {
+          tags: ['Keys'],
+          summary: 'List API keys',
+          description: 'Returns all API keys for the authenticated tenant.',
+          security: [{ BearerAuth: [] }],
+          responses: { '200': { description: 'List of API keys' } },
+        },
+        post: {
+          tags: ['Keys'],
+          summary: 'Create a new API key',
+          description: 'Generates a new API key. The raw key is returned once and never stored.',
+          security: [{ BearerAuth: [] }],
+          responses: { '201': { description: 'API key created' } },
+        },
+      },
+      '/v1/keys/{id}': {
+        delete: {
+          tags: ['Keys'],
+          summary: 'Revoke an API key',
+          security: [{ BearerAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': { description: 'Key revoked' } },
+        },
+      },
+      '/v1/keys/{id}/rotate': {
+        post: {
+          tags: ['Keys'],
+          summary: 'Rotate an API key',
+          description: 'Invalidates the old key and returns a new one. The new key is shown once.',
+          security: [{ BearerAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': { description: 'Key rotated' } },
+        },
+      },
+
+      // ── Registration ──
+
+      '/v1/register': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Register a new tenant',
+          description: 'Creates a new tenant and returns an API key.',
+          responses: { '201': { description: 'Tenant registered' } },
+        },
+      },
+      '/v1/me': {
+        get: {
+          tags: ['Auth'],
+          summary: 'Get current tenant info',
+          security: [{ BearerAuth: [] }],
+          responses: { '200': { description: 'Tenant details' } },
+        },
+      },
+
+      // ── Billing ──
+
+      '/v1/billing/plans': {
+        get: {
+          tags: ['Billing'],
+          summary: 'List pricing plans',
+          description: 'Returns available pricing tiers.',
+          responses: { '200': { description: 'List of plans' } },
+        },
+      },
+      '/v1/billing/checkout': {
+        post: {
+          tags: ['Billing'],
+          summary: 'Create a checkout session',
+          description: 'Initiates a payment checkout for a plan upgrade.',
+          security: [{ BearerAuth: [] }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['planId'],
+                  properties: {
+                    planId: { type: 'string', description: 'Plan to subscribe to' },
+                    successUrl: { type: 'string' },
+                    cancelUrl: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          responses: { '200': { description: 'Checkout session details' } },
+        },
+      },
+
+      // ── AI Endpoints ──
+
+      '/v1/ai/ask': {
+        post: {
+          tags: ['AI'],
+          summary: 'Ask a question about Canadian government data',
+          description: 'AI-powered Q&A over government data sources. Returns cited answers.',
+          security: [{ BearerAuth: [] }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['question'],
+                  properties: {
+                    question: { type: 'string' },
+                    context: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          responses: { '200': { description: 'AI-generated answer with citations' } },
+        },
+      },
+      '/v1/ai/analyze': {
+        post: {
+          tags: ['AI'],
+          summary: 'Analyze data for bias or patterns',
+          description: 'AI-powered analysis of government data for bias detection, trend analysis, and narrative tracking.',
+          security: [{ BearerAuth: [] }],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    topic: { type: 'string' },
+                    sources: { type: 'array', items: { type: 'string' } },
+                    analysisType: { type: 'string', enum: ['bias', 'trend', 'narrative'] },
+                  },
+                },
+              },
+            },
+          },
+          responses: { '200': { description: 'Analysis results' } },
+        },
+      },
+
+      // ── Signals ──
+
+      '/v1/signals': {
+        get: {
+          tags: ['Signals'],
+          summary: 'Get detected signals',
+          description: 'Returns recent signals detected by the engine (revolving doors, lobbying overlaps, sole-source flags).',
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            { name: 'type', in: 'query', schema: { type: 'string' }, description: 'Signal type filter' },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+          ],
+          responses: { '200': { description: 'Recent signals' } },
+        },
+      },
+
+      // ── OAuth Auth ──
+
+      '/v1/auth/oauth/providers': {
+        get: {
+          tags: ['Auth'],
+          summary: 'List OAuth providers',
+          description: 'Returns available OAuth providers for login.',
+          responses: { '200': { description: 'List of OAuth providers' } },
+        },
+      },
+      '/v1/auth/oauth/{provider}': {
+        get: {
+          tags: ['Auth'],
+          summary: 'Initiate OAuth login',
+          parameters: [{ name: 'provider', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '302': { description: 'Redirect to OAuth provider' } },
+        },
+      },
+      '/v1/auth/oauth/{provider}/callback': {
+        get: {
+          tags: ['Auth'],
+          summary: 'OAuth callback',
+          parameters: [{ name: 'provider', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': { description: 'Authentication completed' } },
+        },
+      },
+
+      // ── GitHub Auth ──
+
+      '/v1/auth/github': {
+        get: {
+          tags: ['Auth'],
+          summary: 'Initiate GitHub OAuth login',
+          responses: { '302': { description: 'Redirect to GitHub' } },
+        },
+      },
+      '/v1/auth/github/callback': {
+        get: {
+          tags: ['Auth'],
+          summary: 'GitHub OAuth callback',
+          responses: { '200': { description: 'Authentication completed' } },
+        },
+      },
+      '/v1/auth/refresh': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Refresh JWT token',
+          responses: { '200': { description: 'New JWT token' } },
+        },
+      },
+      '/v1/auth/logout': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Logout',
+          responses: { '200': { description: 'Logged out' } },
+        },
+      },
+      '/v1/auth/me': {
+        get: {
+          tags: ['Auth'],
+          summary: 'Get authenticated user profile',
+          security: [{ BearerAuth: [] }],
+          responses: { '200': { description: 'User profile' } },
+        },
+      },
+
+      // ── Web3 Auth ──
+
+      '/v1/auth/web3/challenge': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Request Web3 sign-in challenge',
+          responses: { '200': { description: 'Challenge message for wallet signature' } },
+        },
+      },
+      '/v1/auth/web3/login': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Verify wallet signature and login',
+          responses: { '200': { description: 'JWT token' } },
+        },
+      },
+
+      // ── Passkey Auth ──
+
+      '/v1/auth/passkey/register/begin': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Begin passkey registration',
+          security: [{ BearerAuth: [] }],
+          responses: { '200': { description: 'WebAuthn registration options' } },
+        },
+      },
+      '/v1/auth/passkey/register/complete': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Complete passkey registration',
+          security: [{ BearerAuth: [] }],
+          responses: { '200': { description: 'Passkey registered' } },
+        },
+      },
+      '/v1/auth/passkey/login/begin': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Begin passkey login',
+          responses: { '200': { description: 'WebAuthn authentication options' } },
+        },
+      },
+      '/v1/auth/passkey/login/complete': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Complete passkey login',
+          responses: { '200': { description: 'JWT token' } },
+        },
+      },
+      '/v1/auth/passkey/credentials': {
+        get: {
+          tags: ['Auth'],
+          summary: 'List registered passkeys',
+          security: [{ BearerAuth: [] }],
+          responses: { '200': { description: 'List of passkey credentials' } },
+        },
+      },
+      '/v1/auth/passkey/credentials/{id}': {
+        delete: {
+          tags: ['Auth'],
+          summary: 'Delete a passkey',
+          security: [{ BearerAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: { '200': { description: 'Passkey deleted' } },
+        },
+      },
     },
     tags: [
       { name: 'Health', description: 'Service health and status' },
-      { name: 'News', description: 'AI-curated Canadian news' },
       { name: 'Government Data', description: 'Canadian government data releases and search' },
       { name: 'Citations', description: 'Content verification and provenance' },
-      { name: 'Curation', description: 'AI-powered article curation' },
       { name: 'Usage', description: 'API usage and quota management' },
       { name: 'Audit', description: 'Immutable audit trails for data provenance' },
+      { name: 'Keys', description: 'API key lifecycle management' },
+      { name: 'Auth', description: 'Authentication: OAuth, Web3, Passkey, JWT' },
+      { name: 'Billing', description: 'Plans and checkout' },
+      { name: 'AI', description: 'AI-powered analysis and Q&A' },
+      { name: 'Signals', description: 'Engine-detected signals and alerts' },
     ],
   };
 
-  return jsonResponse(buildSuccess(spec, ctx));
+    return jsonResponse(buildSuccess(spec, ctx));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'OpenAPI spec generation failed';
+    return jsonResponse(buildError('OPENAPI_FAILED', message, ctx), 500);
+  }
 };
