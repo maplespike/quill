@@ -5,8 +5,9 @@
  * Supports in-memory (default) and SQLite storage backends.
  *
  * Usage:
- *   MAPLESPIKE_STORAGE=memory  node dist/dev-server.js   # in-memory (default)
- *   MAPLESPIKE_STORAGE=sqlite  node dist/dev-server.js   # SQLite persistence
+ *   MAPLESPIKE_STORAGE=memory   node dist/dev-server.js   # in-memory (default)
+ *   MAPLESPIKE_STORAGE=sqlite   node dist/dev-server.js   # SQLite persistence
+ *   MAPLESPIKE_STORAGE=postgres node dist/dev-server.js   # PostgreSQL (production)
  *   MAPLESPIKE_DB_PATH=/tmp/my.db node dist/dev-server.js # custom SQLite path
  */
 
@@ -34,7 +35,14 @@ const env = {
 let db: MapleSpikeStorage;
 let cache: MapleSpikeCache;
 
-if (MAPLESPIKE_STORAGE === 'sqlite') {
+if (MAPLESPIKE_STORAGE === 'postgres') {
+  console.log('[Storage] Using PostgreSQL backend');
+  const { PgStorage, PgCache } = await import('./pg-storage.js');
+  const pgDb = new PgStorage();
+  await pgDb.init();
+  db = pgDb;
+  cache = new PgCache();
+} else if (MAPLESPIKE_STORAGE === 'sqlite') {
   console.log(`[Storage] Using SQLite backend: ${MAPLESPIKE_DB_PATH}`);
   // Dynamic import so that better-sqlite3 native module is only loaded when needed
   const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
@@ -47,7 +55,7 @@ if (MAPLESPIKE_STORAGE === 'sqlite') {
   cache = new MemoryCache();
 
   // Seed a dev tenant with known API key
-  // Usage: curl -H "Authorization: Bearer maplespike-dev-key" http://localhost:8082/v1/health
+  // Usage: curl -H "Authorization: Bearer maples...key" http://localhost:8082/v1/health
   memDb.registerTenant(
     {
       id: 'dev-tenant',
@@ -138,6 +146,10 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  Storage:   ${MAPLESPIKE_STORAGE}`);
   if (MAPLESPIKE_STORAGE === 'sqlite') {
     console.log(`  DB Path:   ${MAPLESPIKE_DB_PATH}`);
+  } else if (MAPLESPIKE_STORAGE === 'postgres') {
+    const host = process.env.MAPLESPIKE_DB_HOST || 'localhost';
+    const db   = process.env.MAPLESPIKE_DB_NAME || 'maplespike';
+    console.log(`  PG Host:   ${host}/${db}`);
   }
   console.log(`  AI:        ${AI_ENDPOINT} (${AI_MODEL})`);
   console.log(`  JWT:       ${jwtSecret}`);
