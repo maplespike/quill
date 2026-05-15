@@ -1,64 +1,61 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en-CA" data-theme="dark">
-     3|<head>
-     4|  <meta charset="UTF-8">
-     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|  <title>MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing</title>
-     7|  <script src="/config.js"></script>
-     8|  <link rel="canonical" href="https://maplespike.ca/workspace">
-     9|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace">
-    10|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/workspace">
-    11|  <meta name="robots" content="index, follow">
-    12|
-    13|  <meta name="description" content="Manage your MapleSpike API keys, monitor usage, view billing history, and configure team access. Self-serve developer console.">
-    14|
-    15|    <link rel="stylesheet" href="styles.css">
-    16|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='600' font-family='sans-serif'>C</text></svg>">
-    17|  <style>
-    18|    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); padding:12px 24px; border-radius:var(--radius-sm); font-size:0.85rem; font-family:var(--font-mono); z-index:9999; opacity:0; transition:opacity 0.3s ease; pointer-events:none; }
-    19|    .toast.show { opacity:1; }
-    20|    .toast.success { background:var(--base19); color:var(--success); border:1px solid rgba(16,185,129,0.3); }
-    21|  </style>
-    22|
-    23|  <meta property="og:title" content="MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing">
-    24|  <meta property="og:description" content="Manage your MapleSpike API keys, monitor usage, view billing history, and configure team access. Self-serve developer console.">
-    25|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-    26|  <meta property="og:image:width" content="1200">
-    27|  <meta property="og:image:height" content="630">
-    28|  <meta property="og:url" content="https://maplespike.ca/workspace">
-    29|  <meta property="og:type" content="website">
-    30|  <meta name="twitter:card" content="summary_large_image">
-    31|  <meta name="twitter:title" content="MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing">
-    32|  <meta name="twitter:description" content="Manage your MapleSpike API keys, monitor usage, view billing history, and configure team access. Self-serve developer console.">
-    33|  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-    34|
-    35|
-    36|  <script type="application/ld+json">
-    37|  {
-    38|    "@context": "https://schema.org",
-    39|    "@type": "Organization",
-    40|    "name": "MapleSpike",
-    41|    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
-    42|    "url": "https://maplespike.ca",
-    43|    "foundingDate": "2025",
-    44|    "funder": { "@type": "Organization", "name": "Reverb256" }
-    45|  }
-    46|  </script>
-    47|
-    48|
-    49|
-    50|  <link rel="preconnect" href="https://www.google.com" crossorigin>
-    51|  <link rel="manifest" href="/manifest.json">
-    52|  <meta name="msapplication-config" content="/browserconfig.xml">
-    53|  <meta name="theme-color" content="#C23030">
-    54|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-    55|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-    56|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-    57|</head>
-    58|<body>
-    59|
-    60|<!-- ═══ Navigation ═══ -->
-    61|<!-- Navigation -->
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing</title>
+  <script src="/config.js"></script>
+  <link rel="canonical" href="https://maplespike.ca/workspace">
+  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace">
+  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/workspace">
+  <meta name="robots" content="index, follow">
+
+  <meta name="description" content="Manage your MapleSpike API keys, monitor usage, view billing history, and configure team access. Self-serve developer console.">
+
+    <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='600' font-family='sans-serif'>C</text></svg>">
+  <style>
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); padding:12px 24px; border-radius:var(--radius-sm); font-size:0.85rem; font-family:var(--font-mono); z-index:9999; opacity:0; transition:opacity 0.3s ease; pointer-events:none; }
+    .toast.show { opacity:1; }
+    .toast.success { background:var(--base19); color:var(--success); border:1px solid rgba(16,185,129,0.3); }
+  </style>
+
+  <meta property="og:title" content="MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing">
+  <meta property="og:description" content="Manage your MapleSpike API keys, monitor usage, view billing history, and configure team access. Self-serve developer console.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://maplespike.ca/workspace">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing">
+  <meta name="twitter:description" content="Manage your MapleSpike API keys, monitor usage, view billing history, and configure team access. Self-serve developer console.">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "MapleSpike",
+    "description": "Canada's sovereign, AI-native government data pipeline. Tracks parliamentary committees, lobbying, regulations, court decisions, and more from official public sources.",
+    "url": "https://maplespike.ca",
+    "foundingDate": "2025",
+    "funder": { "@type": "Organization", "name": "Reverb256" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#C23030">
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<!-- ═══ Navigation ═══ -->
+<!-- Navigation -->
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo">
@@ -71,6 +68,7 @@
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
@@ -79,632 +77,657 @@
     <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
   </div>
 </nav>
-    82|
-    83|<!-- ═══ WORKSPACE ═══ -->
-    84|<div class="workspace-page">
-    85|  <div style="max-width:var(--max-width);margin:0 auto;padding:32px 24px 0;">
-    86|    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
-    87|      <div>
-    88|        <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">
-    89|          <span style="color:var(--terminal-bracket);">[</span>
-    90|          <span style="color:var(--accent-gold);">00</span>
-    91|          <span style="color:var(--terminal-bracket);">]</span>
-    92|          <span>WORKSPACE</span>
-    93|        </div>
-    94|        <h1 style="font-size:1.8rem;font-weight:800;margin:0;">Your Workspace</h1>
-    95|      </div>
-    96|      <div style="display:flex;gap:8px;">
-    97|        <span class="live-badge"><span class="live-dot"></span> TIER: PUBLIC</span>
-    98|      </div>
-    99|    </div>
-   100|  </div>
-   101|
-   102|  <!-- ═══ Quickstart Onboarding ═══ -->
-   103|  <div class="workspace-panel full" style="border:1px solid var(--accent);border-radius:var(--radius-lg);margin-bottom:24px;">
-   104|    <div style="padding:24px 28px;">
-   105|      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-   106|        <span style="font-size:1.5rem;">🚀</span>
-   107|        <h2 style="margin:0;font-size:1.1rem;font-weight:700;">Quickstart — 3 steps to your first call</h2>
-   108|      </div>
-   109|      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
-   110|        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
-   111|          <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 1</div>
-   112|          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Start the API server</div>
-   113|          <div class="code-block" style="font-size:0.75rem;margin:0;">
-   114|            <span class="prompt">$</span> cd packages/api-server && PORT=8085 node dist/dev-server.js
-   115|          </div>
-   116|        </div>
-   117|        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
-   118|          <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 2</div>
-   119|          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Make your first API call</div>
-   120|          <div class="code-block" style="font-size:0.75rem;margin:0;">
-   121|            <span class="prompt">$</span> curl <span class="config-api-base">http://127.0.0.1:8085</span>/v1/health
-   122|          </div>
-   123|        </div>
-   124|        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
-   125|          <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 3</div>
-   126|          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Search government data</div>
-   127|          <div class="code-block" style="font-size:0.75rem;margin:0;">
-   128|            <span class="prompt">$</span> curl "<span class="config-api-base">http://127.0.0.1:8085</span>/v1/gov/search?q=housing" -H "X-API-Key: <span class="config-api-key">maplespike-dev-key</span>"
-   129|          </div>
-   130|        </div>
-   131|      </div>
-   132|      <div style="margin-top:12px;font-size:0.8rem;color:var(--text-muted);">
-   133|        The workspace panels below connect to <code class="config-api-base">http://127.0.0.1:8085</code> when the API server is running.
-   134|        Start the server above to see live usage stats and API keys.
-   135|      </div>
-   136|    </div>
-   137|  </div>
-   138|
-   139|  <div class="workspace-grid">
-   140|    <!-- ═══ API Key Panel ═══ -->
-   141|    <div class="workspace-panel">
-   142|      <div class="panel-header">
-   143|        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[01]</span>API Key</h2>
-   144|        <button class="btn btn-sm btn-secondary" onclick="regenerateKey()">Regenerate</button>
-   145|      </div>
-   146|      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Your secret API key for authenticating requests to MapleSpike. Keep this private.</p>
-   147|      <div class="api-key-display">
-   148|        <span class="key-value">
-   149|          <span class="masked" id="api-key-masked">mp_••••••••••••••••••</span>
-   150|          <span class="visible" id="api-key-visible" style="display:none;">mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6</span>
-   151|        </span>
-   152|        <button class="btn-icon" onclick="toggleKeyVisibility()" title="Toggle visibility">👁️</button>
-   153|        <button class="btn-icon" onclick="copyApiKey()" title="Copy API key">📋</button>
-   154|      </div>
-   155|      <div style="margin-top:16px;">
-   156|        <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Quickstart:</span>
-   157|        <div class="code-block" style="margin-top:6px;">
-   158|          <span class="comment"># Set your key</span><br>
-   159|          <span class="prompt">$</span> export MAPLESPIKE_KEY=<span class="string">"<span id="quickstart-key">your_api_key_here</span>"</span><br><br>
-   160|          <span class="comment"># Make a call</span><br>
-   161|          <span class="prompt">$</span> curl -H <span class="string">"x-api-key: $MAPLESPIKE_KEY"</span> \<br>
-   162|          &nbsp;&nbsp;https://api.maplespike.ca/v1/health
-   163|        </div>
-   164|      </div>
-   165|    </div>
-   166|
-   167|    <!-- ═══ Usage Stats Panel ═══ -->
-   168|    <div class="workspace-panel">
-   169|      <div class="panel-header">
-   170|        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[02]</span>Usage</h2>
-   171|        <span id="usage-period" style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">This month</span>
-   172|      </div>
-   173|
-   174|      <div class="stat-progress">
-   175|        <div class="stat-row">
-   176|          <span class="stat-name">Daily API Calls</span>
-   177|          <span class="stat-value"><span id="usage-daily">4</span> / <span id="usage-daily-limit">1,000</span></span>
-   178|        </div>
-   179|        <div class="progress-bar">
-   180|          <div class="fill cyan" id="bar-daily" style="width:0.4%;"></div>
-   181|        </div>
-   182|      </div>
-   183|
-   184|      <div class="stat-progress">
-   185|        <div class="stat-row">
-   186|          <span class="stat-name">Monthly API Calls</span>
-   187|          <span class="stat-value"><span id="usage-monthly">4</span> / <span id="usage-monthly-limit">1,000</span></span>
-   188|        </div>
-   189|        <div class="progress-bar">
-   190|          <div class="fill gold" id="bar-monthly" style="width:0.4%;"></div>
-   191|        </div>
-   192|      </div>
-   193|
-   194|      <div class="stat-progress">
-   195|        <div class="stat-row">
-   196|          <span class="stat-name">API Rate Limit</span>
-   197|          <span class="stat-value" id="usage-rate">10 req/s</span>
-   198|        </div>
-   199|        <div class="progress-bar">
-   200|          <div class="fill green" id="bar-rate" style="width:10%;"></div>
-   201|        </div>
-   202|      </div>
-   203|
-   204|      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-   205|        <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
-   206|          <span style="color:var(--text-secondary);">Tier</span>
-   207|          <span style="font-weight:600;" id="usage-tier">Public (Free)</span>
-   208|        </div>
-   209|      </div>
-   210|    </div>
-   211|
-   212|    <!-- ═══ Request Log Panel (full width) ═══ -->
-   213|    <div class="workspace-panel full">
-   214|      <div class="panel-header">
-   215|        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[03]</span>Recent Requests</h2>
-   216|        <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Last 10</span>
-   217|      </div>
-   218|      <div style="overflow-x:auto;">
-   219|        <table class="request-log" id="request-log">
-   220|          <thead>
-   221|            <tr>
-   222|              <th>Time</th>
-   223|              <th>Method</th>
-   224|              <th>Endpoint</th>
-   225|              <th>Status</th>
-   226|              <th>Duration</th>
-   227|            </tr>
-   228|          </thead>
-   229|          <tbody id="request-log-body">
-   230|            <!-- Populated by JS -->
-   231|          </tbody>
-   232|        </table>
-   233|      </div>
-   234|    </div>
-   235|
-   236|    <!-- ═══ Billing Panel ═══ -->
-   237|    <div class="workspace-panel">
-   238|      <div class="panel-header">
-   239|        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[04]</span>Billing</h2>
-   240|        <span class="badge" style="font-size:0.7rem;padding:3px 10px;border-radius:99px;background:var(--base19);color:var(--success);border:1px solid rgba(16,185,129,0.2);font-family:var(--font-mono);">ACTIVE</span>
-   241|      </div>
-   242|      <div style="margin-bottom:16px;">
-   243|        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
-   244|          <span style="color:var(--text-secondary);">Plan</span>
-   245|          <span style="font-weight:600;">Public (Free)</span>
-   246|        </div>
-   247|        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
-   248|          <span style="color:var(--text-secondary);">Monthly cost</span>
-   249|          <span style="font-weight:600;">$0.00</span>
-   250|        </div>
-   251|        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
-   252|          <span style="color:var(--text-secondary);">Calls remaining</span>
-   253|          <span style="font-weight:600;" id="billing-remaining">996</span>
-   254|        </div>
-   255|        <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;">
-   256|          <span style="color:var(--text-secondary);">Next billing</span>
-   257|          <span style="font-weight:600;">June 13, 2026</span>
-   258|        </div>
-   259|      </div>
-   260|      <a href="index.html#pricing" class="btn btn-primary" style="width:100%;">Upgrade Plan →</a>
-   261|    </div>
-   262|
-   263|    <!-- ═══ Auth Panel ═══ -->
-   264|    <div class="workspace-panel">
-   265|      <div class="panel-header">
-   266|        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[05]</span>Authentication</h2>
-   267|        <span class="live-badge" id="auth-status-badge"><span class="live-dot" id="auth-dot"></span> <span id="auth-status-label">Not signed in</span></span>
-   268|      </div>
-   269|
-   270|      <!-- OAuth section (shown when not authenticated) -->
-   271|      <div id="auth-oauth-section">
-   272|        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Sign in to manage your API keys, view usage, and link multiple authentication methods.</p>
-   273|        <div style="display:flex;flex-direction:column;gap:8px;" id="oauth-button-list"></div>
-   274|        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">
-   275|          Also available: <a href="#" onclick="showPasskeyLogin()" style="color:var(--accent-cyan);">Passkey</a>,
-   276|          <a href="#" onclick="showWeb3Login()" style="color:var(--accent-cyan);">Web3 Wallet</a>
-   277|        </p>
-   278|      </div>
-   279|
-   280|      <!-- Session section (shown when authenticated) -->
-   281|      <div id="auth-session-section" style="display:none;">
-   282|        <div style="margin-bottom:12px;">
-   283|          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
-   284|            <span style="color:var(--text-secondary);">Signed in as</span>
-   285|            <span style="font-weight:600;" id="auth-user-name">—</span>
-   286|          </div>
-   287|          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
-   288|            <span style="color:var(--text-secondary);">User ID</span>
-   289|            <span style="font-weight:600;font-family:var(--font-mono);font-size:0.78rem;" id="auth-user-id">—</span>
-   290|          </div>
-   291|          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
-   292|            <span style="color:var(--text-secondary);">Auth method</span>
-   293|            <span style="font-weight:600;" id="auth-method">—</span>
-   294|          </div>
-   295|          <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;">
-   296|            <span style="color:var(--text-secondary);">Tier</span>
-   297|            <span style="font-weight:600;" id="auth-tier">—</span>
-   298|          </div>
-   299|        </div>
-   300|        <button class="btn btn-secondary" style="width:100%;" onclick="logout()">Sign Out</button>
-   301|      </div>
-   302|    </div>
-   303|
-   304|    <!-- ═══ MCP Config Panel ═══ -->
-   305|    <div class="workspace-panel">
-   306|      <div class="panel-header">
-   307|        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[06]</span>MCP Connection</h2>
-   308|      </div>
-   309|      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Use these details to connect MapleSpike to your AI tools via the Model Context Protocol.</p>
-   310|      <div style="margin-bottom:12px;">
-   311|        <div style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">MCP Server URL</div>
-   312|        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;">
-   313|          <span style="color:var(--accent-cyan);">https://maplespike.lan/mcp</span>
-   314|          <button class="btn-icon" onclick="copyText('https://maplespike.lan/mcp')" style="margin-left:auto;">📋</button>
-   315|        </div>
-   316|      </div>
-   317|      <div class="code-block">
-   318|<span class="comment">// Claude Desktop config</span><br>
-   319|{<br>
-   320|&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-   321|&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
-   322|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span>,<br>
-   323|          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"apiKey"</span>: <span class="string">"<span id="mcp-key-placeholder">your_api_key_here</span>"</span><br>
-   324|&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-   325|&nbsp;&nbsp;}<br>
-   326|}
-   327|      </div>
-   328|    </div>
-   329|  </div>
-   330|</div>
-   331|
-   332|<!-- Toast -->
-   333|<div class="toast" id="toast"></div>
-   334|
-   335|<script>
-   336|(function() {
-   337|  'use strict';
-   338|
-   339|  const LS_THEME = 'maplespike-theme';
-   340|  const LS_API_KEY = 'maplespike-api-key';
-   341|
-   342|  let keyVisible = false;
-   343|  let currentKeys = [];
-   344|  let authHeader = {};
-   345|
-   346|  function getAuthHeaders() {
-   347|    const apiKey = localStorage.getItem(LS_API_KEY);
-   348|    if (apiKey) return { 'X-API-Key': apiKey };
-   349|    const token = document.cookie.split('; ').find(r => r.startsWith('session='));
-   350|    if (token) return { 'Authorization': 'Bearer ' + token.split('=')[1] };
-   351|    return {};
-   352|  }
-   353|
-   354|  async function apiFetch(path, options = {}) {
-   355|    const _cfg = window.MAPLESPIKE || {};
-   356|    const base = _cfg.apiBase || 'http://127.0.0.1:8085';
-   357|    const headers = { ...getAuthHeaders(), ...options.headers };
-   358|    const resp = await fetch(base + path, { ...options, headers });
-   359|    return resp;
-   360|  }
-   361|
-   362|  const REQUEST_LOG_DATA = []; // Populated live
-   363|
-   364|  // ── Render Request Log ──
-   365|  function renderRequestLog(entries) {
-   366|    const tbody = document.getElementById('request-log-body');
-   367|    const data = entries || REQUEST_LOG_DATA;
-   368|    if (!data.length) {
-   369|      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No requests yet. Make an API call to see it here.</td></tr>';
-   370|      return;
-   371|    }
-   372|    tbody.innerHTML = data.map(r => {
-   373|      const statusClass = r.status >= 200 && r.status < 300 ? 'status-ok' : 'status-err';
-   374|      const methodClass = (r.method || 'GET').toLowerCase();
-   375|      return `<tr>
-   376|        <td style="color:var(--text-muted);">${r.time || r.created_at || ''}</td>
-   377|        <td><span class="method-cell ${methodClass}">${r.method || 'GET'}</span></td>
-   378|        <td style="font-family:var(--font-mono);font-size:0.78rem;">${r.endpoint || ''}</td>
-   379|        <td><span class="${statusClass}">${r.status || 200}</span></td>
-   380|        <td style="color:var(--text-muted);">${r.duration || (r.duration_ms ? r.duration_ms + 'ms' : '')}</td>
-   381|      </tr>`;
-   382|    }).join('');
-   383|  }
-   384|
-   385|  // ── Fetch Live Usage ──
-   386|  async function fetchUsage() {
-   387|    try {
-   388|      const resp = await apiFetch('/v1/me');
-   389|      const body = await resp.json();
-   390|      if (body.success && body.data) {
-   391|        const tenant = body.data.tenant || {};
-   392|        const usage = body.data.usage || {};
-   393|        const daily = usage.daily || {};
-   394|        const monthly = usage.monthly || {};
-   395|
-   396|        document.getElementById('usage-daily').textContent = daily.calls ?? 0;
-   397|        document.getElementById('usage-monthly').textContent = monthly.calls ?? 0;
-   398|        const tier = tenant.tier || 'free';
-   399|        document.getElementById('usage-tier').textContent = tier === 'free' ? 'Public (Free)' : tier.charAt(0).toUpperCase() + tier.slice(1);
-   400|
-   401|        const monthlyLimit = monthly.limit || 1000;
-   402|        const dailyLimit = daily.limit || (monthlyLimit > 1000 ? Math.round(monthlyLimit / 30) : 1000);
-   403|        document.getElementById('usage-monthly-limit').textContent = monthlyLimit.toLocaleString();
-   404|        document.getElementById('usage-daily-limit').textContent = dailyLimit < 10000 ? dailyLimit.toLocaleString() : Math.round(dailyLimit).toLocaleString();
-   405|
-   406|        let rateLimit = 10;
-   407|        if (tier === 'pro') rateLimit = 25;
-   408|        else if (tier === 'business') rateLimit = 100;
-   409|        else if (tier === 'internal') rateLimit = 500;
-   410|        document.getElementById('usage-rate').textContent = rateLimit + ' req/s';
-   411|        document.getElementById('billing-remaining').textContent = monthly.remaining ?? (monthlyLimit - (monthly.calls || 0)).toLocaleString();
-   412|
-   413|        const dailyPct = Math.min(((daily.calls || 0) / (dailyLimit || 1)) * 100, 100);
-   414|        const monthlyPct = Math.min(((monthly.calls || 0) / (monthlyLimit || 1)) * 100, 100);
-   415|        const ratePct = Math.min((rateLimit / 500) * 100, 100);
-   416|        document.getElementById('bar-daily').style.width = dailyPct + '%';
-   417|        document.getElementById('bar-monthly').style.width = monthlyPct + '%';
-   418|        document.getElementById('bar-rate').style.width = ratePct + '%';
-   419|      }
-   420|    } catch (e) {
-   421|      console.log('API unavailable, using default stats');
-   422|    }
-   423|  }
-   424|
-   425|  // ── Fetch API Keys ──
-   426|  async function fetchApiKeys() {
-   427|    try {
-   428|      const resp = await apiFetch('/v1/keys');
-   429|      const body = await resp.json();
-   430|      if (body.success && body.data) {
-   431|        currentKeys = body.data.keys || [];
-   432|        if (currentKeys.length > 0) {
-   433|          const key = currentKeys[0];
-   434|          document.getElementById('api-key-masked').textContent = key.id.slice(0, 8) + '••••••••••••••••••';
-   435|          const storedKey = localStorage.getItem(LS_API_KEY);
-   436|          if (storedKey) {
-   437|            const truncated = storedKey.slice(0, 16) + '...';
-   438|            document.getElementById('quickstart-key').textContent = truncated;
-   439|            document.getElementById('mcp-key-placeholder').textContent = storedKey;
-   440|          }
-   441|        }
-   442|      }
-   443|    } catch (e) {
-   444|      console.log('API key list unavailable');
-   445|    }
-   446|  }
-   447|
-   448|  // ── API Key Functions ──
-   449|  window.toggleKeyVisibility = function() {
-   450|    keyVisible = !keyVisible;
-   451|    document.getElementById('api-key-masked').style.display = keyVisible ? 'none' : 'inline';
-   452|    document.getElementById('api-key-visible').style.display = keyVisible ? 'inline' : 'none';
-   453|  };
-   454|
-   455|  window.copyApiKey = function() {
-   456|    const storedKey = localStorage.getItem(LS_API_KEY);
-   457|    const key = storedKey || (currentKeys.length > 0 ? currentKeys[0].id : '');
-   458|    if (key) {
-   459|      navigator.clipboard.writeText(key).then(() => showToast('API key copied to clipboard', 'success')).catch(() => {});
-   460|    } else {
-   461|      showToast('No API key available', 'error');
-   462|    }
-   463|  };
-   464|
-   465|  window.regenerateKey = function() {
-   466|    const keyName = prompt('Name for the new key:', 'default');
-   467|    if (!keyName) return;
-   468|    if (currentKeys.length > 0) {
-   469|      const keyId = currentKeys[0].id;
-   470|      if (!confirm('Regenerate this API key? The current key will be revoked immediately.')) return;
-   471|      apiFetch(`/v1/keys/${keyId}/rotate`, { method: 'POST' })
-   472|        .then(r => r.json())
-   473|        .then(body => {
-   474|          if (body.success && body.data && body.data.newKey) {
-   475|            const newKey = body.data.newKey.key;
-   476|            document.getElementById('api-key-visible').textContent = newKey;
-   477|            document.getElementById('api-key-masked').textContent = newKey.slice(0, 12) + '••••••••••••';
-   478|            localStorage.setItem(LS_API_KEY, newKey);
-   479|            showToast('New API key generated — shown once, save it securely', 'success');
-   480|            fetchApiKeys();
-   481|          } else {
-   482|            showToast(body.error?.message || 'Key rotation failed', 'error');
-   483|          }
-   484|        })
-   485|        .catch(() => showToast('Failed to rotate key. Is the API server reachable?', 'error'));
-   486|    } else {
-   487|      apiFetch('/v1/keys', { method: 'POST' })
-   488|        .then(r => r.json())
-   489|        .then(body => {
-   490|          if (body.success && body.data) {
-   491|            const newKey = body.data.key;
-   492|            document.getElementById('api-key-visible').textContent = newKey;
-   493|            document.getElementById('api-key-masked').textContent = newKey.slice(0, 12) + '••••••••••••';
-   494|            localStorage.setItem(LS_API_KEY, newKey);
-   495|            showToast('API key created — shown once, save it securely', 'success');
-   496|            fetchApiKeys();
-   497|          }
-   498|        })
-   499|        .catch(() => showToast('Failed to create key', 'error'));
-   500|    }
-   501|  };
-   502|
-   503|  window.copyText = function(text) {
-   504|    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard', 'success'))
-   505|      .catch(() => {});
-   506|  };
-   507|
-   508|  function showToast(msg, type) {
-   509|    const toast = document.getElementById('toast');
-   510|    toast.textContent = msg;
-   511|    toast.className = 'toast ' + type + ' show';
-   512|    setTimeout(() => toast.classList.remove('show'), 3000);
-   513|  }
-   514|
-   515|  // ── Theme ──
-   516|  function initTheme() {
-   517|    const saved = localStorage.getItem(LS_THEME);
-   518|    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-   519|    const theme = saved || (prefersDark ? 'dark' : 'light');
-   520|    document.documentElement.setAttribute('data-theme', theme);
-   521|    document.querySelectorAll('.theme-toggle').forEach(btn => {
-   522|      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-   523|    });
-   524|  }
-   525|
-   526|  function toggleTheme() {
-   527|    const current = document.documentElement.getAttribute('data-theme');
-   528|    const next = current === 'dark' ? 'light' : 'dark';
-   529|    document.documentElement.setAttribute('data-theme', next);
-   530|    localStorage.setItem(LS_THEME, next);
-   531|    document.querySelectorAll('.theme-toggle').forEach(btn => {
-   532|      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
-   533|    });
-   534|  }
-   535|
-   536|  function setupThemeToggle() {
-   537|    document.querySelectorAll('.theme-toggle').forEach(btn => {
-   538|      btn.addEventListener('click', toggleTheme);
-   539|    });
-   540|  }
-   541|
-   542|  // ── Mobile Menu ──
-   543|  function setupMobileMenu() {
-   544|    const toggle = document.querySelector('.nav-mobile-toggle');
-   545|    const links = document.querySelector('.nav-links');
-   546|    if (!toggle || !links) return;
-   547|    function closeMenu() {
-   548|      links.classList.remove('open');
-   549|      toggle.textContent = '\u2630';
-   550|      document.body.style.overflow = '';
-   551|    }
-   552|    function openMenu() {
-   553|      links.classList.add('open');
-   554|      toggle.textContent = '\u2715';
-   555|      document.body.style.overflow = 'hidden';
-   556|    }
-   557|    toggle.addEventListener('click', () => {
-   558|      if (links.classList.contains('open')) closeMenu();
-   559|      else openMenu();
-   560|    });
-   561|    links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-   562|    document.addEventListener('keydown', (e) => {
-   563|      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
-   564|    });
-   565|  }
-   566|
-   567|  // ── Fade-in observer ──
-   568|  function setupScrollReveal() {
-   569|    const els = document.querySelectorAll('.fade-in');
-   570|    if (!els.length) return;
-   571|    const observer = new IntersectionObserver((entries) => {
-   572|      entries.forEach(entry => {
-   573|        if (entry.isIntersecting) {
-   574|          entry.target.classList.add('visible');
-   575|          observer.unobserve(entry.target);
-   576|        }
-   577|      });
-   578|    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-   579|    els.forEach(el => observer.observe(el));
-   580|  }
-   581|
-   582|  // ── Auth ──
-   583|  async function loadOAuthProviders() {
-   584|    try {
-   585|      const resp = await fetch('/v1/auth/oauth/providers');
-   586|      const data = await resp.json();
-   587|      const providers = data?.data?.providers || [];
-   588|      const list = document.getElementById('oauth-button-list');
-   589|      if (!list) return;
-   590|      if (providers.length === 0) {
-   591|        list.innerHTML = '<p style="font-size:0.82rem;color:var(--text-muted);">No OAuth providers configured.</p>';
-   592|        return;
-   593|      }
-   594|      list.innerHTML = providers.map(p => {
-   595|        const icon = p.name === 'github'
-   596|          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>'
-   597|          : '';
-   598|        return `<a href="/v1/auth/oauth/${p.name}" class="btn btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;">${icon} Continue with ${p.label}</a>`;
-   599|      }).join('');
-   600|    } catch { /* pass — OAuth list is a bonus feature */ }
-   601|  }
-   602|
-   603|  function showPasskeyLogin() {
-   604|    alert('Passkey login not yet wired in the browser. Use the API: POST /v1/auth/passkey/login/begin');
-   605|  }
-   606|
-   607|  function showWeb3Login() {
-   608|    alert('Web3 wallet login not yet wired in the browser. Use the API: POST /v1/auth/web3/challenge');
-   609|  }
-   610|
-   611|  function logout() {
-   612|    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-   613|    localStorage.removeItem(LS_API_KEY);
-   614|    document.getElementById('auth-oauth-section').style.display = '';
-   615|    document.getElementById('auth-session-section').style.display = 'none';
-   616|    document.getElementById('auth-status-label').textContent = 'Not signed in';
-   617|    document.getElementById('auth-dot').style.background = 'var(--text-muted)';
-   618|    fetchApiKeys();
-   619|  }
-   620|
-   621|  async function checkAuth() {
-   622|    const token = document.cookie.split('; ').find(r => r.startsWith('session='));
-   623|    if (!token) return;
-   624|    try {
-   625|      const resp = await fetch('/v1/auth/me', {
-   626|        headers: { 'Authorization': `Bearer ${token.split('=')[1]}` }
-   627|      });
-   628|      const body = await resp.json();
-   629|      if (body.success && body.data) {
-   630|        const user = body.data;
-   631|        document.getElementById('auth-oauth-section').style.display = 'none';
-   632|        document.getElementById('auth-session-section').style.display = '';
-   633|        document.getElementById('auth-status-label').textContent = 'Signed in';
-   634|        document.getElementById('auth-dot').style.background = 'var(--success)';
-   635|        document.getElementById('auth-user-name').textContent = user.tenant?.name || user.name || user.email || 'User';
-   636|        document.getElementById('auth-user-id').textContent = user.tenant?.id || user.sub || '—';
-   637|        document.getElementById('auth-method').textContent = 'session';
-   638|        document.getElementById('auth-tier').textContent = user.tenant?.tier || user.tier || 'free';
-   639|        // Refresh data now that we're authenticated
-   640|        fetchUsage();
-   641|        fetchApiKeys();
-   642|        fetchActivity();
-   643|      }
-   644|    } catch { /* Not authenticated */ }
-   645|  }
-   646|
-   647|  // ── Fetch Activity Log ──
-   648|  async function fetchActivity() {
-   649|    try {
-   650|      const resp = await apiFetch('/v1/audit/query', {
-   651|        method: 'POST',
-   652|        headers: { 'Content-Type': 'application/json' },
-   653|        body: JSON.stringify({ limit: 10 }),
-   654|      });
-   655|      const body = await resp.json();
-   656|      if (body.success && body.data) {
-   657|        const entries = body.data.map(e => ({
-   658|          time: e.created_at || '',
-   659|          method: e.operation === 'api_call' ? 'GET' : 'POST',
-   660|          endpoint: e.endpoint || '',
-   661|          status: e.success ? 200 : (e.error_message ? 500 : 200),
-   662|          duration: (e.duration_ms || 0) + 'ms',
-   663|        }));
-   664|        REQUEST_LOG_DATA.length = 0;
-   665|        REQUEST_LOG_DATA.push(...entries);
-   666|        renderRequestLog(entries);
-   667|      }
-   668|    } catch (e) {
-   669|      renderRequestLog([]);
-   670|    }
-   671|  }
-   672|
-   673|  // ── Check for API key in URL ──
-   674|  function checkUrlApiKey() {
-   675|    const params = new URLSearchParams(window.location.search);
-   676|    const key = params.get('key');
-   677|    if (key) {
-   678|      localStorage.setItem(LS_API_KEY, key);
-   679|      history.replaceState(null, '', window.location.pathname);
-   680|      return true;
-   681|    }
-   682|    return false;
-   683|  }
-   684|
-   685|  // ── Init ──
-   686|  checkUrlApiKey();
-   687|  initTheme();
-   688|  setupThemeToggle();
-   689|  setupMobileMenu();
-   690|  setupScrollReveal();
-   691|  fetchUsage();
-   692|  fetchApiKeys();
-   693|  fetchActivity();
-   694|  setInterval(fetchUsage, 30000);
-   695|  loadOAuthProviders();
-   696|  checkAuth();
-   697|})();
-   698|
-   699|// ── Replace inline config placeholders with live values ──
-   700|(function() {
-   701|  const cfg = window.MAPLESPIKE || {};
-   702|  const base = cfg.apiBase;
-   703|  const key = cfg.apiKey;
-   704|  if (base) document.querySelectorAll('.config-api-base').forEach(el => el.textContent = base);
-   705|  if (key) document.querySelectorAll('.config-api-key').forEach(el => el.textContent = key);
-   706|})();
-   707|</script>
-   708|</body>
-   709|</html>
-   710|
+
+<!-- ═══ WORKSPACE ═══ -->
+<div class="workspace-page">
+  <div style="max-width:var(--max-width);margin:0 auto;padding:32px 24px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">
+          <span style="color:var(--terminal-bracket);">[</span>
+          <span style="color:var(--accent-gold);">00</span>
+          <span style="color:var(--terminal-bracket);">]</span>
+          <span>WORKSPACE</span>
+        </div>
+        <h1 style="font-size:1.8rem;font-weight:800;margin:0;">Your Workspace</h1>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <span class="live-badge"><span class="live-dot"></span> TIER: PUBLIC</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Quickstart Onboarding ═══ -->
+  <div class="workspace-panel full" style="border:1px solid var(--accent);border-radius:var(--radius-lg);margin-bottom:24px;">
+    <div style="padding:24px 28px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-size:1.5rem;">🚀</span>
+        <h2 style="margin:0;font-size:1.1rem;font-weight:700;">Quickstart — 3 steps to your first call</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
+          <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 1</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Start the API server</div>
+          <div class="code-block" style="font-size:0.75rem;margin:0;">
+            <span class="prompt">$</span> cd packages/api-server && PORT=8085 node dist/dev-server.js
+          </div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
+          <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 2</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Make your first API call</div>
+          <div class="code-block" style="font-size:0.75rem;margin:0;">
+            <span class="prompt">$</span> curl <span class="config-api-base">http://127.0.0.1:8085</span>/v1/health
+          </div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
+          <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 3</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Search government data</div>
+          <div class="code-block" style="font-size:0.75rem;margin:0;">
+            <span class="prompt">$</span> curl "<span class="config-api-base">http://127.0.0.1:8085</span>/v1/gov/search?q=housing" -H "X-API-Key: <span class="config-api-key">maplespike-dev-key</span>"
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:0.8rem;color:var(--text-muted);">
+        The workspace panels below connect to <code class="config-api-base">http://127.0.0.1:8085</code> when the API server is running.
+        Start the server above to see live usage stats and API keys.
+      </div>
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <!-- ═══ API Key Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[01]</span>API Key</h2>
+        <button class="btn btn-sm btn-secondary" onclick="regenerateKey()">Regenerate</button>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Your secret API key for authenticating requests to MapleSpike. Keep this private.</p>
+      <div class="api-key-display">
+        <span class="key-value">
+          <span class="masked" id="api-key-masked">mp_••••••••••••••••••</span>
+          <span class="visible" id="api-key-visible" style="display:none;">mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6</span>
+        </span>
+        <button class="btn-icon" onclick="toggleKeyVisibility()" title="Toggle visibility">👁️</button>
+        <button class="btn-icon" onclick="copyApiKey()" title="Copy API key">📋</button>
+      </div>
+      <div style="margin-top:16px;">
+        <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Quickstart:</span>
+        <div class="code-block" style="margin-top:6px;">
+          <span class="comment"># Set your key</span><br>
+          <span class="prompt">$</span> export MAPLESPIKE_KEY=<span class="string">"<span id="quickstart-key">your_api_key_here</span>"</span><br><br>
+          <span class="comment"># Make a call</span><br>
+          <span class="prompt">$</span> curl -H <span class="string">"x-api-key: $MAPLESPIKE_KEY"</span> \<br>
+          &nbsp;&nbsp;https://api.maplespike.ca/v1/health
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Usage Stats Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[02]</span>Usage</h2>
+        <span id="usage-period" style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">This month</span>
+      </div>
+
+      <div class="stat-progress">
+        <div class="stat-row">
+          <span class="stat-name">Daily API Calls</span>
+          <span class="stat-value"><span id="usage-daily">4</span> / <span id="usage-daily-limit">1,000</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="fill cyan" id="bar-daily" style="width:0.4%;"></div>
+        </div>
+      </div>
+
+      <div class="stat-progress">
+        <div class="stat-row">
+          <span class="stat-name">Monthly API Calls</span>
+          <span class="stat-value"><span id="usage-monthly">4</span> / <span id="usage-monthly-limit">1,000</span></span>
+        </div>
+        <div class="progress-bar">
+          <div class="fill gold" id="bar-monthly" style="width:0.4%;"></div>
+        </div>
+      </div>
+
+      <div class="stat-progress">
+        <div class="stat-row">
+          <span class="stat-name">API Rate Limit</span>
+          <span class="stat-value" id="usage-rate">10 req/s</span>
+        </div>
+        <div class="progress-bar">
+          <div class="fill green" id="bar-rate" style="width:10%;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+          <span style="color:var(--text-secondary);">Tier</span>
+          <span style="font-weight:600;" id="usage-tier">Public (Free)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Request Log Panel (full width) ═══ -->
+    <div class="workspace-panel full">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[03]</span>Recent Requests</h2>
+        <span style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);">Last 10</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="request-log" id="request-log">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Status</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="request-log-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ Billing Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[04]</span>Billing</h2>
+        <span class="badge" style="font-size:0.7rem;padding:3px 10px;border-radius:99px;background:var(--base19);color:var(--success);border:1px solid rgba(16,185,129,0.2);font-family:var(--font-mono);">ACTIVE</span>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Plan</span>
+          <span style="font-weight:600;">Public (Free)</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Monthly cost</span>
+          <span style="font-weight:600;">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Calls remaining</span>
+          <span style="font-weight:600;" id="billing-remaining">996</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;">
+          <span style="color:var(--text-secondary);">Next billing</span>
+          <span style="font-weight:600;">June 13, 2026</span>
+        </div>
+      </div>
+      <a href="index.html#pricing" class="btn btn-primary" style="width:100%;">Upgrade Plan →</a>
+    </div>
+
+    <!-- ═══ Auth Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[05]</span>Authentication</h2>
+        <span class="live-badge" id="auth-status-badge"><span class="live-dot" id="auth-dot"></span> <span id="auth-status-label">Not signed in</span></span>
+      </div>
+
+      <!-- OAuth section (shown when not authenticated) -->
+      <div id="auth-oauth-section">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Sign in to manage your API keys, view usage, and link multiple authentication methods.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="oauth-button-list"></div>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">
+          Also available: <a href="#" onclick="showPasskeyLogin()" style="color:var(--accent-cyan);">Passkey</a>,
+          <a href="#" onclick="showWeb3Login()" style="color:var(--accent-cyan);">Web3 Wallet</a>
+        </p>
+      </div>
+
+      <!-- Session section (shown when authenticated) -->
+      <div id="auth-session-section" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Signed in as</span>
+            <span style="font-weight:600;" id="auth-user-name">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">User ID</span>
+            <span style="font-weight:600;font-family:var(--font-mono);font-size:0.78rem;" id="auth-user-id">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Auth method</span>
+            <span style="font-weight:600;" id="auth-method">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.85rem;">
+            <span style="color:var(--text-secondary);">Tier</span>
+            <span style="font-weight:600;" id="auth-tier">—</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="width:100%;" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- ═══ MCP Config Panel ═══ -->
+    <div class="workspace-panel">
+      <div class="panel-header">
+        <h2><span style="color:var(--terminal-bracket);font-family:var(--font-mono);margin-right:6px;">[06]</span>MCP Connection</h2>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Use these details to connect MapleSpike to your AI tools via the Model Context Protocol.</p>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px;">MCP Server URL</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;">
+          <span style="color:var(--accent-cyan);">https://maplespike.lan/mcp</span>
+          <button class="btn-icon" onclick="copyText('https://maplespike.lan/mcp')" style="margin-left:auto;">📋</button>
+        </div>
+      </div>
+      <div class="code-block">
+<span class="comment">// Claude Desktop config</span><br>
+{<br>
+&nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"url"</span>: <span class="string">"https://maplespike.lan/mcp"</span>,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"apiKey"</span>: <span class="string">"<span id="mcp-key-placeholder">your_api_key_here</span>"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  const LS_THEME = 'maplespike-theme';
+  const LS_API_KEY = 'maplespike-api-key';
+
+  let keyVisible = false;
+  let currentKeys = [];
+  let authHeader = {};
+
+  function getAuthHeaders() {
+    const apiKey = localStorage.getItem(LS_API_KEY);
+    if (apiKey) return { 'X-API-Key': apiKey };
+    const token = document.cookie.split('; ').find(r => r.startsWith('session='));
+    if (token) return { 'Authorization': 'Bearer ' + token.split('=')[1] };
+    return {};
+  }
+
+  async function apiFetch(path, options = {}) {
+    const _cfg = window.MAPLESPIKE || {};
+    const base = _cfg.apiBase || 'http://127.0.0.1:8085';
+    const headers = { ...getAuthHeaders(), ...options.headers };
+    const resp = await fetch(base + path, { ...options, headers });
+    return resp;
+  }
+
+  const REQUEST_LOG_DATA = []; // Populated live
+
+  // ── Render Request Log ──
+  function renderRequestLog(entries) {
+    const tbody = document.getElementById('request-log-body');
+    const data = entries || REQUEST_LOG_DATA;
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No requests yet. Make an API call to see it here.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(r => {
+      const statusClass = r.status >= 200 && r.status < 300 ? 'status-ok' : 'status-err';
+      const methodClass = (r.method || 'GET').toLowerCase();
+      return `<tr>
+        <td style="color:var(--text-muted);">${r.time || r.created_at || ''}</td>
+        <td><span class="method-cell ${methodClass}">${r.method || 'GET'}</span></td>
+        <td style="font-family:var(--font-mono);font-size:0.78rem;">${r.endpoint || ''}</td>
+        <td><span class="${statusClass}">${r.status || 200}</span></td>
+        <td style="color:var(--text-muted);">${r.duration || (r.duration_ms ? r.duration_ms + 'ms' : '')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Fetch Live Usage ──
+  async function fetchUsage() {
+    try {
+      const resp = await apiFetch('/v1/me');
+      const body = await resp.json();
+      if (body.success && body.data) {
+        const tenant = body.data.tenant || {};
+        const usage = body.data.usage || {};
+        const daily = usage.daily || {};
+        const monthly = usage.monthly || {};
+
+        document.getElementById('usage-daily').textContent = daily.calls ?? 0;
+        document.getElementById('usage-monthly').textContent = monthly.calls ?? 0;
+        const tier = tenant.tier || 'free';
+        document.getElementById('usage-tier').textContent = tier === 'free' ? 'Public (Free)' : tier.charAt(0).toUpperCase() + tier.slice(1);
+
+        const monthlyLimit = monthly.limit || 1000;
+        const dailyLimit = daily.limit || (monthlyLimit > 1000 ? Math.round(monthlyLimit / 30) : 1000);
+        document.getElementById('usage-monthly-limit').textContent = monthlyLimit.toLocaleString();
+        document.getElementById('usage-daily-limit').textContent = dailyLimit < 10000 ? dailyLimit.toLocaleString() : Math.round(dailyLimit).toLocaleString();
+
+        let rateLimit = 10;
+        if (tier === 'pro') rateLimit = 25;
+        else if (tier === 'business') rateLimit = 100;
+        else if (tier === 'internal') rateLimit = 500;
+        document.getElementById('usage-rate').textContent = rateLimit + ' req/s';
+        document.getElementById('billing-remaining').textContent = monthly.remaining ?? (monthlyLimit - (monthly.calls || 0)).toLocaleString();
+
+        const dailyPct = Math.min(((daily.calls || 0) / (dailyLimit || 1)) * 100, 100);
+        const monthlyPct = Math.min(((monthly.calls || 0) / (monthlyLimit || 1)) * 100, 100);
+        const ratePct = Math.min((rateLimit / 500) * 100, 100);
+        document.getElementById('bar-daily').style.width = dailyPct + '%';
+        document.getElementById('bar-monthly').style.width = monthlyPct + '%';
+        document.getElementById('bar-rate').style.width = ratePct + '%';
+      }
+    } catch (e) {
+      console.log('API unavailable, using default stats');
+    }
+  }
+
+  // ── Fetch API Keys ──
+  async function fetchApiKeys() {
+    try {
+      const resp = await apiFetch('/v1/keys');
+      const body = await resp.json();
+      if (body.success && body.data) {
+        currentKeys = body.data.keys || [];
+        if (currentKeys.length > 0) {
+          const key = currentKeys[0];
+          document.getElementById('api-key-masked').textContent = key.id.slice(0, 8) + '••••••••••••••••••';
+          const storedKey = localStorage.getItem(LS_API_KEY);
+          if (storedKey) {
+            const truncated = storedKey.slice(0, 16) + '...';
+            document.getElementById('quickstart-key').textContent = truncated;
+            document.getElementById('mcp-key-placeholder').textContent = storedKey;
+          }
+        }
+      }
+    } catch (e) {
+      console.log('API key list unavailable');
+    }
+  }
+
+  // ── API Key Functions ──
+  window.toggleKeyVisibility = function() {
+    keyVisible = !keyVisible;
+    document.getElementById('api-key-masked').style.display = keyVisible ? 'none' : 'inline';
+    document.getElementById('api-key-visible').style.display = keyVisible ? 'inline' : 'none';
+  };
+
+  window.copyApiKey = function() {
+    const storedKey = localStorage.getItem(LS_API_KEY);
+    const key = storedKey || (currentKeys.length > 0 ? currentKeys[0].id : '');
+    if (key) {
+      navigator.clipboard.writeText(key).then(() => showToast('API key copied to clipboard', 'success')).catch(() => {});
+    } else {
+      showToast('No API key available', 'error');
+    }
+  };
+
+  window.regenerateKey = function() {
+    const keyName = prompt('Name for the new key:', 'default');
+    if (!keyName) return;
+    if (currentKeys.length > 0) {
+      const keyId = currentKeys[0].id;
+      if (!confirm('Regenerate this API key? The current key will be revoked immediately.')) return;
+      apiFetch(`/v1/keys/${keyId}/rotate`, { method: 'POST' })
+        .then(r => r.json())
+        .then(body => {
+          if (body.success && body.data && body.data.newKey) {
+            const newKey = body.data.newKey.key;
+            document.getElementById('api-key-visible').textContent = newKey;
+            document.getElementById('api-key-masked').textContent = newKey.slice(0, 12) + '••••••••••••';
+            localStorage.setItem(LS_API_KEY, newKey);
+            showToast('New API key generated — shown once, save it securely', 'success');
+            fetchApiKeys();
+          } else {
+            showToast(body.error?.message || 'Key rotation failed', 'error');
+          }
+        })
+        .catch(() => showToast('Failed to rotate key. Is the API server reachable?', 'error'));
+    } else {
+      apiFetch('/v1/keys', { method: 'POST' })
+        .then(r => r.json())
+        .then(body => {
+          if (body.success && body.data) {
+            const newKey = body.data.key;
+            document.getElementById('api-key-visible').textContent = newKey;
+            document.getElementById('api-key-masked').textContent = newKey.slice(0, 12) + '••••••••••••';
+            localStorage.setItem(LS_API_KEY, newKey);
+            showToast('API key created — shown once, save it securely', 'success');
+            fetchApiKeys();
+          }
+        })
+        .catch(() => showToast('Failed to create key', 'error'));
+    }
+  };
+
+  window.copyText = function(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard', 'success'))
+      .catch(() => {});
+  };
+
+  function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ── Theme ──
+  function initTheme() {
+    const saved = localStorage.getItem(LS_THEME);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(LS_THEME, next);
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.textContent = next === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+    });
+  }
+
+  function setupThemeToggle() {
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+  }
+
+  // ── Mobile Menu ──
+  function setupMobileMenu() {
+    const toggle = document.querySelector('.nav-mobile-toggle');
+    const links = document.querySelector('.nav-links');
+    if (!toggle || !links) return;
+    function closeMenu() {
+      links.classList.remove('open');
+      toggle.textContent = '\u2630';
+      document.body.style.overflow = '';
+    }
+    function openMenu() {
+      links.classList.add('open');
+      toggle.textContent = '\u2715';
+      document.body.style.overflow = 'hidden';
+    }
+    toggle.addEventListener('click', () => {
+      if (links.classList.contains('open')) closeMenu();
+      else openMenu();
+    });
+    links.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && links.classList.contains('open')) closeMenu();
+    });
+  }
+
+  // ── Fade-in observer ──
+  function setupScrollReveal() {
+    const els = document.querySelectorAll('.fade-in');
+    if (!els.length) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => observer.observe(el));
+  }
+
+  // ── Auth ──
+  async function loadOAuthProviders() {
+    try {
+      const resp = await fetch('/v1/auth/oauth/providers');
+      const data = await resp.json();
+      const providers = data?.data?.providers || [];
+      const list = document.getElementById('oauth-button-list');
+      if (!list) return;
+      if (providers.length === 0) {
+        list.innerHTML = '<p style="font-size:0.82rem;color:var(--text-muted);">No OAuth providers configured.</p>';
+        return;
+      }
+      list.innerHTML = providers.map(p => {
+        const icon = p.name === 'github'
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>'
+          : '';
+        return `<a href="/v1/auth/oauth/${p.name}" class="btn btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;">${icon} Continue with ${p.label}</a>`;
+      }).join('');
+    } catch { /* pass — OAuth list is a bonus feature */ }
+  }
+
+  function showPasskeyLogin() {
+    alert('Passkey login not yet wired in the browser. Use the API: POST /v1/auth/passkey/login/begin');
+  }
+
+  function showWeb3Login() {
+    alert('Web3 wallet login not yet wired in the browser. Use the API: POST /v1/auth/web3/challenge');
+  }
+
+  function logout() {
+    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.removeItem(LS_API_KEY);
+    document.getElementById('auth-oauth-section').style.display = '';
+    document.getElementById('auth-session-section').style.display = 'none';
+    document.getElementById('auth-status-label').textContent = 'Not signed in';
+    document.getElementById('auth-dot').style.background = 'var(--text-muted)';
+    fetchApiKeys();
+  }
+
+  async function checkAuth() {
+    const token = document.cookie.split('; ').find(r => r.startsWith('session='));
+    if (!token) return;
+    try {
+      const resp = await fetch('/v1/auth/me', {
+        headers: { 'Authorization': `Bearer ${token.split('=')[1]}` }
+      });
+      const body = await resp.json();
+      if (body.success && body.data) {
+        const user = body.data;
+        document.getElementById('auth-oauth-section').style.display = 'none';
+        document.getElementById('auth-session-section').style.display = '';
+        document.getElementById('auth-status-label').textContent = 'Signed in';
+        document.getElementById('auth-dot').style.background = 'var(--success)';
+        document.getElementById('auth-user-name').textContent = user.tenant?.name || user.name || user.email || 'User';
+        document.getElementById('auth-user-id').textContent = user.tenant?.id || user.sub || '—';
+        document.getElementById('auth-method').textContent = 'session';
+        document.getElementById('auth-tier').textContent = user.tenant?.tier || user.tier || 'free';
+        // Refresh data now that we're authenticated
+        fetchUsage();
+        fetchApiKeys();
+        fetchActivity();
+      }
+    } catch { /* Not authenticated */ }
+  }
+
+  // ── Fetch Activity Log ──
+  async function fetchActivity() {
+    try {
+      const resp = await apiFetch('/v1/audit/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 10 }),
+      });
+      const body = await resp.json();
+      if (body.success && body.data) {
+        const entries = body.data.map(e => ({
+          time: e.created_at || '',
+          method: e.operation === 'api_call' ? 'GET' : 'POST',
+          endpoint: e.endpoint || '',
+          status: e.success ? 200 : (e.error_message ? 500 : 200),
+          duration: (e.duration_ms || 0) + 'ms',
+        }));
+        REQUEST_LOG_DATA.length = 0;
+        REQUEST_LOG_DATA.push(...entries);
+        renderRequestLog(entries);
+      }
+    } catch (e) {
+      renderRequestLog([]);
+    }
+  }
+
+  // ── Check for API key in URL ──
+  function checkUrlApiKey() {
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get('key');
+    if (key) {
+      localStorage.setItem(LS_API_KEY, key);
+      history.replaceState(null, '', window.location.pathname);
+      return true;
+    }
+    return false;
+  }
+
+  // ── Init ──
+  checkUrlApiKey();
+  initTheme();
+  setupThemeToggle();
+  setupMobileMenu();
+  setupScrollReveal();
+  fetchUsage();
+  fetchApiKeys();
+  fetchActivity();
+  setInterval(fetchUsage, 30000);
+  loadOAuthProviders();
+  checkAuth();
+})();
+
+// ── Replace inline config placeholders with live values ──
+(function() {
+  const cfg = window.MAPLESPIKE || {};
+  const base = cfg.apiBase;
+  const key = cfg.apiKey;
+  if (base) document.querySelectorAll('.config-api-base').forEach(el => el.textContent = base);
+  if (key) document.querySelectorAll('.config-api-key').forEach(el => el.textContent = key);
+})();
+</script>
+
+<!-- Nav + Theme JS -->
+<script>
+(function() {
+  'use strict';
+  var theme = localStorage.getItem('maplespike-theme') || 'dark';
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('maplespike-theme', t);
+  }
+  document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      setTheme(theme);
+    });
+  });
+  setTheme(theme);
+  var toggle = document.querySelector('.nav-mobile-toggle');
+  var links = document.querySelector('.nav-links');
+  if (toggle && links) {
+    toggle.addEventListener('click', function() {
+      links.classList.toggle('nav-open');
+    });
+  }
+})();
+</script>
+</body>
+</html>
