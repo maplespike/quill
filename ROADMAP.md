@@ -686,7 +686,7 @@ NixOS (zephyr/nexus):
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 🔴 SQLite audit log | TODO | Append-only: timestamp, tool, risk level, gate decision, provenance |
+| 🟡 SQLite audit log | ✅ DONE | Append-only at ~/.hermes/agent-firewall/audit.db — gate decisions, redactions, trust changes |
 | 🔴 Grafana dashboard | TODO | Call rate, rejection rate, provenance distribution, anomaly scores |
 | 🔴 Anomaly detection rules | TODO | Spike in YELLOW/RED calls, too much EXTERNAL provenance |
 | 🔴 Alerting | TODO | Prometheus alerts for repeated BLOCKED actions |
@@ -752,9 +752,15 @@ NixOS (zephyr/nexus):
 | 2026-05-15 | Memory Guardian moved up to priority 2 | OWASP calls out memory poisoning as primary MCP threat |
 | 2026-05-15 | OWASP alignment for all phases | Industry standard — provides compliance framework |
 | 2026-05-15 | MCP Server Hardening added as dedicated phase | OWASP MCP Security Guide provides specific controls |
+| 2026-05-15 | SQLite for audit (not JSONL or syslog) | Queryable, append-only, no binary format drift, built into Python stdlib |
+| 2026-05-15 | Threat-local storage for session context | Thread-local avoids modifying tool hook signatures across all Hermes tools |
 | 2026-05-15 | Agent Firewall implemented (Phase 9a-9d) | Plugin at plugins/agent-firewall/ — trust context, action gate, memory guardian, secret redaction all functional |
 | 2026-05-15 | Agent Firewall registered as bundled backend | Auto-loads on every Hermes session — no manual enable required |
-| 2026-05-15 | `hermes security` CLI command added | Status, sessions, audit, trust-context subcommands for debugging |
+| 2026-05-15 | `hermes security` CLI command added | Status, sessions, audit, trust-context, panic, redactions subcommands |
+| 2026-05-15 | Panic mode implemented | `hermes security panic` — levels up all risk classifications |
+| 2026-05-15 | SQLite audit database | Durable append-only log at ~/.hermes/agent-firewall/audit.db |
+| 2026-05-15 | Redaction audit logging | Every secret redaction logged with pattern name, tool, session |
+| 2026-05-15 | Thread-local session context | `get_current_session_id()` — TLS shared between pre/post/transform hooks |
 
 ### Agent Firewall File Inventory
 
