@@ -284,7 +284,7 @@ status: active
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| ✅ Caddy reverse proxy | DONE | maplespike.lan routes through zephyr |
+| ✅ Caddy reverse proxy | DONE | maplespike.lan routes through nexus VIP, path-based: /v1/*→API, /sse/health→MCP, /→portal |
 | ✅ Unbound DNS | DONE | .lan resolution on 10.1.1.120 + 10.1.1.100 |
 | ✅ Cluster CA cert | DONE | SAN includes all .lan domains, self-signed |
 | ✅ Nix overlay | DONE | maplespike-mcp-image in overlay |
@@ -310,6 +310,8 @@ status: active
 | ✅ deploy-k3s | DONE | Builds 5 Docker images + deploys to cluster |
 | ✅ Portal GitHub Pages | DONE | Auto-deployed on prod branch |
 | 🔴 Dependabot alerts | TODO | 2 high, 3 moderate |
+| ✅ Zombie cleanup | DONE | 13 orphaned K8s services deleted, auto-deploy timer fixed |
+| ✅ AI model registry | DONE | /etc/nixos/ai-models.toml (single source of truth, Phase 1) |
 
 ---
 
@@ -594,5 +596,158 @@ NixOS (zephyr/nexus):
 | 2026-05-14 | Dev/prod CI/CD branching established | main→dev (deploy-dev.yml), prod→prod (deploy.yml), :dev / :latest image tags |
 | 2026-05-14 | Pricing toggle + featured tier | Annual/monthly billing toggle (Save 17%), Pro "BEST VALUE" card with scale(1.02) glow |
 | 2026-05-14 | Dashboard glass sidebar | backdrop-filter blur glassmorphism sidebar with quick-glance metrics |
-| 2026-05-14 | MCP showcase section added | Tabbed config samples (curl, TypeScript, Python, JSON) with copy-to-clipboard |
-| 2026-05-14 | Scroll-reveal animations across landing page | Intersection Observer-based reveal on 8 sections, 29 data-reveal attributes |
+|| 2026-05-14 | MCP showcase section added | Tabbed config samples (curl, TypeScript, Python, JSON) with copy-to-clipboard |
+|| 2026-05-14 | Scroll-reveal animations across landing page | Intersection Observer-based reveal on 8 sections, 29 data-reveal attributes |
+
+---
+
+## PHASE 9: AGENT SECURITY FIREWALL — Hermes Agent Defense Architecture
+
+> **Context:** Multi-layer security for the Hermes AI agent ecosystem. Defends against prompt injection, memory poisoning, data exfiltration, and supply-chain attacks. Aligns with OWASP LLM01:2025 (Prompt Injection), LLM05:2025 (Improper Output Handling), LLM06:2025 (Excessive Agency), and LLM03:2025 (Supply Chain).
+> **Threat model:** State-level adversaries + automated prompt injection at scale.
+> **Principle:** Don't try to detect attacks — design the system so attacks have bounded impact even when they succeed.
+
+| Phase | Component | OWASP Cross-Ref | Status | Effort |
+|-------|-----------|-----------------|--------|--------|
+| 9a | Trust Context Tracker | LLM01:2025 (#6) — Segregate external content | 🔴 TODO | 2-3 days |
+| 9b | Memory Guardian | OWASP MCP Guide — Memory poisoning | 🔴 TODO | 1-2 days |
+| 9c | Action Gate | LLM06:2025 — Excessive Agency | 🔴 TODO | 2-3 days |
+| 9d | Secret Redaction | LLM05:2025 — Improper Output Handling | 🔴 TODO | 1 day |
+| 9e | Network Egress Control | OS-level defense (NixOS) | 🔴 TODO | 1-2 days |
+| 9f | Audit & Monitoring | LLM06:2025 — Oversight | 🔴 TODO | 2-3 days |
+| 9g | Sandbox Escalation | OS-level defense (microVM) | 🔴 TODO | 3-5 days |
+| 9h | MCP Server Hardening | OWASP MCP Server Guide | 🔴 TODO | 1-2 days |
+| 9i | Supply Chain Verification | LLM03:2025 — Supply Chain | 🔴 TODO | 1 day |
+| 9j | OWASP Threat Model Mapping | All categories | 🔴 TODO | Pre-build step |
+
+### Phase 9a: Trust Context Tracker (Priority 1)
+
+**Goal:** Every piece of information in the agent's context is tagged with provenance (USER / SYSTEM / AGENT / EXTERNAL_WEB / EXTERNAL_GIT / EXTERNAL_MAIL). This is the foundation for all other layers.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Provenance type system | TODO | TrustContext, Provenance, ToolRiskLevel types |
+| 🔴 Per-session context tracking | TODO | Tag all external content entering agent context |
+| 🔴 Trust decay logic | TODO | After N tool calls without new external content, trust resets |
+| 🔴 Provenance propagation to subagents | TODO | Subagents inherit parent's trust level |
+| 🔴 Debug CLI (`hermes security trust-context`) | TODO | Show provenance chain for debugging |
+
+### Phase 9b: Memory Guardian (Priority 2)
+
+**Goal:** Prevent persistent memory poisoning. Memory writes that are directives/instructions from external sources get quarantined or blocked.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Content classification (FACT vs INSTRUCTION) | TODO | Classify memory content before write |
+| 🔴 Instruction-from-EXTERNAL blocking | TODO | BLOCK directive content from low-trust context |
+| 🔴 Provenance tagging on memory entries | TODO | Every entry stores source, session ID, context hash |
+| 🔴 Session-start memory diff | TODO | Show what changed since last session |
+| 🔴 TTL enforcement | TODO | EXTERNAL = 30d, AGENT = 90d, USER = indefinite |
+
+### Phase 9c: Action Gate (Priority 3)
+
+**Goal:** Intercept every tool call and enforce risk-based confirmation rules.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Tool risk classification | TODO | GREEN (observe) / YELLOW (confirm if low trust) / RED (always confirm) / BLACK (block) |
+| 🔴 Read→write sequence detection | TODO | Pattern: {EXTERNAL_READ, YELLOW_OR_RED_ACTION} within N calls |
+| 🔴 Gate intercept middleware | TODO | Hook into Hermes tool execution pipeline |
+| 🔴 Confirmation UI | TODO | Show trust context + risk level + allow/block/allow-session |
+| 🔴 Configurable per-skill overrides | TODO | Skills declare `security: { maxRiskLevel }` |
+| 🔴 "Panic mode" toggle | TODO | `hermes security panic` |
+
+### Phase 9d: Secret Redaction (Priority 4)
+
+**Goal:** Prevent data exfiltration by ensuring the model never receives sensitive data in tool outputs.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Pattern matchers | TODO | API keys, private keys, JWT, credentials, internal IPs |
+| 🔴 Tool output interception | TODO | Wrap terminal(), read_file(), MCP tool responses |
+| 🔴 Redaction logging | TODO | Log what was redacted |
+| 🔴 Configurable allowlist | TODO | Per-context allowlist for debugging |
+
+### Phase 9e: Network Egress Control (Priority 5)
+
+**Goal:** Compromised agent can't exfiltrate data because the network won't let it.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Agent network namespace | TODO | Hermes runs in dedicated netns |
+| 🔴 Egress whitelist | TODO | github.com, nexus:5000, kubernetes API, SearXNG, gateway |
+| 🔴 nftables/iptables rules | TODO | NixOS module for agent network restrictions |
+| 🔴 Block DNS tunneling | TODO | Restrict nameserver to cluster DNS only |
+
+### Phase 9f: Audit & Monitoring (Priority 6)
+
+**Goal:** Append-only audit trail of every tool call and its trust context. Grafana dashboard for anomaly detection.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 SQLite audit log | TODO | Append-only: timestamp, tool, risk level, gate decision, provenance |
+| 🔴 Grafana dashboard | TODO | Call rate, rejection rate, provenance distribution, anomaly scores |
+| 🔴 Anomaly detection rules | TODO | Spike in YELLOW/RED calls, too much EXTERNAL provenance |
+| 🔴 Alerting | TODO | Prometheus alerts for repeated BLOCKED actions |
+
+### Phase 9g: Sandbox Escalation (Priority 7)
+
+**Goal:** Subagents run in microVMs with no host access.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Default microVM for subagents | TODO | Using microsandbox skill |
+| 🔴 Restricted securityContext | TODO | No hostPath mounts, read-only root, no privilege escalation |
+| 🔴 Reduced capabilities for EXTERNAL-trusted subagents | TODO | File writes disabled, network restricted |
+
+### Phase 9h: MCP Server Hardening (Priority 8)
+
+**Goal:** Harden all MCP servers we operate against tool poisoning and tool interference.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Tool argument validation | TODO | Validate all inputs before processing |
+| 🔴 Rate limiting per client | TODO | Prevent tool call flooding |
+| 🔴 Session isolation | TODO | Separate state per session |
+| 🔴 Output sanitization | TODO | Sanitize outputs before returning to agent |
+
+### Phase 9i: Supply Chain Verification (Priority 9)
+
+**Goal:** Ensure tools and dependencies haven't been tampered with.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 Container image digest pinning | TODO | All K8s images use sha256: digest |
+| 🔴 MCP server integrity checks | TODO | SHA-256 of binaries at startup |
+| 🔴 Model weight verification | TODO | Verify SHA-256 of weights before loading |
+
+### Phase 9j: OWASP Threat Model Mapping (Pre-build)
+
+**Goal:** Map every security control to the specific OWASP category it addresses.
+
+| Item | Status | Notes |
+|------|--------|-------|
+| 🔴 OWASP category mapping per phase | TODO | Each control cross-referenced to LLM01-10 |
+| 🔴 Compliance dashboard | TODO | Grafana panel showing coverage across categories |
+| 🔴 Penetration testing framework | TODO | Simulate known injection patterns against own defenses |
+
+### Research Findings (May 15, 2026)
+
+| Source | Type | Key Finding |
+|--------|------|-------------|
+| OWASP LLM01:2025 Prompt Injection | Guide | "Segregate and identify external content" is Mitigation #6 — validates trust context tracker |
+| OWASP LLM06:2025 Excessive Agency | Guide | Tool risk classification directly addresses agency control |
+| OWASP Agentic Security Initiative | Working Group | Dedicated sub-group producing MCP-specific security guidance |
+| OWASP MCP Server Development Guide | Guide | Tool poisoning, memory poisoning, tool interference are top MCP-specific threats |
+| OWASP Third-Party MCP Cheat Sheet v1.0 | Cheat Sheet | Recommends least-privilege and human-in-the-loop for MCP servers |
+| Greshake et al. (2023) | Paper | External content can act as "arbitrary code execution" on LLM agents |
+| No existing open-source solution | Landscape | ~40 vendors focus on prompt filtering — none do provenance-based action gating |
+
+### Decision Log
+
+| Date | Decision | Rationale |
+|------|----------|-----------|
+| 2026-05-15 | Trust context tracker first — all other phases depend on it | Foundation for provenance-based action gating |
+| 2026-05-15 | Memory Guardian moved up to priority 2 | OWASP calls out memory poisoning as primary MCP threat |
+| 2026-05-15 | OWASP alignment for all phases | Industry standard — provides compliance framework |
+| 2026-05-15 | MCP Server Hardening added as dedicated phase | OWASP MCP Security Guide provides specific controls |
