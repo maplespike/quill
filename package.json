@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "pnpm -r build",
-    "build:docs": "cd packages/docs && npx vitepress build && rm -rf ../portal/docs-dist && cp -r .vitepress/dist ../portal/docs-dist",
+    "build:docs": "node scripts/build-docs.mjs",
     "build:mcp": "pnpm --filter @maplespike/mcp-server build",
     "build:api": "pnpm --filter @maplespike/api-server build",
     "build:pipeline": "pnpm --filter @maplespike/pipeline-core build",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
+    "@chenglou/pretext": "^0.0.7",
     "marked": "^18.0.3"
   }
 }

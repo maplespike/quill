@@ -70,7 +70,6 @@
   <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-  <script src="/config.js"></script>
 </head>
 <body>
 
@@ -92,9 +91,7 @@
     <ul class="nav-links">
       <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
       <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/guide/what-is-maplespike.html"><span class="nav-bracket">[</span>GUIDE<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/api/endpoints.html"><span class="nav-bracket">[</span>API<span class="nav-bracket">]</span></a></li>
-      <li><a href="/docs/mcp/tools.html"><span class="nav-bracket">[</span>MCP<span class="nav-bracket">]</span></a></li>
+      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
       <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
@@ -246,8 +243,111 @@
   </div>
 </section>
 
+<!-- ── SDK Tabstrip ───────────────────────────────────────────────────── -->
+<section class="section" data-reveal>
+  <div class="section-bracket">
+    <span class="bracket">[</span>
+    <span class="num">02</span>
+    <span>QUICKSTART</span>
+  </div>
+
+  <div class="sdk-tabstrip">
+    <div class="sdk-tabs-nav" role="tablist">
+      <button class="sdk-tab active" role="tab" aria-selected="true" data-tab="curl">curl</button>
+      <button class="sdk-tab" role="tab" aria-selected="false" data-tab="typescript">TypeScript SDK</button>
+      <button class="sdk-tab" role="tab" aria-selected="false" data-tab="python">Python SDK</button>
+    </div>
+
+    <div class="sdk-panel active" id="sdk-curl" role="tabpanel">
+      <div class="sdk-code-block">
+        <div class="code-line"><span class="comment"># Query Canadian government data from your terminal</span></div>
+        <div class="code-line"><span class="prompt">$</span> curl -X POST https://api.maplespike.ca/v1/query \</div>
+        <div class="code-line">  -H <span class="string">"Authorization: Bearer $MAPLESPIKE_KEY"</span> \</div>
+        <div class="code-line">  -H <span class="string">"Content-Type: application/json"</span> \</div>
+        <div class="code-line">  -d <span class="string">'{</span></div>
+        <div class="code-line">    <span class="key">"source"</span>: <span class="string">"committees"</span>,</div>
+        <div class="code-line">    <span class="key">"query"</span>: <span class="string">"climate change"</span>,</div>
+        <div class="code-line">    <span class="key">"limit"</span>: <span class="num-val">5</span></div>
+        <div class="code-line">  <span class="string">}'</span></div>
+      </div>
+    </div>
+
+    <div class="sdk-panel" id="sdk-typescript" role="tabpanel">
+      <div class="sdk-code-block">
+        <div class="code-line"><span class="keyword">import</span> { MapleSpike } from <span class="string">"@maplespike/sdk"</span></div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line"><span class="keyword">const</span> client = <span class="keyword">new</span> MapleSpike({</div>
+        <div class="code-line">  apiKey: process.env.MAPLESPIKE_KEY</div>
+        <div class="code-line">})</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line"><span class="keyword">const</span> results = <span class="keyword">await</span> client.query({</div>
+        <div class="code-line">  source: <span class="string">"committees"</span>,</div>
+        <div class="code-line">  query: <span class="string">"climate change"</span>,</div>
+        <div class="code-line">  limit: <span class="num-val">5</span></div>
+        <div class="code-line">})</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">console.log(results)</div>
+      </div>
+    </div>
+
+    <div class="sdk-panel" id="sdk-python" role="tabpanel">
+      <div class="sdk-code-block">
+        <div class="code-line"><span class="keyword">from</span> maplespike <span class="keyword">import</span> MapleSpike</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">client = MapleSpike(</div>
+        <div class="code-line">    api_key=os.environ[<span class="string">"MAPLESPIKE_KEY"</span>]</div>
+        <div class="code-line">)</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">results = client.query(</div>
+        <div class="code-line">    source=<span class="string">"committees"</span>,</div>
+        <div class="code-line">    query=<span class="string">"climate change"</span>,</div>
+        <div class="code-line">    limit=<span class="num-val">5</span></div>
+        <div class="code-line">)</div>
+        <div class="code-line">&nbsp;</div>
+        <div class="code-line">print(results)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Live API Code Demo ─────────────────────────────────────────────── -->
+<section class="section section-alt" data-reveal>
+  <div class="section-alt-inner">
+    <div class="section-bracket">
+      <span class="bracket">[</span>
+      <span class="num">03</span>
+      <span>LIVE API DEMO</span>
+    </div>
+
+    <div class="code-demo" id="live-demo">
+      <div class="code-demo-header">
+        <div class="code-demo-dots">
+          <span class="code-demo-dot"></span>
+          <span class="code-demo-dot"></span>
+          <span class="code-demo-dot"></span>
+        </div>
+        <span class="code-demo-title">api.maplespike.ca — response</span>
+        <span class="code-demo-badge"><span class="code-demo-live-dot"></span> LIVE</span>
+      </div>
+      <div class="code-demo-body">
+        <pre id="demo-response-json"></pre>
+      </div>
+      <div class="code-demo-footer">
+        <div class="code-demo-categories">
+          <span class="code-demo-cat-label">SOURCE</span>
+          <button class="code-demo-cat active" data-source="committees">committees</button>
+          <button class="code-demo-cat" data-source="lobbying">lobbying</button>
+          <button class="code-demo-cat" data-source="procurement">procurement</button>
+          <button class="code-demo-cat" data-source="gazette">gazette</button>
+          <button class="code-demo-cat" data-source="courts">courts</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ Primary Sources Grid ═══ -->
-<section class="sources-section fade-in-init s1" data-reveal>
+<section class="sources-section fade-in-init s1">
   <div class="sources-inner">
     <div class="terminal-section-header">
       <span class="terminal-section">[00.5/Primary sources]</span>
@@ -276,63 +376,53 @@
   </div>
 </section>
 
-<!-- ═══ STATS (terminal block) ═══ -->
-<section class="section" style="padding-top:40px;padding-bottom:40px;" data-reveal>
-  <div class="section-bracket fade-in" data-reveal>
+<!-- ═══ STATS ═══ -->
+<section class="section" style="padding-top:40px;padding-bottom:40px;">
+  <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">cat /etc/maplespike/metrics</span>
+    <span style="color:var(--text-muted);font-size:0.85rem;">Platform Overview</span>
   </div>
-  <div class="metric-block fade-in" data-reveal data-reveal-delay="1">
-    <div class="metric-line">
-      <span class="metric-num">01</span>
-      <span class="metric-key">data-modules</span>
-      <span class="metric-dots"></span>
-      <span class="metric-val">63</span>
-      <span class="metric-type">modules</span>
+  <div class="stats-row">
+    <div class="stat fade-in">
+      <div class="sect-num">[01]</div>
+      <div class="number">63</div>
+      <div class="label">Data Modules</div>
     </div>
-    <div class="metric-line">
-      <span class="metric-num">02</span>
-      <span class="metric-key">committees</span>
-      <span class="metric-dots"></span>
-      <span class="metric-val">54</span>
-      <span class="metric-type">active</span>
+    <div class="stat fade-in stagger-1">
+      <div class="sect-num">[02]</div>
+      <div class="number">54</div>
+      <div class="label">Committees Tracked</div>
     </div>
-    <div class="metric-line">
-      <span class="metric-num">03</span>
-      <span class="metric-key">executives</span>
-      <span class="metric-dots"></span>
-      <span class="metric-val">17</span>
-      <span class="metric-type">monitored</span>
+    <div class="stat fade-in stagger-2">
+      <div class="sect-num">[03]</div>
+      <div class="number">17</div>
+      <div class="label">Executives Monitored</div>
     </div>
-    <div class="metric-line">
-      <span class="metric-num">04</span>
-      <span class="metric-key">influence-actors</span>
-      <span class="metric-dots"></span>
-      <span class="metric-val">34</span>
-      <span class="metric-type">tracked</span>
+    <div class="stat fade-in stagger-3">
+      <div class="sect-num">[04]</div>
+      <div class="number">34</div>
+      <div class="label">Influence Actors</div>
     </div>
-    <div class="metric-line">
-      <span class="metric-num">05</span>
-      <span class="metric-key">starting-cost</span>
-      <span class="metric-dots"></span>
-      <span class="metric-val">$0</span>
-      <span class="metric-type">public tier</span>
+    <div class="stat fade-in stagger-4">
+      <div class="sect-num">[05]</div>
+      <div class="number">$0</div>
+      <div class="label">to Start (Public Tier)</div>
     </div>
   </div>
 </section>
 
 <!-- ═══ LIVE API DEMO ═══ -->
-<section class="section" id="api-demo" data-reveal>
-  <div class="section-bracket fade-in" data-reveal>
+<section class="section" id="api-demo">
+  <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">01</span><span class="bracket">]</span>
     <span style="color:var(--text-muted);font-size:0.85rem;">Live API Demo</span>
   </div>
-  <div class="section-header fade-in" data-reveal data-reveal-delay="1">
+  <div class="section-header fade-in">
     <h2>Try it yourself — pick a source</h2>
     <p>Every response includes a SHA-256 citation hash you can verify independently</p>
   </div>
 
-  <div class="api-demo fade-in" data-reveal data-reveal-delay="2">
+  <div class="api-demo fade-in">
     <div class="api-demo-header">
       <span class="api-demo-prompt">$</span>
       <span class="api-demo-command">curl https://api.maplespike.ca/v1/gov/releases -H "X-API-Key: ms_..." -G -d "source=committees" -d "_limit=3" -d "_format=compact"</span>
@@ -378,7 +468,7 @@
 </section>
 
 <!-- ═══ IN-CAMERA SPOTLIGHT ═══ -->
-<div class="spotlight-card fade-in" data-reveal>
+<div class="spotlight-card fade-in">
   <div class="inner">
     <div class="icon">🔒</div>
     <div class="content">
@@ -390,19 +480,19 @@
 </div>
 
 <!-- ═══ MCP / AI Integration ═══ -->
-<section class="section-alt" id="mcp-setup" data-reveal>
+<section class="section-alt" id="mcp-setup">
   <div class="section-alt-inner">
-    <div class="section-bracket fade-in" data-reveal>
+    <div class="section-bracket fade-in">
       <span class="bracket">[</span><span class="num">03</span><span class="bracket">]</span>
       <span style="color:var(--text-muted);font-size:0.85rem;">AI Integration</span>
     </div>
-    <div class="section-header fade-in" data-reveal data-reveal-delay="1">
+    <div class="section-header fade-in">
       <h2>Use it with ChatGPT, Claude,<br>Gemini, Grok — or your own code</h2>
       <p>MapleSpike connects to the AI tools you already use through the MCP standard. Add it once, ask questions about Canadian government in plain English.</p>
     </div>
 
     <div class="integration-grid">
-      <div class="integration-card fade-in" data-reveal data-reveal-delay="1">
+      <div class="integration-card fade-in">
         <div class="int-icon">💬</div>
         <h3>ChatGPT</h3>
         <p>Connect via MCP in the ChatGPT desktop app. Ask questions about Canadian government in plain English and get sourced answers.</p>
@@ -418,7 +508,7 @@
         </div>
       </div>
 
-      <div class="integration-card fade-in stagger-1" data-reveal data-reveal-delay="2">
+      <div class="integration-card fade-in stagger-1">
         <div class="int-icon">🤖</div>
         <h3>Claude</h3>
         <p>Native MCP support in Claude Desktop and Claude Code. Ask "what did the ethics committee discuss?" and get a full briefing with citations.</p>
@@ -434,13 +524,13 @@
         </div>
       </div>
 
-      <div class="integration-card fade-in stagger-2" data-reveal data-reveal-delay="2">
+      <div class="integration-card fade-in stagger-2">
         <div class="int-icon">🔮</div>
         <h3>Gemini</h3>
         <p>Use MapleSpike as an MCP tool in Google AI Studio or the Gemini API. Cross-reference committee testimony with lobbying data.</p>
       </div>
 
-      <div class="integration-card fade-in stagger-2" data-reveal data-reveal-delay="3">
+      <div class="integration-card fade-in stagger-2">
         <div class="int-icon">✏️</div>
         <h3>Cursor &amp; Windsurf</h3>
         <p>Add the MCP endpoint to your editor config. Use MapleSpike data directly in your coding workflow.</p>
@@ -456,7 +546,7 @@
         </div>
       </div>
 
-      <div class="integration-card fade-in stagger-1" data-reveal data-reveal-delay="3">
+      <div class="integration-card fade-in stagger-1">
         <div class="int-icon">🌐</div>
         <h3>REST API</h3>
         <p>Direct HTTP access for backends, dashboards, and traditional apps. Every response includes SHA-256 citations.</p>
@@ -472,23 +562,23 @@
     </div>
 
     <div style="text-align:center;margin-top:40px;">
-      <a href="/docs/guide/what-is-maplespike.html" class="btn btn-cyan">View Full Documentation →</a>
+      <a href="/docs/" class="btn btn-cyan">View Full Documentation →</a>
     </div>
   </div>
 </section>
 
 <!-- ═══ API Explorer ═══ -->
-<section class="section" id="api-ref" data-reveal>
-  <div class="section-bracket fade-in" data-reveal>
+<section class="section" id="api-ref">
+  <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">04</span><span class="bracket">]</span>
     <span style="color:var(--text-muted);font-size:0.85rem;">API Reference</span>
   </div>
-  <div class="section-header fade-in" data-reveal data-reveal-delay="1">
+  <div class="section-header fade-in">
     <h2>For developers and data nerds</h2>
     <p>Full API access with verified citations on every response. Every piece of data includes a source you can check.</p>
   </div>
 
-  <div class="api-explorer fade-in" data-reveal data-reveal-delay="2">
+  <div class="api-explorer fade-in">
     <div class="api-endpoint">
       <span class="method get">GET</span>
       <span class="path">/v1/health</span>
@@ -521,7 +611,7 @@
     </div>
   </div>
 
-  <div class="api-demo-box fade-in" data-reveal data-reveal-delay="3">
+  <div class="api-demo-box fade-in">
     <div class="demo-header">
       <div class="demo-dots">
         <span class="demo-dot"></span>
@@ -545,12 +635,12 @@
 </section>
 
 <!-- ═══ PRICING ═══ -->
-<section class="section" id="pricing" data-reveal>
-  <div class="section-bracket fade-in" data-reveal>
+<section class="section" id="pricing">
+  <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
     <span style="color:var(--text-muted);font-size:0.85rem;">Pricing</span>
   </div>
-  <div class="section-header fade-in" data-reveal data-reveal-delay="1">
+  <div class="section-header fade-in">
     <h2>Simple, transparent pricing.</h2>
     <p>Free tier for journalists and researchers. Pro for production. Business for teams. No hidden fees, no contracts.</p>
   </div>
@@ -560,16 +650,16 @@
 </section>
 
 <!-- ═══ WAITLIST ═══ -->
-<section class="section" id="waitlist" style="padding-bottom:20px;" data-reveal>
-  <div class="section-bracket fade-in" data-reveal>
+<section class="section" id="waitlist" style="padding-bottom:20px;">
+  <div class="section-bracket fade-in">
     <span class="bracket">[</span><span class="num">05</span><span class="bracket">]</span>
     <span style="color:var(--text-muted);font-size:0.85rem;">Stay Updated</span>
   </div>
-  <div class="section-header fade-in" style="margin-bottom:24px;" data-reveal data-reveal-delay="1">
+  <div class="section-header fade-in" style="margin-bottom:24px;">
     <h2>Get early access and updates</h2>
     <p>Be the first to know when we launch new data sources, API features, and Canadian government intelligence.</p>
   </div>
-  <div class="waitlist-form fade-in" data-reveal data-reveal-delay="2">
+  <div class="waitlist-form fade-in">
     <form action="https://maplespike.us19.list-manage.com/subscribe/post" method="POST" target="_blank">
       <input type="email" name="EMAIL" placeholder="you@example.com" required aria-label="Email address">
       <button type="submit" class="btn btn-primary">Subscribe →</button>
@@ -577,96 +667,6 @@
     <p class="waitlist-note">No spam. Unsubscribe anytime. ~1 email/month.</p>
   </div>
 </section>
-
-<!-- ═══ MCP INTEGRATION SETUP ═══ -->
-<section class="section mcp-showcase" id="mcp-config">
-  <div class="section-bracket fade-in">
-    <span class="bracket">[</span><span class="num">06</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);font-size:0.85rem;">MCP Integration</span>
-  </div>
-  <div class="section-header fade-in">
-    <h2>AI Agent Setup</h2>
-    <p>Connect any MCP-compatible AI agent to MapleSpike's 22 government data tools. Copy the config, point your editor or desktop app at the local MCP server, and start querying Canadian government data in plain language.</p>
-  </div>
-
-  <div class="mcp-tabs fade-in">
-    <div class="mcp-tabs-nav">
-      <button class="mcp-tab active" data-panel="claude">Claude Desktop</button>
-      <button class="mcp-tab" data-panel="cursor">Cursor / Windsurf</button>
-      <button class="mcp-tab" data-panel="curl">Health Check</button>
-    </div>
-
-    <div class="mcp-panel active" id="panel-claude">
-      <div class="mcp-panel-label">claude_desktop_config.json</div>
-      <div class="code-block mcp-code-block">
-        <span class="comment">// Claude Desktop MCP server config</span><br>
-        {<br>
-        &nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"command"</span>: <span class="string">"npx"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"args"</span>: [<span class="string">"@maplespike/mcp-server"</span>]<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-        &nbsp;&nbsp;}<br>
-        }<br>
-        <br>
-        <span class="comment">// SSE endpoint: http://localhost:3001/sse</span>
-      </div>
-    </div>
-
-    <div class="mcp-panel" id="panel-cursor">
-      <div class="mcp-panel-label">.cursor/mcp.json</div>
-      <div class="code-block mcp-code-block">
-        <span class="comment">// Cursor / Windsurf MCP config</span><br>
-        {<br>
-        &nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"maplespike"</span>: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"command"</span>: <span class="string">"npx"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"args"</span>: [<span class="string">"@maplespike/mcp-server"</span>]<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-        &nbsp;&nbsp;}<br>
-        }<br>
-        <br>
-        <span class="comment">// SSE endpoint: http://localhost:3001/sse</span>
-      </div>
-    </div>
-
-    <div class="mcp-panel" id="panel-curl">
-      <div class="mcp-panel-label">Terminal</div>
-      <div class="code-block mcp-code-block">
-        <span class="comment"># Test the MCP server health endpoint</span><br>
-        <span class="prompt">$</span> curl http://localhost:3001/health<br>
-        <br>
-        <span class="comment"># Expected response:</span><br>
-        {<br>
-        &nbsp;&nbsp;<span class="string">"status"</span>: <span class="string">"ok"</span>,<br>
-        &nbsp;&nbsp;<span class="string">"server"</span>: <span class="string">"maplespike-mcp"</span>,<br>
-        &nbsp;&nbsp;<span class="string">"tools"</span>: <span class="num-val">22</span>,<br>
-        &nbsp;&nbsp;<span class="string">"transport"</span>: <span class="string">"sse"</span><br>
-        }
-      </div>
-    </div>
-  </div>
-
-  <div style="text-align:center;margin-top:32px;">
-    <a href="/docs/mcp/tools.html" class="btn btn-cyan">Browse All 22 MCP Tools →</a>
-  </div>
-</section>
-
-<script>
-(function() {
-  const tabs = document.querySelectorAll('.mcp-tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', function() {
-      const parent = this.closest('.mcp-tabs');
-      parent.querySelectorAll('.mcp-tab').forEach(t => t.classList.remove('active'));
-      parent.querySelectorAll('.mcp-panel').forEach(p => p.classList.remove('active'));
-      this.classList.add('active');
-      const panel = parent.querySelector('#panel-' + this.dataset.panel);
-      if (panel) panel.classList.add('active');
-    });
-  });
-})();
-</script>
 
 <!-- ═══ FOOTER ═══ -->
 <footer>
@@ -696,17 +696,17 @@
       <ul>
         <li><a href="explorer.html">Data Sources</a></li>
         <li><a href="pricing.html">Pricing</a></li>
-        <li><a href="/docs/guide/what-is-maplespike.html">Documentation</a></li>
+        <li><a href="/docs/">Documentation</a></li>
         <li><a href="workspace.html">Workspace</a></li>
       </ul>
     </div>
     <div>
       <h4>AI Tools</h4>
       <ul>
-        <li><a href="/docs/mcp/setup.html">ChatGPT Setup</a></li>
-        <li><a href="/docs/mcp/setup.html">Claude Setup</a></li>
-        <li><a href="/docs/mcp/setup.html">Gemini Setup</a></li>
-        <li><a href="/docs/api/endpoints.html">REST API</a></li>
+        <li><a href="/docs/">ChatGPT Setup</a></li>
+        <li><a href="/docs/">Claude Setup</a></li>
+        <li><a href="/docs/">Gemini Setup</a></li>
+        <li><a href="/docs/">REST API</a></li>
       </ul>
     </div>
     <div>
@@ -719,15 +719,12 @@
       </ul>
     </div>
   </div>
-    <div class="footer-status">
+  <div class="footer-status">
     <div class="live-badge" id="system-status">
       <span class="live-dot" style="background:#10B981;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span>
       ALL SYSTEMS OPERATIONAL
     </div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;">
-      <span class="compliance-badge">⚖️ AIDA-ready audit trails</span>
-      <span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);">v2.0.1 · Data refreshed every 6h · <a href="https://status.maplespike.ca" style="color:var(--accent-cyan);">Status Page</a></span>
-    </div>
+    <span style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono);">v2.0.1 · Data refreshed every 6h · <a href="https://status.maplespike.ca" style="color:var(--accent-cyan);">Status Page</a></span>
   </div>
 </footer>
 
