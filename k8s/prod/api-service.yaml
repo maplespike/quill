@@ -8,10 +8,11 @@ metadata:
     component: api
     tier: backend
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - name: http
       port: 8082
       targetPort: 8082
+      nodePort: 31283
   selector:
     app: maplespike-api

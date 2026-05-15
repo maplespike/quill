@@ -1,16 +1,10 @@
 # MapleSpike Production Kubernetes Manifests
 # Applied via CI/CD on push to `prod` branch
-# All services behind maplespike.lan single-domain ingress
+# Routes: host-level Caddy routes maplespike.lan, maplespike-api.lan, maplespike-mcp.lan
+# Tailscale Ingress (easykubenix) for funnel/Internet access
+# NodePorts: portal=30964, api=31283, mcp=31745, uptime-kuma=31832
 #
 # Apply: kubectl apply -k k8s/prod/
-#
-# Services:
-#   maplespike.lan/         → Portal (static HTML/nginx)
-#   maplespike.lan/api/     → API Server
-#   maplespike.lan/mcp/     → MCP Server SSE endpoint
-#   maplespike.lan/health   → API health check
-#   maplespike.lan/db/      → pgAdmin (optional, for db management)
-
 resources:
   - namespace.yaml
   - db-secret.yaml
@@ -21,4 +15,3 @@ resources:
   - mcp-service.yaml
   - portal-deployment.yaml
   - portal-service.yaml
-  - ingress.yaml

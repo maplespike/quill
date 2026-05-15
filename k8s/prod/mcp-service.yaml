@@ -8,10 +8,11 @@ metadata:
     component: mcp
     tier: backend
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - name: http
       port: 3001
       targetPort: 3001
+      nodePort: 31745
   selector:
     app: maplespike-mcp
