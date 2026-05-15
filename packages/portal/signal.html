@@ -1,148 +1,173 @@
-<!DOCTYPE html>
-<html lang="en-CA" data-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MapleSpike SIGNAL — Real-Time Government Activity Monitoring</title>
-  <script src="/config.js"></script>
-<link rel="canonical" href="https://maplespike.ca/signal">
-<link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/signal">
-<link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/signal">
-<meta name="robots" content="index, follow">
-
-<meta name="description" content="Real-time monitoring and alerts across all Canadian government data sources. Track lobbying spikes, committee activity, regulatory changes, and court decisions as they happen.">
-
-    <link rel="stylesheet" href="styles.css">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-<style>
-/* ═══ SIGNAL page styles ═══ */
-.signal-page { padding-top: var(--nav-height, 64px); min-height: 100vh; }
-.signal-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 80px; }
-
-.signal-header { margin-bottom: 32px; }
-.signal-header h1 { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-.signal-header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
-
-/* ═══ Create Monitor Form ═══ */
-.signal-create { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 32px; }
-.signal-create h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-.signal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.signal-form .field-full { grid-column: 1 / -1; }
-.signal-form label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; font-family: var(--font-mono); }
-.signal-form select, .signal-form input { width: 100%; padding: 10px 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.88rem; font-family: inherit; outline: none; transition: all var(--transition); }
-.signal-form select:focus, .signal-form input:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
-.signal-form select option { background: var(--bg-primary); color: var(--text-primary); }
-.signal-form .delivery-options { display: flex; gap: 12px; flex-wrap: wrap; }
-.signal-form .delivery-options .delivery-type { flex: 1; min-width: 200px; }
-.signal-form .delivery-options input { width: 100%; }
-
-/* ═══ Active Monitors ═══ */
-.signal-section { margin-bottom: 32px; }
-.signal-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-.signal-section-header h2 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0; }
-.signal-section-header .count-badge { font-size: 0.72rem; padding: 2px 12px; border-radius: 99px; background: var(--accent-dim); color: var(--accent); font-family: var(--font-mono); }
-
-.monitor-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; gap: 16px; transition: all var(--transition); margin-bottom: 12px; }
-.monitor-card:hover { border-color: var(--accent-cyan); transform: translateY(-1px); }
-.monitor-card .status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.monitor-card .status-indicator.active { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
-.monitor-card .status-indicator.paused { background: var(--warning); }
-.monitor-card .status-indicator.error { background: var(--accent); }
-.monitor-card .monitor-info { flex: 1; min-width: 0; }
-.monitor-card .monitor-source { font-size: 0.72rem; color: var(--accent-cyan); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
-.monitor-card .monitor-keywords { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); margin-top: 2px; }
-.monitor-card .monitor-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.monitor-card .monitor-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.monitor-card .monitor-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); font-family: var(--font-mono); }
-.monitor-card .monitor-actions button:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-.monitor-card .monitor-actions button.danger:hover { border-color: var(--accent); color: var(--accent); background: var(--base18); }
-
-/* ═══ Recent Alerts Log ═══ */
-.alerts-log { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.alert-log-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background var(--transition); }
-.alert-log-item:last-child { border-bottom: none; }
-.alert-log-item:hover { background: var(--bg-elevated); }
-.alert-log-item .alert-time { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; min-width: 65px; padding-top: 2px; }
-.alert-log-item .alert-icon { font-size: 1rem; flex-shrink: 0; }
-.alert-log-item .alert-body { flex: 1; min-width: 0; }
-.alert-log-item .alert-body .alert-title { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
-.alert-log-item .alert-body .alert-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
-.alert-log-item .alert-body .alert-source { font-size: 0.7rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-top: 4px; }
-.alert-log-item .alert-badge { font-size: 0.65rem; padding: 2px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); text-transform: uppercase; white-space: nowrap; }
-
-/* ═══ Webhook Test Button ═══ */
-.webhook-test-area { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 20px; }
-.webhook-test-area input { flex: 1; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.85rem; font-family: var(--font-mono); outline: none; }
-.webhook-test-area input:focus { border-color: var(--accent-cyan); }
-.webhook-test-area .test-result { font-size: 0.78rem; font-family: var(--font-mono); padding: 6px 12px; border-radius: 6px; }
-.webhook-test-area .test-result.success { color: var(--success); background: var(--base19); }
-.webhook-test-area .test-result.fail { color: var(--accent); background: var(--base18); }
-
-/* ═══ Toast ═══ */
-.signal-toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.82rem; font-family: var(--font-mono); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; pointer-events: none; }
-.signal-toast.show { opacity: 1; transform: translateY(0); }
-.signal-toast.success { background: var(--base19); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
-.signal-toast.error { background: var(--base18); color: var(--accent); border: 1px solid rgba(194,48,48,0.3); }
-
-@media (max-width: 768px) {
-.signal-form { grid-template-columns: 1fr; }
-}
-</style>
-
-<meta property="og:title" content="MapleSpike SIGNAL — Real-Time Government Activity Monitoring">
-<meta property="og:description" content="Real-time monitoring and alerts across all Canadian government data sources. Track lobbying spikes, committee activity, regulatory changes, and court decisions as they happen.">
-<meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:url" content="https://maplespike.ca/signal">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MapleSpike SIGNAL — Real-Time Government Activity Monitoring">
-<meta name="twitter:description" content="Real-time monitoring and alerts across all Canadian government data sources. Track lobbying spikes, committee activity, regulatory changes, and court decisions as they happen.">
-<meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-
-<script type="application/ld+json">
-{
-"@context": "https://schema.org",
-"@type": "WebApplication",
-"name": "MapleSpike",
-"url": "https://maplespike.ca",
-"description": "Canadian government data pipeline with verified citations",
-"applicationCategory": "Data API",
-"offers": {
-"@type": "Offer",
-"price": "0",
-"priceCurrency": "CAD"
-}
-}
-</script>
-
-<link rel="preconnect" href="https://www.google.com" crossorigin>
-<link rel="manifest" href="/manifest.json">
-<meta name="msapplication-config" content="/browserconfig.xml">
-<meta name="theme-color" content="#C23030">
-<!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-<script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-</head>
-<body>
-<!-- ═══ Navigation ═══ -->
-
-  <!-- Navigation -->
-<nav>
-  <div class="nav-inner">
-    <a href="index.html" class="logo">
-      <span class="logo-icon">C</span>
-      <span>MapleSpike</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-      <li class="nav-separator" aria-hidden="true"></li>
-      <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-      <li class="nav-separator" aria-hidden="true"></li>
+     1|<!DOCTYPE html>
+     2|<html lang="en-CA" data-theme="dark">
+     3|<head>
+     4|  <meta charset="UTF-8">
+     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|  <title>SIGNAL — MapleSpike Monitoring</title>
+     7|  <link rel="canonical" href="https://maplespike.ca/signal">
+     8|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/signal">
+     9|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/signal">
+    10|  <meta name="robots" content="index, follow">
+    11|
+    12|  <meta name="description" content="Monitor Canadian government activity in real-time. Set up webhooks and alerts for committees, lobbying, regulations, courts, and oversight.">
+    13|
+    14|  <link rel="stylesheet" href="styles.css">
+    15|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+    16|  <style>
+    17|    /* ═══ SIGNAL page styles ═══ */
+    18|    .signal-page { padding-top: calc(64px + 22px + 24px); min-height: 100vh; }
+    19|    .signal-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 80px; }
+    20|
+    21|    .signal-header { margin-bottom: 32px; }
+    22|    .signal-header h1 { font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    23|    .signal-header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+    24|
+    25|    /* ═══ Create Monitor Form ═══ */
+    26|    .signal-create { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 32px; }
+    27|    .signal-create h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    28|    .signal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    29|    .signal-form .field-full { grid-column: 1 / -1; }
+    30|    .signal-form label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; font-family: var(--font-mono); }
+    31|    .signal-form select, .signal-form input { width: 100%; padding: 10px 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.88rem; font-family: inherit; outline: none; transition: all var(--transition); }
+    32|    .signal-form select:focus, .signal-form input:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+    33|    .signal-form select option { background: var(--bg-primary); color: var(--text-primary); }
+    34|    .signal-form .delivery-options { display: flex; gap: 12px; flex-wrap: wrap; }
+    35|    .signal-form .delivery-options .delivery-type { flex: 1; min-width: 200px; }
+    36|    .signal-form .delivery-options input { width: 100%; }
+    37|
+    38|    /* ═══ Active Monitors ═══ */
+    39|    .signal-section { margin-bottom: 32px; }
+    40|    .signal-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+    41|    .signal-section-header h2 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0; }
+    42|    .signal-section-header .count-badge { font-size: 0.72rem; padding: 2px 12px; border-radius: 99px; background: var(--accent-dim); color: var(--accent); font-family: var(--font-mono); }
+    43|
+    44|    .monitor-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; gap: 16px; transition: all var(--transition); margin-bottom: 12px; }
+    45|    .monitor-card:hover { border-color: var(--accent-cyan); transform: translateY(-1px); }
+    46|    .monitor-card .status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    47|    .monitor-card .status-indicator.active { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    48|    .monitor-card .status-indicator.paused { background: var(--warning); }
+    49|    .monitor-card .status-indicator.error { background: var(--accent); }
+    50|    .monitor-card .monitor-info { flex: 1; min-width: 0; }
+    51|    .monitor-card .monitor-source { font-size: 0.72rem; color: var(--accent-cyan); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
+    52|    .monitor-card .monitor-keywords { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); margin-top: 2px; }
+    53|    .monitor-card .monitor-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    54|    .monitor-card .monitor-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    55|    .monitor-card .monitor-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); font-family: var(--font-mono); }
+    56|    .monitor-card .monitor-actions button:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    57|    .monitor-card .monitor-actions button.danger:hover { border-color: var(--accent); color: var(--accent); background: var(--base18); }
+    58|
+    59|    /* ═══ Recent Alerts Log ═══ */
+    60|    .alerts-log { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    61|    .alert-log-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background var(--transition); }
+    62|    .alert-log-item:last-child { border-bottom: none; }
+    63|    .alert-log-item:hover { background: var(--bg-elevated); }
+    64|    .alert-log-item .alert-time { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap; min-width: 65px; padding-top: 2px; }
+    65|    .alert-log-item .alert-icon { font-size: 1rem; flex-shrink: 0; }
+    66|    .alert-log-item .alert-body { flex: 1; min-width: 0; }
+    67|    .alert-log-item .alert-body .alert-title { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+    68|    .alert-log-item .alert-body .alert-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+    69|    .alert-log-item .alert-body .alert-source { font-size: 0.7rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-top: 4px; }
+    70|    .alert-log-item .alert-badge { font-size: 0.65rem; padding: 2px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); text-transform: uppercase; white-space: nowrap; }
+    71|
+    72|    /* ═══ Webhook Test Button ═══ */
+    73|    .webhook-test-area { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 20px; }
+    74|    .webhook-test-area input { flex: 1; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.85rem; font-family: var(--font-mono); outline: none; }
+    75|    .webhook-test-area input:focus { border-color: var(--accent-cyan); }
+    76|    .webhook-test-area .test-result { font-size: 0.78rem; font-family: var(--font-mono); padding: 6px 12px; border-radius: 6px; }
+    77|    .webhook-test-area .test-result.success { color: var(--success); background: var(--base19); }
+    78|    .webhook-test-area .test-result.fail { color: var(--accent); background: var(--base18); }
+    79|
+    80|    /* ═══ Toast ═══ */
+    81|    .signal-toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.82rem; font-family: var(--font-mono); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; pointer-events: none; }
+    82|    .signal-toast.show { opacity: 1; transform: translateY(0); }
+    83|    .signal-toast.success { background: var(--base19); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+    84|    .signal-toast.error { background: var(--base18); color: var(--accent); border: 1px solid rgba(194,48,48,0.3); }
+    85|
+    86|    @media (max-width: 768px) {
+    87|      .signal-form { grid-template-columns: 1fr; }
+    88|    }
+    89|  </style>
+    90|
+    91|  <meta property="og:title" content="SIGNAL — MapleSpike Monitoring">
+    92|  <meta property="og:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+    93|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+    94|  <meta property="og:image:width" content="1200">
+    95|  <meta property="og:image:height" content="630">
+    96|  <meta property="og:url" content="https://maplespike.ca/signal">
+    97|  <meta property="og:type" content="website">
+    98|  <meta name="twitter:card" content="summary_large_image">
+    99|  <meta name="twitter:title" content="SIGNAL — MapleSpike Monitoring">
+   100|  <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+   101|  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+   102|
+   103|
+   104|  <script type="application/ld+json">
+   105|  {
+   106|    "@context": "https://schema.org",
+   107|    "@type": "WebApplication",
+   108|    "name": "MapleSpike",
+   109|    "url": "https://maplespike.ca",
+   110|    "description": "Canadian government data pipeline with verified citations",
+   111|    "applicationCategory": "Data API",
+   112|    "offers": {
+   113|      "@type": "Offer",
+   114|      "price": "0",
+   115|      "priceCurrency": "CAD"
+   116|    }
+   117|  }
+   118|  </script>
+   119|
+   120|
+   121|
+   122|  <link rel="preconnect" href="https://www.google.com" crossorigin>
+   123|  <link rel="manifest" href="/manifest.json">
+   124|  <meta name="msapplication-config" content="/browserconfig.xml">
+   125|  <meta name="theme-color" content="#C23030">
+   126|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+   127|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+   128|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+   129|</head>
+   130|<body>
+   131|
+   132|<!-- ═══ Ticker ═══ -->
+   133|<div class="ticker">
+   134|  <div class="ticker-inner">
+   135|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+   136|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+   137|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+   138|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+   139|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+   140|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+   141|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+   142|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+   143|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+   144|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+   145|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+   146|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+   147|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+   148|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+   149|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+   150|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+   151|  </div>
+   152|</div>
+   153|
+   154|<!-- ═══ Navigation ═══ -->
+   155|<style>nav { top: 22px !important; } body { padding-top: calc(22px + 64px); }</style>
+   156|<nav>
+   157|  <div class="nav-inner">
+   158|    <a href="index.html" class="logo">
+   159|      <span class="logo-icon">C</span>
+   160|      <span>MapleSpike</span>
+   161|    </a>
+   162|    <ul class="nav-links">
+   163|      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+   164|      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+   165|      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+   166|      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+   167|      <li><a href="blog.html"><span class="nav-bracket">[</span>BLOG<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+      <li><a href="contact.html"><span class="nav-bracket">[</span>CONTACT<span class="nav-bracket">]</span></a></li>
+
       <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
