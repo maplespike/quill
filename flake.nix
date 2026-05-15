@@ -48,15 +48,11 @@
         };
 
         # ── OCI image builder ───────────────────────────────────────────
-        mkImage = { name, cmd, port, extraEnv }: pkgs.dockerTools.buildImage {
+        mkImage = { name, cmd, port, extraEnv }: pkgs.dockerTools.buildLayeredImage {
           inherit name;
           tag = "latest";
           created = "now";
-          copyToRoot = pkgs.buildEnv {
-            name = "root";
-            paths = with pkgs; [ maplespike-build nodejs bash coreutils dumb-init ];
-            pathsToLink = [ "/bin" ];
-          };
+          contents = with pkgs; [ maplespike-build nodejs bash coreutils dumb-init ];
           config = {
             Env = [
               "NODE_ENV=production"
