@@ -1,146 +1,150 @@
-<!DOCTYPE html>
-<html lang="en-CA" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleSpike — Blog: Canadian Government Data Analysis</title>
-  <meta name="description" content="Analysis and insights from MapleSpike's Canadian government data pipeline — Parliament, lobbying, regulations, court decisions, and more.">
-  <link rel="canonical" href="https://maplespike.ca/blog">
-  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/blog">
-  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/blog">
-  <meta name="robots" content="index, follow">
-    <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-  <meta property="og:title" content="MapleSpike — Blog: Canadian Government Data Analysis">
-  <meta property="og:description" content="Analysis and insights from MapleSpike's Canadian government data pipeline — Parliament, lobbying, regulations, court decisions, and more.">
-  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="alternate" type="application/rss+xml" title="MapleSpike Blog RSS" href="/blog.xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#C23030">
-  <style>
-    .blog-page { max-width: 720px; margin: 0 auto; padding: 32px 24px 80px; }
-    .blog-post { margin: 24px 0; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: border-color var(--transition); }
-    .blog-post:hover { border-color: rgba(194,48,48,0.3); }
-    .blog-date { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); }
-    .blog-title { font-size: 1.1rem; font-weight: 700; margin: 4px 0 8px; }
-    .blog-title a { color: var(--text-primary); text-decoration: none; }
-    .blog-title a:hover { color: var(--accent); }
-    .blog-excerpt { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
-    .blog-tag { display: inline-block; font-size: 0.65rem; font-family: var(--font-mono); padding: 2px 10px; border-radius: 99px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 4px; margin-top: 8px; }
-    .blog-tag-new { background: var(--base19); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
-    .blog-tag-update { background: var(--base20); color: var(--accent-cyan); border: 1px solid rgba(8,145,178,0.2); }
-    .blog-tag-launch { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(194,48,48,0.2); }
-    .blog-rss { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--accent-cyan); text-decoration: none; margin-bottom: 20px; }
-    .blog-rss:hover { text-decoration: underline; }
-  </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "MapleSpike",
-  "url": "https://maplespike.ca",
-  "description": "Canadian government data pipeline with verified citations",
-  "applicationCategory": "Data API",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CAD"
-  }
-}
-</script>
-</head>
-<body>
+     1|<!DOCTYPE html>
+     2|<html lang="en-CA" data-theme="dark">
+     3|<head>
+     4|  <meta charset="UTF-8">
+     5|  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|  <title>MapleSpike — Blog: Canadian Government Data Analysis</title>
+     7|  <meta name="description" content="Analysis and insights from MapleSpike's Canadian government data pipeline — Parliament, lobbying, regulations, court decisions, and more.">
+     8|  <link rel="canonical" href="https://maplespike.ca/blog">
+     9|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/blog">
+    10|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/blog">
+    11|  <meta name="robots" content="index, follow">
+    12|    <link rel="stylesheet" href="styles.css">
+    13|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+    14|  <meta property="og:title" content="MapleSpike — Blog: Canadian Government Data Analysis">
+    15|  <meta property="og:description" content="Analysis and insights from MapleSpike's Canadian government data pipeline — Parliament, lobbying, regulations, court decisions, and more.">
+    16|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+    17|  <meta name="twitter:card" content="summary_large_image">
+    18|  <link rel="alternate" type="application/rss+xml" title="MapleSpike Blog RSS" href="/blog.xml">
+    19|  <link rel="preconnect" href="https://fonts.googleapis.com">
+    20|  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    21|  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    22|  <link rel="manifest" href="/manifest.json">
+    23|  <meta name="theme-color" content="#C23030">
+    24|  <style>
+    25|    .blog-page { max-width: 720px; margin: 0 auto; padding: 32px 24px 80px; }
+    26|    .blog-post { margin: 24px 0; padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: border-color var(--transition); }
+    27|    .blog-post:hover { border-color: rgba(194,48,48,0.3); }
+    28|    .blog-date { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); }
+    29|    .blog-title { font-size: 1.1rem; font-weight: 700; margin: 4px 0 8px; }
+    30|    .blog-title a { color: var(--text-primary); text-decoration: none; }
+    31|    .blog-title a:hover { color: var(--accent); }
+    32|    .blog-excerpt { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+    33|    .blog-tag { display: inline-block; font-size: 0.65rem; font-family: var(--font-mono); padding: 2px 10px; border-radius: 99px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 4px; margin-top: 8px; }
+    34|    .blog-tag-new { background: var(--base19); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    35|    .blog-tag-update { background: var(--base20); color: var(--accent-cyan); border: 1px solid rgba(8,145,178,0.2); }
+    36|    .blog-tag-launch { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(194,48,48,0.2); }
+    37|    .blog-rss { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--accent-cyan); text-decoration: none; margin-bottom: 20px; }
+    38|    .blog-rss:hover { text-decoration: underline; }
+    39|  </style>
+    40|<script type="application/ld+json">
+    41|{
+    42|  "@context": "https://schema.org",
+    43|  "@type": "WebApplication",
+    44|  "name": "MapleSpike",
+    45|  "url": "https://maplespike.ca",
+    46|  "description": "Canadian government data pipeline with verified citations",
+    47|  "applicationCategory": "Data API",
+    48|  "offers": {
+    49|    "@type": "Offer",
+    50|    "price": "0",
+    51|    "priceCurrency": "CAD"
+    52|  }
+    53|}
+    54|</script>
+    55|</head>
+    56|<body>
+    57|<!-- Navigation -->
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
+    <a href="index.html" class="logo">
+      <span class="logo-icon">C</span>
+      <span>MapleSpike</span>
+    </a>
     <ul class="nav-links">
-      <li><a href="/explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-      <li><a href="/explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-      <li><a href="/pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li class="nav-separator" aria-hidden="true"></li>
       <li><a href="/docs/"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-      <li class="nav-separator" aria-hidden="true"></li>
-      <li><a href="/changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
-      <li><a href="/workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
+      <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
+      <li><a href="workspace.html"><span class="nav-bracket">[</span>WORKSPACE<span class="nav-bracket">]</span></a></li>
       <li><a href="workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
     </ul>
-    <button class="nav-mobile-toggle" aria-label="Toggle navigation">☰</button>
+    <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
   </div>
 </nav>
-
-<div class="blog-page">
-  <div class="section-bracket" style="margin-bottom:24px;">
-    <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
-    <span style="color:var(--text-muted);">Blog</span>
-  </div>
-  <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;">Product updates</h1>
-  <p style="color:var(--text-secondary);margin-bottom:8px;">Releases, features, and data source announcements.</p>
-  <a class="blog-rss" href="/blog.xml">📡 Subscribe via RSS</a>
-
-  <div class="blog-post" id="auth-launch">
-    <div class="blog-date">2026-05-13</div>
-    <div class="blog-title"><a href="#auth-launch">Multiple Auth Methods: Web3, Passkey, OAuth</a></div>
-    <p class="blog-excerpt">MapleSpike now supports three new authentication methods alongside existing API keys. Sign in with your Ethereum wallet (SIWE/EIP-4361), a FIDO2 passkey (biometric or security key), or any OAuth 2.0 provider — all issuing the same JWT format for use with the API. Generic OAuth supports any OIDC provider via <code class="doc-inline-code">MAPLESPIKE_OAUTH_{NAME}_CLIENT_ID</code> env vars, with GitHub built-in.</p>
-    <div><span class="blog-tag blog-tag-new">New</span><span class="blog-tag blog-tag-launch">Launch</span></div>
-  </div>
-
-  <div class="blog-post" id="docs-launch">
-    <div class="blog-date">2026-05-12</div>
-    <div class="blog-title"><a href="#docs-launch">Docs Overhaul: 10-Section API Reference</a></div>
-    <p class="blog-excerpt">Complete documentation rewrite now covering: Quickstart with curl examples, Authentication (API keys, JWT, Web3, Passkey, OAuth), Request/Response envelope with quality scores, 8 REST endpoints, Token optimization params, Citation contract with SHA-256 verification, All 14 MCP tools with schemas, Per-plan rate limits, 7 error codes with retry rules, and FAQ. The new layout uses proper CSS classes instead of 141 inline styles.</p>
-    <div><span class="blog-tag blog-tag-update">Update</span></div>
-  </div>
-
-  <div class="blog-post" id="data-expansion">
-    <div class="blog-date">2026-05-11</div>
-    <div class="blog-title"><a href="#data-expansion">28 Canadian Government Data Modules</a></div>
-    <p class="blog-excerpt">MapleSpike now ingests 63 data modules covering House of Commons and Senate committees, federal lobbying registry, procurement and contracts, Canada Gazette regulations, GIC appointments, Elections Canada third-party advertising, CanLII court decisions, LMIA data, provincial lobbying (Ontario), oversight bodies (OAG, PBO, Ethics, CB, CRTC), across all 13 provinces/territories with 1,141+ unique government endpoints</p>
-    <div><span class="blog-tag blog-tag-new">New</span><span class="blog-tag blog-tag-update">Update</span></div>
-  </div>
-
-  <div class="blog-post" id="initial-release">
-    <div class="blog-date">2026-05-01</div>
-    <div class="blog-title"><a href="#initial-release">MapleSpike v0.1 — Initial Release</a></div>
-    <p class="blog-excerpt">Initial release of MapleSpike, Canada's sovereign government data pipeline. Features 14 MCP data tools with bilingual (EN/FR) descriptions, REST API with auth and rate limiting, dark terminal-themed portal, and infrastructure on K3s with Nix builds.</p>
-    <div><span class="blog-tag blog-tag-launch">Launch</span></div>
-  </div>
-</div>
-
-<footer>
-  <div class="footer-inner">
-    <div class="brand">
-      <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
-      <p>Canadian public data infrastructure — for journalists, researchers, and AI agents that cite.</p>
-    </div>
-    <div>
-      <h4>Product</h4>
-      <ul>
-        <li><a href="explorer.html">Data Explorer</a></li>
-        <li><a href="workspace.html">API Keys</a></li>
-        <li><a href="/docs/guide/what-is-maplespike.html">Documentation</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Resources</h4>
-      <ul>
-        <li><a href="blog.html">Blog</a></li>
-        <li><a href="changelog.html">Changelog</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 MapleSpike.</span>
-    <span>Data: <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
-  </div>
-</footer>
-<script src="/config.js"></script>
-<script src="script.js"></script>
-<script src="/nav.js"></script>
-</body>
-</html>
+    75|
+    76|<div class="blog-page">
+    77|  <div class="section-bracket" style="margin-bottom:24px;">
+    78|    <span class="bracket">[</span><span class="num">00</span><span class="bracket">]</span>
+    79|    <span style="color:var(--text-muted);">Blog</span>
+    80|  </div>
+    81|  <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;">Product updates</h1>
+    82|  <p style="color:var(--text-secondary);margin-bottom:8px;">Releases, features, and data source announcements.</p>
+    83|  <a class="blog-rss" href="/blog.xml">📡 Subscribe via RSS</a>
+    84|
+    85|  <div class="blog-post" id="auth-launch">
+    86|    <div class="blog-date">2026-05-13</div>
+    87|    <div class="blog-title"><a href="#auth-launch">Multiple Auth Methods: Web3, Passkey, OAuth</a></div>
+    88|    <p class="blog-excerpt">MapleSpike now supports three new authentication methods alongside existing API keys. Sign in with your Ethereum wallet (SIWE/EIP-4361), a FIDO2 passkey (biometric or security key), or any OAuth 2.0 provider — all issuing the same JWT format for use with the API. Generic OAuth supports any OIDC provider via <code class="doc-inline-code">MAPLESPIKE_OAUTH_{NAME}_CLIENT_ID</code> env vars, with GitHub built-in.</p>
+    89|    <div><span class="blog-tag blog-tag-new">New</span><span class="blog-tag blog-tag-launch">Launch</span></div>
+    90|  </div>
+    91|
+    92|  <div class="blog-post" id="docs-launch">
+    93|    <div class="blog-date">2026-05-12</div>
+    94|    <div class="blog-title"><a href="#docs-launch">Docs Overhaul: 10-Section API Reference</a></div>
+    95|    <p class="blog-excerpt">Complete documentation rewrite now covering: Quickstart with curl examples, Authentication (API keys, JWT, Web3, Passkey, OAuth), Request/Response envelope with quality scores, 8 REST endpoints, Token optimization params, Citation contract with SHA-256 verification, All 14 MCP tools with schemas, Per-plan rate limits, 7 error codes with retry rules, and FAQ. The new layout uses proper CSS classes instead of 141 inline styles.</p>
+    96|    <div><span class="blog-tag blog-tag-update">Update</span></div>
+    97|  </div>
+    98|
+    99|  <div class="blog-post" id="data-expansion">
+   100|    <div class="blog-date">2026-05-11</div>
+   101|    <div class="blog-title"><a href="#data-expansion">28 Canadian Government Data Modules</a></div>
+   102|    <p class="blog-excerpt">MapleSpike now ingests 63 data modules covering House of Commons and Senate committees, federal lobbying registry, procurement and contracts, Canada Gazette regulations, GIC appointments, Elections Canada third-party advertising, CanLII court decisions, LMIA data, provincial lobbying (Ontario), oversight bodies (OAG, PBO, Ethics, CB, CRTC), across all 13 provinces/territories with 1,141+ unique government endpoints</p>
+   103|    <div><span class="blog-tag blog-tag-new">New</span><span class="blog-tag blog-tag-update">Update</span></div>
+   104|  </div>
+   105|
+   106|  <div class="blog-post" id="initial-release">
+   107|    <div class="blog-date">2026-05-01</div>
+   108|    <div class="blog-title"><a href="#initial-release">MapleSpike v0.1 — Initial Release</a></div>
+   109|    <p class="blog-excerpt">Initial release of MapleSpike, Canada's sovereign government data pipeline. Features 14 MCP data tools with bilingual (EN/FR) descriptions, REST API with auth and rate limiting, dark terminal-themed portal, and infrastructure on K3s with Nix builds.</p>
+   110|    <div><span class="blog-tag blog-tag-launch">Launch</span></div>
+   111|  </div>
+   112|</div>
+   113|
+   114|<footer>
+   115|  <div class="footer-inner">
+   116|    <div class="brand">
+   117|      <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
+   118|      <p>Canadian public data infrastructure — for journalists, researchers, and AI agents that cite.</p>
+   119|    </div>
+   120|    <div>
+   121|      <h4>Product</h4>
+   122|      <ul>
+   123|        <li><a href="explorer.html">Data Explorer</a></li>
+   124|        <li><a href="workspace.html">API Keys</a></li>
+   125|        <li><a href="/docs/guide/what-is-maplespike.html">Documentation</a></li>
+   126|      </ul>
+   127|    </div>
+   128|    <div>
+   129|      <h4>Resources</h4>
+   130|      <ul>
+   131|        <li><a href="blog.html">Blog</a></li>
+   132|        <li><a href="changelog.html">Changelog</a></li>
+   133|        <li><a href="contact.html">Contact</a></li>
+   134|      </ul>
+   135|    </div>
+   136|  </div>
+   137|  <div class="footer-bottom">
+   138|    <span>© 2026 MapleSpike.</span>
+   139|    <span>Data: <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>.</span>
+   140|  </div>
+   141|</footer>
+   142|<script src="/config.js"></script>
+   143|<script src="script.js"></script>
+   144|<script src="/nav.js"></script>
+   145|</body>
+   146|</html>
+   147|
