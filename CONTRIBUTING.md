@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-16
 status: active
 ---
 
@@ -54,6 +54,18 @@ maplespike/
 ├── ROADMAP.md            # Full phased roadmap
 └── tsconfig.json         # Shared TypeScript configuration
 ```
+
+### 3b. GitHub Issues Workflow (MANDATORY)
+
+Every change MUST be tracked through a GitHub issue. This is non-negotiable.
+
+1. **Check** existing issues: `gh issue list -R reverb256/maplespike --limit 10`
+2. **Create** if none exists: `gh issue create -R reverb256/maplespike --title "..." --label "p2,frontend" --body "..." --assignee "@me"`
+3. **Branch**: `git checkout -b issue-NNN-short-description`
+4. **Commit**: Every message includes `(#NNN)` — e.g., `feat: add IRCC immigration module (#42)`
+5. **PR**: Body MUST contain `Closes #NNN` or `Related to #NNN`
+
+Available labels: `bug`, `enhancement`, `p1`, `p2`, `k8s`, `frontend`, `module`, `security`, `documentation`, `cleanup`
 
 ### 4. Build a New Data Module
 
