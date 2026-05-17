@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maplespike-api
+  namespace: maplespike-prod
+  labels:
+    app: maplespike-api
+    app.kubernetes.io/managed-by: easykubenix
+  annotations:
+    tailscale.com/funnel: "true"
+    tailscale.com/proxy-group: "funnel-proxies"
+spec:
+  ingressClassName: tailscale
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: maplespike-api
+            port:
+              number: 8082

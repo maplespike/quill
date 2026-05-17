@@ -24,6 +24,8 @@ spec:
         component: portal
         tier: frontend
     spec:
+      imagePullSecrets:
+      - name: ghcr-pull
       nodeName: nexus
       containers:
         - name: portal
