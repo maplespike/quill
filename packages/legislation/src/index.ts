@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * MapleSpike Legislation — point-in-time federal & provincial legislation
  *
