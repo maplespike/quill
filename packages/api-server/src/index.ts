@@ -339,60 +339,65 @@ export async function handleRequest(
     }
   }
 
-  // ── Monthly quota check (hard cap for free, soft warning for paid) ──
-  const now = new Date();
-  const yearMonth = now.toISOString().slice(0, 7);
-  const monthlyUsage = await db.getMonthlyUsage(ctx.tenant.id, yearMonth);
-  const tierLimits = TIER_LIMITS[ctx.tenant.tier];
+  // ── Monthly quota check + usage increment ──
+  // Skip for public/infrastructure routes (health, spec, etc.)
+  const isPublicRoute = route.handler === healthHandler || route.handler === openApiHandler;
 
-  if (monthlyUsage >= tierLimits.monthly) {
-    await db.logAudit({
-      tenantId: ctx.tenant.id,
-      apiKeyId: ctx.apiKeyId,
-      operation: 'quota_exhausted',
-      endpoint: route.pattern.source,
-      outputSummary: 'Monthly quota exhausted',
-      confidence: null,
-      success: false,
-      durationMs: Date.now() - startTime,
-    });
+  if (!isPublicRoute) {
+    const now = new Date();
+    const yearMonth = now.toISOString().slice(0, 7);
+    const monthlyUsage = await db.getMonthlyUsage(ctx.tenant.id, yearMonth);
+    const tierLimits = TIER_LIMITS[ctx.tenant.tier];
 
-    const bc: BuildContext = {
-      tenant: ctx.tenant,
-      requestId,
-      startTime,
-      queryOptions,
-      metaOverrides: {
-        cacheStatus: 'miss',
-        creditsCharged,
-        authMethod,
+    if (monthlyUsage >= tierLimits.monthly) {
+      await db.logAudit({
+        tenantId: ctx.tenant.id,
+        apiKeyId: ctx.apiKeyId,
+        operation: 'quota_exhausted',
+        endpoint: route.pattern.source,
+        outputSummary: 'Monthly quota exhausted',
+        confidence: null,
+        success: false,
         durationMs: Date.now() - startTime,
-      },
-    };
+      });
 
-    if (ctx.tenant.tier === 'free') {
-      // Hard cap — reject
-      const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      const retryAfter = Math.floor((resetDate.getTime() - now.getTime()) / 1000);
-      let response = jsonResponse(
-        buildError('QUOTA_EXHAUSTED',
-          'Monthly API call limit reached. Upgrade to Pro for more calls at https://maplespike.ca/pricing',
-          bc),
-        402,
-        { 'Retry-After': String(retryAfter) },
-      );
-      if (rateCheck) response = addRateLimitHeaders(response, rateCheck);
-      return response;
+      const bc: BuildContext = {
+        tenant: ctx.tenant,
+        requestId,
+        startTime,
+        queryOptions,
+        metaOverrides: {
+          cacheStatus: 'miss',
+          creditsCharged,
+          authMethod,
+          durationMs: Date.now() - startTime,
+        },
+      };
+
+      if (ctx.tenant.tier === 'free') {
+        // Hard cap — reject
+        const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const retryAfter = Math.floor((resetDate.getTime() - now.getTime()) / 1000);
+        let response = jsonResponse(
+          buildError('QUOTA_EXHAUSTED',
+            'Monthly API call limit reached. Upgrade to Pro for more calls at https://maplespike.ca/pricing',
+            bc),
+          402,
+          { 'Retry-After': String(retryAfter) },
+        );
+        if (rateCheck) response = addRateLimitHeaders(response, rateCheck);
+        return response;
+      }
+      // Paid tiers: soft cap — warn via header but allow
+      // (overage billing via Stripe metered usage to be implemented)
     }
-    // Paid tiers: soft cap — warn via header but allow
-    // (overage billing via Stripe metered usage to be implemented)
-  }
 
-  await db.incrementUsage(
-    ctx.tenant.id,
-    now.toISOString().slice(0, 10),
-    yearMonth,
-  );
+    await db.incrementUsage(
+      ctx.tenant.id,
+      now.toISOString().slice(0, 10),
+      yearMonth,
+    );
+  }
 
   try {
     const start = Date.now();

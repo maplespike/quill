@@ -5,8 +5,10 @@ status: active
 
 # AGENTS.md — MapleSpike
 
+> **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.  
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 22 MCP tools, ~113K lines TS, 11 packages.
+
 Quick reference for AI agents working in this repo. Don't guess—check here first.
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — always up to date.
 
 ---
 
@@ -79,19 +81,41 @@ These have excellent machine-readable open data (CKAN, CSV, quarterly/monthly) u
 - **MCP tools needed**: `dnd_personnel`, `defence_procurement`
 
 ### Tier 2+ Expansion Targets (After Tier 1)
-- Health deep: CIHI, PHAC, CFIA food recalls, PMPRB drug pricing, provincial health authorities
-- Education: Tri-Council grants (CIHR/NSERC/SSHRK), Canada Research Chairs
-- Social: CPP Investment Board, EI claims, Canada Child Benefit by riding
-- Provincial: 7+3 remaining provinces via CKAN federation (BC, AB, SK, MB, ON, QC, NB, NS, PE, NL)
-- Municipal: Top-30 cities (Toronto, Vancouver, Montreal, etc.) — CKAN APIs
-- Fisheries/Ag/Energy: DFO fish stocks, NRCan geological, provincial energy regulators
+
+- **Health deep**: CIHI, PHAC, CFIA food recalls, PMPRB drug pricing, provincial health authorities
+- **Education**: Tri-Council grants (CIHR/NSERC/SSHRK), Canada Research Chairs
+- **Social**: CPP Investment Board, EI claims, Canada Child Benefit by riding
+- **Provincial**: 7+3 remaining provinces via CKAN federation (BC, AB, SK, MB, ON, QC, NB, NS, PE, NL)
+- **Municipal**: Top-30 cities (Toronto, Vancouver, Montreal, etc.) — CKAN APIs
+- **Fisheries/Ag/Energy**: DFO fish stocks, NRCan geological, provincial energy regulators
 
 ### Data Nuances (Don't Guess)
+
 - **Data suppression/rounding**: Common in IRCC, StatsCan, and census data. Always check data dictionary. Document suppressed cells in citation.
 - **Bilingual**: All federal data has en/fr. MCP tools must respect Accept-Language headers.
 - **5GW Risk**: Immigration, Indigenous, Defence modules = high narrative sensitivity. Cross-reference ≥2 independent sources before outputting any trend claim.
 - **Scale path**: SQLite for MVP. PostgreSQL migration likely at 50+ modules.
 - **Provincial variation**: Each province has its own CKAN portal with different schemas. Normalize to federal schema in ingestion.
+
+### System Prompt Template (For AIs Consuming this API)
+
+```
+You are a MapleSpike Sovereign Agent. Access all data exclusively via MCP server.
+Every factual output requires full citation object.
+Prioritize Tier 1 gaps (immigration first). Flag 5GW risks.
+If data missing, propose exact new MCP tool + integration plan.
+Never hallucinate sources.
+```
+
+### When Building a New Module
+
+Every new data module requires:
+
+1. `packages/pipeline-core/src/ingestion/<module>/` — fetcher, parser, db, constants, types, index
+2. SHA-256 citation hashing + trust scoring (≥60% threshold)
+3. 1+ MCP tool in `packages/mcp-server/src/tools/`
+4. AIDA-compliant audit trail (algorithmic impact assessment template + bias testing hooks)
+5. ROADMAP.md entry marked `🟡 PARTIAL` or `✅ DONE`
 
 ### System Prompt Template (For AIs Consuming this API)
 ```
@@ -163,19 +187,28 @@ pnpm run build:sdk        # sdk only
 ```bash
 # mcp-server
 cd packages/mcp-server
-pnpm start              # stdio mode (local)
-pnpm start:sse         # SSE mode on :3001
+pnpm start # stdio mode (local)
+pnpm start:sse # SSE mode on :3001
+pnpm test # node --test (tsx)
 
 # engine
 cd packages/engine
-pnpm test              # vitest run
-pnpm run migrate       # Run SQL migrations
-pnpm run typecheck     # tsc --noEmit
+pnpm test # vitest run
+pnpm run migrate # Run SQL migrations
+pnpm run typecheck # tsc --noEmit
+
+# api-server
+cd packages/api-server
+pnpm run dev # Start dev server on :8082
+
+# sdk
+cd packages/sdk
+pnpm build # tsup (CJS + ESM + types)
+pnpm dev # watch mode
 
 # portal (static — no build)
 cd packages/portal
-pnpm run dev           # npx serve . -p 4321
-python3 -m http.server 4321  # alt: native Python
+python3 -m http.server 4321 # or npx serve . -p 4321
 ```
 
 ---
@@ -228,9 +261,16 @@ The root `pnpm build` builds in correct topological order.
 
 ## Testing
 
-- **CI runs:** mcp-server tests + engine tests only
-- **Test framework:** `node --test` (native) for most packages; `vitest` for engine
-- **No test config files** in root—each package defines its own
+| Package | Framework | Command |
+|---------|-----------|---------|
+| pipeline-core | `node --test` (tsx) | `pnpm test` |
+| mcp-server | `node --test` (tsx) | `pnpm test` |
+| engine | vitest | `pnpm test` |
+| sdk | `node --test` (tsx) | `pnpm test` |
+| api-server | `node --test` (tsx) | `pnpm test` |
+
+**CI runs:** mcp-server tests + engine tests only (on PR/push to main).
+**No test config files** in root—each package defines its own.
 
 ---
 
@@ -248,7 +288,7 @@ All 22 tools return real data — including 3 AI tools (ai_analyze, ai_ask, ai_s
 
 **Transport:** SSE mode (HTTP) via `cli.ts` — serves `/health`, `/sse`, `/messages`. Deployed on K3s at port 32537 with 22 tools.
 
-Tools: `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `search_committees`, `search_corporate`, `search_influence`, `search_gazette`, `search_gic`, `search_elections`, `search_provincial_lobbying`, `search_oversight`, `search_canlii`, `search_lmia`, `search_immigration`, `search_science`, `search_tribunals`, `search_lode`, `ai_analyze`, `ai_ask`, `ai_search_semantic`, `system_health`
+**Tools:** `query_gov_data`, `fact_check`, `get_citation`, `latest_releases`, `search_committees`, `search_corporate`, `search_influence`, `search_gazette`, `search_gic`, `search_elections`, `search_provincial_lobbying`, `search_oversight`, `search_canlii`, `search_lmia`, `search_immigration`, `search_science`, `search_tribunals`, `search_lode`, `ai_analyze`, `ai_ask`, `ai_search_semantic`, `system_health`
 
 **Local run:**
 ```bash
@@ -280,6 +320,8 @@ pnpm start
 ---
 
 ## Environment Variables
+
+**Full reference:** `.env.example` in repo root.
 
 ### Core API Server
 
@@ -351,22 +393,6 @@ pnpm start
 | `PGUSER` | `postgres` | Postgres user | engine/db/migrations/migrate.ts |
 | `PGPASSWORD` | `postgres` | Postgres password | engine/db/migrations/migrate.ts |
 
-### Cloudflare Workers (Env Bindings)
-
-| Binding | Type | Description | Used in |
-|---------|------|-------------|---------|
-| `DB` | D1 binding | D1 database (Cloudflare Workers) | index.ts, types.ts |
-| `CACHE` | KV binding | KV namespace for caching | index.ts, types.ts |
-| `FREE_LIMIT` | `string` | Free tier monthly limit override | index.ts, types.ts |
-| `PRO_LIMIT` | `string` | Pro tier monthly limit override | index.ts, types.ts |
-| `BUSINESS_LIMIT` | `string` | Business tier monthly limit override | index.ts, types.ts |
-
-### Legal SDK
-
-| Variable | Default | Description | Used in |
-|----------|---------|-------------|---------|
-| `CANLII_API_KEY` | _(empty)_ | CanLII API key for legal document access | legal-core/src/index.ts (docstring) |
-
 ### Helm Chart
 
 | Variable | Source | Description | Used in |
@@ -374,6 +400,50 @@ pnpm start
 | `NODE_ENV` | `.Values.api.env.NODE_ENV` | Node environment for K8s deployment | charts/maplespike/templates/deployments.yaml |
 | `MAPLESPIKE_API_URL` | `.Values.api.env.MAPLESPIKE_API_URL` | API URL for K8s deployment | charts/maplespike/templates/deployments.yaml |
 | `MAPLESPIKE_API_KEY` | K8s secret `maplespike-secrets.apiKey` | API key injected from secret | charts/maplespike/templates/deployments.yaml |
+
+---
+
+## Infrastructure
+
+Two environments run on the same K3s cluster, isolated by namespace and ingress hostname:
+
+| Environment | Namespace | Hostname |
+|-------------|-----------|----------|
+| **Production** | `maplespike` | `maplespike.lan` |
+| **Development** | `maplespike-dev` | `dev.maplespike.lan` |
+
+| Service | Platform | Stack |
+|---------|----------|-------|
+| Portal (marketing + docs) | **K3s cluster** (nginx) | Static HTML/CSS/JS per-environment config.js |
+| Product Dashboard | **K3s cluster** (nexus) | Next.js |
+| MCP Server | **K3s cluster** | Node.js, SSE transport on 3001 |
+| API Server | **K3s cluster** | Node.js, Bearer auth, rate limiting |
+| Engine / CronJobs | **K3s cluster** | Scheduled ingestion pipelines |
+
+**Development endpoints:**
+- Portal: `https://dev.maplespike.lan` (NodePort 30965)
+- API: `https://dev-maplespike-api.lan` (NodePort 31284)
+- MCP: `https://dev-maplespike-mcp.lan` (NodePort 31746)
+
+A **Caddy ingress controller** routes both `.lan` domains to the correct services and namespaces. Environment-specific manifests live in `k8s/dev/` and `k8s/prod/`. Portal config.js uses a `config.dev.js` / `config.prod.js` pattern, mounted via ConfigMap per environment.
+
+All backend data stays on Canadian K3s cluster. No external cloud spend.
+
+**API access:** Auth + rate limiting + usage tracking work. Billing (Stripe, crypto, Interac) is the next major build. See [ROADMAP.md](./ROADMAP.md).
+
+---
+
+## CI/CD
+
+GitHub Actions drives the two-environment deployment model:
+
+| Branch | Workflow | Action |
+|--------|----------|--------|
+| `main` | CI (ci.yml) | Run tests on every push |
+| `main` | Deploy Dev (deploy-dev.yml) | Build + deploy to `maplespike-dev` namespace |
+| `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `maplespike-prod` namespace |
+
+Container images are tagged `:dev` for dev builds and `:latest` for production. Each workflow builds, pushes to the registry, and applies the corresponding `k8s/dev/` or `k8s/prod/` Kubernetes manifests.
 
 ---
 
@@ -387,10 +457,13 @@ pnpm start
 
 ## Key Files
 
-- `ROADMAP.md` — Full phased build plan (402+ lines)
+- `ROADMAP.md` — Full phased build plan (792 lines, 7 phases)
 - `README.md` — High-level overview
+- `CONTRIBUTING.md` — Contributor guide
 - `turbo.json` — Build orchestration config
 - `pnpm-workspace.yaml` — Workspace definition
+- `.env.example` — Environment variables reference
+- `docs/metrics.json` — Current module/tool/line counts (auto-generated)
 
 ---
 
