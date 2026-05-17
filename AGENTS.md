@@ -39,6 +39,8 @@ See [docs/metrics.json](./docs/metrics.json) for current counts.
 
 ### GitHub Issues Workflow (MANDATORY)
 
+**IRON RULE: Every task goes through the full lifecycle — issue → branch → commit (#NNN) → push → PR → CI → merge → close.** See `git-issue-lifecycle` skill for the complete workflow. No exceptions except one-line typo fixes.
+
 Every change must be tracked through a GitHub issue. No issue = no code.
 
 **Protocol:**
