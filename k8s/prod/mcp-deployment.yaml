@@ -24,6 +24,8 @@ spec:
         component: mcp
         tier: backend
     spec:
+      imagePullSecrets:
+      - name: ghcr-pull
       nodeName: nexus
       containers:
         - name: mcp
