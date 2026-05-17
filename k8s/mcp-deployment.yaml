@@ -27,7 +27,7 @@ spec:
       nodeName: nexus
       containers:
         - name: maplespike-mcp
-          image: nexus:5000/maplespike-mcp:latest
+          image: nexus:5000/maplespike-mcp:stable
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

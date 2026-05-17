@@ -23,7 +23,7 @@ spec:
           nodeName: nexus
           containers:
             - name: maplespike-ingest
-              image: nexus:5000/maplespike-ingest:latest
+              image: nexus:5000/maplespike-ingest:stable
               imagePullPolicy: Always
               env:
                 - name: NODE_ENV
