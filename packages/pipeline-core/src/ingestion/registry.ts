@@ -252,7 +252,13 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     category: 'legal',
     modulePath: './legislation/index.js',
     ingestFunctions: ['ingestAllLegislationData'],
-    sources: [{ name: 'Justice Canada XML', format: 'XML' }],
+    sources: [
+      { name: 'Justice Canada Consolidated Laws (XML)', format: 'XML' },
+      { name: 'Ontario e-Laws', format: 'HTML' },
+      { name: 'BC Laws', format: 'HTML' },
+      { name: 'Quebec Legislation (Données Québec)', format: 'CKAN' },
+      { name: 'Provincial CKAN Legislation (AB,SK,MB,NS,NB,NL,PE)', format: 'CKAN' }
+    ],
     updateFrequency: 'weekly',
   },
   {
