@@ -1,7 +1,7 @@
 {
   "name": "@maplespike/legislation",
   "version": "0.2.0",
-  "description": "MapleSpike Legislation \u2014 point-in-time federal and provincial legislation via Justice Canada XML repo and provincial CKAN portals",
+  "description": "MapleSpike Legislation — point-in-time federal and provincial legislation via Justice Canada XML repo and provincial CKAN portals",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
