@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * MapleSpike SDK — typed client for Canadian civic data
  *
