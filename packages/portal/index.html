@@ -69,6 +69,7 @@
   <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+  <script src="/config.js"></script>
 </head>
 <body>
 <!-- ═══ Navigation ═══ -->
@@ -807,7 +808,8 @@
     const statusIndicator = document.getElementById('system-status');
     const freshnessIndicators = document.querySelectorAll('[data-freshness]');
     try {
-      const resp = await fetch('/api/v1/health');
+      const apiBase = window.MAPLESPIKE?.apiBase || '';
+      const resp = await fetch(`${apiBase}/v1/health`);
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const data = await resp.json();
       if (data.success && data.data) {
