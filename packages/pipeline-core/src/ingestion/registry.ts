@@ -230,7 +230,11 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     category: 'government',
     modulePath: './federal/index.js',
     ingestFunctions: ['ingestAllFederalDeep'],
-    sources: [],
+    sources: [
+      { name: 'CIHI Wait Times Datasets', format: 'XLSX' },
+      { name: 'Employment and Social Development Canada (ESDC) via CKAN', format: 'CKAN' },
+      { name: 'Public Health Agency of Canada (PHAC) Surveillance via CKAN', format: 'CKAN' }
+    ],
     updateFrequency: 'monthly',
   },
   {
@@ -588,7 +592,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     category: 'provincial',
     modulePath: './provincial/index.js',
     ingestFunctions: ['ingestAllProvincialDeep'],
-    sources: [],
+    sources: [
+      { name: 'Saskatchewan Open Data Portal', format: 'CKAN' },
+      { name: 'Manitoba Open Data Portal', format: 'CKAN' },
+      { name: 'Nova Scotia Open Data Portal', format: 'CKAN' },
+      { name: 'New Brunswick Open Data Portal', format: 'CKAN' },
+      { name: 'Newfoundland and Labrador Open Data Portal', format: 'CKAN' },
+      { name: 'Prince Edward Island Open Data Portal', format: 'CKAN' },
+      { name: 'Yukon Open Data Portal', format: 'CKAN' },
+      { name: 'Northwest Territories Open Data Portal', format: 'CKAN' },
+      { name: 'Nunavut Open Data Portal', format: 'CKAN' }
+    ],
     updateFrequency: 'monthly',
   },
   {
