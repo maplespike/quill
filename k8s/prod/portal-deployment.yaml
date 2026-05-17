@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: maplespike-portal
-  namespace: maplespike
+  namespace: maplespike-prod
   labels:
     app: maplespike-portal
     component: portal
@@ -35,7 +35,7 @@ spec:
                 - ALL
             seccompProfile:
               type: RuntimeDefault
-          image: ghcr.io/reverb256/maplespike-portal:latest
+          image: ghcr.io/reverb256/maplespike-portal:stable
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

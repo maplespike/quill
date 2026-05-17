@@ -4,7 +4,7 @@
 # Image configuration
 image:
   registry: ghcr.io/reverb256
-  tag: latest
+  tag: stable
   pullPolicy: Always
 
 # API Server
