@@ -1,6 +1,8 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import * as api from './api-client.js';
 
+const KNOWN_JURISDICTIONS = ['federal', 'ontario', 'british-columbia', 'alberta', 'quebec', 'all'];
+
 /**
  * Query government data via the MapleSpike API server.
  * All data sources (pipeline, CKAN, StatCan) are queried through
@@ -74,7 +76,10 @@ export const handler: ToolHandler = async (args) => {
         tool: 'query_gov_data',
         query,
         jurisdiction: args.jurisdiction || 'all',
+        results: [],
+        totalCount: 0,
         error: (error as Error).message,
+        knownJurisdictions: KNOWN_JURISDICTIONS,
         note: 'Falling back to direct CKAN query. The API server may be unavailable.',
       },
       isError: true,
