@@ -503,3 +503,41 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 4. Don't try to "build" the portal — it's static, not a framework app
 5. Don't guess test commands — check the package.json (most use `node --test`, engine uses `vitest`)
 6. Don't assume a monorepo root dev server — each package has its own `dev` script
+### PERMANENT RULE: BUILD IT OUT, DO NOT DELETE
+
+**When you encounter:**
+- Empty placeholder directories (e.g., `defence-veterans/`)
+- Unimplemented module stubs
+- TODO/FIXME markers
+- Incomplete features
+
+**ALWAYS:**
+1. Build out the full implementation
+2. Add complete test coverage
+3. Document thoroughly
+4. Never delete placeholders - they represent planned work
+
+**NEVER:**
+- Delete empty directories
+- Remove stub files
+- Strip TODOs without implementing
+- Simplify scope to "demo" or "skeleton"
+
+Deletion is failure. Build it out.
+### PERMANENT RULE: ALWAYS TEST BEFORE SUBMITTING PR
+
+**Before creating any pull request:**
+1. Run `pnpm test` at root level
+2. Verify ALL test suites pass (pipeline-core, sdk, engine, api-server)
+3. Check MCP server tests - note if failures are expected (smoke tests needing API server)
+4. Run `pnpm build` to ensure no TypeScript errors
+5. Verify no linting errors or warnings
+6. Document any known test failures in the PR description
+
+**NEVER:**
+- Submit PR without running tests
+- Ignore test failures assuming "they will pass in CI"
+- Create PR with known broken functionality
+- Skip tests because "the change is small"
+
+Testing is not optional. It is the gate between your work and production.
