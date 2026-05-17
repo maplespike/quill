@@ -1,9 +1,9 @@
 # =============================================================================
-# MapleSpike — Deploy Staging
-# Triggers on push to main, builds images and deploys to maplespike-staging
-# After deploy, auto-merges main to prod
+# MapleSpike — Deploy Dev
+# Triggers on push to main, builds images and deploys to maplespike-dev
+# Dev is the chaotic "break anything" space — not a canary
 # =============================================================================
-name: Deploy Staging
+name: Deploy Dev
 
 on:
   push:
@@ -11,10 +11,10 @@ on:
     paths:
       - 'packages/**'
       - 'Dockerfile.*'
-      - '.github/workflows/deploy-staging.yml'
+      - '.github/workflows/deploy-dev.yml'
 
 concurrency:
-  group: deploy-staging-${{ github.ref }}
+  group: deploy-dev-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -25,7 +25,7 @@ env:
   REGISTRY: ghcr.io
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASS: ${{ secrets.GITHUB_TOKEN }}
-  NAMESPACE: maplespike-staging
+  NAMESPACE: maplespike-dev
 
 jobs:
   test:
@@ -77,41 +77,41 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build & push API (staging)
+      - name: Build & push API (dev)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.api
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-api:staging
+            ghcr.io/reverb256/maplespike-api:dev
             ghcr.io/reverb256/maplespike-api:${{ github.sha }}
-          cache-from: type=gha,scope=api-staging
-          cache-to: type=gha,mode=max,scope=api-staging
+          cache-from: type=gha,scope=api-dev
+          cache-to: type=gha,mode=max,scope=api-dev
 
-      - name: Build & push MCP (staging)
+      - name: Build & push MCP (dev)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.mcp
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-mcp:staging
+            ghcr.io/reverb256/maplespike-mcp:dev
             ghcr.io/reverb256/maplespike-mcp:${{ github.sha }}
-          cache-from: type=gha,scope=mcp-staging
-          cache-to: type=gha,mode=max,scope=mcp-staging
+          cache-from: type=gha,scope=mcp-dev
+          cache-to: type=gha,mode=max,scope=mcp-dev
 
-      - name: Build & push Portal (staging)
+      - name: Build & push Portal (dev)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.portal
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-portal:staging
+            ghcr.io/reverb256/maplespike-portal:dev
             ghcr.io/reverb256/maplespike-portal:${{ github.sha }}
-          cache-from: type=gha,scope=portal-staging
-          cache-to: type=gha,mode=max,scope=portal-staging
+          cache-from: type=gha,scope=portal-dev
+          cache-to: type=gha,mode=max,scope=portal-dev
 
   deploy:
     name: Deploy to K8s
@@ -126,7 +126,7 @@ jobs:
           cd /etc/nixos
           kubectl apply -f <(nix eval .#kubernetes.objects --json | jq -r '.[] | @yaml') || true
 
-      - name: Rollout staging deployments
+      - name: Rollout dev deployments
         run: |
           kubectl rollout restart deployment -n $NAMESPACE maplespike-api
           kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp
