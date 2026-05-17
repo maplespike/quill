@@ -14,8 +14,7 @@
     "declaration": true,
     "declarationMap": false,
     "sourceMap": true,
-    "types": ["node"],
-    "composite": true
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
