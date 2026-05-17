@@ -5,7 +5,7 @@ status: active
 
 # AGENTS.md — MapleSpike
 
-> **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.  
+> **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
 > **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 22 MCP tools, ~113K lines TS, 11 packages.
 
 Quick reference for AI agents working in this repo. Don't guess—check here first.
@@ -47,6 +47,34 @@ Every change must be tracked through a GitHub issue. No issue = no code.
 3. **Branch**: `git checkout -b issue-NNN-short-description`
 4. **Commit**: Every message includes `(#NNN)` — e.g., `feat: add IRCC immigration module (#42)`
 5. **PR**: Body MUST contain `Closes #NNN` or `Related to #NNN`
+
+### CRITICAL: NEVER Touch Prod Branch Directly (PERMANENT RULE)
+
+**🚫 FORBIDDEN ACTIONS (will cause deployment failures):**
+- `git checkout prod` — NEVER switch to prod branch
+- `git merge main` on prod branch — NEVER merge manually
+- `git push origin prod` — NEVER push to prod directly
+- `kubectl apply -f k8s/prod/` — NEVER apply prod manifests manually (use CI/CD only)
+- Direct edits to `k8s/prod/*.yaml` — MUST go through main branch + CI/CD
+
+**✅ REQUIRED WORKFLOW:**
+1. All changes start on `main` branch
+2. Push to `main` → triggers CI tests
+3. CI passes → auto-deploys to `maplespike-dev` namespace
+4. Auto-merge `main` → `prod` branch (via GitHub Actions)
+5. Prod deployment happens automatically via `deploy-prod.yml`
+
+**Why this rule exists:**
+- Prod namespace requires GHCR image pull secret (created by CI/CD workflow)
+- Manual changes bypass the image pull secret creation
+- Direct prod edits break the deployment pipeline
+- Only CI/CD has access to GHCR credentials (secrets.GITHUB_TOKEN)
+
+**If prod deployment fails:**
+1. Check CI/CD workflow status: `gh run list --repo reverb256/maplespike --event push --branch prod`
+2. Fix the workflow or manifests on `main` branch
+3. Push to `main` → let CI/CD handle prod deployment
+4. NEVER bypass the workflow
 
 **Labels:** `bug`, `enhancement`, `p1`, `p2`, `k8s`, `frontend`, `module`, `security`, `documentation`, `cleanup`
 

@@ -1,0 +1,22 @@
+#!/bin/bash
+# Pre-commit hook to prevent direct prod branch changes
+# This hook blocks commits that appear to be on the prod branch
+
+# Get current branch name
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# If on prod branch, block the commit
+if [ "$CURRENT_BRANCH" = "prod" ]; then
+    echo "ERROR: Direct commits to prod branch are forbidden!"
+    echo ""
+    echo "All changes must go through the main branch and CI/CD pipeline:"
+    echo "  1. Make your changes on main branch"
+    echo "  2. Push to main → CI/CD deploys to dev"
+    echo "  3. Auto-merge to prod → CI/CD deploys to prod"
+    echo ""
+    echo "See AGENTS.md for the complete workflow."
+    exit 1
+fi
+
+# Allow the commit
+exit 0
