@@ -17,6 +17,6 @@
     "types": ["node"],
     "composite": true
   },
-  "include": ["src/agents.ts", "src/auth.ts", "src/index.ts", "src/query.ts", "src/schemas.ts", "src/types.ts"],
-  "exclude": ["node_modules", "dist", "__tests__"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
