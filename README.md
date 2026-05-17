@@ -167,7 +167,7 @@ GitHub Actions drives the two-environment deployment model:
 |--------|----------|--------|
 | `main` | CI (ci.yml) | Run tests on every push |
 | `main` | Deploy Dev (deploy-dev.yml) | Build + deploy to `maplespike-dev` namespace |
-| `prod` | Deploy (deploy.yml) | Build + deploy to `maplespike` namespace |
+| `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `maplespike-prod` namespace |
 
 Container images are tagged `:dev` for dev builds and `:latest` for production. Each workflow builds, pushes to the registry, and applies the corresponding `k8s/dev/` or `k8s/prod/` Kubernetes manifests.
 
