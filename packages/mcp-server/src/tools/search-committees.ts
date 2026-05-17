@@ -64,10 +64,27 @@ export const handler: ToolHandler = async (args) => {
   if (chamber === 'house' || chamber === 'all') sourceKeys.push('hoc');
   if (chamber === 'senate' || chamber === 'all') sourceKeys.push('senate');
 
-  // Live search via API server
-  const result = await searchGovData(query, 'all', limit);
-  let results = result.results;
-  let total = result.total;
+  let results: Record<string, unknown>[] = [];
+  let total = 0;
+  try {
+    const result = await searchGovData(query, 'all', limit);
+    results = result.results;
+    total = result.total;
+  } catch {
+    return {
+      content: {
+        tool: 'search_committees',
+        query,
+        chamber,
+        committee: committeeCode || undefined,
+        limit,
+        results: [],
+        totalCount: 0,
+        error: 'Search temporarily unavailable. The API server may be unreachable.',
+      },
+      isError: true,
+    };
+  }
 
   // Apply committee filter post-search
   let filteredResults = results;
