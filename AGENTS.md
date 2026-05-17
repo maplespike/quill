@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-16
 status: active
 ---
 
@@ -33,6 +33,20 @@ See [docs/metrics.json](./docs/metrics.json) for current counts.
 2. **Validate** — Cross-reference ≥2 sources. Every factual output requires a full citation object (source_name, source_url, retrieved_at, data_hash, license).
 3. **Log** — Every query is auditable. Design for AIDA export.
 4. **Propose** — When you spot a coverage gap, output the exact module proposal: source URLs, update frequency, MCP tool spec, ingestion approach.
+5. **GitHub Issue** — Before writing code, ensure a GitHub issue exists. Every commit references `(#NNN)`.
+
+### GitHub Issues Workflow (MANDATORY)
+
+Every change must be tracked through a GitHub issue. No issue = no code.
+
+**Protocol:**
+1. **Check** existing issues: `gh issue list -R reverb256/maplespike --limit 10`
+2. **Create** if none exists: `gh issue create -R reverb256/maplespike --title "..." --label "p2,frontend" --body "..." --assignee "@me"`
+3. **Branch**: `git checkout -b issue-NNN-short-description`
+4. **Commit**: Every message includes `(#NNN)` — e.g., `feat: add IRCC immigration module (#42)`
+5. **PR**: Body MUST contain `Closes #NNN` or `Related to #NNN`
+
+**Labels:** `bug`, `enhancement`, `p1`, `p2`, `k8s`, `frontend`, `module`, `security`, `documentation`, `cleanup`
 
 ### Tier 1 Critical Gaps (Highest Priority — No Current Coverage)
 These have excellent machine-readable open data (CKAN, CSV, quarterly/monthly) under Open Government Licence – Canada.

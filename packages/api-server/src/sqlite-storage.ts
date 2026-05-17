@@ -120,6 +120,7 @@ export class SqliteStorage implements MapleSpikeStorage {
       VALUES (?, ?, ?, ?)
     `);
         insertTenant.run('ms-internal', 'MapleSpike', 'internal', 1);
+        insertTenant.run('fg-internal', 'MapleSpike', 'internal', 1);
         // Anonymous/unauth tenant for health checks
         insertTenant.run('anon', 'Anonymous', 'free', 0);
 

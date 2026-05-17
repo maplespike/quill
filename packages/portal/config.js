@@ -12,7 +12,7 @@
 window.MAPLESPIKE = window.MAPLESPIKE || {};
 
 // ── API ─────────────────────────────────────────────────────────
-MAPLESPIKE.apiBase   = 'http://127.0.0.1:8085';   // Dev default — overridden in prod
+MAPLESPIKE.apiBase   = 'http://127.0.0.1:8082';   // Dev default — overridden in prod
 MAPLESPIKE.apiKey    = 'maplespike-dev-key';       // Dev default — overridden in prod
 
 // ── Timeouts (milliseconds) ─────────────────────────────────────
