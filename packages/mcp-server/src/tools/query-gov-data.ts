@@ -56,15 +56,33 @@ export const handler: ToolHandler = async (args) => {
   }
 
   const limit = Math.min((args.limit as number) ?? 10, 50);
+  const jurisdiction = (args.jurisdiction as string) || 'all';
+
+  // Validate jurisdiction against known values
+  if (!KNOWN_JURISDICTIONS.includes(jurisdiction)) {
+    return {
+      content: {
+        tool: 'query_gov_data',
+        query,
+        jurisdiction,
+        limit,
+        results: [],
+        totalCount: 0,
+        error: `Unknown jurisdiction "${jurisdiction}". Valid jurisdictions: ${KNOWN_JURISDICTIONS.join(', ')}`,
+        knownJurisdictions: KNOWN_JURISDICTIONS,
+      },
+      isError: true,
+    };
+  }
 
   try {
-    const data = await api.searchGovData(query, args.jurisdiction as string, limit);
+    const data = await api.searchGovData(query, jurisdiction, limit);
 
     return {
       content: {
         tool: 'query_gov_data',
         query,
-        jurisdiction: args.jurisdiction || 'all',
+        jurisdiction,
         limit,
         results: data.results,
         totalCount: data.total,
@@ -75,7 +93,8 @@ export const handler: ToolHandler = async (args) => {
       content: {
         tool: 'query_gov_data',
         query,
-        jurisdiction: args.jurisdiction || 'all',
+        jurisdiction,
+        limit,
         results: [],
         totalCount: 0,
         error: (error as Error).message,
