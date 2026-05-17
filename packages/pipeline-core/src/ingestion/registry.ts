@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 /**
  * Ingestion Module Registry
  *
@@ -61,7 +62,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'provincial-ckan',
-    description: 'Provincial CKAN portal fetchers for BC, Alberta, Ontario, Quebec',
+    description: 'Provincial CKAN portal fetchers for all 13 Canadian provinces and territories',
     category: 'provincial',
     modulePath: './provincial-ckan.js',
     ingestFunctions: ['fetchProvincialCkan', 'fetchAllProvincialCkan'],
@@ -70,6 +71,15 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'catalogue.data.gov.bc.ca', format: 'CKAN' },
       { name: 'open.alberta.ca', format: 'CKAN' },
       { name: 'donneesquebec.ca', format: 'CKAN' },
+      { name: 'data.saskatchewan.ca', format: 'CKAN' },
+      { name: 'data.gov.mb.ca', format: 'CKAN' },
+      { name: 'data.novascotia.ca', format: 'CKAN' },
+      { name: 'data.gnb.ca', format: 'CKAN' },
+      { name: 'data.gov.nl.ca', format: 'CKAN' },
+      { name: 'data.princeedwardisland.ca', format: 'CKAN' },
+      { name: 'www.gov.nt.ca/data', format: 'CKAN' },
+      { name: 'data.gov.nu.ca', format: 'CKAN' },
+      { name: 'data.yukon.ca', format: 'CKAN' },
     ],
     updateFrequency: 'daily',
   },

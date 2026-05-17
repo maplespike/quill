@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-16
+last-reviewed: 2026-05-17
 status: active
 ---
 
@@ -170,25 +170,25 @@ Every new data module requires:
 - **Node:** ≥18 (CI uses 22)
 - **Packages:** 11 (`packages/*`)
 - **Stack:** TypeScript, SQLite (better-sqlite3), Drizzle ORM, Node.js
-- **License:** AGPL-3.0 (pipeline-core) / MIT (others)
+- **License:** Three-tier — AGPL-3.0 (core) / Apache-2.0 (interface) / MIT (client). See [LICENSE.md](./LICENSE.md) for full details.
 
 ---
 
 ## Package Structure
 
-| Package | Purpose | Entry point |
-|---------|---------|-------------|
-| `pipeline-core` | Ingestion, verification, audit | `dist/index.js` |
-| `engine` | Entity resolution, graph, signals, briefs | `src/index.ts` |
-| `api-server` | REST API gateway (38 routes) | `dist/index.js` |
-| `mcp-server` | MCP protocol server (22 tools) | `dist/cli.js` |
-| `sdk` | TypeScript client library | `dist/index.js` |
-| `sdk-python` | Python client library | `maplespike/__init__.py` |
-| `portal` | Static HTML landing page | `.` (no build) |
-| `docs` | VitePress documentation site | `src/index.md` |
-| `pretext-civic` | React chart components (orphaned) | `src/index.ts` |
-| `legal-core` | Legal data SDK | `src/index.ts` |
-| `legislation` | Legislation XML parser | `src/index.ts` |
+| Package | Purpose | Entry point | License |
+|---------|---------|-------------|---------|
+| `pipeline-core` | Ingestion, verification, audit | `dist/index.js` | AGPL-3.0 |
+| `engine` | Entity resolution, graph, signals, briefs | `src/index.ts` | AGPL-3.0 |
+| `api-server` | REST API gateway (38 routes) | `dist/index.js` | Apache-2.0 |
+| `mcp-server` | MCP protocol server (22 tools) | `dist/cli.js` | Apache-2.0 |
+| `sdk` | TypeScript client library | `dist/index.js` | MIT |
+| `sdk-python` | Python client library | `maplespike/__init__.py` | MIT |
+| `portal` | Static HTML landing page | `.` (no build) | Apache-2.0 |
+| `docs` | VitePress documentation site | `src/index.md` | Apache-2.0 |
+| `pretext-civic` | React chart components (orphaned) | `src/index.ts` | MIT |
+| `legal-core` | Legal data SDK | `src/index.ts` | MIT |
+| `legislation` | Legislation XML parser | `src/index.ts` | MIT |
 
 ---
 
@@ -486,8 +486,9 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 ## Key Files
 
 - `ROADMAP.md` — Full phased build plan (792 lines, 7 phases)
+- `LICENSE.md` — Three-tier licensing strategy (AGPL core / Apache-2.0 interface / MIT client)
+- `CONTRIBUTING.md` — Contributor guide, CLA requirements, license compliance
 - `README.md` — High-level overview
-- `CONTRIBUTING.md` — Contributor guide
 - `turbo.json` — Build orchestration config
 - `pnpm-workspace.yaml` — Workspace definition
 - `.env.example` — Environment variables reference
