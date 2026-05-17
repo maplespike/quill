@@ -16,7 +16,7 @@ To get your first API key:
 
 1. **Register via the API** (if you have access to the register endpoint):
    ```bash
-   curl -X POST http://maplespike.lan/v1/register \
+   curl -X POST https://api.maplespike.ca/v1/register \
      -H "Content-Type: application/json" \
      -d '{"name": "My Account", "email": "user@example.com"}'
    ```
@@ -65,7 +65,7 @@ All API responses follow a standard envelope:
 ### Check Health
 
 ```bash
-curl http://maplespike.lan/v1/health
+curl https://api.maplespike.ca/v1/health
 ```
 
 Response:
@@ -86,13 +86,13 @@ Response:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/search?q=housing+starts&jurisdiction=federal&limit=5"
+  "https://api.maplespike.ca/v1/gov/search?q=housing+starts&jurisdiction=federal&limit=5"
 ```
 
 ### Ask a Question (AI)
 
 ```bash
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST https://api.maplespike.ca/v1/ai_ask \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "What did the Ethics Commissioner investigate in 2024?"}'
@@ -106,7 +106,7 @@ Configure your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-mcp.ai-inference.svc.lan:3001/sse"
+      "url": "http://maplespike-mcp.lan:3001/sse"  <!-- internal for local dev; use public MCP endpoint when available -->
     }
   }
 }

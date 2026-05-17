@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-17
 status: active
 ---
 
@@ -25,13 +25,13 @@ Every record includes SHA-256 citation hashes for independent verification.
 
 The MapleSpike MCP server exposes **22 tools** for AI agents. All return real data from live databases.
 
-**Configure Claude Desktop:**
+**Configure Claude Desktop (public when available):**
 
 ```json
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-mcp.ai-inference.svc.lan:3001/sse"
+      "url": "https://mcp.maplespike.ca/sse"  <!-- Replace with actual public endpoint -->
     }
   }
 }
@@ -66,13 +66,15 @@ The MapleSpike MCP server exposes **22 tools** for AI agents. All return real da
 
 ### 2. REST API
 
-If the api-server is deployed on the cluster, make direct HTTP calls:
+**Public endpoint (when deployed):**
 
 ```bash
 # Search government data releases
 curl -H "Authorization: Bearer <your-key>" \
-  "http://maplespike-api.ai-inference.svc.lan/v1/gov/releases?jurisdiction=federal&category=spending&limit=10"
+  "https://api.maplespike.ca/v1/gov/releases?jurisdiction=federal&category=spending&limit=10"
 ```
+
+**Note**: For local/self-hosted clusters, use your internal `.lan` or NodePort URL.
 
 ### 3. CLI (Local Development)
 
@@ -131,7 +133,7 @@ Every record includes a SHA-256 content hash. Verify data integrity from any ter
 ```bash
 # Get citation details
 curl -H "Authorization: Bearer <your-key>" \
-  "http://maplespike-api.ai-inference.svc.lan/v1/citation/cit-001"
+  "https://api.maplespike.ca/v1/citation/cit-001"
 ```
 
 ---
