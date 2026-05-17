@@ -64,10 +64,26 @@ export const handler: ToolHandler = async (args) => {
 
   const sourceKeys = datasetSourceMap[dataset] || datasetSourceMap.all;
 
-  // Live search via API server
-  const result = await searchGovData(query, 'all', limit);
-  let results = result.results;
-  let total = result.total;
+  let results: Record<string, unknown>[] = [];
+  let total = 0;
+  try {
+    const result = await searchGovData(query, 'all', limit);
+    results = result.results;
+    total = result.total;
+  } catch {
+    return {
+      content: {
+        tool: 'search_corporate',
+        query,
+        dataset,
+        limit,
+        results: [],
+        totalCount: 0,
+        error: 'Search temporarily unavailable. The API server may be unreachable.',
+      },
+      isError: true,
+    };
+  }
 
   return {
     content: {
