@@ -150,3 +150,205 @@ export function upsertContract(
 
   return id;
 }
+
+/**
+ * Upsert a lobbying filing into the shared `lobbying_filings` table.
+ */
+export function upsertLobbyingFiling(
+  filingNumber: string,
+  registrantName: string,
+  clientName: string,
+  subjectMatter: string,
+  opts?: {
+    registrantFirm?: string;
+    registrantPersonId?: string;
+    clientOrganizationId?: string;
+    communications?: unknown[];
+    startDate?: string;
+    endDate?: string;
+    activities?: string[];
+    institution?: string;
+    province?: string;
+    source: string;
+    rawData?: Record<string, unknown>;
+  },
+): string {
+  const db = getRawDb();
+  const rawSource = opts?.source ?? "manual";
+  const rawData = opts?.rawData ?? {};
+  const id = `lobbying-${Buffer.from(filingNumber).toString("hex").slice(0, 16)}`;
+
+  db.prepare(
+    `INSERT OR IGNORE INTO lobbying_filings (id, filing_number, registrant_name, registrant_firm, registrant_person_id, client_name, client_organization_id, subject_matter, communications, start_date, end_date, activities, institution, province, source, raw_data, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    filingNumber,
+    registrantName,
+    opts?.registrantFirm ?? null,
+    opts?.registrantPersonId ?? null,
+    clientName,
+    opts?.clientOrganizationId ?? null,
+    subjectMatter,
+    JSON.stringify(opts?.communications ?? []),
+    opts?.startDate ?? now().substring(0, 10),
+    opts?.endDate ?? now().substring(0, 10),
+    JSON.stringify(opts?.activities ?? []),
+    opts?.institution ?? null,
+    opts?.province ?? null,
+    rawSource,
+    JSON.stringify(rawData),
+    now(),
+    now(),
+  );
+
+  return id;
+}
+
+/**
+ * Upsert a donation into the shared `donations` table.
+ */
+export function upsertDonation(
+  donorName: string,
+  recipientName: string,
+  recipientType: string,
+  amount: number,
+  date: string,
+  opts?: {
+    donorPersonId?: string;
+    donorOrganizationId?: string;
+    currency?: string;
+    province?: string;
+    riding?: string;
+    isCorporate?: boolean;
+    source: string;
+    rawData?: Record<string, unknown>;
+  },
+): string {
+  const db = getRawDb();
+  const rawSource = opts?.source ?? "manual";
+  const rawData = opts?.rawData ?? {};
+  const id = `donation-${Buffer.from(donorName + recipientName).toString("hex").slice(0, 16)}`;
+
+  db.prepare(
+    `INSERT OR IGNORE INTO donations (id, donor_name, donor_person_id, donor_organization_id, recipient_name, recipient_type, amount, currency, date, province, riding, is_corporate, source, raw_data, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    donorName,
+    opts?.donorPersonId ?? null,
+    opts?.donorOrganizationId ?? null,
+    recipientName,
+    recipientType,
+    amount,
+    opts?.currency ?? "CAD",
+    date,
+    opts?.province ?? null,
+    opts?.riding ?? null,
+    opts?.isCorporate ? 1 : 0,
+    rawSource,
+    JSON.stringify(rawData),
+    now(),
+    now(),
+  );
+
+  return id;
+}
+
+/**
+ * Upsert a disclosure into the shared `disclosures` table.
+ */
+export function upsertDisclosure(
+  personName: string,
+  position: string,
+  department: string,
+  year: number,
+  opts?: {
+    personId?: string;
+    interests?: unknown[];
+    province?: string;
+    filingDate?: string;
+    source: string;
+    rawData?: Record<string, unknown>;
+  },
+): string {
+  const db = getRawDb();
+  const rawSource = opts?.source ?? "manual";
+  const rawData = opts?.rawData ?? {};
+  const id = `disclosure-${Buffer.from(personName + department + year).toString("hex").slice(0, 16)}`;
+
+  db.prepare(
+    `INSERT OR IGNORE INTO disclosures (id, person_name, person_id, position, department, year, interests, province, filing_date, source, raw_data, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    personName,
+    opts?.personId ?? null,
+    position,
+    department,
+    year,
+    JSON.stringify(opts?.interests ?? []),
+    opts?.province ?? null,
+    opts?.filingDate ?? now().substring(0, 10),
+    rawSource,
+    JSON.stringify(rawData),
+    now(),
+    now(),
+  );
+
+  return id;
+}
+
+/**
+ * Upsert a GAC project into the shared `gac_projects` table.
+ */
+export function upsertGacProject(
+  projectId: string,
+  title: string,
+  description: string,
+  department: string,
+  country: string,
+  region: string,
+  budget: number,
+  opts?: {
+    currency?: string;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    implementingPartners?: unknown[];
+    sector?: string;
+    source: string;
+    rawData?: Record<string, unknown>;
+  },
+): string {
+  const db = getRawDb();
+  const rawSource = opts?.source ?? "manual";
+  const rawData = opts?.rawData ?? {};
+  const id = `gac-${Buffer.from(projectId).toString("hex").slice(0, 16)}`;
+
+  db.prepare(
+    `INSERT OR IGNORE INTO gac_projects (id, project_id, title, description, department, country, region, budget, currency, start_date, end_date, status, implementing_partners, sector, source, raw_data, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    id,
+    projectId,
+    title,
+    description,
+    department,
+    country,
+    region,
+    budget,
+    opts?.currency ?? "CAD",
+    opts?.startDate ?? now().substring(0, 10),
+    opts?.endDate ?? null,
+    opts?.status ?? "active",
+    JSON.stringify(opts?.implementingPartners ?? []),
+    opts?.sector ?? null,
+    rawSource,
+    JSON.stringify(rawData),
+    now(),
+    now(),
+  );
+
+  return id;
+}
