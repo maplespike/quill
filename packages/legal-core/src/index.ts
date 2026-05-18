@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * MapleSpike Legal Core — Canadian case law, legislation & tribunal data
  *
