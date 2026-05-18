@@ -337,7 +337,7 @@ async function fetchGitHubEmails(accessToken: string): Promise<any[]> {
   return response.json() as Promise<any[]>;
 }
 
-function serializeCookie(name: string, value: string, maxAgeSeconds: number): string {
+export function serializeCookie(name: string, value: string, maxAgeSeconds: number): string {
   const parts = [
     `${name}=${encodeURIComponent(value)}`,
     'Path=/',
@@ -352,7 +352,9 @@ function serializeCookie(name: string, value: string, maxAgeSeconds: number): st
     parts.push('Expires=Thu, 01 Jan 1970 00:00:00 GMT');
   }
 
-  if (process.env.NODE_ENV === 'production') {
+  // Set Secure in production (HTTPS). Local dev over HTTP can't use Secure cookies.
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.ENVIRONMENT === 'production';
+  if (isProduction) {
     parts.push('Secure');
   }
 
