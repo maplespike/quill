@@ -63,7 +63,7 @@ function base64UrlDecode(str: string): Buffer {
 /* ------------------------------------------------------------------ */
 
 function sign(input: string, secret?: string): string {
-  const key = secret || DEFAULT_SECRET;
+  const key = secret || DEFAULT_SECRET || '';
   return base64UrlEncode(
     crypto.createHmac('sha256', key).update(input).digest(),
   );
