@@ -207,6 +207,59 @@ Register new modules in `packages/pipeline-core/src/ingestion/registry.ts`. The 
 
 ---
 
+## Multi-Host Worktree Workflow (zephyr / nexus / sentry / forge)
+
+Cluster has 4 machines sharing the same repo via a bare repo hub:
+
+| Machine | Clone path | Bare remote URL |
+|---------|-----------|-----------------|
+| **zephyr** (current) | `/data/projects/own/maplespike` | `file:///srv/git/maplespike.git` |
+| **nexus** | `/data/projects/own/maplespike` | `ssh://zephyr/srv/git/maplespike.git` |
+| **sentry** | `/data/projects/own/maplespike` | `ssh://zephyr/srv/git/maplespike.git` |
+| **forge** | `/data/projects/own/maplespike` | `ssh://zephyr/srv/git/maplespike.git` |
+
+**Remotes on every clone:** `bare` (sync hub), `origin` (GitHub), `gitea` (Gitea).
+
+**Workflow:**
+
+1. **Create a worktree** for a branch:
+   ```bash
+   git worktree add -B feat/my-thing ../maplespike-feat bare/main
+   ```
+
+2. **Work, commit, push:**
+   ```bash
+   cd ../maplespike-feat
+   # edit, git add, git commit
+   git push bare HEAD
+   ```
+   Bare repo's post-receive hook auto-mirrors to GitHub + Gitea.
+
+3. **Sync another machine** to the same branch:
+   ```bash
+   git fetch bare
+   git worktree add -B feat/my-thing ../maplespike-feat bare/feat/my-thing
+   ```
+
+4. **Update existing worktree** with latest main:
+   ```bash
+   git fetch bare main
+   git merge bare/main
+   ```
+
+5. **Clean up** when done:
+   ```bash
+   git worktree remove ../maplespike-feat
+   git branch -d feat/my-thing
+   ```
+
+**SSH keys:** All 4 machines share the same `id_ed25519` + SSH certificate. Copy from zephyr if a new node needs access:
+```bash
+scp ~/.ssh/id_ed25519* $host:~/.ssh/
+```
+
+---
+
 ## Quick Start (Full Setup)
 
 ```bash
