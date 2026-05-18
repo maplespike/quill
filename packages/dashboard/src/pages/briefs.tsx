@@ -17,7 +17,7 @@ export default function BriefsPage() {
   }, [])
 
   if (loading) return <div className="page"><div className="shimmer" style={{ height: 400 }} /></div>
-  
+
   const brief = selected || briefs[0]
 
   return (
