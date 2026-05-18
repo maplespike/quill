@@ -5,8 +5,8 @@
 set -euo pipefail
 
 REPO_ROOT="/data/projects/own/maplespike"
-STATE_FILE="/tmp/maplespike-worktrees/state.json"
-WORKTREE_PREFIX="/data/projects/own/maplespike/worktrees"
+STATE_FILE="$REPO_ROOT/.sisyphus/state.json"
+WORKTREE_PREFIX="$REPO_ROOT/worktrees"
 DISPATCH_FILE="/data/agents/state/tasks.json"
 REMOTE="origin"
 MAX_CONCURRENT=3
@@ -59,7 +59,7 @@ dispatch_issue() {
   local num="$1" title="$2"
   local slug=$(slugify "$title")
   local branch="issue-$num-$slug"
-  local worktree_path="${WORKTREE_PREFIX}-${num}"
+  local worktree_path="${WORKTREE_PREFIX}/${num}"
 
   # Create worktree if it doesn't exist
   if [ ! -d "$worktree_path" ]; then
@@ -310,7 +310,7 @@ cmd_proof() {
   echo "=== Proof of Work: #$num ($branch) ==="
 
   # Check 1: Worktree exists and branch matches
-  if [ -d "$path/.git" ]; then
+  if [ -f "$path/.git" ] || [ -d "$path/.git" ]; then
     local current_branch=$(cd "$path" && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached")
     if [ "$current_branch" = "$branch" ] || [ "$current_branch" = "detached" ]; then
       echo "  [✅] Worktree: $path ($current_branch)"
