@@ -303,9 +303,9 @@ Have proactive disclosure contracts + federal budget module. Missing:
 
 ---
 
-## 11. PROVINCIAL GOVERNMENTS — ~30% of provinces covered (🔴 HIGH)
+## 11. PROVINCIAL GOVERNMENTS — ~50% of provinces covered (🟡 MEDIUM)
 
-We have ON/BC/AB/QC lobbying + legislatures. **7 provinces + 3 territories = 0% coverage.**
+We have ON/BC/AB/QC/SK/MB/NS/NB/NL/PE/YT lobbying + legislatures. **All 13 provinces/territories have lobbying registry coverage (NT/NU have no registry — stubbed).**
 
 ### Per-province needs (ALL 13)
 
@@ -314,14 +314,14 @@ We have ON/BC/AB/QC lobbying + legislatures. **7 provinces + 3 territories = 0% 
 | Ontario | ✅ | ⬜ | ✅ | ⬜ | OEB, OSC | data.ontario.ca ✅ |
 | British Columbia | ✅ | ⬜ | ✅ | ⬜ | BCUC, BCSC | catalog.data.gov.bc.ca ✅ |
 | Alberta | ✅ | ⬜ | ✅ | ⬜ | AUC, ASC | open.alberta.ca ✅ |
-| Saskatchewan | ⬜ | ⬜ | ⬜ | ⬜ | SaskEnergy | catalogue.saskatchewan.ca ⬜ |
-| Manitoba | ⬜ | ⬜ | ⬜ | ⬜ | PUB | data.gov.mb.ca ⬜ |
+| Saskatchewan | ⬜ | ⬜ | ✅ | ⬜ | SaskEnergy | catalogue.saskatchewan.ca ⬜ |
+| Manitoba | ⬜ | ⬜ | ✅ | ⬜ | PUB | data.gov.mb.ca ⬜ |
 | Quebec | ⬜ | ⬜ | ✅ | ⬜ | Régie, AMF | donneesquebec.ca ✅ |
-| New Brunswick | ⬜ | ⬜ | ⬜ | ⬜ | | data.gnb.ca ⬜ |
-| Nova Scotia | ⬜ | ⬜ | ⬜ | ⬜ | UARB | data.novascotia.ca ⬜ |
-| PEI | ⬜ | ⬜ | ⬜ | ⬜ | | opendata.gov.pe.ca ⬜ |
-| Newfoundland & Labrador | ⬜ | ⬜ | ⬜ | ⬜ | | opendata.gov.nl.ca ⬜ |
-| Yukon | ⬜ | ⬜ | ⬜ | ⬜ | | data.yukon.ca ⬜ |
+| New Brunswick | ⬜ | ⬜ | ✅ | ⬜ | | data.gnb.ca ⬜ |
+| Nova Scotia | ⬜ | ⬜ | ✅ | ⬜ | UARB | data.novascotia.ca ⬜ |
+| PEI | ⬜ | ⬜ | ✅ | ⬜ | | opendata.gov.pe.ca ⬜ |
+| Newfoundland & Labrador | ⬜ | ⬜ | ✅ | ⬜ | | opendata.gov.nl.ca ⬜ |
+| Yukon | ⬜ | ⬜ | ✅ | ⬜ | | data.yukon.ca ⬜ |
 | Northwest Territories | ⬜ | ⬜ | ⬜ | ⬜ | | opendata.gov.nt.ca ⬜ |
 | Nunavut | ⬜ | ⬜ | ⬜ | ⬜ | | none |
 
@@ -333,7 +333,7 @@ Each province/territory (total 13) requires these sub-modules:
 - Budget (annual budget documents, fiscal updates)
 - Auditor General (performance audits, value-for-money)
 - Campaign finance (donor disclosure, by party)
-- Lobbying registry (ON/BC/AB/QC done, rest need)
+- Lobbying registry (ON/BC/AB/QC/SK/MB/NS/NB/NL/PE/YT done; NT/NU no registry exists)
 - Ethics commissioner (investigations, rulings)
 - Health authority (health data, wait times)
 - Education (ministry data, school boards, assessments)

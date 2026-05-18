@@ -115,7 +115,7 @@ pnpm start
 | Canada Gazette | RSS + detail fetch | Parts I (proposed), II (enacted), III (acts) regulations |
 | GIC Appointments | CKAN + Infobase API | Governor-in-Council appointments, order-in-council |
 | CanadaBuys / procurement | RSS + CKAN | Tender notices, contract awards, proactive disclosure |
-| Provincial Lobbying | CKAN + registry search | Ontario (BC, QC registries not yet built) |
+| Provincial Lobbying | CKAN + registry search | All 13 provinces/territories |
 | Elections Canada | CKAN + HTML parse | Third-party advertiser registry, spending reports |
 | CRA Charities | HTML search | Registered charity financials, directors, programs |
 | Executive statements | RSS (GlobeNewswire + IR feeds) | 17 tracked executives across banking, telecom, media |
