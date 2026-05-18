@@ -27,7 +27,7 @@ import {
   upsertGovernmentFunding,
   searchCommitteeMentions,
 } from './db.js';
-import { upsertOrganization } from '../../shared-db.js';
+import { upsertOrganization, upsertGacProject } from '../../shared-db.js';
 import type {
   InfluenceIngestionResult,
   InfluenceActor,
@@ -279,6 +279,33 @@ export async function detectFundingFlows(
               result.errors.push(`Failed to upsert funding record for ${actor.name}`);
             }
           }
+
+          // Also upsert to shared gac_projects table
+          try {
+            upsertGacProject(
+              fundingRecord.id,
+              fundingRecord.programName,
+              `${fundingRecord.agreementType} to ${fundingRecord.recipientName}`,
+              fundingRecord.department,
+              "Canada",
+              fundingRecord.departmentAcronym ?? "CA",
+              fundingRecord.amount,
+              {
+                currency: fundingRecord.currency,
+                startDate: fundingRecord.startDate ?? undefined,
+                endDate: fundingRecord.endDate ?? undefined,
+                status: "active",
+                sector: fundingRecord.recipientType ?? undefined,
+                source: "influence",
+                rawData: {
+                  recipientName: fundingRecord.recipientName,
+                  fiscalYear: fundingRecord.fiscalYear,
+                  agreementType: fundingRecord.agreementType,
+                  actorName: actor.name,
+                },
+              },
+            );
+          } catch { /* non-fatal */ }
 
           allFundingRecords.push(fundingRecord);
         }
