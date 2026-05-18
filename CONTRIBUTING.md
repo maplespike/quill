@@ -119,6 +119,7 @@ Every new data module follows this pattern:
 - **No `as any`**, no `@ts-ignore`, no `@ts-expect-error` — type errors must be fixed properly
 - **pnpm** only — never commit `package-lock.json` or `yarn.lock`
 - **SPDX headers:** Key entry-point files include `// SPDX-License-Identifier: <license>` — match the package tier
+- **Prefer long-term solutions:** When fixing issues, address root causes and implement maintainable solutions. Avoid hardcoding environment-specific values; use configuration files or environment variables. Quick fixes are acceptable only as temporary measures with a clear plan for proper resolution.
 
 ### 6. Commit Conventions
 
