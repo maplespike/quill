@@ -13,6 +13,7 @@
     13|
     14|  <link rel="stylesheet" href="styles.css">
     15|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <script src="/sanitize.js"></script>
     16|  <style>
     17|    /* ═══ ASK page styles ═══ */
     18|    .ask-page { padding-top: calc(64px + 22px + 24px); min-height: 100vh; display: flex; flex-direction: column; }
@@ -285,31 +286,31 @@
    282|
    283|    const textDiv = document.createElement('div');
    284|    textDiv.className = 'msg-text';
-   285|    textDiv.innerHTML = text;
-   286|    bubble.appendChild(textDiv);
-   287|
-   288|    if (citations && citations.length > 0) {
-   289|      const details = document.createElement('details');
-   290|      details.className = 'msg-citations';
-   291|      const summary = document.createElement('summary');
-   292|      summary.textContent = citations.length + ' citation' + (citations.length > 1 ? 's' : '');
-   293|      details.appendChild(summary);
-   294|
-   295|      citations.forEach(c => {
-   296|        const item = document.createElement('div');
-   297|        item.className = 'cite-item';
-   298|        item.innerHTML = `
-   299|          <span class="cite-source">${c.source}</span>
-   300|          <span style="font-size:0.72rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.title}</span>
-   301|          <span class="cite-hash">${c.hash}</span>
-   302|          <a href="${c.url}" target="_blank" class="cite-link">↗</a>
-   303|        `;
-   304|        details.appendChild(item);
-   305|      });
-   306|      bubble.appendChild(details);
-   307|    }
-   308|
-   309|    if (role === 'assistant') {
+    285|    textDiv.innerHTML = MAPLESPIKE.sanitizeHtml(text);
+    286|    bubble.appendChild(textDiv);
+    287|
+    288|    if (citations && citations.length > 0) {
+    289|      const details = document.createElement('details');
+    290|      details.className = 'msg-citations';
+    291|      const summary = document.createElement('summary');
+    292|      summary.textContent = citations.length + ' citation' + (citations.length > 1 ? 's' : '');
+    293|      details.appendChild(summary);
+    294|
+    295|      citations.forEach(c => {
+    296|        const item = document.createElement('div');
+    297|        item.className = 'cite-item';
+    298|        item.innerHTML = MAPLESPIKE.sanitizeHtml(`
+    299|          <span class="cite-source">${MAPLESPIKE.esc(c.source)}</span>
+    300|          <span style="font-size:0.72rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${MAPLESPIKE.esc(c.title)}</span>
+    301|          <span class="cite-hash">${MAPLESPIKE.esc(c.hash)}</span>
+    302|          <a href="${MAPLESPIKE.esc(c.url)}" target="_blank" class="cite-link">↗</a>
+    303|        `);
+    304|        details.appendChild(item);
+    305|      });
+    306|      bubble.appendChild(details);
+    307|    }
+    308|
+    309|    if (role === 'assistant') {
    310|      msg.appendChild(avatar);
    311|      msg.appendChild(bubble);
    312|    } else {
@@ -471,7 +472,8 @@
 
     <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-<style>
+  <script src="/sanitize.js"></script>
+  <style>
 /* ═══ ASK page styles ═══ */
 .ask-page { padding-top: var(--nav-height, 64px); min-height: 100vh; display: flex; flex-direction: column; }
 .ask-container { max-width: 900px; margin: 0 auto; padding: 32px 24px; width: 100%; flex: 1; display: flex; flex-direction: column; }
@@ -726,25 +728,25 @@ bubble.className = 'msg-bubble';
 
 const textDiv = document.createElement('div');
 textDiv.className = 'msg-text';
-textDiv.innerHTML = text;
-bubble.appendChild(textDiv);
+textDiv.innerHTML = MAPLESPIKE.sanitizeHtml(text);
+    bubble.appendChild(textDiv);
 
-if (citations && citations.length > 0) {
-const details = document.createElement('details');
-details.className = 'msg-citations';
-const summary = document.createElement('summary');
-summary.textContent = citations.length + ' citation' + (citations.length > 1 ? 's' : '');
-details.appendChild(summary);
+    if (citations && citations.length > 0) {
+      const details = document.createElement('details');
+      details.className = 'msg-citations';
+      const summary = document.createElement('summary');
+      summary.textContent = citations.length + ' citation' + (citations.length > 1 ? 's' : '');
+      details.appendChild(summary);
 
-citations.forEach(c => {
-const item = document.createElement('div');
-item.className = 'cite-item';
-item.innerHTML = `
-<span class="cite-source">${c.source}</span>
-<span style="font-size:0.72rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.title}</span>
-<span class="cite-hash">${c.hash}</span>
-<a href="${c.url}" target="_blank" class="cite-link">↗</a>
-`;
+      citations.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'cite-item';
+        item.innerHTML = MAPLESPIKE.sanitizeHtml(`
+          <span class="cite-source">${MAPLESPIKE.esc(c.source)}</span>
+          <span style="font-size:0.72rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${MAPLESPIKE.esc(c.title)}</span>
+          <span class="cite-hash">${MAPLESPIKE.esc(c.hash)}</span>
+          <a href="${MAPLESPIKE.esc(c.url)}" target="_blank" class="cite-link">↗</a>
+`);
 details.appendChild(item);
 });
 bubble.appendChild(details);

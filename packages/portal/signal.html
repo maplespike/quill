@@ -13,6 +13,7 @@
     13|
     14|  <link rel="stylesheet" href="styles.css">
     15|  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+  <script src="/sanitize.js"></script>
     16|  <style>
     17|    /* ═══ SIGNAL page styles ═══ */
     18|    .signal-page { padding-top: calc(64px + 22px + 24px); min-height: 100vh; }
@@ -330,21 +331,21 @@ container.querySelectorAll('.monitor-card').forEach(el => el.remove());
 monitors.forEach((m, i) => {
 const card = document.createElement('div');
 card.className = 'monitor-card';
-card.innerHTML = `
-<span class="status-indicator ${m.status}"></span>
+card.innerHTML = MAPLESPIKE.sanitizeHtml(`
+<span class="status-indicator ${MAPLESPIKE.esc(m.status)}"></span>
 <div class="monitor-info">
-<div class="monitor-source">${m.sourceLabel}</div>
-<div class="monitor-keywords">${m.name}</div>
+<div class="monitor-source">${MAPLESPIKE.esc(m.sourceLabel)}</div>
+<div class="monitor-keywords">${MAPLESPIKE.esc(m.name)}</div>
 <div class="monitor-meta">
-<span>Keywords: ${m.keywords}</span>
-<span>${m.delivery}</span>
+<span>Keywords: ${MAPLESPIKE.esc(m.keywords)}</span>
+<span>${MAPLESPIKE.esc(m.delivery)}</span>
     </div>
     </div>
 <div class="monitor-actions">
-<button class="toggle-monitor" data-index="${i}">${m.status === 'active' ? 'Pause' : 'Resume'}</button>
-<button class="danger delete-monitor" data-index="${i}">Delete</button>
+<button class="toggle-monitor" data-index="${MAPLESPIKE.esc(i)}">${m.status === 'active' ? 'Pause' : 'Resume'}</button>
+<button class="danger delete-monitor" data-index="${MAPLESPIKE.esc(i)}">Delete</button>
     </div>
-`;
+`);
 container.appendChild(card);
 });
 
@@ -401,16 +402,16 @@ const bgVar = a.badgeClass ? bgMap[a.badgeClass] || 'bg-elevated' : 'bg-elevated
 const colorVar = a.badgeClass ? colorMap[a.badgeClass] || 'text-muted' : 'text-muted';
 const item = document.createElement('div');
 item.className = 'alert-log-item';
-item.innerHTML = `
-<span class="alert-time">${a.time}</span>
-<span class="alert-icon">${a.icon}</span>
+item.innerHTML = MAPLESPIKE.sanitizeHtml(`
+<span class="alert-time">${MAPLESPIKE.esc(a.time)}</span>
+<span class="alert-icon">${MAPLESPIKE.esc(a.icon)}</span>
 <div class="alert-body">
-<div class="alert-title">${a.title}</div>
-<div class="alert-desc">${a.desc}</div>
-<div class="alert-source">${a.source}</div>
+<div class="alert-title">${MAPLESPIKE.esc(a.title)}</div>
+<div class="alert-desc">${MAPLESPIKE.esc(a.desc)}</div>
+<div class="alert-source">${MAPLESPIKE.esc(a.source)}</div>
     </div>
-<span class="alert-badge" style="background:var(--${bgVar});color:var(--${colorVar})">${a.badge}</span>
-`;
+<span class="alert-badge" style="background:var(--${bgVar});color:var(--${colorVar})">${MAPLESPIKE.esc(a.badge)}</span>
+`);
 container.appendChild(item);
 });
 }
