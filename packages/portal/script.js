@@ -386,7 +386,7 @@
     async function fetchLiveStats() {
       const cfg = window.MAPLESPIKE || {};
       const base = cfg.apiBase || 'http://127.0.0.1:8082';
-      const key = cfg.apiKey || 'maplespike-dev-key';
+      const key = cfg.apiKey || '';
       const to = cfg.timeout || {};
       try {
         const resp = await fetch(base + '/v1/usage', {
@@ -475,7 +475,7 @@
     try {
       const cfg = window.MAPLESPIKE || {};
       const base = cfg.apiBase || 'http://127.0.0.1:8082';
-      const key = cfg.apiKey || 'maplespike-dev-key';
+      const key = cfg.apiKey || '';
       const to = cfg.timeout || {};
       const resp = await fetch(base + '/v1/keys', {
         method: 'POST',
