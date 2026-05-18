@@ -2,11 +2,10 @@
  * SEDI Insider Trading Types — MapleSpike Pipeline
  *
  * Types for insider transaction data from the Canadian SEDI
- * (System for Electronic Disclosure by Insiders) and SEDAR+.
+ * (System for Electronic Disclosure by Insiders).
  *
  * Source:
  *   SEDI:   https://www.sedi.ca/sedi/SVTOCPublish?language=en
- *   SEDAR+: https://www.sedarplus.ca
  *
  * The canonical InsiderTransaction interface is defined in
  * ../corporate/types.ts and reused here. This module adds
@@ -70,4 +69,4 @@ export interface SediIngestionResult {
 }
 
 /** Supported datasource for insider reports */
-export type InsiderDataSource = 'sedi' | 'sedarplus';
+export type InsiderDataSource = 'sedi';
