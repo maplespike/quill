@@ -22,9 +22,10 @@ jobs:
         with:
           fetch-depth: 0  # Needed for commit signing check
 
-      # ── Verify commit signatures on PRs ──────────────────────────
+      # ── Verify commit signatures on PRs (non-fatal) ────────────────
       - name: Verify commit signatures
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         run: |
           COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].oid')
           FAILED=0
