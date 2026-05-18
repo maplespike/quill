@@ -155,13 +155,66 @@ ROUTES.push({
   params: [],
   handler: (async (req: Request, ctx: RouteContext, params: Record<string, string>) => {
     try {
-      const signalsPath = '../loaders/signals.js';
-      const mod = await import(signalsPath);
+      const mod = await import('./loaders/signals.js');
       return mod.signalsHandler(req, ctx, params);
     } catch {
       return new Response(JSON.stringify({
         success: false,
         error: { code: 'NOT_AVAILABLE', message: 'Signals not available (engine not built)' },
+      }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
+  }) as unknown as RouteHandler,
+});
+
+// Graph route handler — entity relationship graph from engine
+ROUTES.push({
+  pattern: /^\/v1\/graph\/?$/,
+  method: 'GET',
+  params: [],
+  handler: (async (req: Request, ctx: RouteContext, params: Record<string, string>) => {
+    try {
+      const mod = await import('./loaders/graph.js');
+      return mod.graphHandler(req, ctx, params);
+    } catch {
+      return new Response(JSON.stringify({
+        success: false,
+        error: { code: 'NOT_AVAILABLE', message: 'Graph not available (engine not built)' },
+      }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
+  }) as unknown as RouteHandler,
+});
+
+// Briefs route handler — daily intelligence briefs from engine
+ROUTES.push({
+  pattern: /^\/v1\/briefs\/?$/,
+  method: 'GET',
+  params: [],
+  handler: (async (req: Request, ctx: RouteContext, params: Record<string, string>) => {
+    try {
+      const mod = await import('./loaders/briefs.js');
+      return mod.briefsHandler(req, ctx, params);
+    } catch {
+      return new Response(JSON.stringify({
+        success: false,
+        error: { code: 'NOT_AVAILABLE', message: 'Briefs not available (engine not built)' },
+      }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
+  }) as unknown as RouteHandler,
+});
+
+// Entities route handler — resolved persons + organizations
+ROUTES.push({
+  pattern: /^\/v1\/entities\/?$/,
+  method: 'GET',
+  params: [],
+  handler: (async (req: Request, ctx: RouteContext, params: Record<string, string>) => {
+    try {
+      const mod = await import('./loaders/entities.js');
+      return mod.entitiesHandler(req, ctx, params);
+    } catch {
+      return new Response(JSON.stringify({
+        success: false,
+        error: { code: 'NOT_AVAILABLE', message: 'Entities not available (engine not built)' },
       }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     }
   }) as unknown as RouteHandler,
