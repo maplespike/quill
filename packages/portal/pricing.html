@@ -33,10 +33,8 @@
     @media (max-width: 768px) { .tier-grid { grid-template-columns: 1fr; }
       .tier-card.featured { transform: none; }
       .tier-card.featured:hover { transform: translateY(-2px); } }
-    .tier-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px 28px; display: flex; flex-direction: column; position: relative; transition: all var(--transition); }
-    .tier-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-    .tier-card.featured { border-color: var(--accent); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(194,48,48,0.06) 100%); transform: scale(1.02); z-index: 1; box-shadow: 0 0 30px rgba(194,48,48,0.12), 0 0 60px rgba(194,48,48,0.04); }
-    .tier-card.featured:hover { transform: scale(1.02) translateY(-2px); box-shadow: 0 0 40px rgba(194,48,48,0.18), 0 0 80px rgba(194,48,48,0.06); }
+    .tier-card { padding: 32px 28px; display: flex; flex-direction: column; position: relative; }
+    .tier-card.featured { border-color: var(--accent); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(194,48,48,0.06) 100%); z-index: 1; box-shadow: 0 0 30px rgba(194,48,48,0.12); }
     .tier-card.featured::before { content: '★ BEST VALUE'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent) 0%, #D64545 100%); color: white; padding: 4px 18px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; box-shadow: 0 4px 12px rgba(194,48,48,0.3); z-index: 2; white-space: nowrap; }
     .tier-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
     .tier-desc { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 20px; }
@@ -54,7 +52,7 @@
     .tier-features li::before { content: '▸'; color: var(--accent); font-family: var(--font-mono); }
 
     /* Enterprise */
-    .enterprise-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; text-align: center; margin-bottom: 48px; }
+    .enterprise-section { padding: 36px; text-align: center; margin-bottom: 48px; }
     .enterprise-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
     .enterprise-card p { color: var(--text-secondary); font-size: 0.9rem; max-width: 500px; margin: 0 auto 20px; }
 
@@ -133,7 +131,7 @@
     <!-- Tier cards -->
     <div class="tier-grid" id="tier-grid">
       <!-- Free -->
-      <div class="tier-card" data-monthly="0" data-annual="0">
+      <div class="tier-card surface" data-monthly="0" data-annual="0">
         <div class="tier-name">Free</div>
         <div class="tier-desc">Kick the tires. No credit card.</div>
         <div class="tier-price">
@@ -152,7 +150,7 @@
       </div>
 
       <!-- Pro -->
-      <div class="tier-card featured" data-monthly="49" data-annual="490">
+      <div class="tier-card surface featured" data-monthly="49" data-annual="490">
         <div class="tier-name">Pro</div>
         <div class="tier-desc">Ship to production.</div>
         <div class="tier-price">
@@ -172,7 +170,7 @@
       </div>
 
       <!-- Business -->
-      <div class="tier-card" data-monthly="199" data-annual="1990">
+      <div class="tier-card surface" data-monthly="199" data-annual="1990">
         <div class="tier-name">Business</div>
         <div class="tier-desc">Team + SLA.</div>
         <div class="tier-price">
@@ -194,7 +192,7 @@
     </div>
 
     <!-- Enterprise -->
-    <div class="enterprise-card">
+    <div class="enterprise-section surface">
       <h3>Need more? Higher volume, dedicated support, custom SLA.</h3>
       <p>We offer custom plans for newsrooms, government agencies, research institutions, and AI companies that need more than 500K requests per month.</p>
       <a href="mailto:pricing@maplespike.ca" class="btn btn-primary">Talk to us →</a>
@@ -333,7 +331,6 @@
     });
   })();
   </script>
-<script src="/nav.js"></script>
 
 <!-- Nav + Theme JS -->
 <script>
