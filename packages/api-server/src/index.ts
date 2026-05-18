@@ -71,6 +71,7 @@ import {
 } from './routes/auth-passkey.js';
 // signalsHandler is lazy-loaded dynamically — see ROUTES
 import { listKeysHandler, createKeyHandler, deleteKeyHandler, rotateKeyHandler } from './routes/keys.js';
+import { onboardingHandler } from './routes/onboarding.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -81,6 +82,7 @@ import {
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
+  { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: onboardingHandler },
   { pattern: /^\/v1\/register\/?$/, method: 'POST', params: [], handler: registerHandler },
   { pattern: /^\/v1\/verify\/([^/]+)\/?$/, method: 'GET', params: ['token'], handler: verifyHandler },
   { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: meHandler },
