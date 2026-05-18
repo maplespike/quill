@@ -570,3 +570,49 @@ describe('normalizeToFederalSchema', () => {
     assert.equal(result!.province, 'NU');
   });
 });
+
+/* ------------------------------------------------------------------ */
+/*  Fetcher exports                                                     */
+/* ------------------------------------------------------------------ */
+
+describe('fetcher exports', () => {
+  it('fetchOntarioLobbying is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.fetchOntarioLobbying, 'function');
+  });
+
+  it('fetchBCLobbying is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.fetchBCLobbying, 'function');
+  });
+
+  it('fetchAlbertaLobbying is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.fetchAlbertaLobbying, 'function');
+  });
+
+  it('fetchQuebecLobbying is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.fetchQuebecLobbying, 'function');
+  });
+
+  it('ingestOntarioLobbying is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.ingestOntarioLobbying, 'function');
+  });
+
+  it('ingestOntarioLobbying accepts db and options', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.ok(mod.ingestOntarioLobbying.length >= 1);
+  });
+
+  it('searchProvincialLobbying is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.searchProvincialLobbying, 'function');
+  });
+
+  it('ingestAllProvincial is a function', async () => {
+    const mod = await import('./provincial-lobbying/index.js');
+    assert.equal(typeof mod.ingestAllProvincial, 'function');
+  });
+});
