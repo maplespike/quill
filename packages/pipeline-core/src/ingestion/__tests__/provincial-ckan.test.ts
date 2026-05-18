@@ -1,26 +1,62 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { PROVINCIAL_CKAN_SOURCES, fetchProvincialCkan, fetchAllProvincialCkan } from '../provincial-ckan.js';
 
-describe('provincial-ckan', () => {
-  it('provides PROVINCIAL_CKAN_SOURCES record', async () => {
-    const mod = await import('../provincial-ckan.js');
-    assert.ok(mod.PROVINCIAL_CKAN_SOURCES);
-    assert.equal(typeof mod.PROVINCIAL_CKAN_SOURCES, 'object');
+describe('provincial-ckan Module', () => {
+  describe('PROVINCIAL_CKAN_SOURCES', () => {
+    it('is a non-empty record with all 13 provinces/territories', () => {
+      const codes = Object.keys(PROVINCIAL_CKAN_SOURCES);
+      assert.ok(codes.length >= 13, `Expected 13+ provinces, got ${codes.length}`);
+    });
+
+    it('includes all major provinces', () => {
+      const codes = Object.keys(PROVINCIAL_CKAN_SOURCES);
+      for (const expected of ['ON', 'BC', 'AB', 'QC', 'SK', 'MB', 'NS']) {
+        assert.ok(codes.includes(expected), `Missing ${expected}`);
+      }
+    });
+
+    it('includes all territories', () => {
+      const codes = Object.keys(PROVINCIAL_CKAN_SOURCES);
+      for (const expected of ['YT', 'NT', 'NU']) {
+        assert.ok(codes.includes(expected), `Missing territory ${expected}`);
+      }
+    });
+
+    it('each source has required fields', () => {
+      for (const [code, source] of Object.entries(PROVINCIAL_CKAN_SOURCES)) {
+        assert.ok(typeof source.name === 'string' && source.name.length > 0, `Missing name for ${code}`);
+        assert.ok(typeof source.endpoint === 'string' && source.endpoint.length > 0, `Missing endpoint for ${code}`);
+        assert.ok(typeof source.jurisdiction === 'string', `Missing jurisdiction for ${code}`);
+      }
+    });
+
+    it('each source has a valid endpoint URL', () => {
+      for (const [code, source] of Object.entries(PROVINCIAL_CKAN_SOURCES)) {
+        assert.ok(
+          source.endpoint.startsWith('https://'),
+          `${code} endpoint should start with https://, got ${source.endpoint}`,
+        );
+      }
+    });
+
+    it('big 4 provinces have detailed notes', () => {
+      for (const code of ['ON', 'BC', 'AB', 'QC']) {
+        const notes = PROVINCIAL_CKAN_SOURCES[code].notes;
+        assert.ok(notes && notes.length > 10, `${code} should have detailed notes`);
+      }
+    });
   });
 
-  it('has sources for multiple provinces', async () => {
-    const mod = await import('../provincial-ckan.js');
-    const sources = Object.keys(mod.PROVINCIAL_CKAN_SOURCES);
-    assert.ok(sources.length >= 4);
+  describe('fetchProvincialCkan', () => {
+    it('is a function', () => {
+      assert.equal(typeof fetchProvincialCkan, 'function');
+    });
   });
 
-  it('provides fetchProvincialCkan function', async () => {
-    const mod = await import('../provincial-ckan.js');
-    assert.equal(typeof mod.fetchProvincialCkan, 'function');
-  });
-
-  it('provides fetchAllProvincialCkan function', async () => {
-    const mod = await import('../provincial-ckan.js');
-    assert.equal(typeof mod.fetchAllProvincialCkan, 'function');
+  describe('fetchAllProvincialCkan', () => {
+    it('is a function', () => {
+      assert.equal(typeof fetchAllProvincialCkan, 'function');
+    });
   });
 });
