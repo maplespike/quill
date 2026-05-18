@@ -262,7 +262,7 @@ status: active
 | ✅ Dev namespace (maplespike-dev) | DONE | Isolated from production, single-domain ingress dev.maplespike.lan |
 | ✅ CI workflow (ci.yml) | DONE | Build + test all packages on push to main |
 | ✅ Prod deploy (deploy.yml) | DONE | Auto-merge main→prod after tests pass |
-| ✅ Portal GitHub Pages | DONE | Auto-deployed on prod branch |
+| ✅ Portal on K3s (nginx) | DONE | Auto-deployed on prod branch |
 
 ---
 
@@ -308,7 +308,7 @@ status: active
 | ✅ ci.yml | DONE | Build + test all packages on push to main |
 | ✅ deploy.yml | DONE | Auto-merge main→prod after tests pass |
 | ✅ deploy-k3s | DONE | Builds 5 Docker images + deploys to cluster |
-| ✅ Portal GitHub Pages | DONE | Auto-deployed on prod branch |
+| ✅ Portal on K3s (nginx) | DONE | Auto-deployed on prod branch |
 | 🔴 Dependabot alerts | TODO | 2 high, 3 moderate |
 | ✅ Zombie cleanup | DONE | 13 orphaned K8s services deleted, auto-deploy timer fixed |
 | ✅ AI model registry | DONE | /etc/nixos/ai-models.toml (single source of truth, Phase 1) |
@@ -512,7 +512,7 @@ server.ts       — JSON-RPC 2.0 protocol, tools/list, tools/call, SSE
 index.ts        — HTTP server on port 3001, /health, /sse, /messages
 cli.ts          — stdio transport for local use
 tools/
-  index.ts      — Tool registry (getAllTools: 22 tools, 25 including AI)
+  index.ts      — Tool registry (getAllTools: 22 tools)
   query-gov-data.ts      — CKAN search across jurisdictions
   fact-check.ts           — Basic verification
   get-citation.ts         — Citation hash retrieval
@@ -545,7 +545,7 @@ packages/pipeline-core/schema/d1.sql (1042 lines, 38 tables across all modules)
 ### Infrastructure
 ```
 Deployment:
-  GitHub Pages  → Portal (static HTML/CSS/JS, no build step)
+  K3s cluster (nginx) → Portal (static HTML/CSS/JS, no build step)
   K3s cluster   → MCP server (SSE, port 32537)
                 → API server (REST, Bearer auth, port 30882)
                 → Engine (CronJobs for ingestion)

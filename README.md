@@ -101,7 +101,7 @@ cd packages/mcp-server
 pnpm start
 ```
 
-**All 22 MCP tools return real data** from `pipeline-data.json` — committees, corporate, influence, and government data are all searchable. No external database configuration required for MCP tools.
+**All 22 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
 ---
 
