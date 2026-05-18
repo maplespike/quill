@@ -16,7 +16,7 @@ status: active
 
 ## Ce que c'est
 
-MapleSpice ingère, vérifie et présente des données gouvernementales canadiennes publiques. Consultez le [README anglais](README.md) pour la liste complète des 65 modules.
+MapleSpike ingère, vérifie et présente des données gouvernementales canadiennes publiques. Consultez le [README anglais](README.md) pour la liste complète des 65 modules.
 
 > **Modules :** 65 modules d'ingestion enregistrés · **Outils MCP :** 22 tous en direct · **Lignes TypeScript :** ~113 000 · **Forfaits :** 10
 
