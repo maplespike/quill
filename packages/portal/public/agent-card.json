@@ -1,0 +1,15 @@
+{
+  "name": "MapleSpike",
+  "description": "Canadian government data pipeline — 65+ modules, 30+ MCP tools, SHA-256 verified citations across federal, provincial, and municipal sources",
+  "url": "https://maplespike.ca",
+  "author": {
+    "name": "Reverb256",
+    "url": "https://github.com/reverb256"
+  },
+  "capabilities": {
+    "dataSources": ["Parliament", "Lobbying", "Procurement", "Gazette", "Courts", "Oversight", "Immigration", "Indigenous", "Criminal Justice", "Defence", "Health", "Environment", "Energy", "Transport", "Trade", "Elections", "Corporate"],
+    "apiStyles": ["REST", "MCP"],
+    "verification": "SHA-256 citation hashes on every response"
+  },
+  "updatedAt": "2026-05-14T05:32:37.765Z"
+}

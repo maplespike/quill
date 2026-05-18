@@ -1,16 +1,47 @@
-# MapleSpike — Portal Dockerfile
-# Serves the static portal HTML with an AI-friendly Python web server
-FROM python:3.13-alpine
+# Dockerfile.portal — Multi-stage Astro build + nginx serve
+# CI/CD builds: docker build -f Dockerfile.portal . (from repo root)
+#
+# Stage 1: Build Astro portal + generate docs
+# Stage 2: Serve static assets via nginx (non-root)
 
+# ── Build stage ──
+FROM node:22-alpine AS builder
 WORKDIR /app
+RUN corepack enable && pnpm --version
 
-COPY packages/portal/ /app/
-COPY packages/portal/docs/ /app/docs/
+# Install deps (layer cache: lockfile changes less often than source)
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
+COPY packages/portal/package.json ./packages/portal/package.json
+RUN pnpm install --frozen-lockfile
 
-RUN chown -R 1001:1001 /app
+# Copy portal source + build Astro (static output to packages/portal/dist/)
+COPY packages/portal/ ./packages/portal/
+RUN cd packages/portal && pnpm build
 
-USER 1001
+# Generate docs (reads packages/docs/*.md → writes packages/portal/docs/)
+COPY packages/docs/ ./packages/docs/
+COPY scripts/build-docs.mjs ./scripts/
+RUN node scripts/build-docs.mjs
+
+# Bundle generated docs into Astro dist for serving at /docs/
+RUN cp -r packages/portal/docs/ packages/portal/dist/docs/
+
+# ── Serve stage ──
+FROM docker.io/nginx:alpine
+
+# Copy static assets from builder
+COPY --from=builder /app/packages/portal/dist/ /usr/share/nginx/html/
+COPY packages/portal/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Non-root user support (K8s securityContext runAsUser: 1001)
+# nginx needs writeable cache dirs + PID in /tmp when running as non-root
+RUN mkdir -p /var/cache/nginx/client_temp \
+    && mkdir -p /var/cache/nginx/proxy_temp \
+    && mkdir -p /var/cache/nginx/fastcgi_temp \
+    && mkdir -p /var/cache/nginx/uwsgi_temp \
+    && mkdir -p /var/cache/nginx/scgi_temp \
+    && chmod -R 777 /var/cache/nginx
+RUN sed -i 's|pid\s*/run/nginx.pid;|pid /tmp/nginx.pid;|' /etc/nginx/nginx.conf
 
 EXPOSE 8080
-
-CMD ["python3", "server.py"]
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,123 @@
+# MapleSpike — Full Documentation Archive
+
+> Version: 0.2.0
+> Auto-generated: 2026-05-18
+> License: AGPL-3.0 / MIT. Government data under OGL-C.
+> API Base URL: https://api.maplespike.ca/v1
+> Source: https://github.com/reverb256/maplespike
+
+## REST API
+
+Base URL: https://api.maplespike.ca/v1
+Auth: Send `Authorization: Bearer <key>` or `X-API-Key: <key>` header.
+All responses follow the MapleSpike envelope: { success, data, error, meta, quality, citation }
+
+### Endpoints
+
+#### GET /v1/health
+API health check with usage stats
+
+#### GET /v1/openapi.json
+Full OpenAPI 3.1 specification
+
+#### GET /v1/me
+Current tenant info and API keys
+
+#### GET /v1/usage
+Current billing period usage
+
+#### GET /v1/gov/releases
+Latest government data releases
+
+#### GET /v1/gov/search
+Full-text search across all sources
+
+#### GET /v1/citation/:hash
+Retrieve citation by SHA-256 hash
+
+#### POST /v1/register
+Create account and API key
+
+#### GET /v1/verify/:token
+Verify email address
+
+#### POST /v1/ai/ask
+Ask a question, get a sourced answer
+
+#### POST /v1/ai/analyze
+Analyze text for bias, sentiment, claims
+
+#### POST /v1/auth/refresh
+Refresh JWT token
+
+#### POST /v1/auth/logout
+Clear session
+
+#### POST /v1/billing/checkout
+Create checkout session
+
+#### GET /v1/billing/plans
+Available pricing plans
+
+#### GET /v1/keys
+List API keys
+
+#### POST /v1/keys
+Create API key
+
+#### DELETE /v1/keys/:id
+Delete API key
+
+#### POST /v1/keys/:id/rotate
+Rotate API key
+
+#### GET /v1/signals
+Cross-reference signals (requires engine)
+
+## MCP Tools (27 total)
+
+The MCP server exposes the following tools for AI agent use:
+
+- `ai-analyze`
+- `ai-ask`
+- `ai-search-semantic`
+- `api-client`
+- `fact-check`
+- `get-citation`
+- `index`
+- `latest-releases`
+- `query-gov-data`
+- `search-canlii`
+- `search-committees`
+- `search-corporate`
+- `search-elections`
+- `search-gazette`
+- `search-gic`
+- `search-immigration`
+- `search-influence`
+- `search-lmia`
+- `search-lode`
+- `search-ngo-rss`
+- `search-oversight`
+- `search-provincial-lobbying`
+- `search-science`
+- `search-tribunals`
+- `search-veterans`
+- `system-health`
+- `types`
+
+## Data Categories
+
+- **committees**: House of Commons and Senate committee evidence
+- **lobbying**: Federal lobbying registry communications
+- **procurement**: CanadaBuys contract awards and tenders
+- **gazette**: Canada Gazette Parts I, II, III
+- **elections**: Third-party advertiser registry, election data
+- **oversight**: OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
+- **courts**: Federal court decisions via CanLII
+- **influence**: Tracked IOs, NGOs, think tanks
+- **immigration**: IRCC permanent resident data, LMIA
+- **defence**: DND personnel, defence procurement
+- **health**: Health Canada datasets, drug products
+- **transport**: Transport Canada, infrastructure data
+

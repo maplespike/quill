@@ -1,0 +1,300 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+---
+
+<BaseLayout title="Data Explorer" description="Browse and search Canadian government data across all 65 modules">
+  <section class="container mx-auto px-4 py-8 md:py-12">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Data Explorer</h1>
+      <p class="mt-2 text-lg text-muted-foreground">
+        Search across 65 data modules spanning federal, provincial, and municipal government sources.
+      </p>
+    </div>
+
+    <!-- Search and Filters -->
+    <Card class="mb-8">
+      <CardHeader>
+        <CardTitle>Search</CardTitle>
+        <CardDescription>
+          Search across all data modules or filter by specific categories.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form class="space-y-4" method="GET" action="/explorer">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <Input id="query" name="query" type="search" placeholder="Search committees, lobbying records, legislation..." className="pl-10" />
+            </div>
+            <Button type="submit">Search</Button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="space-y-1">
+              <label for="category" class="text-xs font-medium text-muted-foreground">Category</label>
+              <select id="category" name="category" class="flex h-10 w-full min-w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <option value="">All Categories</option>
+                <option value="federal">Federal Government</option>
+                <option value="provincial">Provincial &amp; Territorial</option>
+                <option value="municipal">Municipal</option>
+                <option value="corporate">Corporate &amp; Influence</option>
+                <option value="regulatory">Regulatory &amp; Oversight</option>
+                <option value="legal">Legal &amp; Justice</option>
+                <option value="parliament">Parliament &amp; Committees</option>
+              </select>
+            </div>
+
+            <div class="space-y-1">
+              <label for="jurisdiction" class="text-xs font-medium text-muted-foreground">Jurisdiction</label>
+              <select id="jurisdiction" name="jurisdiction" class="flex h-10 w-full min-w-[160px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <option value="">All Jurisdictions</option>
+                <option value="federal">Federal</option>
+                <option value="on">Ontario</option>
+                <option value="qc">Quebec</option>
+                <option value="bc">British Columbia</option>
+                <option value="ab">Alberta</option>
+              </select>
+            </div>
+
+            <div class="space-y-1">
+              <label for="sort" class="text-xs font-medium text-muted-foreground">Sort By</label>
+              <select id="sort" name="sort" class="flex h-10 w-full min-w-[140px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <option value="relevance">Relevance</option>
+                <option value="date_desc">Newest First</option>
+                <option value="date_asc">Oldest First</option>
+                <option value="module">Module</option>
+              </select>
+            </div>
+
+            <div class="space-y-1">
+              <label for="per_page" class="text-xs font-medium text-muted-foreground">Results</label>
+              <select id="per_page" name="per_page" class="flex h-10 w-full min-w-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+
+    <!-- Results Summary -->
+    <div class="flex items-center justify-between mb-4">
+      <p class="text-sm text-muted-foreground">
+        Showing <span class="font-medium text-foreground">1&ndash;10</span> of
+        <span class="font-medium text-foreground">12,847</span> results
+      </p>
+      <div class="flex items-center gap-2">
+        <Button variant="outline" size="sm" disabled>Previous</Button>
+        <Button variant="outline" size="sm">Next</Button>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead class="w-[40%]">Title</TableHead>
+              <TableHead>Module</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Trust</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/1" class="font-medium text-primary hover:underline">House of Commons &mdash; Standing Committee on Finance (FINA) &mdash; Meeting No. 142</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Evidence of ministerial briefing on fiscal update and economic projections for 2026&ndash;2027.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">Committees</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">House of Commons</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-15</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">96%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 96%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/2" class="font-medium text-primary hover:underline">Lobbying Registry &mdash; Monthly Communication Report &mdash; January 2026</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Registered lobbying communications between designated public office holders and in-house lobbyists.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">Lobbying</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">OCL Registry</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-14</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">98%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 98%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/3" class="font-medium text-primary hover:underline">Canada Gazette &mdash; Part I &mdash; Proposed Regulations &mdash; Clean Fuel Standard Amendments</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Proposed regulatory amendments to the Clean Fuel Standard published for public comment.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">Gazette</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">Canada Gazette</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-12</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">99%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 99%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/4" class="font-medium text-primary hover:underline">Governor-in-Council Appointments &mdash; February 2026 Report</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">New appointments and renewals to federal boards, commissions, and tribunals.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">GIC</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">Infobase API</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-10</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">94%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 94%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/5" class="font-medium text-primary hover:underline">SEDI Insider Trade Report &mdash; BCE Inc. &mdash; Executive Share Disposition</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Insider trade report filed with SEDI for disposition of common shares by senior officer.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">SEDI</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">SEDI Database</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-09</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-amber-500">87%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-amber-500" style="width: 87%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/6" class="font-medium text-primary hover:underline">OAG &mdash; 2026 Spring Reports &mdash; Volume 1 &mdash; Climate Change Adaptation</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Auditor General audit of federal climate change adaptation programs and expenditures.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">OAG</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">OAG Website</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-07</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">97%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 97%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/7" class="font-medium text-primary hover:underline">Competition Bureau &mdash; Merger Review &mdash; Rogers&ndash;Shaw Post-Closing Compliance</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Compliance monitoring update on merger remedies and divestiture requirements.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">Competition</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">Competition Bureau</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-05</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">92%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 92%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/8" class="font-medium text-primary hover:underline">CanLII &mdash; Federal Court of Appeal &mdash; 2026 FCA 89 &mdash; Environmental Review</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Appeal decision regarding federal environmental assessment jurisdiction.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">CanLII</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">CanLII</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-03</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">95%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 95%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/9" class="font-medium text-primary hover:underline">Statistics Canada &mdash; Labour Force Survey &mdash; April 2026</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Monthly LFS results including unemployment rate, participation rate, and employment by industry.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">StatCan</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">StatCan WDS</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-01</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">99%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 99%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <a href="/explorer/result/10" class="font-medium text-primary hover:underline">Procurement &mdash; TPSGC &mdash; IT Services Contract Award &mdash; March 2026</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Contract award notice for enterprise IT services with 3-year term and option periods.</p>
+              </TableCell>
+              <TableCell><Badge variant="secondary" class="text-xs">Procurement</Badge></TableCell>
+              <TableCell class="text-sm text-muted-foreground">CanadaBuys</TableCell>
+              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-04-28</TableCell>
+              <TableCell>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-medium text-emerald-500">93%</span>
+                  <div class="h-1.5 w-12 rounded-full bg-muted overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width: 93%"></div></div>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+
+    <!-- Pagination -->
+    <div class="mt-6 flex items-center justify-between">
+      <p class="text-sm text-muted-foreground">
+        Page <span class="font-medium text-foreground">1</span> of
+        <span class="font-medium text-foreground">1,285</span>
+      </p>
+      <div class="flex items-center gap-2">
+        <Button variant="outline" size="sm" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Previous
+        </Button>
+        <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">1</Button>
+        <Button variant="outline" size="sm">2</Button>
+        <Button variant="outline" size="sm">3</Button>
+        <span class="text-muted-foreground">...</span>
+        <Button variant="outline" size="sm">1,285</Button>
+        <Button variant="outline" size="sm">
+          Next
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,56 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Canada's Government Data Intelligence Layer" lang="en">
+  <section class="relative flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
+    <div class="relative z-10 max-w-4xl">
+      <h1 class="text-4xl font-bold tracking-tight sm:text-6xl">
+        Canada's
+        <span class="text-primary">Data Intelligence</span> Layer
+      </h1>
+      <p class="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
+        One unified layer for Canadian government data, corporate influence tracking, committee
+        surveillance, regulatory intelligence, and policy actor monitoring.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <a
+          href="/signup"
+          class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-6 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >Get Started</a
+        >
+        <a
+          href="/explorer"
+          class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-6 border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+          >Explore Data</a
+        >
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-12">65+ Data Modules</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="rounded-lg border p-6">
+          <h3 class="font-semibold mb-2">Federal &amp; Provincial</h3>
+          <p class="text-sm text-muted-foreground">
+            All 13 legislatures, federal departments, 19 cities, and 273 regulators.
+          </p>
+        </div>
+        <div class="rounded-lg border p-6">
+          <h3 class="font-semibold mb-2">Corporate &amp; Influence</h3>
+          <p class="text-sm text-muted-foreground">
+            Lobbying registry, procurement, SEDI insider trades, SEDAR+ filings, corporations Canada.
+          </p>
+        </div>
+        <div class="rounded-lg border p-6">
+          <h3 class="font-semibold mb-2">Compliance &amp; Risk</h3>
+          <p class="text-sm text-muted-foreground">
+            OAG audits, PBO reports, Ethics Commissioner, lobbying commissioner, Competition Bureau.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

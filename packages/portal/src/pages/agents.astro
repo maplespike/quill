@@ -1,0 +1,96 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const agents = [
+  {
+    name: "Data Explorer",
+    description:
+      "Query and analyze data across 65+ government data modules spanning federal, provincial, and municipal sources. Supports natural language and SQL queries.",
+    capabilities: ["SQL Queries", "Cross-Reference", "Data Export", "Visualization"],
+  },
+  {
+    name: "Committee Monitor",
+    description:
+      "Track House of Commons and Senate committee proceedings, evidence submissions, and published reports with real-time updates and full-text search across 50 committees.",
+    capabilities: ["Real-time", "Hansard Search", "Committee Reports", "Witness Lists"],
+  },
+  {
+    name: "Corporate Influence",
+    description:
+      "Map corporate influence networks through lobbying registry, procurement contracts, SEDI insider trades, and SEDAR+ filings dating back to 1996.",
+    capabilities: ["Lobbying", "Procurement", "Insider Trades", "Corporate Registry"],
+  },
+  {
+    name: "Regulatory Intelligence",
+    description:
+      "Monitor regulatory changes from Canada Gazette, CRTC decisions, Competition Bureau actions, and 273 provincial regulator feeds in a single dashboard.",
+    capabilities: ["Canada Gazette", "CRTC", "Compliance", "Regulatory Alerts"],
+  },
+  {
+    name: "Policy Research",
+    description:
+      "Cross-reference policy data across legislation, committee evidence, federal budgets, OAG audits, and regulatory impact assessments for comprehensive analysis.",
+    capabilities: ["Legislation", "Budget Analysis", "Policy Briefs", "Impact Assessment"],
+  },
+  {
+    name: "Alert Engine",
+    description:
+      "Configure real-time notifications for data changes, new committee evidence, regulatory updates, procurement opportunities, and custom watchlists.",
+    capabilities: ["Custom Alerts", "Webhook", "Email Digest", "RSS Feeds"],
+  },
+];
+---
+<BaseLayout
+  title="AI Agents"
+  description="Explore MapleSpike's AI agents for Canadian government data intelligence and analysis."
+>
+  <!-- Hero -->
+  <section class="border-b py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          AI <span class="text-primary">Agents</span>
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
+          Specialized AI agents purpose-built for Canadian government data intelligence. Each agent combines
+          domain expertise with deep data integration across all 65+ modules.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agents grid -->
+  <section class="py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {agents.map((agent) => (
+          <Card class="flex flex-col hover:border-primary/50 transition-colors duration-300">
+            <CardHeader>
+              <CardTitle class="text-xl">{agent.name}</CardTitle>
+              <CardDescription class="mt-2 text-sm leading-relaxed">
+                {agent.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="flex-1">
+              <div class="flex flex-wrap gap-2">
+                {agent.capabilities.map((cap) => (
+                  <Badge variant="secondary">{cap}</Badge>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <a
+                href={`/ask?agent=${agent.name.toLowerCase().replace(/\s+/g, "-")}`}
+                class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full"
+              >
+                Ask {agent.name}
+              </a>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

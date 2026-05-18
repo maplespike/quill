@@ -1,0 +1,222 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const citationExamples = [
+  {
+    label: "Committee Evidence",
+    example: "House of Commons Standing Committee on Finance. Evidence, Meeting No. 42, 44th Parliament, 1st Session. March 15, 2026.",
+    hash: "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b",
+    source: "ourcommons.ca",
+  },
+  {
+    label: "Lobbying Registry",
+    example: "Office of the Commissioner of Lobbying. Monthly Communication Report, Registrant #123456. February 2026.",
+    hash: "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c",
+    source: "lobbycanada.gc.ca",
+  },
+  {
+    label: "Canada Gazette",
+    example: "Canada Gazette, Part I, Vol. 160, No. 12 — Proposed Regulations Amending the Food and Drug Regulations. March 22, 2026.",
+    hash: "sha256:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d",
+    source: "gazette.gc.ca",
+  },
+  {
+    label: "Court Decision",
+    example: "Smith v. Canada (Attorney General), 2026 FC 456. Federal Court. March 10, 2026.",
+    hash: "sha256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e",
+    source: "canlii.org",
+  },
+];
+---
+
+<BaseLayout
+  title="Citation Verification"
+  description="MapleSpike citation policy — SHA-256 verified citations for every data record. Learn how to verify and cite Canadian government data with cryptographic assurance."
+>
+  <!-- Hero -->
+  <section class="border-b py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          <span class="text-primary">Citations</span>
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
+          Every data point in MapleSpike includes a verified citation chain — SHA-256 hashed, source-linked,
+          and independently verifiable. Trust, but verify.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-16 md:py-24">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <Card class="text-center">
+          <CardHeader>
+            <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
+            </div>
+            <CardTitle class="text-lg">Collect</CardTitle>
+            <CardDescription>
+              Data is fetched directly from official Canadian government sources — APIs, CKAN portals, RSS feeds, and XML dumps.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card class="text-center">
+          <CardHeader>
+            <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            </div>
+            <CardTitle class="text-lg">Verify</CardTitle>
+            <CardDescription>
+              Each record is hashed with SHA-256, producing a unique fingerprint. The hash is stored alongside source URL, license, and retrieval timestamp.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card class="text-center">
+          <CardHeader>
+            <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
+            </div>
+            <CardTitle class="text-lg">Cite</CardTitle>
+            <CardDescription>
+              Every API response includes citation hashes and verify commands. Use them in your research, journalism, or AI training data.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+
+      <!-- Citation Hash Format -->
+      <h2 class="text-2xl font-bold tracking-tight mb-6">Citation Hash Format</h2>
+      <Card class="mb-12">
+        <CardHeader>
+          <CardTitle class="text-base font-mono">sha256:&lt;64-hex-characters&gt;</CardTitle>
+          <CardDescription>
+            Every citation uses the SHA-256 hash algorithm with a <code>sha256:</code> prefix. The hash covers the
+            full content of the record at the time of ingestion.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="rounded-md bg-muted p-4">
+            <p class="text-sm font-mono text-muted-foreground break-all">
+              sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b
+            </p>
+          </div>
+          <p class="text-sm text-muted-foreground">
+            You can verify any citation independently by re-downloading the source data and computing the SHA-256
+            hash. If the hashes match, the data has not been altered.
+          </p>
+        </CardContent>
+      </Card>
+
+      <!-- Verify Command -->
+      <h2 class="text-2xl font-bold tracking-tight mb-6">Verifying a Citation</h2>
+      <Card class="mb-12">
+        <CardHeader>
+          <CardTitle class="text-base">Shell Verification</CardTitle>
+          <CardDescription>
+            Each citation response includes a <code>verify_command</code> field with a shell command to independently verify
+            the data integrity.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div class="rounded-md bg-muted p-4">
+            <code class="text-sm text-muted-foreground break-all block">
+              curl -s "https://api.maplespike.ca/v1/data/record/123" | sha256sum | cut -d' ' -f1<br />
+              # Expected: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b
+            </code>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Trust Score -->
+      <h2 class="text-2xl font-bold tracking-tight mb-6">Trust Scores</h2>
+      <Card class="mb-12">
+        <CardHeader>
+          <CardTitle class="text-base">How Trust Is Measured</CardTitle>
+          <CardDescription>
+            Every record includes a trust score (0–100%) indicating confidence in the data's accuracy and provenance.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="rounded-md border border-green-500/30 bg-green-500/5 p-4">
+              <p class="text-sm font-semibold text-green-500 mb-1">90–100% — Verified</p>
+              <p class="text-xs text-muted-foreground">Cross-referenced from 2+ independent sources. SHA-256 hash verified.</p>
+            </div>
+            <div class="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-4">
+              <p class="text-sm font-semibold text-yellow-500 mb-1">60–89% — Sourced</p>
+              <p class="text-xs text-muted-foreground">Single authoritative source. Hash present but not cross-referenced.</p>
+            </div>
+            <div class="rounded-md border border-red-500/30 bg-red-500/5 p-4">
+              <p class="text-sm font-semibold text-red-500 mb-1">&lt;60% — Low Confidence</p>
+              <p class="text-xs text-muted-foreground">Below threshold. Data may be stale or from a non-authoritative source.</p>
+            </div>
+          </div>
+          <p class="text-sm text-muted-foreground">
+            The minimum trust threshold for API responses is <strong>60%</strong>. Records below this threshold are
+            excluded from search results by default.
+          </p>
+        </CardContent>
+      </Card>
+
+      <!-- Example Citations -->
+      <h2 class="text-2xl font-bold tracking-tight mb-6">Example Citations</h2>
+      <div class="space-y-6">
+        {citationExamples.map((example) => (
+          <Card key={example.label}>
+            <CardHeader>
+              <div class="flex items-center justify-between gap-2">
+                <CardTitle class="text-base">{example.label}</CardTitle>
+                <Badge variant="outline" class="font-mono text-[10px]">{example.source}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent class="space-y-3">
+              <p class="text-sm text-muted-foreground">{example.example}</p>
+              <div class="rounded-md bg-muted p-3">
+                <p class="text-xs font-mono text-muted-foreground break-all">{example.hash}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <!-- API Usage -->
+      <h2 class="text-2xl font-bold tracking-tight mt-16 mb-6">Citation API</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-base">REST Endpoint</CardTitle>
+          <CardDescription>
+            Look up any citation by its SHA-256 hash using the API endpoint.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="rounded-md bg-muted p-4">
+            <code class="text-sm text-muted-foreground block">
+              GET /v1/citation/{`{sha256_hash}`}
+            </code>
+          </div>
+          <div class="rounded-md bg-muted p-4">
+            <p class="text-xs text-muted-foreground font-semibold mb-2">Example response:</p>
+            <pre class="text-xs text-muted-foreground overflow-x-auto">{`{
+  "success": true,
+  "data": {
+    "citation": {
+      "source_name": "House of Commons",
+      "source_url": "https://ourcommons.ca/...",
+      "hash": "sha256:a1b2c3d4...",
+      "license": "Open Government Licence - Canada",
+      "retrieved_at": "2026-03-15T14:30:00Z"
+    },
+    "verify_command": "curl -s \"...\" | sha256sum | cut -d' ' -f1"
+  }
+}`}</pre>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+</BaseLayout>
