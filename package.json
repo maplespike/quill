@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "pnpm -r build",
+    "generate-metrics": "node scripts/generate-metrics.mjs",
     "build:docs": "node scripts/build-docs.mjs",
     "build:mcp": "pnpm --filter @maplespike/mcp-server build",
     "build:api": "pnpm --filter @maplespike/api-server build",
