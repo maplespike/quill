@@ -35,6 +35,15 @@ jobs:
       # Rebuild native modules (better-sqlite3) for CI runner's Node version
       - run: pnpm rebuild better-sqlite3
 
+      # ── Validate metrics.json is up to date ──────────────────
+      - name: Validate metrics.json is up to date
+        run: |
+          node scripts/generate-metrics.mjs
+          git diff --exit-code docs/metrics.json || {
+            echo "ERROR: docs/metrics.json is out of date. Run 'pnpm generate-metrics' and commit the changes."
+            exit 1
+          }
+
       # ── Start API server for MCP integration tests ──────────
 
       - name: Start API server (background)
