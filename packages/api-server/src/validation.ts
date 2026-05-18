@@ -81,7 +81,20 @@ export const createKeySchema = z.object({
 export type CreateKeyInput = z.infer<typeof createKeySchema>;
 
 /* ------------------------------------------------------------------ */
-/*  Validation Helper                                                  */
+/*  Contact Form                                                       */
+/* ------------------------------------------------------------------ */
+
+export const contactSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().trim().email(),
+  subject: z.string().trim().min(1).max(500),
+  message: z.string().trim().min(10).max(5000),
+});
+
+export type ContactInput = z.infer<typeof contactSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  Validation Helpers                                                 */
 /* ------------------------------------------------------------------ */
 
 /**
@@ -111,4 +124,19 @@ export function validateBody<T extends z.ZodTypeAny>(
     error: issues.map((i) => `${i.field}: ${i.message}`).join('; '),
     issues,
   };
+}
+
+import { buildError, jsonResponse } from './response.js';
+import type { BuildContext } from './response.js';
+
+export function validationError(
+  message: string,
+  ctx: BuildContext,
+  issues: Array<{ field: string; message: string }>,
+): Response {
+  const base = buildError('VALIDATION_ERROR', message, ctx);
+  return jsonResponse({
+    ...base,
+    error: { ...base.error!, details: issues },
+  }, 400);
 }
