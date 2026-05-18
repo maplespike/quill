@@ -32,11 +32,11 @@ export const ONTARIO_CONFIG: ProvinceLegislatureConfig = {
   name: 'Ontario',
   assemblyName: 'Legislative Assembly of Ontario',
   baseUrl: 'https://www.ola.org',
-  hansardUrl: 'https://www.ola.org/en/legislative-business/hansard',
+  hansardUrl: 'https://www.ola.org/en/legislative-business/hansard-search',
   committeesUrl: 'https://www.ola.org/en/legislative-business/committees',
   billsUrl: 'https://www.ola.org/en/legislative-business/bills',
   apiEndpoints: {
-    hansard: 'https://www.ola.org/api/hansard',
+    hansard: 'https://www.ola.org/en/legislative-business/hansard-search',
     committees: 'https://www.ola.org/api/committees',
     bills: 'https://www.ola.org/api/bills',
   },
@@ -59,17 +59,17 @@ export const BC_CONFIG: ProvinceLegislatureConfig = {
   name: 'British Columbia',
   assemblyName: 'Legislative Assembly of British Columbia',
   baseUrl: 'https://www.leg.bc.ca',
-  hansardUrl: 'https://www.leg.bc.ca/documents-data/hansard',
+  hansardUrl: 'https://www.leg.bc.ca/parliamentary-business/overview/43rd-parliament/2nd-session/debate-transcripts',
   committeesUrl: 'https://www.leg.bc.ca/parliamentary-business/committees',
   billsUrl: 'https://www.leg.bc.ca/parliamentary-business/bills',
   apiEndpoints: {
-    hansard: 'https://www.leg.bc.ca/api/hansard',
-    committees: 'https://www.leg.bc.ca/api/committees',
+    hansard: 'https://www.leg.bc.ca/document-search',
+    committees: 'https://www.leg.bc.ca/parliamentary-business/committees/committee-meetings',
   },
   hasXmlHansard: true,
   hasCommitteeApi: false,
   hasBillsApi: false,
-  notes: 'Hansard available in XML and PDF. Committees published as HTML pages. Bills published as PDF.',
+  notes: 'Hansard published at session-specific URL. Document search available at /document-search. Committees published as HTML pages. Bills published as PDF.',
 };
 
 /**
@@ -340,7 +340,10 @@ export const PROVINCE_CONFIGS: Record<string, ProvinceLegislatureConfig> = {
 export const ALL_PROVINCES: ProvinceLegislatureConfig[] = Object.values(PROVINCE_CONFIGS);
 
 /**
- * All 13 provinces/territories listed for coverage intent; only ON, BC, AB have real fetchers (depth varies).
+ * Verified-working jurisdictions with custom fetchers.
+ * ON, BC: Custom XML + HTML parsers.
+ * AB, QC: Custom HTML parsers.
+ * Remaining 9 provinces/territories use a generic HTML link extractor (best-effort, may be broken if site structure changed).
  */
 export const IMPLEMENTED_PROVINCES: ProvinceLegislatureConfig[] = [
   ONTARIO_CONFIG,
@@ -375,7 +378,7 @@ export const XML_HANSARD_PROVINCES: ProvinceLegislatureConfig[] = [
  * Ontario specific API endpoints and paths.
  */
 export const ONTARIO = {
-  HANSARD_LIST_URL: 'https://www.ola.org/en/legislative-business/hansard',
+  HANSARD_LIST_URL: 'https://www.ola.org/en/legislative-business/hansard-search',
   HANSARD_XML_PATTERN: 'https://www.ola.org/sites/default/files/hansard/transcripts/parliament-{parliament}/session-{session}/{date}.xml',
   COMMITTEE_EVIDENCE_XML_PATTERN: 'https://www.ola.org/sites/default/files/committee/transcripts/{committee}/{date}.xml',
   COMMITTEES_URL: 'https://www.ola.org/en/legislative-business/committees',
@@ -387,7 +390,7 @@ export const ONTARIO = {
  * British Columbia specific API endpoints and paths.
  */
 export const BC = {
-  HANSARD_BASE_URL: 'https://www.leg.bc.ca/documents-data/hansard',
+  HANSARD_BASE_URL: 'https://www.leg.bc.ca/parliamentary-business/overview/43rd-parliament/2nd-session/debate-transcripts',
   HANSARD_XML_PATTERN: 'https://www.leg.bc.ca/documents-data/hansard/parliament-{parliament}/session-{session}/{date}.xml',
   COMMITTEES_URL: 'https://www.leg.bc.ca/parliamentary-business/committees',
   BILLS_URL: 'https://www.leg.bc.ca/parliamentary-business/bills',
