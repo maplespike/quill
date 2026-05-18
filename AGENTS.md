@@ -258,6 +258,20 @@ Cluster has 4 machines sharing the same repo via a bare repo hub:
 scp ~/.ssh/id_ed25519* $host:~/.ssh/
 ```
 
+## Current Cluster State (verified 2026-05-18)
+
+| Machine | Shell | kubeconfig | kubectl | bare repo access | Node | pnpm | Notes |
+|---------|-------|-----------|---------|----------------|------|------|-------|
+| **zephyr** | bash | ✅ symlink | ✅ | ✅ file:///srv/git/maplespike.git | v24.14.1 | 10.32.1 | Worker. GitHub Actions runner target |
+| **forge** | fish | ✅ symlink | ✅ | ✅ ssh://zephyr | v24.14.1 | 10.33.2 | Control-plane. Use fish-compatible syntax for SSH commands |
+| **sentry** | fish | ✅ symlink | ✅ | ✅ ssh://zephyr | v24.14.1 | 10.33.2 | Control-plane. ⚠️ origin URL has embedded GHO token — rotate |
+| **nexus** | bash (devenv) | ✅ symlink | ✅ | ✅ ssh://zephyr | v24.14.1 | 10.33.2 | Control-plane. API server host. Devenv shell causes non-terminal errors |
+
+**Known issues:**
+1. `k8s/prod/namespace.yaml` — `name: maplespike` fixed to `maplespike-prod` (2026-05-18)
+2. pnpm version mismatch: 10.33.2 on forge/sentry/nexus vs 10.32.1 in CI — may cause lockfile changes
+3. Sentry origin remote has GHO token embedded — rotate credentials
+
 ---
 
 ## Quick Start (Full Setup)

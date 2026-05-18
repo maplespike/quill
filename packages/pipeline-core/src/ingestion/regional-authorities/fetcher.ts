@@ -1,17 +1,15 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityConfig } from './types.js';
 import { REGIONAL_AUTHORITIES, REGIONAL_FETCH_TIMEOUT_MS, REGIONAL_USER_AGENT } from './constants.js';
 
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), REGIONAL_FETCH_TIMEOUT_MS);
-    const resp = await fetch(url, {
+    const resp = await httpGet(url, {
       headers: { 'User-Agent': REGIONAL_USER_AGENT, Accept: 'application/json' },
-      signal: ctrl.signal,
+      timeoutMs: REGIONAL_FETCH_TIMEOUT_MS,
     });
-    clearTimeout(timer);
-    return resp.ok ? (await resp.json() as T) : null;
+    return resp.statusCode >= 400 ? null : (await resp.json() as T);
   } catch { return null; }
 }
 

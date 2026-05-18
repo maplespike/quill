@@ -1,3 +1,4 @@
+import { httpGet } from '../../utils/http.js';
 import { TRIBUNAL_SOURCES } from './constants.js';
 import type { TribunalDecision, TribunalCase, TribunalIngestionResult, TribunalName } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
@@ -13,14 +14,14 @@ async function fetchTribunalDecisions(tribunal: TribunalName): Promise<TribunalD
   const now = new Date().toISOString();
 
   try {
-    const resp = await fetch(source.searchUrl, {
+    const resp = await httpGet(source.searchUrl, {
       headers: { Accept: 'text/html,application/json' },
-      signal: AbortSignal.timeout(10000),
+      timeoutMs: 10000,
     });
 
-    if (!resp.ok) return decisions;
+    if (resp.statusCode >= 400) return decisions;
 
-    const html = await resp.text();
+    const html = resp.body;
 
     if (html.includes('{') && html.includes('"')) {
       try {

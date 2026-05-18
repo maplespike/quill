@@ -1,9 +1,11 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { RealtimeRecord, RealtimeIngestionResult } from './types.js';
 import {
   REALTIME_SOURCES, REALTIME_FETCH_TIMEOUT_MS,
   REALTIME_USER_AGENT, MAX_REALTIME_RECORDS, REALTIME_CACHE_TTL_MS,
 } from './constants.js';
+import { ensureAmqpsSubscription, getAmqpsCache } from './amqps-subscriber.js';
 
 /* ── Shared Cache ───────────────────────────────────── */
 
@@ -25,11 +27,8 @@ function setCache(key: string, data: RealtimeRecord[]) {
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), REALTIME_FETCH_TIMEOUT_MS);
-    const resp = await fetch(url, { headers: { 'User-Agent': REALTIME_USER_AGENT }, signal: ctrl.signal });
-    clearTimeout(t);
-    return resp.ok ? await resp.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': REALTIME_USER_AGENT }, timeoutMs: REALTIME_FETCH_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 
@@ -43,6 +42,10 @@ async function fetchWithCache(key: string, url: string): Promise<string | null> 
 /* ── ECCC Weather Alerts (CAP-CP XML) ───────────────── */
 
 async function fetchEcccAlerts(): Promise<RealtimeRecord[]> {
+  // Check AMQPS push cache first; fall back to HTTPS polling if stale or unavailable
+  const amqpsCache = getAmqpsCache();
+  if (amqpsCache) return amqpsCache;
+
   const xml = await fetchWithCache('eccc-alerts', 'https://dd.weather.gc.ca/alerts/cap/cap_01_alert_index.xml');
   if (!xml) return [];
   const now = new Date().toISOString();
@@ -128,6 +131,9 @@ export async function fetchAllRealtime(): Promise<RealtimeIngestionResult> {
   const start = Date.now();
   const allRecords: RealtimeRecord[] = [];
   const errors: { source: string; error: string }[] = [];
+
+  // Lazily init AMQPS subscriber (no-op if already running or disabled)
+  await ensureAmqpsSubscription();
 
   const results = await Promise.allSettled([
     fetchEcccAlerts().then(r => ({ source: 'eccc-weather-alerts' as const, records: r })),

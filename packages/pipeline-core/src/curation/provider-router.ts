@@ -104,6 +104,7 @@ export interface RouterStatus {
 /*  Default Provider Definitions                                       */
 /* ------------------------------------------------------------------ */
 
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const DEFAULT_GATEWAY = 'http://127.0.0.1:8080/v1';
 
 const DEFAULT_PROVIDERS: ProviderDefinition[] = [
@@ -198,6 +199,7 @@ export class ProviderRouter {
     try {
       const response = await fetch(`${endpoint}/models`, {
         signal: AbortSignal.timeout(10_000),
+        headers: { 'User-Agent': USER_AGENT },
       });
 
       if (!response.ok) {
@@ -402,7 +404,7 @@ export class ProviderRouter {
 
       body.model = model;
 
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const headers: Record<string, string> = { 'Content-Type': 'application/json', 'User-Agent': USER_AGENT };
       if (provider.apiKey || this.config.apiKey) {
         headers['Authorization'] = `Bearer ${provider.apiKey || this.config.apiKey}`;
       }
@@ -632,6 +634,7 @@ export class ProviderHealthChecker {
       const response = await fetch(url, {
         method: 'HEAD',
         signal: AbortSignal.timeout(this.timeoutMs),
+        headers: { 'User-Agent': USER_AGENT },
       });
       const latencyMs = Date.now() - start;
       const result: HealthCheckResult = {

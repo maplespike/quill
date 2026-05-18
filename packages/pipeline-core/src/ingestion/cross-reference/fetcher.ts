@@ -9,6 +9,7 @@
  * Each module is queried via its public API or web interface.
  */
 
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery } from './types.js';
 import {
@@ -16,13 +17,10 @@ import {
   MAX_MATCHES_PER_SOURCE, CROSS_REF_MODULES,
 } from './constants.js';
 
-const FETCH_TIMEOUT = { signal: AbortSignal.timeout(CROSS_REF_TIMEOUT_MS) };
-const FETCH_OPTS = { headers: { 'User-Agent': CROSS_REF_UA }, ...FETCH_TIMEOUT };
-
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const r = await fetch(url, FETCH_OPTS);
-    return r.ok ? await r.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': CROSS_REF_UA }, timeoutMs: CROSS_REF_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 
