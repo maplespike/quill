@@ -7,7 +7,7 @@ status: active
 
 > **Created:** 2026-05-13
 > **Updated:** 2026-05-14
-> **Current state:** 65 modules registered in `registry.ts`, 61 ingestion directories, ~113K lines TS, 10 packages
+> **Current state:** 65 modules registered in `registry.ts`, 61 ingestion directories, ~113K lines TS, 11 packages
 > **See also:** [docs/metrics.json](./metrics.json) for current auto-derived counts
 > **Estimated total coverage of meaningful Canadian public data:** ~95% of high-value accountability data
 

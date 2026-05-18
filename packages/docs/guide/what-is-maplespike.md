@@ -66,7 +66,7 @@ K3s Cluster (nexus)
 - **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
 - **1,141+ unique external endpoints** consumed across all modules
 - **19 cities** with direct open data fetchers; **3,490+** via federation
-- **10 packages** — compile clean with full CI/CD pipeline
+- **11 packages** — compile clean with full CI/CD pipeline
 
 ## Attribution
 

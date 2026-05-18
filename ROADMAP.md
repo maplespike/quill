@@ -52,7 +52,7 @@ status: active
 
 | Item | Status | Notes |
 |------|--------|-------|
-| ✅ Monorepo structure (pnpm workspace) | DONE | 10 packages: pipeline-core, engine, mcp-server, api-server, portal, pretext-civic (orphaned), sdk, sdk-python, legal-core, legislation |
+| ✅ Monorepo structure (pnpm workspace) | DONE | 11 packages: pipeline-core, engine, mcp-server, api-server, portal, database, pretext-civic (orphaned), sdk, sdk-python, legal-core, legislation |
 | ✅ TypeScript + strict mode | DONE | ES2022 target, bundler resolution |
 | ✅ Pipeline core barrel exports → module registry | DONE | 1707→91 lines, `getModule()` / `runModule()` API replaces 230 individual exports |
 | ✅ Build compilation | DONE | `tsc -b` clean across all packages — 87k+ lines TS |
@@ -577,7 +577,7 @@ NixOS (zephyr/nexus):
 | 2026-05-12 | .lan domains + K3s cluster over Cloudflare | Zero external cloud spend, existing infrastructure |
 | 2026-05-12 | SaaS/commercial — Stripe + crypto + Interac e-Transfer billing | Billing trifecta for Canadian market |
 | 2026-05-13 | Portal visual uplift applied | fade-in opacity fix, particle background, hero refined |
-| 2026-05-13 | Modular architecture over monolith | 10 packages, clear interface boundaries |
+| 2026-05-13 | Modular architecture over monolith | 11 packages, clear interface boundaries |
 | 2026-05-13 | CI/CD: ci.yml + deploy.yml + deploy-k3s | Auto-build, auto-test, auto-deploy pipeline |
 | 2026-05-14 | Ingestion barrel refactored: 1707→91 lines | Module registry (registry.ts) with 63 modules |
 | 2026-05-14 | 15 generated .d.ts files removed from engine/src | Build artifacts committed to source |
