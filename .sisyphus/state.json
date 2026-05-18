@@ -1,1 +1,6 @@
-{"version":1,"active":{},"completed":[],"concurrency":3}
+{
+  "version": 1,
+  "active": {},
+  "completed": [],
+  "concurrency": 3
+}

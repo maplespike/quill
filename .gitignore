@@ -20,6 +20,13 @@ out/
 test-results/
 .devenv/
 .playwright-mcp/
+.sisyphus/
+!.sisyphus/WORKFLOW.md
+!.sisyphus/track.sh
+!.sisyphus/state.json
+!.sisyphus/*.md
+!.sisyphus/*.sh
+!.sisyphus/*.json
 landing-page.png
 *.bak
 packages/engine/src/**/*.js
@@ -32,6 +39,3 @@ __pycache__/
 *.pyc
 *.pyo
 .hermes/
-state.json
-.sisyphus/state.json
-worktrees/
