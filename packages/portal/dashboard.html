@@ -489,7 +489,7 @@ body { padding-top: calc(22px + 64px); }
 // ─── API configuration (from config.js) ───
 const _cfg = window.MAPLESPIKE || {};
 const API_BRIDGE = (_cfg.apiBase || 'http://127.0.0.1:8082') + '/v1/';
-const _key = _cfg.apiKey || 'maplespike-dev-key';
+const _key = _cfg.apiKey || '';
 const _to = _cfg.timeout || {};
 
 // ─── Load dashboard data from live API ───
