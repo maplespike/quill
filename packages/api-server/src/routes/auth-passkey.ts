@@ -11,6 +11,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { validateBody, passkeyRegisterBeginSchema, passkeyRegisterCompleteSchema, passkeyLoginBeginSchema, passkeyLoginCompleteSchema } from '../validation.js';
 import {
   beginRegistration,
   completeRegistration,
@@ -21,8 +22,13 @@ import {
 } from '../auth/passkey.js';
 
 export const passkeyRegisterBeginHandler: RouteHandler = async (request, ctx) => {
+  const parsed = await validateBody(request, passkeyRegisterBeginSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
+  }
+  const body = parsed.data;
+
   try {
-    const body = await request.json() as any;
     const result = await beginRegistration({
       userId: body.userId || ctx.tenant.id,
       userName: body.userName || ctx.tenant.name || 'User',
@@ -39,10 +45,15 @@ export const passkeyRegisterBeginHandler: RouteHandler = async (request, ctx) =>
 };
 
 export const passkeyRegisterCompleteHandler: RouteHandler = async (request, ctx) => {
+  const parsed = await validateBody(request, passkeyRegisterCompleteSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
+  }
+  const body = parsed.data;
+
   try {
-    const body = await request.json() as any;
     const result = await completeRegistration({
-      registrationId: body.registrationId,
+      registrationId: body.registrationId as string,
       credential: body.credential,
       deviceName: body.deviceName,
     });
@@ -57,8 +68,13 @@ export const passkeyRegisterCompleteHandler: RouteHandler = async (request, ctx)
 };
 
 export const passkeyLoginBeginHandler: RouteHandler = async (request, ctx) => {
+  const parsed = await validateBody(request, passkeyLoginBeginSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
+  }
+  const body = parsed.data;
+
   try {
-    const body = await request.json() as any;
     const result = beginLogin({
       userId: body.userId,
     });
@@ -73,10 +89,15 @@ export const passkeyLoginBeginHandler: RouteHandler = async (request, ctx) => {
 };
 
 export const passkeyLoginCompleteHandler: RouteHandler = async (request, ctx) => {
+  const parsed = await validateBody(request, passkeyLoginCompleteSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
+  }
+  const body = parsed.data;
+
   try {
-    const body = await request.json() as any;
     const result = await completeLogin({
-      loginId: body.loginId,
+      loginId: body.loginId as string,
       credential: body.credential,
     });
 

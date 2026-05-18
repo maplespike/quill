@@ -7,6 +7,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { validateBody, billingCheckoutSchema } from '../validation.js';
 
 const PLANS = [
   {
@@ -49,26 +50,23 @@ export const billingPlansHandler: RouteHandler = async (_request, ctx) => {
 export const billingCheckoutHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
-  try {
-    const body = await request.json() as { planId?: string; successUrl?: string; cancelUrl?: string };
-    const plan = PLANS.find(p => p.id === body.planId);
-
-    if (!plan) {
-      return jsonResponse(buildError('INVALID_PLAN', `Plan "${body.planId}" not found. Available: ${PLANS.map(p => p.id).join(', ')}`, bc), 400);
-    }
-
-    // Stripe integration — returns checkout URL structure
-    // Accept payment provider from config; defaults to 'stripe' (not yet connected)
-    const provider = (body as any).provider || 'stripe';
-    return jsonResponse(buildSuccess({
-      checkoutUrl: null, // Set MAPLESPIKE_STRIPE_SECRET_KEY to enable
-      plan: plan.id,
-      amount: plan.price,
-      currency: plan.currency,
-      provider,
-      message: 'Checkout coming soon. Email maplespike@reverb256.ca for early access.',
-    }, bc));
-  } catch {
-    return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body. Expected { planId }', bc), 400);
+  const parsed = await validateBody(request, billingCheckoutSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
   }
+  const body = parsed.data;
+
+  const plan = PLANS.find(p => p.id === body.planId);
+
+  if (!plan) {
+    return jsonResponse(buildError('INVALID_PLAN', `Plan "${body.planId}" not found. Available: ${PLANS.map(p => p.id).join(', ')}`, bc), 400);
+  }
+
+  return jsonResponse(buildSuccess({
+    plan,
+    checkoutUrl: null,
+    successUrl: body.successUrl,
+    cancelUrl: body.cancelUrl,
+    message: 'Billing integration not yet active. Contact support@maplespike.ca for enterprise setup.',
+  }, bc));
 };

@@ -10,24 +10,18 @@ import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { TIER_LIMITS } from '../types.js';
 import type { MapleSpikeStorage } from '../types.js';
+import { validateBody, registerSchema } from '../validation.js';
 
-
-interface RegisterBody {
-  name?: string;
-  email?: string;
-}
 
 export const registerHandler: RouteHandler = async (request, ctx) => {
   try {
-    // Parse body
-    let body: RegisterBody = {};
-    try {
-      body = await request.json() as RegisterBody;
-    } catch {
-      return jsonResponse(buildError('INVALID_BODY', 'Request body must be valid JSON', ctx), 400);
+    const parsed = await validateBody(request, registerSchema);
+    if ('error' in parsed) {
+      return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
     }
+    const body = parsed.data;
 
-    const name = body.name?.trim();
+    const name = body.name.trim();
     if (!name) {
       return jsonResponse(buildError('VALIDATION_ERROR', 'Field "name" is required', ctx), 400);
     }
@@ -43,7 +37,7 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
     const tenant = {
       id: tenantId,
       name,
-      email: body.email?.trim() || undefined,
+      email: body.email || undefined,
       tier: 'free' as const,
       isActive: true,
       journalismMode: false,

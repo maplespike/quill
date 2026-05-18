@@ -169,15 +169,18 @@ export const githubCallbackHandler: RouteHandler = async (request, ctx) => {
  * Validate the current JWT and issue a new one.
  * Body: { token: string } or use Authorization header.
  */
+import { validateBody, authRefreshSchema } from '../validation.js';
+
 export const refreshTokenHandler: RouteHandler = async (request, ctx) => {
-  // Try body first, then header/cookie
   let oldToken: string | null = null;
 
-  try {
-    const body = await request.json() as { token?: string };
-    oldToken = body.token || null;
-  } catch {
-    // Not JSON body — try header/cookie
+  const parsed = await validateBody(request, authRefreshSchema);
+  if (!('error' in parsed)) {
+    oldToken = parsed.data.token || null;
+  }
+
+  if (!oldToken) {
+    oldToken = tokenFromRequest(request);
   }
 
   if (!oldToken) {

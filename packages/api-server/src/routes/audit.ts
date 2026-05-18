@@ -6,6 +6,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
+import { validateBody, auditQuerySchema } from '../validation.js';
 
 export const auditQueryHandler: RouteHandler = async (request, ctx) => {
   // Business tier+ check
@@ -16,24 +17,23 @@ export const auditQueryHandler: RouteHandler = async (request, ctx) => {
     );
   }
 
-  let filter: Record<string, unknown>;
-  try {
-    filter = await request.json();
-  } catch {
-    return jsonResponse(buildError('INVALID_JSON', 'Request body must be valid JSON', ctx), 400);
+  const parsed = await validateBody(request, auditQuerySchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
   }
+  const filter = parsed.data;
 
   const startTime = Date.now();
 
   try {
     const results = await ctx.db.queryAudit({
       tenantId: ctx.tenant.id,
-      operation: filter.operation as string | undefined,
-      success: filter.success as boolean | undefined,
-      since: filter.since as string | undefined,
-      until: filter.until as string | undefined,
-      limit: (filter.limit as number) || 50,
-      offset: (filter.offset as number) || 0,
+      operation: filter.operation,
+      success: filter.success,
+      since: filter.since,
+      until: filter.until,
+      limit: filter.limit ?? 50,
+      offset: filter.offset ?? 0,
     });
 
     const durationMs = Date.now() - startTime;

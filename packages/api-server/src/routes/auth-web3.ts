@@ -8,10 +8,16 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { createChallenge, verifyAndLogin } from '../auth/web3.js';
+import { validateBody, web3ChallengeSchema, web3LoginSchema } from '../validation.js';
 
 export const web3ChallengeHandler: RouteHandler = async (request, ctx) => {
+  const parsed = await validateBody(request, web3ChallengeSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
+  }
+  const body = parsed.data;
+
   try {
-    const body = await request.json() as any;
     const result = createChallenge({
       address: body.address,
       chainId: body.chainId,
@@ -27,8 +33,13 @@ export const web3ChallengeHandler: RouteHandler = async (request, ctx) => {
 };
 
 export const web3LoginHandler: RouteHandler = async (request, ctx) => {
+  const parsed = await validateBody(request, web3LoginSchema);
+  if ('error' in parsed) {
+    return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
+  }
+  const body = parsed.data;
+
   try {
-    const body = await request.json() as any;
     const result = await verifyAndLogin({
       message: body.message,
       signature: body.signature,

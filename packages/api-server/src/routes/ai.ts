@@ -12,6 +12,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { validateBody, aiAskSchema, aiAnalyzeSchema } from '../validation.js';
 
 // Gateway endpoint: check multiple env var names for compatibility
 // Order: MAPLESPIKE_AI_ENDPOINT > MAPLESPIKE_GATEWAY_URL > AI_ENDPOINT > default
@@ -96,10 +97,11 @@ export const aiAskHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
   try {
-    const body = await request.json() as { query?: string; source_filter?: string };
-    if (!body.query || typeof body.query !== 'string') {
-      return jsonResponse(buildError('MISSING_QUERY', 'Field "query" is required', bc), 400);
+    const parsed = await validateBody(request, aiAskSchema);
+    if ('error' in parsed) {
+      return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
     }
+    const body = parsed.data;
 
     const query = body.query.trim();
     if (!query) {
@@ -158,10 +160,11 @@ export const aiAnalyzeHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
   try {
-    const body = await request.json() as { text?: string; mode?: string };
-    if (!body.text || typeof body.text !== 'string') {
-      return jsonResponse(buildError('MISSING_TEXT', 'Field "text" is required', bc), 400);
+    const parsed = await validateBody(request, aiAnalyzeSchema);
+    if ('error' in parsed) {
+      return jsonResponse(buildError('VALIDATION_ERROR', parsed.error, ctx), parsed.status);
     }
+    const body = parsed.data;
 
     const mode = body.mode || 'general';
     const systemPrompt = `You are MapleSpike AI. Analyze the following document/transcript.
