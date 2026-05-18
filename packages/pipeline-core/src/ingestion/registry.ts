@@ -516,7 +516,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     description: 'Corporate influence — federal lobbying registry, procurement contracts, executive statements',
     category: 'corporate',
     modulePath: './corporate/index.js',
-    ingestFunctions: ['ingestAllCorporate', 'ingestLobbying', 'ingestProcurement', 'ingestExecutiveStatements'],
+    ingestFunctions: ['ingestAllCorporate', 'ingestLobbying', 'ingestProcurement', 'ingestExecutiveStatements', 'ingestInsiderTransactions', 'ingestCorporationsCanada'],
     sources: [
       { name: 'LobbyCanada registry', format: 'CSV' },
       { name: 'CanadaBuys procurement', format: 'RSS' },
@@ -528,11 +528,11 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'corporate-filings',
-    description: 'Corporate filings — SEDAR+, public company regulatory filings and disclosures',
+    description: 'Corporate filings — Open Canada (open.canada.ca), public company regulatory filings and disclosures',
     category: 'corporate',
     modulePath: './corporate-filings/index.js',
     ingestFunctions: ['ingestAllFilings'],
-    sources: [{ name: 'SEDAR+ regulatory filings', format: 'HTML' }],
+    sources: [{ name: 'Open Canada (open.canada.ca) CKAN API', format: 'JSON' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
   },
