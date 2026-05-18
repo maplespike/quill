@@ -165,6 +165,77 @@ Every change flows: **Issue → Branch/Worktree → PR → Merge → Close Issue
 
 6. **No PR? No merge.** Every change needs a review. Even solo work goes through PRs for traceability.
 
+---
+
+## Known Frictions & Workarounds
+
+Lessons learned from real usage. Update this section when new friction is discovered.
+
+### SSH to Remote Nodes
+The fish shell + devenv startup on remote nodes corrupts command output with:
+```
+Error: × IO error: not a terminal
+Changes that will be made to bash/devenv.nix: ...
+```
+**Workaround:** Always use `bash --norc --noprofile -c "..."` for remote SSH commands:
+```bash
+ssh nexus 'bash --norc --noprofile -c "cd /data/projects/own/maplespike && git status"'
+```
+For multi-line commands, pipe through stdin:
+```bash
+ssh nexus 'bash --norc --noprofile 2>/dev/null' << 'REMOTE'
+cd /data/projects/own/maplespike
+git status --short
+git log --oneline -3
+REMOTE
+```
+
+### Worktree Staleness
+Worktrees pinned to `bare/main` go stale (77+ commits behind) if not kept current. This causes:
+- Phantom "diverged" branches
+- PR merge failures
+- Lost work when worktree is deleted
+
+**Prevention:**
+- After PR merge, clean up the worktree: `git worktree remove /data/projects/own/maplespike-NNN && git branch -d issue-NNN-desc`
+- Verify the worktree was actually removed: `ls /data/projects/own/maplespike-NNN`
+- If permissions prevent removal: `sudo rm -rf /data/projects/own/maplespike-NNN`
+
+### Multi-Node Branch Drift
+Branches created on one node are invisible to other nodes unless pushed to `origin` (not just `bare`).
+
+**Rule:** Always push to `origin` (GitHub), not just `bare` (local). The bare repo auto-mirrors to origin, but only branches pushed to origin are visible from all nodes.
+
+```bash
+git push origin issue-NNN-short-description   # ✅ Visible everywhere
+git push bare issue-NNN-short-description      # ❌ Only visible on Zephyr
+```
+
+### Template Activation Gap
+The NixOS `hermes-cli.nix` template only applies to fresh config.yaml files. Existing configs are skipped (the activation script checks for a `# Managed by NixOS` marker).
+
+**To reapply template:** Either:
+1. Delete the existing config and let it regenerate: `rm ~/.hermes/config.yaml && just switch`
+2. Or manually update the config sections that need changing
+
+### Claude Code Protocol Mismatch
+Claude Code speaks Anthropic API. The AI Inference Gateway speaks OpenAI API. No translation layer exists. Claude Code **must** connect directly to Z.AI's Anthropic-compatible endpoint — it cannot route through the gateway.
+
+This is a hard constraint until the gateway adds Anthropic API support.
+
+### Node State Verification
+After any cleanup or sync operation, verify all 4 nodes:
+```bash
+for host in zephyr nexus forge sentry; do
+  echo "$host: $(ssh $host 'bash --norc --noprofile -c "cd /data/projects/own/maplespike && git log --oneline -1"' 2>/dev/null)"
+done
+```
+
+If a node reports stale HEAD, sync it:
+```bash
+ssh nexus 'bash --norc --noprofile -c "cd /data/projects/own/maplespike && git fetch origin && git reset --hard origin/main"'
+```
+
 **Labels:** `bug`, `enhancement`, `p1`, `p2`, `k8s`, `frontend`, `module`, `security`, `documentation`, `cleanup`
 
 ---
