@@ -6,6 +6,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
+import { validateBody } from '../validate.js';
 
 export const auditQueryHandler: RouteHandler = async (request, ctx) => {
   // Business tier+ check
@@ -16,12 +17,26 @@ export const auditQueryHandler: RouteHandler = async (request, ctx) => {
     );
   }
 
-  let filter: Record<string, unknown>;
+  let body: Record<string, unknown>;
   try {
-    filter = await request.json();
+    body = await request.json() as Record<string, unknown>;
   } catch {
     return jsonResponse(buildError('INVALID_JSON', 'Request body must be valid JSON', ctx), 400);
   }
+
+  const errs = validateBody(body, {
+    operation: { type: 'string' },
+    success: { type: 'boolean' },
+    since: { type: 'string' },
+    until: { type: 'string' },
+    limit: { type: 'number', min: 1, max: 1000 },
+    offset: { type: 'number', min: 0 },
+  });
+  if (errs.length > 0) {
+    return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), ctx), 400);
+  }
+
+  const filter = body;
 
   const startTime = Date.now();
 
