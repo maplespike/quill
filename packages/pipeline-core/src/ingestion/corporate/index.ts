@@ -329,7 +329,32 @@ export async function ingestProcurement(
 
     // Check for sole-source contracts
     const soleSource = limitedTenders.filter(t => isSoleSource(t.description, t.procurementMethod));
-    log(`[Procurement] ${soleSource.length} sole-source indicators`);
+    const highValue = limitedTenders.filter(t => (t.estimatedValue || 0) > 1_000_000);
+    result.flaggedContracts = [
+      ...soleSource.map(t => ({
+        type: 'sole-source' as const,
+        severity: 'high' as const,
+        contractId: t.id,
+        title: t.title,
+        organization: t.organization,
+        value: t.estimatedValue,
+        reason: 'Sole-source procurement — no competitive bidding process',
+        sourceUrl: t.url,
+      })),
+      ...highValue
+        .filter(t => !soleSource.includes(t))
+        .map(t => ({
+          type: 'high-value' as const,
+          severity: 'medium' as const,
+          contractId: t.id,
+          title: t.title,
+          organization: t.organization,
+          value: t.estimatedValue,
+          reason: `Contract value exceeds $1M threshold (${t.estimatedValue})`,
+          sourceUrl: t.url,
+        })),
+    ];
+    log(`[Procurement] ${result.flaggedContracts.length} contracts flagged (${soleSource.length} sole-source, ${result.flaggedContracts.length - soleSource.length} high-value)`);
 
     // Fetch proactive disclosure metadata
     log(`[Procurement] Checking proactive disclosure...`);
@@ -589,6 +614,14 @@ export async function ingestAllCorporate(
   return results;
 }
 
+// Re-export pipeline cross-reference functions
+export type { ExecutiveStory } from './pipeline.js';
+export { buildExecutiveStories } from './pipeline.js';
+
 // Re-export SEDI and Corporations Canada functions
 export { ingestInsiderTransactions } from './sedi.js';
 export { ingestCorporationsCanada } from './corporations.js';
+
+// Re-export lobbying flagging
+export type { LobbyingSpike } from './flags.js';
+export { detectLobbyingSpikes } from './flags.js';
