@@ -12,7 +12,8 @@
     "gen:data": "node scripts/generate-pipeline-data.mjs",
     "gen:real-data": "node scripts/generate-real-data.mjs",
     "gen:committees": "node scripts/fetch-real-committees.mjs",
-    "gen:all": "node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && node scripts/generate-pipeline-data.mjs"
+    "gen:llms": "node scripts/generate-llms.mjs",
+    "gen:all": "node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && node scripts/generate-pipeline-data.mjs && node scripts/generate-llms.mjs"
   },
   "license": "Apache-2.0"
 }
