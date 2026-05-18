@@ -24,12 +24,12 @@ jobs:
               repo: context.repo.repo,
               state: 'open'
             });
-            
-            const sprintMilestone = milestones.find(m => 
-              m.title === 'Sprint-to-Live v1' || 
+
+            const sprintMilestone = milestones.find(m =>
+              m.title === 'Sprint-to-Live v1' ||
               m.title.includes('Sprint-to-Live')
             );
-            
+
             if (sprintMilestone) {
               core.setOutput('milestone_number', sprintMilestone.number);
               console.log(`Found milestone: ${sprintMilestone.title} (#${sprintMilestone.number})`);
@@ -44,7 +44,7 @@ jobs:
         with:
           script: |
             const milestoneNumber = parseInt('${{ steps.find-milestone.outputs.milestone_number }}');
-            
+
             if (context.payload.pull_request) {
               await github.rest.issues.update({
                 owner: context.repo.owner,
