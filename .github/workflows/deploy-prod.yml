@@ -132,19 +132,18 @@ jobs:
             fi
             echo "ghcr-pull secret found in $NAMESPACE"
 
-      - name: Apply K8s manifests from repo
-        run: |
-           /run/current-system/sw/bin/kubectl apply -f k8s/prod/ --prune --prune-allowlist=apps/v1/Deployment --prune-allowlist=v1/Service --prune-allowlist=v1/ConfigMap --prune-allowlist=v1/Secret
-          echo "Applied k8s/prod/ manifests to $NAMESPACE"
+        - name: Apply K8s manifests from repo
+          run: |
+            /run/current-system/sw/bin/kubectl apply -f k8s/prod/ --prune --prune-allowlist=apps/v1/Deployment --prune-allowlist=v1/Service --prune-allowlist=v1/ConfigMap --prune-allowlist=v1/Secret
 
-      - name: Rollout prod deployments
-        run: |
-           /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api 2>&1 || echo "No api deployment to restart"
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp 2>&1 || echo "No mcp deployment to restart"
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-portal 2>&1 || echo "No portal deployment to restart"
+        - name: Rollout prod deployments
+          run: |
+            /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api 2>&1 || echo "No api deployment to restart"
+            kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp 2>&1 || echo "No mcp deployment to restart"
+            kubectl rollout restart deployment -n $NAMESPACE maplespike-portal 2>&1 || echo "No portal deployment to restart"
 
-      - name: Wait for rollout
-        run: |
-          kubectl rollout status deployment -n $NAMESPACE maplespike-api --timeout=5m 2>&1 || echo "Wait skipped (no api deployment)"
-          kubectl rollout status deployment -n $NAMESPACE maplespike-mcp --timeout=5m 2>&1 || echo "Wait skipped (no mcp deployment)"
-          kubectl rollout status deployment -n $NAMESPACE maplespike-portal --timeout=5m 2>&1 || echo "Wait skipped (no portal deployment)"
+        - name: Wait for rollout
+          run: |
+            kubectl rollout status deployment -n $NAMESPACE maplespike-api --timeout=5m 2>&1 || echo "Wait skipped (no api deployment)"
+            kubectl rollout status deployment -n $NAMESPACE maplespike-mcp --timeout=5m 2>&1 || echo "Wait skipped (no mcp deployment)"
+            kubectl rollout status deployment -n $NAMESPACE maplespike-portal --timeout=5m 2>&1 || echo "Wait skipped (no portal deployment)"
