@@ -12,10 +12,11 @@
  * Built-in: GitHub (from GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET)
  */
 
-import type { RouteHandler } from '../types.js';
+import type { RouteHandler, Tenant } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { getProvider, listProviders, buildAuthorizeUrl, loginWithOAuth } from '../auth/oauth.js';
 import { generateNonce, setChallenge, consumeChallenge } from '../auth/challenges.js';
+import { generateApiKey } from '../auth.js';
 
 /**
  * GET /v1/auth/oauth/providers
@@ -90,6 +91,27 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
   try {
     const result = await loginWithOAuth(provider, code);
 
+    // Auto-provision API key for new OAuth users
+    let apiKey: { id: string; key: string } | undefined;
+    if (result.isNewUser) {
+      const tenantId = `${result.profile.provider}:${result.profile.providerId}`;
+      const keyId = `key_${crypto.randomUUID().replace(/-/g, '').slice(0, 24)}`;
+      const generated = await generateApiKey();
+      apiKey = { id: keyId, key: generated.rawKey };
+
+      try {
+        // Try SqliteStorage-style createApiKey
+        const db = ctx.db as any;
+        if (typeof db.createApiKey === 'function') {
+          db.createApiKey(keyId, tenantId, generated.keyHash, 'default');
+        } else if (typeof db.createKey === 'function') {
+          await db.createKey(tenantId, keyId, generated.keyHash, 'default');
+        }
+      } catch {
+        // Non-fatal — user can generate key from workspace
+      }
+    }
+
     // Return JWT as JSON (frontend stores it)
     // Also set as httpOnly cookie for browser clients
     const response = jsonResponse(buildSuccess({
@@ -99,6 +121,7 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
       email: result.profile.email,
       avatarUrl: result.profile.avatarUrl,
       isNewUser: result.isNewUser,
+      apiKey: apiKey ? { key: apiKey.key, message: 'Save this API key — it will not be shown again.' } : undefined,
     }, ctx));
 
     // Also set cookie for browser-based auth
