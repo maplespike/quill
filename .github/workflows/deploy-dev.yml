@@ -131,8 +131,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Apply K8s manifests
         run: |
-          cd /etc/nixos
-          /run/current-system/sw/bin/kubectl apply -f <(nix eval .#kubernetes.objects --json | jq -r '.[] | @yaml') || true
+          /run/current-system/sw/bin/kubectl apply -f k8s/dev/ --prune --prune-allowlist=apps/v1/Deployment --prune-allowlist=v1/Service --prune-allowlist=v1/ConfigMap --prune-allowlist=v1/Secret
       - name: Rollout dev deployments
         run: |
           /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api
