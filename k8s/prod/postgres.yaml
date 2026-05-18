@@ -18,6 +18,7 @@ spec:
       labels:
         app: maplespike-db
     spec:
+      automountServiceAccountToken: false
       nodeName: nexus
       containers:
         - name: postgres
