@@ -126,15 +126,44 @@ git config core.hooksPath .githooks
 
 ---
 
-## GitHub Issues Workflow (MANDATORY)
+## Primary Workflow (MANDATORY — ALL AGENTS)
 
-Every change **must** have a GitHub issue. No issue = no code.
+This workflow applies to **Hermes, Pi, OMP, OpenCode, Claude Code, and ALL delegated subagents**. No exceptions.
 
-1. **Check**: `gh issue list -R reverb256/maplespike --limit 10`
-2. **Create**: `gh issue create -R reverb256/maplespike --title "..." --label "p2,frontend" --body "..." --assignee "@me"`
-3. **Branch**: `git checkout -b issue-NNN-short-description`
-4. **Commit**: Message must include `(#NNN)` — e.g., `feat: add IRCC immigration module (#42)`
-5. **PR**: Body must contain `Closes #NNN` or `Related to #NNN`
+### Golden Rule
+Every change flows: **Issue → Branch/Worktree → PR → Merge → Close Issue**. No direct pushes to main. Ever.
+
+### Step-by-Step
+
+1. **Issues first**: Nothing happens without a GitHub issue.
+   - Check: `gh issue view NNN -R reverb256/maplespike`
+   - Create: `gh issue create -R reverb256/maplespike --title "..." --label "p2" --body "..." --assignee "@me"`
+
+2. **Worktree (not just branch)**: Worktrees let you work on multiple branches simultaneously on any cluster node.
+   ```bash
+   # Create a worktree on the node closest to the workload
+   git worktree add /data/projects/own/maplespike-NNN issue-NNN-short-description
+
+   # Or create from a new branch
+   git worktree add -b issue-NNN-short-description /data/projects/own/maplespike-NNN main
+   ```
+
+3. **Develop on the right node**: Work on the cluster node closest to where the workload runs.
+   - AI/GPU work → Sentry or Nexus
+   - Data ingestion → Nexus (46GB RAM)
+   - Infrastructure changes → Zephyr
+   - Light work → any node
+
+4. **Commit**: Every commit message contains `(#NNN)` — e.g., `feat: add IRCC immigration module (#42)`
+
+5. **PR**: Push branch → create PR with `Closes #NNN` in body.
+   ```bash
+   git push origin issue-NNN-short-description
+   gh pr create -R reverb256/maplespike --base main --head issue-NNN-short-description \
+     --title "feat: description (#NNN)" --body "Closes #NNN"
+   ```
+
+6. **No PR? No merge.** Every change needs a review. Even solo work goes through PRs for traceability.
 
 **Labels:** `bug`, `enhancement`, `p1`, `p2`, `k8s`, `frontend`, `module`, `security`, `documentation`, `cleanup`
 
