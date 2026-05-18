@@ -24,6 +24,7 @@ spec:
         component: mcp
         tier: backend
     spec:
+      automountServiceAccountToken: false
       imagePullSecrets:
       - name: ghcr-pull
       nodeName: nexus

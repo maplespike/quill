@@ -24,6 +24,7 @@ spec:
         component: dashboard
         tier: frontend
     spec:
+      automountServiceAccountToken: false
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

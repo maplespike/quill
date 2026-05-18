@@ -24,6 +24,7 @@ spec:
         component: api
         tier: backend
     spec:
+      automountServiceAccountToken: false
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
