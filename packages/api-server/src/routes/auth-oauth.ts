@@ -17,6 +17,7 @@ import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../re
 import { getProvider, listProviders, buildAuthorizeUrl, loginWithOAuth } from '../auth/oauth.js';
 import { generateNonce, setChallenge, consumeChallenge } from '../auth/challenges.js';
 import { generateApiKey } from '../auth.js';
+import { serializeCookie } from '../auth/github.js';
 
 /**
  * GET /v1/auth/oauth/providers
@@ -128,7 +129,7 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
     const headers = new Headers(response.headers);
     headers.set(
       'Set-Cookie',
-      `session=${result.token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=604800`,
+      serializeCookie('session', result.token, 604800),
     );
 
     return new Response(response.body, {
