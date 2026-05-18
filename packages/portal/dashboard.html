@@ -12,6 +12,7 @@
 <meta name="description" content="See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.">
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+<script src="/sanitize.js"></script>
 <style>
 /* Dashboard layout styles (shared terminal styles in styles.css) */
 
@@ -558,8 +559,8 @@ function renderActivity(activity) {
     return `<div class="feed-item">
   <span class="feed-time">${time}</span>
   <span class="feed-dot" style="background:${dotColor};"></span>
-  <span class="feed-text">${a.text || a.title || ''}</span>
-  <span class="feed-source">${a.source ? '└─ source: ' + a.source : ''}</span>
+  <span class="feed-text">${MAPLESPIKE.esc(a.text || a.title || '')}</span>
+  <span class="feed-source">${a.source ? '└─ source: ' + MAPLESPIKE.esc(a.source) : ''}</span>
 </div>`;
   }).join('');
   const ts = document.getElementById('feed-timestamp');
@@ -619,21 +620,21 @@ function renderActivity(activity) {
       const all = [...pipeline, ...ckan].slice(0, 8);
 
       if (all.length === 0) {
-        searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--text-muted);">No results found for "' + query + '"</p>';
+        searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--text-muted);">No results found for "' + MAPLESPIKE.esc(query) + '"</p>';
       } else {
-        searchResults.innerHTML = '<div style="font-size:0.82rem;">' +
+        searchResults.innerHTML = MAPLESPIKE.sanitizeHtml('<div style="font-size:0.82rem;">' +
           all.map(r =>
             '<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">' +
-            '<span style="font-size:0.72rem;color:var(--accent-cyan);font-weight:500;">' + (r.organization?.title || r.source || 'Gov') + '</span>' +
-            '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (r.title || r.name || 'Dataset') + '</span>' +
-            (r.url ? '<a href="' + r.url + '" target="_blank" style="color:var(--text-muted);text-decoration:none;">↗</a>' : '') +
+            '<span style="font-size:0.72rem;color:var(--accent-cyan);font-weight:500;">' + MAPLESPIKE.esc(r.organization?.title || r.source || 'Gov') + '</span>' +
+            '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + MAPLESPIKE.esc(r.title || r.name || 'Dataset') + '</span>' +
+            (r.url ? '<a href="' + MAPLESPIKE.esc(r.url) + '" target="_blank" style="color:var(--text-muted);text-decoration:none;">↗</a>' : '') +
             '</div>'
           ).join('') +
-          '</div>';
+          '</div>');
       }
       searchStatus.textContent = '\u23ce enter';
     } catch (e) {
-      searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--accent);">Could not reach the API server. Make sure the MapleSpike API is running on <code>' + API_BRIDGE + '</code></p>';
+      searchResults.innerHTML = '<p style="padding:12px;font-size:0.85rem;color:var(--accent);">Could not reach the API server. Make sure the MapleSpike API is running on <code>' + MAPLESPIKE.esc(API_BRIDGE) + '</code></p>';
       searchStatus.textContent = '\u23ce enter';
     }
   }
@@ -734,7 +735,7 @@ function renderActivity(activity) {
           d.items.forEach(function(item) {
             var el = document.createElement('div');
             el.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:0.82rem;';
-            el.innerHTML = (item.done ? '✅' : '⬜') + ' <span>' + item.title + '</span>';
+            el.innerHTML = (item.done ? '✅' : '⬜') + ' <span>' + MAPLESPIKE.esc(item.title) + '</span>';
             items.appendChild(el);
           });
           bar.style.width = d.progress.percent + '%';

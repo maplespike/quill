@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapleSpike — Data Explorer: Browse all 53 Canadian government data modules</title>
   <script src="/config.js"></script>
+  <script src="/sanitize.js"></script>
   <link rel="canonical" href="https://maplespike.ca/explorer">
   <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/explorer">
   <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/explorer">
@@ -353,7 +354,7 @@
     const count = document.getElementById('results-count');
 
     if (sources.length === 0) {
-      grid.innerHTML = `<div class="no-results"><div class="icon">🔍</div><p>No data sources found matching "<strong>${searchQuery}</strong>"</p><p style="margin-top:8px;font-size:0.85rem;">Try searching "parliament", "lobbying", "court", or "health"</p></div>`;
+      grid.innerHTML = `<div class="no-results"><div class="icon">🔍</div><p>No data sources found matching "<strong>${MAPLESPIKE.esc(searchQuery)}</strong>"</p><p style="margin-top:8px;font-size:0.85rem;">Try searching "parliament", "lobbying", "court", or "health"</p></div>`;
       count.textContent = '0 results';
       return;
     }
