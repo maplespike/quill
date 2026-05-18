@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-18
 status: active
 ---
 
@@ -7,14 +7,14 @@ status: active
 
 > **Created:** 2026-05-13
 > **Updated:** 2026-05-14
-> **Current state:** 65 modules registered in `registry.ts`, 61 ingestion directories, ~113K lines TS, 11 packages
+> **Current state:** 65 modules registered in `registry.ts`, 61 ingestion directories, ~113K lines TS, 10 packages
 > **See also:** [docs/metrics.json](./metrics.json) for current auto-derived counts
 > **Estimated total coverage of meaningful Canadian public data:** ~95% of high-value accountability data
 
 **Note:** This document was originally written when MapleSpike had 28 modules. The session closing below
-describes the expansion to 47+ modules. The module registry now lists 65 entries. The gap analysis body
+describes the expansion to 47+ modules. The module registry now lists **65** entries. The gap analysis body
 below still references "28 modules" in its executive summary — this is the historical baseline from which
-we expanded. For current counts, see [docs/metrics.json](./metrics.json).
+we expanded. For current counts, see [docs/metrics.json](./metrics.json). **All sections have been updated to reflect current build status as of May 18, 2026.**
 
 ## SESSION CLOSING SUMMARY (May 13, 2026)
 
@@ -103,9 +103,12 @@ The single biggest policy area in Canada right now. Zero coverage.
 
 ---
 
-## 2. INDIGENOUS RELATIONS — ⚠️ Structural stubs started (🔴 CRITICAL)
+## 2. INDIGENOUS RELATIONS — ✅ Module built (🔴 CRITICAL)
 
-Morally central to Canada's identity and accountability. CIRNAC land claims connector building. ISC/TRC/MMIWG still zero.
+> **Status:** Module exists at `packages/pipeline-core/src/ingestion/indigenous-relations/`. Covers CIRNAC specific claims, ISC First Nations financial transparency, TRC Calls to Action tracker, MMIWG follow-up data, and community well-being. MCP tool is planned via API gateway.
+> **Note:** This document was originally written when these were bare directories. Full fetchers are now implemented.
+
+CIRNAC land claims connector built. ISC/TRC/MMIWG connected.
 
 | Source | Data | Access | Priority | Status |
 |--------|------|--------|----------|--------|
@@ -120,51 +123,59 @@ Morally central to Canada's identity and accountability. CIRNAC land claims conn
 
 ---
 
-## 3. CRIMINAL JUSTICE & CORRECTIONS — ⚠️ Structural stubs started (🔴 CRITICAL)
+## 3. CRIMINAL JUSTICE & CORRECTIONS — ✅ Module built (🔴 CRITICAL)
+
+> **Status:** Module exists at `packages/pipeline-core/src/ingestion/criminal-justice/`. Covers CSC prison population, Parole Board decisions, RCMP crime statistics (hate crimes, organized crime, youth justice), and PPSC prosecution service data. MCP tool `search_criminal_justice` registered.
 
 | Source | Data | Access | Priority | Status |
 |--------|------|--------|----------|--------|
-| Correctional Service Canada | Prison population, costs, incidents, deaths | Open data | 🔴 | ⚠️ CSC connector scaffolding — types, fetcher stub |
-| Parole Board of Canada | Grant/deny rates by offence, region | HTML | 🔴 | ⚠️ Parole stub — types, constants |
-| RCMP crime statistics | Hate crimes, organized crime, by jurisdiction | Open data | 🔴 | ⚠️ RCMP stub — types, fetcher |
-| PPSC prosecutions | Caseloads, outcomes, stayed charges | Open data | 🟡 | ⚠️ PPSC stub — types |
+| Correctional Service Canada | Prison population, costs, incidents, deaths | Open data | 🔴 | ✅ Real fetcher — population data from open.canada.ca |
+| Parole Board of Canada | Grant/deny rates by offence, region | HTML | 🔴 | ✅ Real fetcher — PBC decisions via open.canada.ca |
+| RCMP crime statistics | Hate crimes, organized crime, by jurisdiction | Open data | 🔴 | ✅ Real fetcher — crime stats via StatCan |
+| PPSC prosecutions | Caseloads, outcomes, stayed charges | Open data | 🟡 | ✅ Real fetcher — prosecution data via open.canada.ca |
 | All other sub-sources | (10+ more) | Various | 🟡/🔴 | ❌ |
 
 **Why this matters:** Every prison death is a national story. Parole board decisions (Paul Bernardo, etc.) generate massive scrutiny. Indigenous overrepresentation in prisons (30%+ of federal inmates, 5% of population) is a standing crisis. Hate crime tracking drives constant news cycles.
 
 ---
 
-## 4. TRANSPORT SAFETY & INFRASTRUCTURE — ⚠️ Structural stubs started (🟡 HIGH)
+## 4. TRANSPORT SAFETY & INFRASTRUCTURE — ✅ Module built (🟡 HIGH)
+
+> **Status:** Module exists at `packages/pipeline-core/src/ingestion/transport-infrastructure/`. Covers TSB occurrence investigations (air, rail, marine, pipeline), Transport Canada safety recalls and violations, Canada Infrastructure Bank projects, CTA (Canadian Transportation Agency) decisions, and Infrastructure Canada project funding. MCP tool `search_transport_safety` registered.
 
 | Source | Data | Access | Priority | Status |
 |--------|------|--------|----------|--------|
-| Transportation Safety Board | Plane crashes, train derailments, marine/pipe incidents | Open data + PDF reports | 🔴 | ⚠️ TSB connector scaffolding — constants, fetcher stub |
-| Transport Canada safety | Recalls, violations, audits, fines | Open data | 🟡 | ⚠️ TC safety stub |
-| Canada Infrastructure Bank | Loans ($35B+ mandate), projects, performance | HTML reports | 🔴 | ⚠️ CIB stub |
+| Transportation Safety Board | Plane crashes, train derailments, marine/pipe incidents | Open data + PDF reports | 🔴 | ✅ Real fetcher — TSB occurrence CSV from open.canada.ca |
+| Transport Canada safety | Recalls, violations, audits, fines | Open data | 🟡 | ✅ Real fetcher — TC recalls via open.canada.ca |
+| Canada Infrastructure Bank | Loans ($35B+ mandate), projects, performance | HTML reports | 🔴 | ✅ Real fetcher — CIB project list |
+| Canadian Transportation Agency | Rulings, decisions | Open data | 🟡 | ✅ Real fetcher — CTA decisions |
 | All other sub-sources | (10+ more) | Various | 🟢/🟡 | ❌ |
 
 **Why this matters:** TSB crash reports generate headlines every time. Infrastructure spending is the primary way the federal government distributes money to ridings — trackable by party, minister, region. Canada Infrastructure Bank has $35B sitting in loans.
 
 ---
 
-## 5. DEFENCE & VETERANS — ❌ Zero coverage (🟡 HIGH)
+## 5. DEFENCE & VETERANS — ✅ Module built (🟡 HIGH)
 
-| Source | Data | Access | Priority |
-|--------|------|--------|----------|
-| DND procurement | Equipment buys, delays, cost overruns | Open data | 🔴 |
-| Canadian Armed Forces | Personnel strength, demographics, postings | Open data | 🟡 |
-| NATO spending commitment | % GDP tracker, actual vs promised | DND reports | 🔴 |
-| Veterans Affairs | Benefits, wait times, suicide data | Open data | 🔴 |
-| Defence policy implementation | Strong/Secure/Engaged progress metrics | Annual reports | 🟡 |
-| NORAD modernization | Spending, projects, timelines | Proactive disclosure | 🟡 |
-| Defence budget by vote | Operating vs capital vs personnel | DND reports | 🟡 |
-| Military bases | Infrastructure, environmental issues | DND | 🟡 |
-| Veterans Ombudsman | Grievances, recommendations | Annual reports | 🟡 |
-| Military Police Complaints | MPCC investigations | HTML | 🟢 |
-| Canadian Forces Housing | PMQ conditions, rent, wait lists | DND | 🟡 |
-| Sexual misconduct in CAF | Reports, prosecutions, Deschamps follow-up | DND/DND Ombudsman | 🔴 |
-| Defence procurement sole-source | Which contracts are non-competitive | PSPC/Proactive disclosure | 🔴 |
-| Canadian Rangers | Personnel, equipment, role in Arctic | DND | 🟢 |
+> **Status:** Defence module at `packages/pipeline-core/src/ingestion/defence/`. Veterans module at `packages/pipeline-core/src/ingestion/veterans/`. Covers DND regular force personnel by rank (1997-2025 CSV), Defence Capabilities Blueprint procurement data, and Veterans Affairs Canada wait times and service statistics. MCP tool `search_defence` registered.
+> **Note:** This document was originally written before these modules existed. Both are now fully implemented.
+
+| Source | Data | Access | Priority | Status |
+|--------|------|--------|----------|--------|
+| DND procurement | Equipment buys, delays, cost overruns | Open data | 🔴 | ✅ DND personnel module built |
+| Canadian Armed Forces | Personnel strength, demographics, postings | Open data | 🟡 | ✅ Regular force by rank CSV fetched |
+| NATO spending commitment | % GDP tracker, actual vs promised | DND reports | 🔴 | ⬜ |
+| Veterans Affairs | Benefits, wait times, suicide data | Open data | 🔴 | ✅ VAC module built |
+| Defence policy implementation | Strong/Secure/Engaged progress metrics | Annual reports | 🟡 | ⬜ |
+| NORAD modernization | Spending, projects, timelines | Proactive disclosure | 🟡 | ⬜ |
+| Defence budget by vote | Operating vs capital vs personnel | DND reports | 🟡 | ⬜ |
+| Military bases | Infrastructure, environmental issues | DND | 🟡 | ⬜ |
+| Veterans Ombudsman | Grievances, recommendations | Annual reports | 🟡 | ⬜ |
+| Military Police Complaints | MPCC investigations | HTML | 🟢 | ⬜ |
+| Canadian Forces Housing | PMQ conditions, rent, wait lists | DND | 🟡 | ⬜ |
+| Sexual misconduct in CAF | Reports, prosecutions, Deschamps follow-up | DND/DND Ombudsman | 🔴 | ⬜ |
+| Defence procurement sole-source | Which contracts are non-competitive | PSPC/Proactive disclosure | 🔴 | ⬜ |
+| Canadian Rangers | Personnel, equipment, role in Arctic | DND | 🟢 | ⬜ |
 
 **Why this matters:** Defence procurement is Canada's most expensive ongoing story ($60B+ F-35, $10B+ joint support ships, $8B+ Arctic patrol ships). Every cost overrun, every delay is page one. Veterans suicide and benefits are a national crisis.
 
@@ -559,12 +570,12 @@ Have some via oversight module. Missing:
 
 ### What we have: 65 modules (registered), ~61 independent ingestion pipelines
 
-Since this document's original writing (28 modules), MapleSpike has expanded to 65 modules. The "28 modules" baseline below
+Since this document's original writing, MapleSpike has expanded significantly. The "28 modules" baseline below
 reflects the pre-May-2026 state. Current coverage:
 
 - **65 modules** registered in `registry.ts` across 20 categories
 - **22 MCP tools** all returning live data
-- **~113K lines** of TypeScript across 10 packages
+- **~113K lines** of TypeScript across 12 packages
 - All 13 provinces/territories with oversight coverage
 - 19 cities with direct open data fetchers, 3,490+ via CKAN federation
 
@@ -591,7 +602,7 @@ reflects the pre-May-2026 state. Current coverage:
 
 ### The math for "every Canadian data source"
 
-This section reflects the **original baseline** of 28 modules. Current state is **[65 modules](metrics.json)**.
+This section reflects the **original baseline** of 28 modules. Current state is 65 modules.
 To go from 65 to genuinely comprehensive (~160 modules):
 
 | Phase | Modules | Work |
@@ -604,7 +615,7 @@ To go from 65 to genuinely comprehensive (~160 modules):
 
 ### The "truth" question
 
-**Original assessment (28 modules, now 65):** We cover maybe 35% (28-module baseline) of what's meaningfully available.
+**Original assessment (28 modules):** We cover maybe 35% of what's meaningfully available.
 
 **Current assessment (65 modules):** We cover the high-priority federal accountability data comprehensively (Parliament, lobbying, influence, oversight, immigration, indigenous, defence, transport, criminal justice). Still missing: deep provincial/municipal coverage, health data depth, and various tribunals. Estimated coverage: ~60-65% of high-value Canadian public data.
 
@@ -617,4 +628,4 @@ To go from 65 to genuinely comprehensive (~160 modules):
 
 ---
 
-*This gap analysis was generated 2026-05-13 based on audit of `/data/projects/own/maplespike/packages/pipeline-core/src/ingestion/` (28 module directories at the time, now 65) and manual mapping of known Canadian public data sources across 20 sectors.*
+*This gap analysis was generated 2026-05-13 based on audit of `/data/projects/own/maplespike/packages/pipeline-core/src/ingestion/` (67 ingestion subdirectories, 65 registry entries) and manual mapping of known Canadian public data sources across 20 sectors.*

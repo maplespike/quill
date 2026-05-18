@@ -32,10 +32,11 @@
   },
   "packages": {
     "total": 11,
-    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "docs", "pretext-civic", "legal-core", "legislation"]
+    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "docs", "database", "legal-core", "legislation"]
   },
   "externalEndpoints": {
     "estimated": 1141,
     "description": "Estimated unique external data endpoints consumed across all modules"
-  }
+  },
+  "lastUpdated": "2026-05-18"
 }
