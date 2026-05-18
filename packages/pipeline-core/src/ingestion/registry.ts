@@ -485,7 +485,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCrownCorporations', 'ingestAllCrownCorporations', 'searchCrownCorporations'],
     sources: [{ name: 'Crown corp publications', format: 'HTML/PDF' }],
     updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'cra-charity',
     description: 'CRA Charity T3010 — detailed financials of every registered Canadian charity',
@@ -494,7 +496,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCraCharities', 'ingestAllCraCharityYears', 'getTopPoliticalSpenders'],
     sources: [{ name: 'CRA charity data (apps.cra-arc.gc.ca)', format: 'CSV' }],
     updateFrequency: 'annual',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'bank-of-canada',
     description: 'Bank of Canada — rate decisions, monetary policy reports, Financial System Review, executive speeches',
@@ -506,7 +510,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'VALA executive speeches', format: 'HTML' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'fetchFeed',
   },
+
   {
     name: 'cmhc',
     description: 'CMHC — Canada Mortgage and Housing Corporation housing market data, rental reports, housing starts',
@@ -515,6 +521,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCmhc', 'searchCmhcRecords', 'getCmhcByMetric'],
     sources: [{ name: 'CMHC open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Influence ────────────────────────────────────────────
@@ -529,7 +536,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'open.canada.ca grants CKAN', format: 'JSON' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'ngo-influence-rss',
     description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
@@ -538,6 +547,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllNgoRss', 'ingestNgoSource', 'searchNgoRss', 'classifyNarrative'],
     sources: [{ name: 'Advocacy org RSS feeds', format: 'RSS' }],
     updateFrequency: 'daily',
+    testCallPattern: 'fetchFeed',
   },
 
   // ── Media ────────────────────────────────────────────────
@@ -552,7 +562,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'CRTC ownership database', format: 'HTML' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'fetchFeed',
   },
+
   {
     name: 'media-broadcasting',
     description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
@@ -561,6 +573,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllMedia'],
     sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Geospatial ────────────────────────────────────────────
@@ -572,6 +585,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllGeospatial', 'ingestLodeDatabaseById', 'searchLode', 'listLodeDatabases'],
     sources: [{ name: 'LODE geospatial database', format: 'JSON' }, { name: 'Provincial CKAN geospatial', format: 'JSON' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Provincial ────────────────────────────────────────────
@@ -597,7 +611,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Nunavut lobbying registry', format: 'N/A' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'provincial-legislatures',
     description: 'Provincial legislatures — Hansard, committees, and bills across all 10 provinces',
@@ -610,7 +626,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Alberta Hansard HTML', format: 'HTML' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'provincial',
     description: 'Provincial deep-dive datasets — supplementary provincial data beyond core CKAN',
@@ -629,7 +647,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Nunavut Open Data Portal', format: 'CKAN' }
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'provincial-orgs',
     description: 'Provincial organizations — provincial agencies, boards, and commissions directory',
@@ -638,7 +658,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllProvincialOrgs', 'ingestProvinceOrgs', 'searchProvincialOrg'],
     sources: [{ name: 'Provincial org directories', format: 'HTML' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'provincial-regulators',
     description: 'Provincial regulators — regulatory bodies and their coverage across provinces',
@@ -647,6 +669,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllRegulators', 'getRegulatorCoverage'],
     sources: [{ name: 'Provincial regulator websites', format: 'HTML' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Social ────────────────────────────────────────────────
@@ -661,7 +684,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'ESDC open.canada.ca', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'unions',
     description: 'Unions — labour organization data, collective agreements, membership statistics',
@@ -670,6 +695,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllUnions'],
     sources: [{ name: 'Labour program data', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Science & Education ──────────────────────────────────
@@ -685,7 +711,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Ocean observations', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'education-research',
     description: 'Education & research — Tri-Council grants (CIHR/NSERC/SSHRC), Canada Research Chairs, CFI, student loans',
@@ -699,7 +727,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'CSL student loans', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
+
   {
     name: 'universities',
     description: 'Universities — deep university data: tuition, enrollment, program costs, institutional finances',
@@ -708,6 +738,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllUniversities'],
     sources: [{ name: 'StatCan university data', format: 'CSV' }],
     updateFrequency: 'annual',
+    testCallPattern: 'runModule',
   },
 
   // ── Culture ──────────────────────────────────────────────
@@ -719,6 +750,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllCulture', 'searchCulture'],
     sources: [{ name: 'Canadian Heritage open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Intellectual Property ────────────────────────────────
@@ -730,6 +762,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCipo', 'searchCipoRecords', 'getCipoByOwner'],
     sources: [{ name: 'CIPO open data', format: 'CSV' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
 ];
 
