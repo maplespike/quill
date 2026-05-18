@@ -62,10 +62,32 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0
 
+  packages/database:
+    dependencies:
+      better-sqlite3:
+        specifier: ^11.0.0
+        version: 11.10.0
+      drizzle-orm:
+        specifier: ^0.38.0
+        version: 0.38.4(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(@types/react@19.2.14)(better-sqlite3@11.10.0)(pg@8.20.0)(react@19.2.5)
+    devDependencies:
+      '@types/better-sqlite3':
+        specifier: ^7.6.0
+        version: 7.6.13
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.19
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
   packages/docs: {}
 
   packages/engine:
     dependencies:
+      '@maplespike/database':
+        specifier: workspace:*
+        version: link:../database
       better-sqlite3:
         specifier: ^11.0.0
         version: 11.10.0
