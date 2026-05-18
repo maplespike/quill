@@ -42,7 +42,7 @@ MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K
 │  │  │  22 Tools (query_gov_data, search_*, ai_*)    │   │    │
 │  │  └──────────────────────────────────────────────┘   │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
-│  │  │  AI Gateway (chat, embed, Qdrant vector DB)  │   │    │
+  │  │  │  AI Gateway (chat, embed)                     │   │    │
 │  │  └──────────────────────────────────────────────┘   │    │
 │  └──────────────────────────────────────────────────────┘    │
 │                                                               │
@@ -132,7 +132,7 @@ All tools return real data from pipeline-core via the API server client.
 ### AI Layer
 
 - **AI Gateway** — Chat completion and embedding via configurable backend
-- **Qdrant Vector DB** — Semantic search across ingested pipeline data (2048-dim vectors, Cosine distance)
+- **Vector Search** — Semantic search across ingested pipeline data
 
 ## Infrastructure
 

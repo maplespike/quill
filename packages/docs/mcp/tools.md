@@ -321,7 +321,7 @@ Analyze a document, transcript, or data set using AI. Detects topics, sentiment,
 
 ## 21. ai_search_semantic
 
-Semantic search across all ingested pipeline data using vector embeddings. Finds conceptually related documents even when keywords don't match. Uses Qdrant vector DB for similarity search.
+Semantic search across all ingested pipeline data using vector embeddings. Finds conceptually related documents even when keywords don't match.
 
 **Input Schema:**
 
