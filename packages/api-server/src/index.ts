@@ -152,8 +152,7 @@ ROUTES.push({
   params: [],
   handler: (async (req: Request, ctx: RouteContext, params: Record<string, string>) => {
     try {
-      const path = '../loaders/signals.js';
-      const mod = await Function('path', 'return import(path)')(path);
+      const mod = await import('../loaders/signals.js');
       return mod.signalsHandler(req, ctx, params);
     } catch {
       return new Response(JSON.stringify({
