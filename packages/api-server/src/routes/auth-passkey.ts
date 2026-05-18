@@ -11,6 +11,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { validateBody } from '../validate.js';
 import {
   beginRegistration,
   completeRegistration,
@@ -22,11 +23,20 @@ import {
 
 export const passkeyRegisterBeginHandler: RouteHandler = async (request, ctx) => {
   try {
-    const body = await request.json() as any;
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      userId: { type: 'string', maxLength: 200 },
+      userName: { type: 'string', maxLength: 200 },
+      deviceName: { type: 'string', maxLength: 200 },
+    });
+    if (errs.length > 0) {
+      const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const result = await beginRegistration({
-      userId: body.userId || ctx.tenant.id,
-      userName: body.userName || ctx.tenant.name || 'User',
-      deviceName: body.deviceName,
+      userId: (body.userId as string) || ctx.tenant.id,
+      userName: (body.userName as string) || ctx.tenant.name || 'User',
+      deviceName: body.deviceName as string | undefined,
     });
 
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
@@ -40,11 +50,20 @@ export const passkeyRegisterBeginHandler: RouteHandler = async (request, ctx) =>
 
 export const passkeyRegisterCompleteHandler: RouteHandler = async (request, ctx) => {
   try {
-    const body = await request.json() as any;
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      registrationId: { type: 'string', required: true },
+      credential: { type: 'object', required: true },
+      deviceName: { type: 'string', maxLength: 200 },
+    });
+    if (errs.length > 0) {
+      const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const result = await completeRegistration({
-      registrationId: body.registrationId,
-      credential: body.credential,
-      deviceName: body.deviceName,
+      registrationId: body.registrationId as string,
+      credential: body.credential as Record<string, unknown>,
+      deviceName: body.deviceName as string | undefined,
     });
 
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
@@ -58,9 +77,16 @@ export const passkeyRegisterCompleteHandler: RouteHandler = async (request, ctx)
 
 export const passkeyLoginBeginHandler: RouteHandler = async (request, ctx) => {
   try {
-    const body = await request.json() as any;
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      userId: { type: 'string', required: true, maxLength: 200 },
+    });
+    if (errs.length > 0) {
+      const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const result = beginLogin({
-      userId: body.userId,
+      userId: body.userId as string,
     });
 
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
@@ -74,10 +100,18 @@ export const passkeyLoginBeginHandler: RouteHandler = async (request, ctx) => {
 
 export const passkeyLoginCompleteHandler: RouteHandler = async (request, ctx) => {
   try {
-    const body = await request.json() as any;
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      loginId: { type: 'string', required: true },
+      credential: { type: 'object', required: true },
+    });
+    if (errs.length > 0) {
+      const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const result = await completeLogin({
-      loginId: body.loginId,
-      credential: body.credential,
+      loginId: body.loginId as string,
+      credential: body.credential as Record<string, unknown>,
     });
 
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
