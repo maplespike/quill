@@ -109,26 +109,26 @@
           <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 1</div>
           <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Start the API server</div>
           <div class="code-block" style="font-size:0.75rem;margin:0;">
-            <span class="prompt">$</span> cd packages/api-server && PORT=8085 node dist/dev-server.js
+            <span class="prompt">$</span> node packages/api-server/dist/dev-server.js
           </div>
         </div>
         <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
           <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 2</div>
           <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Make your first API call</div>
           <div class="code-block" style="font-size:0.75rem;margin:0;">
-            <span class="prompt">$</span> curl <span class="config-api-base">http://127.0.0.1:8085</span>/v1/health
+            <span class="prompt">$</span> curl <span class="config-api-base">http://127.0.0.1:8082</span>/v1/health
           </div>
         </div>
         <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px;">
           <div style="font-size:0.75rem;color:var(--accent);font-weight:700;margin-bottom:6px;">STEP 3</div>
           <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Search government data</div>
           <div class="code-block" style="font-size:0.75rem;margin:0;">
-            <span class="prompt">$</span> curl "<span class="config-api-base">http://127.0.0.1:8085</span>/v1/gov/search?q=housing" -H "X-API-Key: <span class="config-api-key">maplespike-dev-key</span>"
+            <span class="prompt">$</span> curl "<span class="config-api-base">http://127.0.0.1:8082</span>/v1/gov/search?q=housing" -H "X-API-Key: <span class="config-api-key">maplespike-dev-key</span>"
           </div>
         </div>
       </div>
       <div style="margin-top:12px;font-size:0.8rem;color:var(--text-muted);">
-        The workspace panels below connect to <code class="config-api-base">http://127.0.0.1:8085</code> when the API server is running.
+        The workspace panels below connect to <code class="config-api-base">http://127.0.0.1:8082</code> when the API server is running.
         Start the server above to see live usage stats and API keys.
       </div>
     </div>
@@ -351,7 +351,7 @@
 
   async function apiFetch(path, options = {}) {
     const _cfg = window.MAPLESPIKE || {};
-    const base = _cfg.apiBase || 'http://127.0.0.1:8085';
+    const base = _cfg.apiBase || 'http://127.0.0.1:8082';
     const headers = { ...getAuthHeaders(), ...options.headers };
     const resp = await fetch(base + path, { ...options, headers });
     return resp;

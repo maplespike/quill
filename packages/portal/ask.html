@@ -661,7 +661,7 @@ const sendBtn = document.getElementById('ask-send-btn');
 const suggestions = document.querySelectorAll('.suggestion-chip');
 
 const _cfg = window.MAPLESPIKE || {};
-const _base = _cfg.apiBase || 'http://127.0.0.1:8085';
+  const _base = _cfg.apiBase || 'http://127.0.0.1:8082';
 const _to = _cfg.timeout || {};
 const API_ENDPOINT = _base + '/v1/ai_ask';
 const GOV_SEARCH_ENDPOINT = _base + '/v1/gov/search';
@@ -820,7 +820,7 @@ showTyping();
         citations = aiResult.citations;
       } catch (aiErr) {
         // Both APIs unreachable — graceful fallback message
-        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike API server. This usually means the server isn't running.\n\n**To fix this:** start the MapleSpike API server from the project root:\n  \`cd packages/api-server && PORT=8085 node dist/dev-server.js\`\n\nThen refresh this page and try again.\n\nIn the meantime, you can:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**`;
+        answer = `**API unavailable**\n\nI couldn't reach the MapleSpike API server. This usually means the server isn't running.\n\n**To fix this:** start the MapleSpike API server from the project root:\n  \`cd packages/api-server && node dist/dev-server.js\`\n\nThen refresh this page and try again.\n\nIn the meantime, you can:\n• Visit the **[Explorer →](explorer.html)** to browse available data categories\n• Check the **[Docs →](docs.html)** for API reference and sample queries\n• Explore the **data pipeline** with live stats on the **[Dashboard →](dashboard.html)**`;
         citations = [];
       }
     }
