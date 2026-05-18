@@ -33,6 +33,7 @@ import {
   meetingExists,
   getLatestMeetingNumber,
 } from './db.js';
+import { upsertPerson } from '../../shared-db.js';
 import type { Chamber, CommitteeIngestionResult, CommitteeMeeting, Intervention } from './types.js';
 
 
@@ -211,6 +212,18 @@ export async function ingestCommittee(
           if (!seenSpeakers.has(inv.speakerName)) {
             seenSpeakers.add(inv.speakerName);
             await upsertSpeaker(db, inv.speakerName, inv.speakerAffiliation, inv.speakerParty, cm.date);
+            // Also upsert to shared persons table (engine consumption)
+            try {
+              upsertPerson(inv.speakerName, {
+                firstName: inv.speakerName.split(" ")[0],
+                lastName: inv.speakerName.split(" ").slice(1).join(" "),
+                province: cm.committeeAcronym ? undefined : undefined,
+                source: "committees",
+                rawData: { affiliation: inv.speakerAffiliation, party: inv.speakerParty, committee: cm.committeeAcronym },
+              });
+            } catch (e) {
+              // Non-fatal: shared table may not exist yet
+            }
           }
         }
         result.speakersFound += seenSpeakers.size;
