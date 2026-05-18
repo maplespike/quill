@@ -27,6 +27,7 @@ import * as searchTribunals from './search-tribunals.js';
 import * as searchLode from './search-lode.js';
 import * as searchVeterans from './search-veterans.js';
 import * as searchNgoRss from './search-ngo-rss.js';
+import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchHealth from './search-health.js';
 
 import * as aiAsk from './ai-ask.js';
@@ -65,6 +66,7 @@ export function getAllTools(): ToolModule[] {
     searchLode,
     searchVeterans,
     searchNgoRss,
+    searchNarrativeTracker,
     searchHealth,
 
     aiAsk,
