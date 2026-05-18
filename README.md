@@ -78,8 +78,8 @@ pipeline-core ──→ SQLite DB ──→ MCP server (22 live tools) ──→
 | 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | ✅ DONE |
 | 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | ✅ DONE |
 | 3 | **Wire MCP** — 24 tools all returning real DB results | ✅ DONE |
-| 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ⏳ TODO |
-| 5 | **Live Dashboard** — hits MCP/API for live data | ⏳ TODO |
+| 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ✅ DONE |
+| 5 | **Live Dashboard** — hits MCP/API for live data | ✅ DONE |
 | 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🔴 TODO |
 | 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | 🔴 TODO |
 
