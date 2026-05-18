@@ -28,6 +28,7 @@
  */
 
 import { fetchCrownCorpReport, fetchAllCrownCorps } from './fetcher.js';
+import { upsertOrganization } from '../../shared-db.js';
 import { parseReport, parseRecords } from './parser.js';
 import {
   CROWN_CORP_CONFIGS,
@@ -422,6 +423,24 @@ export async function ingestCrownCorporations(
       }
 
       result.perOrg[org] = orgResult;
+
+      // Also upsert crown corp as organization in shared tables
+      if (config) {
+        try {
+          upsertOrganization(config.name, {
+            type: "crown_corporation",
+            province: undefined,
+            website: config.homepageUrl,
+            source: "crown-corporations",
+            rawData: {
+              code: config.code,
+              shortName: config.shortName,
+              annualReportsUrl: config.annualReportsUrl,
+              quarterlyReportsUrl: config.quarterlyReportsUrl,
+            },
+          });
+        } catch { /* non-fatal */ }
+      }
 
       // Accumulate totals
       result.recordsFound += orgResult.recordsFound;
