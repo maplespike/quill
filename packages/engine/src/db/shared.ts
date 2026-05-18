@@ -1,2 +1,2 @@
-// Unified DatabaseService re-export from pipeline-core
-export * from '@maplespike/pipeline-core/db';
+// Unified DatabaseService — re-export from shared @maplespike/database package
+export * from '@maplespike/database';
