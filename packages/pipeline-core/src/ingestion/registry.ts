@@ -25,6 +25,8 @@ export interface ModuleInfo {
   modulePath: string;
   /** Main ingestion function names (for discovery) */
   ingestFunctions: string[];
+  /** Test call pattern for module verification */
+  testCallPattern?: string;
   /** Known data sources (API endpoints, portals, RSS feeds) */
   sources: { name: string; format: string }[];
   /** How often the source data changes */
