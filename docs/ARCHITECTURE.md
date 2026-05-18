@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-18
 status: active
 ---
 
@@ -178,7 +178,7 @@ K3s Cluster (nexus)
 │   │           ├── Influence .................... ✅
 │   │           ├── Gazette (Parts I, II) ........ ✅
 │   │           ├── GIC Appointments ............ ✅
-│   │           ├── Provincial Lobbying (ON) .... ✅ ON full (BC/QC/AB stubbed)
+│   │           ├── Provincial Lobbying (ON/BC/AB/QC) .. ✅ All 4 full implementations
 │   │           ├── Elections Canada ............. ✅
 │   │           ├── Oversight Bodies ............ ✅
 │   │           ├── CanLII Court Decisions ...... ✅
@@ -349,7 +349,11 @@ Also triggers on push to `prod`. Publishes SDK packages:
 
 ### 7.1 Market Sizing
 
+*This section reserved for market analysis. Core insight: Canadian government accountability data is currently fragmented across 50+ portals. MapleSpike is the first unified API layer.*
+
 ### 7.2 Competitive Landscape
+
+*No direct competitor offers a unified Canadian government data API with verified SHA-256 citations. Comparisons: mqp-canada (precursor, fewer modules), Google Dataset Search (no API), individual CKAN portals (no aggregation).*
 
 ### 7.3 Target Audiences
 
