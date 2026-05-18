@@ -1,14 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { MediaRecord, MediaIngestionResult } from './types.js';
 import { MEDIA_SOURCES, MEDIA_FETCH_TIMEOUT_MS, MEDIA_USER_AGENT, MAX_MEDIA_RECORDS } from './constants.js';
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), MEDIA_FETCH_TIMEOUT_MS);
-    const resp = await fetch(url, { headers: { 'User-Agent': MEDIA_USER_AGENT }, signal: ctrl.signal });
-    clearTimeout(t);
-    return resp.ok ? await resp.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': MEDIA_USER_AGENT }, timeoutMs: MEDIA_FETCH_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 

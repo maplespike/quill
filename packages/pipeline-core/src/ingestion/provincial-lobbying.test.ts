@@ -100,7 +100,7 @@ describe('provincial lobbying constants', () => {
       mod.NUNAVUT_LOBBYING.BASE,
       'https://www.gov.nu.ca/',
     );
-    assert.equal(mod.NUNAVUT_LOBBYING.SEARCH, '');
+    assert.equal(mod.NUNAVUT_LOBBYING.SEARCH, 'https://lobbycanada.gc.ca/app/secure/ocl/lrs/do/advSrch');
     assert.ok(mod.NUNAVUT_LOBBYING.NOTE);
   });
 

@@ -1,12 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { A2ajCoverageItem, A2ajDocument, A2ajSearchResult, A2ajIngestionResult } from './types.js';
 import { A2AJ_BASE, A2AJ_TIMEOUT_MS, A2AJ_USER_AGENT, A2AJ_MAX_SEARCH_RESULTS, TRACKED_DATASETS } from './constants.js';
 
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), A2AJ_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': A2AJ_USER_AGENT, Accept: 'application/json' }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.json() as T : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': A2AJ_USER_AGENT, Accept: 'application/json' }, timeoutMs: A2AJ_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : await resp.json() as T;
   } catch { return null; }
 }
 

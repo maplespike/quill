@@ -1,12 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { FederalDataset, FederalDeepIngestionResult } from './types.js';
 import { FD_USER_AGENT, FD_TIMEOUT_MS, CKAN_BASE, CIHI_BASE, CIHI_DATASETS, MAX_FEDERAL_RECORDS } from './constants.js';
 
 async function fetchJson(url: string): Promise<any> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), FD_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': FD_USER_AGENT }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.json() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': FD_USER_AGENT }, timeoutMs: FD_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 

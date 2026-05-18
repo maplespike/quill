@@ -6,6 +6,7 @@
     "composite": true,
     "lib": ["ES2022", "DOM"]
   },
+  "exclude": ["dist", "node_modules", "**/*.test.ts"],
   "include": ["src"],
   "references": [
     { "path": "../pipeline-core" }

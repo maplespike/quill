@@ -1,12 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { ProvincialDataset, ProvincialDeepIngestionResult } from './types.js';
 import { PD_USER_AGENT, PD_TIMEOUT_MS, SMALLER_PROVINCES, SECTOR_KEYWORDS, PROVINCIAL_CKAN, MAX_DATASETS_PER_SECTOR } from './constants.js';
 
 async function fetchJson(url: string): Promise<any> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), PD_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': PD_USER_AGENT }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.json() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': PD_USER_AGENT }, timeoutMs: PD_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 

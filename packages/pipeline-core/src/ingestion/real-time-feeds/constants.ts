@@ -62,3 +62,9 @@ export const REALTIME_FETCH_TIMEOUT_MS = 15_000;
 export const REALTIME_USER_AGENT = 'MapleSpike-Realtime/1.0 (+https://github.com/reverb256/maplespike)';
 export const MAX_REALTIME_RECORDS = 200;
 export const REALTIME_CACHE_TTL_MS = 60_000; // 1-minute cache for fast re-queries
+
+// ── MSC AMQPS Configuration ─────────────────────────────
+export const MSC_AMQPS_URL = 'amqps://q.weather.gc.ca:5671';
+export const MSC_AMQPS_QUEUE = 'v00.msc-alerts.cap';
+export const MSC_AMQPS_TOPIC = 'v00.msc-alerts.cap';
+export const MSC_AMQPS_ENABLED = process.env['MSC_AMQPS_ENABLED'] !== 'false'; // opt-out via env

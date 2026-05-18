@@ -5,6 +5,8 @@ import type { MapleSpikeResponse, QueryOptions, MapleSpikeApiError } from './typ
 import { MapleSpikeError } from './types.js';
 import { getApiKey, getJwtToken } from './auth.js';
 
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+
 export const DEFAULT_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
 const DEV_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
 
@@ -69,6 +71,7 @@ export function buildHeaders(apiKey?: string, jwtToken?: string): Record<string,
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    'User-Agent': USER_AGENT,
   };
 
   const key = apiKey ?? getApiKey();

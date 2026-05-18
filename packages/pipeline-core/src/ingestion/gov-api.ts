@@ -8,6 +8,8 @@
  * Gov data schema: cloudflare/schema.sql (gov_releases_cache table)
  */
 
+import { httpGet } from '../utils/http.js';
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
 /* ------------------------------------------------------------------ */
@@ -44,6 +46,7 @@ export interface StatCanRelease {
 /*  Statistics Canada WDS REST API                                     */
 /* ------------------------------------------------------------------ */
 
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const STATCAN_WDS_BASE = 'https://www150.statcan.gc.ca/t1/wds/rest';
 
 /**
@@ -57,16 +60,16 @@ export async function fetchStatCanReleases(
 
   try {
     // getAllCubesListLite is the current endpoint (getAllCubes deprecated)
-    const response = await fetch(`${STATCAN_WDS_BASE}/getAllCubesListLite`, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15000),
+    const resp = await httpGet(`${STATCAN_WDS_BASE}/getAllCubesListLite`, {
+      headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
+      timeoutMs: 15000,
     });
 
-    if (!response.ok) {
-      throw new Error(`StatCan WDS error: ${response.status}`);
+    if (resp.statusCode >= 400) {
+      throw new Error(`StatCan WDS error: ${resp.statusCode}`);
     }
 
-    const data: any[] = await response.json();
+    const data: any[] = await resp.json();
     const cubes = (Array.isArray(data) ? data : []).slice(0, limit);
 
     return cubes
@@ -116,16 +119,16 @@ export async function fetchCKANPackages(
   const url = `${portal}/api/3/action/package_search?rows=${rows}${query ? `&q=${encodeURIComponent(query)}` : ''}`;
 
   try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(15000),
-      headers: { Accept: 'application/json' },
+    const resp = await httpGet(url, {
+      timeoutMs: 15000,
+      headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
     });
 
-    if (!response.ok) {
-      throw new Error(`CKAN error (${portal}): ${response.status}`);
+    if (resp.statusCode >= 400) {
+      throw new Error(`CKAN error (${portal}): ${resp.statusCode}`);
     }
 
-    const data: any = await response.json();
+    const data: any = await resp.json();
     if (!data.success || !data.result?.results) {
       return [];
     }
@@ -211,16 +214,16 @@ async function fetchSocrataDatasets(
 ): Promise<OpenDataPortalDataset[]> {
   try {
     const catalogUrl = `${source.endpoint}/data.json`;
-    const response = await fetch(catalogUrl, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15000),
+    const resp = await httpGet(catalogUrl, {
+      headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
+      timeoutMs: 15000,
     });
 
-    if (!response.ok) {
-      throw new Error(`Socrata catalog error (${source.endpoint}): ${response.status}`);
+    if (resp.statusCode >= 400) {
+      throw new Error(`Socrata catalog error (${source.endpoint}): ${resp.statusCode}`);
     }
 
-    const catalog: any = await response.json();
+    const catalog: any = await resp.json();
     const datasets = catalog.dataset || [];
 
     return datasets.slice(0, limit).map((ds: any) => ({
@@ -247,16 +250,16 @@ async function fetchArcGISDatasets(
 ): Promise<OpenDataPortalDataset[]> {
   try {
     const searchUrl = `${source.endpoint}/api/search/v1?q=*&size=${limit}`;
-    const response = await fetch(searchUrl, {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15000),
+    const resp = await httpGet(searchUrl, {
+      headers: { Accept: 'application/json', 'User-Agent': USER_AGENT },
+      timeoutMs: 15000,
     });
 
-    if (!response.ok) {
-      throw new Error(`ArcGIS search error (${source.endpoint}): ${response.status}`);
+    if (resp.statusCode >= 400) {
+      throw new Error(`ArcGIS search error (${source.endpoint}): ${resp.statusCode}`);
     }
 
-    const data: any = await response.json();
+    const data: any = await resp.json();
     const results = data.results || [];
 
     return results.map((item: any) => ({

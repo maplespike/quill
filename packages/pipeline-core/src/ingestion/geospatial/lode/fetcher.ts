@@ -5,6 +5,7 @@
  * Environment) databases.
  */
 
+import { httpGet } from '../../../utils/http.js';
 import { computeHash } from '../../../verification/hashing.js';
 import {
   LODE_DATABASES,
@@ -25,21 +26,15 @@ import type { LodeDatabaseInfo } from './constants.js';
 import { parseCsvLine } from '../../../utils/csv.js';
 async function fetchJson(url: string): Promise<any> {
   try {
-    const c = new AbortController();
-    const t = setTimeout(() => c.abort(), LODE_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': LODE_UA }, signal: c.signal });
-    clearTimeout(t);
-    return r.ok ? await r.json() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': LODE_UA }, timeoutMs: LODE_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 
 async function fetchCsv(url: string): Promise<string | null> {
   try {
-    const c = new AbortController();
-    const t = setTimeout(() => c.abort(), LODE_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': LODE_UA }, signal: c.signal });
-    clearTimeout(t);
-    return r.ok ? await r.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': LODE_UA }, timeoutMs: LODE_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 

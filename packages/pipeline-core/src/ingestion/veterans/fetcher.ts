@@ -14,6 +14,7 @@
  *   - DND Defence Procurement Veteran-related (CKAN)
  */
 
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import { VAC_DATASETS, DND_DATASETS, VETERANS_TIMEOUT_MS, MAX_VETERANS_RECORDS } from './constants.js';
 import type { VeteransRecord, VacBenefitStat, OsissClinicRecord, VeteranSuicideStat, DndVeteranProgramRecord } from './types.js';
@@ -27,21 +28,21 @@ const VETERANS_UA = 'MapleSpike-Veterans/1.0';
 
 async function fetchJson(url: string): Promise<any> {
   try {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(VETERANS_TIMEOUT_MS),
+    const resp = await httpGet(url, {
+      timeoutMs: VETERANS_TIMEOUT_MS,
       headers: { 'User-Agent': VETERANS_UA },
     });
-    return r.ok ? await r.json() : null;
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(VETERANS_TIMEOUT_MS),
+    const resp = await httpGet(url, {
+      timeoutMs: VETERANS_TIMEOUT_MS,
       headers: { 'User-Agent': VETERANS_UA },
     });
-    return r.ok ? await r.text() : null;
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 
@@ -56,8 +57,8 @@ async function fetchCkanPackage(ckanId: string): Promise<any> {
 
 async function fetchCsv(url: string): Promise<string | null> {
   try {
-    const resp = await fetch(url, { signal: AbortSignal.timeout(30000) });
-    return resp.ok ? await resp.text() : null;
+    const resp = await httpGet(url, { timeoutMs: 30000 });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 
