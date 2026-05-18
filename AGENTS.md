@@ -4,6 +4,7 @@ status: active
 ---
 
 # AGENTS.md — MapleSpike
+# Kelos test - 2026-05-18 - pipeline verified
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
 > **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
