@@ -8,17 +8,17 @@
     "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 61 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
-    "count": 29,
-    "description": "29 MCP tool definitions registered in tools/index.ts"
+    "count": 30,
+    "description": "30 MCP tool definitions registered in tools/index.ts"
   },
   "typescript": {
-    "totalLines": 126678,
-    "totalFiles": 560,
+    "totalLines": 122972,
+    "totalFiles": 543,
     "packages": 12,
     "perPackage": {
       "api-server": {
-        "files": 46,
-        "lines": 9064
+        "files": 49,
+        "lines": 9248
       },
       "dashboard": {
         "files": 4,
@@ -29,8 +29,8 @@
         "lines": 589
       },
       "engine": {
-        "files": 66,
-        "lines": 10794
+        "files": 44,
+        "lines": 6259
       },
       "legal-core": {
         "files": 5,
@@ -41,12 +41,12 @@
         "lines": 41
       },
       "mcp-server": {
-        "files": 42,
-        "lines": 5799
+        "files": 43,
+        "lines": 6114
       },
       "pipeline-core": {
-        "files": 376,
-        "lines": 97394
+        "files": 377,
+        "lines": 97721
       },
       "portal": {
         "files": 4,
@@ -54,7 +54,7 @@
       },
       "sdk": {
         "files": 9,
-        "lines": 2209
+        "lines": 2212
       }
     },
     "note": "Portal (HTML/CSS/JS), sdk-python (Python), pretext-civic (orphaned) not counted in TS totals."
