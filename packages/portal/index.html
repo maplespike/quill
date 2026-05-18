@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints</title>
+  <title>MapleSpike — Canada's government data API: 65 modules, 1,141 endpoints</title>
   <link rel="canonical" href="https://maplespike.ca">
   <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca">
   <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr">
   <meta name="robots" content="index, follow">
 
-  <meta name="description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
+  <meta name="description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. 65+ modules with SHA-256 verified citations on every response. Free to start.">
 
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/maplespike_logo.svg">
-  <meta property="og:title" content="MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints">
-  <meta property="og:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
+  <meta property="og:title" content="MapleSpike — Canada's government data API: 65 modules, 1,141 endpoints">
+  <meta property="og:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. 65+ modules with SHA-256 verified citations. Free to start.">
   <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
   <meta property="og:url" content="https://maplespike.ca">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="MapleSpike — Canada's government data API: 53 modules, 1,141 endpoints">
+  <meta name="twitter:title" content="MapleSpike — Canada's government data API: 65 modules, 1,141 endpoints">
   <meta name="twitter:description" content="Access all Canadian government data through a single API: Parliament, lobbying, immigration, courts, regulations, oversight, real-time feeds, and more. Every response includes a SHA-256 verified citation. Free to start.">
     <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -71,7 +71,7 @@
 </head>
 <body>
 <!-- ═══ Navigation ═══ -->
-85|<!-- Navigation -->
+<!-- Navigation -->
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo">
@@ -127,7 +127,7 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
       <span class="stat-label">REQUESTS / 30D</span>
     </span>
     <span class="hero-stat-item">
-      <span class="stat-num" id="stats-sources">63</span>
+      <span class="stat-num" id="stats-sources">65</span>
       <span class="stat-label">MODULES</span>
     </span>
     <span class="hero-stat-item">
@@ -362,7 +362,7 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
       <div class="source-item"><img src="https://www.google.com/s2/favicons?domain=canada.ca&sz=64" alt="" class="source-favicon"><span>CanadaBuys</span></div>
       <div class="source-item" style="border:1px dashed var(--border);background:transparent;cursor:default;"><span style="font-size:0.7rem;color:var(--text-muted);">+12 more</span></div>
     </div>
-    <p class="sources-footer">63 data modules across all 13 provinces and territories · 27 SDK agents · 79 actions · <a href="https://open.canada.ca/en/open-government-licence-canada" target="_blank" style="color:var(--accent-cyan);">Open Government Licence – Canada</a></p>
+    <p class="sources-footer">65 data modules across all 13 provinces and territories · 27 SDK agents · 79 actions · <a href="https://open.canada.ca/en/open-government-licence-canada" target="_blank" style="color:var(--accent-cyan);">Open Government Licence – Canada</a></p>
   </div>
 </section>
 
@@ -375,7 +375,7 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
   <div class="stats-row">
     <div class="stat fade-in">
       <div class="sect-num">[01]</div>
-      <div class="number">63</div>
+      <div class="number">65</div>
       <div class="label">Data Modules</div>
     </div>
     <div class="stat fade-in stagger-1">
@@ -815,7 +815,9 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
         const daily = usage.daily || 0;
         if (reqEl) reqEl.textContent = (monthly || daily || 0).toLocaleString();
         if (uptimeEl) uptimeEl.textContent = data.data.status === 'ok' ? new Date(data.data.timestamp).toLocaleString('en-CA') : 'Check';
-        if (sourcesEl && data.data.sources) sourcesEl.textContent = data.data.sources;
+        if (sourcesEl) {
+          sourcesEl.textContent = data.data.sources || sourcesEl.textContent;
+        }
         // Update status indicator
         if (statusIndicator) {
           statusIndicator.innerHTML = data.data.status === 'ok'
@@ -990,31 +992,5 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
 <!-- Hero background interactive particles -->
 <script src="assets/hero-particles.js"></script>
 
-
-<!-- Nav + Theme JS -->
-<script>
-(function() {
-  'use strict';
-  var theme = localStorage.getItem('maplespike-theme') || 'dark';
-  function setTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('maplespike-theme', t);
-  }
-  document.querySelectorAll('.theme-toggle').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      theme = theme === 'dark' ? 'light' : 'dark';
-      setTheme(theme);
-    });
-  });
-  setTheme(theme);
-  var toggle = document.querySelector('.nav-mobile-toggle');
-  var links = document.querySelector('.nav-links');
-  if (toggle && links) {
-    toggle.addEventListener('click', function() {
-      links.classList.toggle('nav-open');
-    });
-  }
-})();
-</script>
 </body>
 </html>
