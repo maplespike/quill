@@ -547,7 +547,7 @@
       const def = GLOSSARY[term];
       if (!def) return;
 
-      tip.innerHTML = `<strong style="color:var(--accent);text-transform:capitalize;">${term.replace(/-/g,' ')}</strong><br><span style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">${def}</span>`;
+      tip.innerHTML = MAPLESPIKE.sanitizeHtml(`<strong style="color:var(--accent);text-transform:capitalize;">${MAPLESPIKE.esc(term.replace(/-/g,' '))}</strong><br><span style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">${MAPLESPIKE.esc(def)}</span>`);
       tip.style.display = 'block';
       tip.style.opacity = '0';
       tip.style.transform = 'translateY(4px)';
@@ -749,7 +749,7 @@
         { text: 'v' + (d.version || '0.1.0'), color: '#8B5CF6' },
       ];
       const html = items.map(i => `<span class="ticker-item"><span class="ticker-dot" style="background:${i.color};"></span> ${i.text}</span>`).join('');
-      ticker.innerHTML = html + html;
+      ticker.innerHTML = MAPLESPIKE.sanitizeHtml(html + html);
     } catch (e) {
       ticker.innerHTML = '<span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Live data unavailable</span><span class="ticker-item"><span class="ticker-dot" style="background:#6B7280;"></span> Live data unavailable</span>';
     }
