@@ -88,6 +88,7 @@ export function createUser(githubProfile: GitHubProfile): User {
     name: githubProfile.name || githubProfile.login,
     email: githubProfile.email || undefined,
     tier: 'free',
+    emailVerified: false,
     isActive: true,
     journalismMode: false,
   });

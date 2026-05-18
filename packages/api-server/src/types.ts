@@ -15,6 +15,8 @@ export interface Tenant {
   id: string;
   name: string;
   email?: string;
+  emailVerified: boolean;
+  verificationToken?: string;
   tier: Tier;
   isActive: boolean;
   journalismMode: boolean;
