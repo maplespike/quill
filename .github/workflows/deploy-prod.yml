@@ -124,13 +124,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Verify GHCR secret exists
-        run: |
-          if ! /run/current-system/sw/bin/kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
-            echo "Error: ghcr-pull secret not found in $NAMESPACE."
-            exit 1
-          fi
-          echo "ghcr-pull secret found in $NAMESPACE"
       - name: Apply K8s manifests from repo
         run: |
           /run/current-system/sw/bin/kubectl apply -f k8s/prod/ --prune --prune-allowlist=apps/v1/Deployment --prune-allowlist=v1/Service --prune-allowlist=v1/ConfigMap --prune-allowlist=v1/Secret
