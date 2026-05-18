@@ -38,7 +38,7 @@ MapleSpike ingests from **65+ data modules** covering every major category of Ca
 ## Architecture
 
 ```
-GitHub Pages (maplespike.ca)
+K3s Cluster (nginx)
   └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
 
 K3s Cluster (nexus)
