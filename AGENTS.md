@@ -128,31 +128,34 @@ git config core.hooksPath .githooks
 
 ## Primary Workflow (MANDATORY — ALL AGENTS)
 
-This workflow applies to **Hermes, Pi, OMP, OpenCode, Claude Code, and ALL delegated subagents**. No exceptions.
+This workflow applies to **Hermes, Pi, OMP, OpenCode, Claude Code, and ALL delegated agents**. No exceptions.
 
 ### Golden Rule
-Every change flows: **Issue → Branch/Worktree → PR → Merge → Close Issue**. No direct pushes to main. Ever.
+Every change flows: **Issue → Label → Agent → PR → Merge → Close Issue**.
 
-### Step-by-Step
+### Default Path: Kelos-Powered (for well-scoped issues)
+
+1. **Create a GitHub issue** with clear acceptance criteria and a label (`bug`, `enhancement`, etc.)
+2. **Label it `agent-ready`** — Kelos picks it up within ~5min
+3. **Kelos handles the implementation** — agent spawns on Sentry, clones the repo, implements, pushes a branch, opens a PR
+4. **Human reviews the PR** — check diff, test locally if needed, request changes via comments
+5. **Merge** — squash-merge via GitHub UI
+6. **Clean up** — Kelos auto-removes the finished Task after TTL expires
+
+### Manual Fallback (exploratory/architectural/complex work)
+
+For issues that are not well-scoped enough for autonomous execution:
 
 1. **Issues first**: Nothing happens without a GitHub issue.
-   - Check: `gh issue view NNN -R reverb256/maplespike`
-   - Create: `gh issue create -R reverb256/maplespike --title "..." --label "p2" --body "..." --assignee "@me"`
+   - `gh issue view NNN -R reverb256/maplespike`
+   - `gh issue create -R reverb256/maplespike --title "..." --label "p2" --body "..."`
 
-2. **Worktree (not just branch)**: Worktrees let you work on multiple branches simultaneously on any cluster node.
+2. **Worktree**: Worktrees let you work on multiple branches simultaneously.
    ```bash
-   # Create a worktree on the node closest to the workload
-   git worktree add /data/projects/own/maplespike-NNN issue-NNN-short-description
-
-   # Or create from a new branch
    git worktree add -b issue-NNN-short-description /data/projects/own/maplespike-NNN main
    ```
 
-3. **Develop on the right node**: Work on the cluster node closest to where the workload runs.
-   - AI/GPU work → Sentry or Nexus
-   - Data ingestion → Nexus (46GB RAM)
-   - Infrastructure changes → Zephyr
-   - Light work → any node
+3. **Develop on the right node**: See cluster table above.
 
 4. **Commit**: Every commit message contains `(#NNN)` — e.g., `feat: add IRCC immigration module (#42)`
 
@@ -163,7 +166,7 @@ Every change flows: **Issue → Branch/Worktree → PR → Merge → Close Issue
      --title "feat: description (#NNN)" --body "Closes #NNN"
    ```
 
-6. **No PR? No merge.** Every change needs a review. Even solo work goes through PRs for traceability.
+6. **Clean up**: `git worktree remove /data/projects/own/maplespike-NNN && git branch -d issue-NNN-desc`
 
 ---
 
