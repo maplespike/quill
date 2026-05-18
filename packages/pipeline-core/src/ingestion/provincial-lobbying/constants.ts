@@ -140,8 +140,9 @@ export const NWT_LOBBYING = {
 
 export const NUNAVUT_LOBBYING = {
   BASE: 'https://www.gov.nu.ca/',
-  SEARCH: '',
-  NOTE: 'Nunavut has no territorial lobbyist registry',
+  /** Federal OCL advanced search — Nunavut has no territorial registry */
+  SEARCH: 'https://lobbycanada.gc.ca/app/secure/ocl/lrs/do/advSrch',
+  NOTE: 'Nunavut has no territorial lobbyist registry; proxies federal OCL search',
 } as const;
 
 

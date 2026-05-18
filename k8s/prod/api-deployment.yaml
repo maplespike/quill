@@ -24,6 +24,7 @@ spec:
         component: api
         tier: backend
     spec:
+      automountServiceAccountToken: false
       imagePullSecrets:
       - name: ghcr-pull
       nodeName: nexus
