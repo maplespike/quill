@@ -8,7 +8,7 @@
   "modules": {
     "registryCount": 65,
     "ingestionDirs": 62,
-    "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 62 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 62 ingestion/ subdirectories with standalone fetch→parse→persist pipelines. Provincial lobbying expanded to all 13 provinces/territories."
   },
   "mcpTools": {
     "count": 24,

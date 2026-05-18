@@ -127,7 +127,7 @@ const committees = getModule('committees');
 
 | Module | Description | Sources | Frequency |
 |--------|-------------|---------|-----------|
-| `provincial-lobbying` | Provincial lobbying registries — ON, BC, AB, QC | ON/BC/AB/QC registries | weekly |
+| `provincial-lobbying` | Provincial lobbying registries — all 13 provinces and territories | All provinces/territories registries | weekly |
 | `provincial-legislatures` | Hansard, committees, bills across all 10 provinces | ON/BC/AB Hansard XML/HTML | weekly |
 | `provincial` | Provincial deep-dive datasets | various | monthly |
 | `provincial-orgs` | Provincial agencies, boards, commissions directory | provincial directories | monthly |
