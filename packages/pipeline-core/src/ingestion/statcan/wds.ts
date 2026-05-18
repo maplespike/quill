@@ -31,6 +31,10 @@ import type {
 } from './types.js';
 
 import { parseCsvLine } from '../../utils/csv.js';
+
+/** StatCan WDS rate limit: 25 req/s per their documented limit */
+const STATCAN_WDS_THROTTLE = { maxTokens: 25, refillPerSecond: 25 } as const;
+
 /* ------------------------------------------------------------------ */
 /*  Custom Error Class                                                 */
 /* ------------------------------------------------------------------ */
@@ -63,6 +67,7 @@ export async function getAllCubesListLite(
     const resp = await httpGet(url, {
       headers: { Accept: 'application/json' },
       timeoutMs,
+      throttle: STATCAN_WDS_THROTTLE,
     });
 
     if (resp.statusCode !== 200) {
@@ -110,6 +115,7 @@ export async function getData(
         'Content-Type': 'application/json',
       },
       timeoutMs,
+      throttle: STATCAN_WDS_THROTTLE,
     });
 
     if (resp.statusCode !== 200) {
@@ -216,6 +222,7 @@ export async function getFullTableDownloadCSV(
         'Content-Type': 'application/json',
       },
       timeoutMs,
+      throttle: STATCAN_WDS_THROTTLE,
     });
 
     if (resp.statusCode !== 200) {
@@ -257,6 +264,7 @@ export async function getCubeMetadata(
         'Content-Type': 'application/json',
       },
       timeoutMs,
+      throttle: STATCAN_WDS_THROTTLE,
     });
 
     if (resp.statusCode !== 200) {
@@ -326,6 +334,7 @@ export async function getChangedCubeList(
         'Content-Type': 'application/json',
       },
       timeoutMs,
+      throttle: STATCAN_WDS_THROTTLE,
     });
 
     if (resp.statusCode !== 200) {
