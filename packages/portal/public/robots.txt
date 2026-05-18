@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /dashboard
+Allow: /docs
+Allow: /agents
+Allow: /explorer
+Disallow: /workspace
+Disallow: /ask
+Disallow: /signal
+
+Sitemap: https://maplespike.ca/sitemap.xml

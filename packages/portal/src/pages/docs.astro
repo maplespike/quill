@@ -1,0 +1,495 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
+const sections = [
+  { id: "quickstart", num: "00", label: "Quickstart", badge: "LIVE" },
+  { id: "authentication", num: "01", label: "Authentication" },
+  { id: "request-response", num: "02", label: "Request + Response" },
+  { id: "endpoints", num: "03", label: "API Reference" },
+  { id: "token-optimization", num: "04", label: "Token Optimization" },
+  { id: "citation-contract", num: "05", label: "Citation Contract" },
+  { id: "mcp-tools", num: "06", label: "MCP Tools", badge: "22 TOOLS" },
+  { id: "rate-limits", num: "07", label: "Rate Limits" },
+  { id: "errors", num: "08", label: "Errors" },
+  { id: "faq", num: "09", label: "FAQ" },
+];
+
+const apiEndpoints = [
+  { method: "GET", path: "/v1/health", desc: "System status and usage" },
+  { method: "GET", path: "/v1/gov/releases", desc: "Latest government data releases" },
+  { method: "GET", path: "/v1/gov/search?query=", desc: "Search across all sources" },
+  { method: "GET", path: "/v1/citation/:hash", desc: "Verify a data point by SHA-256 hash" },
+  { method: "GET", path: "/v1/usage", desc: "Usage and quota info" },
+  { method: "GET", path: "/v1/keys", desc: "List API keys" },
+  { method: "POST", path: "/v1/keys", desc: "Create a new API key" },
+  { method: "GET", path: "/v1/auth/me", desc: "Current user profile" },
+];
+
+const mcpTools = [
+  { cat: "General", name: "query_gov_data", desc: "Search StatCan, CKAN, provincial portals" },
+  { cat: "General", name: "fact_check", desc: "Verify claims against official data" },
+  { cat: "General", name: "get_citation", desc: "Retrieve SHA-256 citation hash" },
+  { cat: "General", name: "latest_releases", desc: "Recent government releases" },
+  { cat: "Parliament", name: "search_committees", desc: "HoC + Senate committees, evidence, in-camera" },
+  { cat: "Corporate", name: "search_corporate", desc: "Lobbying, procurement, exec statements" },
+  { cat: "Influence", name: "search_influence", desc: "32 tracked actors, funding, connections" },
+  { cat: "Regulatory", name: "search_gazette", desc: "Canada Gazette Parts I+II regulations" },
+  { cat: "Appointments", name: "search_gic", desc: "Governor-in-Council appointments" },
+  { cat: "Elections", name: "search_elections", desc: "Third-party advertising, spending" },
+  { cat: "Provincial", name: "search_provincial_lobbying", desc: "ON lobbying registry (BC/QC stubbed)" },
+  { cat: "Oversight", name: "search_oversight", desc: "OAG, PBO, Ethics, CB, CRTC reports" },
+  { cat: "Legal", name: "search_canlii", desc: "Court decisions, citations via CanLII" },
+  { cat: "Cross-Ref", name: "search_cross_reference", desc: "All modules at once — entity timeline" },
+  { cat: "Labour", name: "search_lmia", desc: "LMIA quarterly data, TFW program" },
+];
+
+const rateLimits = [
+  { plan: "Free", perSec: "2/s", perMonth: "1,000", overage: "Hard cap (402)" },
+  { plan: "Pro", perSec: "25/s", perMonth: "50,000", overage: "$1/1K (planned)" },
+  { plan: "Business", perSec: "100/s", perMonth: "250,000", overage: "$0.80/1K (planned)" },
+  { plan: "Enterprise", perSec: "Custom", perMonth: "Custom", overage: "Negotiated" },
+];
+
+const errorCodes = [
+  { code: "auth_invalid", status: "401", retry: "No", meaning: "Fix API key or JWT" },
+  { code: "rate_limited", status: "429", retry: "Yes", meaning: "Respect Retry-After header" },
+  { code: "quota_exhausted", status: "402", retry: "No", meaning: "Upgrade plan or wait for reset" },
+  { code: "input_invalid", status: "400", retry: "No", meaning: "Check input schema" },
+  { code: "source_unavailable", status: "502", retry: "Yes", meaning: "Upstream source down, retry later" },
+  { code: "not_found", status: "404", retry: "No", meaning: "Resource doesn't exist" },
+  { code: "server_error", status: "500", retry: "Yes", meaning: "Backoff, report if persistent" },
+];
+---
+
+<BaseLayout title="API Documentation" description="Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, and SDK usage.">
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="hidden lg:block w-64 shrink-0 border-r min-h-[calc(100vh-4rem)] sticky top-16 self-start">
+      <div class="p-4">
+        <div class="relative mb-4">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <Input placeholder="Search docs..." class="pl-9 text-sm" />
+        </div>
+        <nav class="space-y-1">
+          {sections.map((s) => (
+            <a
+              href={`#${s.id}`}
+              class="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            >
+              <span class="text-xs font-mono text-primary/60">{s.num}</span>
+              <span>{s.label}</span>
+              {s.badge && (
+                <span class="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{s.badge}</span>
+              )}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-w-0 px-6 py-8 lg:px-10 lg:py-12 max-w-4xl">
+      <!-- ═══ 00: QUICKSTART ═══ -->
+      <section id="quickstart" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-2">
+          <span class="text-primary">[</span>
+          <span class="text-primary/80">00</span>
+          <span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Quickstart</span>
+          <Badge variant="default" class="text-[10px] px-1.5 py-0.5">LIVE</Badge>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
+          One API key.<br />65 Canadian government data modules. Every response cited.
+        </h1>
+        <p class="text-muted-foreground mb-8">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
+
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">// 30-second quickstart</span><br /><br />
+            <span class="text-muted-foreground">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;-G -d <span class="text-[#D4A017]">&quot;query=housing&quot;</span> \<br />
+            &nbsp;&nbsp;-d <span class="text-[#D4A017]">&quot;jurisdiction=federal&quot;</span> \<br />
+            &nbsp;&nbsp;-d <span class="text-[#D4A017]">&quot;_limit=2&quot;</span> | jq .<br /><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123; <span class="text-[#D4A017]">&quot;releases&quot;</span>: [...] &#125;,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data_hash&quot;</span>: <span class="text-[#0891B2]">&quot;sha256:a1f3...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;OGL-C&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+
+        <Card class="border-primary/20 bg-primary/5">
+          <CardContent class="p-4 text-sm">
+            <strong class="text-primary">No key?</strong>
+            <span class="text-muted-foreground"> Get one free at <a href="/workspace" class="text-[#0891B2] hover:underline">workspace</a> — 1,000 calls/month included. Or pass <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">_mock=true</code> for sample data with no upstream hit.</span>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 01: AUTHENTICATION ═══ -->
+      <section id="authentication" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">01</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Authentication</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Multiple ways to authenticate</h2>
+        <p class="text-muted-foreground mb-6">Four authentication methods, one JWT token format. All methods issue the same JWT — pick the one that fits your use case.</p>
+
+        <h3 class="text-lg font-semibold mt-6 mb-2">API Key (recommended for servers)</h3>
+        <p class="text-sm text-muted-foreground mb-3">Create a key from the <a href="/workspace" class="text-[#0891B2] hover:underline">workspace</a>, then send it as the <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">X-API-Key</code> header:</p>
+        <Card class="mb-6">
+          <CardContent class="p-3 font-mono text-sm">
+            <span class="text-muted-foreground">$</span> curl -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> https://api.maplespike.ca/v1/health
+          </CardContent>
+        </Card>
+
+        <h3 class="text-lg font-semibold mt-6 mb-2">OAuth (recommended for web apps)</h3>
+        <p class="text-sm text-muted-foreground mb-3">Sign in with GitHub, Google, or any OIDC provider:</p>
+        <Card class="mb-6">
+          <CardContent class="p-3 font-mono text-sm">
+            <span class="text-muted-foreground"># List configured providers</span><br />
+            <span class="text-muted-foreground">$</span> curl https://api.maplespike.ca/v1/auth/oauth/providers
+          </CardContent>
+        </Card>
+
+        <h3 class="text-lg font-semibold mt-6 mb-2">Web3 Wallet</h3>
+        <p class="text-sm text-muted-foreground mb-3">Sign a SIWE (EIP-4361) message with your wallet:</p>
+        <Card class="mb-6">
+          <CardContent class="p-3 font-mono text-sm">
+            POST /v1/auth/web3/challenge {'{'}{' '}<span class="text-[#D4A017]">&quot;address&quot;</span>: <span class="text-[#0891B2]">&quot;0x...&quot;</span>{' '}{'}'}
+          </CardContent>
+        </Card>
+
+        <h3 class="text-lg font-semibold mt-6 mb-2">Passkey / FIDO2</h3>
+        <p class="text-sm text-muted-foreground mb-3">Register a passkey (Touch ID, Windows Hello, YubiKey):</p>
+        <Card class="mb-6">
+          <CardContent class="p-3 font-mono text-sm">
+            POST /v1/auth/passkey/register/begin {'{'}{' '}<span class="text-[#D4A017]">&quot;userId&quot;</span>: <span class="text-[#0891B2]">&quot;...&quot;</span>{' '}{'}'}
+          </CardContent>
+        </Card>
+
+        <p class="text-xs text-muted-foreground">All methods issue JWTs with the same format. Use the token as a Bearer header or session cookie. Keys are hashed with SHA-256 at rest.</p>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 02: REQUEST + RESPONSE ═══ -->
+      <section id="request-response" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">02</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Request + Response</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">One envelope. Every endpoint.</h2>
+        <p class="text-muted-foreground mb-6">Every response carries the same structure — data, quality score, citation metadata, and usage info. Your agent always knows where the answer came from.</p>
+
+        <Card>
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123; /* structured payload */ &#125;,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;quality&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;freshness_seconds&quot;</span>: 47,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;confidence&quot;</span>: <span class="text-green-500">&quot;high&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;certainty_score&quot;</span>: 0.923<br />
+            &nbsp;&nbsp;},<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_url&quot;</span>: <span class="text-[#0891B2]">&quot;https://...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data_hash&quot;</span>: <span class="text-[#0891B2]">&quot;sha256:a1f3...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;OGL-C&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 03: ENDPOINTS ═══ -->
+      <section id="endpoints" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">03</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">API Reference</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">REST endpoints</h2>
+
+        <Card>
+          <CardContent class="p-0 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Method</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Path</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {apiEndpoints.map((ep) => (
+                  <tr class="border-b last:border-0 hover:bg-muted/50">
+                    <td class="p-3">
+                      <span class={`font-mono text-xs font-semibold px-2 py-0.5 rounded ${
+                        ep.method === "GET"
+                          ? "text-emerald-500 bg-emerald-500/10"
+                          : "text-blue-500 bg-blue-500/10"
+                      }`}>{ep.method}</span>
+                    </td>
+                    <td class="p-3 font-mono text-xs">{ep.path}</td>
+                    <td class="p-3 text-muted-foreground">{ep.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 04: TOKEN OPTIMIZATION ═══ -->
+      <section id="token-optimization" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">04</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Token Optimization</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Trim responses for AI agents</h2>
+        <p class="text-muted-foreground mb-6">Every token saved is money earned. These params go in the same request body — they're extracted before validation.</p>
+
+        <Card>
+          <CardContent class="p-0 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Param</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Type</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Effect</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { param: "_fields", type: "string[]", effect: "Return only named fields" },
+                  { param: "_format", type: `"full" | "compact"`, effect: "Compact strips null/empty" },
+                  { param: "_limit", type: "number", effect: "Cap array results" },
+                  { param: "_page", type: "number", effect: "Pagination offset" },
+                  { param: "_summary", type: "boolean", effect: "Return aggregates, not rows" },
+                  { param: "_mock", type: "true", effect: "Sample data, free, no upstream hit" },
+                ].map((p) => (
+                  <tr class="border-b last:border-0 hover:bg-muted/50">
+                    <td class="p-3 font-mono text-xs">{p.param}</td>
+                    <td class="p-3 font-mono text-xs text-muted-foreground">{p.type}</td>
+                    <td class="p-3 text-muted-foreground">{p.effect}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 05: CITATION CONTRACT ═══ -->
+      <section id="citation-contract" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">05</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Citation Contract</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Every response. Every endpoint. Verifiable.</h2>
+        <p class="text-muted-foreground mb-6">Every MapleSpike endpoint returns the same citation block — whether you're using the REST API, MCP tools, or cross-reference engine.</p>
+
+        <Card>
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_url&quot;</span>: <span class="text-[#0891B2]">&quot;https://open.canada.ca/...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;retrieved_at&quot;</span>: <span class="text-[#0891B2]">&quot;2026-05-13T12:00Z&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data_hash&quot;</span>: <span class="text-[#0891B2]">&quot;sha256:a1f3...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;license&quot;</span>: <span class="text-[#0891B2]">&quot;OGL-C&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;citation_text&quot;</span>: <span class="text-[#0891B2]">&quot;open.canada.ca, retrieved 2026-05-13. OGL-C.&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+
+        <p class="text-sm text-muted-foreground mt-4"><code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">data_hash</code> is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.</p>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 06: MCP TOOLS ═══ -->
+      <section id="mcp-tools" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">06</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">MCP Tools</span>
+          <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">22 TOOLS</Badge>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Data tools for AI agents</h2>
+        <p class="text-muted-foreground mb-6">All tools return the same <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">&#123; data, quality, citation &#125;</code> envelope.</p>
+
+        <Card class="mb-6">
+          <CardContent class="p-3 font-mono text-sm leading-relaxed">
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;mcpServers&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;maplespike&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;command&quot;</span>: <span class="text-[#0891B2]">&quot;npx&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;args&quot;</span>: [<span class="text-[#0891B2]">&quot;@maplespike/mcp&quot;</span>],<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;env&quot;</span>: &#123; <span class="text-[#D4A017]">&quot;MAPLESPIKE_API_KEY&quot;</span>: <span class="text-[#0891B2]">&quot;ms_live_...&quot;</span> &#125;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&#125;<br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent class="p-0 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Category</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Tool</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mcpTools.map((t) => (
+                  <tr class="border-b last:border-0 hover:bg-muted/50">
+                    <td class="p-3">
+                      <span class="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">{t.cat}</span>
+                    </td>
+                    <td class="p-3 font-mono text-xs">{t.name}</td>
+                    <td class="p-3 text-muted-foreground">{t.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 07: RATE LIMITS ═══ -->
+      <section id="rate-limits" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">07</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Rate Limits</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Per-plan caps</h2>
+        <p class="text-muted-foreground mb-6">Rate limits are per-second and per-month. Hitting the per-second limit returns 429 with a Retry-After header.</p>
+
+        <Card>
+          <CardContent class="p-0 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Plan</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Per sec</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Per month</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Overage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rateLimits.map((r) => (
+                  <tr class="border-b last:border-0 hover:bg-muted/50">
+                    <td class="p-3 font-semibold">{r.plan}</td>
+                    <td class="p-3 font-mono text-xs">{r.perSec}</td>
+                    <td class="p-3 font-mono text-xs">{r.perMonth}</td>
+                    <td class="p-3 text-muted-foreground text-xs">{r.overage}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 08: ERRORS ═══ -->
+      <section id="errors" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">08</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Errors</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">One shape. Specific categories.</h2>
+        <p class="text-muted-foreground mb-6">All error responses carry <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">success: false</code>, a stable error code, and a human-readable message.</p>
+
+        <Card>
+          <CardContent class="p-0 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Code</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Status</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Retry</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                {errorCodes.map((e) => (
+                  <tr class="border-b last:border-0 hover:bg-muted/50">
+                    <td class="p-3 font-mono text-xs">{e.code}</td>
+                    <td class="p-3">
+                      <span class={`text-xs font-semibold px-2 py-0.5 rounded ${
+                        e.status === "401" || e.status === "402" || e.status === "500"
+                          ? "text-red-500 bg-red-500/10"
+                          : e.status === "429"
+                          ? "text-orange-500 bg-orange-500/10"
+                          : e.status === "502"
+                          ? "text-yellow-500 bg-yellow-500/10"
+                          : "text-muted-foreground bg-muted"
+                      }`}>{e.status}</span>
+                    </td>
+                    <td class="p-3">
+                      <span class={e.retry === "Yes" ? "text-emerald-500" : "text-muted-foreground"}>{e.retry}</span>
+                    </td>
+                    <td class="p-3 text-muted-foreground">{e.meaning}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 09: FAQ ═══ -->
+      <section id="faq" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">09</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">FAQ</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-6">Common questions</h2>
+
+        {[
+          { q: "Do I need a credit card to start?", a: "No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit." },
+          { q: "What makes the citations verifiable?", a: "Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw." },
+          { q: "Which AI frameworks are supported?", a: "MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs." },
+          { q: "How fresh is the data?", a: "Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field." },
+          { q: "What is the cross-reference engine?", a: "Search for any person or company and get their complete government footprint — lobbying meetings, committee testimony, GIC board appointments, procurement contracts, court cases, and campaign donations — in a unified timeline." },
+          { q: "Is my API key secure?", a: "Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly." },
+        ].map((faq) => (
+          <Card class="mb-4">
+            <CardContent class="p-4">
+              <p class="font-semibold mb-1">{faq.q}</p>
+              <p class="text-sm text-muted-foreground">{faq.a}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+    </main>
+  </div>
+</BaseLayout>

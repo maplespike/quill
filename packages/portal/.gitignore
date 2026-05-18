@@ -1,1 +1,6 @@
+# Astro build output
+dist/
+.astro/
+
+# Docs build output
 docs-dist/

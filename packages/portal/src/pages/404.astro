@@ -1,0 +1,25 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Button } from "@/components/ui/button";
+---
+
+<BaseLayout title="404 — Page Not Found" description="This page doesn't exist in our dataset.">
+  <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 py-20">
+    <div class="text-8xl font-mono font-extrabold text-primary/30 leading-none">404</div>
+    <h1 class="text-2xl font-semibold mt-6 mb-2">This page doesn't exist in our dataset.</h1>
+    <p class="text-sm text-muted-foreground font-mono mb-8">
+      // The requested resource was not found in any of our 65 data modules
+    </p>
+    <div class="flex gap-3 flex-wrap justify-center">
+      <a href="/">
+        <Button variant="default">← Back to Home</Button>
+      </a>
+      <a href="/explorer">
+        <Button variant="secondary">Browse Data Sources</Button>
+      </a>
+      <a href="/dashboard">
+        <Button variant="ghost">Console</Button>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

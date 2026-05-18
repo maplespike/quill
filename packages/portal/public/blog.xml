@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MapleSpike Blog</title>
+    <link>https://maplespike.ca/blog</link>
+    <description>Updates and releases from MapleSpike — Canadian government data API</description>
+    <language>en-CA</language>
+    <atom:link href="https://maplespike.ca/blog.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Wed, 13 May 2026 00:00:00 GMT</lastBuildDate>
+
+    <item>
+      <title>Multiple Auth Methods: Web3, Passkey, OAuth</title>
+      <link>https://maplespike.ca/blog#auth-launch</link>
+      <description>MapleSpike now supports Web3 wallet authentication via SIWE (EIP-4361), FIDO2/WebAuthn passkeys, and generic OAuth 2.0 — all issuing the same JWT format.</description>
+      <pubDate>Tue, 13 May 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Docs Overhaul: 10-Section API Reference</title>
+      <link>https://maplespike.ca/blog#docs-launch</link>
+      <description>Complete documentation rewrite with quickstart, authentication, request/response format, token optimization, citation contract, 14-tool MCP catalog, rate limits, error codes, and FAQ.</description>
+      <pubDate>Mon, 12 May 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>28 Canadian Government Data Modules</title>
+      <link>https://maplespike.ca/blog#data-expansion</link>
+      <description>MapleSpike now ingests 28 data modules covering Parliament, lobbying, procurement, regulations, courts, elections, oversight, provincial legislatures, municipal data, and more.</description>
+      <pubDate>Sun, 11 May 2026 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
