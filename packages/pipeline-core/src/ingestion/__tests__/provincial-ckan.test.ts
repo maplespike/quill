@@ -52,11 +52,19 @@ describe('provincial-ckan Module', () => {
     it('is a function', () => {
       assert.equal(typeof fetchProvincialCkan, 'function');
     });
+
+    it('accepts provinceCode string and optional query', () => {
+      assert.equal(fetchProvincialCkan.length, 2);
+    });
   });
 
   describe('fetchAllProvincialCkan', () => {
     it('is a function', () => {
       assert.equal(typeof fetchAllProvincialCkan, 'function');
+    });
+
+    it('accepts optional query parameter', () => {
+      assert.equal(fetchAllProvincialCkan.length, 1);
     });
   });
 });
