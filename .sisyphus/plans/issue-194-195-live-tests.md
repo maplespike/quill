@@ -19,7 +19,7 @@ Both NT (NWT Meeting Registry CSV fetcher) and NU (Nunavut federal lobbying prox
 - **Root**: `packages/pipeline-core/src/ingestion/provincial-lobbying/`
 - **NT fetcher**: `fetchers/nt.ts` — exports `fetchNTCsv()`, `parseNTCsv()`, `searchNTRegistry()`, `fetchNTLobbying()`
 - **NU fetcher**: `fetchers/nu.ts` — exports `searchNURegistry()`, `fetchNULobbying()`. `parseFederalRegistryHtml()` is **private** (not exported)
-- **Existing tests**: `provincial-lobbying.test.ts` (618 lines) — constants, types, parser normalizers only. **NO live/fetch tests.** 
+- **Existing tests**: `provincial-lobbying.test.ts` (618 lines) — constants, types, parser normalizers only. **NO live/fetch tests.**
 - **Live test pattern**: `src/ingestion/__tests__/live/endpoint-smoke.test.ts` — gated by `LIVE_DATA_TEST === 'true'` env var
 
 ---
