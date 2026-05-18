@@ -16,7 +16,7 @@ Steps to reproduce.
 What should happen vs what actually happens.
 
 ## Environment
-- **Package:** [pipeline-core / mcp-server / api-server / portal / engine / sdk]
+- **Package:** [pipeline-core / mcp-server / api-server / portal / engine / sdk / other]
 - **Branch:**
 - **Commit:** `git log -1 --oneline`
 - **Node version:**
@@ -26,7 +26,13 @@ What should happen vs what actually happens.
 Paste relevant output
 ```
 
+## Sovereign Agent Checklist
+- [ ] Issue references mission priority (Tier 1 gaps, etc.)
+- [ ] Cross-referenced ≥2 sources if making factual claims
+- [ ] Includes full citation object format if applicable
+- [ ] Design considers AIDA/PIPEDA compliance
+- [ ] Zero-hallucination principle applied
+
 ## Additional Context
 - Is this a regression?
 - Link to related issue: #
-- Consider if this indicates a need for a more general or configurable solution rather than a hardcoded fix.
