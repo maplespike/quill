@@ -128,6 +128,20 @@ export interface RawExtractedItem {
   '#text': string;
 }
 
+export interface InCameraAlert {
+  meetingId: string;
+  committee: string;
+  committeeName: string;
+  chamber: Chamber;
+  parliament: number;
+  session: number;
+  meetingNumber: number;
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  note: string;
+}
+
 export interface RawSubjectOfBusiness {
   SubjectOfBusinessContent?: RawBusinessContent;
 }

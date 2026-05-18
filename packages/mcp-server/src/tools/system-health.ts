@@ -5,7 +5,8 @@ export const definition: ToolDefinition = {
   name: 'system_health',
   description:
     'Check the MapleSpike API service health. Returns service status, ' +
-    'version, tenant tier, and current API call usage (daily/monthly). ' +
+    'version, environment, tenant tier, current API call usage (daily/monthly), ' +
+    'and per-dependency health checks (API server, storage, cache) with response times. ' +
     'Use this to verify the API is responding and to check your quota.',
   inputSchema: {
     type: 'object',
@@ -24,6 +25,7 @@ export const handler: ToolHandler = async () => {
         status: health.status,
         service: health.service,
         version: health.version,
+        environment: health.environment,
         tier: health.tenant.tier,
         usage: {
           daily: health.usage.daily,
@@ -31,6 +33,8 @@ export const handler: ToolHandler = async () => {
           periodCalls: usage.periodCalls,
           periodLimit: usage.periodLimit,
         },
+        dependencies: health.dependencies,
+        timestamp: health.timestamp,
       },
     };
   } catch (error) {

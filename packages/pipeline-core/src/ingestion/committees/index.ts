@@ -18,6 +18,7 @@
 
 import { fetchEvidenceXml, fetchMeetingList, CommitteeFetchError } from './fetcher.js';
 import { parseEvidenceXml } from './parser.js';
+import { detectInCameraMeetings } from './alerts.js';
 import {
   COMMITTEES,
   COMMITTEE_MAP,
@@ -34,7 +35,7 @@ import {
   getLatestMeetingNumber,
 } from './db.js';
 import { upsertPerson } from '../../shared-db.js';
-import type { Chamber, CommitteeIngestionResult, CommitteeMeeting, Intervention } from './types.js';
+import type { Chamber, CommitteeIngestionResult, CommitteeMeeting, InCameraAlert, Intervention } from './types.js';
 
 
 interface ScrapedMeetingLink {
@@ -383,3 +384,7 @@ export async function ingestInCameraMeetings(
     onProgress: () => {},
   });
 }
+
+export { detectInCameraMeetings } from './alerts.js';
+export type { InCameraAlert } from './types.js';
+export { type EvidenceStory, buildEvidenceStories, searchCommitteeEvidence } from './pipeline.js';

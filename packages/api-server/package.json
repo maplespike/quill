@@ -17,6 +17,7 @@
     "@maplespike/pipeline-core": "workspace:*",
     "@simplewebauthn/server": "^13.3.0",
     "better-sqlite3": "^11.0.0",
+    "zod": "^3.23.0",
     "pg": "^8.20.0",
     "viem": "^2.48.11"
   },
