@@ -91,8 +91,8 @@ jobs:
           file: Dockerfile.api
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-api:dev
-            ghcr.io/reverb256/maplespike-api:${{ github.sha }}
+            ghcr.io/reverb256/maplespike/maplespike-api:dev
+            ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
           cache-from: type=gha,scope=api-dev
           cache-to: type=gha,mode=max,scope=api-dev
 
@@ -103,8 +103,8 @@ jobs:
           file: Dockerfile.mcp
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-mcp:dev
-            ghcr.io/reverb256/maplespike-mcp:${{ github.sha }}
+            ghcr.io/reverb256/maplespike/maplespike-mcp:dev
+            ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
           cache-from: type=gha,scope=mcp-dev
           cache-to: type=gha,mode=max,scope=mcp-dev
 
@@ -115,8 +115,8 @@ jobs:
           file: Dockerfile.portal
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-portal:dev
-            ghcr.io/reverb256/maplespike-portal:${{ github.sha }}
+            ghcr.io/reverb256/maplespike/maplespike-portal:dev
+            ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
           cache-from: type=gha,scope=portal-dev
           cache-to: type=gha,mode=max,scope=portal-dev
 
