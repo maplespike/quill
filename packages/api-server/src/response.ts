@@ -261,7 +261,7 @@ const ALLOWED_ORIGINS = [
   'https://maplespike-api.lan',
 ];
 
-function getAllowedOrigin(requestOrigin: string | null): string {
+export function getAllowedOrigin(requestOrigin: string | null): string {
   if (!requestOrigin) return 'null';
   const normalized = requestOrigin.replace(/\/$/, '');
   if (ALLOWED_ORIGINS.includes(normalized)) return normalized;
