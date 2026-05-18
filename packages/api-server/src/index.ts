@@ -27,6 +27,7 @@ import {
   jsonResponse,
   corsPreflight,
   addRateLimitHeaders,
+  getAllowedOrigin,
 } from './response.js';
 import type { BuildContext } from './response.js';
 import { loadConfig, validateConfig } from './config.js';
@@ -192,6 +193,7 @@ export async function handleRequest(
   const startTime = Date.now();
   const url = new URL(request.url);
   const queryOptions = parseQueryOptions(url);
+  const requestOrigin = request.headers.get('Origin');
 
   // --- Mock mode ---
   // If _mock=true, return curated sample data for dev/testing
@@ -201,7 +203,7 @@ export async function handleRequest(
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
-    return corsPreflight();
+    return corsPreflight(requestOrigin);
   }
 
   // --- TLS redirect (defense-in-depth) ---
@@ -302,7 +304,7 @@ export async function handleRequest(
         'Content-Type': 'application/json',
         'X-MapleSpike-Version': '0.1.0',
         'X-Cache': 'hit',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin),
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
       },
@@ -531,7 +533,7 @@ export async function handleRequest(
       globalCache.set(cacheKey, JSON.stringify(newBody), 60);
     }
 
-    let finalResponse = jsonResponse(newBody as unknown as ApiResponse, response.status);
+    let finalResponse = jsonResponse(newBody as unknown as ApiResponse, response.status, {}, requestOrigin);
     if (rateCheck) {
       finalResponse = addRateLimitHeaders(finalResponse, rateCheck);
     }

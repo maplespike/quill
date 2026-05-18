@@ -250,10 +250,29 @@ export function buildError(
 /*  HTTP Response Helpers                                              */
 /* ------------------------------------------------------------------ */
 
+const ALLOWED_ORIGINS = [
+  'http://localhost:8082',
+  'http://127.0.0.1:8082',
+  'http://localhost:4321',
+  'https://maplespike.ca',
+  'https://www.maplespike.ca',
+  'https://api.maplespike.ca',
+  'https://dev.maplespike.lan',
+  'https://maplespike-api.lan',
+];
+
+function getAllowedOrigin(requestOrigin: string | null): string {
+  if (!requestOrigin) return 'null';
+  const normalized = requestOrigin.replace(/\/$/, '');
+  if (ALLOWED_ORIGINS.includes(normalized)) return normalized;
+  return 'null';
+}
+
 export function jsonResponse<T>(
   body: ApiResponse<T>,
   status = 200,
   extraHeaders: Record<string, string> = {},
+  requestOrigin?: string | null,
 ): Response {
   return new Response(JSON.stringify(body, null, 2), {
     status,
@@ -261,7 +280,7 @@ export function jsonResponse<T>(
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'X-MapleSpike-Version': '0.1.0',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
       ...extraHeaders,
@@ -290,11 +309,11 @@ export function addRateLimitHeaders(
   });
 }
 
-export function corsPreflight(): Response {
+export function corsPreflight(requestOrigin?: string | null): Response {
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
       'Access-Control-Max-Age': '86400',
