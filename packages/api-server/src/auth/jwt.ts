@@ -19,7 +19,7 @@ import * as crypto from 'node:crypto';
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const DEFAULT_SECRET = process.env.JWT_SECRET || 'maplespike-jwt-secret-change-in-production';
+const DEFAULT_SECRET = process.env.JWT_SECRET;
 const DEFAULT_EXPIRY = 7 * 24 * 60 * 60; // 7 days in seconds
 const REFRESH_EXPIRY = 30 * 24 * 60 * 60; // 30 days for refresh tokens
 

@@ -29,7 +29,7 @@ import {
   addRateLimitHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
-import { loadConfig } from './config.js';
+import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { globalCache } from './cache.js';
@@ -706,7 +706,18 @@ export default {
       BUSINESS_LIMIT: env.BUSINESS_LIMIT,
       AI_ENDPOINT: env.AI_ENDPOINT,
       AI_MODEL: env.AI_MODEL,
+      JWT_SECRET: env.JWT_SECRET,
     };
+    // Validate production config on every request (no startup lifecycle in Workers)
+    try {
+      validateConfig(envVars);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Invalid configuration';
+      return new Response(JSON.stringify({ success: false, error: { code: 'CONFIG_ERROR', message: msg } }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     return handleRequest(request, envVars, db, cache);
   },
 };
