@@ -239,7 +239,7 @@
 <p>MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and component relationships.</p>
 <h2>System Diagram</h2>
 <pre><code>┌──────────────────────────────────────────────────────────────┐
-│                    GitHub Pages (maplespike.ca)               │
+│                    K3s Cluster (nginx — maplespike.lan)        │
 │  ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌─────────────┐ │
 │  │  Landing  │  │ Dashboard │  │   Docs   │  │  llms.txt   │ │
 │  │  Page     │  │ (cards)   │  │ (API ref) │  │  (AI info)  │ │
@@ -383,8 +383,8 @@
 <ul>
 <li><strong>Host</strong>: Self-hosted K3s cluster (nexus)</li>
 <li><strong>No Cloudflare, no D1, no KV</strong> — Everything runs on the cluster</li>
-<li><strong>Portal</strong>: GitHub Pages static site (HTML/CSS/JS)</li>
-<li><strong>Domain</strong>: maplespike.lan (internal), maplespike.ca (GitHub Pages)</li>
+<li><strong>Portal</strong>: K3s cluster static site (HTML/CSS/JS) — nginx</li>
+<li><strong>Domain</strong>: maplespike.lan (internal), maplespike.ca (future)</li>
 </ul>
 <h2>Scalability</h2>
 <table>
