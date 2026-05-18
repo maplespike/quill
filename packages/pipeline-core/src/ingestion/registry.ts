@@ -11,6 +11,8 @@
  *   await runModule('committees', { limit: 10 });
  */
 
+import { httpGet } from '../utils/http.js';
+
 export type ModuleCategory =
   | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
   | 'elections' | 'provincial' | 'science' | 'social' | 'health'
@@ -32,6 +34,9 @@ export interface ModuleInfo {
   /** How to call this module in a minimal live test. 'runModule' (default) = use runModule(),
    *  'fetchFeed' = RSS-style fetch, 'skip' = no external I/O utilities */
   testCallPattern?: 'runModule' | 'fetchFeed' | 'skip';
+  /** Optional URL for upstream health probe. HEAD request with 5s timeout
+   *  checked before running the module. If unreachable, module is skipped. */
+  healthCheckUrl?: string;
 }
 
 const MODULE_REGISTRY: ModuleInfo[] = [
@@ -45,6 +50,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CBC, Globe, National Post, regional papers, The Tyee, policy feeds', format: 'RSS' }],
     updateFrequency: '30 min',
     testCallPattern: 'fetchFeed',
+    healthCheckUrl: 'https://www.cbc.ca/webfeed/rss/rss-topstories',
   },
   {
     name: 'gov-api',
@@ -55,6 +61,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Statistics Canada WDS', format: 'SDMX/REST' }, { name: 'open.canada.ca CKAN', format: 'JSON' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1',
   },
   {
     name: 'attestation',
@@ -89,6 +96,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.ontario.ca',
   },
   {
     name: 'gc-standards',
@@ -111,6 +119,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'ourcommons.ca XML evidence API', format: 'XML' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.ourcommons.ca',
   },
   {
     name: 'gic',
@@ -121,6 +130,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'open.canada.ca CKAN (GIC appointments)', format: 'CSV' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.infobasegc.ca',
   },
   {
     name: 'gazette',
@@ -131,6 +141,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Canada Gazette RSS', format: 'RSS/XML' }],
     updateFrequency: 'weekly',
     testCallPattern: 'fetchFeed',
+    healthCheckUrl: 'https://gazette.gc.ca/rss/p1-eng.xml',
   },
   {
     name: 'oversight',
@@ -145,6 +156,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.oag-bvg.gc.ca',
   },
   {
     name: 'elections',
@@ -155,6 +167,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Elections Canada CSV', format: 'CSV' }],
     updateFrequency: 'daily (during election periods)',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.elections.ca',
   },
   {
     name: 'canlii',
@@ -165,6 +178,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CanLII API (canlii.org)', format: 'REST API' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://api.canlii.org/v1',
   },
   {
     name: 'lmia',
@@ -175,6 +189,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'ESDC open.canada.ca CKAN', format: 'CSV' }],
     updateFrequency: 'quarterly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'proactive-disclosure',
@@ -185,6 +200,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'open.canada.ca CKAN (proactive disclosure)', format: 'JSON/CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'ati',
@@ -195,6 +211,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'open.canada.ca CKAN (ATI summaries)', format: 'JSON/CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'federal-budget',
@@ -205,6 +222,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'budget.canada.ca', format: 'HTML/CSV' }],
     updateFrequency: 'annual (budget), quarterly (fiscal monitor)',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.budget.canada.ca',
   },
   {
     name: 'statcan',
@@ -215,6 +233,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Statistics Canada WDS API', format: 'SDMX/REST' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1',
   },
   {
     name: 'immigration',
@@ -229,6 +248,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship.html',
   },
   {
     name: 'criminal-justice',
@@ -295,6 +315,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://laws-lois.justice.gc.ca',
   },
   {
     name: 'a2aj',
@@ -388,6 +409,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Health Canada datasets', format: 'CSV' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://health-products.canada.ca',
   },
   {
     name: 'health-data',
@@ -502,6 +524,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://lobbycanada.gc.ca',
   },
   {
     name: 'corporate-filings',
@@ -522,6 +545,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'SEDI (sedi.ca)', format: 'HTML' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.sedi.ca',
   },
   {
     name: 'crown-corporations',
@@ -543,6 +567,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CRA charity data (apps.cra-arc.gc.ca)', format: 'CSV' }],
     updateFrequency: 'annual',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://apps.cra-arc.gc.ca',
   },
 
   {
@@ -557,6 +582,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'fetchFeed',
+    healthCheckUrl: 'https://www.bankofcanada.ca',
   },
 
   {
@@ -609,6 +635,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'fetchFeed',
+    healthCheckUrl: 'https://crtc.gc.ca',
   },
 
   {
@@ -855,6 +882,31 @@ export function getCategories(): ModuleCategory[] {
 }
 
 /**
+ * Lightweight upstream health check for an ingestion module.
+ * Sends a HEAD request to the module's healthCheckUrl (if configured).
+ * Returns true if the endpoint responds 2xx-4xx (alive), false otherwise.
+ * Skips check if no healthCheckUrl is set (assumes healthy).
+ */
+export async function healthCheckModule(info: ModuleInfo): Promise<boolean> {
+  if (!info.healthCheckUrl) return true;
+
+  try {
+    const resp = await httpGet(info.healthCheckUrl, {
+      method: 'HEAD',
+      timeoutMs: 5000,
+    });
+    // Treat 2xx-4xx as alive (4xx means endpoint exists, just no data for this request)
+    if (resp.statusCode >= 200 && resp.statusCode < 500) return true;
+
+    console.warn(`[HEALTH] ${info.name} unhealthy: ${info.healthCheckUrl} returned ${resp.statusCode}`);
+    return false;
+  } catch (err) {
+    console.warn(`[HEALTH] ${info.name} unreachable: ${info.healthCheckUrl} — ${err instanceof Error ? err.message : String(err)}`);
+    return false;
+  }
+}
+
+/**
  * Dynamically import and run an ingestion module by name.
  * Resolves the module at call-time so there's no static dependency cost.
  */
@@ -864,6 +916,15 @@ export async function runModule(
 ): Promise<unknown> {
   const info = moduleMap.get(name);
   if (!info) throw new Error(`Unknown ingestion module: ${name}`);
+
+  // Upstream health check — skip if endpoint is unreachable
+  if (info.healthCheckUrl) {
+    const healthy = await healthCheckModule(info);
+    if (!healthy) {
+      console.warn(`[registry] Skipping ${name}: upstream unhealthy (${info.healthCheckUrl})`);
+      return { skipped: true, reason: `Upstream at ${info.healthCheckUrl} is unreachable` };
+    }
+  }
 
   let mod: Record<string, Function>;
   try {
@@ -895,12 +956,17 @@ export async function runModule(
  * Modules run in registry order (categories grouped together).
  */
 export async function runAllModules(
+  interModuleDelayMs: number = 0,
   ...args: unknown[]
 ): Promise<Record<string, unknown>> {
   const results: Record<string, unknown> = {};
+  const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
   for (const mod of MODULE_REGISTRY) {
     try {
       results[mod.name] = await runModule(mod.name, ...args);
+      if (interModuleDelayMs > 0 && mod !== MODULE_REGISTRY[MODULE_REGISTRY.length - 1]) {
+        await delay(interModuleDelayMs);
+      }
     } catch (err) {
       results[mod.name] = { error: String(err) };
     }

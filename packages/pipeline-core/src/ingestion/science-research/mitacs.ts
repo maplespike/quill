@@ -1,3 +1,4 @@
+import { httpGet } from '../../utils/http.js';
 import { SOURCES } from './constants.js';
 import type { ResearchGrant } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
@@ -8,12 +9,12 @@ export async function fetchMitacsGrants(): Promise<ResearchGrant[]> {
   const now = new Date().toISOString();
 
   try {
-    const resp = await fetch(SOURCES.MITACS.datasets.projects, {
-      signal: AbortSignal.timeout(15000),
+    const resp = await httpGet(SOURCES.MITACS.datasets.projects, {
+      timeoutMs: 15000,
     });
 
-    if (resp.ok) {
-      const csv = await resp.text();
+    if (resp.statusCode < 400) {
+      const csv = resp.body;
       const lines = csv.split('\n').filter(Boolean);
 
       for (let i = 1; i < lines.length; i++) {

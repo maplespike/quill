@@ -1,3 +1,4 @@
+import { httpGet } from '../../utils/http.js';
 import { SOURCES } from './constants.js';
 import type { SpaceMission, ResearchGrant } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
@@ -8,12 +9,12 @@ export async function fetchCsaMissions(): Promise<{ missions: SpaceMission[]; gr
   const errors: string[] = [];
 
   try {
-    const resp = await fetch(`${SOURCES.CSA.baseUrl}/api/missions`, {
+    const resp = await httpGet(`${SOURCES.CSA.baseUrl}/api/missions`, {
       headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(10000),
+      timeoutMs: 10000,
     });
 
-    if (resp.ok) {
+    if (resp.statusCode < 400) {
       const data = (await resp.json()) as Record<string, unknown>[];
       const now = new Date().toISOString();
 

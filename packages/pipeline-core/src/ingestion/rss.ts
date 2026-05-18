@@ -184,6 +184,8 @@ export function parseRSS(xmlText: string): RSSFeed {
   return { items };
 }
 
+import { httpGet } from '../utils/http.js';
+
 /* ------------------------------------------------------------------ */
 /*  Hash / Deduplication                                               */
 /* ------------------------------------------------------------------ */
@@ -206,6 +208,20 @@ export function hashString(str: string): string {
 /*  Fetch & Process                                                    */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/*  Conditional GET Cache                                              */
+/* ------------------------------------------------------------------ */
+
+interface FeedCacheEntry {
+  etag?: string;
+  lastModified?: string;
+  body: string;
+  timestamp: number;
+}
+
+const feedCache = new Map<string, FeedCacheEntry>();
+const CACHE_TTL_MS = 60 * 60 * 1000;
+
 export interface FetchOptions {
   userAgent?: string;
   timeout?: number;
@@ -221,25 +237,43 @@ export async function fetchFeed(
 ): Promise<RSSFeed> {
   const { userAgent = 'MapleSpike-Canada/1.0 (+https://github.com/reverb256/maplespike)', timeout = 30_000 } = options;
 
-  // Use global fetch (available in Workers, Node 18+, Bun, Deno)
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+  const cached = feedCache.get(url);
+  const reqHeaders: Record<string, string> = { 'User-Agent': userAgent };
 
-  try {
-    const response = await fetch(url, {
-      headers: { 'User-Agent': userAgent },
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} for ${url}`);
-    }
-
-    const xmlText = await response.text();
-    return parseRSS(xmlText);
-  } finally {
-    clearTimeout(timer);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    if (cached.etag) reqHeaders['If-None-Match'] = cached.etag;
+    if (cached.lastModified) reqHeaders['If-Modified-Since'] = cached.lastModified;
   }
+
+  const resp = await httpGet(url, {
+    headers: reqHeaders,
+    timeoutMs: timeout,
+  });
+
+  if (resp.statusCode === 304 && cached) {
+    console.warn(`[RSS] 304 Not Modified for ${url} — using cached body`);
+    return parseRSS(cached.body);
+  }
+
+  if (resp.statusCode >= 400) {
+    throw new Error(`HTTP ${resp.statusCode} for ${url}`);
+  }
+
+  feedCache.set(url, {
+    etag: resp.headers['etag'],
+    lastModified: resp.headers['last-modified'],
+    body: resp.body,
+    timestamp: Date.now(),
+  });
+
+  if (feedCache.size > 100) {
+    const cutoff = Date.now() - CACHE_TTL_MS;
+    for (const [key, entry] of feedCache) {
+      if (entry.timestamp < cutoff) feedCache.delete(key);
+    }
+  }
+
+  return parseRSS(resp.body);
 }
 
 /**

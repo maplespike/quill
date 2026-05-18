@@ -99,6 +99,21 @@ describe('MCP Tool Definitions', () => {
   });
 });
 
+// Check if we should skip tests due to missing API server or external dependencies
+const skipInCI = process.env.CI === 'true' ? 'API server not available in CI' : false;
+let skipExternalValue = false;
+if (process.env.SKIP_EXTERNAL_DEPENDENCIES === 'true') {
+  skipExternalValue = true;
+} else {
+  try {
+    const response = await fetch('http://localhost:8082/v1/system_health');
+    if (!response.ok) skipExternalValue = true;
+  } catch {
+    skipExternalValue = true;
+  }
+}
+const skipExternal = skipExternalValue ? 'External dependencies not available' : false;
+
 describe('MCP Tool Handlers (smoke tests)', () => {
   it('latest_releases returns data from StatCan when called as async', async () => {
     const result = await latestReleases.handler({ category: 'all', jurisdiction: 'federal', limit: 3 });
@@ -141,10 +156,9 @@ describe('MCP Tool Handlers (smoke tests)', () => {
 
   // ── Integration tests — require live API server ──
   // Skip in CI where no API server is available
-  const skipInCI = process.env.CI === 'true' ? 'API server not available in CI' : false;
 
   it('search_committees returns real pipeline data for valid query',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchCommittees.handler({ query: 'carbon tax', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -155,7 +169,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_corporate returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchCorporate.handler({ query: 'disclosure', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -164,7 +178,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_gazette returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchGazette.handler({ query: 'regulation', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -173,7 +187,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_gic returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchGic.handler({ query: 'appointment', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -182,7 +196,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_elections returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchElections.handler({ query: 'election', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -191,7 +205,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_provincial_lobbying returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchProvincialLobbying.handler({ query: 'lobby', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -200,7 +214,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_oversight returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchOversight.handler({ query: 'auditor', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -209,7 +223,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_canlii returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchCanlii.handler({ query: 'charter', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -218,7 +232,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_lmia returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchLmia.handler({ query: 'employer', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;
@@ -227,7 +241,7 @@ describe('MCP Tool Handlers (smoke tests)', () => {
   });
 
   it('search_influence returns real pipeline data',
-    { skip: skipInCI }, async () => {
+    { skip: skipInCI || skipExternal }, async () => {
     const result = await searchInfluence.handler({ query: 'grant', limit: 5 });
     assert.ok(result.content);
     const content = result.content as Record<string, unknown>;

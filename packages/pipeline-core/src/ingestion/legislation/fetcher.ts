@@ -1,20 +1,19 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { LegislationRecord, LegislationIngestionResult } from './types.js';
 import { LEGISLATION_SOURCES, LEGISLATION_UA, LEGISLATION_TIMEOUT_MS, MAX_LEGISLATION_RECORDS, JUSTICE_CANADA_XML_MASTER } from './constants.js';
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), LEGISLATION_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': LEGISLATION_UA }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': LEGISLATION_UA }, timeoutMs: LEGISLATION_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 
 async function fetchJson(url: string): Promise<any> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), LEGISLATION_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': LEGISLATION_UA, Accept: 'application/json' }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.json() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': LEGISLATION_UA, Accept: 'application/json' }, timeoutMs: LEGISLATION_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 
