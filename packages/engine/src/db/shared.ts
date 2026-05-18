@@ -1,4 +1,2 @@
-// Unified DatabaseService re-export from pipeline-core
-export * from '@maplespike/pipeline-core/db';
-
-export const db = /* shared instance logic */;
+// Unified DatabaseService — re-export from shared @maplespike/database package
+export * from '@maplespike/database';
