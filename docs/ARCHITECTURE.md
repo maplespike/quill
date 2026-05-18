@@ -82,16 +82,55 @@ An MCP server deployed on the K3s cluster, exposing MapleSpike data as tools for
 
 ### 2.3 REST API Server (api-server)
 
-A REST API gateway with auth, rate limiting, and usage tracking.
+A REST API gateway with auth, rate limiting, and usage tracking (36 routes).
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| **Core** | | |
 | `GET /v1/health` | GET | Health check |
+| `GET /v1/me` | GET | Current user info |
+| `POST /v1/register` | POST | Register new account |
+| `GET /v1` | GET | API root (redirects to openapi.json) |
+| `GET /v1/openapi.json` | GET | OpenAPI specification |
+| `GET /v1/usage` | GET | View current usage and quota |
+| `GET /v1/signals` | GET | Engine signals (lazy-loaded) |
+| **Government Data** | | |
 | `GET /v1/gov/releases` | GET | Government data releases (StatCan/CKAN) |
 | `GET /v1/gov/search` | GET | Search across all gov data sources |
 | `GET /v1/citation/:id` | GET | SHA-256 citation verification |
-| `GET /v1/usage` | GET | View current usage and quota |
 | `POST /v1/audit/query` | POST | Query audit log |
+| **AI** | | |
+| `POST /v1/ai/ask` | POST | Natural language question-answering |
+| `POST /v1/ai/analyze` | POST | AI-powered data analysis |
+| `POST /v1/ai_ask` | POST | DEPRECATED — use /v1/ai/ask |
+| **API Keys** | | |
+| `GET /v1/keys` | GET | List API keys |
+| `POST /v1/keys` | POST | Create API key |
+| `DELETE /v1/keys/:id` | DELETE | Delete API key |
+| `POST /v1/keys/:id/rotate` | POST | Rotate API key |
+| **Auth — OAuth 2.0** | | |
+| `GET /v1/auth/oauth/providers` | GET | List OAuth providers |
+| `GET /v1/auth/oauth/:provider` | GET | Initiate OAuth login |
+| `GET /v1/auth/oauth/:provider/callback` | GET | OAuth callback |
+| **Auth — GitHub (legacy)** | | |
+| `GET /v1/auth/github` | GET | Initiate GitHub OAuth |
+| `GET /v1/auth/github/callback` | GET | GitHub OAuth callback |
+| `POST /v1/auth/refresh` | POST | Refresh auth token |
+| `POST /v1/auth/logout` | POST | Logout |
+| `GET /v1/auth/me` | GET | Current auth status |
+| **Auth — Web3 Wallet** | | |
+| `POST /v1/auth/web3/challenge` | POST | Request Web3 challenge |
+| `POST /v1/auth/web3/login` | POST | Web3 wallet login |
+| **Auth — Passkey/WebAuthn** | | |
+| `POST /v1/auth/passkey/register/begin` | POST | Begin passkey registration |
+| `POST /v1/auth/passkey/register/complete` | POST | Complete passkey registration |
+| `POST /v1/auth/passkey/login/begin` | POST | Begin passkey login |
+| `POST /v1/auth/passkey/login/complete` | POST | Complete passkey login |
+| `GET /v1/auth/passkey/credentials` | GET | List passkey credentials |
+| `DELETE /v1/auth/passkey/credentials/:id` | DELETE | Delete passkey credential |
+| **Billing** | | |
+| `GET /v1/billing/plans` | GET | List billing plans |
+| `POST /v1/billing/checkout` | POST | Create checkout session |
 
 ### 2.4 Developer Portal (Portal)
 
