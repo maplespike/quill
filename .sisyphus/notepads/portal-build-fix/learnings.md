@@ -1,7 +1,7 @@
 # Portal Build Fix — Learnings
 
 ## Radix UI SSR Incompatibility
-React 19 SSR breaks multiple Radix UI primitives (Tabs, Dialog/Sheet) in Astro. 
+React 19 SSR breaks multiple Radix UI primitives (Tabs, Dialog/Sheet) in Astro.
 Symptom: "X must be used within Y" errors during `astro build` static generation.
 
 ## Actual State (post-audit)
