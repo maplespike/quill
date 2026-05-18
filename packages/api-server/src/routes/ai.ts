@@ -12,6 +12,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { validateBody } from '../validate.js';
 
 // Gateway endpoint: check multiple env var names for compatibility
 // Order: MAPLESPIKE_AI_ENDPOINT > MAPLESPIKE_GATEWAY_URL > AI_ENDPOINT > default
@@ -96,15 +97,16 @@ export const aiAskHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
   try {
-    const body = await request.json() as { query?: string; source_filter?: string };
-    if (!body.query || typeof body.query !== 'string') {
-      return jsonResponse(buildError('MISSING_QUERY', 'Field "query" is required', bc), 400);
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      query: { type: 'string', required: true, minLength: 1, maxLength: 5000 },
+      source_filter: { type: 'string', maxLength: 200 },
+    });
+    if (errs.length > 0) {
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
     }
 
-    const query = body.query.trim();
-    if (!query) {
-      return jsonResponse(buildError('EMPTY_QUERY', 'Query cannot be empty', bc), 400);
-    }
+    const query = (body.query as string).trim();
 
     // Try AI Gateway first
     const systemPrompt = `You are MapleSpike AI, a sovereign Canadian government data assistant.
@@ -158,12 +160,16 @@ export const aiAnalyzeHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
   try {
-    const body = await request.json() as { text?: string; mode?: string };
-    if (!body.text || typeof body.text !== 'string') {
-      return jsonResponse(buildError('MISSING_TEXT', 'Field "text" is required', bc), 400);
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      text: { type: 'string', required: true, minLength: 1, maxLength: 50000 },
+      mode: { type: 'string', maxLength: 50 },
+    });
+    if (errs.length > 0) {
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
     }
 
-    const mode = body.mode || 'general';
+    const mode = (body.mode as string) || 'general';
     const systemPrompt = `You are MapleSpike AI. Analyze the following document/transcript.
 Mode: ${mode}
 Provide: 1) Key topics/themes  2) Notable entities mentioned  3) Overall summary
@@ -171,7 +177,7 @@ Be concise and structured.`;
 
     const aiAnswer = await gatewayChat([
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: body.text.substring(0, 8000) },
+      { role: 'user', content: (body.text as string).substring(0, 8000) },
     ]);
 
     if (aiAnswer) {
