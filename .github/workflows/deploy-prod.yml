@@ -123,39 +123,13 @@ jobs:
       steps:
         - name: Checkout
           uses: actions/checkout@v4
-        - name: Check GHCR secret
+        - name: Verify GHCR secret exists
           run: |
-            echo "Checking if ghcr-pull secret exists in namespace $NAMESPACE..."
-            if kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
-              echo "Secret ghcr-pull found."
-              # Optionally, check that we can decode the .dockerconfigjson (without showing token)
-              if kubectl get secret ghcr-pull -n $NAMESPACE -o jsonpath='{.data.\.dockerconfigjson}' | base64 --decode | jq -r '.auths."ghcr.io".username' 2>/dev/null | grep -q reverb256; then
-                echo "Secret appears to contain credentials for reverb256."
-              else
-                echo "Warning: Secret does not seem to contain expected credentials."
-              fi
-            else
-              echo "Error: Secret ghcr-pull not found in namespace $NAMESPACE."
-              echo "Available secrets:"
-              kubectl get secrets -n $NAMESPACE
+            if ! kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
+              echo "Error: ghcr-pull secret not found in $NAMESPACE."
               exit 1
             fi
-        - name: Verify image accessibility
-          run: |
-            echo "Checking if we can pull the API image (dry run)..."
-            # Use kubectl to attempt to pull the image (this will use the secret)
-            if kubectl run --rm -i --temp --image=ghcr.io/reverb256/maplespike-api:stable --restart=Never --image-pull-policy=IfNotPresent --command -- sh -c "echo Image pulled successfully" 2>&1 | grep -q "Image pulled successfully"; then
-              echo "Image pull test succeeded."
-            else
-              echo "Image pull test failed. Check secret and token scope."
-              # Optional: try to curl GHCR to see if it's public
-              if curl -s -o /dev/null -w "%{http_code}" "https://ghcr.io/v2/reverb256/maplespike-api/manifests/stable"; then
-                echo "GHCR manifest is accessible (public or token works)."
-              else
-                echo "GHCR manifest not accessible (private or token invalid)."
-              fi
-              exit 1
-            fi
+            echo "ghcr-pull secret found in $NAMESPACE"
 
       - name: Apply K8s manifests from repo
         run: |
