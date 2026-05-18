@@ -285,7 +285,7 @@ let alerts = [];  // Start empty
 async function fetchAlerts() {
   try {
     const _cfg = window.MAPLESPIKE || {};
-    const _base = _cfg.apiBase || 'http://127.0.0.1:8085';
+    const _base = _cfg.apiBase || 'http://127.0.0.1:8082';
     const _to = _cfg.timeout || {};
     const resp = await fetch(_base + '/v1/gov/releases?limit=20', { signal: AbortSignal.timeout(_to.quick || 5000) });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
