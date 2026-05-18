@@ -7,6 +7,9 @@ data/
 *.db-wal
 .env
 .env.*
+
+# Age private key for MapleSpike Secret Vault
+.secrets/key.txt
 !.env.example
 .DS_Store
 *.log

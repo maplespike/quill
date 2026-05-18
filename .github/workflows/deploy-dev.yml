@@ -67,12 +67,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: node scripts/build-docs.mjs
 
+      - name: Decrypt vault (JIT)
+        run: |
+          eval "$(./scripts/decrypt-secrets.sh)"
+          echo "MAPLESPIKE_GHCR_PAT_TOKEN=${MAPLESPIKE_GHCR_PAT_TOKEN}" >> $GITHUB_ENV
+        env:
+          AGE_SECRET_KEY: ${{ secrets.AGE_SECRET_KEY }}
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASS }}
+          password: ${{ env.MAPLESPIKE_GHCR_PAT_TOKEN || env.REGISTRY_PASS }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -178,14 +185,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN_FOR_PROMOTION }}
+
+      - name: Decrypt vault (JIT)
+        run: |
+          eval "$(./scripts/decrypt-secrets.sh)"
+          echo "MAPLESPIKE_GITHUB_PROMOTION_TOKEN=${MAPLESPIKE_GITHUB_PROMOTION_TOKEN}" >> $GITHUB_ENV
+        env:
+          AGE_SECRET_KEY: ${{ secrets.AGE_SECRET_KEY }}
 
       - name: Merge main to prod
-        run: |
+        uses: actions/checkout@v4
+        with:
+          token: ${{ env.MAPLESPIKE_GITHUB_PROMOTION_TOKEN }}
+          fetch-depth: 0
+      - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main:main origin/prod:prod
           git checkout prod
           git merge main --no-edit
           git push origin prod
+        working-directory: ${{ github.workspace }}
