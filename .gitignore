@@ -20,7 +20,6 @@ out/
 test-results/
 .devenv/
 .playwright-mcp/
-.sisyphus/
 landing-page.png
 *.bak
 packages/engine/src/**/*.js
@@ -33,3 +32,4 @@ __pycache__/
 *.pyc
 *.pyo
 .hermes/
+state.json
