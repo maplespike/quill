@@ -7,6 +7,13 @@
 <!-- REQUIRED: Link to GitHub issue(s) this PR addresses -->
 Closes #   <!-- or: Related to # -->
 
+**No issue = no PR.** If there's no issue, create one first.
+
+## Worktree Info
+- **Developed on:** [zephyr / nexus / forge / sentry]
+- **Worktree path:** `/data/projects/own/maplespike-NNN`
+- **Branch:** `issue-NNN-short-description`
+
 ## Type of Change
 
 - [ ] New data module
@@ -40,3 +47,5 @@ Closes #   <!-- or: Related to # -->
 - [ ] No `as any` / `@ts-ignore` / `@ts-expect-error`
 - [ ] Commit messages reference issue number: `(#NNN)`
 - [ ] Branch name: `issue-NNN-short-description`
+- [ ] Worktree cleaned up after merge: `git worktree remove /data/projects/own/maplespike-NNN`
+- [ ] Remote nodes synced: `git fetch origin && git reset --hard origin/main` on all 4 nodes
