@@ -51,7 +51,7 @@ The core library ingests, verifies, and surfaces Canadian government data. See [
 | Economy | fisheries, agriculture, global-canada |
 | Real-time | real-time-feeds |
 
-### 2.2 MCP Server — All 22 Tools Live
+### 2.2 MCP Server — All 24 Tools Live
 
 An MCP server deployed on the K3s cluster, exposing MapleSpike data as tools for AI agents.
 
@@ -166,7 +166,7 @@ K3s Cluster (nexus)
 │   ├── Portal config: config.prod.js → apiBase: https://maplespike-api.lan
 │   ├── Replicas: API=2, MCP=1, Portal=1
 │   │
-│   ├── MCP server (NodePort 31745) ── 22 tools, all live
+│   ├── MCP server (NodePort 31745) ── 24 tools, all live
 │   ├── API server (NodePort 31283, Bearer auth, rate limits)
 │   │     ├── SQLite (keys, usage, audit)
 │   │     ├── In-memory cache (node-cache)
@@ -194,7 +194,7 @@ K3s Cluster (nexus)
     ├── Portal config: config.dev.js → apiBase: https://dev-maplespike-api.lan
     ├── Replicas: API=1, MCP=1, Portal=1
     │
-    ├── MCP server (NodePort 31746) ── 22 tools, all live
+    ├── MCP server (NodePort 31746) ── 24 tools, all live
     ├── API server (NodePort 31284)
     │     └── pipeline-core (same module list as prod)
     └── Engine CronJobs (dev ingestion)
@@ -214,7 +214,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 | **pipeline-core fetchers** | ✅ All modules fetch data |
 | **pipeline-core parsers** | ✅ All modules parse into typed records |
 | **pipeline-core DB persistence** | ✅ All modules persist via shared SQLite database |
-| **MCP search tools** | ✅ All 22 tools wired to pipeline-core DB queries |
+| **MCP search tools** | ✅ All 24 tools wired to pipeline-core DB queries |
 | **Dashboard / presentation** | 🟡 Static HTML — needs wiring to live API |
 
 ### 3.3 Integration Points

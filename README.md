@@ -8,7 +8,7 @@ status: active
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Static HTML/CSS/JS (portal)
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 65 modules, 22 MCP tools, ~113K lines TS, 11 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
 
 ---
 
@@ -47,7 +47,7 @@ maplespike/
 │   ├── pretext-civic/    # React component library (charts, geo) — orphaned
 │   ├── portal/           # Developer portal & landing page (static HTML)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── mcp-server/       # MCP protocol server (✅ 22 tools, all live)
+│   ├── mcp-server/       # MCP protocol server (✅ 24 tools, all live)
 │   ├── sdk/              # TypeScript client library
 │   ├── sdk-python/       # Python client library
 │   ├── legal-core/       # Legal data SDK
@@ -77,7 +77,7 @@ pipeline-core ──→ SQLite DB ──→ MCP server (22 live tools) ──→
 |-------|------|--------|
 | 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | ✅ DONE |
 | 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | ✅ DONE |
-| 3 | **Wire MCP** — 22 tools all returning real DB results | ✅ DONE |
+| 3 | **Wire MCP** — 24 tools all returning real DB results | ✅ DONE |
 | 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ⏳ TODO |
 | 5 | **Live Dashboard** — hits MCP/API for live data | ⏳ TODO |
 | 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🔴 TODO |
@@ -101,7 +101,7 @@ cd packages/mcp-server
 pnpm start
 ```
 
-**All 22 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
+**All 24 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
 ---
 
