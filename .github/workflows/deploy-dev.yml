@@ -122,37 +122,34 @@ jobs:
           cache-from: type=gha,scope=portal-dev
           cache-to: type=gha,mode=max,scope=portal-dev
 
-    deploy:
-      name: Deploy to K8s
-      needs: build
-      runs-on: [self-hosted, nixos]
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-        - name: Verify GHCR secret exists
-          run: |
-            if ! kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
-              echo "Error: ghcr-pull secret not found in $NAMESPACE."
-              exit 1
-            fi
-            echo "ghcr-pull secret found in $NAMESPACE"
-
-        - name: Apply K8s manifests
-          run: |
-            cd /etc/nixos
-            /run/current-system/sw/bin/kubectl apply -f <(nix eval .#kubernetes.objects --json | jq -r '.[] | @yaml') || true
-
-        - name: Rollout dev deployments
-          run: |
-            /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api
-            /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp
-            kubectl rollout restart deployment -n $NAMESPACE maplespike-portal
-
-        - name: Wait for rollout
-          run: |
-            kubectl rollout status deployment -n $NAMESPACE maplespike-api --timeout=5m
-            kubectl rollout status deployment -n $NAMESPACE maplespike-mcp --timeout=5m
-            kubectl rollout status deployment -n $NAMESPACE maplespike-portal --timeout=5m
+  deploy:
+    name: Deploy to K8s
+    needs: build
+    runs-on: [self-hosted, nixos]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify GHCR secret exists
+        run: |
+          if ! kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
+            echo "Error: ghcr-pull secret not found in $NAMESPACE."
+            exit 1
+          fi
+          echo "ghcr-pull secret found in $NAMESPACE"
+      - name: Apply K8s manifests
+        run: |
+          cd /etc/nixos
+          /run/current-system/sw/bin/kubectl apply -f <(nix eval .#kubernetes.objects --json | jq -r '.[] | @yaml') || true
+      - name: Rollout dev deployments
+        run: |
+          /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api
+          /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp
+          kubectl rollout restart deployment -n $NAMESPACE maplespike-portal
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment -n $NAMESPACE maplespike-api --timeout=5m
+          kubectl rollout status deployment -n $NAMESPACE maplespike-mcp --timeout=5m
+          kubectl rollout status deployment -n $NAMESPACE maplespike-portal --timeout=5m
 
   promote:
     name: Promote to Prod
