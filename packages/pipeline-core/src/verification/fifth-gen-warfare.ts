@@ -39,6 +39,8 @@ export interface FiveGWDefenseConfig {
   adversarialSources?: string[];
 }
 
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+
 const DEFAULT_CONFIG: Required<FiveGWDefenseConfig> = {
   endpoint: 'http://127.0.0.1:8080/v1',
   model: 'qwen3.5-27b',
@@ -488,7 +490,7 @@ async function chatComplete(
     body.response_format = { type: 'json_object' };
   }
 
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', 'User-Agent': USER_AGENT };
   if (config.apiKey) {
     headers['Authorization'] = `Bearer ${config.apiKey}`;
   }

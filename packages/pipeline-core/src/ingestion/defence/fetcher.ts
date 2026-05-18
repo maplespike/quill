@@ -1,25 +1,26 @@
 /**
  * Real CKAN fetchers for National Defence data.
  */
+import { httpGet } from '../../utils/http.js';
 import { DND_DATASETS } from './constants.js';
 import type { DndPersonnelRecord, DndProcurementRecord } from './types.js';
 
 async function fetchCkanPackage(ckanId: string): Promise<any | null> {
   try {
-    const resp = await fetch(`https://open.canada.ca/data/api/3/action/package_show?id=${ckanId}`, {
-      signal: AbortSignal.timeout(15000),
+    const resp = await httpGet(`https://open.canada.ca/data/api/3/action/package_show?id=${ckanId}`, {
+      timeoutMs: 15000,
     });
-    if (!resp.ok) return null;
-    const body = await resp.json();
+    if (resp.statusCode >= 400) return null;
+    const body: any = await resp.json();
     return body?.result ?? null;
   } catch { return null; }
 }
 
 async function fetchCsv(url: string): Promise<string | null> {
   try {
-    const resp = await fetch(url, { signal: AbortSignal.timeout(30000) });
-    if (!resp.ok) return null;
-    return await resp.text();
+    const resp = await httpGet(url, { timeoutMs: 30000 });
+    if (resp.statusCode >= 400) return null;
+    return resp.body;
   } catch { return null; }
 }
 

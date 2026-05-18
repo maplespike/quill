@@ -11,7 +11,7 @@ import { generateApiKey } from '../auth.js';
 import { TIER_LIMITS } from '../types.js';
 import type { Tenant, MapleSpikeStorage } from '../types.js';
 import { sendVerificationEmail, sendWelcomeEmail } from '../email.js';
-import { registerSchema, validateBody, validationError } from '../validation.js';
+import { registerSchema, validateBody, validationError } from '../validation';
 
 
 interface RegisterBody {

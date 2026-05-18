@@ -1,3 +1,4 @@
+import { httpGet } from '../../utils/http.js';
 import { SOURCES } from './constants.js';
 import type { OceanObservation } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
@@ -7,12 +8,12 @@ export async function fetchOceanObservations(): Promise<OceanObservation[]> {
   const now = new Date().toISOString();
 
   try {
-    const resp = await fetch(SOURCES.OCEAN_NETWORKS.stationsUrl, {
+    const resp = await httpGet(SOURCES.OCEAN_NETWORKS.stationsUrl, {
       headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15000),
+      timeoutMs: 15000,
     });
 
-    if (resp.ok) {
+    if (resp.statusCode < 400) {
       const stations = (await resp.json()) as Record<string, unknown>[];
 
       for (const station of stations.slice(0, 20)) {
@@ -49,12 +50,12 @@ export async function fetchPolarRecords(): Promise<import('./types.js').PolarRec
   const now = new Date().toISOString();
 
   try {
-    const resp = await fetch(SOURCES.POLAR_CATALOGUE.searchApi, {
+    const resp = await httpGet(SOURCES.POLAR_CATALOGUE.searchApi, {
       headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(15000),
+      timeoutMs: 15000,
     });
 
-    if (resp.ok) {
+    if (resp.statusCode < 400) {
       const data = (await resp.json()) as Record<string, unknown>[];
       for (const raw of data.slice(0, 50)) {
         const id = await computeHash(`polar:${raw.id ?? raw.title}`, 'sha256');

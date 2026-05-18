@@ -48,11 +48,77 @@ function backoff(attempt: number): Promise<void> {
 }
 
 
+/** Per-domain rate-limit configuration for token bucket. */
+export interface DomainThrottleConfig {
+  maxTokens: number;
+  refillPerSecond: number;
+}
+
+// Default throttle: 2 req/s per domain (fits CKAN APIs, StatCan 25 req/s)
+const DEFAULT_DOMAIN_THROTTLE: DomainThrottleConfig = { maxTokens: 2, refillPerSecond: 1 };
+
+// Per-domain token buckets — rate limiter, not concurrency limiter (tokens don't return)
+const domainThrottles = new Map<string, { tokens: number; lastRefill: number }>();
+const domainErrorCounts = new Map<string, { count: number; firstSeen: number }>();
+
+// Alert: same domain fails >5 times in 5min
+const ERROR_ALERT_THRESHOLD = 5;
+const ERROR_ALERT_WINDOW_MS = 5 * 60 * 1000;
+
+// Alerts when same domain fails repeatedly
+function trackError(domain: string): void {
+  const now = Date.now();
+  let entry = domainErrorCounts.get(domain);
+  if (!entry || (now - entry.firstSeen) > ERROR_ALERT_WINDOW_MS) {
+    entry = { count: 1, firstSeen: now };
+    domainErrorCounts.set(domain, entry);
+    return;
+  }
+  entry.count++;
+  if (entry.count > ERROR_ALERT_THRESHOLD) {
+    console.warn(`[HTTP] ALERT: ${domain} has failed ${entry.count} times in 5 minutes`);
+  }
+}
+
+/**
+ * Acquire a token from per-domain rate limiter.
+ * Waits if no tokens available (token bucket algorithm).
+ * Tokens do NOT return after use — this is a rate limiter, not concurrency limiter.
+ */
+async function acquireToken(domain: string, config: DomainThrottleConfig): Promise<void> {
+  while (true) {
+    let state = domainThrottles.get(domain);
+    if (!state) {
+      state = { tokens: config.maxTokens, lastRefill: Date.now() };
+      domainThrottles.set(domain, state);
+    }
+
+    const now = Date.now();
+    const elapsed = (now - state.lastRefill) / 1000;
+    state.tokens = Math.min(config.maxTokens, state.tokens + elapsed * config.refillPerSecond);
+    state.lastRefill = now;
+
+    if (state.tokens >= 1) {
+      state.tokens -= 1;
+      return;
+    }
+
+    // No tokens — wait for next refill tick
+    const waitMs = Math.ceil(((1 - state.tokens) / config.refillPerSecond) * 1000);
+    console.warn(`[HTTP] Throttled ${domain}: waiting ${waitMs}ms for token`);
+    await new Promise(resolve => setTimeout(resolve, Math.min(waitMs, 1000)));
+  }
+}
+
 export interface HttpGetOptions {
   /** Additional request headers (merged with defaults). */
   headers?: Record<string, string>;
   /** Timeout in milliseconds (default 30_000). */
   timeoutMs?: number;
+  /** Per-domain rate-limit override. Default: 2 req/s. */
+  throttle?: DomainThrottleConfig;
+  /** HTTP method (default 'GET'). Use 'HEAD' for lightweight health checks. */
+  method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 }
 
 export interface HttpResponse {
@@ -94,12 +160,39 @@ export async function httpGet(
 
   const timeout = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   let lastError: Error | null = null;
+  const start = Date.now();
+
+  // StatCan WDS lock period check (midnight-8:30 AM ET daily)
+  // Skip request entirely — no point wasting a connection
+  const isStatCan = url.includes('statcan') || url.includes('wds') || url.includes('www150');
+  if (isStatCan) {
+    const now = new Date();
+    const hourET = (now.getUTCHours() - 5 + 24) % 24; // UTC-5 (EST, ignores DST)
+    const minuteET = now.getUTCMinutes();
+    if (hourET < 8 || (hourET === 8 && minuteET < 30)) {
+      console.warn(`[HTTP] StatCan WDS locked (midnight-8:30 AM ET), skipping retry: ${url.split('?')[0]}`);
+      return {
+        statusCode: 409,
+        headers: {},
+        body: '',
+        json: async <T = unknown>(): Promise<T> => {
+          throw new Error('StatCan WDS locked (midnight-8:30 AM ET)');
+        },
+      };
+    }
+  }
+
+  // Per-domain rate limiting — acquire token before request
+  const domain = new URL(url).hostname;
+  const pathname = url.split('?')[0];
+  const domainThrottleConfig = options.throttle ?? DEFAULT_DOMAIN_THROTTLE;
+  await acquireToken(domain, domainThrottleConfig);
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resp = await (undiciRequest as any)(url, {
-        method: 'GET',
+        method: options.method ?? 'GET',
         headers: requestHeaders,
         headersTimeout: timeout,
         bodyTimeout: timeout,
@@ -121,9 +214,18 @@ export async function httpGet(
 
       // Retry on transient status codes
       if (TRANSIENT_STATUS_CODES.has(resp.statusCode) && attempt < MAX_RETRIES) {
+        const durationMs = Date.now() - start;
+        console.warn(`[HTTP] ${domain} ${resp.statusCode} GET ${pathname} (attempt ${attempt + 1}/${MAX_RETRIES + 1}) — ${durationMs}ms — retrying`);
         lastError = new Error(`Transient HTTP ${resp.statusCode}`);
         await backoff(attempt);
         continue;
+      }
+
+      // Non-transient error — log warning but return response
+      if (resp.statusCode >= 400) {
+        const durationMs = Date.now() - start;
+        console.warn(`[HTTP] ${domain} ${resp.statusCode} GET ${pathname} — ${durationMs}ms — non-transient error`);
+        trackError(domain);
       }
 
       return {
@@ -142,14 +244,17 @@ export async function httpGet(
 
       // Don't retry on the last attempt
       if (attempt < MAX_RETRIES) {
-        console.warn(`[HTTP] Retry ${attempt + 1}/${MAX_RETRIES} for ${url.split('?')[0]}: ${lastError.message}`);
+        const durationMs = Date.now() - start;
+        console.warn(`[HTTP] ${domain} 0 GET ${pathname} (attempt ${attempt + 1}/${MAX_RETRIES + 1}) — ${durationMs}ms — ${lastError.message}`);
         await backoff(attempt);
       }
     }
   }
 
   // Graceful degradation — return empty response instead of crashing
-  console.warn(`[HTTP] All ${MAX_RETRIES + 1} attempts failed for ${url.split('?')[0]}: ${lastError?.message}`);
+  const durationMs = Date.now() - start;
+  console.warn(`[HTTP] ${domain} 0 GET ${pathname} (attempt ${MAX_RETRIES + 1}/${MAX_RETRIES + 1}) — ${durationMs}ms — ALL RETRIES FAILED: ${lastError?.message}`);
+  trackError(domain);
   return {
     statusCode: 0,
     headers: {},

@@ -7,6 +7,7 @@
 
 const API_BASE = process.env.MAPLESPIKE_API_URL || 'http://maplespike-api:8084/v1';
 const API_KEY = process.env.MAPLESPIKE_API_KEY || 'maplespike-dev-key';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 
 // ── API Server calls ──────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ export async function callApi<T>(
     headers: {
       'X-API-Key': API_KEY,
       'Accept': 'application/json',
+      'User-Agent': USER_AGENT,
     },
     signal: AbortSignal.timeout(15_000),
   });

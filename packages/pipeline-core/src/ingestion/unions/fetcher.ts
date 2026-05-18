@@ -1,12 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { UnionRecord, UnionsIngestionResult } from './types.js';
 import { UNION_USER_AGENT, UNION_TIMEOUT_MS, MAJOR_UNIONS, MAX_UNION_RECORDS } from './constants.js';
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), UNION_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': UNION_USER_AGENT }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': UNION_USER_AGENT }, timeoutMs: UNION_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 

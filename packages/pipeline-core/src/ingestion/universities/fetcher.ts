@@ -1,12 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { UniversityRecord, UniversitiesIngestionResult } from './types.js';
 import { UNI_USER_AGENT, UNI_TIMEOUT_MS, CUDO_URL, MAX_UNI_RECORDS, ONTARIO_UNIVERSITIES } from './constants.js';
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), UNI_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': UNI_USER_AGENT }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.text() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': UNI_USER_AGENT }, timeoutMs: UNI_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 
@@ -36,11 +36,9 @@ async function fetchUniFinancials(): Promise<UniversityRecord[]> {
   for (const uni of ONTARIO_UNIVERSITIES) {
     const searchUrl = `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(uni)}&rows=5`;
     try {
-      const c = new AbortController(); const t = setTimeout(() => c.abort(), UNI_TIMEOUT_MS);
-      const r = await fetch(searchUrl, { headers: { 'User-Agent': UNI_USER_AGENT }, signal: c.signal });
-      clearTimeout(t);
-      if (!r.ok) continue;
-      const data = await r.json();
+      const resp = await httpGet(searchUrl, { headers: { 'User-Agent': UNI_USER_AGENT }, timeoutMs: UNI_TIMEOUT_MS });
+      if (resp.statusCode >= 400) continue;
+      const data: any = await resp.json();
       if (data?.result?.results?.length) {
         records.push({
           institution: uni, province: 'ON', year: new Date().getFullYear(),

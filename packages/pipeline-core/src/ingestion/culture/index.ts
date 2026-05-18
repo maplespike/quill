@@ -40,23 +40,25 @@ import type { CultureGrant, CmfProductionData, NfbProductionRecord } from './typ
 /*  Generic HTTP helpers                                                */
 /* ------------------------------------------------------------------ */
 
+import { httpGet } from '../../utils/http.js';
+
 async function fetchJson(url: string): Promise<any> {
   try {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(CULTURE_TIMEOUT_MS),
+    const resp = await httpGet(url, {
+      timeoutMs: CULTURE_TIMEOUT_MS,
       headers: { 'User-Agent': CULTURE_UA },
     });
-    return r.ok ? await r.json() : null;
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 
 async function fetchText(url: string): Promise<string | null> {
   try {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(CULTURE_TIMEOUT_MS),
+    const resp = await httpGet(url, {
+      timeoutMs: CULTURE_TIMEOUT_MS,
       headers: { 'User-Agent': CULTURE_UA },
     });
-    return r.ok ? await r.text() : null;
+    return resp.statusCode >= 400 ? null : resp.body;
   } catch { return null; }
 }
 

@@ -1,12 +1,12 @@
+import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
 import type { GeospatialRecord, GeospatialIngestionResult } from './types.js';
 import { GEOSPATIAL_UA, GEOSPATIAL_TIMEOUT_MS, MAX_GEOSPATIAL_RECORDS, CKAN_BASE, GEOSPATIAL_QUERIES } from './constants.js';
 
 async function fetchJson(url: string): Promise<any> {
   try {
-    const c = new AbortController(); const t = setTimeout(() => c.abort(), GEOSPATIAL_TIMEOUT_MS);
-    const r = await fetch(url, { headers: { 'User-Agent': GEOSPATIAL_UA }, signal: c.signal });
-    clearTimeout(t); return r.ok ? await r.json() : null;
+    const resp = await httpGet(url, { headers: { 'User-Agent': GEOSPATIAL_UA }, timeoutMs: GEOSPATIAL_TIMEOUT_MS });
+    return resp.statusCode >= 400 ? null : await resp.json();
   } catch { return null; }
 }
 
