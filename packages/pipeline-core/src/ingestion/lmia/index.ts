@@ -26,6 +26,7 @@ import {
 import { parseLmiaCsv } from './parser.js';
 import { LMIA_DDL } from './constants.js';
 import { LmiaOutcome, type LmiaRecord, type LmiaIngestionResult } from './types.js';
+import { upsertOrganization } from '../../shared-db.js';
 
 
 /**
@@ -80,17 +81,31 @@ export async function ingestLmia(
     }
 
     // Phase 4: Persist to database
-    if (db) {
-      log(`[LMIA ${outcome}] Persisting to database...`);
-      for (const record of allRecords) {
-        try {
-          await upsertLmiaRecord(db, record);
-          result.recordsIngested++;
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          result.errors.push(`${record.employer}: ${msg}`);
-        }
-      }
+     if (db) {
+       log(`[LMIA ${outcome}] Persisting to database...`);
+       const employerSeen = new Set<string>();
+       for (const record of allRecords) {
+         try {
+           await upsertLmiaRecord(db, record);
+           result.recordsIngested++;
+
+           // Also upsert employer to shared organizations table
+           if (record.employer && !employerSeen.has(record.employer)) {
+             employerSeen.add(record.employer);
+             try {
+               upsertOrganization(record.employer, {
+                 type: "other",
+                 province: record.province ?? undefined,
+                 source: "lmia",
+                 rawData: { noc: record.noc, nocTitle: record.nocTitle, stream: record.stream },
+               });
+             } catch { /* non-fatal */ }
+           }
+         } catch (err) {
+           const msg = err instanceof Error ? err.message : String(err);
+           result.errors.push(`${record.employer}: ${msg}`);
+         }
+       }
       log(`[LMIA ${outcome}] Persisted ${result.recordsIngested}/${result.recordsFound} records`);
     } else {
       // No database — count all as ingested
