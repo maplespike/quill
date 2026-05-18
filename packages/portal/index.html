@@ -370,7 +370,7 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
   <div class="stats-row">
     <div class="stat fade-in">
       <div class="sect-num">[01]</div>
-      <div class="number">65</div>
+      <div class="number" id="stat-modules">65</div>
       <div class="label">Data Modules</div>
     </div>
     <div class="stat fade-in stagger-1">
@@ -981,6 +981,51 @@ Real-time access to Canadian government data: Parliament, lobbying, regulations,
   fetchLiveStats();
   // Refresh stats every 60s
   setInterval(fetchLiveStats, 60000);
+})();
+</script>
+
+<script>
+/* ═══ Live Stats from /v1/stats (progressive enhancement) ═══ */
+(async function() {
+  'use strict';
+  try {
+    const apiBase = (window.MAPLESPIKE?.apiBase || '') + '/v1';
+    const resp = await fetch(apiBase + '/stats', {
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    const data = json.data || json;
+
+    const moduleCount = data.moduleCount || data.modules || 0;
+    const toolCount = data.toolCount || data.tools || 0;
+    const uptime = data.uptime || '';
+
+    // Hero stat bar
+    const sourcesEl = document.getElementById('stats-sources');
+    if (sourcesEl && moduleCount) sourcesEl.textContent = moduleCount;
+
+    const uptimeEl = document.getElementById('stats-uptime');
+    if (uptimeEl && uptime) uptimeEl.textContent = uptime;
+
+    // Stat counter section
+    const statModules = document.getElementById('stat-modules');
+    if (statModules && moduleCount) statModules.textContent = moduleCount;
+
+    // Sources footer
+    const sourcesFooter = document.querySelector('.sources-footer');
+    if (sourcesFooter && moduleCount) {
+      sourcesFooter.textContent = sourcesFooter.textContent.replace(/^\d+/, String(moduleCount));
+    }
+
+    // Hero subtitle
+    const heroSubtitle = document.getElementById('hero-subtitle');
+    if (heroSubtitle && moduleCount) {
+      heroSubtitle.textContent = heroSubtitle.textContent.replace(/\d+\+?\s*modules/, moduleCount + '+ modules');
+    }
+  } catch (_e) {
+    // API unavailable — keep hardcoded values (graceful fallback)
+  }
 })();
 </script>
 
