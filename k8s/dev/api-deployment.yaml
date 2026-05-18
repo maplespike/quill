@@ -61,7 +61,7 @@ spec:
                 - ALL
             seccompProfile:
               type: RuntimeDefault
-          image: ghcr.io/reverb256/maplespike-api:dev
+          image: ghcr.io/reverb256/maplespike/maplespike-api:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
