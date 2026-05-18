@@ -1,0 +1,284 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+---
+
+<BaseLayout title="Developer Dashboard" description="Your MapleSpike API dashboard with usage statistics and API keys">
+  <section class="container mx-auto px-4 py-8 md:py-12">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Developer Dashboard</h1>
+        <p class="mt-1 text-muted-foreground">
+          Monitor your API usage, manage keys, and track data consumption.
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <Button variant="outline">Documentation</Button>
+        <Button>New API Key</Button>
+      </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Total Requests</CardDescription>
+          <CardTitle className="text-3xl">142,839</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="inline-flex items-center gap-1 text-emerald-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+              12.3%
+            </span>
+            <span class="text-muted-foreground">vs last month</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Data Modules</CardDescription>
+          <CardTitle className="text-3xl">65</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="inline-flex items-center gap-1 text-emerald-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+              3 new
+            </span>
+            <span class="text-muted-foreground">this quarter</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Active API Keys</CardDescription>
+          <CardTitle className="text-3xl">12</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-muted-foreground">2 expiring soon</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Avg Response Time</CardDescription>
+          <CardTitle className="text-3xl">187ms</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="inline-flex items-center gap-1 text-emerald-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+              23ms
+            </span>
+            <span class="text-muted-foreground">faster than last week</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Usage Chart Placeholder -->
+    <Card class="mb-8">
+      <CardHeader>
+        <CardTitle>API Usage (Last 30 Days)</CardTitle>
+        <CardDescription>
+          Daily request volume across all endpoints
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div class="relative h-64 w-full rounded-md bg-muted/30 border border-dashed border-muted-foreground/25 flex items-center justify-center">
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground/50 mb-3"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <p class="text-sm text-muted-foreground">Usage chart will display here once sufficient data is collected.</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- API Key Management -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+      <div class="lg:col-span-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>API Keys</CardTitle>
+            <CardDescription>Manage your API keys for programmatic access to MapleSpike data.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Key</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead class="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell class="font-medium">Production</TableCell>
+                  <TableCell><code class="rounded bg-muted px-2 py-0.5 text-xs font-mono">msk_live_&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;a3f8</code></TableCell>
+                  <TableCell class="text-muted-foreground">2026-01-15</TableCell>
+                  <TableCell><Badge variant="default" class="bg-emerald-600">Active</Badge></TableCell>
+                  <TableCell class="text-right"><Button variant="ghost" size="sm">Revoke</Button></TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell class="font-medium">Development</TableCell>
+                  <TableCell><code class="rounded bg-muted px-2 py-0.5 text-xs font-mono">msk_test_&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;b2c4</code></TableCell>
+                  <TableCell class="text-muted-foreground">2026-03-22</TableCell>
+                  <TableCell><Badge variant="default" class="bg-emerald-600">Active</Badge></TableCell>
+                  <TableCell class="text-right"><Button variant="ghost" size="sm">Revoke</Button></TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell class="font-medium">CI/CD Pipeline</TableCell>
+                  <TableCell><code class="rounded bg-muted px-2 py-0.5 text-xs font-mono">msk_test_&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;d7e9</code></TableCell>
+                  <TableCell class="text-muted-foreground">2026-04-10</TableCell>
+                  <TableCell><Badge variant="secondary">Expiring</Badge></TableCell>
+                  <TableCell class="text-right"><Button variant="ghost" size="sm">Revoke</Button></TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell class="font-medium">Staging</TableCell>
+                  <TableCell><code class="rounded bg-muted px-2 py-0.5 text-xs font-mono">msk_test_&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;f1a2</code></TableCell>
+                  <TableCell class="text-muted-foreground">2025-11-05</TableCell>
+                  <TableCell><Badge variant="destructive">Revoked</Badge></TableCell>
+                  <TableCell class="text-right"><Button variant="ghost" size="sm" disabled>Revoke</Button></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div>
+        <Card class="mb-6">
+          <CardHeader>
+            <CardTitle>Rate Limits</CardTitle>
+            <CardDescription>Current plan limits</CardDescription>
+          </CardHeader>
+          <CardContent class="space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1">
+                <span class="text-muted-foreground">Requests / minute</span>
+                <span class="font-medium">842 / 1,000</span>
+              </div>
+              <div class="h-2 rounded-full bg-muted overflow-hidden">
+                <div class="h-full rounded-full bg-primary" style="width: 84%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1">
+                <span class="text-muted-foreground">Data volume / day</span>
+                <span class="font-medium">1.2 / 5 GB</span>
+              </div>
+              <div class="h-2 rounded-full bg-muted overflow-hidden">
+                <div class="h-full rounded-full bg-primary" style="width: 24%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1">
+                <span class="text-muted-foreground">Concurrent connections</span>
+                <span class="font-medium">23 / 50</span>
+              </div>
+              <div class="h-2 rounded-full bg-muted overflow-hidden">
+                <div class="h-full rounded-full bg-emerald-500" style="width: 46%"></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Download Usage Report
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              View Billing
+            </Button>
+            <Button variant="outline" className="w-full justify-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              Support
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent Activity</CardTitle>
+        <CardDescription>Latest API requests across your account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Endpoint</TableHead>
+              <TableHead>Module</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Response Time</TableHead>
+              <TableHead>Timestamp</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell class="font-mono text-xs">/v1/data/committees</TableCell>
+              <TableCell>Committees</TableCell>
+              <TableCell><Badge variant="default" class="bg-emerald-600">200</Badge></TableCell>
+              <TableCell>142ms</TableCell>
+              <TableCell class="text-muted-foreground">2 min ago</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell class="font-mono text-xs">/v1/data/lobbying/search</TableCell>
+              <TableCell>Lobbying</TableCell>
+              <TableCell><Badge variant="default" class="bg-emerald-600">200</Badge></TableCell>
+              <TableCell>234ms</TableCell>
+              <TableCell class="text-muted-foreground">15 min ago</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell class="font-mono text-xs">/v1/data/procurement</TableCell>
+              <TableCell>Procurement</TableCell>
+              <TableCell><Badge variant="default" class="bg-emerald-600">200</Badge></TableCell>
+              <TableCell>89ms</TableCell>
+              <TableCell class="text-muted-foreground">1 hour ago</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell class="font-mono text-xs">/v1/data/ethics</TableCell>
+              <TableCell>Ethics</TableCell>
+              <TableCell><Badge variant="secondary">404</Badge></TableCell>
+              <TableCell>45ms</TableCell>
+              <TableCell class="text-muted-foreground">3 hours ago</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell class="font-mono text-xs">/v1/search</TableCell>
+              <TableCell>Cross-Reference</TableCell>
+              <TableCell><Badge variant="default" class="bg-emerald-600">200</Badge></TableCell>
+              <TableCell>567ms</TableCell>
+              <TableCell class="text-muted-foreground">5 hours ago</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  </section>
+</BaseLayout>

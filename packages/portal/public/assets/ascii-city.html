@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII City — MapleSpike</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#06060e;overflow:hidden;height:100vh;user-select:none}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+#title{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:1;pointer-events:none;text-align:center;color:rgba(255,255,255,0.04)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="title"></div>
+<script type="module">
+import { prepareWithSegments, layoutWithLines } from "https://esm.sh/@chenglou/pretext@0.0.6";
+
+// ─── Canvas Setup ────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, cw, ch;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cw = W / 120;
+  ch = H / 50;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─── Pretext Title ───────────────────────────────────────────
+(async () => {
+  const prepared = prepareWithSegments('MAPLESPIKE', '900 42px Georgia,Palatino,"Times New Roman",serif');
+  const { lines } = layoutWithLines(prepared, W * 0.7, 52);
+  const div = document.getElementById('title');
+  if (lines?.length) {
+    div.textContent = lines[0].text;
+    div.style.font = '900 42px Georgia,Palatino,"Times New Roman",serif';
+    div.style.letterSpacing = '0.25em';
+  }
+})();
+
+// ─── Constants ───────────────────────────────────────────────
+const COLS = 120, ROWS = 50, WATER = 36;
+
+// ─── Skyline (pre-computed once) ──────────────────────────
+let seed = 42;
+function rng() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+const h = new Uint8Array(COLS);         // building height per col
+const colr = new Uint8Array(COLS);       // 0=gray,1=warm,2=cool
+const win = new Uint8Array(COLS * WATER); // lit windows
+const stars = [];
+
+(function init() {
+  seed = 42;
+  let c = 0;
+  while (c < COLS) {
+    const bw = 3 + (rng() * 8) | 0, bh = 5 + (rng() * 18) | 0, cl = (rng() * 3) | 0;
+    const end = Math.min(c + bw, COLS);
+    for (let x = c; x < end; x++) {
+      h[x] = Math.min(bh, WATER - 2);
+      colr[x] = cl;
+      for (let y = WATER - bh + 2; y < WATER - 1; y++)
+        if (y >= 1 && rng() < 0.35) win[y * COLS + x] = 1;
+    }
+    c = end + 1 + (rng() * 4) | 0;
+    if (rng() < 0.15 && c < COLS) {
+      h[c] = h[Math.max(0, c - 1)] + 2 + (rng() * 3) | 0;
+      if (h[c] > WATER - 2) h[c] = WATER - 2;
+    }
+  }
+  for (let i = 0; i < 50; i++)
+    stars.push({ x: rng() * W, y: rng() * (WATER * 0.35), p: rng() * 6.28, r: 0.3 + rng() * 0.7 });
+})();
+
+// ─── Water phases ────────────────────────────────────────────
+const wp = new Float64Array(COLS);
+for (let c = 0; c < COLS; c++) wp[c] = rng() * 6.28;
+const fp = new Float64Array(COLS);
+for (let c = 0; c < COLS; c++) fp[c] = rng() * 6.28;
+
+// ─── Palettes ────────────────────────────────────────────────
+const WALL = [[40,45,60],[55,40,35],[35,50,60]];
+const EDGE = [[60,65,85],[75,55,45],[50,70,85]];
+const WG   = [[255,200,80],[255,220,120],[180,230,255]];
+const RIFF = ' ·░▒▓≈~≡';
+
+// Get building char for a cell (r,c). Returns null for empty.
+function buildChar(r, c) {
+  const hh = h[c];
+  if (hh === 0 || r < WATER - hh) return null;
+  if (win[r * COLS + c]) return '□';
+  const isT = r === WATER - hh, isE = (c === 0 || h[c-1] < r) || (c === COLS - 1 || h[c+1] < r);
+  return (isT || isE) ? '▒' : '▓';
+}
+
+function buildColor(r, c) {
+  if (win[r * COLS + c]) return null; // handled separately
+  const hh = h[c], ci = colr[c];
+  const isT = r === WATER - hh, isE = (c === 0 || h[c-1] < r) || (c === COLS - 1 || h[c+1] < r);
+  const pal = isT || isE ? EDGE[ci] : WALL[ci];
+  return `rgba(${pal[0]},${pal[1]},${pal[2]},0.7)`;
+}
+
+// ─── Frame ───────────────────────────────────────────────────
+function frame(now) {
+  const fs = Math.min(cw, ch);
+  ctx.font = `${fs + 1}px monospace`;
+  ctx.textBaseline = 'bottom';
+
+  // ── Sky ──
+  const grad = ctx.createLinearGradient(0, 0, 0, WATER * ch);
+  grad.addColorStop(0, '#05060d');
+  grad.addColorStop(0.6, '#0a0e1a');
+  grad.addColorStop(1, '#0f1425');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, WATER * ch);
+
+  // ── Stars ──
+  for (const s of stars) {
+    const t = 0.35 * (0.5 + 0.5 * Math.sin(now * 0.001 * s.r + s.p));
+    ctx.fillStyle = `rgba(180,200,230,${t})`;
+    ctx.fillText('·', s.x, s.y);
+  }
+
+  // ── Buildings (explicit per-char positioning, color-batched by row) ──
+  for (let r = 0; r < WATER; r++) {
+    const y = (r + 0.8) * ch;
+    let buf = '', col = null, startC = -1;
+
+    function flush() {
+      if (buf && col !== null && startC >= 0) {
+        ctx.fillStyle = col;
+        ctx.fillText(buf, startC * cw, y);
+      }
+      buf = '';
+    }
+
+    for (let c = 0; c < COLS; c++) {
+      const chc = buildChar(r, c);
+      if (chc === null || chc === '□') { flush(); continue; }
+      const co = buildColor(r, c);
+      if (co !== col) { flush(); col = co; startC = c; }
+      buf += chc;
+    }
+    flush();
+  }
+
+  // ── Windows (explicit per-char, colored individually) ──
+  for (let r = 0; r < WATER; r++) {
+    const y = (r + 0.8) * ch;
+    for (let c = 0; c < COLS; c++) {
+      if (!win[r * COLS + c]) continue;
+      const fl = 0.7 + 0.3 * Math.sin(now * 0.0015 * (1.5 + (c % 5) * 0.3) + fp[c] + r * 0.5);
+      const wc = WG[(c + r) % 3];
+      ctx.fillStyle = `rgba(${wc[0]},${wc[1]},${wc[2]},${Math.min(1, fl * 0.9)})`;
+      ctx.fillText('□', c * cw, y);
+    }
+  }
+
+  // ── Water gradient ──
+  const wy = WATER * ch;
+  const wg = ctx.createLinearGradient(0, wy, 0, H);
+  wg.addColorStop(0, 'rgba(8,30,50,0.6)');
+  wg.addColorStop(0.3, 'rgba(6,20,40,0.4)');
+  wg.addColorStop(1, 'rgba(4,8,16,0)');
+  ctx.fillStyle = wg;
+  ctx.fillRect(0, wy, W, H - wy);
+
+  // ── Water reflection (explicit per-char) ──
+  for (let r = WATER + 1; r < ROWS; r++) {
+    const y = (r + 0.8) * ch;
+    const dist = r - WATER;
+    const fade = Math.max(0, 1 - dist / (ROWS - WATER) * 1.3);
+    if (fade < 0.02) continue;
+
+    for (let c = 0; c < COLS; c++) {
+      const ri = Math.sin(now * 0.0012 + c * cw * 0.015 + wp[c]) * 2.5
+               + Math.sin(now * 0.0007 + c * cw * 0.025 + wp[c] * 1.5) * 1.2;
+      const sc = Math.round(c + ri);
+      if (sc < 0 || sc >= COLS) continue;
+      const sr = WATER - 1 - dist;
+      if (sr < 0 || sr >= WATER) continue;
+      if (h[sc] === 0 || sr < WATER - h[sc]) continue;
+
+      const int = fade * (0.4 + 0.3 * Math.abs(Math.sin(now * 0.0015 + c * cw * 0.02)));
+      const gi = Math.min(RIFF.length - 1, Math.floor(int * RIFF.length));
+      const chc = RIFF[gi] === ' ' ? '·' : RIFF[gi];
+      ctx.fillStyle = `rgba(30,${80 + 60 * fade | 0},${120 + 80 * fade | 0},${int * 0.5})`;
+      ctx.fillText(chc, c * cw, y);
+    }
+  }
+
+  // ── Water surface wave ──
+  ctx.strokeStyle = 'rgba(60,160,200,0.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let c = 0; c < COLS; c++) {
+    const wwy = wy + Math.sin(now * 0.0015 + c * cw * 0.03) * 2;
+    c === 0 ? ctx.moveTo(c * cw, wwy) : ctx.lineTo(c * cw, wwy);
+  }
+  ctx.stroke();
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

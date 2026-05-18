@@ -1,0 +1,128 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+interface BlogPost {
+  title: string;
+  date: string;
+  excerpt: string;
+  category: string;
+  slug: string;
+  author: string;
+}
+
+const posts: BlogPost[] = [
+  {
+    title: "Introducing the Corporate Influence Tracker",
+    date: "March 15, 2026",
+    excerpt:
+      "A deep dive into our new module that maps corporate influence networks across lobbying registries, procurement contracts, and SEDI insider trades — connecting the dots between corporate activity and government decisions.",
+    category: "New Module",
+    slug: "corporate-influence-tracker",
+    author: "MapleSpike Team",
+  },
+  {
+    title: "Cross-Reference Engine Now Live",
+    date: "March 1, 2026",
+    excerpt:
+      "Our new cross-reference engine links committee evidence to lobbying records, GIC appointments, and regulatory changes. Track the full lifecycle of policy decisions across all 65+ data modules.",
+    category: "Feature Launch",
+    slug: "cross-reference-engine",
+    author: "MapleSpike Team",
+  },
+  {
+    title: "Q4 2025 Module Coverage Report",
+    date: "February 15, 2026",
+    excerpt:
+      "Detailed coverage metrics across all active modules: 65 total modules, 24 MCP tools, 115K+ lines of TypeScript, and growing. See where we've expanded and what's next on the roadmap.",
+    category: "Report",
+    slug: "q4-2025-coverage-report",
+    author: "MapleSpike Team",
+  },
+  {
+    title: "Committee Evidence Search: Under the Hood",
+    date: "February 1, 2026",
+    excerpt:
+      "Technical deep-dive into how we index and search House of Commons and Senate committee evidence. From XML parsing to full-text search, here's how committee surveillance works.",
+    category: "Technical",
+    slug: "committee-evidence-search",
+    author: "Engineering",
+  },
+  {
+    title: "65 Data Modules and Counting",
+    date: "January 15, 2026",
+    excerpt:
+      "We've reached 65 active data modules covering federal, provincial, territorial, and municipal government data across Canada. A look at our growth trajectory and what's planned for Q1 2026.",
+    category: "Milestone",
+    slug: "sixty-five-modules",
+    author: "MapleSpike Team",
+  },
+  {
+    title: "OpenAPI Specification Published",
+    date: "January 1, 2026",
+    excerpt:
+      "The MapleSpike API now has a full OpenAPI 3.1 specification available at /v1/openapi.json. Use it for code generation, client SDK development, and API exploration.",
+    category: "Announcement",
+    slug: "openapi-spec",
+    author: "Engineering",
+  },
+];
+---
+<BaseLayout
+  title="Blog"
+  description="MapleSpike blog — updates, technical deep-dives, and announcements about Canadian government data intelligence."
+>
+  <!-- Hero -->
+  <section class="border-b py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          <span class="text-primary">Blog</span>
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
+          Updates, technical deep-dives, and announcements from the MapleSpike team. Follow along as we
+          build Canada's government data intelligence layer.
+        </p>
+        <a
+          href="/blog.xml"
+          class="inline-flex items-center gap-2 mt-4 text-sm text-muted-foreground hover:text-primary transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9" /><path d="M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
+          Subscribe via RSS
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Posts grid -->
+  <section class="py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="block group">
+            <Card class="h-full flex flex-col hover:border-primary/50 transition-colors duration-300">
+              <CardHeader>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <Badge variant="secondary">{post.category}</Badge>
+                  <span class="text-xs text-muted-foreground">{post.date}</span>
+                </div>
+                <CardTitle class="text-lg group-hover:text-primary transition-colors">
+                  {post.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent class="flex-1">
+                <CardDescription class="text-sm leading-relaxed">
+                  {post.excerpt}
+                </CardDescription>
+              </CardContent>
+              <div class="px-6 pb-4">
+                <span class="text-xs text-muted-foreground">{post.author}</span>
+              </div>
+            </Card>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

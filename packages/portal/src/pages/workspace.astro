@@ -1,0 +1,564 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+---
+
+<BaseLayout title="Workspace" description="Manage your MapleSpike API keys, monitor usage, view billing, and configure MCP connections.">
+  <!-- Header -->
+  <section class="border-b py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <Badge variant="outline" class="mb-3 font-mono text-xs">[00] WORKSPACE</Badge>
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+            Your&nbsp;<span class="text-primary">Workspace</span>
+          </h1>
+          <p class="mt-2 text-muted-foreground">
+            Manage API keys, monitor usage, configure MCP connections, and manage billing.
+          </p>
+        </div>
+        <Badge class="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
+          TIER: PUBLIC
+        </Badge>
+      </div>
+    </div>
+  </section>
+
+  <!-- Onboarding Checklist -->
+  <section class="py-8">
+    <div class="container mx-auto px-4">
+      <Card class="border-primary/30 mb-8">
+        <CardHeader>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">🚀</span>
+            <div>
+              <CardTitle class="text-lg">Onboarding Checklist</CardTitle>
+              <CardDescription>Complete these steps to get started with MapleSpike</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div class="space-y-3" id="checklist">
+            <div class="checklist-step" data-done="false">
+              <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-primary">
+                <span class="check-icon text-lg">⬜</span>
+                <div>
+                  <div class="font-medium text-sm">Generate your first API key</div>
+                  <div class="text-xs text-muted-foreground">Create an API key to start querying Canadian government data.</div>
+                </div>
+              </div>
+            </div>
+            <div class="checklist-step" data-done="false">
+              <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-border opacity-60">
+                <span class="check-icon text-lg">⬜</span>
+                <div>
+                  <div class="font-medium text-sm">Make your first API call</div>
+                  <div class="text-xs text-muted-foreground">Use your API key to query government data sources.</div>
+                </div>
+              </div>
+            </div>
+            <div class="checklist-step" data-done="false">
+              <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-border opacity-60">
+                <span class="check-icon text-lg">⬜</span>
+                <div>
+                  <div class="font-medium text-sm">Explore the data catalog</div>
+                  <div class="text-xs text-muted-foreground">Browse 60+ modules covering all Canadian government data.</div>
+                </div>
+              </div>
+            </div>
+            <div class="checklist-step" data-done="false">
+              <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-border opacity-60">
+                <span class="check-icon text-lg">⬜</span>
+                <div>
+                  <div class="font-medium text-sm">Connect via MCP</div>
+                  <div class="text-xs text-muted-foreground">Configure your AI tools with the MCP connection details.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Main Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- API Key Panel -->
+        <Card>
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div>
+                <CardTitle class="text-lg flex items-center gap-2">
+                  <span class="font-mono text-xs text-muted-foreground">[01]</span>
+                  API Key
+                </CardTitle>
+                <CardDescription>Your secret key for authenticating requests</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" id="regenerate-key-btn">Regenerate</Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="flex items-center gap-2 p-3 rounded-md border bg-muted/50 font-mono text-sm mb-4">
+              <span id="api-key-masked" class="text-primary flex-1">mp_••••••••••••••••••</span>
+              <span id="api-key-visible" class="text-primary flex-1 hidden">mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6</span>
+              <Button variant="ghost" size="sm" id="toggle-key-visibility" title="Toggle visibility">👁</Button>
+              <Button variant="ghost" size="sm" id="copy-api-key" title="Copy API key">📋</Button>
+            </div>
+
+            <Separator class="my-4" />
+
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-muted-foreground">Quickstart:</p>
+              <pre class="rounded-lg border bg-muted/30 p-3 text-xs font-mono leading-relaxed overflow-x-auto"><code><span style="color:hsl(var(--muted-foreground));"># Set your key</span>
+$ export MAPLESPIKE_KEY="<span id="quickstart-key" style="color:hsl(var(--primary));">your_api_key_here</span>"
+
+<span style="color:hsl(var(--muted-foreground));"># Make a call</span>
+$ curl -H "x-api-key: $MAPLESPIKE_KEY" \
+  https://api.maplespike.ca/v1/health</code></pre>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Usage Stats Panel -->
+        <Card>
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div>
+                <CardTitle class="text-lg flex items-center gap-2">
+                  <span class="font-mono text-xs text-muted-foreground">[02]</span>
+                  Usage
+                </CardTitle>
+                <CardDescription>Current billing period usage</CardDescription>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">This month</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-4">
+              <div>
+                <div class="flex items-center justify-between text-sm mb-1">
+                  <span class="text-muted-foreground">Daily API Calls</span>
+                  <span><span id="usage-daily">4</span> / <span id="usage-daily-limit">1,000</span></span>
+                </div>
+                <div class="h-2 rounded-full bg-muted overflow-hidden">
+                  <div id="bar-daily" class="h-full rounded-full bg-primary/60" style="width:0.4%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-sm mb-1">
+                  <span class="text-muted-foreground">Monthly API Calls</span>
+                  <span><span id="usage-monthly">4</span> / <span id="usage-monthly-limit">1,000</span></span>
+                </div>
+                <div class="h-2 rounded-full bg-muted overflow-hidden">
+                  <div id="bar-monthly" class="h-full rounded-full bg-yellow-500/60" style="width:0.4%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-sm mb-1">
+                  <span class="text-muted-foreground">Rate Limit</span>
+                  <span id="usage-rate">10 req/s</span>
+                </div>
+                <div class="h-2 rounded-full bg-muted overflow-hidden">
+                  <div id="bar-rate" class="h-full rounded-full bg-emerald-500/60" style="width:10%"></div>
+                </div>
+              </div>
+            </div>
+            <Separator class="my-4" />
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-muted-foreground">Tier</span>
+              <span class="font-medium" id="usage-tier">Public (Free)</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Recent Requests (full width) -->
+      <Card class="mb-8">
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle class="text-lg flex items-center gap-2">
+                <span class="font-mono text-xs text-muted-foreground">[03]</span>
+                Recent Requests
+              </CardTitle>
+              <CardDescription>Your last 10 API requests</CardDescription>
+            </div>
+            <span class="text-xs text-muted-foreground font-mono">Last 10</span>
+          </div>
+        </CardHeader>
+        <CardContent class="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Time</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Endpoint</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Duration</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody id="request-log-body">
+              <TableRow>
+                <TableCell colspan="5" class="text-center text-muted-foreground py-8 text-sm">
+                  No requests yet. Make an API call to see it here.
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <!-- Bottom Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Billing Panel -->
+        <Card>
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-lg flex items-center gap-2">
+                <span class="font-mono text-xs text-muted-foreground">[04]</span>
+                Billing
+              </CardTitle>
+              <Badge class="bg-green-500/10 text-green-600 border-green-500/20 text-xs font-mono">ACTIVE</Badge>
+            </div>
+            <CardDescription>Your current plan and usage</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                <span class="text-muted-foreground">Plan</span>
+                <span class="font-medium">Public (Free)</span>
+              </div>
+              <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                <span class="text-muted-foreground">Monthly cost</span>
+                <span class="font-medium">$0.00</span>
+              </div>
+              <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                <span class="text-muted-foreground">Calls remaining</span>
+                <span class="font-medium" id="billing-remaining">996</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-muted-foreground">Next billing</span>
+                <span class="font-medium">June 13, 2026</span>
+              </div>
+            </div>
+            <Separator class="my-4" />
+            <a href="/pricing" class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full">
+              Upgrade Plan →
+            </a>
+          </CardContent>
+        </Card>
+
+        <!-- Authentication Panel -->
+        <Card>
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-lg flex items-center gap-2">
+                <span class="font-mono text-xs text-muted-foreground">[05]</span>
+                Authentication
+              </CardTitle>
+              <Badge variant="outline" class="text-xs" id="auth-status-badge">
+                Not signed in
+              </Badge>
+            </div>
+            <CardDescription>Manage authentication methods</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <!-- Not signed in -->
+            <div id="auth-unsigned">
+              <p class="text-sm text-muted-foreground mb-4">
+                Sign in to manage API keys, view usage, and link authentication methods.
+              </p>
+              <div class="space-y-2">
+                <Button variant="outline" class="w-full justify-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                  Continue with GitHub
+                </Button>
+                <Button variant="outline" class="w-full justify-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  Continue with Google
+                </Button>
+                <Button variant="outline" class="w-full justify-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                  Continue with Apple
+                </Button>
+              </div>
+              <p class="text-xs text-muted-foreground mt-3 text-center">
+                Also: Passkey · Web3 Wallet
+              </p>
+            </div>
+
+            <!-- Signed in (hidden) -->
+            <div id="auth-signed" class="hidden">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                  <span class="text-muted-foreground">Signed in as</span>
+                  <span class="font-medium" id="auth-user-name">—</span>
+                </div>
+                <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                  <span class="text-muted-foreground">User ID</span>
+                  <span class="font-medium font-mono text-xs" id="auth-user-id">—</span>
+                </div>
+                <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                  <span class="text-muted-foreground">Method</span>
+                  <span class="font-medium" id="auth-method">—</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-muted-foreground">Tier</span>
+                  <span class="font-medium" id="auth-tier">—</span>
+                </div>
+              </div>
+              <Separator class="my-4" />
+              <Button variant="secondary" class="w-full" id="sign-out-btn">Sign Out</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- MCP Connection Panel -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg flex items-center gap-2">
+              <span class="font-mono text-xs text-muted-foreground">[06]</span>
+              MCP Connection
+            </CardTitle>
+            <CardDescription>Model Context Protocol server details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p class="text-sm text-muted-foreground mb-4">
+              Use these details to connect MapleSpike to your AI tools via MCP.
+            </p>
+
+            <div class="space-y-3">
+              <div>
+                <p class="text-xs font-medium text-muted-foreground mb-1 font-mono">Server URL</p>
+                <div class="flex items-center gap-2 p-3 rounded-md border bg-muted/50 font-mono text-sm">
+                  <span class="text-primary flex-1">https://maplespike.lan/mcp</span>
+                  <Button variant="ghost" size="sm" id="copy-mcp-url">📋</Button>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div>
+                <p class="text-xs font-medium text-muted-foreground mb-2 font-mono">Claude Desktop Config</p>
+                <pre class="rounded-lg border bg-muted/30 p-3 text-xs font-mono leading-relaxed overflow-x-auto"><code>&#123;
+  "mcpServers": &#123;
+    "maplespike": &#123;
+      "url": "http://maplespike-mcp.lan:3001/sse"
+    &#125;
+  &#125;
+&#125;</code></pre>
+              </div>
+
+              <Separator />
+
+              <div>
+                <p class="text-xs font-medium text-muted-foreground mb-2 font-mono">Cursor Config</p>
+                <pre class="rounded-lg border bg-muted/30 p-3 text-xs font-mono leading-relaxed overflow-x-auto"><code>&#123;
+  "mcpServers": &#123;
+    "maplespike": &#123;
+      "command": "node",
+      "args": ["/path/to/maplespike/packages/mcp-server/dist/cli.js"]
+    &#125;
+  &#125;
+&#125;</code></pre>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- API Keys Panel Trigger -->
+      <div class="text-center mb-8">
+        <button id="manage-keys-btn" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2">
+          Manage API Keys
+        </button>
+      </div>
+
+      <!-- API Keys Side Panel -->
+      <div id="api-keys-overlay" class="fixed inset-0 z-50 bg-black/80 hidden"></div>
+      <div id="api-keys-panel" class="fixed inset-y-0 right-0 z-50 h-full w-3/4 border-l bg-background p-6 shadow-lg transition-transform duration-300 hidden sm:max-w-sm">
+        <div class="flex flex-col space-y-2 text-center sm:text-left mb-6">
+          <h2 class="text-lg font-semibold text-foreground">API Keys</h2>
+          <p class="text-sm text-muted-foreground">
+            Manage your API keys. Keys are shown once — save them securely.
+          </p>
+        </div>
+        <button id="api-keys-close" class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <span class="sr-only">Close</span>
+        </button>
+        <div class="mt-6 space-y-4" id="api-keys-list">
+          <div class="flex items-center justify-between p-3 rounded-md border bg-muted/30 font-mono text-xs">
+            <span><span class="text-muted-foreground">sk_</span>maplespike_abc123...def</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-green-500/10 px-2.5 py-0.5 text-xs font-semibold text-green-600 transition-colors">Active</span>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-md border bg-muted/30 font-mono text-xs">
+            <span><span class="text-muted-foreground">sk_</span>maplespike_xyz789...uvw</span>
+            <span class="inline-flex items-center rounded-md border border-transparent bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground transition-colors">Inactive</span>
+          </div>
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full" id="create-new-key-btn">+ Create New Key</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const cfg = window.MAPLESPIKE || {};
+      const base = cfg.apiBase || "http://127.0.0.1:8082";
+
+      // ── API Key functions ──
+      const maskedEl = document.getElementById("api-key-masked");
+      const visibleEl = document.getElementById("api-key-visible");
+
+      document.getElementById("toggle-key-visibility")?.addEventListener("click", function () {
+        const hidden = maskedEl.style.display !== "none";
+        maskedEl.style.display = hidden ? "none" : "";
+        visibleEl.style.display = hidden ? "" : "none";
+      });
+
+      document.getElementById("copy-api-key")?.addEventListener("click", function () {
+        const storedKey = localStorage.getItem("maplespike-api-key");
+        const key = storedKey || "mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6";
+        navigator.clipboard.writeText(key).then(function () {
+          showToast("API key copied", "success");
+        });
+      });
+
+      document.getElementById("copy-mcp-url")?.addEventListener("click", function () {
+        navigator.clipboard.writeText("https://maplespike.lan/mcp").then(function () {
+          showToast("URL copied", "success");
+        });
+      });
+
+      document.getElementById("regenerate-key-btn")?.addEventListener("click", function () {
+        if (!confirm("Regenerate API key? The current key will be revoked immediately.")) return;
+        showToast("Key regeneration requires API.", "error");
+      });
+
+      document.getElementById("create-new-key-btn")?.addEventListener("click", function () {
+        showToast("Key creation requires API server.", "error");
+      });
+
+      document.getElementById("sign-out-btn")?.addEventListener("click", function () {
+        document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        localStorage.removeItem("maplespike-api-key");
+        document.getElementById("auth-unsigned").style.display = "";
+        document.getElementById("auth-signed").style.display = "none";
+        document.getElementById("auth-status-badge").textContent = "Not signed in";
+        showToast("Signed out", "success");
+      });
+
+      // ── Toast ──
+      function showToast(msg, type) {
+        var toast = document.getElementById("toast");
+        if (!toast) {
+          toast = document.createElement("div");
+          toast.id = "toast";
+          toast.className =
+            "fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-md text-sm font-mono z-50 transition-opacity duration-300 pointer-events-none";
+          document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.className =
+          "fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-md text-sm font-mono z-50 transition-opacity duration-300 pointer-events-none ";
+        toast.className +=
+          type === "success"
+            ? "bg-green-500/10 text-green-600 border border-green-500/20"
+            : "bg-destructive/10 text-destructive border border-destructive/20";
+        toast.style.opacity = "1";
+        setTimeout(function () {
+          toast.style.opacity = "0";
+        }, 3000);
+      }
+
+      // ── Fetch usage from API ──
+      async function fetchUsage() {
+        try {
+          const apiKey = localStorage.getItem("maplespike-api-key");
+          const headers = {};
+          if (apiKey) headers["X-API-Key"] = apiKey;
+          const resp = await fetch(base + "/v1/me", { headers });
+          if (!resp.ok) return;
+          const body = await resp.json();
+          if (body.success && body.data) {
+            const usage = body.data.usage || {};
+            const tenant = body.data.tenant || {};
+            const daily = usage.daily || {};
+            const monthly = usage.monthly || {};
+
+            document.getElementById("usage-daily").textContent = daily.calls ?? 0;
+            document.getElementById("usage-monthly").textContent = monthly.calls ?? 0;
+
+            const monthlyLimit = monthly.limit || 1000;
+            const dailyLimit = daily.limit || 1000;
+            document.getElementById("usage-monthly-limit").textContent = monthlyLimit.toLocaleString();
+            document.getElementById("usage-daily-limit").textContent = dailyLimit.toLocaleString();
+
+            const tier = tenant.tier || "free";
+            document.getElementById("usage-tier").textContent =
+              tier === "free" ? "Public (Free)" : tier.charAt(0).toUpperCase() + tier.slice(1);
+            document.getElementById("billing-remaining").textContent =
+              monthly.remaining ?? (monthlyLimit - (monthly.calls || 0)).toLocaleString();
+
+            const dailyPct = Math.min(((daily.calls || 0) / (dailyLimit || 1)) * 100, 100);
+            const monthlyPct = Math.min(((monthly.calls || 0) / (monthlyLimit || 1)) * 100, 100);
+            document.getElementById("bar-daily").style.width = dailyPct + "%";
+            document.getElementById("bar-monthly").style.width = monthlyPct + "%";
+          }
+        } catch (_) {
+          // API unavailable, use defaults
+        }
+      }
+
+      // ── Checklist update ──
+      function updateChecklist() {
+        const apiKey = localStorage.getItem("maplespike-api-key");
+        const steps = document.querySelectorAll(".checklist-step");
+        if (steps.length > 0 && apiKey) {
+          const first = steps[0];
+          first.setAttribute("data-done", "true");
+          first.querySelector(".check-icon").textContent = "✅";
+          first.style.opacity = "1";
+          first.querySelector(".border-l-primary").className =
+            "flex items-center gap-3 p-3 rounded-lg bg-muted/50 border-l-4 border-l-green-500";
+        }
+      }
+
+      // ── API Keys Panel Toggle ──
+      const keysBtn = document.getElementById("manage-keys-btn");
+      const keysPanel = document.getElementById("api-keys-panel");
+      const keysOverlay = document.getElementById("api-keys-overlay");
+      const keysClose = document.getElementById("api-keys-close");
+
+      function openKeysPanel() {
+        keysPanel.classList.remove("hidden");
+        keysOverlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeKeysPanel() {
+        keysPanel.classList.add("hidden");
+        keysOverlay.classList.add("hidden");
+        document.body.style.overflow = "";
+      }
+
+      keysBtn?.addEventListener("click", openKeysPanel);
+      keysClose?.addEventListener("click", closeKeysPanel);
+      keysOverlay?.addEventListener("click", closeKeysPanel);
+
+      // ── Init ──
+      fetchUsage();
+      updateChecklist();
+
+      // Poll usage every 30s
+      setInterval(fetchUsage, 30000);
+    })();
+  </script>
+</BaseLayout>
