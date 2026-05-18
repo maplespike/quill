@@ -41,6 +41,8 @@ export class SqliteStorage implements MapleSpikeStorage {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT,
+        email_verified INTEGER DEFAULT 0,
+        verification_token TEXT,
         tier TEXT NOT NULL DEFAULT 'free',
         is_active INTEGER DEFAULT 1,
         journalism_mode INTEGER DEFAULT 0,
@@ -184,6 +186,7 @@ export class SqliteStorage implements MapleSpikeStorage {
         id: row.tenant_id as string,
         name: row.name as string,
         email: (row.email as string) || undefined,
+        emailVerified: Boolean(row.email_verified),
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),
         journalismMode: Boolean(row.journalism_mode),
@@ -289,9 +292,25 @@ export class SqliteStorage implements MapleSpikeStorage {
   /** Create a new tenant. */
   createTenant(tenant: Tenant): void {
     this.db.prepare(`
-      INSERT INTO tenants (id, name, email, tier, is_active, journalism_mode)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(tenant.id, tenant.name, tenant.email || null, tenant.tier, tenant.isActive ? 1 : 0, tenant.journalismMode ? 1 : 0);
+      INSERT INTO tenants (id, name, email, email_verified, verification_token, tier, is_active, journalism_mode)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      tenant.id, tenant.name, tenant.email || null,
+      tenant.emailVerified ? 1 : 0,
+      tenant.verificationToken || null,
+      tenant.tier, tenant.isActive ? 1 : 0, tenant.journalismMode ? 1 : 0,
+    );
+  }
+
+  verifyEmail(token: string): boolean {
+    const row = this.db.prepare(
+      'SELECT id FROM tenants WHERE verification_token = ? AND email_verified = 0',
+    ).get(token) as Record<string, unknown> | undefined;
+    if (!row) return false;
+    this.db.prepare(
+      'UPDATE tenants SET email_verified = 1, verification_token = NULL, updated_at = datetime(\'now\') WHERE id = ?',
+    ).run(row.id);
+    return true;
   }
 
   /** Create a new API key record. */
@@ -317,6 +336,8 @@ export class SqliteStorage implements MapleSpikeStorage {
       id: row.id as string,
       name: row.name as string,
       email: (row.email as string) || undefined,
+      emailVerified: Boolean(row.email_verified),
+      verificationToken: (row.verification_token as string) || undefined,
       tier: row.tier as Tenant['tier'],
       isActive: Boolean(row.is_active),
       journalismMode: Boolean(row.journalism_mode),

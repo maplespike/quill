@@ -751,7 +751,7 @@ export function getMockResponse(
 
   // Build a minimal build context for quality meta
   const mockCtx = {
-    tenant: { id: 'dev', name: 'Dev User', tier: 'pro' as const, isActive: true, journalismMode: false },
+    tenant: { id: 'dev', name: 'Dev User', emailVerified: true, tier: 'pro' as const, isActive: true, journalismMode: false },
     requestId: ctx?.requestId || 'mock-' + crypto.randomUUID().slice(0, 12),
     startTime: ctx?.startTime || Date.now(),
   };

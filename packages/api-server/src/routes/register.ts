@@ -9,7 +9,7 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { TIER_LIMITS } from '../types.js';
-import type { MapleSpikeStorage } from '../types.js';
+import type { Tenant, MapleSpikeStorage } from '../types.js';
 
 
 interface RegisterBody {
@@ -17,8 +17,25 @@ interface RegisterBody {
   email?: string;
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function generateToken(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export const registerHandler: RouteHandler = async (request, ctx) => {
   try {
+    // Rate limit: allow max 5 registration attempts per IP per minute
+    const ip = request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || 'unknown';
+    const rateKey = `rate:register:${ip}`;
+    const attempts = parseInt(await ctx.cache.get(rateKey) || '0', 10);
+    if (attempts >= 5) {
+      return jsonResponse(buildError('RATE_LIMITED', 'Too many registration attempts. Try again later.', ctx), 429);
+    }
+    await ctx.cache.put(rateKey, String(attempts + 1), 60);
+
     // Parse body
     let body: RegisterBody = {};
     try {
@@ -32,26 +49,33 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
       return jsonResponse(buildError('VALIDATION_ERROR', 'Field "name" is required', ctx), 400);
     }
 
+    const email = body.email?.trim();
+    if (!email) {
+      return jsonResponse(buildError('VALIDATION_ERROR', 'Field "email" is required', ctx), 400);
+    }
+    if (!EMAIL_RE.test(email)) {
+      return jsonResponse(buildError('VALIDATION_ERROR', 'Invalid email format', ctx), 400);
+    }
+
     // Generate IDs
     const tenantId = generateId('tn');
     const keyId = generateId('key');
 
-    // Generate API key
+    // Generate API key + email verification token
     const { rawKey, keyHash } = await generateApiKey();
+    const verificationToken = generateToken();
 
-    // Create tenant (default: free tier, active)
-    const tenant = {
+    const tenant: Tenant = {
       id: tenantId,
       name,
-      email: body.email?.trim() || undefined,
-      tier: 'free' as const,
+      email,
+      emailVerified: false,
+      verificationToken,
+      tier: 'free',
       isActive: true,
       journalismMode: false,
     };
 
-    // Persist using storage — we check if the storage supports direct creation
-    // by checking for a `createTenant` method (SqliteStorage) or falling back
-    // to MemoryStorage's `registerTenant`
     await persistRegistration(ctx.db, tenant, keyHash, keyId);
 
     return jsonResponse(buildSuccess({
@@ -59,19 +83,51 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
         id: tenant.id,
         name: tenant.name,
         email: tenant.email,
+        emailVerified: false,
         tier: tenant.tier,
       },
       apiKey: {
         id: keyId,
         name: 'default',
-        key: rawKey, // Return raw key — only shown once
+        key: rawKey,
       },
-      message: 'Registration successful. Save your API key — it will not be shown again.',
+      verificationUrl: `/v1/verify/${verificationToken}`,
+      message: 'Registration successful. Verify your email to activate all features. Save your API key — it will not be shown again.',
     }, ctx), 201);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Registration failed';
     console.error('[Register] Error:', message);
     return jsonResponse(buildError('REGISTRATION_FAILED', message, ctx), 500);
+  }
+};
+
+
+export const verifyHandler: RouteHandler = async (request, ctx, params) => {
+  try {
+    const token = params?.token;
+    if (!token || token.length < 10) {
+      return jsonResponse(buildError('INVALID_TOKEN', 'Invalid verification token', ctx), 400);
+    }
+
+    // Look up tenant by verification token (iterate — only feasible for small user base)
+    // In production, add a lookup index. For now, we check via storage adaptation.
+    // Scan tenants by trying to find a matching token
+    const db = ctx.db as any;
+
+    // Check if storage has a verifyEmail method (SqliteStorage)
+    if (typeof db.verifyEmail === 'function') {
+      const result = db.verifyEmail(token);
+      if (!result) {
+        return jsonResponse(buildError('INVALID_TOKEN', 'Verification token not found or expired', ctx), 404);
+      }
+      return jsonResponse(buildSuccess({ verified: true, message: 'Email verified successfully.' }, ctx));
+    }
+
+    return jsonResponse(buildError('NOT_SUPPORTED', 'Verification not available on this storage backend', ctx), 501);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Verification failed';
+    console.error('[Verify] Error:', message);
+    return jsonResponse(buildError('VERIFICATION_FAILED', message, ctx), 500);
   }
 };
 
@@ -94,6 +150,7 @@ export const meHandler: RouteHandler = async (_request, ctx) => {
         id: ctx.tenant.id,
         name: ctx.tenant.name,
         email: ctx.tenant.email,
+        emailVerified: ctx.tenant.emailVerified,
         tier: ctx.tenant.tier,
         journalismMode: ctx.tenant.journalismMode,
       },
@@ -129,7 +186,7 @@ function generateId(prefix: string): string {
 
 async function persistRegistration(
   db: MapleSpikeStorage,
-  tenant: { id: string; name: string; email?: string; tier: 'free'; isActive: boolean; journalismMode: boolean },
+  tenant: Tenant,
   keyHash: string,
   keyId: string,
 ): Promise<void> {

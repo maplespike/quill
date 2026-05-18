@@ -52,7 +52,7 @@ import { getCitationHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
 import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
-import { registerHandler, meHandler } from './routes/register.js';
+import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import { billingPlansHandler, billingCheckoutHandler } from './routes/billing.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
@@ -82,6 +82,7 @@ import {
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
   { pattern: /^\/v1\/register\/?$/, method: 'POST', params: [], handler: registerHandler },
+  { pattern: /^\/v1\/verify\/([^/]+)\/?$/, method: 'GET', params: ['token'], handler: verifyHandler },
   { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: meHandler },
   { pattern: /^\/v1\/gov\/releases\/?$/, method: 'GET', params: [], handler: listReleasesHandler },
   { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: searchGovHandler },
@@ -205,7 +206,7 @@ export async function handleRequest(
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
     const ctx: BuildContext = {
-      tenant: { id: 'anon', name: 'Anonymous', tier: 'free', isActive: true, journalismMode: false },
+      tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
       requestId,
       startTime,
       queryOptions,
@@ -245,7 +246,7 @@ export async function handleRequest(
 
   if (!tenant && !authExempt) {
     const ctx: BuildContext = {
-      tenant: { id: 'anon', name: 'Anonymous', tier: 'free', isActive: true, journalismMode: false },
+      tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
       requestId,
       startTime,
       queryOptions,
@@ -255,7 +256,7 @@ export async function handleRequest(
   }
 
   const ctx: RouteContext = {
-    tenant: tenant?.tenant || { id: 'anon', name: 'Anonymous', tier: 'free', isActive: true, journalismMode: false },
+    tenant: tenant?.tenant || { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
     apiKeyId: tenant?.apiKeyId || '',
     requestId,
     startTime,
@@ -635,7 +636,7 @@ async function handleMockRequest(
   const agentAction = parseAgentAction(pathname);
   if (agentAction) {
     const bc: BuildContext = {
-      tenant: { id: 'dev', name: 'Dev User', tier: 'pro', isActive: true, journalismMode: false },
+      tenant: { id: 'dev', name: 'Dev User', emailVerified: true, tier: 'pro', isActive: true, journalismMode: false },
       requestId,
       startTime,
       queryOptions,
@@ -666,7 +667,7 @@ async function handleMockRequest(
     : undefined;
 
   const bc: BuildContext = {
-    tenant: { id: 'dev', name: 'Dev User', tier: 'pro', isActive: true, journalismMode: false },
+    tenant: { id: 'dev', name: 'Dev User', emailVerified: true, tier: 'pro', isActive: true, journalismMode: false },
     requestId,
     startTime,
     queryOptions,
