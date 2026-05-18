@@ -24,7 +24,7 @@ import { ingestInsiderTransactions } from './sedi.js';
 import { ingestCorporationsCanada } from './corporations.js';
 import { TRACKED_EXECUTIVES } from './constants.js';
 import { upsertLobbyingRecords, upsertContractAwards, upsertExecutiveStatements } from './db.js';
-import { upsertOrganization, upsertContract } from '../../shared-db.js';
+import { upsertOrganization, upsertContract, upsertLobbyingFiling, upsertDisclosure } from '../../shared-db.js';
 import type { D1Database } from '../committees/db.js';
 import type {
   CorporateIngestionResult,
@@ -212,6 +212,25 @@ export async function ingestLobbying(
             upsertOrganization(r.registrantName, { type: "lobbying_firm", source: "lobbying", rawData: { clientName: r.clientName } });
           } catch { /* non-fatal */ }
         }
+      }
+      // Also upsert each lobbying record to shared lobbying_filings table
+      for (const r of uniqueRecords) {
+        try {
+          upsertLobbyingFiling(
+            r.id,
+            r.registrantName,
+            r.clientName,
+            (r.subjectMatter ?? []).join(", "),
+            {
+              registrantFirm: r.registrantClient ?? undefined,
+              startDate: r.startDate ?? r.communicationDate,
+              endDate: r.endDate ?? r.communicationDate,
+              institution: r.governmentInstitution ?? "",
+              source: "lobbying",
+              rawData: r as unknown as Record<string, unknown>,
+            },
+          );
+        } catch { /* non-fatal */ }
       }
     } else {
       // Dry-run mode — return records as structured data
@@ -482,6 +501,30 @@ export async function ingestExecutiveStatements(
       const ingested = await upsertExecutiveStatements(db, allStatements);
       result.recordsIngested = ingested;
       log(`[ExecStatements] Persisted ${ingested} executive statements`);
+
+      // Also upsert each statement to shared disclosures table
+      for (const stmt of allStatements) {
+        try {
+          upsertDisclosure(
+            stmt.executiveName,
+            stmt.executiveTitle ?? "Executive",
+            stmt.organization,
+            stmt.date ? new Date(stmt.date).getFullYear() : new Date().getFullYear(),
+            {
+              interests: stmt.topics,
+              filingDate: stmt.date,
+              source: "executive-statement",
+              rawData: {
+                statementType: stmt.statementType,
+                organizationTicker: stmt.organizationTicker,
+                title: stmt.title,
+                sourceUrl: stmt.sourceUrl,
+                isCommitteeAppearance: stmt.isCommitteeAppearance,
+              },
+            },
+          );
+        } catch { /* non-fatal */ }
+      }
     } else {
       result.recordsIngested = allStatements.length;
       result.records = allStatements;

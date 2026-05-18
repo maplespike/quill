@@ -176,7 +176,7 @@ export function upsertLobbyingFiling(
   const db = getRawDb();
   const rawSource = opts?.source ?? "manual";
   const rawData = opts?.rawData ?? {};
-  const id = `lobbying-${Buffer.from(filingNumber).toString("hex").slice(0, 16)}`;
+  const id = `lobbying-${Buffer.from(filingNumber).toString("hex")}`;
 
   db.prepare(
     `INSERT OR IGNORE INTO lobbying_filings (id, filing_number, registrant_name, registrant_firm, registrant_person_id, client_name, client_organization_id, subject_matter, communications, start_date, end_date, activities, institution, province, source, raw_data, created_at, updated_at)
@@ -228,7 +228,7 @@ export function upsertDonation(
   const db = getRawDb();
   const rawSource = opts?.source ?? "manual";
   const rawData = opts?.rawData ?? {};
-  const id = `donation-${Buffer.from(donorName + recipientName).toString("hex").slice(0, 16)}`;
+  const id = `donation-${Buffer.from(donorName + recipientName + date).toString("hex")}`;
 
   db.prepare(
     `INSERT OR IGNORE INTO donations (id, donor_name, donor_person_id, donor_organization_id, recipient_name, recipient_type, amount, currency, date, province, riding, is_corporate, source, raw_data, created_at, updated_at)
@@ -275,7 +275,7 @@ export function upsertDisclosure(
   const db = getRawDb();
   const rawSource = opts?.source ?? "manual";
   const rawData = opts?.rawData ?? {};
-  const id = `disclosure-${Buffer.from(personName + department + year).toString("hex").slice(0, 16)}`;
+  const id = `disclosure-${Buffer.from(personName + department + year).toString("hex")}`;
 
   db.prepare(
     `INSERT OR IGNORE INTO disclosures (id, person_name, person_id, position, department, year, interests, province, filing_date, source, raw_data, created_at, updated_at)
@@ -324,7 +324,7 @@ export function upsertGacProject(
   const db = getRawDb();
   const rawSource = opts?.source ?? "manual";
   const rawData = opts?.rawData ?? {};
-  const id = `gac-${Buffer.from(projectId).toString("hex").slice(0, 16)}`;
+  const id = `gac-${Buffer.from(projectId).toString("hex")}`;
 
   db.prepare(
     `INSERT OR IGNORE INTO gac_projects (id, project_id, title, description, department, country, region, budget, currency, start_date, end_date, status, implementing_partners, sector, source, raw_data, created_at, updated_at)
