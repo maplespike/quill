@@ -18,6 +18,7 @@
   "references": [
     { "path": "packages/pipeline-core" },
     { "path": "packages/engine" },
+    { "path": "packages/database" },
     { "path": "packages/api-server" },
     { "path": "packages/mcp-server" },
     { "path": "packages/sdk" }
