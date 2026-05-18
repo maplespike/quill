@@ -1,380 +1,123 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.2.0
-> Updated: 2026-05-13
-> License: Attribution required. Government data under Open Government Licence – Canada (OGL-C).
-> API Base URL: https://maplespike.ca/v1/
-> MCP Endpoint: https://mcp.maplespike.ca (SSE transport)
-> Pipeline Source: https://github.com/reverb256/maplespike
-
-**Contents:**
-1. Quickstart
-2. Pipeline Modules
-3. MCP Tools Reference
-4. REST API Reference
-5. Authentication
-6. Response Envelope
-7. Rate Limits
-8. FAQ
-
----
-
-## 1. Quickstart
-
-### 1.1 Get Your API Key
-
-MapleSpike is self-hosted on your K3s cluster. API keys are managed by the cluster operator.
-Ask your cluster admin for your API key.
-
-```bash
-export MAPLESPIKE_API_KEY="<ask-operator>"
-```
-
-### 1.2 Make Your First API Call
-
-```bash
-curl https://maplespike.ca/v1/gov/search \
-  -H "Authorization: Bearer <ask-operator>" \
-  -G -d 'query=housing&jurisdiction=federal&limit=3'
-```
-
-Response:
-
-```json
-{
-  "tool": "query_gov_data",
-  "query": "housing",
-  "results": [],
-  "totalCount": 0,
-  "citation": {
-    "hash": "sha256-abc123...",
-    "license": "OGL-C",
-    "verified": true
-  }
-}
-```
+> Auto-generated: 2026-05-18
+> License: AGPL-3.0 / MIT. Government data under OGL-C.
+> API Base URL: https://api.maplespike.ca/v1
+> Source: https://github.com/reverb256/maplespike
 
-### 1.3 Set Up MCP for AI Agents
+## REST API
 
-The MCP server runs as a service on your cluster at `https://mcp.maplespike.ca`. Connect your AI tools to this SSE endpoint:
+Base URL: https://api.maplespike.ca/v1
+Auth: Send `Authorization: Bearer <key>` or `X-API-Key: <key>` header.
+All responses follow the MapleSpike envelope: { success, data, error, meta, quality, citation }
 
-**Claude Desktop** — Add to `claude_desktop_config.json`:
+### Endpoints
 
-```json
-{
-  "mcpServers": {
-    "maplespike": {
-      "url": "https://mcp.maplespike.ca"
-    }
-  }
-}
-```
+#### GET /v1/health
+API health check with usage stats
+
+#### GET /v1/openapi.json
+Full OpenAPI 3.1 specification
+
+#### GET /v1/me
+Current tenant info and API keys
+
+#### GET /v1/usage
+Current billing period usage
+
+#### GET /v1/gov/releases
+Latest government data releases
+
+#### GET /v1/gov/search
+Full-text search across all sources
+
+#### GET /v1/citation/:hash
+Retrieve citation by SHA-256 hash
+
+#### POST /v1/register
+Create account and API key
+
+#### GET /v1/verify/:token
+Verify email address
+
+#### POST /v1/ai/ask
+Ask a question, get a sourced answer
+
+#### POST /v1/ai/analyze
+Analyze text for bias, sentiment, claims
+
+#### POST /v1/auth/refresh
+Refresh JWT token
+
+#### POST /v1/auth/logout
+Clear session
+
+#### POST /v1/billing/checkout
+Create checkout session
+
+#### GET /v1/billing/plans
+Available pricing plans
+
+#### GET /v1/keys
+List API keys
+
+#### POST /v1/keys
+Create API key
+
+#### DELETE /v1/keys/:id
+Delete API key
+
+#### POST /v1/keys/:id/rotate
+Rotate API key
+
+#### GET /v1/signals
+Cross-reference signals (requires engine)
+
+## MCP Tools (27 total)
+
+The MCP server exposes the following tools for AI agent use:
+
+- `ai-analyze`
+- `ai-ask`
+- `ai-search-semantic`
+- `api-client`
+- `fact-check`
+- `get-citation`
+- `index`
+- `latest-releases`
+- `query-gov-data`
+- `search-canlii`
+- `search-committees`
+- `search-corporate`
+- `search-elections`
+- `search-gazette`
+- `search-gic`
+- `search-immigration`
+- `search-influence`
+- `search-lmia`
+- `search-lode`
+- `search-ngo-rss`
+- `search-oversight`
+- `search-provincial-lobbying`
+- `search-science`
+- `search-tribunals`
+- `search-veterans`
+- `system-health`
+- `types`
+
+## Data Categories
+
+- **committees**: House of Commons and Senate committee evidence
+- **lobbying**: Federal lobbying registry communications
+- **procurement**: CanadaBuys contract awards and tenders
+- **gazette**: Canada Gazette Parts I, II, III
+- **elections**: Third-party advertiser registry, election data
+- **oversight**: OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
+- **courts**: Federal court decisions via CanLII
+- **influence**: Tracked IOs, NGOs, think tanks
+- **immigration**: IRCC permanent resident data, LMIA
+- **defence**: DND personnel, defence procurement
+- **health**: Health Canada datasets, drug products
+- **transport**: Transport Canada, infrastructure data
 
-**Cursor** — Add to `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "maplespike": {
-      "url": "https://mcp.maplespike.ca"
-    }
-  }
-}
-```
-
-**Windsurf** — Add to `.windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "maplespike": {
-      "url": "https://mcp.maplespike.ca"
-    }
-  }
-}
-```
-
-**ChatGPT Desktop** — Add to `~/.chatgpt/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "maplespike": {
-      "url": "https://mcp.maplespike.ca"
-    }
-  }
-}
-```
-
-**Any MCP client (stdio mode, local development):**
-
-```bash
-# Clone and build from source
-git clone https://github.com/reverb256/maplespike
-cd maplespike
-pnpm install
-pnpm run build
-
-# Run the MCP server
-pnpm --filter @maplespike/mcp-server start
-```
-
----
-
-## 2. Pipeline Modules
-
-MapleSpike runs 13 data ingestion modules on your K3s cluster. Each module is independent and can be run separately.
-
-### 2.1 Parliamentary Committees (House of Commons)
-
-**Source:** ourcommons.ca — all 34 House of Commons committees, evidence XML, Hansard transcripts, witness lists, committee reports. Includes automated in-camera meeting detection via the `<InCameraNote/>` XML field.
-
-### 2.2 Senate Committees
-
-**Source:** sencanada.ca — all 20 standing Senate committees. Evidence XML, witness lists, and reports normalized to the same data model as House committees for cross-chamber analysis.
-
-### 2.3 Federal Lobbying Registry
-
-**Source:** lobbycanada.gc.ca — monthly CSV dumps from the Office of the Commissioner of Lobbying. Tracks which companies and organizations are meeting with which government departments, on what topics, and spending levels.
-
-### 2.4 Ontario Lobbying Registry
-
-**Source:** lobbying.ontario.ca — daily ingestion of Ontario's provincial lobbying registry, normalized to the federal lobbying schema for combined federal-provincial lobbying view.
-
-### 2.5 Government Procurement
-
-**Source:** CanadaBuys RSS feed and open.canada.ca proactive disclosure datasets. Each contract is tagged as sole-source or competitive. Large sole-source awards are flagged for review.
-
-### 2.6 Canada Gazette
-
-**Source:** gazette.gc.ca — Part I (proposed regulations open for public comment) and Part II (enacted regulations and orders-in-council). Daily ingestion with department, legal authority, and comment deadline parsing.
-
-### 2.7 GIC Appointments
-
-**Source:** open.canada.ca GIC dataset — every Governor-in-Council appointment to boards, commissions, tribunals, and Crown corporations. Includes position, term length, remuneration, and location data for patronage mapping.
-
-### 2.8 Election Advertising
-
-**Source:** elections.ca — third-party election advertising spending. Tracks registered third parties, advertising expenses during election periods, and donor contributions.
-
-### 2.9 Oversight Bodies
-
-**Source:** Multiple oversight streams — Office of the Auditor General (OAG) performance audits, Parliamentary Budget Officer (PBO) cost estimates, Ethics Commissioner investigations, Competition Bureau merger reviews, and CRTC decisions.
-
-### 2.10 Court Decisions
-
-**Source:** canlii.ca API — Federal Court, Supreme Court of Canada, and Tax Court decisions. Includes case metadata (docket number, court, judge, parties) and full-text content.
-
-### 2.11 Labour Market Impact Assessments (LMIA)
-
-**Source:** open.canada.ca CKAN portal — quarterly lists from ESDC of every employer who received a positive or negative LMIA through the Temporary Foreign Worker Program. Shows companies hiring foreign workers, occupations, wage levels, and regions (2014-present).
-
-### 2.12 Influence Actors
-
-**Source:** 34 tracked international organizations, NGOs, think tanks, and consultancies. Cross-references committee appearances, lobbying, funding, and CRA charity data from charities.gc.ca.
-
-### 2.13 Entity Resolution Engine
-
-**Source:** Cross-source engine that links people and organizations across all 12 data sources. Runs 7 signal detectors for revolving doors, lobbying overlaps, ethics crossings, and sole-source flagging.
-
----
-
-## 3. MCP Tools Reference
-
-The MCP server exposes 14 tools for AI agents to query Canadian government data:
-
-### query_gov_data
-
-Query Statistics Canada (WDS/SDMX), open.canada.ca (CKAN), provincial data portals (ON, BC, AB, QC), and federal spending records.
-
-- **Input:** query (required), jurisdiction, category, limit (1-50)
-- **Jurisdictions:** federal, ontario, british-columbia, alberta, quebec, all
-- **Categories:** economy, demographics, health, justice, environment, education, social, spending, all
-
-### fact_check
-
-Check a specific claim or statement against official Canadian government data sources. Returns corroborating or contradicting evidence with citations, trust scores, and confidence ratings.
-
-- **Input:** claim (required)
-
-### get_citation
-
-Retrieve a citation record by its SHA-256 content hash. Returns the original data, timestamp, source attribution, and a ready-to-run shell command for independent hash verification.
-
-- **Input:** hash (required, e.g. "sha256-abc123...")
-
-### latest_releases
-
-Get the most recent government data releases, economic indicators, and announcements from Statistics Canada, open.canada.ca, and federal/provincial data portals.
-
-- **Input:** jurisdiction (default: federal), category (default: all), limit (1-20, default: 5)
-
-### search_committees
-
-Search House of Commons and Senate committee evidence, meeting transcripts, and proceedings. Covers standing committees (FINA, OGGO, ETHI, etc.), special committees, joint committees, and in-camera (secret) meeting records.
-
-- **Input:** query (required), chamber (house/senate/joint/all), committee (e.g. FINA), limit (1-50)
-
-### search_corporate
-
-Search Canadian corporate registry data, federal procurement contracts, lobbying registrations, and executive statements. Tracks sole-source contracts, company press releases, and corporate-government interactions.
-
-- **Input:** query (required), dataset (lobbying/procurement/statements/all), limit (1-50)
-
-### search_influence
-
-Search influence actors, think tanks, NGOs, and consultancy firms tracked by MapleSpike. Cross-references CRA charity data, committee appearances, lobbying registry, and funding flows.
-
-- **Input:** query (required), limit (1-50)
-
-### search_gazette
-
-Search the Canada Gazette — proposed regulations (Part I), enacted regulations (Part II), and acts (Part III). Tracks regulatory changes across all federal departments.
-
-- **Input:** query (required), part (1/2/3/all), limit (1-50)
-
-### search_gic
-
-Search Governor-in-Council appointments — order-in-council positions, salary ranges, department categorization, and appointment history across federal organizations.
-
-- **Input:** query (required), department (optional), limit (1-50)
-
-### search_elections
-
-Search Elections Canada third-party advertiser registry, election advertising spending, and influence cross-references during federal election periods.
-
-- **Input:** query (required), limit (1-50)
-
-### search_provincial_lobbying
-
-Search provincial lobbying registries for Ontario (ON), British Columbia (BC), and Quebec (QC). Tracks provincial lobbying activities, in-house lobbyists, and consultant lobbyists.
-
-- **Input:** query (required), province (on/bc/qc/all), limit (1-50)
-
-### search_oversight
-
-Search oversight body reports and activities — Office of the Auditor General (OAG), Parliamentary Budget Officer (PBO), Ethics Commissioner, Lobbying Commissioner, Competition Bureau, and CRTC.
-
-- **Input:** query (required), body (oag/pbo/ethics/lobbying/crtc/competition/all), limit (1-50)
-
-### search_canlii
-
-Search CanLII federal and provincial court decisions. Tracks citation graphs, legislation keyword mentions, and cross-references between court cases and parliamentary committees.
-
-- **Input:** query (required), court (federal/scc/all), limit (1-50)
-
-### search_lmia
-
-Search Labour Market Impact Assessment data — employer-specific TFW program usage, occupation categories, wage distributions, and quarterly approval trends.
-
-- **Input:** query (required), province (optional), year (optional), limit (1-50)
-
----
-
-## 4. REST API Reference
-
-Base URL: `https://maplespike.ca/v1/`
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | /v1/health | Health check | None |
-| GET | /v1/gov/releases | Government data releases | API key |
-| GET | /v1/gov/search | Search government datasets | API key |
-| GET | /v1/citation/:hash | Verify SHA-256 citation hash | API key |
-| GET | /v1/usage | View current usage and quota | API key |
-| POST | /v1/audit/query | Query audit logs (Business tier+) | API key |
-
----
-
-## 5. Authentication
-
-All requests (except `/v1/health`) require a Bearer token:
-
-```
-Authorization: Bearer <ask-operator>
-```
-
-Get your API key from your cluster admin.
-
----
-
-## 6. Response Envelope
-
-Every response follows a consistent envelope with provenance metadata:
-
-```json
-{
-  "data": { ... },
-  "meta": {
-    "requestId": "maplespike-a1b2c3d4e5f6",
-    "timestamp": "2026-05-12T04:00:00Z",
-    "tier": "free",
-    "callsUsed": 42,
-    "callsLimit": 1000
-  },
-  "citation": {
-    "hash": "sha256-abc...",
-    "source": "Statistics Canada",
-    "license": "OGL-C",
-    "verified": true,
-    "verifyCommand": "echo -n ... | sha256sum"
-  }
-}
-```
-
----
-
-## 7. Pricing
-
-| Tier | Monthly | Annual | Rate Limit | Calls/month |
-|------|---------|--------|------------|-------------|
-| Free | $0 | $0 | 10 req/s | 1,000 |
-| Pro | $49/mo | $499/yr | 100 req/s | 50,000 |
-| Business | $199/mo | $1,999/yr | 500 req/s | 250,000 |
-| Enterprise | Custom | Custom | Custom | Unlimited |
-
----
-
-## 8. Rate Limits
-
-| Tier | Calls/month | Rate limit | Burst |
-|------|-------------|------------|-------|
-| Free | 1,000 | 10 req/s | 20 |
-| Pro | 50,000 | 100 req/s | 200 |
-| Business | 250,000 | 500 req/s | 1000 |
-| Enterprise | Unlimited | Custom | Custom |
-
----
-
-## 9. FAQ
-
-### What are provenance audit trails?
-
-Every API response includes a SHA-256 content hash, source attribution, timestamp, and machine-readable license metadata. You can independently verify any data point using the hash — complete auditable chain from raw government source to delivered response.
-
-### Is the API Canadian-hosted?
-
-Yes. All infrastructure runs on Canadian sovereign infrastructure. No data leaves Canada for processing.
-
-### Can I self-host?
-
-Enterprise tier includes self-hosted options. The core pipeline library is open-source (AGPL-3.0).
-
-### How is the data licensed?
-
-Government data retains its original license (primarily OGL-C). Our AI curation and analysis layers are our own IP but we provide full attribution and citation chains.
-
----
-
-## 10. Agent Instructions
-
-If you are an AI agent (LLM, coding assistant, or automated tool):
-
-1. Use `/llms.txt` to discover available documentation pages.
-2. Use `/llms-full.txt` for full-context consumption of all documentation.
-3. Use the MCP endpoint at `https://mcp.maplespike.ca` for interactive queries against Canadian government data.
-4. Use the REST API at `https://maplespike.ca/v1/` for programmatic access.
-5. Append `/index.md` to any page URL to get raw Markdown.
-6. Use `Accept: text/markdown` header for Markdown-format responses.
-
-For questions not covered here, refer to the documentation at /docs.html.
