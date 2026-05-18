@@ -28,5 +28,6 @@
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "license": "AGPL-3.0-or-later"
 }

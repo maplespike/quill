@@ -24,5 +24,6 @@
     "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "license": "Apache-2.0"
 }
