@@ -52,7 +52,7 @@ status: active
 
 | Item | Status | Notes |
 |------|--------|-------|
-| ✅ Monorepo structure (pnpm workspace) | DONE | 10 packages: pipeline-core, engine, mcp-server, api-server, portal, pretext-civic, sdk, sdk-python, legal-core, legislation |
+| ✅ Monorepo structure (pnpm workspace) | DONE | 10 packages: pipeline-core, engine, mcp-server, api-server, portal, pretext-civic (orphaned), sdk, sdk-python, legal-core, legislation |
 | ✅ TypeScript + strict mode | DONE | ES2022 target, bundler resolution |
 | ✅ Pipeline core barrel exports → module registry | DONE | 1707→91 lines, `getModule()` / `runModule()` API replaces 230 individual exports |
 | ✅ Build compilation | DONE | `tsc -b` clean across all packages — 87k+ lines TS |
