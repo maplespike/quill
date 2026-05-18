@@ -4,9 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    agenix.url = "github:ryantm/agenix";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, agenix }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -186,9 +187,20 @@
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs pnpm typescript typescript-language-server
-            python3 docker-client kubectl
+            python3 docker-client kubectl age
           ];
           shellHook = ''
+            # Decrypt GitHub PAT via agenix
+            if [ -f "$HOME/.ssh/id_ed25519" ]; then
+              export GITHUB_TOKEN=$(age --decrypt -i "$HOME/.ssh/id_ed25519" "${./secrets/github-pat.age}" 2>/dev/null || echo "")
+              if [ -n "$GITHUB_TOKEN" ]; then
+                echo "✓ GITHUB_TOKEN loaded from agenix secret"
+              else
+                echo "⚠ Could not decrypt github-pat.age — check SSH key"
+              fi
+            else
+              echo "⚠ No SSH key at ~/.ssh/id_ed25519 — agenix secrets unavailable"
+            fi
             echo "MapleSpike dev shell — pnpm build | docker build | nix build"
           '';
         };
