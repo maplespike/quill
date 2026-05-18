@@ -22,6 +22,7 @@
 import { fetchOAGReports, fetchPBOReports, fetchEthicsInvestigations, fetchLobbyingInvestigations, fetchCompetitionBureauDecisions, fetchCRTCDecisions, OversightFetchError } from './fetcher.js';
 import { parseOAGReportList, parsePBOReportList, parseEthicsReport, parseLobbyingInvestigation, parseCompetitionBureauList, parseCRTCList } from './parser.js';
 import { computeHash } from '../../verification/hashing.js';
+import { upsertOrganization } from '../../shared-db.js';
 import {
   OVERSIGHT_BODIES,
   OAG_REPORTS_URL,
@@ -530,6 +531,13 @@ async function ingestReports(
     try {
       await upsertReport(db, report);
       result.reportsIngested++;
+
+      // Also upsert audited entities to shared organizations table
+      for (const entity of report.auditedEntities ?? []) {
+        try {
+          upsertOrganization(entity, { type: "government_department", source: `oversight-${body}`, rawData: { reportTitle: report.title } });
+        } catch { /* non-fatal */ }
+      }
 
       for (const rec of report.recommendations) {
         await insertRecommendation(db, rec);
