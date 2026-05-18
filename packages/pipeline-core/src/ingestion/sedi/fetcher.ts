@@ -10,21 +10,17 @@
  * Strategy:
  *   1. POST search form with issuer/ticker query parameters
  *   2. Parse the HTML results table (handled by parser.ts)
- *   3. Fallback: fetch from SEDAR+ if SEDI is unavailable
  *
  * SEDI may block automated requests. The connector gracefully handles
  * empty results with logging, not crashes.
  *
- * Sources:
+ * Source:
  *   SEDI search: https://www.sedi.ca/sedi/SVTOCPublish?language=en
- *   SEDAR+:      https://www.sedarplus.ca
  */
 
 import { httpGet } from '../../utils/http.js';
 import {
-  SEDI_BASE_URL,
   SEDI_SEARCH_URL,
-  SEDARPLUS_BASE_URL,
   SEDI_DEFAULT_HEADERS,
 } from './constants.js';
 import type { SediSearchParams, InsiderDataSource, RawSediRow } from './types.js';
@@ -181,37 +177,7 @@ export async function fetchSediReportDetail(reportId: string): Promise<string> {
 }
 
 /**
- * Try fetching insider data from SEDAR+ as fallback data source.
- * SEDAR+ may have a different interface or structure.
- *
- * @param query - Search query (issuer name or ticker)
- * @returns Raw HTML or empty string if unavailable
- */
-export async function fetchSedarpPlus(
-  query: string,
-): Promise<string> {
-  try {
-    const searchUrl = `${SEDARPLUS_BASE_URL}/landing?s=${encodeURIComponent(query)}`;
-    const resp = await httpGet(searchUrl, {
-      headers: { ...DEFAULT_HEADERS },
-      timeoutMs: 15_000,
-    });
-
-    if (resp.statusCode >= 400) {
-      console.warn(`[SEDI] SEDAR+ returned HTTP ${resp.statusCode} for "${query}"`);
-      return '';
-    }
-
-    return resp.body;
-  } catch (err) {
-    console.warn(`[SEDI] SEDAR+ unavailable for "${query}": ${(err as Error).message}`);
-    return '';
-  }
-}
-
-/**
- * Fetch insider transactions from the best available source.
- * Primary: SEDI. Fallback: SEDAR+.
+ * Fetch insider transactions from SEDI.
  *
  * Returns an object with the source used and the raw HTML body.
  * Gracefully handles failures — returns empty HTML rather than crashing.
@@ -230,7 +196,6 @@ export async function fetchInsiderTransactions(
     sourceUrl: SEDI_SEARCH_URL,
   };
 
-  // Attempt SEDI first
   try {
     const params: SediSearchParams = { issuer };
     if (options.fromDate) params.fromDate = options.fromDate;
@@ -242,25 +207,11 @@ export async function fetchInsiderTransactions(
     return result;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[SEDI] SEDI fetch failed for "${issuer}": ${msg}. Trying SEDAR+...`);
+    console.warn(`[SEDI] SEDI fetch failed for "${issuer}": ${msg}`);
   }
 
-  // Fallback to SEDAR+
-  try {
-    const html = await fetchSedarpPlus(issuer);
-    if (html) {
-      result.source = 'sedarplus';
-      result.html = html;
-      result.sourceUrl = `${SEDARPLUS_BASE_URL}/landing?s=${encodeURIComponent(issuer)}`;
-    }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[SEDI] SEDAR+ also failed for "${issuer}": ${msg}`);
-  }
-
-  // If both failed, return empty html gracefully
   if (!result.html) {
-    console.warn(`[SEDI] No data available for issuer "${issuer}" from any source`);
+    console.warn(`[SEDI] No data available for issuer "${issuer}"`);
   }
 
   return result;

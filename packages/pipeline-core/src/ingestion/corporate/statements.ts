@@ -14,7 +14,6 @@
  *
  * Sources:
  *   - Company investor relations pages (RSS feeds)
- *   - SEDAR+ regulatory filings (HTML search)
  *   - Newswire / GlobeNewswire / CNW press releases
  *   - Committee evidence (already indexed)
  */
@@ -53,7 +52,7 @@ export interface PressRelease {
   date: string;
   organization: string;
   url: string;
-  source: 'newswire' | 'globenewswire' | 'cnw' | 'company-ir' | 'sedar';
+  source: 'newswire' | 'globenewswire' | 'cnw' | 'company-ir';
 }
 
 /**
