@@ -130,15 +130,17 @@ export function detectSoleSourceContracts(records: ContractAward[]): ContractFla
   for (const contract of records) {
     if (!contract.isSoleSource) continue;
 
+    const val = contract.contractValue || 0;
+    const title = contract.description || contract.id;
     const flag: ContractFlag = {
       type: 'sole-source',
+      severity: val > 1_000_000 ? 'high' : val > 100_000 ? 'medium' : 'low',
       contractId: contract.id,
-      department: contract.department,
-      vendorName: contract.vendorName,
-      value: contract.value,
-      risk: contract.value > 1_000_000 ? 'high' : contract.value > 100_000 ? 'medium' : 'low',
-      description: contract.description,
-      date: contract.startDate,
+      title: title.substring(0, 200),
+      organization: contract.vendorName,
+      value: val,
+      reason: `Sole-source contract awarded to ${contract.vendorName} worth $${val.toLocaleString()}`,
+      sourceUrl: contract.sourceUrl,
     };
     flags.push(flag);
   }
