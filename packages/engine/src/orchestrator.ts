@@ -22,6 +22,7 @@ import {
   type MandatePromise,
 } from "./graph/signals";
 import { BriefGenerator, type SignalCounts } from "./briefs/generator";
+import { runAllTransforms } from "./etl";
 import type { Contract } from "./types/contract";
 import type { Disclosure, Interest } from "./types/disclosure";
 import type { Donation } from "./types/donation";
@@ -352,6 +353,9 @@ export class EngineOrchestrator {
    * 5. Brief generation
    */
   run(): OrchestratorResult {
+    // Step 0: Run ETL transforms — populate canonical tables from ingestion data
+    runAllTransforms();
+
     // Step 1: Load data from shared DB
     const { persons, organizations, contracts, filings, donations, disclosures, gacProjects, generatedAt, dataSources, totalRecords } = this.loadFromDb();
 
