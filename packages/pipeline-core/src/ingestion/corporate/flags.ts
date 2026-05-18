@@ -6,7 +6,7 @@
  *     suddenly increases above baseline expectations.
  */
 
-import type { LobbyingRecord } from './types.js';
+import type { LobbyingRecord, ContractAward, ContractFlag } from './types.js';
 
 
 export interface LobbyingSpike {
@@ -117,4 +117,31 @@ export function detectLobbyingSpikes(records: LobbyingRecord[]): LobbyingSpike[]
   }
 
   return spikes.sort((a, b) => b.spikeFactor - a.spikeFactor);
+}
+
+
+/**
+ * Flag sole-source contracts that exceed risk thresholds.
+ * Returns flags for contracts awarded without competitive process.
+ */
+export function detectSoleSourceContracts(records: ContractAward[]): ContractFlag[] {
+  const flags: ContractFlag[] = [];
+
+  for (const contract of records) {
+    if (!contract.isSoleSource) continue;
+
+    const flag: ContractFlag = {
+      type: 'sole-source',
+      contractId: contract.id,
+      department: contract.department,
+      vendorName: contract.vendorName,
+      value: contract.value,
+      risk: contract.value > 1_000_000 ? 'high' : contract.value > 100_000 ? 'medium' : 'low',
+      description: contract.description,
+      date: contract.startDate,
+    };
+    flags.push(flag);
+  }
+
+  return flags.sort((a, b) => (b.value || 0) - (a.value || 0));
 }
