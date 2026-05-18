@@ -223,21 +223,25 @@
   }
 
   // ── Scroll-Reveal (IntersectionObserver) ─────────────────────
+  // Supports both [data-reveal] attr (cleaner) and .fade-in classes (legacy)
 
   function setupScrollReveal() {
-    const els = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right');
-    if (!els.length) return;
+    if (!('IntersectionObserver' in window)) return;
+    const attrEls = document.querySelectorAll('[data-reveal]');
+    const classEls = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right');
+    if (!attrEls.length && !classEls.length) return;
 
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      for (const entry of entries) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+          entry.target.classList.add(entry.target.hasAttribute('data-reveal') ? 'revealed' : 'visible');
           observer.unobserve(entry.target);
         }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      }
+    }, { threshold: 0.15 });
 
-    els.forEach(el => observer.observe(el));
+    for (const el of attrEls) observer.observe(el);
+    for (const el of classEls) observer.observe(el);
   }
 
   // ── Stat Counter Animation ───────────────────────────────────
@@ -344,15 +348,18 @@
     if (!nav) return;
     let ticking = false;
 
-    window.addEventListener('scroll', () => {
+    function onScroll() {
       if (!ticking) {
         requestAnimationFrame(() => {
-          nav.classList.toggle('scrolled', window.scrollY > 60);
+          nav.classList.toggle('scrolled', window.scrollY > 40);
           ticking = false;
         });
         ticking = true;
       }
-    });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (window.scrollY > 40) nav.classList.add('scrolled');
   }
 
   // ── Usage Chart (dashboard) ─────────────────────────────────
@@ -378,7 +385,7 @@
 
     async function fetchLiveStats() {
       const cfg = window.MAPLESPIKE || {};
-      const base = cfg.apiBase || 'http://127.0.0.1:8085';
+      const base = cfg.apiBase || 'http://127.0.0.1:8082';
       const key = cfg.apiKey || 'maplespike-dev-key';
       const to = cfg.timeout || {};
       try {
@@ -467,7 +474,7 @@
 
     try {
       const cfg = window.MAPLESPIKE || {};
-      const base = cfg.apiBase || 'http://127.0.0.1:8085';
+      const base = cfg.apiBase || 'http://127.0.0.1:8082';
       const key = cfg.apiKey || 'maplespike-dev-key';
       const to = cfg.timeout || {};
       const resp = await fetch(base + '/v1/keys', {
@@ -721,7 +728,7 @@
     if (!ticker) return;
     try {
       const cfg = window.MAPLESPIKE || {};
-      const base = cfg.apiBase || 'http://127.0.0.1:8085';
+      const base = cfg.apiBase || 'http://127.0.0.1:8082';
       const to = cfg.timeout || {};
       const resp = await fetch(base + '/v1/health', { signal: AbortSignal.timeout(to.health || 3000) });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);

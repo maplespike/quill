@@ -4,7 +4,7 @@
 // Override per-environment by mounting this file as a ConfigMap
 // in the K8s deployment (mount at /usr/share/nginx/html/config.js).
 //
-// Dev defaults point at a local API server on port 8085.
+// Dev defaults point at a local API server on port 8082.
 // Production overrides:
 //   apiBase: "https://maplespike-api.lan"
 //   apiKey: ""  ← user enters their own key via workspace
