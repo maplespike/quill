@@ -17,6 +17,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for commit signing check
+
+      # ── Verify commit signatures on PRs ──────────────────────────
+      - name: Verify commit signatures
+        if: github.event_name == 'pull_request'
+        run: |
+          COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].oid')
+          FAILED=0
+          for sha in $COMMITS; do
+            if ! git verify-commit $sha 2>/dev/null; then
+              echo "⚠️  Commit $sha is NOT signed"
+              FAILED=$((FAILED + 1))
+            else
+              echo "✅ Commit $sha is signed"
+            fi
+          done
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::warning::$FAILED commit(s) without signature. Consider enabling commit signing."
+          fi
+
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
