@@ -59,6 +59,8 @@ The MapleSpike MCP server exposes **24 tools** for AI agents. All return real da
 | `search_science` | Science and research data |
 | `search_tribunals` | Federal tribunal decisions |
 | `search_lode` | Open Database of Addresses geospatial data |
+| `search_ngo_rss` | NGO/think tank RSS feed search — monitor 31 tracked organizations |
+| `search_veterans` | Defence/veterans data — DND personnel, procurement |
 | `ai_ask` | Natural language Q&A across all datasets |
 | `ai_analyze` | AI-powered data analysis |
 | `ai_search_semantic` | Semantic search across datasets |

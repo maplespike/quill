@@ -94,8 +94,16 @@ export async function getHealth() {
     status: string;
     service: string;
     version: string;
-    tenant: { tier: string };
+    environment: string;
+    tenant: { id: string; name: string; tier: string };
     usage: { daily: number; monthly: number };
+    dependencies: Array<{
+      name: string;
+      status: 'ok' | 'degraded' | 'down';
+      latencyMs: number;
+      error?: string;
+    }>;
+    timestamp: string;
   }>('/health');
 }
 

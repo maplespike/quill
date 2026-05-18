@@ -86,34 +86,65 @@
   <p style="color:var(--text-secondary);margin-bottom:8px;">Releases, features, and data source announcements.</p>
   <a class="blog-rss" href="/blog.xml">📡 Subscribe via RSS</a>
 
-  <div class="blog-post" id="auth-launch">
-    <div class="blog-date">2026-05-13</div>
-    <div class="blog-title"><a href="#auth-launch">Multiple Auth Methods: Web3, Passkey, OAuth</a></div>
-    <p class="blog-excerpt">MapleSpike now supports three new authentication methods alongside existing API keys. Sign in with your Ethereum wallet (SIWE/EIP-4361), a FIDO2 passkey (biometric or security key), or any OAuth 2.0 provider — all issuing the same JWT format for use with the API. Generic OAuth supports any OIDC provider via <code class="doc-inline-code">MAPLESPIKE_OAUTH_{NAME}_CLIENT_ID</code> env vars, with GitHub built-in.</p>
-    <div><span class="blog-tag blog-tag-new">New</span><span class="blog-tag blog-tag-launch">Launch</span></div>
-  </div>
-
-  <div class="blog-post" id="docs-launch">
-    <div class="blog-date">2026-05-12</div>
-    <div class="blog-title"><a href="#docs-launch">Docs Overhaul: 10-Section API Reference</a></div>
-    <p class="blog-excerpt">Complete documentation rewrite now covering: Quickstart with curl examples, Authentication (API keys, JWT, Web3, Passkey, OAuth), Request/Response envelope with quality scores, 8 REST endpoints, Token optimization params, Citation contract with SHA-256 verification, All 14 MCP tools with schemas, Per-plan rate limits, 7 error codes with retry rules, and FAQ. The new layout uses proper CSS classes instead of 141 inline styles.</p>
-    <div><span class="blog-tag blog-tag-update">Update</span></div>
-  </div>
-
-  <div class="blog-post" id="data-expansion">
-    <div class="blog-date">2026-05-11</div>
-    <div class="blog-title"><a href="#data-expansion">28 Canadian Government Data Modules</a></div>
-    <p class="blog-excerpt">MapleSpike now ingests 63 data modules covering House of Commons and Senate committees, federal lobbying registry, procurement and contracts, Canada Gazette regulations, GIC appointments, Elections Canada third-party advertising, CanLII court decisions, LMIA data, provincial lobbying (Ontario), oversight bodies (OAG, PBO, Ethics, CB, CRTC), across all 13 provinces/territories with 1,141+ unique government endpoints</p>
-    <div><span class="blog-tag blog-tag-new">New</span><span class="blog-tag blog-tag-update">Update</span></div>
-  </div>
-
-  <div class="blog-post" id="initial-release">
-    <div class="blog-date">2026-05-01</div>
-    <div class="blog-title"><a href="#initial-release">MapleSpike v0.1 — Initial Release</a></div>
-    <p class="blog-excerpt">Initial release of MapleSpike, Canada's sovereign government data pipeline. Features 14 MCP data tools with bilingual (EN/FR) descriptions, REST API with auth and rate limiting, dark terminal-themed portal, and infrastructure on K3s with Nix builds.</p>
-    <div><span class="blog-tag blog-tag-launch">Launch</span></div>
-  </div>
+  <div id="blog-posts"></div>
 </div>
+
+<script>
+(function() {
+  var container = document.getElementById('blog-posts');
+  if (!container) return;
+
+  function renderPosts(posts) {
+    container.innerHTML = posts.map(function(p) {
+      var tags = '';
+      if (p.tags) {
+        tags = '<div>' + p.tags.map(function(t) {
+          return '<span class="blog-tag blog-tag-' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + '</span>';
+        }).join('') + '</div>';
+      }
+      return '<div class="blog-post" id="' + p.id + '">' +
+        '<div class="blog-date">' + p.date + '</div>' +
+        '<div class="blog-title"><a href="' + p.link + '">' + p.title + '</a></div>' +
+        '<p class="blog-excerpt">' + p.excerpt + '</p>' +
+        tags +
+        '</div>';
+    }).join('');
+  }
+
+  // Try to fetch from RSS feed, fall back to hardcoded content
+  fetch('/blog.xml')
+    .then(function(r) { return r.text(); })
+    .then(function(xml) {
+      var items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
+      var posts = items.map(function(item) {
+        var title = (item.match(/<title>([\s\S]*?)<\/title>/) || ['',''])[1];
+        var link = (item.match(/<link>([\s\S]*?)<\/link>/) || ['',''])[1];
+        var desc = (item.match(/<description>([\s\S]*?)<\/description>/) || ['',''])[1];
+        var date = (item.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || ['',''])[1];
+        var id = (link.match(/#(.+)/) || ['','post-' + Math.random().toString(36).slice(2,8)])[1];
+        return {
+          id: id,
+          title: title,
+          link: link || '#' + id,
+          excerpt: desc || '',
+          date: date ? new Date(date).toISOString().slice(0,10) : '',
+          tags: ['new'],
+        };
+      });
+      if (posts.length > 0) { renderPosts(posts); return; }
+      renderPosts(fallbackPosts);
+    })
+    .catch(function() { renderPosts(fallbackPosts); });
+
+  var fallbackPosts = [
+    { id: 'auth-launch', date: '2026-05-13', title: 'Multiple Auth Methods: Web3, Passkey, OAuth', link: '#auth-launch', excerpt: 'MapleSpike now supports three new authentication methods alongside existing API keys. Sign in with your Ethereum wallet (SIWE/EIP-4361), a FIDO2 passkey (biometric or security key), or any OAuth 2.0 provider.', tags: ['new','launch'] },
+    { id: 'docs-launch', date: '2026-05-12', title: 'Docs Overhaul: 10-Section API Reference', link: '#docs-launch', excerpt: 'Complete documentation rewrite covering quickstart, authentication, request/response envelope, 8 REST endpoints, token optimization, citation contract with SHA-256, 14 MCP tools, rate limits, 7 error codes, and FAQ.', tags: ['update'] },
+    { id: 'data-expansion', date: '2026-05-11', title: '28 Canadian Government Data Modules', link: '#data-expansion', excerpt: 'MapleSpike now ingests 63 data modules covering House of Commons and Senate committees, federal lobbying, procurement, Canada Gazette, GIC appointments, Elections Canada, CanLII court decisions, LMIA, and more across all 13 provinces.', tags: ['new','update'] },
+    { id: 'initial-release', date: '2026-05-01', title: 'MapleSpike v0.1 — Initial Release', link: '#initial-release', excerpt: 'Initial release of MapleSpike, Canada\'s sovereign government data pipeline. Features 14 MCP data tools with bilingual descriptions, REST API with auth and rate limiting, dark terminal-themed portal, and K3s infrastructure.', tags: ['launch'] },
+  ];
+  renderPosts(fallbackPosts);
+})();
+</script>
 
 <footer>
   <div class="footer-inner">
