@@ -73,6 +73,7 @@ import {
 // signalsHandler is lazy-loaded dynamically — see ROUTES
 import { listKeysHandler, createKeyHandler, deleteKeyHandler, rotateKeyHandler } from './routes/keys.js';
 import { onboardingHandler } from './routes/onboarding.js';
+import { contactHandler } from './routes/contact.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -84,6 +85,7 @@ import {
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: onboardingHandler },
+  { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
   { pattern: /^\/v1\/register\/?$/, method: 'POST', params: [], handler: registerHandler },
   { pattern: /^\/v1\/verify\/([^/]+)\/?$/, method: 'GET', params: ['token'], handler: verifyHandler },
   { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: meHandler },
@@ -252,7 +254,9 @@ export async function handleRequest(
     || route.handler === passkeyRegisterBeginHandler
     || route.handler === passkeyRegisterCompleteHandler
     || route.handler === passkeyLoginBeginHandler
-    || route.handler === passkeyLoginCompleteHandler;
+    || route.handler === passkeyLoginCompleteHandler
+    // Contact form (no auth required)
+    || route.handler === contactHandler;
 
   const tenant = authExempt
     ? null
