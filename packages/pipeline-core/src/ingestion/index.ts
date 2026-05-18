@@ -97,3 +97,12 @@ export {
 } from './ngo-influence-rss/index.js';
 export type { NgoRssItem, NgoRssIngestionResult } from './ngo-influence-rss/types.js';
 
+// ── CRTC — Broadcasting, telecom, media ownership ─────────────────
+export {
+  ingestCrtc,
+  searchDecisions,
+  getOwnershipChangeDecisions,
+  getNetNeutralityDecisions,
+} from './crtc/index.js';
+export type { CrtcDecision, CrtcOwnershipRecord, CrtcIngestionResult } from './crtc/types.js';
+
