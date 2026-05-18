@@ -125,12 +125,12 @@ jobs:
 
       - name: Apply K8s manifests from repo
         run: |
-          kubectl apply -f k8s/prod/ --prune --prune-allowlist=apps/v1/Deployment --prune-allowlist=v1/Service --prune-allowlist=v1/ConfigMap --prune-allowlist=v1/Secret
+           /run/current-system/sw/bin/kubectl apply -f k8s/prod/ --prune --prune-allowlist=apps/v1/Deployment --prune-allowlist=v1/Service --prune-allowlist=v1/ConfigMap --prune-allowlist=v1/Secret
           echo "Applied k8s/prod/ manifests to $NAMESPACE"
 
       - name: Rollout prod deployments
         run: |
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-api 2>&1 || echo "No api deployment to restart"
+           /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api 2>&1 || echo "No api deployment to restart"
           kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp 2>&1 || echo "No mcp deployment to restart"
           kubectl rollout restart deployment -n $NAMESPACE maplespike-portal 2>&1 || echo "No portal deployment to restart"
 
