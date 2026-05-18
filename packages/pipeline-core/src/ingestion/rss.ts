@@ -120,6 +120,17 @@ export const RSS_SOURCES: RSSSource[] = [
 
   // Advocacy / legal
   { name: 'Justice Centre for Constitutional Freedoms', url: 'https://www.jccf.ca/feed/', category: 'policy' },
+
+  // NGOs and think tanks (policy research, advocacy)
+  { name: 'Fraser Institute', url: 'https://www.fraserinstitute.org/rss', category: 'think-tank' },
+  { name: 'C.D. Howe Institute', url: 'https://www.cdhowe.org/feed', category: 'think-tank' },
+  { name: 'Macdonald-Laurier Institute', url: 'https://www.macdonaldlaurier.ca/feed/', category: 'think-tank' },
+  { name: 'Broadbent Institute', url: 'https://www.broadbentinstitute.ca/feed/', category: 'think-tank' },
+  { name: 'Cardus', url: 'https://www.cardus.ca/feed/', category: 'think-tank' },
+  { name: 'Canadian Taxpayers Federation', url: 'https://www.taxpayer.com/feed/', category: 'think-tank' },
+  { name: 'Canadian Centre for Policy Alternatives', url: 'https://www.policyalternatives.ca/feed/', category: 'think-tank' },
+  { name: 'Canada West Foundation', url: 'https://cwf.ca/feed/', category: 'think-tank' },
+  { name: 'Conference Board of Canada', url: 'https://www.conferenceboard.ca/feed/', category: 'think-tank' },
 ];
 
 /* ------------------------------------------------------------------ */
