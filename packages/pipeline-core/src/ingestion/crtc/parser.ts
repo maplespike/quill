@@ -36,9 +36,10 @@ import type {
 /**
  * Strip HTML tags from a string and decode common entities.
  */
-function stripHtml(html: string): string {
+export function stripHtml(html: string): string {
   if (!html) return '';
   return html
+    .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]*>/g, '')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -47,7 +48,6 @@ function stripHtml(html: string): string {
     .replace(/&#39;/g, "'")
     .replace(/&#(\d+);/g, (_m: string, n: string) => String.fromCharCode(parseInt(n, 10)))
     .replace(/&nbsp;/g, ' ')
-    .replace(/<br\s*\/?>/gi, '\n')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -55,7 +55,7 @@ function stripHtml(html: string): string {
 /**
  * Parse a date string into ISO-8601 format (YYYY-MM-DD).
  */
-function parseDate(dateStr: string): string {
+export function parseDate(dateStr: string): string {
   if (!dateStr) return '';
 
   // Already ISO-8601
@@ -88,7 +88,7 @@ function parseDate(dateStr: string): string {
 /**
  * Detect the language of a decision from its content.
  */
-function detectLanguage(html: string, title: string): string {
+export function detectLanguage(html: string, title: string): string {
   if (html?.includes('lang="fr"') || html?.includes("lang='fr'")) {
     return 'fr';
   }
@@ -106,7 +106,7 @@ function detectLanguage(html: string, title: string): string {
 /**
  * Classify a CRTC decision type from the raw type string and title.
  */
-function classifyDecisionType(rawType: string, title: string): CrtcDecisionType {
+export function classifyDecisionType(rawType: string, title: string): CrtcDecisionType {
   // Check against known patterns
   const lowerRawType = rawType.toLowerCase();
   const lowerTitle = title.toLowerCase();
@@ -133,7 +133,7 @@ function classifyDecisionType(rawType: string, title: string): CrtcDecisionType 
 /**
  * Classify decision outcome from text content.
  */
-function classifyOutcome(text: string): CrtcDecisionOutcome {
+export function classifyOutcome(text: string): CrtcDecisionOutcome {
   const lower = text.toLowerCase();
 
   if (/\b(?:denied|refused|rejected|refuse|rejeter|not approved)\b/.test(lower)) {
@@ -142,16 +142,16 @@ function classifyOutcome(text: string): CrtcDecisionOutcome {
   if (/\b(?:condition|subject to|subject|subject to the following)\b/.test(lower)) {
     return 'conditionally-approved';
   }
-  if (/\b(?:partially approved|partially grant|partiellement)\b/.test(lower)) {
+  if (/\b(?:partially approved|partially grant)\b|\bpartiellement/.test(lower)) {
     return 'partially-approved';
   }
-  if (/\b(?:withdrawn|abandoned|withdraw|retiré)\b/.test(lower)) {
+  if (/\b(?:withdrawn|abandoned|withdraw)\b|\bretiré/.test(lower)) {
     return 'withdrawn';
   }
-  if (/\b(?:deferred|postponed|defer|reporté)\b/.test(lower)) {
+  if (/\b(?:deferred|postponed|defer)\b|\breporté/.test(lower)) {
     return 'deferred';
   }
-  if (/\b(?:approved|granted|grant|approve|approuvé|accordé)\b/.test(lower)) {
+  if (/\b(?:approved|granted|grant|approve)\b|\bapprouvé|\baccordé/.test(lower)) {
     return 'approved';
   }
 
@@ -161,7 +161,7 @@ function classifyOutcome(text: string): CrtcDecisionOutcome {
 /**
  * Extract subject matter categories from decision text.
  */
-function classifySubjectMatters(title: string, _summary: string | null, findings: string[]): CrtcSubjectMatter[] {
+export function classifySubjectMatters(title: string, _summary: string | null, findings: string[]): CrtcSubjectMatter[] {
   const text = [title, ...findings].join(' ').toLowerCase();
   const subjects: Set<CrtcSubjectMatter> = new Set();
 
@@ -272,7 +272,7 @@ function extractConditions(html: string): string[] {
  * Extract related companies from a CRTC decision text.
  * Looks for company names that are often mentioned in the decision.
  */
-function extractRelatedCompanies(title: string, html: string): string[] {
+export function extractRelatedCompanies(title: string, html: string): string[] {
   const text = [title, stripHtml(html)].join(' ');
   const companies: string[] = [];
 
@@ -403,7 +403,7 @@ export async function parseCrtcDecision(
 /**
  * Extract the applicant name from decision title/body.
  */
-function extractApplicant(title: string, html: string): string | null {
+export function extractApplicant(title: string, html: string): string | null {
   const text = [title, stripHtml(html)].join(' ');
 
   // Look for "Application by X" pattern
@@ -434,7 +434,7 @@ function extractApplicant(title: string, html: string): string | null {
  * Guess the PDF URL from a decision page URL.
  * CRTC decisions often have corresponding PDFs at the same path with .pdf extension.
  */
-function guessPdfUrl(pageUrl: string): string | null {
+export function guessPdfUrl(pageUrl: string): string | null {
   if (!pageUrl) return null;
   // Replace .htm or .html with .pdf
   return pageUrl.replace(/\.html?$/, '.pdf');
@@ -537,13 +537,13 @@ export async function parseCrtcOwnershipRecord(
 /**
  * Classify the ownership record type based on undertaking type.
  */
-function classifyOwnershipRecordType(undertakingType: string): OwnershipRecordType {
+export function classifyOwnershipRecordType(undertakingType: string): OwnershipRecordType {
   const lower = undertakingType.toLowerCase();
 
   if (lower.includes('television') || lower.includes('tv') || lower.includes('radio')) {
     return 'broadcasting-undertaking';
   }
-  if (lower.includes('telecom') || lower.includes('telecom') || lower.includes('phone')) {
+  if (lower.includes('telecom') || lower.includes('telephone') || lower.includes('phone')) {
     return 'telecom-undertaking';
   }
   if (lower.includes('group') || lower.includes('holding') || lower.includes('parent')) {
