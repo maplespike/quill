@@ -13,6 +13,7 @@
 import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import type Database from "better-sqlite3";
 import { getRawDb } from "@maplespike/database";
 import type { Database } from "@maplespike/database";
 import { AliasManager } from "./entity/aliases";
