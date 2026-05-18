@@ -16,6 +16,7 @@ import { handleRequest } from './index.js';
 import { MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { initEmailConfig } from './email.js';
+import { validateConfig } from './config.js';
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
 const AI_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
@@ -32,6 +33,14 @@ const env = {
   AI_MODEL,
   JWT_SECRET: process.env.JWT_SECRET || 'maplespike-jwt-secret-change-in-production',
 };
+
+// Crash on startup if JWT_SECRET is unset or still the default value
+try {
+  validateConfig({ ...process.env });
+} catch (e) {
+  console.error('[Config] ' + (e instanceof Error ? e.message : String(e)));
+  process.exit(1);
+}
 
 initEmailConfig({ ...process.env });
 
