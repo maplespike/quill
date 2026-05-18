@@ -7,6 +7,7 @@
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
+import { validateBody } from '../validate.js';
 
 const PLANS = [
   {
@@ -50,7 +51,15 @@ export const billingCheckoutHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
   try {
-    const body = await request.json() as { planId?: string; successUrl?: string; cancelUrl?: string };
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      planId: { type: 'string', required: true, minLength: 1 },
+      successUrl: { type: 'string', maxLength: 2000 },
+      cancelUrl: { type: 'string', maxLength: 2000 },
+    });
+    if (errs.length > 0) {
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const plan = PLANS.find(p => p.id === body.planId);
 
     if (!plan) {

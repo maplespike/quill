@@ -8,13 +8,22 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { createChallenge, verifyAndLogin } from '../auth/web3.js';
+import { validateBody } from '../validate.js';
 
 export const web3ChallengeHandler: RouteHandler = async (request, ctx) => {
   try {
-    const body = await request.json() as any;
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      address: { type: 'string', required: true, minLength: 10, maxLength: 200 },
+      chainId: { type: 'number' },
+    });
+    if (errs.length > 0) {
+      const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const result = createChallenge({
-      address: body.address,
-      chainId: body.chainId,
+      address: body.address as string,
+      chainId: body.chainId as number | undefined,
     });
 
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
@@ -28,11 +37,20 @@ export const web3ChallengeHandler: RouteHandler = async (request, ctx) => {
 
 export const web3LoginHandler: RouteHandler = async (request, ctx) => {
   try {
-    const body = await request.json() as any;
+    const body = await request.json() as Record<string, unknown>;
+    const errs = validateBody(body, {
+      message: { type: 'string', required: true, minLength: 1 },
+      signature: { type: 'string', required: true, minLength: 1 },
+      address: { type: 'string', required: true, minLength: 10, maxLength: 200 },
+    });
+    if (errs.length > 0) {
+      const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+      return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
+    }
     const result = await verifyAndLogin({
-      message: body.message,
-      signature: body.signature,
-      address: body.address,
+      message: body.message as string,
+      signature: body.signature as string,
+      address: body.address as string,
     });
 
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
