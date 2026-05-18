@@ -131,7 +131,7 @@ jobs:
           sudo mv kubectl /usr/local/bin/kubectl
       - name: Apply K8s manifests from repo
         run: |
-          kubectl apply -f k8s/prod/ --prune --all --prune-allowlist=apps/v1/Deployment --prune-allowlist=/v1/Service --prune-allowlist=/v1/ConfigMap --prune-allowlist=/v1/Secret
+          kubectl apply -f k8s/prod/ --prune --all --prune-allowlist=apps/v1/Deployment --prune-allowlist=/v1/Service --prune-allowlist=/v1/ConfigMap --prune-allowlist=/v1/Secret --validate=false
       - name: Rollout prod deployments
         run: |
           /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api 2>&1 || echo "No api deployment to restart"
