@@ -21,10 +21,19 @@ import { fetchOntarioLobbying, fetchOntarioMonthlyReports, searchOntarioRegistry
 import { fetchBCLobbying } from './fetchers/bc.js';
 import { fetchAlbertaLobbying } from './fetchers/ab.js';
 import { fetchQuebecLobbying } from './fetchers/qc.js';
+import { fetchSKLobbying } from './fetchers/sk.js';
+import { fetchMBLobbying } from './fetchers/mb.js';
+import { fetchNSLobbying } from './fetchers/ns.js';
+import { fetchNBLobbying } from './fetchers/nb.js';
+import { fetchNLLobbying } from './fetchers/nl.js';
+import { fetchPELobbying } from './fetchers/pe.js';
+import { fetchYTLobbying } from './fetchers/yt.js';
+import { fetchNTLobbying } from './fetchers/nt.js';
+import { fetchNULobbying } from './fetchers/nu.js';
 import { normalizeBatch, normalizeToFederalSchema } from './parser.js';
 import { PROVINCE_CONFIGS } from './types.js';
 import { ONTARIO_LOBBYING } from './constants.js';
-import type { ProvincialLobbyingRecord, Province, ProvinceConfig, ProvincialIngestionResult, RawOntarioRecord, RawBCRecord, RawAlbertaRecord, RawQuebecRecord } from './types.js';
+import type { ProvincialLobbyingRecord, Province, ProvinceConfig, ProvincialIngestionResult, RawOntarioRecord, RawBCRecord, RawAlbertaRecord, RawQuebecRecord, RawSaskatchewanRecord, RawManitobaRecord, RawNovaScotiaRecord, RawNewBrunswickRecord, RawNewfoundlandRecord, RawPEIRecord, RawYukonRecord, RawNWTRecord, RawNunavutRecord } from './types.js';
 import type { D1Database } from '../committees/db.js';
 
 
@@ -477,6 +486,924 @@ export async function ingestQuebecLobbying(
 
 
 /**
+ * Ingest Saskatchewan lobbying records into the database.
+ */
+export async function ingestSaskatchewanLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'sk-lobbying',
+    province: 'SK',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[SK-Lobbying] Fetching Saskatchewan lobbying records...');
+    const fetched = await fetchSKLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[SK-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[SK-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[SK-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('SK', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'saskatchewan-registry',
+    });
+    log(`[SK-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[SK-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[SK-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[SK-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[SK-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Manitoba lobbying records into the database.
+ */
+export async function ingestManitobaLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'mb-lobbying',
+    province: 'MB',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[MB-Lobbying] Fetching Manitoba lobbying records...');
+    const fetched = await fetchMBLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[MB-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[MB-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[MB-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('MB', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'manitoba-registry',
+    });
+    log(`[MB-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[MB-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[MB-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[MB-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[MB-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Nova Scotia lobbying records into the database.
+ */
+export async function ingestNovaScotiaLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'ns-lobbying',
+    province: 'NS',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[NS-Lobbying] Fetching Nova Scotia lobbying records...');
+    const fetched = await fetchNSLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[NS-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[NS-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[NS-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('NS', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'nova-scotia-registry',
+    });
+    log(`[NS-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[NS-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[NS-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[NS-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[NS-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest New Brunswick lobbying records into the database.
+ */
+export async function ingestNewBrunswickLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'nb-lobbying',
+    province: 'NB',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[NB-Lobbying] Fetching New Brunswick lobbying records...');
+    const fetched = await fetchNBLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[NB-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[NB-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[NB-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('NB', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'new-brunswick-registry',
+    });
+    log(`[NB-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[NB-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[NB-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[NB-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[NB-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Newfoundland and Labrador lobbying records into the database.
+ */
+export async function ingestNewfoundlandLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'nl-lobbying',
+    province: 'NL',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[NL-Lobbying] Fetching Newfoundland and Labrador lobbying records...');
+    const fetched = await fetchNLLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[NL-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[NL-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[NL-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('NL', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'newfoundland-registry',
+    });
+    log(`[NL-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[NL-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[NL-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[NL-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[NL-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Prince Edward Island lobbying records into the database.
+ */
+export async function ingestPEILobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'pe-lobbying',
+    province: 'PE',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[PE-Lobbying] Fetching Prince Edward Island lobbying records...');
+    const fetched = await fetchPELobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[PE-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[PE-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[PE-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('PE', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'pei-registry',
+    });
+    log(`[PE-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[PE-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[PE-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[PE-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[PE-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Yukon lobbying records into the database.
+ */
+export async function ingestYukonLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'yt-lobbying',
+    province: 'YT',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[YT-Lobbying] Fetching Yukon lobbying records...');
+    const fetched = await fetchYTLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[YT-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[YT-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[YT-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('YT', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'yukon-registry',
+    });
+    log(`[YT-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[YT-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[YT-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[YT-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[YT-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Northwest Territories lobbying records into the database.
+ */
+export async function ingestNWTLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'nt-lobbying',
+    province: 'NT',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[NT-Lobbying] Fetching Northwest Territories lobbying records...');
+    const fetched = await fetchNTLobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[NT-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[NT-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[NT-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('NT', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'nt-stub',
+    });
+    log(`[NT-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[NT-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[NT-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[NT-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[NT-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
+ * Ingest Nunavut lobbying records into the database.
+ */
+export async function ingestNunavutLobbying(
+  db: D1Database | null,
+  options: {
+    limit?: number;
+    force?: boolean;
+    query?: string;
+    onProgress?: (msg: string) => void;
+  } = {},
+): Promise<ProvincialIngestionResult> {
+  const startTime = Date.now();
+  const result: ProvincialIngestionResult = {
+    source: 'nu-lobbying',
+    province: 'NU',
+    recordsFound: 0,
+    recordsIngested: 0,
+    errors: [],
+    durationMs: 0,
+  };
+
+  const log = options.onProgress ?? (() => {});
+
+  try {
+    log('[NU-Lobbying] Fetching Nunavut lobbying records...');
+    const fetched = await fetchNULobbying({
+      query: options.query,
+      limit: options.limit,
+    });
+
+    result.recordsFound = fetched.records.length;
+    log(`[NU-Lobbying] Found ${fetched.records.length} raw records from ${fetched.source}`);
+
+    for (const err of fetched.errors) {
+      result.errors.push(`Fetch: ${err}`);
+    }
+
+    if (fetched.records.length === 0) {
+      log('[NU-Lobbying] No records found.');
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
+
+    log('[NU-Lobbying] Normalizing records to federal schema...');
+    const normalized = await normalizeBatch('NU', fetched.records as unknown as RawOntarioRecord[], {
+      sourceSystem: 'nu-stub',
+    });
+    log(`[NU-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
+
+    if (db) {
+      log('[NU-Lobbying] Persisting to database...');
+      for (const record of normalized) {
+        try {
+          if (!options.force) {
+            const existing = await db.prepare(
+              'SELECT 1 FROM provincial_lobbying WHERE id = ? LIMIT 1',
+            ).bind(record.id).first();
+
+            if (existing) continue;
+          }
+
+          await db.prepare(`
+            INSERT OR REPLACE INTO provincial_lobbying
+              (id, province, registrant_name, registrant_client, registrant_address,
+               client_name, client_business, subject_matter, government_institution,
+               public_office_holder, communication_date, start_date, end_date,
+               lobbying_cost_cad, lobbyist_type, source_url, original_id,
+               source_system, ingested_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).bind(
+            record.id, record.province, record.registrantName, record.registrantClient,
+            record.registrantAddress, record.clientName, record.clientBusiness,
+            record.subjectMatter.join('; '), record.governmentInstitution,
+            record.publicOfficeHolder, record.communicationDate, record.startDate,
+            record.endDate, record.lobbyingCostCad, record.lobbyistType,
+            record.sourceUrl, record.originalId, record.sourceSystem, record.ingestedAt,
+          ).run();
+
+          result.recordsIngested++;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          result.errors.push(`Insert ${record.id}: ${msg}`);
+        }
+      }
+      log(`[NU-Lobbying] Persisted ${result.recordsIngested} records`);
+    } else {
+      result.recordsIngested = normalized.length;
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    result.errors.push(`Fatal: ${msg}`);
+    log(`[NU-Lobbying] FATAL: ${msg}`);
+  }
+
+  result.durationMs = Date.now() - startTime;
+  log(`[NU-Lobbying] Done in ${result.durationMs}ms: ${result.recordsIngested} ingested` +
+    (result.errors.length > 0 ? `, ${result.errors.length} errors` : ''));
+  return result;
+}
+
+
+/**
  * Search provincial lobbying records in the database.
  */
 export async function searchProvincialLobbying(
@@ -663,7 +1590,7 @@ export async function findCrossJurisdictionActivity(
 
 /**
  * Run ingestion for all configured provinces.
- * ON, BC, AB, QC have full implementations.
+ * All 13 provinces and territories
  */
 export async function ingestAllProvincial(
   db: D1Database | null,
@@ -728,10 +1655,82 @@ export async function ingestAllProvincial(
         });
         break;
 
+      case 'SK':
+        results[config.code] = await ingestSaskatchewanLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'MB':
+        results[config.code] = await ingestManitobaLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'NS':
+        results[config.code] = await ingestNovaScotiaLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'NB':
+        results[config.code] = await ingestNewBrunswickLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'NL':
+        results[config.code] = await ingestNewfoundlandLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'PE':
+        results[config.code] = await ingestPEILobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'YT':
+        results[config.code] = await ingestYukonLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'NT':
+        results[config.code] = await ingestNWTLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
+      case 'NU':
+        results[config.code] = await ingestNunavutLobbying(db, {
+          limit: options.limit,
+          force: options.force,
+          onProgress: options.onProgress,
+        });
+        break;
+
       default:
         log(`[${config.code}] Not yet implemented — skipping`);
         results[config.code] = {
-          source: `${config.code.toLowerCase()}-lobbying`,
+          source: `${(config.code as string).toLowerCase()}-lobbying`,
           province: config.code,
           recordsFound: 0,
           recordsIngested: 0,
@@ -790,6 +1789,15 @@ export type {
   RawBCRecord,
   RawAlbertaRecord,
   RawQuebecRecord,
+  RawSaskatchewanRecord,
+  RawManitobaRecord,
+  RawNovaScotiaRecord,
+  RawNewBrunswickRecord,
+  RawNewfoundlandRecord,
+  RawPEIRecord,
+  RawYukonRecord,
+  RawNWTRecord,
+  RawNunavutRecord,
 } from './types.js';
 
 export {
@@ -803,6 +1811,15 @@ export {
   BC_LOBBYING,
   ALBERTA_LOBBYING,
   QUEBEC_LOBBYING,
+  SASKATCHEWAN_LOBBYING,
+  MANITOBA_LOBBYING,
+  NOVA_SCOTIA_LOBBYING,
+  NEW_BRUNSWICK_LOBBYING,
+  NEWFOUNDLAND_LOBBYING,
+  PEI_LOBBYING,
+  YUKON_LOBBYING,
+  NWT_LOBBYING,
+  NUNAVUT_LOBBYING,
 } from './constants.js';
 
 export {
@@ -820,6 +1837,24 @@ export {
   searchAlbertaRegistry,
   fetchQuebecLobbying,
   searchQuebecRegistry,
+  fetchSKLobbying,
+  searchSKRegistry,
+  fetchMBLobbying,
+  searchMBRegistry,
+  fetchNSLobbying,
+  searchNSRegistry,
+  fetchNBLobbying,
+  searchNBRegistry,
+  fetchNLLobbying,
+  searchNLRegistry,
+  fetchPELobbying,
+  searchPERegistry,
+  fetchYTLobbying,
+  searchYTRegistry,
+  fetchNTLobbying,
+  searchNTRegistry,
+  fetchNULobbying,
+  searchNURegistry,
 } from './fetchers/index.js';
 
 export {
@@ -829,6 +1864,15 @@ export {
   normalizeBCRecord,
   normalizeAlbertaRecord,
   normalizeQuebecRecord,
+  normalizeSaskatchewanRecord,
+  normalizeManitobaRecord,
+  normalizeNovaScotiaRecord,
+  normalizeNewBrunswickRecord,
+  normalizeNewfoundlandRecord,
+  normalizePEIRecord,
+  normalizeYukonRecord,
+  normalizeNWTRecord,
+  normalizeNunavutRecord,
   normalizeBatch,
   toFederalRecord,
 } from './parser.js';

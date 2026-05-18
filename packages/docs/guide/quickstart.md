@@ -80,5 +80,5 @@ If you have the MCP server configured, you can use natural language:
 | "Find LMIA data for..." | `search_lmia` | TFW program usage by employer/occupation |
 | "Check immigration data for..." | `search_immigration` | PR admissions, refugee decisions, enforcement |
 | "Search oversight reports on..." | `search_oversight` | OAG, PBO, Ethics, Competition Bureau |
-| "Find provincial lobbying in..." | `search_provincial_lobbying` | ON/BC/AB/QC registry records |
+| "Find provincial lobbying in..." | `search_provincial_lobbying` | All 13 provinces/territories registry records |
 | "Search election advertising by..." | `search_elections` | Third-party advertiser spending |

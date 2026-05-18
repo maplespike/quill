@@ -178,7 +178,7 @@ K3s Cluster (nexus)
 │   │           ├── Influence .................... ✅
 │   │           ├── Gazette (Parts I, II) ........ ✅
 │   │           ├── GIC Appointments ............ ✅
-│   │           ├── Provincial Lobbying (ON/BC/AB/QC) .. ✅ All 4 full implementations
+│   │           ├── Provincial Lobbying (all 13 provinces/territories) .. ✅ 11 active + 2 stubs
 │   │           ├── Elections Canada ............. ✅
 │   │           ├── Oversight Bodies ............ ✅
 │   │           ├── CanLII Court Decisions ...... ✅

@@ -51,7 +51,7 @@ The MapleSpike MCP server exposes **24 tools** for AI agents. All return real da
 | `search_gazette` | Canada Gazette regulation search (Parts I, II) |
 | `search_gic` | GIC appointment lookup |
 | `search_elections` | Elections Canada third-party advertiser search |
-| `search_provincial_lobbying` | Ontario/BC/AB/QC lobbying registry search |
+| `search_provincial_lobbying` | All 13 provinces/territories lobbying registry search |
 | `search_oversight` | OAG/PBO/Ethics/Competition Bureau/CRTC search |
 | `search_canlii` | Court decision search via CanLII |
 | `search_lmia` | LMIA quarterly data search |
