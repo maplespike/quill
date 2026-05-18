@@ -24,6 +24,7 @@ import { ingestInsiderTransactions } from './sedi.js';
 import { ingestCorporationsCanada } from './corporations.js';
 import { TRACKED_EXECUTIVES } from './constants.js';
 import { upsertLobbyingRecords, upsertContractAwards, upsertExecutiveStatements } from './db.js';
+import { upsertOrganization, upsertContract } from '../../shared-db.js';
 import type { D1Database } from '../committees/db.js';
 import type {
   CorporateIngestionResult,
