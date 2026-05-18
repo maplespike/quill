@@ -1,86 +1,114 @@
+// SPDX-License-Identifier: Apache-2.0
+/**
+ * MapleSpike — Zod Validation Schemas
+ *
+ * Centralized request body validation using Zod schemas.
+ * All string schemas include .trim() to eliminate redundant manual trimming in handlers.
+ */
+
 import { z } from 'zod';
-import type { BuildContext } from './response.js';
-import { buildError, jsonResponse } from './response.js';
+
+export type { z } from 'zod';
+
+/* ------------------------------------------------------------------ */
+/*  Auth & Registration                                                */
+/* ------------------------------------------------------------------ */
 
 export const registerSchema = z.object({
-  name: z.string().min(1).max(200),
-  email: z.string().email(),
+  name: z.string().trim().min(1).max(200),
+  email: z.string().trim().email(),
 });
 
-export const auditQuerySchema = z.object({
-  operation: z.string().optional(),
-  success: z.boolean().optional(),
-  since: z.string().optional(),
-  until: z.string().optional(),
-  limit: z.number().int().max(1000).optional(),
-  offset: z.number().int().optional(),
-});
+export type RegisterInput = z.infer<typeof registerSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  Billing                                                            */
+/* ------------------------------------------------------------------ */
 
 export const billingCheckoutSchema = z.object({
   planId: z.enum(['free', 'pro', 'business']),
-  successUrl: z.string().optional(),
-  cancelUrl: z.string().optional(),
+  successUrl: z.string().trim().optional(),
+  cancelUrl: z.string().trim().optional(),
 });
+
+export type BillingCheckoutInput = z.infer<typeof billingCheckoutSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  AI Routes                                                          */
+/* ------------------------------------------------------------------ */
 
 export const aiAskSchema = z.object({
-  query: z.string().min(1),
-  source_filter: z.string().optional(),
+  query: z.string().trim().min(1).max(5000),
+  source_filter: z.string().trim().max(200).optional(),
 });
+
+export type AiAskInput = z.infer<typeof aiAskSchema>;
 
 export const aiAnalyzeSchema = z.object({
-  text: z.string().min(1),
-  mode: z.string().optional(),
+  text: z.string().trim().min(1).max(50000),
+  mode: z.string().trim().max(100).optional(),
 });
+
+export type AiAnalyzeInput = z.infer<typeof aiAnalyzeSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  Web3 Auth                                                          */
+/* ------------------------------------------------------------------ */
 
 export const web3ChallengeSchema = z.object({
-  address: z.string().min(1).max(200),
-  chainId: z.number().int().optional(),
+  address: z.string().trim().min(1).max(200),
+  chainId: z.union([z.number(), z.string()]).optional(),
 });
+
+export type Web3ChallengeInput = z.infer<typeof web3ChallengeSchema>;
 
 export const web3LoginSchema = z.object({
-  message: z.string().min(1),
-  signature: z.string().min(1),
-  address: z.string().min(1),
+  message: z.string().trim().min(1),
+  signature: z.string().trim().min(1),
+  address: z.string().trim().min(1).max(200),
 });
 
-export const refreshTokenSchema = z.object({
-  refreshToken: z.string().optional(),
+export type Web3LoginInput = z.infer<typeof web3LoginSchema>;
+
+/* ------------------------------------------------------------------ */
+/*  API Keys                                                           */
+/* ------------------------------------------------------------------ */
+
+export const createKeySchema = z.object({
+  name: z.string().trim().min(1).max(100).optional(),
 });
 
-export const contactSchema = z.object({
-  name: z.string().min(1).max(200),
-  email: z.string().email(),
-  subject: z.string().min(1).max(500),
-  message: z.string().min(10).max(5000),
-});
+export type CreateKeyInput = z.infer<typeof createKeySchema>;
 
-export const logoutSchema = z.object({}).strict();
+/* ------------------------------------------------------------------ */
+/*  Validation Helper                                                  */
+/* ------------------------------------------------------------------ */
 
-type ValidResult<T> = { success: true; data: T };
-type InvalidResult = { success: false; error: string; issues: z.ZodIssue[] };
-
-export function validateBody<T extends z.ZodType>(
+/**
+ * Parses a request body against a Zod schema.
+ * Returns a success object with `data` on success, or a failure object
+ * with formatted error messages on failure.
+ */
+export function validateBody<T extends z.ZodTypeAny>(
   schema: T,
   body: unknown,
-): ValidResult<z.infer<T>> | InvalidResult {
+):
+  | { success: true; data: z.infer<T> }
+  | { success: false; error: string; issues: Array<{ field: string; message: string }> }
+{
   const result = schema.safeParse(body);
   if (result.success) {
-    return { success: true, data: result.data };
+    return { success: true as const, data: result.data };
   }
-  const error = result.error.issues
-    .map(i => `${i.path.join('.')}: ${i.message}`)
-    .join('; ');
-  return { success: false, error, issues: result.error.issues };
-}
 
-export function validationError(
-  message: string,
-  ctx: BuildContext,
-  issues: z.ZodIssue[],
-): Response {
-  const base = buildError('VALIDATION_ERROR', message, ctx);
-  return jsonResponse({
-    ...base,
-    error: { ...base.error!, details: issues },
-  }, 400);
+  const issues = result.error.issues.map((issue) => {
+    const field = issue.path.length > 0 ? issue.path.join('.') : '_body';
+    return { field, message: issue.message };
+  });
+
+  return {
+    success: false as const,
+    error: issues.map((i) => `${i.field}: ${i.message}`).join('; '),
+    issues,
+  };
 }
