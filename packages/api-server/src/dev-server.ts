@@ -61,6 +61,7 @@ if (MAPLESPIKE_STORAGE === 'postgres') {
       id: 'dev-tenant',
       name: 'Dev User',
       tier: 'pro',
+      emailVerified: true,
       isActive: true,
       journalismMode: false,
     },

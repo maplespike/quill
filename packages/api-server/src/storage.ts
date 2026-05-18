@@ -48,6 +48,7 @@ export class D1Storage implements MapleSpikeStorage {
         id: row.tenant_id as string,
         name: row.name as string,
         email: row.email as string || undefined,
+        emailVerified: Boolean(row.email_verified),
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),
         journalismMode: Boolean(row.journalism_mode),
@@ -186,7 +187,8 @@ export class MemoryStorage implements MapleSpikeStorage {
     // Seed: internal tenant for FG
     const internalTenant: Tenant = {
       id: 'fg-internal',
-      name: 'MapleSpike',
+      name: 'Frostbite Gazette',
+      emailVerified: true,
       tier: 'internal',
       isActive: true,
       journalismMode: true,

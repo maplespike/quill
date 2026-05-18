@@ -36,6 +36,7 @@ function makeContext(overrides: Partial<RouteContext> = {}): RouteContext {
     tenant: {
       id: 'smoke-test',
       name: 'Smoke Test',
+      emailVerified: true,
       tier: 'internal',
       isActive: true,
       journalismMode: false,

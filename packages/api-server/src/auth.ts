@@ -36,6 +36,7 @@ const tenantDetails: Record<string, Tenant> = {
   'demo-tenant': {
     id: 'demo-tenant',
     name: 'Demo User',
+    emailVerified: true,
     tier: 'pro',
     isActive: true,
     journalismMode: false,
@@ -43,6 +44,7 @@ const tenantDetails: Record<string, Tenant> = {
   'internal-tenant': {
     id: 'internal-tenant',
     name: 'Internal Service',
+    emailVerified: true,
     tier: 'internal',
     isActive: true,
     journalismMode: true,
@@ -50,6 +52,7 @@ const tenantDetails: Record<string, Tenant> = {
   'dev-tenant': {
     id: 'dev-tenant',
     name: 'Dev User',
+    emailVerified: true,
     tier: 'pro',
     isActive: true,
     journalismMode: false,
@@ -203,14 +206,15 @@ function authenticateWithJwt(
 
   // Fallback: use the JWT payload directly if no user store entry
   return {
-    tenant: {
-      id: payload.sub,
-      name: payload.email || payload.sub,
-      email: payload.email,
-      tier: payload.tier as Tenant['tier'],
-      isActive: true,
-      journalismMode: false,
-    },
+      tenant: {
+        id: payload.sub,
+        name: payload.email || payload.sub,
+        email: payload.email,
+        emailVerified: false,
+        tier: payload.tier as Tenant['tier'],
+        isActive: true,
+        journalismMode: false,
+      },
     apiKeyId: `jwt-${payload.sub}`,
     authMethod: method,
   };
