@@ -7,7 +7,7 @@ status: active
 
 > **Created:** 2026-05-13
 > **Updated:** 2026-05-14
-> **Current state:** 65 modules registered in `registry.ts`, 61 ingestion directories, ~113K lines TS, 10 packages
+> **Current state:** 65 modules registered in `registry.ts`, 62 ingestion directories, ~115K lines TS, 10 packages
 > **See also:** [docs/metrics.json](./metrics.json) for current auto-derived counts
 > **Estimated total coverage of meaningful Canadian public data:** ~95% of high-value accountability data
 
@@ -574,7 +574,7 @@ Since this document's original writing, MapleSpike has expanded significantly. T
 reflects the pre-May-2026 state. Current coverage:
 
 - **65 modules** registered in `registry.ts` across 20 categories
-- **22 MCP tools** all returning live data
+- **24 MCP tools** all returning live data
 - **~113K lines** of TypeScript across 12 packages
 - All 13 provinces/territories with oversight coverage
 - 19 cities with direct open data fetchers, 3,490+ via CKAN federation

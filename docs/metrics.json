@@ -4,20 +4,20 @@
   "//": "Run: grep -c 'modulePath:' packages/pipeline-core/src/ingestion/registry.ts",
   "//": "      grep -l 'export const.*definition' packages/mcp-server/src/tools/*.ts | wc -l",
   "//": "      find packages -name '*.ts' -not -path '*/node_modules/*' -not -path '*/dist/*' | xargs wc -l | tail -1",
-  "version": "2026-05-14",
+  "version": "2026-05-18",
   "modules": {
     "registryCount": 65,
-    "ingestionDirs": 61,
-    "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 61 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "ingestionDirs": 62,
+    "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 62 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
-    "count": 22,
-    "description": "14 data search tools + 3 AI tools + system_health + search_immigration + search_science + search_tribunals + search_lode"
+    "count": 24,
+    "description": "14 data search tools + 3 AI tools + system_health + search_immigration + search_science + search_tribunals + search_lode + search_elections + search_transport"
   },
   "typescript": {
-    "totalLines": 112910,
+    "totalLines": 115456,
     "totalFiles": 486,
-    "packages": 11,
+    "packages": 10,
     "perPackage": {
       "pipeline-core": { "files": 332, "lines": 88782 },
       "engine": { "files": 67, "lines": 11173 },
@@ -31,8 +31,8 @@
     "note": "Portal (HTML/CSS/JS, ~26 files, ~9.5K lines), sdk-python (Python, ~7 files, ~1.4K lines), pretext-civic (orphaned, 0 files) not counted in TS totals"
   },
   "packages": {
-    "total": 11,
-    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "docs", "database", "legal-core", "legislation"]
+    "total": 10,
+    "names": ["pipeline-core", "engine", "api-server", "mcp-server", "sdk", "sdk-python", "portal", "docs", "legal-core", "legislation"]
   },
   "externalEndpoints": {
     "estimated": 1141,
