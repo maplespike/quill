@@ -1,0 +1,44 @@
+# Dependabot — automated dependency updates
+# Run daily, grouped by ecosystem, PR per group
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automation"
+    groups:
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+      eslint:
+        patterns:
+          - "eslint*"
+          - "@eslint/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      turbo:
+        patterns:
+          - "turbo"
+          - "@turbo/*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
