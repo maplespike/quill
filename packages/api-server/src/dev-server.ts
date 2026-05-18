@@ -15,6 +15,7 @@ import * as http from 'node:http';
 import { handleRequest } from './index.js';
 import { MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
+import { initEmailConfig } from './email.js';
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
 const AI_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
@@ -31,6 +32,8 @@ const env = {
   AI_MODEL,
   JWT_SECRET: process.env.JWT_SECRET || 'maplespike-jwt-secret-change-in-production',
 };
+
+initEmailConfig({ ...process.env });
 
 let db: MapleSpikeStorage;
 let cache: MapleSpikeCache;
