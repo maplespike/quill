@@ -75,6 +75,76 @@ export {
 } from './attestation/index.js';
 export type { Citation } from './attestation/index.js';
 
+// ── CRTC Ingestion ────────────────────────────────────────────────
+export {
+  ingestCrtc,
+  searchDecisions,
+  getRecentDecisions,
+  getOwnershipChangeDecisions,
+  getDecisionsByApplicant,
+  getNetNeutralityDecisions,
+  searchOwnershipRecords,
+  getOwnershipByOwner,
+  CRTC_DECISIONS_DDL,
+  CRTC_OWNERSHIP_DDL,
+  CRTC_DDL,
+  initializeCrtcTables,
+  crtcTablesExist,
+} from './crtc/index.js';
+export type {
+  CrtcDecision,
+  CrtcDecisionType,
+  CrtcOwnershipRecord,
+  CrtcIngestionResult,
+  RawCrtcDecisionItem,
+  RawCrtcOwnershipItem,
+} from './crtc/types.js';
+
+// ── Immigration ──────────────────────────────────────────────────
+export {
+  ingestPermanentResidents,
+  ingestTempResidents,
+  ingestRpdDecisions,
+  ingestCbsaEnforcement,
+  ingestAllImmigration,
+  generateImmigrationLobbyingLinks,
+} from './immigration/index.js';
+export type {
+  PermanentResidentAdmission,
+  StudyPermitHolder,
+  WorkPermitHolder,
+  RefugeeDecision,
+  CbsaEnforcement,
+  ImmigrationIngestionResult,
+} from './immigration/types.js';
+
+// ── Transport Infrastructure ────────────────────────────────────
+export {
+  ingestTsbOccurrences,
+  ingestTcSafety,
+  ingestCtaRulings,
+  ingestInfrastructureProjects,
+  ingestAllTransport,
+  fetchTsbOccurrences,
+  fetchTcVehicleRecalls,
+  fetchTcViolationsAudits,
+  fetchCiibProjects,
+  fetchCtaRulings,
+  fetchCtaDecisions,
+  fetchInfrastructureProjects,
+  fetchNationalTradeCorridors,
+  fetchCanadaInfrastructureBank,
+} from './transport-infrastructure/index.js';
+export type {
+  TsbOccurrence,
+  TcRecall,
+  TcViolationAudit,
+  CiibProject,
+  CtaRuling,
+  InfrastructureFunding,
+  TransportInfrastructureIngestionResult,
+} from './transport-infrastructure/types.js';
+
 // ── GC Standards ─────────────────────────────────────────────────
 export {
   GC_DEPARTMENTS,
