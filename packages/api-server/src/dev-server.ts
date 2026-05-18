@@ -24,14 +24,22 @@ const AI_MODEL = process.env.MAPLESPIKE_AI_MODEL || 'qwen3.5-27b';
 const MAPLESPIKE_STORAGE = (process.env.MAPLESPIKE_STORAGE || 'memory').toLowerCase();
 const MAPLESPIKE_DB_PATH = process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') {
+  console.error('FATAL: JWT_SECRET environment variable must be set to a secure random value.');
+  console.error('  Generate one with: openssl rand -hex 64');
+  process.exit(1);
+}
+
 const env = {
   MAPLESPIKE_API_KEY: process.env.MAPLESPIKE_API_KEY || 'maplespike-dev-key',
   MAPLESPIKE_VERSION: process.env.MAPLESPIKE_VERSION || '0.1.0',
   MAPLESPIKE_NAME: process.env.MAPLESPIKE_NAME || 'MapleSpike',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
+  MAPLESPIKE_DB_PATH: process.env.MAPLESPIKE_DB_PATH || './maplespike.db',
   AI_ENDPOINT,
   AI_MODEL,
-  JWT_SECRET: process.env.JWT_SECRET || 'maplespike-jwt-secret-change-in-production',
+  JWT_SECRET,
 };
 
 // Crash on startup if JWT_SECRET is unset or still the default value
