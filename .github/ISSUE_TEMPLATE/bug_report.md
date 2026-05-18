@@ -17,21 +17,22 @@ What should happen vs what actually happens.
 
 ## Environment
 - **Package:** [pipeline-core / mcp-server / api-server / portal / engine / sdk / other]
-- **Branch:**
+- **Working node:** [zephyr / nexus / forge / sentry]
+- **Worktree path:** `/data/projects/own/maplespike-<NNN>`
+- **Branch:** `issue-NNN-short-description`
 - **Commit:** `git log -1 --oneline`
-- **Node version:**
+- **Node version:** `node --version`
 
 ## Logs / Screenshots
 ```
 Paste relevant output
 ```
 
-## Sovereign Agent Checklist
-- [ ] Issue references mission priority (Tier 1 gaps, etc.)
-- [ ] Cross-referenced ≥2 sources if making factual claims
-- [ ] Includes full citation object format if applicable
-- [ ] Design considers AIDA/PIPEDA compliance
-- [ ] Zero-hallucination principle applied
+## Workflow Check
+- [ ] Issue created before any code was written
+- [ ] Work in a worktree (`git worktree add`)
+- [ ] Branch name follows `issue-NNN-short-description`
+- [ ] PR will be created before merge
 
 ## Additional Context
 - Is this a regression?
