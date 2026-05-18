@@ -227,6 +227,17 @@ export interface InsiderTransaction {
 /*  Aggregated Results                                                 */
 /* ------------------------------------------------------------------ */
 
+export interface ContractFlag {
+  type: 'sole-source' | 'high-value' | 'non-competitive';
+  severity: 'low' | 'medium' | 'high';
+  contractId: string;
+  title: string;
+  organization: string;
+  value: number | null;
+  reason: string;
+  sourceUrl: string;
+}
+
 export interface CorporateIngestionResult {
   source: string;
   recordsFound: number;
@@ -235,4 +246,6 @@ export interface CorporateIngestionResult {
   durationMs: number;
   /** Parsed records returned when db is null (dry-run mode) */
   records?: unknown[];
+  /** Flagged contracts detected during ingestion */
+  flaggedContracts?: ContractFlag[];
 }

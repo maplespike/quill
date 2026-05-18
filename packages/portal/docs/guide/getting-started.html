@@ -248,7 +248,7 @@
 <p>To get your first API key:</p>
 <ol>
 <li><p><strong>Register via the API</strong> (if you have access to the register endpoint):</p>
-<pre><code class="language-bash">curl -X POST http://maplespike.lan/v1/register \
+<pre><code class="language-bash">curl -X POST https://api.maplespike.ca/v1/register \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;name&quot;: &quot;My Account&quot;, &quot;email&quot;: &quot;user@example.com&quot;}&#39;
 </code></pre>
@@ -290,7 +290,7 @@
 </code></pre>
 <h2>Your First Query</h2>
 <h3>Check Health</h3>
-<pre><code class="language-bash">curl http://maplespike.lan/v1/health
+<pre><code class="language-bash">curl https://api.maplespike.ca/v1/health
 </code></pre>
 <p>Response:</p>
 <pre><code class="language-json">{
@@ -306,10 +306,10 @@
 </code></pre>
 <h3>Search Government Data</h3>
 <pre><code class="language-bash">curl -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  &quot;http://maplespike.lan/v1/gov/search?q=housing+starts&amp;jurisdiction=federal&amp;limit=5&quot;
+  &quot;https://api.maplespike.ca/v1/gov/search?q=housing+starts&amp;jurisdiction=federal&amp;limit=5&quot;
 </code></pre>
 <h3>Ask a Question (AI)</h3>
-<pre><code class="language-bash">curl -X POST http://maplespike.lan/v1/ai_ask \
+<pre><code class="language-bash">curl -X POST https://api.maplespike.ca/v1/ai_ask \
   -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;query&quot;: &quot;What did the Ethics Commissioner investigate in 2024?&quot;}&#39;
@@ -319,7 +319,7 @@
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
-      &quot;url&quot;: &quot;http://maplespike-mcp.ai-inference.svc.lan:3001/sse&quot;
+      &quot;url&quot;: &quot;http://maplespike-mcp.lan:3001/sse&quot;  &lt;!-- internal for local dev; use public MCP endpoint when available --&gt;
     }
   }
 }
@@ -378,6 +378,7 @@
 </footer>
 
 <script src="/script.js"></script>
+<script src="/nav.js"></script>
 <script type="module" src="/docs-pretext.js"></script>
 </body>
 </html>

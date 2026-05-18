@@ -75,6 +75,8 @@ An MCP server deployed on the K3s cluster, exposing MapleSpike data as tools for
 | `search_science` | ✅ LIVE | Science research data (CSA, Mitacs, etc.) |
 | `search_tribunals` | ✅ LIVE | Federal tribunal decisions |
 | `search_lode` | ✅ LIVE | Open Database of Addresses geospatial data |
+| `search_ngo_rss` | ✅ LIVE | NGO/think tank RSS feed search across 31 tracked sources |
+| `search_veterans` | ✅ LIVE | Defence/veterans data search |
 | `ai_ask` | ✅ LIVE | Natural language question-answering |
 | `ai_analyze` | ✅ LIVE | AI-powered data analysis |
 | `ai_search_semantic` | ✅ LIVE | Semantic search across datasets |
@@ -143,7 +145,7 @@ A lightweight static site for marketing, documentation, and API interaction, ser
 - **Scroll-reveal animations** via `IntersectionObserver` on section entrances
 - **Glass dashboard sidebar** showing live modules tracked, API calls, and data sources
 - **Pricing toggle** for monthly / annual billing display
-- **MCP showcase** section demonstrating 22-tool MCP configuration
+- **MCP showcase** section demonstrating 24-tool MCP configuration
 - **AI-friendly**: `llms.txt`, `llms-full.txt`, OpenAPI spec at `/v1/openapi.json`, `Accept: text/markdown` content negotiation, `x-markdown-tokens` header
 
 ---
@@ -337,7 +339,7 @@ Also triggers on push to `prod`. Publishes SDK packages:
 |-------|------|-----|--------|
 | 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | Gates everything — no data can flow without it | ✅ DONE |
 | 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | Fill the empty tables with real data | ✅ DONE |
-| 3 | **Wire MCP Tools** — 14 stubs → 22 real DB queries | All tools return real results | ✅ DONE |
+| 3 | **Wire MCP Tools** — 14 stubs → 24 real DB queries | All tools return real results | ✅ DONE |
 | 4 | **Engine Integration** — entity resolution reads shared DB | Use data already collected | ⏳ TODO |
 | 5 | **Live Dashboard** — React dashboard hits MCP/API | Replace static mockups with live data | ⏳ TODO |
 | 6 | **SaaS / Public API + Console** — Stripe + crypto + Interac billing, public signup, tier enforcement, developer console (API keys, usage, catalog, playground, Ask, Signal) | Revenue + developer self-service | 🔴 TODO |

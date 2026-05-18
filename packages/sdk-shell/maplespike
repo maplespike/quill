@@ -1,0 +1,196 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# MapleSpike Bash SDK — Zero-dependency CLI for Canadian government data
+# Usage: maplespike <command> [args...]
+# Depends on: curl, jq (both available in virtually any *nix env)
+set -euf
+
+MAPLESPIKE_API_BASE="${MAPLESPIKE_API_BASE:-https://api.maplespike.ca/v1}"
+MAPLESPIKE_API_KEY="${MAPLESPIKE_API_KEY:-}"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: maplespike <command> [options]
+
+Commands:
+  search <query>              Search government data sources
+  releases                    Latest government data releases
+  citation <hash>             Verify a SHA-256 citation hash
+  health                      API health check
+  usage                       View current usage and quota
+  ask <question>              Ask AI about government data
+  register <name> <email>     Register a new API key
+
+Options:
+  -k, --api-key <key>         API key (or set MAPLESPIKE_API_KEY)
+  -b, --base-url <url>        API base URL (default: https://api.maplespike.ca/v1)
+  -j, --json                  Raw JSON output (no formatting)
+  --help                      Show this help
+
+Examples:
+  maplespike health
+  maplespike search "housing starts Canada"
+  maplespike citation sha256:abc123...
+  MAPLESPIKE_API_KEY=sk_xxx maplespike ask "What are the latest immigration numbers?"
+EOF
+  exit 1
+}
+
+[ $# -eq 0 ] && usage
+
+# --- Parse global options ---
+JSON_OUTPUT=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -k|--api-key) MAPLESPIKE_API_KEY="$2"; shift 2 ;;
+    -b|--base-url) MAPLESPIKE_API_BASE="$2"; shift 2 ;;
+    -j|--json) JSON_OUTPUT=1; shift ;;
+    --help) usage ;;
+    *) break ;;
+  esac
+done
+
+[ -z "$MAPLESPIKE_API_KEY" ] && [ -z "${MAPLESPIKE_API_KEY_FILE:-}" ] && {
+  [ -f "${MAPLESPIKE_API_KEY_FILE:-$HOME/.maplespike/key}" ] && \
+    MAPLESPIKE_API_KEY="$(cat "${MAPLESPIKE_API_KEY_FILE:-$HOME/.maplespike/key}" | tr -d '[:space:]')"
+}
+
+api_call() {
+  local method="$1" path="$2" body="${3:-}"
+  local url="${MAPLESPIKE_API_BASE}${path}"
+  local args=(-s -X "$method" -H "Authorization: Bearer ${MAPLESPIKE_API_KEY}" -H "Accept: application/json")
+  [ -n "$body" ] && args+=(-H "Content-Type: application/json" -d "$body")
+  curl "${args[@]}" "$url"
+}
+
+check_key() {
+  [ -n "$MAPLESPIKE_API_KEY" ] && return 0
+  echo "Error: No API key set. Use -k <key>, or set MAPLESPIKE_API_KEY env var." >&2
+  exit 1
+}
+
+format_output() {
+  local json="$1"
+  [ "$JSON_OUTPUT" -eq 1 ] && { echo "$json"; return; }
+  local success; success=$(echo "$json" | jq -r '.success // false')
+  if [ "$success" != "true" ]; then
+    local code msg
+    code=$(echo "$json" | jq -r '.error.code // "UNKNOWN"')
+    msg=$(echo "$json" | jq -r '.error.message // "Unknown error"')
+    echo "Error [$code]: $msg" >&2
+    return 1
+  fi
+  echo "$json" | jq -r '.data // .'
+}
+
+# --- Commands ---
+CMD="${1:-}"; [ $# -gt 0 ] && shift
+
+case "$CMD" in
+  health)
+    resp=$(api_call GET /health)
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          "Status:      \(.data.status // "unknown")\n" +
+          "Service:     \(.data.service // .data.name // "MapleSpike")\n" +
+          "Version:     \(.data.version // .meta.version // "?")\n" +
+          "Tier:        \(.data.tenant.tier // "?")\n" +
+          "Daily:       \(.data.usage.daily // "?") calls used\n" +
+          "Monthly:     \(.data.usage.monthly // "?") calls used"
+        else "API unhealthy: \(.error.message)" end'
+    fi
+    ;;
+
+  search)
+    q="${1:-}"; [ -z "$q" ] && { echo "Usage: maplespike search <query>" >&2; exit 1; }
+    check_key
+    resp=$(api_call GET "/gov/search?q=$(echo "$q" | jq -sRr @uri)&limit=10")
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          (.data.results // []) | .[:10] | map(
+            "  \(.title // .name // "Untitled")\n" +
+            "    Source: \(.source // .organization?.title // "?")\n" +
+            "    \(.description // .notes // "" | .[0:200])\n"
+          ) | "Results: \(length)\n" + join("")
+        else "Error: \(.error.message)" end'
+    fi
+    ;;
+
+  releases)
+    check_key
+    resp=$(api_call GET "/gov/releases?limit=10")
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          (.data.releases // []) | map(
+            "  \(.title // .name // "Release")\n" +
+            "    Date: \(.date // .metadata_created // "?")\n" +
+            "    \(.description // .notes // "" | .[0:200])\n"
+          ) | "Latest Releases:\n" + join("")
+        else "Error: \(.error.message)" end'
+    fi
+    ;;
+
+  citation)
+    h="${1:-}"; [ -z "$h" ] && { echo "Usage: maplespike citation <hash>" >&2; exit 1; }
+    check_key
+    resp=$(api_call GET "/citation/$h")
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          "Verified:    \(.data.verified)\n" +
+          "Source:      \(.data.citation.source_name // "?")\n" +
+          "License:     \(.data.citation.license // "?")\n" +
+          "Hash:        \(.data.citation.data_hash // "?")\n" +
+          "Verify cmd:  \(.data.verify_command // "n/a")"
+        else "Not found: \(.error.message)" end'
+    fi
+    ;;
+
+  usage)
+    check_key
+    resp=$(api_call GET /usage)
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          "Tier:        \(.data.tenant.tier // .meta.tier // "free")\n" +
+          "Daily:       \(.data.usage.daily.calls // .data.daily.count // 0) / \(.data.usage.daily.limit // .data.daily.limit // "?") calls\n" +
+          "Monthly:     \(.data.usage.monthly.calls // .data.monthly.count // 0) / \(.data.usage.monthly.limit // .data.monthly.limit // "?") calls"
+        else "Error: \(.error.message)" end'
+    fi
+    ;;
+
+  ask)
+    q="${1:-}"; [ -z "$q" ] && { echo "Usage: maplespike ask <question>" >&2; exit 1; }
+    check_key
+    resp=$(api_call POST /ai/ask "{\"query\":$(echo "$q" | jq -sR .)}")
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          "Answer:\n\(.data.answer // "No answer returned")"
+        else "Error: \(.error.message)" end'
+    fi
+    ;;
+
+  register)
+    name="${1:-}"; email="${2:-}"
+    [ -z "$name" ] || [ -z "$email" ] && { echo "Usage: maplespike register <name> <email>" >&2; exit 1; }
+    resp=$(api_call POST /register "{\"name\":$(echo "$name" | jq -sR .),\"email\":$(echo "$email" | jq -sR .)}")
+    if [ "$JSON_OUTPUT" -eq 1 ]; then echo "$resp"; else
+      echo "$resp" | jq -r '
+        if .success then
+          "Registered:  \(.data.tenant.name // "?")\n" +
+          "Email:       \(.data.tenant.email // "?")\n" +
+          "API Key:     \(.data.apiKey.key // "see response")\n" +
+          "Verify:      \(MAPLESPIKE_API_BASE)\(.data.verificationUrl // "")\n\n" +
+          "Save your API key — it will not be shown again."
+        else "Error: \(.error.message)" end'
+    fi
+    ;;
+
+  *)
+    echo "Unknown command: $CMD" >&2; usage
+    ;;
+esac
