@@ -23,14 +23,7 @@ import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { createInterface } from 'readline';
 import * as http from 'http';
-
-const server = new McpServer();
-
-// Register all tools
-const tools = getAllTools();
-for (const tool of tools) {
-  server.registerTool(tool.definition, tool.handler);
-}
+import { SessionManager } from './session.js';
 
 const CLI_LOCALE = process.env.MAPLESPIKE_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
 
@@ -45,15 +38,23 @@ const toolInvocations: Record<string, number> = {};
 const requestTimingsMs: number[] = [];
 
 // ─── SSE / HTTP Mode (when PORT is set) ────────────────────────────────
-// Use this mode in Kubernetes deployments where stdin is detached.
 
 const PORT = parseInt(process.env.PORT || '', 10);
 if (PORT > 0) {
+  const sessionManager = new SessionManager();
+
+  interface SseClient {
+    id: string;
+    res: http.ServerResponse;
+  }
+
+  let clientIdCounter = 0;
+  const clients = new Map<string, SseClient>();
+
   const srv = http.createServer(async (req, res) => {
     const startTime = Date.now();
     metricsCounters.requests_total++;
 
-    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -71,18 +72,16 @@ if (PORT > 0) {
     if (pathname === '/health' || pathname === '/readyz') {
       metricsCounters.health_checks_total++;
       const checks: Record<string, string> = {};
-      // API health check
       try {
         const apiBase = process.env.MAPLESPIKE_API_URL || 'http://localhost:8082/v1';
         const resp = await fetch(`${apiBase}/health`, { signal: AbortSignal.timeout(3000) });
         checks.api = resp.ok ? 'ok' : 'degraded';
       } catch { checks.api = 'unreachable'; }
-      // DB check via system_health tool behavior (tools registered = DB accessible)
-      checks.database = 'ok'; // tools registered = DB loaded
+      checks.database = 'ok';
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         status: checks.api === 'ok' ? 'ok' : 'degraded',
-        tools: server.getToolCount(),
+        sessions: sessionManager.getSessionCount(),
         transport: 'sse',
         checks,
         uptime: process.uptime(),
@@ -120,14 +119,25 @@ if (PORT > 0) {
 
     // GET /sse — MCP Server-Sent Events transport
     if (pathname === '/sse') {
+      const clientId = `client-${++clientIdCounter}`;
+      sessionManager.createSession(clientId, CLI_LOCALE, true);
+
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
       });
-      res.write(`data: ${JSON.stringify({ type: 'endpoint', endpoint: '/messages' })}\n\n`);
+
+      res.write(`data: ${JSON.stringify({ type: 'endpoint', endpoint: `/messages?clientId=${clientId}` })}\n\n`);
+
+      clients.set(clientId, { id: clientId, res });
+
+      console.error(`[maplespike-mcp] SSE client connected: ${clientId} (sessions: ${sessionManager.getSessionCount()})`);
 
       req.on('close', () => {
+        clients.delete(clientId);
+        sessionManager.removeSession(clientId);
+        console.error(`[maplespike-mcp] SSE client disconnected: ${clientId} (sessions: ${sessionManager.getSessionCount()})`);
         res.end();
       });
       return;
@@ -135,6 +145,26 @@ if (PORT > 0) {
 
     // POST /messages — handle MCP JSON-RPC messages
     if (pathname === '/messages' && req.method === 'POST') {
+      const clientId = (url.searchParams.get('clientId') as string) ?? 'unknown';
+      const client = clients.get(clientId);
+
+      if (!client) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'No SSE connection for this client ID' }));
+        return;
+      }
+
+      const rateLimit = sessionManager.checkRateLimit(clientId);
+      if (!rateLimit.allowed) {
+        res.writeHead(429, {
+          'Content-Type': 'application/json',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': String(rateLimit.resetTime),
+        });
+        res.end(JSON.stringify({ error: 'Rate limit exceeded', resetTime: rateLimit.resetTime }));
+        return;
+      }
+
       let body = '';
       req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
       req.on('end', async () => {
@@ -143,8 +173,16 @@ if (PORT > 0) {
           const toolName = parsed?.params?.name || 'unknown';
           toolInvocations[toolName] = (toolInvocations[toolName] || 0) + 1;
           metricsCounters.tool_invocations_total++;
+
+          const session = sessionManager.getSession(clientId);
+          if (!session) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Session not found' }));
+            return;
+          }
+
           const response = await new Promise<any>((resolve) => {
-            server.handleMessage(parsed, CLI_LOCALE, (resp) => resolve(resp));
+            session.server.handleMessage(parsed, session.locale, (resp) => resolve(resp));
           });
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(response));
@@ -166,14 +204,21 @@ if (PORT > 0) {
   });
 
   srv.listen(PORT, '0.0.0.0', () => {
-    console.error(`[maplespike-mcp] SSE transport — ${server.getToolCount()} tools registered, listening on port ${PORT} (locale: ${CLI_LOCALE})`);
+    console.error(`[maplespike-mcp] SSE transport — ${sessionManager.getSessionCount()} sessions, listening on port ${PORT} (locale: ${CLI_LOCALE})`);
   });
 
-  // Graceful shutdown
   process.on('SIGINT', () => { console.error('[maplespike-mcp] SIGINT received, shutting down'); srv.close(() => process.exit(0)); });
   process.on('SIGTERM', () => { console.error('[maplespike-mcp] SIGTERM received, shutting down'); srv.close(() => process.exit(0)); });
 
 } else {
+  // ─── stdio transport ───────────────────────────────────────────────────
+  const server = new McpServer();
+  const tools = getAllTools();
+  for (const tool of tools) {
+    server.registerTool(tool.definition, tool.handler);
+  }
+
+  console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
   // ─── stdio transport ───────────────────────────────────────────────────
   console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
 // Read JSON-RPC messages from stdin, write responses to stdout
