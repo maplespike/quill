@@ -10,6 +10,7 @@ import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { TIER_LIMITS } from '../types.js';
 import type { Tenant, MapleSpikeStorage } from '../types.js';
+import { sendVerificationEmail, sendWelcomeEmail } from '../email.js';
 
 
 interface RegisterBody {
@@ -78,6 +79,11 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
 
     await persistRegistration(ctx.db, tenant, keyHash, keyId);
 
+    // Send verification email (async, non-blocking)
+    sendVerificationEmail({ to: email, name, token: verificationToken }).catch(err =>
+      console.error('[Register] Failed to send verification email:', err)
+    );
+
     return jsonResponse(buildSuccess({
       tenant: {
         id: tenant.id,
@@ -119,6 +125,15 @@ export const verifyHandler: RouteHandler = async (request, ctx, params) => {
       const result = db.verifyEmail(token);
       if (!result) {
         return jsonResponse(buildError('INVALID_TOKEN', 'Verification token not found or expired', ctx), 404);
+      }
+      // Send welcome email after successful verification
+      const tenant = ctx.tenant;
+      if (tenant.email) {
+        sendWelcomeEmail({
+          to: tenant.email,
+          name: tenant.name,
+          apiKey: ctx.apiKeyId || 'your-api-key'
+        }).catch(err => console.error('[Verify] Failed to send welcome email:', err));
       }
       return jsonResponse(buildSuccess({ verified: true, message: 'Email verified successfully.' }, ctx));
     }
