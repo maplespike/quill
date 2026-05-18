@@ -2,10 +2,10 @@
   "name": "@maplespike/portal",
   "version": "0.2.0",
   "private": true,
-  "description": "MapleSpike \u2014 Developer Portal (landing page, docs, dashboard)",
+  "description": "MapleSpike — Developer Portal (landing page, docs, dashboard)",
   "scripts": {
     "dev": "npx serve . -p 4321",
-    "build": "echo 'Static site \u2014 no build step required'",
+    "build": "echo 'Static site — no build step required'",
     "preview": "npx serve . -p 4321",
     "gen:agents": "node scripts/generate-agents-json.mjs",
     "gen:openapi": "node scripts/generate-openapi.mjs",
@@ -13,5 +13,6 @@
     "gen:real-data": "node scripts/generate-real-data.mjs",
     "gen:committees": "node scripts/fetch-real-committees.mjs",
     "gen:all": "node scripts/generate-agents-json.mjs && node scripts/generate-openapi.mjs && node scripts/generate-pipeline-data.mjs"
-  }
+  },
+  "license": "Apache-2.0"
 }
