@@ -20,9 +20,8 @@ import type { RawNunavutRecord } from '../types.js';
 import type { HttpResponse } from '../../../utils/http.js';
 
 
-/** Federal OCL advanced search URL. */
-const FEDERAL_OCL_SEARCH_URL =
-  'https://lobbycanada.gc.ca/app/secure/ocl/lrs/do/advSrch';
+/** Federal OCL search URL from config. */
+const FEDERAL_OCL_SEARCH_URL = NUNAVUT_LOBBYING.SEARCH;
 
 
 export class NULobbyingFetchError extends Error {
