@@ -31,6 +31,9 @@ export interface ModuleInfo {
   sources: { name: string; format: string }[];
   /** How often the source data changes */
   updateFrequency: string;
+  /** How to call this module in a minimal live test. 'runModule' (default) = use runModule(),
+   *  'fetchFeed' = RSS-style fetch, 'skip' = no external I/O utilities */
+  testCallPattern?: 'runModule' | 'fetchFeed' | 'skip';
 }
 
 const MODULE_REGISTRY: ModuleInfo[] = [
@@ -43,6 +46,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['parseRSS', 'fetchFeed', 'deduplicateItems'],
     sources: [{ name: 'CBC, Globe, National Post, regional papers, The Tyee, policy feeds', format: 'RSS' }],
     updateFrequency: '30 min',
+    testCallPattern: 'fetchFeed',
   },
   {
     name: 'gov-api',
@@ -52,6 +56,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['fetchStatCanReleases', 'fetchCKANPackages', 'fetchOpenDataPortal'],
     sources: [{ name: 'Statistics Canada WDS', format: 'SDMX/REST' }, { name: 'open.canada.ca CKAN', format: 'JSON' }],
     updateFrequency: 'daily',
+    testCallPattern: 'runModule',
   },
   {
     name: 'attestation',
@@ -61,6 +66,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['buildCitation', 'buildMerkleRoot', 'signCitation', 'verifyCitationSignature'],
     sources: [],
     updateFrequency: 'on-ingest',
+    testCallPattern: 'skip',
   },
   {
     name: 'provincial-ckan',
@@ -84,6 +90,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'data.yukon.ca', format: 'CKAN' },
     ],
     updateFrequency: 'daily',
+    testCallPattern: 'runModule',
   },
   {
     name: 'gc-standards',
@@ -93,6 +100,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['normalizeDepartment'],
     sources: [{ name: 'GC department codes', format: 'JSON' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'skip',
   },
 
   // ── Government ────────────────────────────────────────────
@@ -104,6 +112,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCommittee', 'ingestAllCommittees', 'ingestSenateCommittees', 'ingestInCameraMeetings'],
     sources: [{ name: 'ourcommons.ca XML evidence API', format: 'XML' }],
     updateFrequency: 'daily',
+    testCallPattern: 'runModule',
   },
   {
     name: 'gic',
@@ -113,6 +122,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestGIC', 'searchGIC', 'getHighValueAppointments', 'findLobbyistsTurnedAppointees'],
     sources: [{ name: 'open.canada.ca CKAN (GIC appointments)', format: 'CSV' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'gazette',
@@ -122,6 +132,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestGazette', 'ingestAllParts'],
     sources: [{ name: 'Canada Gazette RSS', format: 'RSS/XML' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'fetchFeed',
   },
   {
     name: 'oversight',
@@ -135,6 +146,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Ethics Commissioner (ciec-ccie.parl.gc.ca)', format: 'HTML' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'elections',
@@ -144,6 +156,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestThirdPartyAds', 'getTopSpenders', 'searchThirdParty', 'findInfluenceCrossReferences'],
     sources: [{ name: 'Elections Canada CSV', format: 'CSV' }],
     updateFrequency: 'daily (during election periods)',
+    testCallPattern: 'runModule',
   },
   {
     name: 'canlii',
@@ -153,6 +166,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestDecisions', 'searchDecisions', 'getRecentByCourt'],
     sources: [{ name: 'CanLII API (canlii.org)', format: 'REST API' }],
     updateFrequency: 'daily',
+    testCallPattern: 'runModule',
   },
   {
     name: 'lmia',
@@ -162,6 +176,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestLmia', 'ingestAllLmia', 'getTopEmployers', 'searchByEmployer'],
     sources: [{ name: 'ESDC open.canada.ca CKAN', format: 'CSV' }],
     updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'proactive-disclosure',
@@ -171,6 +186,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestProactiveDisclosure', 'searchProactiveDisclosure', 'getContractsByVendor'],
     sources: [{ name: 'open.canada.ca CKAN (proactive disclosure)', format: 'JSON/CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'ati',
@@ -180,6 +196,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAti', 'ingestAllAti', 'searchAtiRecords', 'getAtiByDepartment'],
     sources: [{ name: 'open.canada.ca CKAN (ATI summaries)', format: 'JSON/CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'federal-budget',
@@ -189,6 +206,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestFederalBudget', 'ingestAllFederalBudget', 'searchFederalBudget'],
     sources: [{ name: 'budget.canada.ca', format: 'HTML/CSV' }],
     updateFrequency: 'annual (budget), quarterly (fiscal monitor)',
+    testCallPattern: 'runModule',
   },
   {
     name: 'statcan',
@@ -198,6 +216,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllStatCan', 'ingestCpi', 'ingestGdp', 'ingestLabour', 'ingestPopulation', 'ingestTrade'],
     sources: [{ name: 'Statistics Canada WDS API', format: 'SDMX/REST' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'immigration',
@@ -211,6 +230,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'CBSA enforcement stats', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'criminal-justice',
@@ -223,6 +243,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Parole Board decisions', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'indigenous-relations',
@@ -235,6 +256,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'ISC First Nations financial transparency', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'federal',
@@ -248,6 +270,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Public Health Agency of Canada (PHAC) Surveillance via CKAN', format: 'CKAN' }
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'cross-reference',
@@ -257,6 +280,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['searchCrossReference'],
     sources: [],
     updateFrequency: 'on-demand',
+    testCallPattern: 'skip',
   },
   {
     name: 'legislation',
@@ -272,6 +296,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Provincial CKAN Legislation (AB,SK,MB,NS,NB,NL,PE)', format: 'CKAN' }
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'a2aj',
@@ -281,6 +306,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllA2aj', 'fetchCoverage', 'fetchByCitation', 'searchA2aj'],
     sources: [{ name: 'A2J API', format: 'REST API' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'federal-tribunals',
@@ -290,6 +316,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllTribunals', 'searchTribunals'],
     sources: [{ name: 'Federal tribunal websites', format: 'HTML' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'goc-spending',
@@ -299,6 +326,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllGoCSpending', 'listDataFiles'],
     sources: [{ name: 'GitHub government spending data', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'real-time-feeds',
@@ -308,6 +336,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllRealtime'],
     sources: [{ name: 'Government real-time feeds', format: 'RSS/Atom' }],
     updateFrequency: 'continuous',
+    testCallPattern: 'runModule',
   },
   {
     name: 'regional-authorities',
@@ -317,6 +346,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllRegional', 'searchRegionalAuthorities'],
     sources: [{ name: 'Regional authority websites', format: 'HTML' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'municipal',
@@ -326,6 +356,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestMunicipal', 'searchMunicipalMeetings', 'getRecentMeetings'],
     sources: [{ name: 'City council portals', format: 'HTML/API' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'municipal-long-tail',
@@ -335,6 +366,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestMunicipalLongTail'],
     sources: [{ name: 'Small/medium city portals', format: 'HTML/API' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'global-canada',
@@ -347,6 +379,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'ECCC climate data', format: 'CSV' },
     ],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'health-canada',
@@ -356,6 +389,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestHealthCanada', 'searchHealthCanadaRecords', 'getHealthCanadaRecallsBySeverity'],
     sources: [{ name: 'Health Canada datasets', format: 'CSV' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'health-data',
@@ -369,6 +403,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'PMPRB drug pricing', format: 'CSV' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'defence',
@@ -378,6 +413,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllDefence'],
     sources: [{ name: 'DND open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'veterans',
@@ -387,6 +423,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllVeterans', 'searchVeterans'],
     sources: [{ name: 'VAC open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'transport-infrastructure',
@@ -400,6 +437,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'Infrastructure Canada projects', format: 'CSV' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'impact-assessment',
@@ -409,6 +447,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestIaacAssessments', 'searchIaacRecords'],
     sources: [{ name: 'IAAC registry', format: 'HTML/CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'npri',
@@ -418,6 +457,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestNpri', 'searchNpriRecords', 'getNpriByFacility'],
     sources: [{ name: 'NPRI open.canada.ca', format: 'CSV' }],
     updateFrequency: 'annual',
+    testCallPattern: 'runModule',
   },
   {
     name: 'species-at-risk',
@@ -427,6 +467,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestSaraSpecies', 'searchSaraRecords', 'getSaraByStatus'],
     sources: [{ name: 'SARA registry', format: 'JSON/CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'fisheries',
@@ -436,6 +477,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllFisheries', 'searchFisheries'],
     sources: [{ name: 'DFO open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'agriculture',
@@ -445,6 +487,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllAgriculture', 'searchAgriculture'],
     sources: [{ name: 'AAFC open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
   },
 
   // ── Corporate ────────────────────────────────────────────
@@ -460,6 +503,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
       { name: 'GlobeNewswire exec statements', format: 'RSS' },
     ],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
   },
   {
     name: 'corporate-filings',
@@ -469,6 +513,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestAllFilings'],
     sources: [{ name: 'SEDAR+ regulatory filings', format: 'HTML' }],
     updateFrequency: 'daily',
+    testCallPattern: 'runModule',
   },
   {
     name: 'sedi',
@@ -478,6 +523,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestSedi', 'ingestSediByIssuer', 'searchInsiderTransactions'],
     sources: [{ name: 'SEDI (sedi.ca)', format: 'HTML' }],
     updateFrequency: 'daily',
+    testCallPattern: 'runModule',
   },
   {
     name: 'crown-corporations',

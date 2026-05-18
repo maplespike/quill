@@ -13,9 +13,7 @@
 import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import type Database from "better-sqlite3";
 import { getRawDb } from "@maplespike/database";
-import type { Database } from "@maplespike/database";
 import { AliasManager } from "./entity/aliases";
 import { EntityResolver } from "./entity/resolver";
 import { GraphBuilder } from "./graph/builder";
@@ -31,9 +29,9 @@ import type { GACProject, ImplementingPartner } from "./types/gac";
 import type { GraphData, IntelligenceThread } from "./types/graph";
 import type { LobbyingFiling, LobbyingCommunication } from "./types/lobbying";
 import type { Organization, OrganizationType } from "./types/organization";
-import type { Person, RoleCategory } from "./types/person";
-import type { Brief } from "./types/brief";
+import type { Person } from "./types/person";
 import type { GovernmentSource } from "./types/base";
+import type { Brief } from "./types/brief";
 
 /* ------------------------------------------------------------------ */
 /*  Orchestrator Result Types                                         */
@@ -846,198 +844,243 @@ function generateMandatePromises(
 }
 
 /* ------------------------------------------------------------------ */
+/*  DB Load Result Type                                               */
+/* ------------------------------------------------------------------ */
+
+interface LoadFromDbResult {
+  persons: Person[];
+  organizations: Organization[];
+  contracts: Contract[];
+  filings: LobbyingFiling[];
+  donations: Donation[];
+  disclosures: Disclosure[];
+  gacProjects: GACProject[];
+  generatedAt: string;
+  dataSources: string[];
+  totalRecords: number;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Engine Orchestrator                                               */
 /* ------------------------------------------------------------------ */
 
 export class EngineOrchestrator {
-  private aliasManager: AliasManager;
-  private entityResolver: EntityResolver;
-  private graphBuilder: GraphBuilder;
-  private briefGenerator: BriefGenerator;
+   private aliasManager: AliasManager;
+   private entityResolver: EntityResolver;
+   private graphBuilder: GraphBuilder;
+   private briefGenerator: BriefGenerator;
 
-  constructor() {
-    const db = getRawDb();
-    this.aliasManager = new AliasManager(db);
-    this.entityResolver = new EntityResolver(this.aliasManager);
-    this.graphBuilder = new GraphBuilder(this.aliasManager);
-    this.briefGenerator = new BriefGenerator();
-  }
+   constructor() {
+     const db = getRawDb();
+     this.aliasManager = new AliasManager(db);
+     this.entityResolver = new EntityResolver(this.aliasManager);
+     this.graphBuilder = new GraphBuilder(this.aliasManager);
+     this.briefGenerator = new BriefGenerator();
+   }
 
   /**
-   * Load data from the shared database or fall back to pipeline-data.json.
+   * Load data from the shared database (populated by pipeline-core).
+   * Returns typed arrays ready for entity resolution and graph building.
    */
-  private loadData(): {
-    persons: Person[];
-    organizations: Organization[];
-    contracts: Contract[];
-    filings: LobbyingFiling[];
-    donations: Donation[];
-    disclosures: Disclosure[];
-    gacProjects: GACProject[];
-    generatedAt: string;
-    dataSources: string[];
-    totalRecords: number;
-  } {
+  private loadFromDb(): LoadFromDbResult {
+    const db = getRawDb();
     const now = isoNow();
-    const empty = {
-      persons: [] as Person[],
-      organizations: [] as Organization[],
-      contracts: [] as Contract[],
-      filings: [] as LobbyingFiling[],
-      donations: [] as Donation[],
-      disclosures: [] as Disclosure[],
-      gacProjects: [] as GACProject[],
+
+    const emptyResult = (): LoadFromDbResult => ({
+      persons: [],
+      organizations: [],
+      contracts: [],
+      filings: [],
+      donations: [],
+      disclosures: [],
+      gacProjects: [],
       generatedAt: now,
-      dataSources: [] as string[],
+      dataSources: [],
       totalRecords: 0,
-    };
-
-    const p = (r: any): Person => ({
-      id: r.id,
-      names: typeof r.names === 'string' ? JSON.parse(r.names) : r.names ?? [],
-      firstName: r.first_name ?? undefined,
-      lastName: r.last_name ?? undefined,
-      email: r.email ?? undefined,
-      province: r.province ?? undefined,
-      city: r.city ?? undefined,
-      source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      roles: [],
-      relationships: [],
-      createdAt: r.created_at ?? now,
-      updatedAt: r.updated_at ?? now,
-    });
-    const o = (r: any): Organization => ({
-      id: r.id, names: typeof r.names === 'string' ? JSON.parse(r.names) : r.names ?? [],
-      type: r.type, industry: r.industry ?? undefined, province: r.province ?? undefined,
-      city: r.city ?? undefined, website: r.website ?? undefined,
-      parentOrganizationId: r.parent_organization_id ?? undefined,
-      source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      registrations: [], createdAt: r.created_at ?? now, updatedAt: r.updated_at ?? now,
-    });
-    const c = (r: any): Contract => ({
-      id: r.id, contractNumber: r.contract_number, title: r.title, description: r.description,
-      vendorName: r.vendor_name, vendorId: r.vendor_id ?? undefined, department: r.department,
-      value: r.value, currency: r.currency, startDate: r.start_date, endDate: r.end_date ?? undefined,
-      status: r.status, isSoleSource: Boolean(r.is_sole_source), province: r.province ?? undefined,
-      commodityType: r.commodity_type ?? undefined, source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      createdAt: r.created_at ?? now, updatedAt: r.updated_at ?? now,
-    });
-    const f = (r: any): LobbyingFiling => ({
-      id: r.id, filingNumber: r.filing_number,
-      clientName: r.client_name, clientOrganizationId: r.client_organization_id ?? undefined,
-      subjectMatter: r.subject_matter,
-      communications: typeof r.communications === 'string' ? JSON.parse(r.communications) : r.communications ?? [],
-      startDate: r.start_date, endDate: r.end_date,
-      activities: typeof r.activities === 'string' ? JSON.parse(r.activities) : r.activities ?? [],
-      institution: r.institution, province: r.province ?? undefined,
-      source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      registrant: { name: r.registrant_name, firmName: r.registrant_firm ?? undefined, personId: r.registrant_person_id ?? undefined },
-      createdAt: r.created_at ?? now, updatedAt: r.updated_at ?? now,
-    });
-    const d = (r: any): Donation => ({
-      id: r.id, donorName: r.donor_name, donorPersonId: r.donor_person_id ?? undefined,
-      donorOrganizationId: r.donor_organization_id ?? undefined, recipientName: r.recipient_name,
-      recipientType: r.recipient_type, amount: r.amount, currency: r.currency, date: r.date,
-      province: r.province ?? undefined, riding: r.riding ?? undefined, isCorporate: Boolean(r.is_corporate),
-      source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      createdAt: r.created_at ?? now, updatedAt: r.updated_at ?? now,
-    });
-    const ds = (r: any): Disclosure => ({
-      id: r.id, personName: r.person_name, personId: r.person_id ?? undefined,
-      position: r.position, department: r.department, year: r.year,
-      interests: typeof r.interests === 'string' ? JSON.parse(r.interests) : r.interests ?? [],
-      province: r.province ?? undefined, filingDate: r.filing_date,
-      source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      createdAt: r.created_at ?? now, updatedAt: r.updated_at ?? now,
-    });
-    const g = (r: any): GACProject => ({
-      id: r.id, projectId: r.project_id, title: r.title, description: r.description,
-      department: r.department, country: r.country, region: r.region, budget: r.budget,
-      currency: r.currency, startDate: r.start_date, endDate: r.end_date ?? undefined,
-      status: r.status,
-      implementingPartners: typeof r.implementing_partners === 'string' ? JSON.parse(r.implementing_partners) : r.implementing_partners ?? [],
-      sector: r.sector ?? undefined, source: r.source as GovernmentSource,
-      rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
-      createdAt: r.created_at ?? now, updatedAt: r.updated_at ?? now,
     });
 
-    // Try shared DB first
     try {
-      const rawDb = getRawDb();
-      const personRows = rawDb.prepare('SELECT * FROM persons').all() as any[];
-      if (personRows.length > 0) {
-        const persons = personRows.map(p);
-        const orgs = (rawDb.prepare('SELECT * FROM organizations').all() as any[]).map(o);
-        const contracts = (rawDb.prepare('SELECT * FROM contracts').all() as any[]).map(c);
-        const filings = (rawDb.prepare('SELECT * FROM lobbying_filings').all() as any[]).map(f);
-        const donationRows = (rawDb.prepare('SELECT * FROM donations').all() as any[]).map(d);
-        const disclosureRows = (rawDb.prepare('SELECT * FROM disclosures').all() as any[]).map(ds);
-        const gacProjects = (rawDb.prepare('SELECT * FROM gac_projects').all() as any[]).map(g);
+      // Persons
+      const personRows = db.prepare('SELECT * FROM persons').all() as any[];
+      const persons: Person[] = personRows.map(r => ({
+        id: r.id,
+        names: typeof r.names === 'string' ? JSON.parse(r.names) : r.names ?? [],
+        firstName: r.first_name ?? undefined,
+        lastName: r.last_name ?? undefined,
+        email: r.email ?? undefined,
+        province: r.province ?? undefined,
+        city: r.city ?? undefined,
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        roles: [],
+        relationships: [],
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
 
-        // Enrich persons with roles from disclosures table
-        for (const person of persons) {
-          const nameMatch = person.names[0];
-          if (!nameMatch) continue;
-          const matchingDisc = disclosureRows.filter((disc: Disclosure) =>
-            disc.personName.toLowerCase().includes(nameMatch.toLowerCase()) ||
-            nameMatch.toLowerCase().includes(disc.personName.toLowerCase()),
-          );
-          for (const disc of matchingDisc) {
-            person.roles.push({
-              title: disc.position,
-              organization: disc.department,
-              startDate: disc.filingDate,
-              category: "civil_service" as RoleCategory,
-              source: disc.source as GovernmentSource,
-            });
-          }
-        }
+      // Organizations
+      const orgRows = db.prepare('SELECT * FROM organizations').all() as any[];
+      const organizations: Organization[] = orgRows.map(r => ({
+        id: r.id,
+        names: typeof r.names === 'string' ? JSON.parse(r.names) : r.names ?? [],
+        type: r.type,
+        industry: r.industry ?? undefined,
+        province: r.province ?? undefined,
+        city: r.city ?? undefined,
+        website: r.website ?? undefined,
+        parentOrganizationId: r.parent_organization_id ?? undefined,
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        registrations: [],
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
 
-        // Enrich organizations with registrations from rawData source hint
-        for (const org of orgs) {
-          const rawSource = org.rawData?.source;
-          if (rawSource === "crown-corporations" || rawSource === "proactive-disclosure") {
-            org.registrations.push({
-              number: org.id,
-              jurisdiction: "federal",
-              type: org.type,
-              status: "active" as const,
-              dateFiled: org.createdAt,
-              source: "manual" as GovernmentSource,
-            });
-          }
-        }
+      // Contracts
+      const contractRows = db.prepare('SELECT * FROM contracts').all() as any[];
+      const contracts: Contract[] = contractRows.map(r => ({
+        id: r.id,
+        contractNumber: r.contract_number,
+        title: r.title,
+        description: r.description,
+        vendorName: r.vendor_name,
+        vendorId: r.vendor_id ?? undefined,
+        department: r.department,
+        value: r.value,
+        currency: r.currency,
+        startDate: r.start_date,
+        endDate: r.end_date ?? undefined,
+        status: r.status,
+        isSoleSource: Boolean(r.is_sole_source),
+        province: r.province ?? undefined,
+        commodityType: r.commodity_type ?? undefined,
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
 
-        const sources = [...new Set([...persons.map((x: Person) => x.source), ...orgs.map((x: Organization) => x.source), ...contracts.map((x: Contract) => x.source), ...filings.map((x: LobbyingFiling) => x.source), ...donationRows.map((x: Donation) => x.source), ...disclosureRows.map((x: Disclosure) => x.source), ...gacProjects.map((x: GACProject) => x.source)])];
-        return { persons, organizations: orgs, contracts, filings: filings as LobbyingFiling[], donations: donationRows, disclosures: disclosureRows, gacProjects, generatedAt: now, dataSources: sources, totalRecords: persons.length + orgs.length + contracts.length + filings.length + donationRows.length + disclosureRows.length + gacProjects.length };
-      }
-    } catch { /* tables not ready — fall through */ }
+      // Lobbying Filings
+      const filingRows = db.prepare('SELECT * FROM lobbying_filings').all() as any[];
+      const filings: LobbyingFiling[] = filingRows.map(r => ({
+        id: r.id,
+        filingNumber: r.filing_number,
+        registrantName: r.registrant_name,
+        registrantFirm: r.registrant_firm ?? undefined,
+        registrantPersonId: r.registrant_person_id ?? undefined,
+        clientName: r.client_name,
+        clientOrganizationId: r.client_organization_id ?? undefined,
+        subjectMatter: r.subject_matter,
+        communications: typeof r.communications === 'string' ? JSON.parse(r.communications) : r.communications ?? [],
+        startDate: r.start_date,
+        endDate: r.end_date,
+        activities: typeof r.activities === 'string' ? JSON.parse(r.activities) : r.activities ?? [],
+        institution: r.institution,
+        province: r.province ?? undefined,
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        registrant: {
+          name: r.registrant_name,
+          firmName: r.registrant_firm ?? undefined,
+          personId: r.registrant_person_id ?? undefined,
+        },
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
 
-    // Fall back to pipeline-data.json
-    try {
-      const jsonData = loadPipelineData();
-      if (jsonData && Object.keys(jsonData.sources).length > 0) {
-        let total = 0;
-        for (const src of Object.values(jsonData.sources)) {
-          const arr = (src as any)?.data;
-          if (Array.isArray(arr)) total += arr.length;
-        }
-        return { ...empty, generatedAt: jsonData.generatedAt ?? now, dataSources: Object.keys(jsonData.sources), totalRecords: total };
-      }
-    } catch { /* json not available */ }
+      // Donations
+      const donRows = db.prepare('SELECT * FROM donations').all() as any[];
+      const donations: Donation[] = donRows.map(r => ({
+        id: r.id,
+        donorName: r.donor_name,
+        donorPersonId: r.donor_person_id ?? undefined,
+        donorOrganizationId: r.donor_organization_id ?? undefined,
+        recipientName: r.recipient_name,
+        recipientType: r.recipient_type,
+        amount: r.amount,
+        currency: r.currency,
+        date: r.date,
+        province: r.province ?? undefined,
+        riding: r.riding ?? undefined,
+        isCorporate: Boolean(r.is_corporate),
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
 
-    return empty;
+      // Disclosures
+      const discRows = db.prepare('SELECT * FROM disclosures').all() as any[];
+      const disclosures: Disclosure[] = discRows.map(r => ({
+        id: r.id,
+        personName: r.person_name,
+        personId: r.person_id ?? undefined,
+        position: r.position,
+        department: r.department,
+        year: r.year,
+        interests: typeof r.interests === 'string' ? JSON.parse(r.interests) : r.interests ?? [],
+        province: r.province ?? undefined,
+        filingDate: r.filing_date,
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
+
+      // GAC Projects
+      const gacRows = db.prepare('SELECT * FROM gac_projects').all() as any[];
+      const gacProjects: GACProject[] = gacRows.map(r => ({
+        id: r.id,
+        projectId: r.project_id,
+        title: r.title,
+        description: r.description,
+        department: r.department,
+        country: r.country,
+        region: r.region,
+        budget: r.budget,
+        currency: r.currency,
+        startDate: r.start_date,
+        endDate: r.end_date ?? undefined,
+        status: r.status,
+        implementingPartners: typeof r.implementing_partners === 'string' ? JSON.parse(r.implementing_partners) : r.implementing_partners ?? [],
+        sector: r.sector ?? undefined,
+        source: r.source as GovernmentSource,
+        rawData: typeof r.raw_data === 'string' ? JSON.parse(r.raw_data) : r.raw_data ?? {},
+        createdAt: r.created_at ?? now,
+        updatedAt: r.updated_at ?? now,
+      }));
+
+      const dataSources = [...new Set([
+        ...persons.map(p => p.source),
+        ...organizations.map(o => o.source),
+        ...contracts.map(c => c.source),
+        ...filings.map(f => f.source),
+        ...donations.map(d => d.source),
+        ...disclosures.map(d => d.source),
+        ...gacProjects.map(g => g.source),
+      ])];
+
+      return {
+        persons,
+        organizations,
+        contracts,
+        filings,
+        donations,
+        disclosures,
+        gacProjects,
+        generatedAt: now,
+        dataSources,
+        totalRecords: persons.length + organizations.length + contracts.length + filings.length + donations.length + disclosures.length + gacProjects.length,
+      };
+    } catch {
+      // Tables may not exist yet (no ingestion has run) — return empty state
+      return emptyResult();
+    }
   }
 
   /**
    * Run the full engine pipeline:
-   * 1. Load data (shared DB or pipeline-data.json)
+   * 1. Load data from shared DB
    * 2. Entity resolution
    * 3. Graph building
    * 4. Signal detection
@@ -1047,8 +1090,8 @@ export class EngineOrchestrator {
     // Reset ID counter for deterministic-ish runs
     idCounter = 0;
 
-    // Step 1: Load data
-    const { persons, organizations, contracts, filings, donations, disclosures, gacProjects, generatedAt, dataSources, totalRecords } = this.loadData();
+    // Step 1: Load data from shared DB
+    const { persons, organizations, contracts, filings, donations, disclosures, gacProjects, generatedAt, dataSources, totalRecords } = this.loadFromDb();
 
     // Step 2: Entity resolution — merge similar names into canonical entities
     const resolutionMap = this.entityResolver.resolveEntities(
@@ -1092,32 +1135,71 @@ export class EngineOrchestrator {
 
     // Build summary
     const byType: SignalCounts = {
-      procurement_lobbying_overlap: 0, revolving_door: 0, spousal_interest_proximity: 0,
-      sole_source_heavy_lobbying: 0, donation_proximity_correlation: 0, mandate_divergence: 0, international_layering: 0,
+      procurement_lobbying_overlap: 0,
+      revolving_door: 0,
+      spousal_interest_proximity: 0,
+      sole_source_heavy_lobbying: 0,
+      donation_proximity_correlation: 0,
+      mandate_divergence: 0,
+      international_layering: 0,
     };
-    for (const s of signals) byType[s.signalType]++;
+    for (const s of signals) {
+      byType[s.signalType]++;
+    }
 
     const summary: OrchestratorSummary = {
       totalRecords,
       dataSources,
       entities: {
-        persons: persons.length, organizations: organizations.length, contracts: contracts.length,
-        filings: filings.length, donations: donations.length, disclosures: disclosures.length, gacProjects: gacProjects.length,
+        persons: persons.length,
+        organizations: organizations.length,
+        contracts: contracts.length,
+        filings: filings.length,
+        donations: donations.length,
+        disclosures: disclosures.length,
+        gacProjects: gacProjects.length,
       },
-      graph: { nodes: graph.nodes.length, edges: graph.edges.length },
-      signals: { total: signals.length, byType, topConfidence: signals.length > 0 ? Math.max(...signals.map((s) => s.confidence)) : 0 },
-      brief: brief ? { id: brief.id, title: brief.title, summary: brief.summary, sections: brief.sections.length } : null,
+      graph: {
+        nodes: graph.nodes.length,
+        edges: graph.edges.length,
+      },
+      signals: {
+        total: signals.length,
+        byType,
+        topConfidence: signals.length > 0
+          ? Math.max(...signals.map((s) => s.confidence))
+          : 0,
+      },
+      brief: brief
+        ? {
+            id: brief.id,
+            title: brief.title,
+            summary: brief.summary,
+            sections: brief.sections.length,
+          }
+        : null,
     };
 
     return {
-      pipeline: { generatedAt, generatedBy: "engine", stats: { totalRecords } },
-      resolution: { entities: resolutionMap.entities.size, canonicalNames },
-      graph, signals, brief, summary,
+      pipeline: {
+        generatedAt,
+        generatedBy: "engine",
+        stats: { totalRecords },
+      },
+      resolution: {
+        entities: resolutionMap.entities.size,
+        canonicalNames,
+      },
+      graph,
+      signals,
+      brief,
+      summary,
     };
   }
 
    /**
-    * Free database resources. No-op: shared DB managed by @maplespike/database.
+    * Free database resources.
+    * No-op: using shared DB via aliasManager.
     */
    close(): void {
      // No DB to close; using shared DB via aliasManager
