@@ -5,7 +5,7 @@ status: active
 
 # MapleSpike Pipeline — Master Roadmap
 
-> **Updated:** 2026-05-14 (session summary baked in)
+> **Updated:** 2026-05-17 (licensing strategy baked in)
 > **Current metrics:** [docs/metrics.json](./docs/metrics.json)
 > **Repository:** `/data/projects/own/maplespike`
 > **Working branch:** main
@@ -760,7 +760,10 @@ NixOS (zephyr/nexus):
 | 2026-05-15 | Panic mode implemented | `hermes security panic` — levels up all risk classifications |
 | 2026-05-15 | SQLite audit database | Durable append-only log at ~/.hermes/agent-firewall/audit.db |
 | 2026-05-15 | Redaction audit logging | Every secret redaction logged with pattern name, tool, session |
-| 2026-05-15 | Thread-local session context | `get_current_session_id()` — TLS shared between pre/post/transform hooks |
+|| 2026-05-15 | Thread-local session context | `get_current_session_id()` — TLS shared between pre/post/transform hooks |
+| 2026-05-17 | Three-tier licensing: AGPL core / Apache-2.0 interface / MIT client | Protects ingestion moat (AGPL network clause), drives API/MCP adoption (Apache-2.0 patent grant), zero-friction SDK (MIT). Commercial license path for enterprise. See [LICENSE.md](./LICENSE.md). |
+| 2026-05-17 | CLA required for all external contributions | Enables commercial re-licensing for MapleSpike Enterprise License — standard dual-license pattern (MongoDB, GitLab, Grafana) |
+| 2026-05-17 | Data vs. code license separation | Source data = OGL-Canada (always free). Code = three-tier. Derived outputs inherit data freedom. |
 
 ### Agent Firewall File Inventory
 

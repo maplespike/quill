@@ -1,7 +1,7 @@
 {
   "name": "@maplespike/legal-core",
   "version": "0.2.0",
-  "description": "MapleSpike Legal Core \u2014 typed client for Canadian case law, legislation, and tribunal data via CanLII API and A2AJ open corpus",
+  "description": "MapleSpike Legal Core — typed client for Canadian case law, legislation, and tribunal data via CanLII API and A2AJ open corpus",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
