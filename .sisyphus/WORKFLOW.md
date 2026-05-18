@@ -1,10 +1,12 @@
 ---
 # Sisyphus Workflow — Repository Contract
-# This file defines how agents operate in this repository.
-# Version: 1
+# This file defines how agents (Hermes, Claude, OMP, Pi) operate in this repo.
+# All tools call track.sh and follow the same worktree/PR conventions.
+# Version: 2
 tracker:
   kind: github
-  active_labels: []
+  owner: reverb256
+  repo: maplespike
   exclude_labels: [blocked, wontfix, duplicate]
   priority_sort: [p1, p2, p3]
 agent:
@@ -13,16 +15,22 @@ agent:
   turn_timeout_ms: 300000
   retry_backoff_ms: 60000
 workspace:
-  root: /tmp/maplespike-worktrees
+  root: /data/projects/own/maplespike
+  prefix: maplespike-
+  pattern: /data/projects/own/maplespike-{num}
+  remote: origin
 hooks:
   after_create: |
-    git fetch bare main 2>/dev/null || true
+    git fetch origin main 2>/dev/null || true
+    pnpm install 2>/dev/null || true
   before_run: |
     pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 proof:
   require_build: true
   require_tests: true
   require_pr: true
+notify:
+  tools: [hermes, claude, omp, pi]
 ---
 
 # Sisyphus Workflow Template
@@ -30,73 +38,36 @@ proof:
 You are implementing issue **{{issue.title}}**.
 
 ## Context
-{{issue.description}}
 
 **Repository:** `/data/projects/own/maplespike`
-**Bare remote:** `file:///srv/git/maplespike.git`
 **Worktree:** `{{workspace.path}}`
 **Branch:** `{{workspace.branch}}`
+**Remote:** origin (GitHub — accessible from all nodes)
+**Worktree was created by:** `.sisyphus/track.sh` (shared by Hermes, Claude, OMP, Pi)
 
 ## Rules
 
-### Worktree Management
-- Worktree is at `{{workspace.path}}` — already created
-- Work from inside it: `cd {{workspace.path}}`
-- Branch `{{workspace.branch}}` is already checked out
-- Keep the main repo (`/data/projects/own/maplespike`) clean — don't stage/commit there
+### MUST DO
+1. Start by reading the issue description and any linked resources.
+2. Work inside the worktree directory: `cd {{workspace.path}}`
+3. Read existing code before writing — understand the patterns.
+4. Use pnpm for all package operations.
+5. Commit with conventional commits: `type: description (#NNN)`
+6. Push to origin: `git push origin HEAD`
+7. Update `docs/metrics.json` if tools/modules change.
+8. Verify builds pass before finishing.
 
-### Implementation
-1. Read relevant files to understand current state
-2. Make focused, minimal changes — one concern per commit
-3. Match existing code patterns in the codebase (see AGENTS.md)
-4. Do NOT use `as any`, `@ts-ignore`, or `@ts-expect-error`
-5. Do NOT delete existing stubs or placeholder directories — build them out
-6. Do NOT add new dependencies unless absolutely necessary
-
-### Commit Convention
-```
-type(scope): description (#NNN)
-
-- type: feat|fix|chore|docs|test|refactor
-- scope: package name or module
-- #NNN: issue number
-```
+### MUST NOT DO
+1. Do not work outside the worktree directory.
+2. Do not push to bare (Zephyr-local) — use origin (GitHub) instead.
+3. Do not delete existing stubs or routes unless the issue explicitly asks.
+4. Do not add `as any` / `@ts-ignore` / `@ts-expect-error`.
+5. Do not add unrequested features or drive-by refactors.
+6. Do not run `nix` commands in the maplespike repo (that's for nixos-config).
 
 ### Proof of Work
-Before declaring success, you MUST run these verification steps:
-
-1. **Build**: `cd {{workspace.path}} && pnpm build`
-   - All packages must compile cleanly
-   - If a single package has errors, fix them before proceeding
-2. **Test**: `cd {{workspace.path}} && pnpm test`
-   - All tests must pass (or only pre-existing failures — check by running `git stash && pnpm test` first, then restoring changes)
-3. **Commit and push**:
-   ```
-   cd {{workspace.path}}
-   SKIP=trim-trailing-whitespace git add -A
-   SKIP=trim-trailing-whitespace git commit -m "type(scope): description (#{{issue.number}})"
-   git push bare HEAD
-   ```
-4. **Create PR**:
-   ```
-   gh pr create \
-     --base main \
-     --head {{workspace.branch}} \
-     --title "type(scope): description (#{{issue.number}})" \
-     --body "Closes #{{issue.number}}"
-   ```
-
-### Continuation (if this is turn > 1)
-This is not the first attempt. Previous turn {{turn.attempt}} ended with:
-- PR: {{turn.pr_url}}
-- CI status: {{turn.ci_status}}
-- Remaining issues: {{turn.remaining_issues}}
-
-Focus on addressing the remaining issues. Do NOT redo work that's already done.
-
-## Completion Report
-When done, report:
-- Commit SHA: `{{workspace.commit_sha}}`
-- Build: ✅/❌
-- Tests: ✅/❌ (N/M passing, F failing)
-- PR URL: `{{workspace.pr_url}}`
+- [ ] `pnpm build` passes
+- [ ] `pnpm test` passes (relevant packages)
+- [ ] Commit pushed to origin
+- [ ] PR created with `Closes #NNN`
+- [ ] Worktree cleaned up after PR merge: `git worktree remove {{workspace.path}}`
