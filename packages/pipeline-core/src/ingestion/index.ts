@@ -90,3 +90,10 @@ export {
 } from './science-research/index.js';
 export type { ScienceIngestionResult } from './science-research/types.js';
 
+export {
+  ingestAllNgoRss,
+  searchNgoRss,
+  NGO_RSS_SOURCES,
+} from './ngo-influence-rss/index.js';
+export type { NgoRssItem, NgoRssIngestionResult } from './ngo-influence-rss/types.js';
+
