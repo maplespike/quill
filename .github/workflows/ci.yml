@@ -13,10 +13,13 @@ concurrency:
 permissions:
   contents: read
   pull-requests: read
+  actions: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,14 +46,13 @@ jobs:
 
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
+        with: { node-version: 22 }
 
       - run: pnpm install --frozen-lockfile
 
       # Clean before build to avoid stale dist issues
       - run: pnpm run clean
 
-      # Build all JS/TS packages (Turbo respects dependency order)
       - run: pnpm build
 
       # Build docs pages from markdown source

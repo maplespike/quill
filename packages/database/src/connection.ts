@@ -88,6 +88,13 @@ export function createDb(dbPath?: string): DbClient {
 }
 
 /**
+ * Extract the raw better-sqlite3 instance from a Drizzle DbClient.
+ */
+export function getRawFromDb(db: DbClient): Database.Database {
+  return (db as unknown as { $client: Database.Database }).$client;
+}
+
+/**
  * Run SQLite schema migrations on the shared database instance.
  * Creates all tables if they don't exist.
  */
@@ -123,6 +130,36 @@ export function runMigrations(db?: DbClient): void {
       raw_data TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS entities (
+      id TEXT PRIMARY KEY,
+      canonical_name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      confidence REAL NOT NULL DEFAULT 1,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS entity_aliases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      entity_id TEXT NOT NULL REFERENCES entities(id),
+      alias TEXT NOT NULL,
+      type TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT 'resolution',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS entity_links (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      source_entity_id TEXT NOT NULL REFERENCES entities(id),
+      target_entity_id TEXT NOT NULL REFERENCES entities(id),
+      link_type TEXT NOT NULL,
+      weight REAL NOT NULL DEFAULT 1.0,
+      source TEXT NOT NULL,
+      metadata TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
     CREATE TABLE IF NOT EXISTS contracts (

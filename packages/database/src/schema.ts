@@ -41,7 +41,56 @@ export const organizations = sqliteTable("organizations", {
     .default(sql`(datetime('now'))`),
   updatedAt: text("updated_at")
     .notNull()
+    .default(sql`(datetime('now'))`)
+});
+
+// ─── Entities (for entity resolution engine) ─────────────────────────────
+export const entities = sqliteTable("entities", {
+  id: text("id").primaryKey(),
+  canonicalName: text("canonical_name").notNull(),
+  type: text("type").notNull(),
+  confidence: real("confidence").notNull().default(1),
+  metadata: text("metadata", { mode: "json" })
+    .notNull()
+    .$type<Record<string, unknown>>(),
+  createdAt: text("created_at")
+    .notNull()
     .default(sql`(datetime('now'))`),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`(datetime('now'))`)
+});
+
+export const entityAliases = sqliteTable("entity_aliases", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  entityId: text("entity_id")
+    .notNull()
+    .references(() => entities.id),
+  alias: text("alias").notNull(),
+  type: text("type").notNull(),
+  source: text("source").notNull().default("resolution"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(datetime('now'))`)
+});
+
+export const entityLinks = sqliteTable("entity_links", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  sourceEntityId: text("source_entity_id")
+    .notNull()
+    .references(() => entities.id),
+  targetEntityId: text("target_entity_id")
+    .notNull()
+    .references(() => entities.id),
+  linkType: text("link_type").notNull(),
+  weight: real("weight").notNull().default(1.0),
+  source: text("source").notNull(),
+  metadata: text("metadata", { mode: "json" })
+    .notNull()
+    .$type<Record<string, unknown>>(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(datetime('now'))`)
 });
 
 // ─── Contracts ──────────────────────────────────────────────────────────

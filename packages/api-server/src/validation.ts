@@ -7,6 +7,8 @@
  */
 
 import { z } from 'zod';
+import { buildError, jsonResponse } from './response.js';
+import type { BuildContext } from './response.js';
 
 export type { z } from 'zod';
 
@@ -97,6 +99,7 @@ export type ContactInput = z.infer<typeof contactSchema>;
 /*  Validation Helpers                                                 */
 /* ------------------------------------------------------------------ */
 
+
 /**
  * Parses a request body against a Zod schema.
  * Returns a success object with `data` on success, or a failure object
@@ -125,9 +128,6 @@ export function validateBody<T extends z.ZodTypeAny>(
     issues,
   };
 }
-
-import { buildError, jsonResponse } from './response.js';
-import type { BuildContext } from './response.js';
 
 export function validationError(
   message: string,
