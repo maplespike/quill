@@ -26,6 +26,7 @@ Why is this needed? What user or agent need does it address?
 - [ ] AIDA-compliant audit trail
 - [ ] ROADMAP.md updated
 - [ ] docs/metrics.json updated
+- [ ] Solution uses configurable, long-term approaches (avoid hardcoded values where possible)
 
 ## Priority
 [P1 / P2 / P3]
