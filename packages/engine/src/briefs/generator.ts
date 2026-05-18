@@ -5,7 +5,7 @@
  * Each brief summarizes the most important patterns across all data sources.
  */
 
-import { generateId, nowISO } from "../sources/types";
+import { generateId, nowISO } from "../db/connection";
 import type { Brief, BriefSection } from "../types/brief";
 import type {
   Edge,
