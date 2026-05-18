@@ -201,6 +201,20 @@ body { padding-top: calc(22px + 64px); }
     <div class="stat-pill shimmer">&nbsp;</div>
     <div class="stat-pill shimmer">&nbsp;</div>
   </div>
+  <!-- ═══ Onboarding Checklist (shown to unverified tenants) ═══ -->
+  <div id="onboarding-card" class="spotlight-banner" style="display:none;">
+    <div class="sb-icon">🚀</div>
+    <div class="sb-body">
+      <div class="sb-title">Onboarding Progress</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;" id="onboarding-items"></div>
+      <div style="margin-top:10px;">
+        <div style="height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;">
+          <div id="onboarding-bar" style="height:100%;background:var(--accent);border-radius:3px;transition:width 0.5s ease;width:0%;"></div>
+        </div>
+        <span id="onboarding-pct" style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;display:block;">0% complete</span>
+      </div>
+    </div>
+  </div>
   <!-- ═══ Activity Feed (Terminal Log) ═══ -->
   <div class="section-head">
     <h2 data-i18n="dashboard.sections.activityFeed">📟 Activity Log</h2>
@@ -699,6 +713,36 @@ function renderActivity(activity) {
       links.classList.toggle('nav-open');
     });
   }
+})();
+
+// Onboarding checklist
+(function() {
+  var card = document.getElementById('onboarding-card');
+  var items = document.getElementById('onboarding-items');
+  var bar = document.getElementById('onboarding-bar');
+  var pct = document.getElementById('onboarding-pct');
+  if (!card) return;
+
+  fetch('/v1/onboarding', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('apiKey') || '') } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success && data.data && data.data.items) {
+        var d = data.data;
+        // Only show if not 100%
+        if (d.progress.percent < 100) {
+          card.style.display = '';
+          d.items.forEach(function(item) {
+            var el = document.createElement('div');
+            el.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:0.82rem;';
+            el.innerHTML = (item.done ? '✅' : '⬜') + ' <span>' + item.title + '</span>';
+            items.appendChild(el);
+          });
+          bar.style.width = d.progress.percent + '%';
+          pct.textContent = d.progress.percent + '% complete (' + d.progress.done + '/' + d.progress.total + ')';
+        }
+      }
+    })
+    .catch(function() { /* ignore — not authenticated */ });
 })();
 </script>
 </body>
