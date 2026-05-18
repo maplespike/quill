@@ -171,19 +171,6 @@ The Model Context Protocol is standardizing as the way AI agents consume tools. 
 
 ---
 
-## Known Issues
-
-| Issue | Workaround | Status |
-|-------|-----------|--------|
-| MCP integration tests (`packages/mcp-server`) require API server running on port 8082 | Start `node packages/api-server/dist/dev-server.js` in background before `pnpm test` | Expected — CI handles this |
-| Engine build fails without `@maplespike/database` | Ensure `pnpm install && pnpm build` runs from root (Turbo handles build order) | Resolved in PR #123 |
-| Portal has no dev server with HMR | Use `python3 -m http.server 4321` or `npx serve . -p 4321` — manual refresh needed | By design (static site) |
-| Garnix/flake.nix checks fail in CI (`Evaluate flake.nix`) | Not related to PR changes — pre-existing Nix build issue | Unresolved — NixOS maintainer needed |
-| `pnpm build` vs `pnpm -r build` difference | `pnpm build` uses Turbo (topological order); `pnpm -r build` builds all independently. CI uses `-r` | By design — see AGENTS.md |
-| `docs/metrics.json` is NOT auto-generated | Update manually when adding modules/tools | Known limitation |
-
----
-
 ## Need Help?
 
 - Open a [GitHub Issue](https://github.com/reverb256/maplespike/issues)
