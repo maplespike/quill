@@ -204,6 +204,16 @@ export async function handleRequest(
     return corsPreflight();
   }
 
+  // --- TLS redirect (defense-in-depth) ---
+  // If Caddy/ingress sets X-Forwarded-Proto, verify it's HTTPS
+  // 307 preserves the HTTP method and body through the redirect.
+  const forwardedProto = request.headers.get('X-Forwarded-Proto');
+  if (forwardedProto && forwardedProto !== 'https') {
+    const httpsUrl = new URL(request.url);
+    httpsUrl.protocol = 'https:';
+    return Response.redirect(httpsUrl.toString(), 307);
+  }
+
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
     const ctx: BuildContext = {
