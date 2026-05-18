@@ -194,6 +194,25 @@ export async function ingestLobbying(
       const ingested = await upsertLobbyingRecords(db, uniqueRecords);
       result.recordsIngested = ingested;
       log(`[Lobbying] Persisted ${ingested} lobbying records`);
+
+      // Also upsert to shared organizations table
+      const orgsSeen = new Set<string>();
+      for (const r of uniqueRecords.slice(0, 50)) { // limit to avoid excessive writes
+        // Upsert client as organization
+        if (r.clientName && !orgsSeen.has(r.clientName)) {
+          orgsSeen.add(r.clientName);
+          try {
+            upsertOrganization(r.clientName, { type: "other", source: "lobbying", rawData: { registrantName: r.registrantName } });
+          } catch { /* non-fatal */ }
+        }
+        // Upsert registrant as organization
+        if (r.registrantName && !orgsSeen.has(r.registrantName)) {
+          orgsSeen.add(r.registrantName);
+          try {
+            upsertOrganization(r.registrantName, { type: "lobbying_firm", source: "lobbying", rawData: { clientName: r.clientName } });
+          } catch { /* non-fatal */ }
+        }
+      }
     } else {
       // Dry-run mode — return records as structured data
       result.recordsIngested = uniqueRecords.length;
@@ -348,7 +367,46 @@ export async function ingestProcurement(
     if (db) {
       const ingested = await upsertContractAwards(db, awards);
       result.recordsIngested = ingested;
-      log(`[Procurement] Persisted ${ingested} contract award records`);
+
+      log(`[Procurement] Persisted ${ingested} contract awards`);
+
+      // Also upsert to shared tables
+      const orgsSeen = new Set<string>();
+      for (const award of awards.slice(0, 100)) { // limit to avoid excessive writes
+        // Upsert vendor as organization
+        if (award.vendorName && !orgsSeen.has(award.vendorName)) {
+          orgsSeen.add(award.vendorName);
+          try {
+            upsertOrganization(award.vendorName, { type: "other", source: "procurement" });
+          } catch { /* non-fatal */ }
+        }
+        // Upsert department as organization
+        if (award.department && !orgsSeen.has(award.department)) {
+          orgsSeen.add(award.department);
+          try {
+            upsertOrganization(award.department, { type: "government_agency", source: "procurement" });
+          } catch { /* non-fatal */ }
+        }
+        // Upsert contract
+        if (award.contractValue > 0 || award.description) {
+          try {
+            upsertContract(
+              award.id,
+              award.description ?? "Untitled contract",
+              award.description ?? "",
+              award.vendorName ?? "Unknown",
+              award.department ?? "Unknown",
+              award.contractValue,
+              {
+                startDate: award.startDate ?? undefined,
+                endDate: award.endDate ?? undefined,
+                isSoleSource: award.isSoleSource,
+                source: "procurement",
+              },
+            );
+          } catch { /* non-fatal */ }
+        }
+      }
     } else {
       result.recordsIngested = awards.length;
       result.records = awards;
