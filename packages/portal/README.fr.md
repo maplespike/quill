@@ -9,7 +9,7 @@ status: active
 
 Pages d'accueil SaaS, documentation, guide de configuration des agents IA et tableau de bord développeur pour l'API MapleSpike.
 
-**Statut :** Développement local (discret) — servi depuis le cluster K3s sur le réseau local. Sera déployé sur GitHub Pages lors du lancement public.
+**Statut :** Servi depuis le cluster K3s sur le réseau local. Le déploiement GitHub Pages est prévu pour le lancement public.
 
 ---
 
@@ -45,7 +45,8 @@ Site statique pur (HTML + CSS + JS). Aucune étape de construction requise.
 | Environnement | Plateforme | Statut |
 |-------------|-----------|--------|
 | **Développement** (actuel) | Cluster K3s (LAN) | Actif |
-| **Production** (futur) | GitHub Pages — workflow prêt dans `.github/workflows/deploy-portal.yml` | Prêt à activer |
+| **Production** (actuel) | Cluster K3s (nginx) — déploiement automatique via CI/CD | Actif |
+| **Futur** | GitHub Pages — workflow prêt dans `.github/workflows/deploy-portal.yml` | Planifié |
 
 ## Licence
 

@@ -16,7 +16,7 @@ MapleSpike is Canada's sovereign, AI-native government data pipeline. It wraps t
 
 One API key grants access to every major Canadian government dataset, packaged with machine-readable citations, provenance metadata, and trust scores.
 
-**Infrastructure:** Backend services (MCP, API, engine) on K3s cluster (nexus). Developer portal on GitHub Pages. No Cloudflare, no custom domain, no external cloud spend.
+**Infrastructure:** Backend services (MCP, API, engine) on K3s cluster (nexus). Developer portal on K3s cluster (nginx). No Cloudflare, no custom domain, no external cloud spend.
 
 ---
 
