@@ -19,6 +19,7 @@ import { parseGICAppointments, categorizeByDepartment, categorizeByBody } from '
 import { GIC_SOURCE_CONFIGS, GIC_SOURCES } from './constants.js';
 import type { GICAppointment, GICCategory, GICIngestionResult, RawGICRecord } from './types.js';
 import type { D1Database } from '../committees/db.js';
+import { upsertPerson, upsertOrganization } from '../../shared-db.js';
 
 
 /**
@@ -137,6 +138,32 @@ export async function ingestGIC(
           ).run();
 
           result.recordsIngested++;
+
+          // Also upsert to shared tables
+          try {
+            upsertPerson(appt.appointeeName, {
+              firstName: appt.appointeeName.split(" ")[0],
+              lastName: appt.appointeeName.split(" ").slice(1).join(" "),
+              source: "gic",
+              rawData: {
+                position: appt.positionTitle,
+                organization: appt.organization,
+                department: appt.department,
+                appointmentDate: appt.appointmentDate,
+                category: appt.category,
+              },
+            });
+          } catch { /* non-fatal */ }
+          try {
+            upsertOrganization(appt.organization, {
+              type: appt.category,
+              source: "gic",
+              rawData: {
+                acronym: appt.organizationAcronym,
+                department: appt.department,
+              },
+            });
+          } catch { /* non-fatal */ }
 
           // Track categories
           const cat = appt.category;
