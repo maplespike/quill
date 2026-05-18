@@ -6,12 +6,29 @@
 
 import type { Env } from './types.js';
 
+/** Curated AI model with priority for routing */
+export interface CuratedModel {
+  name: string;
+  priority: number;
+  endpoint: string;
+  gpu?: string;
+  local: boolean;
+}
+
+/** Default curated model list — configured via env var overrides */
+export const CURATED_MODELS: CuratedModel[] = [
+  { name: 'qwen3.5-27b', priority: 1, endpoint: '/v1/chat/completions', local: true },
+  { name: 'qwen3.6-moe-35b', priority: 2, endpoint: '/v1/chat/completions', gpu: 'gpu-0', local: true },
+  { name: 'llama-3.3-70b', priority: 3, endpoint: '/v1/chat/completions', local: false },
+];
+
 export interface AppConfig {
   version: string;
   name: string;
   environment: 'development' | 'production';
   aiEndpoint: string;
   aiModel: string;
+  curatedModels: CuratedModel[];
   jwtSecret: string;
 }
 
@@ -44,6 +61,7 @@ export function loadConfig(env: Env | Record<string, string | undefined>): AppCo
     environment: (env.ENVIRONMENT as 'development' | 'production') || 'development',
     aiEndpoint: env.AI_ENDPOINT as string || 'http://127.0.0.1:8080/v1',
     aiModel: env.AI_MODEL as string || 'qwen3.5-27b',
+    curatedModels: CURATED_MODELS,
     jwtSecret: jwtSecret || DEFAULT_JWT_SECRET,
   };
 }
