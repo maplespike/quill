@@ -124,12 +124,12 @@ jobs:
       - name: Apply K8s manifests
         run: |
           cd /etc/nixos
-          kubectl apply -f <(nix eval .#kubernetes.objects --json | jq -r '.[] | @yaml') || true
+           /run/current-system/sw/bin/kubectl apply -f <(nix eval .#kubernetes.objects --json | jq -r '.[] | @yaml') || true
 
       - name: Rollout dev deployments
         run: |
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-api
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp
+           /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-api
+           /run/current-system/sw/bin/kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp
           kubectl rollout restart deployment -n $NAMESPACE maplespike-portal
 
       - name: Wait for rollout
