@@ -559,7 +559,7 @@ Have some via oversight module. Missing:
 
 ### What we have: 65 modules (registered), ~61 independent ingestion pipelines
 
-Since this document's original writing, MapleSpike has expanded significantly. The "28 modules" baseline below
+Since this document's original writing (28 modules), MapleSpike has expanded to 65 modules. The "28 modules" baseline below
 reflects the pre-May-2026 state. Current coverage:
 
 - **65 modules** registered in `registry.ts` across 20 categories
@@ -591,7 +591,7 @@ reflects the pre-May-2026 state. Current coverage:
 
 ### The math for "every Canadian data source"
 
-This section reflects the **original baseline** of 28 modules. Current state is 65 modules.
+This section reflects the **original baseline** of 28 modules. Current state is **[65 modules](metrics.json)**.
 To go from 65 to genuinely comprehensive (~160 modules):
 
 | Phase | Modules | Work |
@@ -604,7 +604,7 @@ To go from 65 to genuinely comprehensive (~160 modules):
 
 ### The "truth" question
 
-**Original assessment (28 modules):** We cover maybe 35% of what's meaningfully available.
+**Original assessment (28 modules, now 65):** We cover maybe 35% (28-module baseline) of what's meaningfully available.
 
 **Current assessment (65 modules):** We cover the high-priority federal accountability data comprehensively (Parliament, lobbying, influence, oversight, immigration, indigenous, defence, transport, criminal justice). Still missing: deep provincial/municipal coverage, health data depth, and various tribunals. Estimated coverage: ~60-65% of high-value Canadian public data.
 
@@ -617,4 +617,4 @@ To go from 65 to genuinely comprehensive (~160 modules):
 
 ---
 
-*This gap analysis was generated 2026-05-13 based on audit of `/data/projects/own/maplespike/packages/pipeline-core/src/ingestion/` (28 module directories) and manual mapping of known Canadian public data sources across 20 sectors.*
+*This gap analysis was generated 2026-05-13 based on audit of `/data/projects/own/maplespike/packages/pipeline-core/src/ingestion/` (28 module directories at the time, now 65) and manual mapping of known Canadian public data sources across 20 sectors.*
