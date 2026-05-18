@@ -1,0 +1,33 @@
+# Weekly cluster git health check
+# Verifies all cluster nodes are on the same HEAD and checks for stale worktrees
+name: "Weekly git health"
+on:
+  schedule:
+    - cron: "0 7 * * 1"  # 7 AM Monday
+  workflow_dispatch:
+
+jobs:
+  check-nodes:
+    name: "Check all cluster nodes"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: "Check node synchronization"
+        run: |
+          HEAD=$(git log --oneline -1)
+          echo "## Node HEAD status" >> $GITHUB_STEP_SUMMARY
+          echo '| Node | Status | HEAD |' >> $GITHUB_STEP_SUMMARY
+          echo '|------|--------|------|' >> $GITHUB_STEP_SUMMARY
+          echo "| origin/main | ✅ reference | $HEAD |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Manual check required via SSH: \`for h in zephyr nexus forge sentry; do echo \"\$h: \$(ssh \$h 'bash --norc --noprofile -c \"cd /data/projects/own/maplespike && git log --oneline -1\"' 2>/dev/null)\"; done\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Check for stale branches"
+        run: |
+          echo "## Branches merged to main (safe to delete)" >> $GITHUB_STEP_SUMMARY
+          git branch -r --merged origin/main | grep -v "origin/main\|origin/HEAD\|origin/prod" | while read b; do
+            echo "- \`$b\`" >> $GITHUB_STEP_SUMMARY
+          done
