@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora ASCII — MapleSpike</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;overflow:hidden;height:100vh;user-select:none;cursor:crosshair}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.overlay{position:fixed;inset:0;z-index:1;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.overlay h1{font-size:3.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;background:linear-gradient(180deg,rgba(255,255,255,0.9)0%,rgba(194,48,48,0.6)60%,transparent 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.overlay p{font-size:.95rem;color:rgba(255,255,255,.4);max-width:440px;line-height:1.5}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="overlay">
+  <h1>MapleSpike</h1>
+  <p>Canadian government data infrastructure</p>
+</div>
+<script>
+// ─── Canvas ──────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+
+// ─── Config ──────────────────────────────────────────────────
+const COLS = 160, ROWS = 64;
+const CHAR_W = () => W / COLS;
+const CHAR_H = () => H / ROWS;
+const RAMP = '█▓▒░@*o· ';
+const cellX = new Float64Array(COLS);
+const cellY = new Float64Array(ROWS);
+
+function recalcCells() {
+  for (let c = 0; c < COLS; c++) cellX[c] = (c + 0.5) / COLS * W;
+  for (let r = 0; r < ROWS; r++) cellY[r] = (r + 0.8) / ROWS * H;
+}
+recalcCells();
+window.addEventListener('resize', recalcCells);
+
+// ─── Mouse ───────────────────────────────────────────────────
+const mouse = { x: -9999, y: -9999, active: false };
+document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
+document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; mouse.active = false; });
+
+// ─── Palette: vibrant aurora ────────────────────────────────
+const PAL = [
+  [80,  230, 120],  // green
+  [50,  220, 180],  // teal
+  [30,  190, 250],  // cyan
+  [70,  140, 255],  // blue
+  [150, 110, 240],  // purple
+  [230, 90,  200],  // magenta
+  [255, 100, 130],  // pink
+  [200, 255, 150],  // lime
+];
+
+// ─── 1D value noise (fast, deterministic) ──────────────────
+function hash01(i) { const x = (i * 2654435761) | 0; return ((x ^ (x >> 16)) & 0x7fffffff) / 0x7fffffff; }
+
+// ─── Curtain layer ──────────────────────────────────────────
+// Each curtain is a sharp fold, not a smooth wave.
+// Using atan(s * sin(...)) to create sharp creases.
+const curtains = [];
+for (let i = 0; i < 8; i++) {
+  const seed = i * 7 + 13;
+  curtains.push({
+    speed:     0.25 + hash01(seed) * 0.5,       // fast: 0.25–0.75
+    foldedness: 1.5 + hash01(seed + 1) * 4.0,     // 1.5–5.5 (sharpness of folds)
+    amp:        20 + hash01(seed + 2) * 40,        // 20–60
+    yBase:      0.15 + hash01(seed + 3) * 0.70,    // vertical position (fraction of H)
+    width:      0.08 + hash01(seed + 4) * 0.14,    // curtain thickness
+    palOff:     (seed * 3) & 7,
+    opacity:    0.20 + hash01(seed + 5) * 0.35,
+    phaseX:     hash01(seed + 6) * 100,
+    // Per-column ray phase
+    rayPhase:   hash01(seed + 7) * 6.28,
+    // Wave composition weights (sum to 1)
+    w1:         0.2 + hash01(seed + 8) * 0.6,
+    w2:         0.2 + hash01(seed + 9) * 0.5,
+    w3:         0.1 + hash01(seed + 10) * 0.3,
+    // Sub-frequencies
+    f1:         0.0004 + hash01(seed + 11) * 0.0012,
+    f2:         0.0006 + hash01(seed + 12) * 0.0020,
+    f3:         0.0010 + hash01(seed + 13) * 0.0030,
+  });
+}
+
+// ─── Stars ──────────────────────────────────────────────────
+const stars = [];
+for (let i = 0; i < 120; i++) {
+  stars.push({
+    x: Math.random() * W, y: Math.random() * H * 0.5,
+    s: 2 + Math.random() * 6, p: Math.random() * 6.28, r: 0.3 + Math.random() * 0.8,
+  });
+}
+
+// ─── FPS ────────────────────────────────────────────────────
+const fpsSamples = [];
+let fpsDisplay = 0;
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════════
+
+// Reusable typed arrays (frame scratch)
+const waveBuf = new Float64Array(COLS);
+const chGrid  = new Uint8Array(COLS * ROWS);     // ramp index
+const rGrid   = new Uint8Array(COLS * ROWS);
+const gGrid   = new Uint8Array(COLS * ROWS);
+const bGrid   = new Uint8Array(COLS * ROWS);
+const aGrid   = new Float32Array(COLS * ROWS);
+
+function frame(now) {
+  const t = now / 1000;
+
+  // ── Clear buffers ──
+  aGrid.fill(0);
+  chGrid.fill(RAMP.length - 1);
+
+  // ── Compose curtains ──
+  for (let ci = 0; ci < curtains.length; ci++) {
+    const c = curtains[ci];
+    const cw = c.speed * t;
+
+    // Pre-compute wave for this curtain across all columns
+    // Using atan-compressed sum-of-sines for sharp folds
+    for (let xc = 0; xc < COLS; xc++) {
+      const x = cellX[xc];
+      const s1 = Math.sin(x * c.f1 + cw);
+      const s2 = Math.sin(x * c.f2 + cw * 0.9 + c.phaseX);
+      const s3 = Math.sin(x * c.f3 + cw * 0.7 + c.phaseX * 2);
+      const sum = s1 * c.w1 + s2 * c.w2 + s3 * c.w3;
+      // atan compresses into sharp folds; gain controls sharpness
+      const sharp = Math.atan(c.foldedness * sum) / (Math.PI / 2);
+      waveBuf[xc] = sharp * c.amp;
+    }
+
+    const yBasePx  = c.yBase * H;
+    const halfSpan = c.amp * c.width * 25;
+    const bandSpeed = cw * 0.08;
+
+    for (let r = 0; r < ROWS; r++) {
+      const y = cellY[r];
+      const rowOff = r * COLS;
+      const dy = y - yBasePx;
+
+      // Quick reject — skip rows far from this curtain
+      if (Math.abs(dy) > halfSpan + c.amp + 30) continue;
+
+      for (let xc = 0; xc < COLS; xc++) {
+        const idx = rowOff + xc;
+        const x = cellX[xc];
+        const wave = waveBuf[xc];
+
+        // Vertical distance from curtain surface
+        const dist = dy - wave;
+        const norm = dist / halfSpan;
+        if (Math.abs(norm) >= 1) continue;
+
+        // Asymmetric fade: steeper above, softer below (real aurora)
+        const fade = norm < 0
+          ? 1 - Math.abs(norm * norm * norm * 4)   // sharp above
+          : 1 - Math.abs(norm * 1.5);                // softer below
+        if (fade < 0.005) continue;
+
+        // ── Mouse warp ──
+        let finalFade = fade;
+        if (mouse.active) {
+          const dx = x - mouse.x;
+          const dy2 = y - mouse.y;
+          const md = Math.sqrt(dx * dx + dy2 * dy2);
+          if (md < 160) {
+            const mf = Math.max(0, 1 - md / 160);
+            const warpWave = wave + mf * 45 * Math.sin(cw * 0.4 + x * 0.004);
+            const d2 = dy - warpWave;
+            const n2 = d2 / halfSpan;
+            if (Math.abs(n2) < 1) finalFade = n2 < 0
+              ? 1 - Math.abs(n2 * n2 * n2 * 4)
+              : 1 - Math.abs(n2 * 1.5);
+            else continue;
+          }
+        }
+
+        // Color band (horizontal, with per-curtain offset)
+        const band = ((x * 0.006 + bandSpeed + c.palOff) | 0) & 7;
+        const [pr, pg, pb] = PAL[band];
+
+        // Shimmer + vertical ray structure
+        const ray = 0.7 + 0.3 * Math.sin(x * 0.04 + r * 0.2 + c.rayPhase + cw * 0.5);
+        const shimmer = 0.5 + 0.5 * Math.sin(x * 0.01 + cw * 0.15);
+        const intensity = Math.min(1, finalFade * shimmer * ray * 1.6);
+
+        // Ramp index (0 = dense)
+        const ci = Math.min(RAMP.length - 1, Math.floor((1 - intensity) * (RAMP.length - 1)));
+        const lAlpha = c.opacity * intensity;
+
+        // Highest-contribution-wins compositing
+        if (lAlpha > aGrid[idx]) {
+          aGrid[idx] = lAlpha;
+          rGrid[idx] = pr;
+          gGrid[idx] = pg;
+          bGrid[idx] = pb;
+          chGrid[idx] = ci;
+        }
+      }
+    }
+  }
+
+  // ── Render ASCII (row-based color grouping) ──
+  ctx.clearRect(0, 0, W, H);
+  const fs = Math.min(W / COLS, H / ROWS) + 1;
+  ctx.font = `${fs}px monospace`;
+  ctx.textBaseline = 'bottom';
+
+  for (let r = 0; r < ROWS; r++) {
+    const rowOff = r * COLS;
+    let c = 0;
+    while (c < COLS) {
+      const idx = rowOff + c;
+      const ri = rGrid[idx], gi = gGrid[idx], bi = bGrid[idx], ai = aGrid[idx];
+
+      // Find color run
+      let end = c + 1;
+      while (end < COLS) {
+        const eidx = rowOff + end;
+        if (rGrid[eidx] !== ri || gGrid[eidx] !== gi || bGrid[eidx] !== bi || aGrid[eidx] !== ai) break;
+        end++;
+      }
+
+      // Build segment string
+      let seg = '';
+      for (let s = c; s < end; s++) seg += RAMP[chGrid[rowOff + s]];
+      ctx.fillStyle = `rgba(${ri},${gi},${bi},${ai})`;
+      ctx.fillText(seg, c * (W / COLS), (r + 1) * (H / ROWS));
+      c = end;
+    }
+  }
+
+  // ── Stars ──
+  for (const s of stars) {
+    const tw = 0.5 + 0.5 * Math.sin(t * s.r + s.p);
+    ctx.font = `${s.s}px monospace`;
+    ctx.fillStyle = `rgba(160,190,220,${tw * 0.20})`;
+    ctx.fillText('·', s.x, s.y);
+  }
+
+  // ── Cursor glow ──
+  if (mouse.active) {
+    const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 170);
+    g.addColorStop(0, 'rgba(60,180,200,0.03)');
+    g.addColorStop(1, 'rgba(60,180,200,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // ── FPS ──
+  fpsSamples.push(now);
+  while (fpsSamples.length > 30) fpsSamples.shift();
+  if (fpsSamples.length >= 2) {
+    const dtMs = (fpsSamples[fpsSamples.length - 1] - fpsSamples[0]) / (fpsSamples.length - 1);
+    fpsDisplay = dtMs > 0 ? (1000 / dtMs) | 0 : 0;
+  }
+  ctx.textBaseline = 'top';
+  ctx.textAlign = 'right';
+  ctx.font = '10px monospace';
+  ctx.fillStyle = 'rgba(150,180,200,0.12)';
+  ctx.fillText(`${fpsDisplay}fps`, W - 10, 8);
+  ctx.textAlign = 'start';
+
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

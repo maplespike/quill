@@ -1,0 +1,218 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SignupForm from "@/components/SignupForm";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const features = [
+  {
+    title: "65+ Data Modules",
+    description: "Access all Canadian federal, provincial, territorial, and municipal government data through a single API.",
+    icon: "database",
+  },
+  {
+    title: "Verified Citations",
+    description: "Every data point includes SHA-256 citation hashes for independent verification and audit trails.",
+    icon: "shield",
+  },
+  {
+    title: "24 MCP Tools",
+    description: "Model Context Protocol tools for AI agents — committees, lobbying, court decisions, and more.",
+    icon: "cpu",
+  },
+  {
+    title: "TypeScript & Python SDKs",
+    description: "Typed client libraries for TypeScript (@maplespike/sdk) and Python (maplespike) with full documentation.",
+    icon: "code",
+  },
+  {
+    title: "Real-Time Data",
+    description: "Live data from official government APIs, RSS feeds, CKAN portals, and XML dumps — updated continuously.",
+    icon: "clock",
+  },
+  {
+    title: "OpenAPI Spec",
+    description: "Full OpenAPI 3.1 specification at /v1/openapi.json for code generation and API exploration.",
+    icon: "file",
+  },
+];
+
+const iconPaths: Record<string, string> = {
+  database: "M4 7v4c0 2 8 3 20 3s20-1 20-3V7M4 11v4c0 2 8 3 20 3s20-1 20-3v-4",
+  shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10",
+  cpu: "M9 3v2M15 3v2M5 8h2M5 14h2M17 8h2M17 14h2M9 19v2M15 19v2M5 5l2 2M17 5l2 2M5 17l2-2M17 17l2-2M10 9h4v6h-4z",
+  code: "M16 18l6-6-6-6M8 6l-6 6 6 6",
+  clock: "M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2M12 6v6l4 2",
+  file: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
+};
+---
+
+<BaseLayout
+  title="Sign Up for API Access"
+  description="Get your free MapleSpike API key. Access all Canadian government data through a single API. 1,000 calls/month free, no credit card required."
+>
+  <!-- Hero -->
+  <section class="border-b py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          Get your free <span class="text-primary">API key</span>
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
+          1,000 calls per month free. No credit card required. Access all Canadian government data —
+          federal, provincial, territorial, and municipal — through a single, unified API.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-6">
+          <Badge variant="secondary" class="text-xs">65+ Data Modules</Badge>
+          <Badge variant="secondary" class="text-xs">24 MCP Tools</Badge>
+          <Badge variant="secondary" class="text-xs">SHA-256 Citations</Badge>
+          <Badge variant="secondary" class="text-xs">TypeScript & Python SDKs</Badge>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features grid + Signup form -->
+  <section class="py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+        <!-- Left: Features -->
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight mb-8">Everything you get</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {features.map((feature) => (
+              <Card key={feature.title} class="hover:border-primary/50 transition-colors">
+                <CardHeader class="p-4">
+                  <div class="flex items-start gap-3">
+                    <div class="shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="text-primary"
+                      >
+                        <path d={iconPaths[feature.icon]} />
+                      </svg>
+                    </div>
+                    <div>
+                      <CardTitle class="text-sm font-semibold">{feature.title}</CardTitle>
+                      <CardDescription class="text-xs mt-1">{feature.description}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <!-- Right: Signup form -->
+        <div>
+          <SignupForm client:load />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing comparison -->
+  <section class="border-t py-16 md:py-24">
+    <div class="container mx-auto px-4 max-w-5xl">
+      <h2 class="text-2xl font-bold tracking-tight mb-8 text-center">Choose your plan</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg">Free</CardTitle>
+            <CardDescription>For exploration and prototyping</CardDescription>
+            <p class="text-3xl font-bold mt-4">
+              $0
+              <span class="text-sm font-normal text-muted-foreground">/month</span>
+            </p>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">1,000 API calls/month</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">30 req/min rate limit</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">Basic data access</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card class="border-primary/50 relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+            <Badge>BEST VALUE</Badge>
+          </div>
+          <CardHeader>
+            <CardTitle class="text-lg">Pro</CardTitle>
+            <CardDescription>For researchers and journalists</CardDescription>
+            <p class="text-3xl font-bold mt-4">
+              $49
+              <span class="text-sm font-normal text-muted-foreground">/month</span>
+            </p>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">50,000 API calls/month</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">120 req/min rate limit</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">Full data access + MCP tools</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">Priority support</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg">Enterprise</CardTitle>
+            <CardDescription>For organizations and teams</CardDescription>
+            <p class="text-3xl font-bold mt-4">
+              Custom
+              <span class="text-sm font-normal text-muted-foreground">/month</span>
+            </p>
+          </CardHeader>
+          <CardContent class="space-y-3">
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">Unlimited API calls</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">Custom rate limits</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">Dedicated support</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              <span class="text-muted-foreground">On-premise deployment</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <p class="text-center text-sm text-muted-foreground mt-8">
+        All plans include SHA-256 verified citations, OpenAPI specification, and access to our TypeScript and Python SDKs.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

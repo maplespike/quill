@@ -1,0 +1,276 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+---
+
+<BaseLayout title="API Explorer" description="Test MapleSpike API endpoints, view OpenAPI spec, and run live queries against Canadian government data.">
+  <!-- Hero -->
+  <section class="border-b py-16 md:py-20">
+    <div class="container mx-auto px-4 text-center">
+      <Badge variant="outline" class="mb-4">Developer playground</Badge>
+      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+        API&nbsp;<span class="text-primary">Explorer</span>
+      </h1>
+      <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+        Test endpoints, inspect responses, and explore the MapleSpike API. All requests go directly
+        against the live API.
+      </p>
+    </div>
+  </section>
+
+  <!-- API Playground -->
+  <section class="py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <!-- API Key & Endpoint -->
+      <div class="grid gap-6 md:grid-cols-3 mb-8">
+        <Card class="md:col-span-2">
+          <CardHeader>
+            <CardTitle class="text-lg">Endpoint</CardTitle>
+            <CardDescription>Enter API endpoint path relative to base URL</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="flex items-center gap-2">
+              <Badge variant="secondary" class="font-mono text-xs shrink-0" id="method-badge">GET</Badge>
+              <Input
+                type="text"
+                id="api-endpoint"
+                placeholder="/v1/gov/search?query=housing&limit=5"
+                class="font-mono text-sm flex-1"
+              />
+              <Button id="send-request-btn">Send</Button>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-lg">API Key</CardTitle>
+            <CardDescription>Your authentication key</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input type="password" id="api-key-input" placeholder="mp_..." class="font-mono text-sm" />
+            <p class="text-xs text-muted-foreground mt-2">
+              Saved locally. <a href="/workspace" class="text-primary hover:underline">Get a key →</a>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Method & Body -->
+      <div class="w-full mb-8 api-explorer-tabs" id="api-explorer-tabs-root">
+        <div class="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground mb-4">
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground shadow-sm" data-tab="get">GET</button>
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground hover:text-foreground" data-tab="post">POST</button>
+        </div>
+        <div class="tab-panel" data-tab="get">
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-lg">Query Parameters</CardTitle>
+              <CardDescription>Add URL query parameters</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div class="space-y-3" id="get-params">
+                <div class="flex items-center gap-2">
+                  <Input placeholder="Parameter name" class="w-48 font-mono text-sm" />
+                  <Input placeholder="Value" class="flex-1 font-mono text-sm" />
+                  <Button variant="ghost" size="sm">×</Button>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" class="mt-3">+ Add parameter</Button>
+            </CardContent>
+          </Card>
+        </div>
+        <div class="tab-panel hidden" data-tab="post">
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-lg">Request Body</CardTitle>
+              <CardDescription>JSON payload for POST endpoints</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <textarea
+                id="request-body"
+                class="flex min-h-[160px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                placeholder='{"query": "lobbying", "limit": 10}'
+              ></textarea>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <!-- Response -->
+      <Card class="mb-8">
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle class="text-lg">Response</CardTitle>
+              <CardDescription>API response will appear here</CardDescription>
+            </div>
+            <div class="flex items-center gap-2" id="response-status">
+              <Badge variant="outline" class="font-mono text-xs hidden" id="status-code">200</Badge>
+              <span class="text-xs text-muted-foreground hidden" id="response-time"></span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <pre
+            id="response-body"
+            class="overflow-auto rounded-lg border bg-muted/50 p-4 font-mono text-xs leading-relaxed max-h-96"
+          ><code class="text-muted-foreground">// Send a request to see the response here</code></pre>
+        </CardContent>
+      </Card>
+
+      <!-- Sample Requests -->
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">Sample Requests</CardTitle>
+          <CardDescription>Quick-start examples to copy and run</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div class="space-y-4">
+            <div class="rounded-lg border bg-muted/30 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium">Search government data</span>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code='curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"'>Copy</Button>
+              </div>
+              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"</code></pre>
+            </div>
+            <div class="rounded-lg border bg-muted/30 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium">Health check</span>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/health">Copy</Button>
+              </div>
+              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.ca/v1/health</code></pre>
+            </div>
+            <div class="rounded-lg border bg-muted/30 p-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium">Get data sources</span>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/sources">Copy</Button>
+              </div>
+              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.ca/v1/sources</code></pre>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const sendBtn = document.getElementById("send-request-btn");
+      const endpointInput = document.getElementById("api-endpoint");
+      const apiKeyInput = document.getElementById("api-key-input");
+      const responseBody = document.getElementById("response-body");
+      const statusCode = document.getElementById("status-code");
+      const responseTime = document.getElementById("response-time");
+      const methodBadge = document.getElementById("method-badge");
+
+      // Restore saved API key
+      const savedKey = localStorage.getItem("maplespike-api-key");
+      if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
+
+      if (apiKeyInput) {
+        apiKeyInput.addEventListener("input", function () {
+          localStorage.setItem("maplespike-api-key", this.value);
+        });
+      }
+
+      // Tab switching
+      document.querySelectorAll("[data-tab]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var tab = this.getAttribute("data-tab");
+          document.querySelectorAll("[data-tab]").forEach(function (b) {
+            b.className =
+              "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 " +
+              (b === btn
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground");
+          });
+          document.querySelectorAll(".tab-panel").forEach(function (p) {
+            p.classList.toggle("hidden", p.getAttribute("data-tab") !== tab);
+          });
+          if (methodBadge) methodBadge.textContent = tab.toUpperCase();
+        });
+      });
+
+      // Send request
+      if (sendBtn && endpointInput) {
+        sendBtn.addEventListener("click", async function () {
+          const cfg = window.MAPLESPIKE || {};
+          const base = cfg.apiBase || "http://127.0.0.1:8082";
+          const endpoint = endpointInput.value.trim();
+          if (!endpoint) return;
+
+          const key = apiKeyInput ? apiKeyInput.value.trim() : "";
+          const isPost = methodBadge?.textContent === "POST";
+
+          responseBody.innerHTML = `<code class="text-muted-foreground">Loading...</code>`;
+          statusCode.classList.add("hidden");
+          responseTime.classList.add("hidden");
+
+          const url = base + (endpoint.startsWith("/") ? endpoint : "/" + endpoint);
+          const start = performance.now();
+
+          try {
+            const headers = { "Content-Type": "application/json" };
+            if (key) headers["Authorization"] = "Bearer " + key;
+
+            const options = { method: isPost ? "POST" : "GET", headers };
+            if (isPost) {
+              const bodyEl = document.getElementById("request-body");
+              options.body = bodyEl ? bodyEl.value : "{}";
+            }
+
+            const resp = await fetch(url, options);
+            const elapsed = Math.round(performance.now() - start);
+            const text = await resp.text();
+
+            // Try to pretty-print JSON
+            let display = text;
+            try {
+              display = JSON.stringify(JSON.parse(text), null, 2);
+            } catch (_) {}
+
+            responseBody.innerHTML = `<code>${escapeHtml(display)}</code>`;
+            statusCode.textContent = resp.status + " " + resp.statusText;
+            statusCode.className =
+              "font-mono text-xs " +
+              (resp.status < 400
+                ? "bg-green-500/10 text-green-600 border-green-500/20"
+                : "bg-destructive/10 text-destructive border-destructive/20");
+            statusCode.classList.remove("hidden");
+            responseTime.textContent = elapsed + "ms";
+            responseTime.classList.remove("hidden");
+          } catch (e) {
+            responseBody.innerHTML = `<code class="text-destructive">Error: ${escapeHtml(e.message)}</code>`;
+          }
+        });
+      }
+
+      // Copy sample requests
+      document.querySelectorAll(".copy-sample").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const code = this.getAttribute("data-code");
+          if (code) {
+            navigator.clipboard.writeText(code).then(function () {
+              const orig = this.textContent;
+              this.textContent = "Copied!";
+              setTimeout(() => {
+                this.textContent = orig;
+              }, 2000);
+            }.bind(this));
+          }
+        });
+      });
+
+      function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    })();
+  </script>
+</BaseLayout>

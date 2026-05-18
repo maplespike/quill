@@ -1,0 +1,314 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const tiers = [
+  {
+    name: "Free",
+    price: "$0",
+    period: "/mo",
+    description: "For individual researchers and hobbyists exploring Canadian government data.",
+    badge: "Starter",
+    badgeVariant: "outline" as const,
+    features: [
+      "1,000 API calls per month",
+      "Access to all 65 data modules",
+      "7-day historical data window",
+      "REST API access (rate-limited)",
+      "Community Discord support",
+      "LLM-friendly /llms.txt discovery",
+    ],
+    cta: "Get Started",
+    href: "/signup",
+    highlighted: false,
+  },
+  {
+    name: "Pro",
+    price: "$99",
+    period: "/mo",
+    description: "For journalists, analysts, and teams who need real-time government intelligence.",
+    badge: "Popular",
+    badgeVariant: "default" as const,
+    features: [
+      "100,000 API calls per month",
+      "Real-time signal detection via engine",
+      "Full historical data access (all years)",
+      "MCP server integration for AI agents",
+      "Priority support with 4hr response SLA",
+      "SDK access (TypeScript + Python)",
+      "SHA-256 citation verification on all records",
+    ],
+    cta: "Start Free Trial",
+    href: "/signup?plan=pro",
+    highlighted: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    description: "For government departments, media organizations, and large-scale compliance teams.",
+    badge: "Enterprise",
+    badgeVariant: "secondary" as const,
+    features: [
+      "Unlimited API calls",
+      "Dedicated ingestion pipeline configuration",
+      "On-premise K3s deployment option",
+      "Custom data module development",
+      "99.95% uptime SLA with dedicated support",
+      "SSO/SAML authentication",
+      "White-label portal option",
+      "Quarterly strategy reviews",
+    ],
+    cta: "Contact Sales",
+    href: "/contact",
+    highlighted: false,
+  },
+];
+
+const allFeatures = [
+  "Data modules",
+  "API calls",
+  "Historical access",
+  "Real-time signals",
+  "SDK access",
+  "Support",
+  "SLA",
+  "SHA-256 citations",
+];
+const featureValues: Record<string, (string | boolean)[]> = {
+  "Data modules": ["65 modules", "65 modules", "65 + custom"],
+  "API calls": ["1,000/mo", "100,000/mo", "Unlimited"],
+  "Historical access": ["7 days", "Full", "Full"],
+  "Real-time signals": [false, true, true],
+  "SDK access": [false, "TS + Python", "TS + Python"],
+  "Support": ["Community", "Priority 4hr", "Dedicated"],
+  "SLA": [false, "99.9%", "99.95%"],
+  "SHA-256 citations": [true, true, true],
+};
+---
+
+<BaseLayout title="Pricing">
+  <!-- Hero -->
+  <section class="border-b py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center">
+      <Badge variant="outline" class="mb-4">Simple, transparent pricing</Badge>
+      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+        Pricing for every&nbsp;scale
+      </h1>
+      <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+        From solo researchers to enterprise government intelligence teams — access Canada's
+        unified data layer at a plan that fits.
+      </p>
+    </div>
+  </section>
+
+  <!-- Pricing Cards -->
+  <section class="py-16 md:py-20">
+    <div class="container mx-auto px-4">
+      <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
+        {tiers.map((tier) => (
+          <Card
+            class={cn(
+              "relative flex flex-col transition-shadow hover:shadow-md",
+              tier.highlighted &&
+                "border-primary/50 ring-1 ring-primary/20 shadow-primary/5 shadow-lg"
+            )}
+          >
+            {tier.highlighted && (
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge variant="default" class="px-4 py-1 text-xs">
+                  Most Popular
+                </Badge>
+              </div>
+            )}
+            <CardHeader>
+              <div class="flex items-center justify-between">
+                <CardTitle class="text-xl">{tier.name}</CardTitle>
+                <Badge variant={tier.badgeVariant}>{tier.badge}</Badge>
+              </div>
+              <div class="mt-2">
+                <span class="text-4xl font-bold">{tier.price}</span>
+                {tier.period && (
+                  <span class="text-sm text-muted-foreground">{tier.period}</span>
+                )}
+              </div>
+              <CardDescription class="mt-2">{tier.description}</CardDescription>
+            </CardHeader>
+            <CardContent class="flex-1">
+              <ul class="space-y-3">
+                {tier.features.map((feature) => (
+                  <li class="flex items-start gap-2 text-sm">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="mt-0.5 shrink-0 text-primary"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <a href={tier.href} class="w-full">
+                <Button
+                  variant={tier.highlighted ? "default" : "outline"}
+                  class="w-full"
+                >
+                  {tier.cta}
+                </Button>
+              </a>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Comparison Table -->
+  <section class="border-t py-16 md:py-20">
+    <div class="container mx-auto px-4">
+      <h2 class="mb-12 text-center text-3xl font-bold">Full feature comparison</h2>
+      <div class="mx-auto max-w-4xl overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b">
+              <th class="py-4 pr-8 text-left font-medium text-muted-foreground">Feature</th>
+              {tiers.map((tier) => (
+                <th class="py-4 px-6 text-center font-medium">
+                  {tier.name}
+                  {tier.name === "Pro" && (
+                    <Badge variant="default" class="ml-2 text-xs">Popular</Badge>
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {allFeatures.map((feature) => (
+              <tr class="border-b last:border-0">
+                <td class="py-4 pr-8 text-left font-medium">{feature}</td>
+                {featureValues[feature].map((value) => (
+                  <td class="py-4 px-6 text-center">
+                    {typeof value === "boolean" ? (
+                      value ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="mx-auto text-primary"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="mx-auto text-muted-foreground/40"
+                        >
+                          <line x1="18" x2="6" y1="6" y2="18" />
+                          <line x1="6" x2="18" y1="6" y2="18" />
+                        </svg>
+                      )
+                    ) : (
+                      <span class="text-sm">{value}</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-12 text-center">
+        <p class="mb-4 text-sm text-muted-foreground">
+          All plans include OGL-C compliant data attribution and SHA-256 citation verification.
+        </p>
+        <p class="text-sm text-muted-foreground">
+          Need something different?{" "}
+          <a href="/contact" class="text-primary hover:underline">Contact our team</a>
+          {" "}for custom pricing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t py-16 md:py-20">
+    <div class="container mx-auto px-4">
+      <h2 class="mb-12 text-center text-3xl font-bold">Frequently asked questions</h2>
+      <div class="mx-auto grid max-w-3xl gap-8 md:grid-cols-2">
+        <div>
+          <h3 class="mb-2 font-semibold">Can I switch plans anytime?</h3>
+          <p class="text-sm text-muted-foreground">
+            Yes. Upgrade or downgrade at any time. Changes take effect on your next billing cycle.
+          </p>
+        </div>
+        <div>
+          <h3 class="mb-2 font-semibold">Is there a free trial for Pro?</h3>
+          <p class="text-sm text-muted-foreground">
+            Absolutely. 14-day free trial with full Pro access. No credit card required.
+          </p>
+        </div>
+        <div>
+          <h3 class="mb-2 font-semibold">What data modules are included?</h3>
+          <p class="text-sm text-muted-foreground">
+            All 65 modules across federal, provincial, municipal, corporate, legal, and regulatory
+            sources are available on every plan.
+          </p>
+        </div>
+        <div>
+          <h3 class="mb-2 font-semibold">Do you offer academic pricing?</h3>
+          <p class="text-sm text-muted-foreground">
+            Yes. Contact us with your institution details for a 50% academic discount on Pro.
+          </p>
+        </div>
+        <div>
+          <h3 class="mb-2 font-semibold">How does SHA-256 citation work?</h3>
+          <p class="text-sm text-muted-foreground">
+            Every record includes a content hash and source provenance URL, enabling independent
+            verification of data integrity.
+          </p>
+        </div>
+        <div>
+          <h3 class="mb-2 font-semibold">What payment methods do you accept?</h3>
+          <p class="text-sm text-muted-foreground">
+            Credit card, Interac e-Transfer (Canada), and cryptocurrency (BTC/ETH) for annual plans.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
