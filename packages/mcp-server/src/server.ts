@@ -37,6 +37,58 @@ function log(level: 'info' | 'warn' | 'error', msg: string, ...args: unknown[]) 
   console.error(`[maplespike-mcp] ${level}: ${msg}`, ...args.map(a => typeof a === 'string' ? a : JSON.stringify(a)));
 }
 
+// ─── Output Sanitization ─────────────────────────────────────────────────
+// OWASP LLM07: Insecure Output Handling — strip dangerous content before
+// returning tool results to MCP clients (AI agents).
+
+function sanitizeString(val: string): string {
+  let s = val;
+  // Remove <script> and </script> tags (case-insensitive)
+  s = s.replace(/<script\b[^>]*>/gi, '');
+  s = s.replace(/<\/script\s*>/gi, '');
+  // Remove javascript: protocol from URLs
+  s = s.replace(/\bjavascript\s*:/gi, '');
+  // Remove data: protocol from URLs (unless a known safe image type)
+  s = s.replace(/\bdata:(?!image\/(?:png|jpe?g|gif|webp|svg\+xml))/gi, '');
+  // Truncate to 100,000 chars max
+  if (s.length > 100000) {
+    s = s.slice(0, 100000);
+  }
+  return s;
+}
+
+function sanitizeValue(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return sanitizeString(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(v => sanitizeValue(v));
+  }
+  if (value !== null && typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [key, v] of Object.entries(value as Record<string, unknown>)) {
+      result[key] = sanitizeValue(v);
+    }
+    return result;
+  }
+  return value;
+}
+
+function sanitizeOutput(response: ToolResponse): ToolResponse {
+  const content = response.content;
+  let sanitized: ToolResponse['content'];
+
+  if (typeof content === 'string') {
+    sanitized = sanitizeString(content);
+  } else if (Array.isArray(content)) {
+    sanitized = content.map(item => sanitizeValue(item)) as Record<string, unknown>[];
+  } else {
+    sanitized = sanitizeValue(content ?? {}) as Record<string, unknown>;
+  }
+
+  return { ...response, content: sanitized };
+}
+
 // ─── MCP Server ─────────────────────────────────────────────────────────
 
 export class McpServer {
@@ -177,9 +229,20 @@ export class McpServer {
       return;
     }
 
+    // Validate arguments against the tool's inputSchema
+    const validationErrors = validateToolArgs(args, tool.definition.inputSchema);
+    if (validationErrors.length > 0) {
+      send(this.result(id ?? null, {
+        content: [{ type: 'text', text: validationErrors.join('\n') }],
+        isError: true,
+      }));
+      return;
+    }
+
     // Run handler; catch sync and async errors
     try {
-      const result: ToolResponse = await tool.handler(args);
+      const rawResult: ToolResponse = await tool.handler(args);
+      const result: ToolResponse = sanitizeOutput(rawResult);
 
       // MCP tool result envelope
       // content is an array of text|image|resource items
@@ -224,4 +287,66 @@ export class McpServer {
   getToolCount(): number {
     return this.tools.size;
   }
+}
+
+// ─── Runtime argument validation ─────────────────────────────────────
+
+/**
+ * Validate tool call arguments against the tool's inputSchema.
+ * Returns an array of error messages (empty = valid).
+ */
+function validateToolArgs(
+  args: Record<string, unknown>,
+  schema: ToolDefinition['inputSchema'],
+): string[] {
+  const errors: string[] = [];
+  const properties = schema.properties ?? {};
+  const required = schema.required ?? [];
+
+  // Check required fields are present and non-empty strings
+  for (const field of required) {
+    const value = args[field];
+    if (value === undefined || value === null || value === '') {
+      errors.push(`Missing required field: "${field}"`);
+    }
+  }
+
+  // Check type constraints and other validations per property
+  for (const [key, value] of Object.entries(args)) {
+    if (value === undefined || value === null) continue;
+
+    const prop = properties[key] as Record<string, unknown> | undefined;
+    if (!prop) continue; // Unknown property — skip validation
+
+    const propType = prop.type as string | undefined;
+    const propEnum = prop.enum as string[] | undefined;
+    const propMinimum = prop.minimum as number | undefined;
+    const propMaximum = prop.maximum as number | undefined;
+
+    // Type check
+    if (propType === 'string' && typeof value !== 'string') {
+      errors.push(`Invalid type for "${key}": expected string, got ${typeof value}`);
+    } else if (propType === 'number' && typeof value !== 'number') {
+      errors.push(`Invalid type for "${key}": expected number, got ${typeof value}`);
+    }
+
+    // Enum check (for string values)
+    if (propEnum && typeof value === 'string' && !propEnum.includes(value)) {
+      errors.push(
+        `Invalid value for "${key}": expected one of [${propEnum.join(', ')}], got "${value}"`,
+      );
+    }
+
+    // Minimum / maximum for numbers
+    if (propType === 'number' && typeof value === 'number') {
+      if (propMinimum !== undefined && value < propMinimum) {
+        errors.push(`Invalid value for "${key}": ${value} is less than minimum ${propMinimum}`);
+      }
+      if (propMaximum !== undefined && value > propMaximum) {
+        errors.push(`Invalid value for "${key}": ${value} is greater than maximum ${propMaximum}`);
+      }
+    }
+  }
+
+  return errors;
 }
