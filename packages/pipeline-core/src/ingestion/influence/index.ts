@@ -27,6 +27,7 @@ import {
   upsertGovernmentFunding,
   searchCommitteeMentions,
 } from './db.js';
+import { upsertOrganization } from '../../shared-db.js';
 import type {
   InfluenceIngestionResult,
   InfluenceActor,
@@ -162,6 +163,11 @@ export async function ingestActors(
         if (!ok) {
           result.errors.push(`Failed to upsert actor ${template.id}`);
         } else {
+          // Also upsert to shared organizations table
+          try {
+            upsertOrganization(template.name, { type: template.category, source: "influence", rawData: { aliases: template.aliases, craBn: template.craBn } });
+          } catch { /* non-fatal */ }
+
           // Upsert each real connection
           for (const conn of connections) {
             const connOk = await upsertInfluenceConnection(db, conn);
