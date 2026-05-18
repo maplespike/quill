@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapleSpike — Workspace: API Keys, Usage Dashboard, and Billing</title>
   <script src="/config.js"></script>
+  <script src="/sanitize.js"></script>
   <link rel="canonical" href="https://maplespike.ca/workspace">
   <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace">
   <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/workspace">
@@ -367,11 +368,11 @@
       const statusClass = r.status >= 200 && r.status < 300 ? 'status-ok' : 'status-err';
       const methodClass = (r.method || 'GET').toLowerCase();
       return `<tr>
-        <td style="color:var(--text-muted);">${r.time || r.created_at || ''}</td>
-        <td><span class="method-cell ${methodClass}">${r.method || 'GET'}</span></td>
-        <td style="font-family:var(--font-mono);font-size:0.78rem;">${r.endpoint || ''}</td>
-        <td><span class="${statusClass}">${r.status || 200}</span></td>
-        <td style="color:var(--text-muted);">${r.duration || (r.duration_ms ? r.duration_ms + 'ms' : '')}</td>
+        <td style="color:var(--text-muted);">${MAPLESPIKE.esc(r.time || r.created_at || '')}</td>
+        <td><span class="method-cell ${methodClass}">${MAPLESPIKE.esc(r.method || 'GET')}</span></td>
+        <td style="font-family:var(--font-mono);font-size:0.78rem;">${MAPLESPIKE.esc(r.endpoint || '')}</td>
+        <td><span class="${statusClass}">${MAPLESPIKE.esc(r.status || 200)}</span></td>
+        <td style="color:var(--text-muted);">${MAPLESPIKE.esc(r.duration || (r.duration_ms ? r.duration_ms + 'ms' : ''))}</td>
       </tr>`;
     }).join('');
   }
@@ -600,7 +601,7 @@
         const icon = p.name === 'github'
           ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>'
           : '';
-        return `<a href="/v1/auth/oauth/${p.name}" class="btn btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;">${icon} Continue with ${p.label}</a>`;
+        return `<a href="/v1/auth/oauth/${MAPLESPIKE.esc(p.name)}" class="btn btn-secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;">${icon} Continue with ${MAPLESPIKE.esc(p.label)}</a>`;
       }).join('');
     } catch { /* pass — OAuth list is a bonus feature */ }
   }
