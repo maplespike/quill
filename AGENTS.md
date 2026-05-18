@@ -157,6 +157,8 @@ Every change **must** have a GitHub issue. No issue = no code.
 
 **Container image tags**: `:dev` (dev builds), `:latest` and `:stable` (prod builds), `:$sha` (both).
 
+**Image naming**: `ghcr.io/reverb256/maplespike/maplespike-{service}:{tag}` (repo-scoped, works with GITHUB_TOKEN).
+
 ---
 
 ## Data Module Architecture
