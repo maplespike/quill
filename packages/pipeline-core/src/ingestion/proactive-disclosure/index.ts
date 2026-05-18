@@ -19,6 +19,7 @@
  */
 
 import type { D1Database, D1PreparedStatement } from '../committees/db.js';
+import { upsertOrganization, upsertContract } from '../../shared-db.js';
 import {
   fetchProactiveDisclosure,
   fetchAllProactiveDisclosure,
@@ -355,6 +356,39 @@ export async function ingestProactiveDisclosure(
             result.newRecords++;
           }
           result.recordsIngested++;
+
+          // Also upsert to shared tables
+          try {
+            upsertOrganization(record.vendorName, {
+              type: "other",
+              source: "proactive-disclosure",
+              rawData: { department: record.department, departmentAcronym: record.departmentAcronym },
+            });
+          } catch { /* non-fatal */ }
+          try {
+            upsertOrganization(record.department, {
+              type: "government_agency",
+              source: "proactive-disclosure",
+              rawData: { acronym: record.departmentAcronym },
+            });
+          } catch { /* non-fatal */ }
+          if (record.contractValue !== null && record.contractValue > 0) {
+            try {
+              upsertContract(
+                record.id,
+                record.description ?? "Proactive disclosure contract",
+                record.description ?? "",
+                record.vendorName,
+                record.department,
+                record.contractValue,
+                {
+                  startDate: record.awardDate ?? undefined,
+                  isSoleSource: record.procurementMethod === "Non-Competitive" || record.procurementMethod === "Sole Source",
+                  source: "proactive-disclosure",
+                },
+              );
+            } catch { /* non-fatal */ }
+          }
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           result.errors.push(`Record ${record.id?.substring(0, 12) ?? 'unknown'}: ${msg}`);
