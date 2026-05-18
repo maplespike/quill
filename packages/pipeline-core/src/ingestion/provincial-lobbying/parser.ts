@@ -16,7 +16,7 @@
 
 import { computeHash } from '../../verification/hashing.js';
 import { ONTARIO_SUBJECT_MAP } from './types.js';
-import type { ProvincialLobbyingRecord, Province, RawOntarioRecord, RawBCRecord, RawAlbertaRecord, RawQuebecRecord } from './types.js';
+import type { ProvincialLobbyingRecord, Province, RawOntarioRecord, RawBCRecord, RawAlbertaRecord, RawQuebecRecord, RawSaskatchewanRecord, RawManitobaRecord, RawNovaScotiaRecord, RawNewBrunswickRecord, RawNewfoundlandRecord, RawPEIRecord, RawYukonRecord, RawNWTRecord, RawNunavutRecord } from './types.js';
 import type { LobbyingRecord } from '../corporate/types.js';
 
 
@@ -596,6 +596,1035 @@ export async function normalizeQuebecRecord(
 
 
 /**
+ * Normalize a raw Saskatchewan lobbying record to the unified schema.
+ */
+export async function normalizeSaskatchewanRecord(
+  raw: RawSaskatchewanRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawSaskatchewanRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawSaskatchewanRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'saskatchewan-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'SK',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'SK',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw Manitoba lobbying record to the unified schema.
+ */
+export async function normalizeManitobaRecord(
+  raw: RawManitobaRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawManitobaRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawManitobaRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'manitoba-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'MB',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'MB',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw Nova Scotia lobbying record to the unified schema.
+ */
+export async function normalizeNovaScotiaRecord(
+  raw: RawNovaScotiaRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawNovaScotiaRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawNovaScotiaRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'nova-scotia-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'NS',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'NS',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw New Brunswick lobbying record to the unified schema.
+ */
+export async function normalizeNewBrunswickRecord(
+  raw: RawNewBrunswickRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawNewBrunswickRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawNewBrunswickRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'new-brunswick-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'NB',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'NB',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw Newfoundland and Labrador lobbying record to the unified schema.
+ */
+export async function normalizeNewfoundlandRecord(
+  raw: RawNewfoundlandRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawNewfoundlandRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawNewfoundlandRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'newfoundland-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'NL',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'NL',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw Prince Edward Island lobbying record to the unified schema.
+ */
+export async function normalizePEIRecord(
+  raw: RawPEIRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawPEIRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawPEIRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'pei-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'PE',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'PE',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw Yukon lobbying record to the unified schema.
+ */
+export async function normalizeYukonRecord(
+  raw: RawYukonRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawYukonRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawYukonRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName', 'lobbyistBusinessName', 'registrantName', 'lobbyist_name');
+  const clientName = strField('clientName', 'client_name', 'Organization_Name', 'organization_name');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness', 'client_business', 'Client_Business') || null;
+  const registrantAddress = strField('lobbyistAddress', 'lobbyist_address', 'Registrant_Address') || null;
+  const registrantClient = strField('lobbyistBusinessName', 'lobbyist_business_name') || null;
+
+  const rawSubjects = arrField('subjectMatters', 'subject_matters', 'Subject_Matters', 'Subject_Matter');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies', 'government_bodies', 'Government_Bodies');
+  const officials = arrField('officials', 'Officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'communication_date', 'Communication_Date',
+    'registrationStartDate', 'registration_start_date', 'Registration_Date');
+
+  const startDate = strField('registrationStartDate', 'registration_start_date', 'Registration_Start_Date') || null;
+  const endDate = strField('registrationEndDate', 'registration_end_date', 'Registration_End_Date') || null;
+
+  const category = strField('lobbyistCategory', 'lobbyist_category', 'Lobbyist_Category');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl', 'source_url', 'Source_URL');
+  const originalId = strField('registrationNumber', 'registration_number', 'Registration_Number') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'yukon-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'YT',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'YT',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw NWT lobbying record to the unified schema.
+ * NWT meeting records from the public registry.
+ */
+export async function normalizeNWTRecord(
+  raw: RawNWTRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawNWTRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawNWTRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName');
+  const clientName = strField('clientName');
+  const communicationDate = strField('communicationDate');
+
+  // NWT meeting records must have at least a meeting date and either a minister or outside party
+  if (!communicationDate || (!registrantName && !clientName)) {
+    return null;
+  }
+
+  const governmentBodies = arrField('governmentBodies');
+  const officials = arrField('officials');
+  const rawSubjects = arrField('subjectMatters');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const sourceUrl = strField('sourceUrl');
+  const originalId = strField('registrationNumber') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'nwt-meeting-registry';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    normalizedSubjects: subjectMatters,
+    province: 'NT',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'NT',
+    registrantName,
+    registrantClient: null,
+    registrantAddress: null,
+    clientName,
+    clientBusiness: null,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate: null,
+    endDate: null,
+    lobbyingCostCad: null,
+    lobbyistType: 'consultant',
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
+ * Normalize a raw Nunavut lobbying record to the unified schema.
+ * Nunavut records from the federal proxy registry.
+ */
+export async function normalizeNunavutRecord(
+  raw: RawNunavutRecord,
+  options: {
+    sourceSystem?: string;
+    ingestedAt?: string;
+  } = {},
+): Promise<ProvincialLobbyingRecord | null> {
+  const strField = (...keys: (keyof RawNunavutRecord | string)[]): string => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (typeof v === 'string' && v.length > 0) return v;
+    }
+    return '';
+  };
+
+  const arrField = (...keys: (keyof RawNunavutRecord | string)[]): unknown[] => {
+    for (const key of keys) {
+      const v = raw[key];
+      if (Array.isArray(v)) return v;
+    }
+    return [];
+  };
+
+  const registrantName = strField('lobbyistName');
+  const clientName = strField('clientName');
+
+  if (!registrantName && !clientName) {
+    return null;
+  }
+
+  const clientBusiness = strField('clientBusiness') || null;
+  const registrantAddress = strField('lobbyistAddress') || null;
+  const registrantClient = strField('lobbyistBusinessName') || null;
+
+  const rawSubjects = arrField('subjectMatters');
+  const subjectMatters = Array.isArray(rawSubjects)
+    ? rawSubjects
+    : typeof rawSubjects === 'string'
+      ? [rawSubjects]
+      : [];
+
+  const governmentBodies = arrField('governmentBodies');
+  const officials = arrField('officials');
+
+  const governmentInstitution = Array.isArray(governmentBodies)
+    ? governmentBodies.join('; ')
+    : typeof governmentBodies === 'string'
+      ? governmentBodies
+      : null;
+
+  const publicOfficeHolder = Array.isArray(officials)
+    ? officials.join('; ')
+    : typeof officials === 'string'
+      ? officials
+      : null;
+
+  const communicationDate = strField('communicationDate', 'registrationStartDate');
+  const startDate = strField('registrationStartDate') || null;
+  const endDate = strField('registrationEndDate') || null;
+
+  const category = strField('lobbyistCategory');
+  const lobbyistType = determineLobbyistType(category);
+
+  const sourceUrl = strField('sourceUrl');
+  const originalId = strField('registrationNumber') || null;
+
+  const now = options.ingestedAt ?? new Date().toISOString();
+  const sourceSystem = options.sourceSystem ?? 'nunavut-federal-proxy';
+
+  const contentForHash = JSON.stringify({
+    registrantName,
+    clientName,
+    clientBusiness,
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    normalizedSubjects: subjectMatters,
+    lobbyistType,
+    province: 'NU',
+    sourceUrl,
+    sourceSystem,
+  });
+
+  const id = await computeHash(contentForHash, 'sha256');
+
+  return {
+    id,
+    province: 'NU',
+    registrantName,
+    registrantClient,
+    registrantAddress,
+    clientName,
+    clientBusiness,
+    subjectMatter: subjectMatters as string[],
+    governmentInstitution,
+    publicOfficeHolder,
+    communicationDate,
+    startDate,
+    endDate,
+    lobbyingCostCad: null,
+    lobbyistType,
+    sourceUrl,
+    ingestedAt: now,
+    originalId,
+    sourceSystem,
+  };
+}
+
+
+/**
  * Normalize any provincial raw record to the unified schema.
  * Dispatches to the province-specific normalizer based on the
  * province code.
@@ -607,7 +1636,7 @@ export async function normalizeQuebecRecord(
  */
 export async function normalizeToFederalSchema(
   province: Province,
-  raw: RawOntarioRecord | RawBCRecord | RawAlbertaRecord | RawQuebecRecord | Record<string, unknown>,
+  raw: RawOntarioRecord | RawBCRecord | RawAlbertaRecord | RawQuebecRecord | RawSaskatchewanRecord | RawManitobaRecord | RawNovaScotiaRecord | RawNewBrunswickRecord | RawNewfoundlandRecord | RawPEIRecord | RawYukonRecord | RawNWTRecord | RawNunavutRecord | Record<string, unknown>,
   options: {
     sourceSystem?: string;
     ingestedAt?: string;
@@ -622,6 +1651,24 @@ export async function normalizeToFederalSchema(
       return normalizeAlbertaRecord(raw as RawAlbertaRecord, options);
     case 'QC':
       return normalizeQuebecRecord(raw as RawQuebecRecord, options);
+    case 'SK':
+      return normalizeSaskatchewanRecord(raw as RawSaskatchewanRecord, options);
+    case 'MB':
+      return normalizeManitobaRecord(raw as RawManitobaRecord, options);
+    case 'NS':
+      return normalizeNovaScotiaRecord(raw as RawNovaScotiaRecord, options);
+    case 'NB':
+      return normalizeNewBrunswickRecord(raw as RawNewBrunswickRecord, options);
+    case 'NL':
+      return normalizeNewfoundlandRecord(raw as RawNewfoundlandRecord, options);
+    case 'PE':
+      return normalizePEIRecord(raw as RawPEIRecord, options);
+    case 'YT':
+      return normalizeYukonRecord(raw as RawYukonRecord, options);
+    case 'NT':
+      return normalizeNWTRecord(raw as RawNWTRecord, options);
+    case 'NU':
+      return normalizeNunavutRecord(raw as RawNunavutRecord, options);
     default:
       console.warn(`[ProvincialLobbying] No normalizer for province: ${province}`);
       return null;
@@ -633,7 +1680,7 @@ export async function normalizeToFederalSchema(
  */
 export async function normalizeBatch(
   province: Province,
-  rawRecords: RawOntarioRecord[],
+  rawRecords: RawOntarioRecord[] | RawBCRecord[] | RawAlbertaRecord[] | RawQuebecRecord[] | RawSaskatchewanRecord[] | RawManitobaRecord[] | RawNovaScotiaRecord[] | RawNewBrunswickRecord[] | RawNewfoundlandRecord[] | RawPEIRecord[] | RawYukonRecord[] | RawNWTRecord[] | RawNunavutRecord[],
   options: {
     sourceSystem?: string;
     ingestedAt?: string;

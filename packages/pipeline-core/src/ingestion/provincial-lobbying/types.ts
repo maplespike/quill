@@ -184,6 +184,276 @@ export interface RawQuebecRecord {
 }
 
 
+export interface RawSaskatchewanRecord {
+  /** Registration number from Saskatchewan registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawManitobaRecord {
+  /** Registration number from Manitoba registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawNovaScotiaRecord {
+  /** Registration number from Nova Scotia registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawNewBrunswickRecord {
+  /** Registration number from New Brunswick registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawNewfoundlandRecord {
+  /** Registration number from Newfoundland and Labrador registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawPEIRecord {
+  /** Registration number from Prince Edward Island registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawYukonRecord {
+  /** Registration number from Yukon registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawNWTRecord {
+  /** Registration number from Northwest Territories registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
+export interface RawNunavutRecord {
+  /** Registration number from Nunavut registry */
+  registrationNumber?: string;
+  /** Lobbyist / registrant name */
+  lobbyistName?: string;
+  lobbyistBusinessName?: string;
+  lobbyistAddress?: string;
+  /** Client organization */
+  clientName?: string;
+  clientBusiness?: string;
+  /** Subject matter(s) */
+  subjectMatters?: string[];
+  /** Government body/institution contacted */
+  governmentBodies?: string[];
+  /** Public official contacted */
+  officials?: string[];
+  /** Lobbying period */
+  registrationStartDate?: string;
+  registrationEndDate?: string;
+  /** Communication date */
+  communicationDate?: string;
+  /** Lobbyist type / category */
+  lobbyistType?: string;
+  lobbyistCategory?: string;
+  /** Source URL */
+  sourceUrl?: string;
+  [key: string]: unknown;
+}
+
+
 export interface ProvincialIngestionResult {
   source: string;
   province: Province;
@@ -234,6 +504,69 @@ export const PROVINCE_CONFIGS: ProvinceConfig[] = [
     commissioner: 'Commissaire au lobbyisme du Quebec',
     registryUrl: 'https://www.lobbyists.quebec/',
     hasMonthlyCsv: true,
+  },
+  {
+    code: 'SK',
+    name: 'Saskatchewan',
+    commissioner: 'Office of the Registrar of Lobbyists',
+    registryUrl: 'https://www.sasklobbyistregistry.ca/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'MB',
+    name: 'Manitoba',
+    commissioner: 'Office of the Lobbyist Registrar',
+    registryUrl: 'https://www.lobbyistregistrar.mb.ca/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'NS',
+    name: 'Nova Scotia',
+    commissioner: 'Registrar of Lobbyists',
+    registryUrl: 'https://novascotia.ca/sns/Lobbyist/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'NB',
+    name: 'New Brunswick',
+    commissioner: 'Office of the Integrity Commissioner',
+    registryUrl: 'https://www.oic-bci.ca/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'NL',
+    name: 'Newfoundland and Labrador',
+    commissioner: 'Commissioner of Lobbyists',
+    registryUrl: 'https://www.gov.nl.ca/gs/registries/lobbyists/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'PE',
+    name: 'Prince Edward Island',
+    commissioner: 'Registrar of Lobbyists',
+    registryUrl: 'https://www.princeedwardisland.ca/en/feature/lobbyist-registry',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'YT',
+    name: 'Yukon',
+    commissioner: 'Office of the Yukon Lobbyist Registry',
+    registryUrl: 'https://yukonlobbyistregistry.ca/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'NT',
+    name: 'Northwest Territories',
+    commissioner: 'N/A — No lobbying registry',
+    registryUrl: 'https://www.gov.nt.ca/',
+    hasMonthlyCsv: false,
+  },
+  {
+    code: 'NU',
+    name: 'Nunavut',
+    commissioner: 'N/A — No lobbying registry',
+    registryUrl: 'https://www.gov.nu.ca/',
+    hasMonthlyCsv: false,
   },
 ];
 

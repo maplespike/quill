@@ -1,12 +1,16 @@
 /**
  * Provincial Lobbying Constants — MapleSpike Pipeline
  *
- * Known URLs and configuration for provincial lobbying registries
- * across Canadian provinces.
+ * Known URLs and configuration for provincial/territorial lobbying registries
+ * across all 13 Canadian provinces and territories.
+ *
+ * Provinces with active lobbying registries: ON, BC, AB, QC, SK, MB, NS,
+ * NB, NL, PE, YT
+ *
+ * Territories without lobbying registries: NT, NU
  *
  * The Ontario Lobbyists Registry is operated by the Integrity Commissioner
  * of Ontario (OICO) and is the primary target for this module.
- * Other provinces will be added as implementation progresses.
  *
  * Primary source: Ontario Lobbyists Registry
  *   https://lobbyist.oico.on.ca/lobbyistregistry/
@@ -90,6 +94,54 @@ export const QUEBEC_LOBBYING = {
   SEARCH: 'https://www.lobbyists.quebec/recherche',
   /** Quebec publishes open data via their own portal */
   OPEN_DATA: 'https://www.donneesquebec.ca/recherche/',
+} as const;
+
+export const SASKATCHEWAN_LOBBYING = {
+  BASE: 'https://www.sasklobbyistregistry.ca/',
+  SEARCH: 'https://www.sasklobbyistregistry.ca/search-the-registry/',
+} as const;
+
+export const MANITOBA_LOBBYING = {
+  BASE: 'https://www.lobbyistregistrar.mb.ca/',
+  SEARCH: 'https://registry.lobbyistregistrar.mb.ca/lra/index.do',
+} as const;
+
+export const NOVA_SCOTIA_LOBBYING = {
+  BASE: 'https://novascotia.ca/sns/Lobbyist/',
+  SEARCH: 'https://novascotia.ca/sns/Lobbyist/search.asp',
+} as const;
+
+export const NEW_BRUNSWICK_LOBBYING = {
+  BASE: 'https://www.oic-bci.ca/',
+  SEARCH: 'https://www.oic-bci.ca/lobbyists-registry/',
+  REGISTRY_NAME: 'New Brunswick Lobbyists Registry',
+} as const;
+
+export const NEWFOUNDLAND_LOBBYING = {
+  BASE: 'https://www.gov.nl.ca/gs/registries/lobbyists/',
+  SEARCH: 'https://cado.eservices.gov.nl.ca/Lobbyist/LobbyistSearch.aspx',
+} as const;
+
+export const PEI_LOBBYING = {
+  BASE: 'https://www.princeedwardisland.ca/en/feature/lobbyist-registry',
+  SEARCH: 'https://www.princeedwardisland.ca/en/feature/lobbyist-registry',
+} as const;
+
+export const YUKON_LOBBYING = {
+  BASE: 'https://yukonlobbyistregistry.ca/',
+  SEARCH: 'https://yukonlobbyistregistry.ca/en/search-organization',
+} as const;
+
+export const NWT_LOBBYING = {
+  BASE: 'https://www.gov.nt.ca/',
+  SEARCH: '',
+  NOTE: 'Northwest Territories has no lobbyist registry as of 2025 — quarterly ministerial meeting reports only',
+} as const;
+
+export const NUNAVUT_LOBBYING = {
+  BASE: 'https://www.gov.nu.ca/',
+  SEARCH: '',
+  NOTE: 'Nunavut has no territorial lobbyist registry',
 } as const;
 
 

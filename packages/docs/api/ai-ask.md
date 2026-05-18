@@ -32,7 +32,7 @@ curl -X POST http://maplespike.lan/v1/ai_ask \
 | `elections` | Elections Canada third-party advertisers |
 | `corporate` | Corporate registry data |
 | `influence` | Influence actor records |
-| `provincial_lobbying` | ON/BC/AB/QC lobbying registries |
+| `provincial_lobbying` | All 13 provinces/territories lobbying registries |
 | `lmia` | LMIA quarterly data |
 
 ## Example Queries
