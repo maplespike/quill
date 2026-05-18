@@ -4,6 +4,7 @@ import {
   GOV_DATA_SOURCES,
   fetchOpenDataPortal,
   fetchCKANPackages,
+  fetchStatCanReleases,
   getGovDataSourceClient,
 } from '../gov-api.js';
 
@@ -52,10 +53,11 @@ describe('gov-api Module', () => {
   });
 
   describe('fetchOpenDataPortal', () => {
-    it('returns empty array for unknown source', async () => {
-      const result = await fetchOpenDataPortal('unknown-source' as any, { limit: 5 });
-      assert.ok(Array.isArray(result));
-      assert.equal(result.length, 0);
+    it('throws for unknown source name', async () => {
+      await assert.rejects(
+        () => fetchOpenDataPortal({ name: 'unknown-source' } as any, { limit: 5 }),
+        { name: 'Error' }
+      );
     });
 
     it('handles sources with no API gracefully', async () => {
@@ -74,6 +76,24 @@ describe('gov-api Module', () => {
       const result = await fetchOpenDataPortal(ckanSource, { limit: 5 });
       assert.ok(Array.isArray(result));
       assert.equal(result.length, 0);
+    });
+  });
+
+  describe('fetcher exports', () => {
+    it('fetchOpenDataPortal is a function', () => {
+      assert.equal(typeof fetchOpenDataPortal, 'function');
+    });
+
+    it('fetchCKANPackages is a function', () => {
+      assert.equal(typeof fetchCKANPackages, 'function');
+    });
+
+    it('fetchStatCanReleases is a function', () => {
+      assert.equal(typeof fetchStatCanReleases, 'function');
+    });
+
+    it('getGovDataSourceClient is a function', () => {
+      assert.equal(typeof getGovDataSourceClient, 'function');
     });
   });
 

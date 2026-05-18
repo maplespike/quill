@@ -2,6 +2,16 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { ingestAllDefence } from '../index.js';
 
+describe('Defence fetcher exports', () => {
+  it('ingestAllDefence is a function', () => {
+    assert.equal(typeof ingestAllDefence, 'function');
+  });
+
+  it('ingestAllDefence accepts db and options', () => {
+    assert.equal(ingestAllDefence.length, 2);
+  });
+});
+
 describe('Defence Module', () => {
   describe('ingestAllDefence', () => {
     it('returns expected structure', async () => {

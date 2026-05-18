@@ -7,6 +7,72 @@ import {
   parseCraIdentCsv,
   parseCraCsvs,
 } from '../cra-charity/parser.js';
+import {
+  fetchCraIdentCsv,
+  fetchCraFinancialCsv,
+  fetchCraGeneralCsv,
+  fetchCraProgramsCsv,
+  fetchCraAllCsvs,
+  fetchCraCkanMetadata,
+  discoverCraResources,
+  listAvailableYears,
+} from '../cra-charity/index.js';
+
+describe('CRA Charity Fetcher exports', () => {
+  it('fetchCraIdentCsv is a function', () => {
+    assert.equal(typeof fetchCraIdentCsv, 'function');
+  });
+
+  it('fetchCraFinancialCsv is a function', () => {
+    assert.equal(typeof fetchCraFinancialCsv, 'function');
+  });
+
+  it('fetchCraGeneralCsv is a function', () => {
+    assert.equal(typeof fetchCraGeneralCsv, 'function');
+  });
+
+  it('fetchCraProgramsCsv is a function', () => {
+    assert.equal(typeof fetchCraProgramsCsv, 'function');
+  });
+
+  it('fetchCraAllCsvs is a function', () => {
+    assert.equal(typeof fetchCraAllCsvs, 'function');
+  });
+
+  it('fetchCraCkanMetadata is a function', () => {
+    assert.equal(typeof fetchCraCkanMetadata, 'function');
+  });
+
+  it('discoverCraResources is a function', () => {
+    assert.equal(typeof discoverCraResources, 'function');
+  });
+
+  it('listAvailableYears is a function', () => {
+    assert.equal(typeof listAvailableYears, 'function');
+  });
+
+  it('fetchCraIdentCsv accepts year parameter', () => {
+    // Function.length is 0 when first param has default value
+    // Verify signature via toString() instead
+    assert.ok(fetchCraIdentCsv.toString().includes('year'),
+      'fetchCraIdentCsv should accept a year parameter');
+  });
+
+  it('fetchCraCkanMetadata accepts year parameter', () => {
+    assert.ok(fetchCraCkanMetadata.toString().includes('year'),
+      'fetchCraCkanMetadata should accept a year parameter');
+  });
+
+  it('discoverCraResources accepts year parameter', () => {
+    assert.ok(discoverCraResources.toString().includes('year'),
+      'discoverCraResources should accept a year parameter');
+  });
+
+  it('listAvailableYears returns async promise', () => {
+    const result = listAvailableYears();
+    assert.ok(result instanceof Promise);
+  });
+});
 
 describe('CRA Charity Parser', () => {
   describe('parseCsvLine', () => {

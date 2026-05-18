@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRSS, hashString, deduplicateItems, RSS_SOURCES } from '../rss.js';
+import { parseRSS, hashString, deduplicateItems, RSS_SOURCES, fetchFeed } from '../rss.js';
 import type { RSSItem } from '../rss.js';
 
 describe('RSS Module', () => {
@@ -201,6 +201,16 @@ describe('RSS Module', () => {
       assert.ok(categories.has('news'), 'Should have news category');
       assert.ok(categories.has('politics'), 'Should have politics category');
       assert.ok(categories.has('policy'), 'Should have policy category');
+    });
+  });
+
+  describe('fetcher', () => {
+    it('fetchFeed is a function', () => {
+      assert.equal(typeof fetchFeed, 'function');
+    });
+
+    it('fetchFeed accepts url string parameter', () => {
+      assert.ok(fetchFeed.length >= 1);
     });
   });
 });

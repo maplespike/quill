@@ -1,8 +1,42 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { ingestAllVeterans, searchVeterans } from '../index.js';
+import { ingestAllVeterans, searchVeterans, getByCategory, getByProgram, getStatsSummary } from '../index.js';
 
 describe('Veterans Module', () => {
+  describe('fetcher exports', () => {
+    it('ingestAllVeterans is a function', () => {
+      assert.equal(typeof ingestAllVeterans, 'function');
+    });
+
+    it('searchVeterans is a function', () => {
+      assert.equal(typeof searchVeterans, 'function');
+    });
+
+    it('getByCategory is a function', () => {
+      assert.equal(typeof getByCategory, 'function');
+    });
+
+    it('getByProgram is a function', () => {
+      assert.equal(typeof getByProgram, 'function');
+    });
+
+    it('getStatsSummary is a function', () => {
+      assert.equal(typeof getStatsSummary, 'function');
+    });
+
+    it('ingestAllVeterans accepts no required params', () => {
+      assert.equal(ingestAllVeterans.length, 0);
+    });
+
+    it('searchVeterans accepts query string', () => {
+      assert.equal(searchVeterans.length, 1);
+    });
+
+    it('getByCategory accepts category string', () => {
+      assert.equal(getByCategory.length, 1);
+    });
+  });
+
   describe('ingestAllVeterans', () => {
     it('returns expected structure', async () => {
       const result = await ingestAllVeterans();
