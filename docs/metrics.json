@@ -11,8 +11,8 @@
     "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 61 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
-    "count": 22,
-    "description": "14 data search tools + 3 AI tools + system_health + search_immigration + search_science + search_tribunals + search_lode"
+    "count": 26,
+    "description": "18 data search tools + 3 AI tools + system_health covering immigration, indigenous relations, criminal justice, transport safety, defence/veterans, science, tribunals, and LODE"
   },
   "typescript": {
     "totalLines": 112910,

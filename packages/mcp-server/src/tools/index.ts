@@ -18,6 +18,10 @@ import * as searchOversight from './search-oversight.js';
 import * as searchCanlii from './search-canlii.js';
 import * as searchLmia from './search-lmia.js';
 import * as searchImmigration from './search-immigration.js';
+import * as searchIndigenous from './search-indigenous.js';
+import * as searchCriminalJustice from './search-criminal-justice.js';
+import * as searchTransport from './search-transport.js';
+import * as searchDefence from './search-defence.js';
 import * as searchScience from './search-science.js';
 import * as searchTribunals from './search-tribunals.js';
 import * as searchLode from './search-lode.js';
@@ -49,6 +53,10 @@ export function getAllTools(): ToolModule[] {
     searchCanlii,
     searchLmia,
     searchImmigration,
+    searchIndigenous,
+    searchCriminalJustice,
+    searchTransport,
+    searchDefence,
     searchScience,
     searchTribunals,
     searchLode,

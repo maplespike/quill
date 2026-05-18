@@ -25,7 +25,7 @@ status: active
 | Files changed | — | ~400+ |
 | Lines added | — | ~36,000 |
 | Packages | 6 | 11 |
-| MCP tools | 14 | 22 |
+| MCP tools | 18 | 26 |
 | API routes | ~20 | 38 |
 | K8s services | 2 | 7+ |
 | Portal pages | 8 | 13 |
@@ -184,7 +184,7 @@ status: active
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| ✅ 22 MCP tools | DONE | All 22 in get_all_tools(), all return real data |
+| ✅ 26 MCP tools | DONE | All 26 in get_all_tools(), all return real data |
 | ✅ SSE transport | DONE | HTTP on port 3001, /sse, /messages |
 | ✅ stdio transport | DONE | For local CLI use |
 | ✅ K8s deployment | DONE | maplespike-mcp pod, NodePort 32537 |
@@ -204,6 +204,10 @@ status: active
 | ✅ search_canlii | DONE | Court decisions |
 | ✅ search_lmia | DONE | LMIA employer data |
 | ✅ search_immigration | DONE | IRCC, IRB, CBSA data |
+| ✅ search_indigenous_relations | DONE | CIRNAC, ISC, TRC data |
+| ✅ search_criminal_justice | DONE | CSC, Parole, RCMP data |
+| ✅ search_transport_safety | DONE | TSB, TC, Infrastructure Canada data |
+| ✅ search_defence | DONE | DND personnel, VAC services data |
 | ✅ search_science | DONE | Science research data |
 | ✅ search_tribunals | DONE | Federal tribunal data |
 | ✅ search_lode | DONE | LODE geospatial metadata |
@@ -271,7 +275,7 @@ status: active
 | Service | Namespace | NodePort | Status | Notes |
 |---------|-----------|----------|--------|-------|
 | maplespike-api | maplespike | 30882 | ✅ Running | 2 pods, 38 routes |
-| maplespike-mcp | maplespike | 32537 | ✅ Running | 22 tools, SSE transport |
+| maplespike-mcp | maplespike | 32537 | ✅ Running | 26 tools, SSE transport |
 | maplespike-portal | maplespike | 30964 | ✅ Running | Static HTML dashboard |
 | maplespike-db | maplespike | — | ✅ Running | PostgreSQL PVC provisioned |
 | gitea | gitea | 30954 | ✅ Running | Self-hosted Git with Casdoor OAuth |
@@ -512,7 +516,7 @@ server.ts       — JSON-RPC 2.0 protocol, tools/list, tools/call, SSE
 index.ts        — HTTP server on port 3001, /health, /sse, /messages
 cli.ts          — stdio transport for local use
 tools/
-  index.ts      — Tool registry (getAllTools: 22 tools)
+  index.ts      — Tool registry (getAllTools: 26 tools)
   query-gov-data.ts      — CKAN search across jurisdictions
   fact-check.ts           — Basic verification
   get-citation.ts         — Citation hash retrieval
@@ -528,6 +532,10 @@ tools/
   search-canlii.ts       — Court decisions
   search-lmia.ts         — LMIA employer data
   search-immigration.ts  — IRCC, IRB, CBSA
+  search-indigenous.ts   — CIRNAC, ISC, TRC
+  search-criminal-justice.ts — CSC, Parole, RCMP
+  search-transport.ts    — TSB, TC, Infrastructure Canada
+  search-defence.ts      — DND, VAC
   search-science.ts       — Science research
   search-tribunals.ts    — Federal tribunal data
   search-lode.ts         — LODE geospatial metadata
