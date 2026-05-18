@@ -6,12 +6,12 @@ function makeCtx(overrides: Record<string, unknown> = {}) {
   const db = new MemoryStorage();
   const cache = new MemoryCache();
   db.registerTenant(
-    { id: 'test-tenant', name: 'Test User', tier: 'free', isActive: true, journalismMode: false },
+    { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'free', isActive: true, journalismMode: false },
     'test-key-hash',
     'test-key-id',
   );
   return {
-    tenant: { id: 'test-tenant', name: 'Test User', tier: 'free' as const, isActive: true, journalismMode: false },
+    tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'free' as const, isActive: true, journalismMode: false },
     apiKeyId: 'test-key-id',
     requestId: 'test',
     startTime: Date.now(),
