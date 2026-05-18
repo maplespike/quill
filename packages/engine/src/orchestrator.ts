@@ -324,7 +324,7 @@ export class EngineOrchestrator {
         ...donations.map(d => d.source),
         ...disclosures.map(d => d.source),
         ...gacProjects.map(g => g.source),
-      ])];
+      ])      ];
 
       return {
         persons,
@@ -399,6 +399,9 @@ export class EngineOrchestrator {
       ? this.briefGenerator.generateDailyBrief(signals, graph)
       : null;
 
+    // Step 6: Persist results to shared DB for dashboard queries
+    this.persistResults(graph, signals, brief);
+
     // Build summary
     const byType: SignalCounts = {
       procurement_lobbying_overlap: 0,
@@ -446,6 +449,9 @@ export class EngineOrchestrator {
         : null,
     };
 
+    // Step 6: Persist results back to shared DB
+    this.persistResults(graph, signals, brief);
+
     return {
       pipeline: {
         generatedAt,
@@ -486,6 +492,76 @@ export class EngineOrchestrator {
     const threads = graph.threads;
     if (threads.length === 0 && graph.nodes.length === 0) return null;
     return this.briefGenerator.generateDailyBrief(threads, graph);
+  }
+
+  /**
+   * Persist engine results to shared database tables.
+   * Writes graph nodes/edges, intelligence threads, and briefs
+   * so they can be queried by the dashboard and API.
+   */
+  private persistResults(
+    graph: GraphData,
+    signals: IntelligenceThread[],
+    brief: Brief | null,
+  ): void {
+    const db = getRawDb();
+    const now = isoNow();
+
+    // Clear previous results
+    db.exec("DELETE FROM graph_nodes");
+    db.exec("DELETE FROM graph_edges");
+    db.exec("DELETE FROM intelligence_threads");
+    db.exec("DELETE FROM briefs");
+
+    // Insert graph nodes
+    const nodeInsert = db.prepare(
+      "INSERT INTO graph_nodes (id, type, label, properties, created_at) VALUES (?, ?, ?, ?, ?)"
+    );
+    for (const node of graph.nodes) {
+      nodeInsert.run(node.id, node.type, node.label, JSON.stringify(node), now);
+    }
+
+    // Insert graph edges
+    const edgeInsert = db.prepare(
+      "INSERT INTO graph_edges (id, source_node, target_node, type, weight, properties, source_ref, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    for (const edge of graph.edges) {
+      edgeInsert.run(
+        `${edge.source}-${edge.target}-${edge.type}`,
+        edge.source, edge.target, edge.type, edge.weight || 1,
+        JSON.stringify(edge), edge.sourceRef || "", now,
+      );
+    }
+
+    // Insert intelligence threads
+    const threadInsert = db.prepare(
+      "INSERT INTO intelligence_threads (id, title, description, signal_type, confidence, nodes, edges, sources, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    for (const signal of signals) {
+      threadInsert.run(
+        signal.id, signal.title, signal.description,
+        signal.signalType, signal.confidence || 0,
+        JSON.stringify(signal.nodes || []),
+        JSON.stringify(signal.edges || []),
+        JSON.stringify(signal.sources || []),
+        now, now,
+      );
+    }
+
+    // Insert brief
+    if (brief) {
+      const briefInsert = db.prepare(
+        "INSERT INTO briefs (id, title, summary, sections, entity_ids, confidence, generated_at, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+      );
+      briefInsert.run(
+        brief.id, brief.title, brief.summary,
+        JSON.stringify(brief.sections),
+        JSON.stringify(brief.entityIds || []),
+        brief.confidence || 0,
+        brief.generatedAt,
+        brief.expiresAt || null, now,
+      );
+    }
   }
 }
 
