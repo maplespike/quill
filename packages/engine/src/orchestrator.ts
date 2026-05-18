@@ -30,7 +30,7 @@ import type { GACProject, ImplementingPartner } from "./types/gac";
 import type { GraphData, IntelligenceThread } from "./types/graph";
 import type { LobbyingFiling, LobbyingCommunication } from "./types/lobbying";
 import type { Organization, OrganizationType } from "./types/organization";
-import type { Person } from "./types/person";
+import type { Person, RoleCategory } from "./types/person";
 import type { Brief } from "./types/brief";
 import type { GovernmentSource } from "./types/base";
 
@@ -975,11 +975,46 @@ export class EngineOrchestrator {
         const orgs = (rawDb.prepare('SELECT * FROM organizations').all() as any[]).map(o);
         const contracts = (rawDb.prepare('SELECT * FROM contracts').all() as any[]).map(c);
         const filings = (rawDb.prepare('SELECT * FROM lobbying_filings').all() as any[]).map(f);
-        const donations = (rawDb.prepare('SELECT * FROM donations').all() as any[]).map(d);
-        const disclosures = (rawDb.prepare('SELECT * FROM disclosures').all() as any[]).map(ds);
+        const donationRows = (rawDb.prepare('SELECT * FROM donations').all() as any[]).map(d);
+        const disclosureRows = (rawDb.prepare('SELECT * FROM disclosures').all() as any[]).map(ds);
         const gacProjects = (rawDb.prepare('SELECT * FROM gac_projects').all() as any[]).map(g);
-        const sources = [...new Set([...persons.map(x => x.source), ...orgs.map(x => x.source), ...contracts.map(x => x.source), ...filings.map(x => x.source), ...donations.map(x => x.source), ...disclosures.map(x => x.source), ...gacProjects.map(x => x.source)])];
-        return { persons, organizations: orgs, contracts, filings, donations, disclosures, gacProjects, generatedAt: now, dataSources: sources, totalRecords: persons.length + orgs.length + contracts.length + filings.length + donations.length + disclosures.length + gacProjects.length };
+
+        // Enrich persons with roles from disclosures table
+        for (const person of persons) {
+          const nameMatch = person.names[0];
+          if (!nameMatch) continue;
+          const matchingDisc = disclosureRows.filter((disc: Disclosure) =>
+            disc.personName.toLowerCase().includes(nameMatch.toLowerCase()) ||
+            nameMatch.toLowerCase().includes(disc.personName.toLowerCase()),
+          );
+          for (const disc of matchingDisc) {
+            person.roles.push({
+              title: disc.position,
+              organization: disc.department,
+              startDate: disc.filingDate,
+              category: "civil_service" as RoleCategory,
+              source: disc.source as GovernmentSource,
+            });
+          }
+        }
+
+        // Enrich organizations with registrations from rawData source hint
+        for (const org of orgs) {
+          const rawSource = org.rawData?.source;
+          if (rawSource === "crown-corporations" || rawSource === "proactive-disclosure") {
+            org.registrations.push({
+              number: org.id,
+              jurisdiction: "federal",
+              type: org.type,
+              status: "active" as const,
+              dateFiled: org.createdAt,
+              source: "manual" as GovernmentSource,
+            });
+          }
+        }
+
+        const sources = [...new Set([...persons.map((x: Person) => x.source), ...orgs.map((x: Organization) => x.source), ...contracts.map((x: Contract) => x.source), ...filings.map((x: LobbyingFiling) => x.source), ...donationRows.map((x: Donation) => x.source), ...disclosureRows.map((x: Disclosure) => x.source), ...gacProjects.map((x: GACProject) => x.source)])];
+        return { persons, organizations: orgs, contracts, filings: filings as LobbyingFiling[], donations: donationRows, disclosures: disclosureRows, gacProjects, generatedAt: now, dataSources: sources, totalRecords: persons.length + orgs.length + contracts.length + filings.length + donationRows.length + disclosureRows.length + gacProjects.length };
       }
     } catch { /* tables not ready — fall through */ }
 
