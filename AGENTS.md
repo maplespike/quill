@@ -402,3 +402,26 @@ export MAPLESPIKE_API_KEY=dev-key
 export MAPLESPIKE_API_URL=http://localhost:8082/v1
 cd packages/mcp-server && pnpm start
 ```
+
+---
+
+## Agent-Ready Label Criteria
+
+Issues labeled `agent-ready` are picked up autonomously by the Kelos workflow. Kelos spawns an OpenCode agent in an isolated pod that clones the repo, implements the change, builds, tests, pushes a branch, and opens a PR.
+
+For an issue to be `agent-ready`, it **must** satisfy ALL of:
+
+1. **Within maplespike repo scope** — the agent only has access to this repo. Changes requiring NixOS configs, kubectl, vault, or external repos are not agent-ready.
+2. **Code changes only** — the agent edits, builds, tests, commits, and pushes. No SSH, no kubectl, no nixos-rebuild, no manual ops.
+3. **No external service setup** — no Stripe API keys, email server configs, vault access, or third-party signup.
+4. **No subjective design decisions** — the issue must be scoped clearly enough that any reasonable implementation is acceptable.
+5. **Build + test must pass** — the agent runs `pnpm build && pnpm test`. Changes must be verifiable this way.
+6. **Not a meta-issue** — umbrella trackers must be decomposed into child issues first.
+7. **Completable in one session** — the pod has a finite TTL (~1h). Large tasks need splitting.
+
+**Not agent-ready:**
+- Issues that say "all fixes are in NixOS/external configs"
+- Deployment/ops tasks (kubectl apply, nixos-rebuild, secret rotation)
+- Meta-issues / sprint trackers
+- Issues requiring API keys or service credentials not in the repo
+- Documentation-only issues without code changes
