@@ -175,24 +175,30 @@ export interface OpenDataPortalDataset {
  * - Returns empty array for portals with no known API (NB, NU)
  */
 export async function fetchOpenDataPortal(
-  source: (typeof GOV_DATA_SOURCES)[number],
-  options: { limit?: number } = {},
+   source: (typeof GOV_DATA_SOURCES)[number],
+   options: { limit?: number } = {},
 ): Promise<OpenDataPortalDataset[]> {
-  const { limit = 20 } = options;
+   const { limit = 20 } = options;
 
-  if (!source.endpoint || source.api === 'NONE') {
-    return [];
-  }
+   // Validate source is a known GOV_DATA_SOURCES entry
+   const knownSource = GOV_DATA_SOURCES.find(s => s.name === source.name);
+   if (!knownSource) {
+     throw new Error(`Unknown source: ${(source as any).name ?? source}`);
+   }
 
-  switch (source.api) {
-    case 'SOCRATA':
-      return fetchSocrataDatasets(source, limit);
-    case 'ARCGIS':
-      return fetchArcGISDatasets(source, limit);
-    case 'OTHER':
-    default:
-      return fetchGenericPortal(source, limit);
-  }
+   if (!source.endpoint || source.api === 'NONE') {
+     return [];
+   }
+
+   switch (source.api) {
+     case 'SOCRATA':
+       return fetchSocrataDatasets(source, limit);
+     case 'ARCGIS':
+       return fetchArcGISDatasets(source, limit);
+     case 'OTHER':
+     default:
+       return fetchGenericPortal(source, limit);
+   }
 }
 
 /**

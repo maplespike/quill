@@ -13,7 +13,7 @@
 import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import Database from "better-sqlite3";
+import { getRawDb } from "@maplespike/database";
 import { AliasManager } from "./entity/aliases";
 import { EntityResolver } from "./entity/resolver";
 import { GraphBuilder } from "./graph/builder";
@@ -847,22 +847,22 @@ function generateMandatePromises(
 /* ------------------------------------------------------------------ */
 
 export class EngineOrchestrator {
-  private db: Database.Database;
-  private aliasManager: AliasManager;
-  private entityResolver: EntityResolver;
-  private graphBuilder: GraphBuilder;
-  private briefGenerator: BriefGenerator;
+   private db: Database.Database;
+   private aliasManager: AliasManager;
+   private entityResolver: EntityResolver;
+   private graphBuilder: GraphBuilder;
+   private briefGenerator: BriefGenerator;
 
-  /** Cached pipeline data */
-  private pipelineData: PipelineData | null = null;
+   /** Cached pipeline data */
+   private pipelineData: PipelineData | null = null;
 
-  constructor() {
-    this.db = new Database(":memory:");
-    this.aliasManager = new AliasManager(this.db);
-    this.entityResolver = new EntityResolver(this.aliasManager);
-    this.graphBuilder = new GraphBuilder(this.aliasManager);
-    this.briefGenerator = new BriefGenerator();
-  }
+   constructor() {
+     this.db = getRawDb();
+     this.aliasManager = new AliasManager(this.db);
+     this.entityResolver = new EntityResolver(this.aliasManager);
+     this.graphBuilder = new GraphBuilder(this.aliasManager);
+     this.briefGenerator = new BriefGenerator();
+   }
 
   /**
    * Load pipeline data from the default pipeline-data.json location.
@@ -1008,12 +1008,13 @@ export class EngineOrchestrator {
     };
   }
 
-  /**
-   * Free database resources.
-   */
-  close(): void {
-    this.db.close();
-  }
+   /**
+    * Free database resources.
+    * No-op: using shared DB via aliasManager.
+    */
+   close(): void {
+     // No DB to close; using shared DB via aliasManager
+   }
 
   /**
    * Get all detected intelligence threads.
