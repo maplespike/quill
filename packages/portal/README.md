@@ -7,7 +7,7 @@ status: active
 
 SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the MapleSpike API.
 
-**Status:** Local dev (stealth) — served from K3s cluster on LAN. Will deploy to GitHub Pages when public.
+**Status:** Served from K3s cluster on LAN. GitHub Pages deployment is planned for public launch.
 
 ## AI-friendly features
 
@@ -33,9 +33,10 @@ The portal is a pure static site (HTML + CSS + JS). No build step required.
 | Environment | Platform | Status |
 |-------------|----------|--------|
 | **Dev** (current) | K3s cluster (LAN) — Python http.server on port 3000 | Active |
-| **Production** (future) | GitHub Pages — workflow ready at `.github/workflows/deploy-portal.yml` | Ready to flip |
+| **Production** (current) | K3s cluster (nginx) — auto-deployed via CI/CD | Active |
+| **Future** | GitHub Pages — workflow ready at `.github/workflows/deploy-portal.yml` | Planned |
 
-**To go live:** Make the repo public → enable Pages → merge to main. The workflow file is already in place and will deploy `packages/portal/` to GitHub Pages automatically.
+**Future live deploy:** Make the repo public → enable Pages → merge to main to deploy to GitHub Pages.
 
 ## Stack
 

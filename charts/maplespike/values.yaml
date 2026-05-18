@@ -84,8 +84,8 @@ engine:
       cpu: 500m
       memory: 512Mi
 
-# Portal (GitHub Pages — not deployed via Helm)
-# portal: static site, deployed via .github/workflows/deploy-portal.yml
+# Portal (deployed via .github/workflows/deploy-portal.yml — not via Helm)
+# Current: K3s cluster (nginx). Future: GitHub Pages if made public.
 
 # Monitoring
 monitoring:
