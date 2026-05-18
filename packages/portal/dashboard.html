@@ -1,223 +1,146 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en-CA" data-theme="dark">
-     3|<head>
-     4|<meta charset="UTF-8">
-     5|<meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|<title>MapleSpike — Civic Pulse Dashboard</title>
-     7|  <link rel="canonical" href="https://maplespike.ca/dashboard">
-     8|  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/dashboard">
-     9|  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/dashboard">
-    10|  <meta name="robots" content="index, follow">
-    11|
-    12|<meta name="description" content="See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.">
-    13|<link rel="stylesheet" href="styles.css">
-    14|<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
-    15|<style>
-    16|/* ═══ Dashboard-specific styles ═══ */
-    17|
-    18|/* ── Layout ── */
-    19|.dash { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
-    20|.dash-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
-    21|.dash-header h1 { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
-    22|
-    23|/* ── Search hero ── */
-    24|.search-hero { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px 40px; margin-bottom: 32px; text-align: center; }
-    25|.search-hero h2 { font-size: 1.3rem; margin: 0 0 6px; }
-    26|.search-hero p { color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 20px; }
-    27|.search-box { display: flex; align-items: center; gap: 8px; max-width: 560px; margin: 0 auto; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 20px; transition: all var(--transition); }
-    28|.search-box:focus-within { border-color: var(--accent); box-shadow: var(--shadow-glow); }
-    29|.search-box input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 0.95rem; font-family: inherit; }
-    30|.search-box input::placeholder { color: var(--text-muted); }
-    31|.search-box .hint { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
-    32|.search-suggestions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
-    33|.search-suggestions a { font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; padding: 4px 14px; border-radius: 99px; background: var(--accent-cyan-dim); transition: all var(--transition); }
-    34|.search-suggestions a:hover { background: var(--accent); color: #fff; }
-    35|
-    36|/* ── Stats row ── */
-    37|.stats-dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 32px; }
-    38|.stat-dash { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; transition: all var(--transition); }
-    39|.stat-dash:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
-    40|.stat-dash .icon { font-size: 1.6rem; margin-bottom: 8px; }
-    41|.stat-dash .num { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
-    42|.stat-dash .num .suffix { font-size: 0.65em; color: var(--text-muted); }
-    43|.stat-dash .label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
-    44|.stat-dash .trend { font-size: 0.72rem; margin-top: 6px; padding: 2px 10px; border-radius: 99px; display: inline-block; }
-    45|.trend-up { background: var(--base19); color: var(--success); }
-    46|.trend-warn { background: var(--base18); color: var(--accent); }
-    47|.trend-flat { background: var(--bg-elevated); color: var(--text-muted); }
-    48|
-    49|/* ── Section headers ── */
-    50|.section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 36px 0 16px; }
-    51|.section-head h2 { font-size: 1.1rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
-    52|.section-head .see-all { font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; }
-    53|.section-head .see-all:hover { text-decoration: underline; }
-    54|
-    55|/* ── Card grid ── */
-    56|.card-grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 8px; }
-    57|
-    58|/* ── Alert cards ── */
-    59|.alert-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all var(--transition); position: relative; overflow: hidden; }
-    60|.alert-card:hover { border-color: var(--accent-cyan); transform: translateY(-1px); }
-    61|.alert-card .bar { position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-    62|.alert-card .bar.red { background: var(--accent); }
-    63|.alert-card .bar.amber { background: var(--warning); }
-    64|.alert-card .bar.green { background: var(--success); }
-    65|.alert-card .bar.blue { background: var(--base0D); }
-    66|.alert-card .bar.purple { background: var(--base0E); }
-    67|.alert-card .bar.cyan { background: var(--accent-cyan); }
-    68|.alert-card .card-head { display: flex; align-items: flex-start; gap: 12px; }
-    69|.alert-card .card-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
-    70|.alert-card .card-body { flex: 1; min-width: 0; }
-    71|.alert-card .card-title { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 4px; line-height: 1.4; }
-    72|.alert-card .card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
-    73|.alert-card .card-meta { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
-    74|.alert-card .card-meta .tag { font-size: 0.68rem; padding: 2px 10px; border-radius: 99px; font-weight: 600; }
-    75|.alert-card .card-meta .tag-influence { background: var(--base22); color: var(--base0E); }
-    76|.alert-card .card-meta .tag-parliament { background: var(--base18); color: var(--accent); }
-    77|.alert-card .card-meta .tag-money { background: var(--base20); color: var(--accent-cyan); }
-    78|.alert-card .card-meta .tag-court { background: var(--base21); color: var(--base0D); }
-    79|.alert-card .card-meta .tag-regulation { background: var(--base19); color: var(--success); }
-    80|
-    81|/* ── Entity cards ── */
-    82|.entity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 8px; }
-    83|.entity-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 14px; transition: all var(--transition); cursor: pointer; }
-    84|.entity-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-    85|.entity-card .e-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
-    86|.entity-card .e-info { flex: 1; min-width: 0; }
-    87|.entity-card .e-name { font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
-    88|.entity-card .e-org { font-size: 0.78rem; color: var(--text-secondary); }
-    89|.entity-card .e-stat { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-    90|
-    91|/* ── Trending topics ── */
-    92|.trending-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 8px; }
-    93|.trend-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: all var(--transition); }
-    94|.trend-card:hover { border-color: var(--accent-cyan); }
-    95|.trend-card .trend-rank { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    96|.trend-card .rank-num { font-size: 1.2rem; font-weight: 800; color: var(--text-muted); }
-    97|.trend-card .rank-change { font-size: 0.7rem; }
-    98|.trend-card .trend-topic { font-weight: 600; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 4px; }
-    99|.trend-card .trend-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; }
-   100|.trend-card .trend-mentions { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; }
-   101|
-   102|/* ── Loading shimmer ── */
-   103|.shimmer { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius); }
-   104|@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-   105|
-   106|/* ── In-camera spotlight ── */
-   107|.spotlight-banner { background: linear-gradient(135deg, var(--base18), var(--bg-card)); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-   108|.spotlight-banner .sb-icon { font-size: 2.2rem; flex-shrink: 0; }
-   109|.spotlight-banner .sb-body { flex: 1; min-width: 200px; }
-   110|.spotlight-banner .sb-title { font-weight: 700; font-size: 1rem; color: var(--accent); margin-bottom: 4px; }
-   111|.spotlight-banner .sb-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
-   112|.spotlight-banner .sb-btn { flex-shrink: 0; }
-   113|
-   114|/* ── Developer Console ── */
-   115|#dev-console .usage-bar { width:100%; border-radius:4px 4px 0 0; min-height:4px; background: var(--accent-cyan); position:relative; transition: height 0.6s cubic-bezier(0.4,0,0.2,1); cursor:pointer; animation: barGrow 0.8s ease-out forwards; transform-origin: bottom; }
-   116|#dev-console .usage-bar.today { background: var(--accent); }
-   117|#dev-console .usage-bar .bar-label { position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:0.6rem; color:var(--text-muted); white-space:nowrap; }
-   118|@keyframes barGrow { 0% { transform:scaleY(0); } 100% { transform:scaleY(1); } }
-   119|#dev-console .toast { position:fixed; bottom:24px; right:24px; background:var(--success); color:#fff; padding:10px 20px; border-radius:var(--radius); font-size:0.82rem; opacity:0; transform:translateY(10px); transition:all var(--transition); pointer-events:none; z-index:999; }
-   120|#dev-console .toast.show { opacity:1; transform:translateY(0); }
-   121|#dev-console .key-item { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
-   122|#dev-console .key-item .key-prefix { color:var(--text-muted); }
-   123|#dev-console .key-item .key-value { color:var(--accent-cyan); }
-   124|#dev-console .key-item .key-status { font-size:0.65rem; padding:2px 8px; border-radius:99px; }
-   125|#dev-console .key-item .key-status.active { background:var(--base19); color:var(--success); }
-   126|
-   127|/* ── Responsive ── */
-   128|@media(max-width:768px) {
-   129|  .dash { padding: 20px 16px 60px; }
-   130|  .search-hero { padding: 24px 20px; }
-   131|  .stats-dash { grid-template-columns: repeat(2, 1fr); }
-   132|  .card-grid-3 { grid-template-columns: 1fr; }
-   133|  .entity-grid { grid-template-columns: repeat(2, 1fr); }
-   134|  .trending-grid { grid-template-columns: 1fr; }
-   135|  .spotlight-banner { padding: 20px; }
-   136|}
-   137|
-   138|/* ── Glossary tooltip (restored) ── */
-   139|.glossary-term { border-bottom: 1px dashed var(--text-muted); cursor: help; position: relative; }
-   140|.glossary-tip { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--base03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; color: var(--text-secondary); width: 240px; box-shadow: var(--shadow-lg); z-index: 100; pointer-events: none; }
-   141|.glossary-term:hover .glossary-tip { display: block; }
-   142|</style>
-   143|
-   144|  <meta property="og:title" content="MapleSpike — Civic Pulse Dashboard">
-   145|  <meta property="og:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
-   146|  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-   147|  <meta property="og:image:width" content="1200">
-   148|  <meta property="og:image:height" content="630">
-   149|  <meta property="og:url" content="https://maplespike.ca/dashboard">
-   150|  <meta property="og:type" content="website">
-   151|  <meta name="twitter:card" content="summary_large_image">
-   152|  <meta name="twitter:title" content="MapleSpike — Civic Pulse Dashboard">
-   153|  <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
-   154|  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
-   155|
-   156|
-   157|  <script type="application/ld+json">
-   158|  {
-   159|    "@context": "https://schema.org",
-   160|    "@type": "WebApplication",
-   161|    "name": "MapleSpike",
-   162|    "url": "https://maplespike.ca",
-   163|    "description": "Canadian government data pipeline with verified citations",
-   164|    "applicationCategory": "Data API",
-   165|    "offers": {
-   166|      "@type": "Offer",
-   167|      "price": "0",
-   168|      "priceCurrency": "CAD"
-   169|    }
-   170|  }
-   171|  </script>
-   172|
-   173|
-   174|
-   175|  <link rel="preconnect" href="https://www.google.com" crossorigin>
-   176|  <link rel="manifest" href="/manifest.json">
-   177|  <meta name="msapplication-config" content="/browserconfig.xml">
-   178|  <meta name="theme-color" content="#C23030">
-   179|  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
-   180|  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-   181|  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
-   182|</head>
-   183|<body>
-   184|
-   185|<!-- ═══ Ticker ═══ -->
-   186|<div class="ticker">
-   187|  <div class="ticker-inner">
-   188|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
-   189|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-   190|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-   191|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-   192|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-   193|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-   194|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-   195|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-   196|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
-   197|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
-   198|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
-   199|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
-   200|    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
-   201|    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
-   202|    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
-   203|    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
-   204|  </div>
-   205|</div>
-   206|
-   207|<style>
-   208|nav { top: 22px !important; }
-   209|body { padding-top: calc(22px + 64px); }
-   210|</style>
-   211|
-   212|<nav>
-   213|  <div class="nav-inner">
-   214|    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
-   215|    <ul class="nav-links">
-   216|      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
-   217|      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
-   218|      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
-   219|      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
-   220|      <li><a href="blog.html"><span class="nav-bracket">[</span>BLOG<span class="nav-bracket">]</span></a></li>
+<!DOCTYPE html>
+<html lang="en-CA" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MapleSpike — Civic Pulse Dashboard</title>
+  <link rel="canonical" href="https://maplespike.ca/dashboard">
+  <link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/dashboard">
+  <link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/dashboard">
+  <meta name="robots" content="index, follow">
+
+<meta name="description" content="See what's happening in Canadian government right now. Track Parliament, lobbying, regulations, and court decisions — all in one place.">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23C23030'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-weight='800' font-family='sans-serif'>C</text></svg>">
+<style>
+/* Dashboard layout styles (shared terminal styles in styles.css) */
+
+.dash { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
+.dash-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+.dash-header h1 { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px; }
+
+.search-hero { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px 40px; margin-bottom: 32px; text-align: center; }
+.search-hero h2 { font-size: 1.3rem; margin: 0 0 6px; }
+.search-hero p { color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 20px; }
+.search-box { display: flex; align-items: center; gap: 8px; max-width: 560px; margin: 0 auto; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 20px; transition: all var(--transition); }
+.search-box:focus-within { border-color: var(--accent); box-shadow: var(--shadow-glow); }
+.search-box input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 0.95rem; font-family: inherit; }
+.search-box input::placeholder { color: var(--text-muted); }
+.search-box .hint { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+.search-suggestions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.search-suggestions a { font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; padding: 4px 14px; border-radius: 99px; background: var(--accent-cyan-dim); transition: all var(--transition); }
+.search-suggestions a:hover { background: var(--accent); color: #fff; }
+
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 36px 0 16px; }
+.section-head h2 { font-size: 1.1rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+.section-head .see-all { font-size: 0.8rem; color: var(--accent-cyan); text-decoration: none; }
+.section-head .see-all:hover { text-decoration: underline; }
+
+.shimmer { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-elevated) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius); }
+
+.spotlight-banner { background: linear-gradient(135deg, var(--base18), var(--bg-card)); border: 1px solid var(--accent); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.spotlight-banner .sb-icon { font-size: 2.2rem; flex-shrink: 0; }
+.spotlight-banner .sb-body { flex: 1; min-width: 200px; }
+.spotlight-banner .sb-title { font-weight: 700; font-size: 1rem; color: var(--accent); margin-bottom: 4px; }
+.spotlight-banner .sb-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+.spotlight-banner .sb-btn { flex-shrink: 0; }
+
+#dev-console .usage-bar { width:100%; border-radius:4px 4px 0 0; min-height:4px; background: var(--accent-cyan); position:relative; transition: height 0.6s cubic-bezier(0.4,0,0.2,1); cursor:pointer; animation: barGrow 0.8s ease-out forwards; transform-origin: bottom; }
+#dev-console .usage-bar.today { background: var(--accent); }
+#dev-console .usage-bar .bar-label { position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:0.6rem; color:var(--text-muted); white-space:nowrap; }
+@keyframes barGrow { 0% { transform:scaleY(0); } 100% { transform:scaleY(1); } }
+#dev-console .toast { position:fixed; bottom:24px; right:24px; background:var(--success); color:#fff; padding:10px 20px; border-radius:var(--radius); font-size:0.82rem; opacity:0; transform:translateY(10px); transition:all var(--transition); pointer-events:none; z-index:999; }
+#dev-console .toast.show { opacity:1; transform:translateY(0); }
+#dev-console .key-item { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:6px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
+#dev-console .key-item .key-prefix { color:var(--text-muted); }
+#dev-console .key-item .key-value { color:var(--accent-cyan); }
+#dev-console .key-item .key-status { font-size:0.65rem; padding:2px 8px; border-radius:99px; }
+#dev-console .key-item .key-status.active { background:var(--base19); color:var(--success); }
+
+@media(max-width:768px) {
+  .dash { padding: 20px 16px 60px; }
+  .search-hero { padding: 24px 20px; }
+  .spotlight-banner { padding: 20px; }
+}
+</style>
+
+  <meta property="og:title" content="MapleSpike — Civic Pulse Dashboard">
+  <meta property="og:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+  <meta property="og:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://maplespike.ca/dashboard">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MapleSpike — Civic Pulse Dashboard">
+  <meta name="twitter:description" content="MapleSpike: Canadian government data API for AI agents, journalists, and researchers.">
+  <meta name="twitter:image" content="https://maplespike.ca/assets/maplespike_logo.svg">
+
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MapleSpike",
+    "url": "https://maplespike.ca",
+    "description": "Canadian government data pipeline with verified citations",
+    "applicationCategory": "Data API",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CAD"
+    }
+  }
+  </script>
+
+
+
+  <link rel="preconnect" href="https://www.google.com" crossorigin>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#C23030">
+  <!-- Plausible analytics (privacy-first) — enabled when MAPLESPIKE_ANALYTICS_DOMAIN is set -->
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<!-- ═══ Ticker ═══ -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> Committees: 54 active</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Lobbying spike detected</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Canada Gazette updated</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> OAG audit published</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#10B981;"></span> In-camera meeting flagged</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#C23030;"></span> Sole-source contract found</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#0891B2;"></span> Ethics investigation opened</span>
+    <span class="ticker-item"><span class="ticker-dot" style="background:#D4A017;"></span> Senate report released</span>
+  </div>
+</div>
+
+<style>
+nav { top: 22px !important; }
+body { padding-top: calc(22px + 64px); }
+</style>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-icon">C</span><span>MapleSpike</span></a>
+    <ul class="nav-links">
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="index.html#pricing"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
+      <li><a href="docs.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
+      <li><a href="explorer.html"><span class="nav-bracket">[</span>EXPLORER<span class="nav-bracket">]</span></a></li>
+      <li><a href="blog.html"><span class="nav-bracket">[</span>BLOG<span class="nav-bracket">]</span></a></li>
       <li><a href="changelog.html"><span class="nav-bracket">[</span>CHANGELOG<span class="nav-bracket">]</span></a></li>
       <li><a href="contact.html"><span class="nav-bracket">[</span>CONTACT<span class="nav-bracket">]</span></a></li>
 
@@ -271,12 +194,12 @@
   </div>
 
   <!-- Stats row -->
-  <div class="stats-dash" id="stats-row">
-    <div class="stat-dash shimmer">&nbsp;</div>
-    <div class="stat-dash shimmer">&nbsp;</div>
-    <div class="stat-dash shimmer">&nbsp;</div>
-    <div class="stat-dash shimmer">&nbsp;</div>
-    <div class="stat-dash shimmer">&nbsp;</div>
+  <div class="stats-row" id="stats-row">
+    <div class="stat-pill shimmer">&nbsp;</div>
+    <div class="stat-pill shimmer">&nbsp;</div>
+    <div class="stat-pill shimmer">&nbsp;</div>
+    <div class="stat-pill shimmer">&nbsp;</div>
+    <div class="stat-pill shimmer">&nbsp;</div>
   </div>
   <!-- ═══ Activity Feed (Terminal Log) ═══ -->
   <div class="section-head">
@@ -304,10 +227,10 @@
     <h2 data-i18n="dashboard.sections.notableActivity">🔔 Notable activity</h2>
     <a href="#" class="see-all" data-i18n="dashboard.sections.viewAllSignals">View all signals →</a>
   </div>
-  <div class="card-grid-3" id="alerts-feed">
-    <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
-    <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
-    <div class="alert-card shimmer" style="height:120px;">&nbsp;</div>
+  <div class="feed-list" id="alerts-feed">
+    <div class="feed-row shimmer" style="height:120px;">&nbsp;</div>
+    <div class="feed-row shimmer" style="height:120px;">&nbsp;</div>
+    <div class="feed-row shimmer" style="height:120px;">&nbsp;</div>
   </div>
 
   <!-- Parliament & Committees -->
@@ -315,10 +238,10 @@
     <h2 data-i18n="dashboard.sections.parliamentCommittees">🏛️ Parliament &amp; Committees</h2>
     <a href="#" class="see-all" data-i18n="dashboard.sections.seeAllCommittees">See all committees →</a>
   </div>
-  <div class="card-grid-3" id="committees-feed">
-    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
-    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
-    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+  <div class="feed-list" id="committees-feed">
+    <div class="feed-row shimmer" style="height:100px;">&nbsp;</div>
+    <div class="feed-row shimmer" style="height:100px;">&nbsp;</div>
+    <div class="feed-row shimmer" style="height:100px;">&nbsp;</div>
   </div>
 
   <!-- Tracked entities -->
@@ -326,13 +249,13 @@
     <h2>👤 Who we're watching</h2>
     <a href="#" class="see-all" data-i18n="dashboard.sections.viewAllTracked">View all tracked →</a>
   </div>
-  <div class="entity-grid" id="entity-feed">
-    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
-    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
-    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
-    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
-    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
-    <div class="entity-card shimmer" style="height:60px;">&nbsp;</div>
+  <div class="feed-list" id="entity-feed">
+    <div class="entity-row shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-row shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-row shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-row shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-row shimmer" style="height:60px;">&nbsp;</div>
+    <div class="entity-row shimmer" style="height:60px;">&nbsp;</div>
   </div>
 
   <!-- Entity Spotlight with D3 Network Graph -->
@@ -340,7 +263,7 @@
   <h2 data-i18n="dashboard.sections.influenceNetwork">🔗 Influence Network — Live</h2>
   <a href="#" class="see-all" data-i18n="dashboard.sections.exploreConnections">Explore all connections →</a>
 </div>
-<div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;overflow:hidden;margin-bottom:32px;">
+<div class="surface-elevated" style="padding:0;overflow:hidden;margin-bottom:32px;">
   <svg id="network-graph" style="width:100%;height:420px;display:block;"></svg>
   <div style="display:flex;gap:16px;padding:12px 20px;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
     <span><span style="color:#C23030;font-weight:600;">●</span> Lobbying</span>
@@ -357,7 +280,7 @@
   <h2 data-i18n="dashboard.sections.activityAcrossCanada">🗺️ Activity Across Canada</h2>
   <a href="#" class="see-all" data-i18n="dashboard.sections.viewAllProvinces">View all provinces →</a>
 </div>
-<div class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;overflow:hidden;margin-bottom:32px;">
+<div class="surface-elevated" style="padding:16px;overflow:hidden;margin-bottom:32px;">
   <div id="geo-map" style="width:100%;height:400px;"></div>
 </div>
 
@@ -366,10 +289,10 @@
     <h2 data-i18n="dashboard.sections.moneyInfluence">💰 Money &amp; Influence</h2>
     <a href="#" class="see-all" data-i18n="dashboard.sections.seeAllContracts">See all contracts →</a>
   </div>
-  <div class="card-grid-3" id="money-feed">
-    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
-    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
-    <div class="alert-card shimmer" style="height:100px;">&nbsp;</div>
+  <div class="feed-list" id="money-feed">
+    <div class="feed-row shimmer" style="height:100px;">&nbsp;</div>
+    <div class="feed-row shimmer" style="height:100px;">&nbsp;</div>
+    <div class="feed-row shimmer" style="height:100px;">&nbsp;</div>
   </div>
 
   <!-- Trending topics -->
@@ -377,10 +300,10 @@
     <h2>📈 Trending in Committees</h2>
     <a href="#" class="see-all">See all topics →</a>
   </div>
-  <div class="trending-grid" id="trending-feed">
-    <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
-    <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
-    <div class="trend-card shimmer" style="height:80px;">&nbsp;</div>
+  <div class="feed-list" id="trending-feed">
+    <div class="trend-row shimmer" style="height:80px;">&nbsp;</div>
+    <div class="trend-row shimmer" style="height:80px;">&nbsp;</div>
+    <div class="trend-row shimmer" style="height:80px;">&nbsp;</div>
   </div>
 
   <!-- Developer Console -->
@@ -388,7 +311,7 @@
     <h2>🔧 Developer Console</h2>
     <a href="#" class="see-all">API Documentation →</a>
   </div>
-  <div id="dev-console" class="card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:32px;">
+  <div id="dev-console" class="surface-elevated" style="padding:24px;margin-bottom:32px;">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
       <!-- API Key -->
       <div>
@@ -551,7 +474,7 @@
 <script>
 // ─── API configuration (from config.js) ───
 const _cfg = window.MAPLESPIKE || {};
-const API_BRIDGE = (_cfg.apiBase || 'http://127.0.0.1:8085') + '/v1/';
+const API_BRIDGE = (_cfg.apiBase || 'http://127.0.0.1:8082') + '/v1/';
 const _key = _cfg.apiKey || 'maplespike-dev-key';
 const _to = _cfg.timeout || {};
 
@@ -601,7 +524,7 @@ function renderStats(sources) {
   if (!container) return;
   container.innerHTML = labels.map(({ key, label, value }) => {
     const count = value !== undefined ? value : (sources[key]?.records?.length ?? sources[key]?.recordsFound ?? 0);
-    return `<div class="stat-dash"><div class="num">${count.toLocaleString()}</div><div class="label">${label}</div></div>`;
+    return `<div class="stat-pill"><div class="num">${count.toLocaleString()}</div><div class="label">${label}</div></div>`;
   }).join('');
 }
 
@@ -650,7 +573,7 @@ function renderActivity(activity) {
   } else {
     // Show fallback message
     const container = document.getElementById('stats-row');
-    if (container) container.innerHTML = '<div class="stat-dash" style="grid-column:1/-1;text-align:center;"><span class="stat-dash-label">Run <code>node scripts/generate-pipeline-data.mjs</code> to populate dashboard</span></div>';
+    if (container) container.innerHTML = '<div class="stat-pill" style="grid-column:1/-1;"><span>Run <code>node scripts/generate-pipeline-data.mjs</code> to populate dashboard</span></div>';
   }
 })();
 
@@ -728,9 +651,9 @@ function renderActivity(activity) {
     var sm = document.getElementById('sidebar-modules');
     var sc = document.getElementById('sidebar-calls');
     var ss = document.getElementById('sidebar-signals');
-    var modules = document.querySelector('#stats-row .stat-dash:first-child .num');
+    var modules = document.querySelector('#stats-row .stat-pill:first-child .num');
     var calls = document.getElementById('callsToday');
-    var alerts = document.querySelectorAll('#alerts-feed .alert-card:not(.shimmer)');
+    var alerts = document.querySelectorAll('#alerts-feed .feed-row:not(.shimmer)');
     if (sm && modules && modules.textContent.trim()) sm.textContent = modules.textContent.trim();
     if (sc && calls && calls.textContent.trim()) sc.textContent = calls.textContent.trim();
     if (ss && alerts.length > 0) ss.textContent = alerts.length > 99 ? '99+' : alerts.length;
@@ -752,7 +675,6 @@ function renderActivity(activity) {
 })();
 </script>
 
-<script src="/nav.js"></script>
 
 <!-- Nav + Theme JS -->
 <script>
