@@ -126,7 +126,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Verify GHCR secret exists
         run: |
-          if ! kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
+          if ! /run/current-system/sw/bin/kubectl get secret ghcr-pull -n $NAMESPACE &>/dev/null; then
             echo "Error: ghcr-pull secret not found in $NAMESPACE."
             exit 1
           fi
