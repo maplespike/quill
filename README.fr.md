@@ -52,7 +52,7 @@ maplespike/
 
 | Service | Plateforme | Stack |
 |---------|-----------|-------|
-| Portail (marketing + docs) | **GitHub Pages** | HTML/CSS/JS statique |
+| Portail (marketing + docs) | **Cluster K3s (nginx)** | HTML/CSS/JS statique |
 | Tableau de bord produit | **Cluster K3s** (nexus) | Next.js |
 | Serveur MCP | **Cluster K3s** | Node.js, transport SSE |
 | Serveur API | **Cluster K3s** | Node.js, auth Bearer |

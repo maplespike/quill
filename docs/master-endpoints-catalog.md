@@ -258,7 +258,7 @@ Provincial/Municipal CKAN →
   └─ Same /api/3/action/package_list pattern
   └─ Federated via open.canada.ca search
 
-All outputs → SHA-256 hash + citation envelope → pipeline-data.json
+All outputs → SHA-256 hash + citation envelope → SQLite database
 ```
 
 ## Ingestion Policy
