@@ -3,7 +3,7 @@ import { BriefGenerator } from "../BriefGenerator.js";
 
 // Test suite for BriefGenerator
 class BriefGeneratorTestSuite {
-  private generator: BriefGenerator;
+  private generator!: BriefGenerator;
 
   setup() {
     this.generator = new BriefGenerator();
@@ -248,7 +248,7 @@ class BriefGeneratorTestSuite {
         console.log(`✓ ${methodName}`);
         passed++;
       } catch (error) {
-        console.error(`✗ ${methodName}: ${error.message}`);
+        console.error(`✗ ${methodName}: ${(error as Error).message}`);
         failed++;
       }
     }

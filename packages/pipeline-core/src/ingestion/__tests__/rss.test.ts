@@ -35,10 +35,10 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items.length, 1);
-      assert.equal(res.items[0].title, 'Test Article');
-      assert.equal(res.items[0].link, 'https://example.com/article');
-      assert.equal(res.items[0].guid, 'abc123');
+      assert.equal(res.items?.length, 1);
+      assert.equal(res.items?.[0].title, 'Test Article');
+      assert.equal(res.items?.[0].link, 'https://example.com/article');
+      assert.equal(res.items?.[0].guid, 'abc123');
     });
 
     it('parses multiple items', () => {

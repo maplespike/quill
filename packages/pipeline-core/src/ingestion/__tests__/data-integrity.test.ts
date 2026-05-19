@@ -305,7 +305,7 @@ describe('Module Registry Integration', () => {
 /*  5. Database Schema Compliance (skip gracefully if no DB)          */
 /* ------------------------------------------------------------------ */
 describe('Database Schema Compliance', () => {
-  const SCHEMA_DIR = new URL('../../../database/', import.meta.url).pathname;
+  const SCHEMA_DIR = new URL('../../../database/', 'file://' + __dirname + '/').pathname;
 
   it('defence DDL contains citation_hash column', () => {
     assert.ok(DND_DDL.includes('citation_hash'), 'defence DDL must include citation_hash column');
