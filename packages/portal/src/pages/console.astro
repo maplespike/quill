@@ -1,0 +1,59 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ApiKeyManager from "@/components/console/ApiKeyManager";
+import UsageChart from "@/components/console/UsageChart";
+import ApiDocsViewer from "@/components/console/ApiDocsViewer";
+---
+
+<BaseLayout title="Developer Console" description="Manage API keys, view usage statistics, and access API documentation">
+  <section class="container mx-auto px-4 py-8 md:py-12">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Developer Console</h1>
+        <p class="mt-1 text-muted-foreground">
+          Manage your API keys, monitor usage, and explore the API.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+      <a href="#keys" class="rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+        <div class="text-2xl mb-2">🔑</div>
+        <div class="font-medium text-sm">API Keys</div>
+        <div class="text-xs text-muted-foreground">Create, rotate, revoke</div>
+      </a>
+      <a href="#usage" class="rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+        <div class="text-2xl mb-2">📊</div>
+        <div class="font-medium text-sm">Usage</div>
+        <div class="text-xs text-muted-foreground">Stats &amp; limits</div>
+      </a>
+      <a href="#docs" class="rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+        <div class="text-2xl mb-2">📖</div>
+        <div class="font-medium text-sm">Docs</div>
+        <div class="text-xs text-muted-foreground">API reference</div>
+      </a>
+      <a href="/dashboard" class="rounded-lg border p-4 hover:bg-muted/50 transition-colors">
+        <div class="text-2xl mb-2">📈</div>
+        <div class="font-medium text-sm">Dashboard</div>
+        <div class="text-xs text-muted-foreground">Overview &amp; activity</div>
+      </a>
+    </div>
+
+    <div class="space-y-12">
+      <div id="keys">
+        <h2 class="text-2xl font-bold mb-4">API Key Management</h2>
+        <ApiKeyManager client:only="react" />
+      </div>
+
+      <div id="usage">
+        <h2 class="text-2xl font-bold mb-4">Usage Statistics</h2>
+        <UsageChart client:only="react" />
+      </div>
+
+      <div id="docs">
+        <h2 class="text-2xl font-bold mb-4">API Documentation</h2>
+        <ApiDocsViewer client:only="react" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

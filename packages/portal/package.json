@@ -38,6 +38,7 @@
     "lucide-react": "^0.510.0",
     "react": "19.2.5",
     "react-dom": "19.2.5",
+    "recharts": "^2.15.4",
     "react-hook-form": "^7.76.0",
     "tailwind-merge": "^3.2.0",
     "three": "^0.176.0",
