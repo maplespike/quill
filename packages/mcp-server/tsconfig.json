@@ -9,11 +9,12 @@
     "paths": {
       "@maplespike/pipeline-core": ["../pipeline-core/dist/index.d.ts"]
     },
-    "baseUrl": ".",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
   "references": [
     { "path": "../pipeline-core" }
   ]
-    "strict": true,
-    "ignoreDeprecations": "6.0",
+}
