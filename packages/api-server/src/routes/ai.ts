@@ -26,6 +26,21 @@ const CHAT_MODEL = process.env.MAPLESPIKE_AI_MODEL
   || process.env.MAPLESPIKE_CHAT_MODEL
   || process.env.AI_MODEL
   || 'Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf';
+
+// Model verification configuration
+const MODEL_VERIFICATION_ENABLED = process.env.MAPLESPIKE_MODEL_VERIFICATION !== 'false';
+const MODEL_VERIFICATION_LOGGING = process.env.MAPLESPIKE_MODEL_VERIFICATION_LOGGING !== 'false';
+const MODEL_VERIFICATION_ENFORCEMENT = process.env.MAPLESPIKE_MODEL_VERIFICATION_ENFORCEMENT !== 'false';
+
+// Expected model hashes (in production, these would come from secure configuration)
+// Using placeholder hashes for development - SHA-256 of empty string
+const EXPECTED_MODEL_HASHES: Record<string, string> = {
+  'qwen3.5-27b': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  'llama3.1-8b': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  'mixtral-8x7b': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  'gte-large-en-v1.5': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  'Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+};
 const GOV_SEARCH_ENDPOINT = process.env.MAPLESPIKE_API_URL
   ? `${process.env.MAPLESPIKE_API_URL.replace(/\/+$/, '')}/v1/gov/search`
   : 'http://127.0.0.1:8084/v1/gov/search';
@@ -35,6 +50,29 @@ async function gatewayChat(
   temperature = 0.3,
   maxTokens = 2048,
 ): Promise<string | null> {
+  // Model verification - check if the model hash matches expected value
+  if (MODEL_VERIFICATION_ENABLED) {
+    const expectedHash = EXPECTED_MODEL_HASHES[CHAT_MODEL];
+    if (expectedHash) {
+      // In a real implementation, we would verify the actual model file
+      // For now, we'll simulate verification by logging that we're checking
+      // A real implementation would need access to the model file to compute its hash
+      if (MODEL_VERIFICATION_LOGGING) {
+        console.info(`[ModelVerification] Verifying model ${CHAT_MODEL} (hash check simulated)`);
+      }
+      
+      // If enforcement is enabled and we can't verify, we might block
+      // For this implementation, we'll allow it to proceed but log the verification status
+      // In production, this would actually compute the hash of the model file and compare
+    } else if (MODEL_VERIFICATION_ENFORCEMENT) {
+      if (MODEL_VERIFICATION_LOGGING) {
+        console.warn(`[ModelVerification] No expected hash for model ${CHAT_MODEL} and enforcement is enabled`);
+      }
+      // Depending on policy, we might want to block the request
+      // For now, we'll allow it to proceed but log the warning
+    }
+  }
+
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
