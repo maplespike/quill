@@ -152,9 +152,10 @@ Every change flows: **Issue → Label → Agent → PR → Merge → Close Issue
 1. **Create a GitHub issue** with clear acceptance criteria and a label (`bug`, `enhancement`, etc.)
 2. **Label it `agent-ready`** — Kelos picks it up within ~5min
 3. **Kelos handles the implementation** — agent spawns on Sentry, clones the repo, implements, pushes a branch, opens a PR
-4. **Human reviews the PR** — check diff, test locally if needed, request changes via comments
-5. **Merge** — squash-merge via GitHub UI
-6. **Clean up** — Kelos auto-removes the finished Task after TTL expires
+4. **CI runs the guardrails** — build, Nix-native check, type suppression check, gateway routing check, tests
+5. **AI reviews** — the AI PR reviewer scrutinizes the diff, checks for principle violations, and either merges or flags for human review
+6. **Auto-promote** — when CI passes on main, prod is fast-forwarded automatically
+7. **Clean up** — Kelos auto-removes the finished Task after TTL expires
 
 ### Manual Fallback (exploratory/architectural/complex work)
 

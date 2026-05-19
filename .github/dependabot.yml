@@ -1,44 +1,31 @@
+# ───────────────────────────────────────────────────────────────
 # Dependabot — automated dependency updates
-# Run daily, grouped by ecosystem, PR per group
+# PRs from dependabot/* get CI guardrails + AI review + auto-merge
+# ───────────────────────────────────────────────────────────────
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: npm
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "America/Toronto"
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Toronto
     open-pull-requests-limit: 10
     labels:
-      - "dependencies"
-      - "automation"
-    groups:
-      typescript:
-        patterns:
-          - "typescript"
-          - "@types/*"
-      eslint:
-        patterns:
-          - "eslint*"
-          - "@eslint/*"
-      vitest:
-        patterns:
-          - "vitest"
-          - "@vitest/*"
-      turbo:
-        patterns:
-          - "turbo"
-          - "@turbo/*"
+      - dependabot
+    commit-message:
+      prefix: "chore"
+      include: "scope"
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: docker
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "America/Toronto"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "ci"
+      interval: monthly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
