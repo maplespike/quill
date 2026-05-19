@@ -10,3 +10,6 @@ export * from './ingestion/index.js';
 export * from './curation/index.js';
 export * from './verification/index.js';
 export * from './audit/index.js';
+export * from './graph/index.js';
+export * from './brief/index.js';
+export * from './pipeline.js';
