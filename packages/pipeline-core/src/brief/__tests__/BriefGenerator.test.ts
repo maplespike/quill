@@ -106,7 +106,7 @@ class BriefGeneratorTestSuite {
     );
 
     const rendered = this.generator.renderBrief("default-brief", brief);
-    
+
     if (!rendered.includes("# Test Brief")) {
       throw new Error("Rendered brief should contain '# Test Brief'");
     }
@@ -140,7 +140,7 @@ class BriefGeneratorTestSuite {
     );
 
     const rendered = this.generator.renderSignal("signal-alert", signal);
-    
+
     if (!rendered.includes("🚨 **SIGNAL ALERT** 🚨")) {
       throw new Error("Rendered signal should contain '🚨 **SIGNAL ALERT** 🚨'");
     }
@@ -173,7 +173,7 @@ class BriefGeneratorTestSuite {
   testGetAvailableTemplates() {
     this.setup();
     const templates = this.generator.getTemplates();
-    
+
     if (!templates.includes("default-brief")) {
       throw new Error("Templates should include 'default-brief'");
     }
@@ -194,18 +194,18 @@ class BriefGeneratorTestSuite {
         return `Custom template: ${data.title}`;
       }
     };
-    
+
     this.generator.addTemplate("custom", customTemplate);
     const templates = this.generator.getTemplates();
     if (!templates.includes("custom")) {
       throw new Error("Templates should include 'custom' after adding");
     }
-    
+
     const removed = this.generator.removeTemplate("custom");
     if (!removed) {
       throw new Error("Should return true when removing existing template");
     }
-    
+
     const templatesAfterRemove = this.generator.getTemplates();
     if (templatesAfterRemove.includes("custom")) {
       throw new Error("Templates should not include 'custom' after removing");
@@ -215,7 +215,7 @@ class BriefGeneratorTestSuite {
   testThrowErrorForNonExistentTemplate() {
     this.setup();
     const brief = this.generator.generateBrief("Test", "Summary", [], []);
-    
+
     try {
       this.generator.renderBrief("non-existent", brief);
       throw new Error("Should throw error for non-existent template");

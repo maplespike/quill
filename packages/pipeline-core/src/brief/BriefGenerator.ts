@@ -46,13 +46,13 @@ export class BriefGenerator {
       render: (data: Record<string, unknown>) => {
         // Simple template replacement for MVP
         let result = data.template as string;
-        
+
         // Replace title
         result = result.replace(/{{title}}/g, String(data.title || ''));
-        
+
         // Replace summary
         result = result.replace(/{{summary}}/g, String(data.summary || ''));
-        
+
         // Replace sections
         if (Array.isArray(data.sections)) {
           let sectionsContent = '';
@@ -61,7 +61,7 @@ export class BriefGenerator {
           }
           result = result.replace(/{{#each sections}}[\s\S]*?{{\/each}}/g, sectionsContent.trim());
         }
-        
+
         // Replace citations
         if (Array.isArray(data.citations)) {
           let citationsContent = '';
@@ -70,10 +70,10 @@ export class BriefGenerator {
           }
           result = result.replace(/{{#each citations}}[\s\S]*?{{\/each}}/g, citationsContent.trim());
         }
-        
+
         // Replace generatedAt
         result = result.replace(/{{generatedAt}}/g, String(data.generatedAt || new Date().toISOString()));
-        
+
         return result;
       }
     });
@@ -97,25 +97,25 @@ export class BriefGenerator {
 `,
       render: (data: Record<string, unknown>) => {
         let result = data.template as string;
-        
+
         result = result.replace(/{{type}}/g, String(data.type || ''));
         result = result.replace(/{{severity}}/g, String(data.severity || ''));
         result = result.replace(/{{entityName}}/g, String(data.entityName || ''));
         result = result.replace(/{{confidence}}/g, String(data.confidence || ''));
         result = result.replace(/{{description}}/g, String(data.description || ''));
-        
+
         if (Array.isArray(data.relatedEntities)) {
           const related = data.relatedEntities.join(', ');
           result = result.replace(/{{#each relatedEntities}}[\s\S]*?{{\/each}}/g, related);
         }
-        
+
         if (Array.isArray(data.citedSources)) {
           const sources = data.citedSources.join(', ');
           result = result.replace(/{{#each citedSources}}[\s\S]*?{{\/each}}/g, sources);
         }
-        
+
         result = result.replace(/{{detectedAt}}/g, String(data.detectedAt || new Date().toISOString()));
-        
+
         return result;
       }
     });
@@ -151,33 +151,33 @@ export class BriefGenerator {
 `,
       render: (data: Record<string, unknown>) => {
         let result = data.template as string;
-        
+
         result = result.replace(/{{committeeName}}/g, String(data.committeeName || ''));
         result = result.replace(/{{meetingNumber}}/g, String(data.meetingNumber || ''));
         result = result.replace(/{{date}}/g, String(data.date || ''));
         result = result.replace(/{{subject}}/g, String(data.subject || ''));
         result = result.replace(/{{summary}}/g, String(data.summary || ''));
-        
+
         if (Array.isArray(data.keyPoints)) {
           const points = data.keyPoints.map(p => `- ${p}`).join('\n');
           result = result.replace(/{{#each keyPoints}}[\s\S]*?{{\/each}}/g, points);
         }
-        
+
         if (Array.isArray(data.recommendations)) {
           const recs = data.recommendations.map(r => `- ${r}`).join('\n');
           result = result.replace(/{{#each recommendations}}[\s\S]*?{{\/each}}/g, recs);
         }
-        
+
         if (Array.isArray(data.participants)) {
-          const participants = data.participants.map(p => 
+          const participants = data.participants.map(p =>
             `- ${p.name} (${p.party || 'Unknown'}): "${p.quote || ''}"`
           ).join('\n');
           result = result.replace(/{{#each participants}}[\s\S]*?{{\/each}}/g, participants);
         }
-        
+
         result = result.replace(/{{sourceUrl}}/g, String(data.sourceUrl || ''));
         result = result.replace(/{{generatedAt}}/g, String(data.generatedAt || new Date().toISOString()));
-        
+
         return result;
       }
     });
@@ -195,7 +195,7 @@ export class BriefGenerator {
   ): Brief {
     const id = `brief-${crypto.randomUUID()}`;
     const now = new Date().toISOString();
-    
+
     return {
       id,
       title,
@@ -221,7 +221,7 @@ export class BriefGenerator {
     confidence: number = 0.8
   ): Signal {
     const id = `signal-${crypto.randomUUID()}`;
-    
+
     return {
       id,
       type,
@@ -243,7 +243,7 @@ export class BriefGenerator {
     if (!template) {
       throw new Error(`Template not found: ${templateName}`);
     }
-    
+
     return template.render({
       ...brief,
       template: template.template,
@@ -258,7 +258,7 @@ export class BriefGenerator {
     if (!template) {
       throw new Error(`Template not found: ${templateName}`);
     }
-    
+
     return template.render({
       ...signal,
       template: template.template,

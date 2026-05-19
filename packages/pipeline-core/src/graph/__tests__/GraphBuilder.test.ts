@@ -57,16 +57,16 @@ class GraphBuilderTestSuite {
     (this.builder as any).nodes.set("test-id", { id: "test-id", type: "test", label: "Test", properties: {} });
     // @ts-ignore - accessing private property for testing
     (this.builder as any).edges.set("test-edge-id", { id: "test-edge-id", source: "test-id", target: "test-id", type: "test", weight: 1, properties: {}, sourceRef: "test" });
-    
+
     if (this.builder.getAllNodes().length !== 1) {
       throw new Error(`Expected 1 node after adding, got ${this.builder.getAllNodes().length}`);
     }
     if (this.builder.getAllEdges().length !== 1) {
       throw new Error(`Expected 1 edge after adding, got ${this.builder.getAllEdges().length}`);
     }
-    
+
     this.builder.clear();
-    
+
     if (this.builder.getAllNodes().length !== 0) {
       throw new Error(`Expected 0 nodes after clearing, got ${this.builder.getAllNodes().length}`);
     }

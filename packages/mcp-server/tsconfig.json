@@ -10,7 +10,6 @@
       "@maplespike/pipeline-core": ["../pipeline-core/dist/index.d.ts"]
     },
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
   "references": [

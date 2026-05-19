@@ -23,7 +23,7 @@ export class GraphBuilder {
    */
   async buildFromEntities(): Promise<void> {
     const db = getRawDb();
-    
+
     // Clear existing data
     this.nodes.clear();
     this.edges.clear();
@@ -32,7 +32,7 @@ export class GraphBuilder {
     // Get all entity links
     const links = db
       .prepare(`
-        SELECT 
+        SELECT
           el.*,
           e1.canonical_name as source_label,
           e2.canonical_name as target_label,
@@ -123,7 +123,7 @@ export class GraphBuilder {
     for (const { neighborId, edgeId } of neighbors) {
       const edge = this.edges.get(edgeId);
       const node = this.nodes.get(neighborId);
-      
+
       if (edge && node) {
         connections.push({ node, edge });
       }
@@ -141,11 +141,11 @@ export class GraphBuilder {
     }
 
     const paths: GraphPath[] = [];
-    const queue: Array<{ 
-      currentId: string; 
-      pathNodes: string[]; 
-      pathEdges: string[]; 
-      depth: number 
+    const queue: Array<{
+      currentId: string;
+      pathNodes: string[];
+      pathEdges: string[];
+      depth: number
     }> = [{ currentId: fromId, pathNodes: [fromId], pathEdges: [], depth: 0 }];
     const visited: Set<string> = new Set();
 

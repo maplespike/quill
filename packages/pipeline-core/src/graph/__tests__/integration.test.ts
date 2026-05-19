@@ -15,7 +15,7 @@ class GraphBuilderBriefGeneratorIntegrationTest {
 
   testPipelineStageComposition() {
     this.setup();
-    
+
     // Test that both classes can be instantiated and used together
     if (!(this.builder instanceof GraphBuilder)) {
       throw new Error("Builder should be instance of GraphBuilder");
@@ -23,7 +23,7 @@ class GraphBuilderBriefGeneratorIntegrationTest {
     if (!(this.generator instanceof BriefGenerator)) {
       throw new Error("Generator should be instance of BriefGenerator");
     }
-    
+
     // Test that we can generate a brief after building a graph (even if empty)
     const brief = this.generator.generateBrief(
       "Integration Test",
@@ -31,14 +31,14 @@ class GraphBuilderBriefGeneratorIntegrationTest {
       [{ title: "Test", content: "Content", order: 1 }],
       [{ id: "cite-1", source: "Test Source", entityIds: ["test-entity"], confidence: 0.9 }]
     );
-    
+
     if (brief.title !== "Integration Test") {
       throw new Error(`Expected title 'Integration Test', got '${brief.title}'`);
     }
     if (brief.summary !== "Testing pipeline composition") {
       throw new Error(`Expected summary 'Testing pipeline composition', got '${brief.summary}'`);
     }
-    
+
     // Test that we can render the brief
     const rendered = this.generator.renderBrief("default-brief", brief);
     if (!rendered.includes("# Integration Test")) {
