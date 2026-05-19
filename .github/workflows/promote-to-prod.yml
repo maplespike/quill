@@ -1,0 +1,72 @@
+# ───────────────────────────────────────────────────────────────
+# Promote main → prod — runs after push to main
+# Waits for CI to complete on main, then fast-forwards prod
+# ───────────────────────────────────────────────────────────────
+name: Promote to prod
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: promote-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      # Wait for CI to complete on the latest main commit
+      - name: Wait for CI to pass
+        run: |
+          SHA=$(git rev-parse HEAD)
+          echo "Waiting for CI to complete on commit $SHA..."
+          for i in $(seq 1 60); do
+            STATUS=$(gh api repos/reverb256/maplespike/commits/$SHA/status --jq '.state' 2>/dev/null || echo "error")
+            case "$STATUS" in
+              success)
+                echo "✅ CI passed on main commit $SHA"
+                exit 0
+                ;;
+              failure|error)
+                echo "::error::CI failed on main commit $SHA"
+                gh api repos/reverb256/maplespike/commits/$SHA/status --jq '.statuses[] | "\(.context): \(.state)"'
+                exit 1
+                ;;
+              pending)
+                echo "⏳ CI still running... ($i/60)"
+                sleep 15
+                ;;
+              *)
+                echo "⚠️  Unknown status '$STATUS' — retrying... ($i/60)"
+                sleep 15
+                ;;
+            esac
+          done
+          echo "::error::Timed out waiting for CI on main commit $SHA"
+          exit 1
+
+      # Fast-forward prod to main
+      - name: Fast-forward prod to main
+        run: |
+          git fetch origin prod
+          git checkout prod
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "prod is already up-to-date with main — nothing to promote"
+            exit 0
+          fi
+          git merge --ff-only origin/main
+          git push origin prod
+          # Prod deployment trigger (if applicable)
+          echo "✅ prod fast-forwarded to match main (commit $(git rev-parse HEAD))"
