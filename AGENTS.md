@@ -28,6 +28,15 @@ The AI Inference Gateway is at `http://ai-inference-gateway.ai-inference.svc.clu
 - The model configured in `/workspace/repo/opencode.json` is valid and served by the gateway
 - The workspace setup already configured `opencode.json` with the correct model and provider
 
+### Finding relevant skills
+
+Before implementing, call **`find_skills`** via the `skills-mcp` MCP server with your issue title or keywords to find relevant Hermes Agent skills that may contain patterns, pitfalls, and best practices for your task. Example:
+- `find_skills(query: "ingestion module")` — find ingestion-related skills
+- `find_skills(query: "entity resolution")` — find entity resolution guidance
+- `get_skill(name: "opencode-agent-early-stop")` — read full skill content
+
+To use: call the MCP tool with your query. Skills are indexed from the Hermes Agent skill library.
+
 ### Critical: bash tool requires `description`
 
 Every `bash` call **must** include a `description` parameter describing what the command does. Without it, bash calls fail with `SchemaError`.
