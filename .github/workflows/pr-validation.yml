@@ -83,6 +83,28 @@ jobs:
             echo "::warning::PR targets '$BASE' — should be main or prod"
           fi
 
+      # ── Trigger kagent ci-cd-watcher on failure ────────────────
+      - name: "Trigger AI diagnostic on CI failure"
+        if: failure()
+        run: |
+          curl -s -X POST http://kagent-controller.kagent:8083/api/tasks \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent\": \"ci-cd-watcher\",
+              \"input\": \"PR #${{ github.event.pull_request.number }} in ${{ github.repository }} failed CI checks. Diagnose and file an issue.\"
+            }" || echo "kagent trigger skipped"
+
+      # ── Trigger kagent pr-reviewer on validation pass ──────────
+      - name: "Trigger AI PR review"
+        if: success() && (startsWith(github.head_ref, 'kelos-task') || startsWith(github.head_ref, 'feat/'))
+        run: |
+          curl -s -X POST http://kagent-controller.kagent:8083/api/tasks \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent\": \"pr-reviewer\",
+              \"input\": \"Review PR #${{ github.event.pull_request.number }} in ${{ github.repository }}\"
+            }" || echo "kagent trigger skipped"
+
       # ── Summary ────────────────────────────────────────────────────
       - name: "PR validation summary"
         if: always()
