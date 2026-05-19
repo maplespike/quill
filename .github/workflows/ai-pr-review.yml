@@ -1,0 +1,47 @@
+# =============================================================================
+# MapleSpike — AI PR Review Trigger
+# Triggers kagent pr-reviewer when CI passes on Kelos PRs
+# =============================================================================
+name: AI PR Review
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+jobs:
+  trigger-review:
+    if: |
+      github.event.label.name == 'ci-passed' &&
+      (startsWith(github.event.pull_request.head.ref, 'kelos-task'))
+    runs-on: [self-hosted, maplespike]
+    steps:
+      - name: Trigger kagent pr-reviewer
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+          echo "🔍 CI passed on PR #$PR_NUMBER — triggering AI review"
+
+          # Call kagent controller API (in-cluster via NodePort)
+          RESPONSE=$(curl -s -X POST http://kagent-controller.kagent:8083/api/tasks \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"agent\": \"pr-reviewer\",
+              \"input\": \"Review PR #${PR_NUMBER} in ${REPO}\"
+            }")
+
+          echo "kagent response: $RESPONSE"
+
+          # Label PR as under-review
+          gh pr edit $PR_NUMBER --add-label "ai-reviewing" --repo $REPO || true
+
+      - name: Report failure
+        if: failure()
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+          gh pr comment $PR_NUMBER --repo $REPO --body "⚠️ AI review trigger failed — check runner logs"
