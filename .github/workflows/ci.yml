@@ -50,6 +50,68 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # ── Enforce: no ignoreDeprecations in any tsconfig ────────────
+      - name: "Forbid ignoreDeprecations"
+        run: |
+          FOUND=$(grep -rn 'ignoreDeprecations' tsconfig.json packages/*/tsconfig.json 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::ignoreDeprecations is FORBIDDEN. Remove deprecated flags instead."
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "✅ No ignoreDeprecations found — clean"
+
+      # ── Enforce: all k8s changes go through Nix ────────────────────
+      - name: "Forbid raw k8s YAML edits outside Nix"
+        run: |
+          K8S_CHANGES=$(git diff --name-only origin/main -- 'k8s/' 2>/dev/null || true)
+          NIX_CHANGES=$(git diff --name-only origin/main -- 'flake.nix' 2>/dev/null || true)
+          if [ -n "$K8S_CHANGES" ] && [ -z "$NIX_CHANGES" ]; then
+            echo "::error::k8s/*.yaml changed without flake.nix"
+            echo "All k8s manifest changes must go through the Nix flake."
+            echo "Changed k8s files:"
+            echo "$K8S_CHANGES"
+            exit 1
+          fi
+          if [ -n "$K8S_CHANGES" ]; then
+            echo "✅ k8s changes accompanied by flake.nix changes — OK"
+          else
+            echo "✅ No raw k8s YAML changes"
+          fi
+
+      # ── Enforce: no type suppression ──────────────────────────────
+      - name: "Forbid type suppression (as any, @ts-ignore, @ts-expect-error)"
+        run: |
+          # Search for @ts-ignore and @ts-expect-error (comment-based suppressions)
+          SUPPRESSIONS=$(grep -rn '@ts-ignore\|@ts-expect-error' packages/ --include='*.ts' \
+            | grep -v node_modules | grep -v '.d.ts' || true)
+          if [ -n "$SUPPRESSIONS" ]; then
+            echo "::error::@ts-ignore / @ts-expect-error is FORBIDDEN. Fix type errors properly."
+            echo "$SUPPRESSIONS"
+            exit 1
+          fi
+          # Search for 'as any' casts (excluding type definitions and test mocks)
+          AS_ANY=$(grep -rn '\bas any\b' packages/ --include='*.ts' \
+            | grep -v node_modules | grep -v '.d.ts' | grep -v '.test.' || true)
+          if [ -n "$AS_ANY" ]; then
+            echo "::error::'as any' type cast is FORBIDDEN. Use proper TypeScript types."
+            echo "$AS_ANY"
+            exit 1
+          fi
+          echo "✅ No type suppression found — clean"
+
+      # ── Verify gateway routing (no direct NIM API calls) ──────────
+      - name: "Verify gateway routing — no direct backend API calls"
+        run: |
+          DIRECT_CALLS=$(grep -rn 'api\.nim\|direct.*api\|bypass.*gateway' packages/ --include='*.ts' \
+            | grep -v node_modules | grep -v '.test.' | grep -v '.d.ts' || true)
+          if [ -n "$DIRECT_CALLS" ]; then
+            echo "::error::Direct backend API calls detected. All AI traffic must route through the AI Inference Gateway."
+            echo "$DIRECT_CALLS"
+            exit 1
+          fi
+          echo "✅ No direct backend API calls — all traffic routes through gateway"
+
       # Clean before build to avoid stale dist issues
       - run: pnpm run clean
 
