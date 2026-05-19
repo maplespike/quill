@@ -17,13 +17,18 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, maplespike]
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Needed for commit signing check
+
+      # ── Install gh CLI (needed for labeling) ───────────────────
+      - name: Install gh CLI
+        run: |
+          type gh >/dev/null 2>&1 || sudo apt-get update -qq && sudo apt-get install -y -qq gh
 
       # ── Verify commit signatures on PRs (non-fatal) ────────────────
       - name: Verify commit signatures
@@ -82,7 +87,6 @@ jobs:
       # ── Enforce: no type suppression ──────────────────────────────
       - name: "Forbid type suppression (as any, @ts-ignore, @ts-expect-error)"
         run: |
-          # Search for @ts-ignore and @ts-expect-error (comment-based suppressions)
           SUPPRESSIONS=$(grep -rn '@ts-ignore\|@ts-expect-error' packages/ --include='*.ts' \
             | grep -v node_modules | grep -v '.d.ts' || true)
           if [ -n "$SUPPRESSIONS" ]; then
@@ -90,7 +94,6 @@ jobs:
             echo "$SUPPRESSIONS"
             exit 1
           fi
-          # Search for 'as any' casts (excluding type definitions and test mocks)
           AS_ANY=$(grep -rn '\bas any\b' packages/ --include='*.ts' \
             | grep -v node_modules | grep -v '.d.ts' | grep -v '.test.' || true)
           if [ -n "$AS_ANY" ]; then
@@ -144,7 +147,6 @@ jobs:
         working-directory: packages/pipeline-core
 
       - name: Test mcp-server
-
         run: pnpm test
         working-directory: packages/mcp-server
         env:
