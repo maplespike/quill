@@ -28,6 +28,16 @@ The AI Inference Gateway is at `http://ai-inference-gateway.ai-inference.svc.clu
 - The model configured in `/workspace/repo/opencode.json` is valid and served by the gateway
 - The workspace setup already configured `opencode.json` with the correct model and provider
 
+### Critical: bash tool requires `description`
+
+Every `bash` call **must** include a `description` parameter describing what the command does. Without it, bash calls fail with `SchemaError`.
+
+Examples:
+- ✅ `bash(command: "find . -name '*.ts'", description: "List TypeScript files")`
+- ❌ `bash(command: "find . -name '*.ts'")` — will fail
+
+If you forget `description` and get a SchemaError, retry the same command WITH a description. Do not move on without retrying.
+
 ### Important
 
 - The workspace at `/workspace/repo` is writable — work directly there
