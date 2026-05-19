@@ -28,12 +28,13 @@ export default function Nav() {
       <Link href="/" style={{ fontWeight: 800, color: 'var(--accent)', textDecoration: 'none' }}>
         MAPLESPIKE
       </Link>
-      <div style={{ display: 'flex', gap: 16, flex: 1 }}>
-        <Link href="/" style={linkStyle}>OVERVIEW</Link>
-        <Link href="/search" style={linkStyle}>SEARCH</Link>
-        <Link href="/briefs" style={linkStyle}>BRIEFS</Link>
-        <Link href="/signals" style={linkStyle}>SIGNALS</Link>
-      </div>
+       <div style={{ display: 'flex', gap: 16, flex: 1 }}>
+         <Link href="/" style={linkStyle}>OVERVIEW</Link>
+         <Link href="/search" style={linkStyle}>SEARCH</Link>
+         <Link href="/briefs" style={linkStyle}>BRIEFS</Link>
+         <Link href="/signals" style={linkStyle}>SIGNALS</Link>
+         <Link href="/owasp" style={linkStyle}>OWASP</Link>
+       </div>
       {authed ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Link href="/account" style={linkStyle}>ACCOUNT</Link>
