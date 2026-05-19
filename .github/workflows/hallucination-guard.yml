@@ -1,0 +1,57 @@
+name: Hallucinating Agent Guard
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, reopened]
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  detect-vandalism:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check issue for hallucination patterns
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const body = issue.body || '';
+            const title = issue.title || '';
+            const labels = issue.labels.map(l => l.name);
+            const knownBad = ['p0','kelos-ready','casdoor','sovereign-data-layer'];
+            const stdLabels = ['bug','enhancement','p1','p2','module','k8s','frontend','security','documentation','cleanup','agent-ready'];
+            const warnings = [];
+            if (body.includes('Ops Manager Report') || body.includes('sprint-to-live') || body.includes('Boss —')) {
+              warnings.push('Ops Manager Report / sprint-to-live hallucination pattern');
+            }
+            const badLabels = labels.filter(l => knownBad.includes(l));
+            if (badLabels.length) warnings.push(`Non-standard labels: ${badLabels.join(', ')}`);
+            if (labels.length > 0 && !labels.some(l => stdLabels.includes(l))) {
+              warnings.push('No standard labels present — possible label stripping');
+            }
+            const prRefs = [...body.matchAll(/PR #(\d+)/g)].map(m => parseInt(m[1]));
+            for (const num of prRefs) {
+              try {
+                await github.rest.pulls.get({ owner: context.repo.owner, repo: context.repo.repo, pull_number: num });
+              } catch { warnings.push(`Fake PR reference: PR #${num} does not exist`); }
+            }
+            core.setOutput('warnings', JSON.stringify(warnings));
+      - name: Alert if vandalism detected
+        if: steps.check.outputs.warnings != '[]'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const warnings = JSON.parse('${{ steps.check.outputs.warnings }}');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## ⚠️ Hallucination Alert\n\n${warnings.map(w => '- ' + w).join('\n')}\n\nThis issue appears vandalized. Review and restore if needed.`
+            });
