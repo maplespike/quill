@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   auto-merge:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, maplespike]
     if: |
       github.event_name == 'pull_request' &&
       contains(github.event.pull_request.labels.*.name, 'auto-merge')
