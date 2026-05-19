@@ -5,13 +5,13 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc -b",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "test": "tsx --test src/**/*.test.ts src/ingestion/__tests__/*.test.ts",
-    "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts",
-    "heartbeat": "node scripts/push-heartbeat.mjs"
-  },
+"scripts": {
+  "build": "tsc -b",
+  "clean": "rm -rf dist tsconfig.tsbuildinfo",
+  "test": "jest",
+  "test:coverage": "jest --coverage",
+  "heartbeat": "node scripts/push-heartbeat.mjs"
+},
   "dependencies": {
     "@maplespike/database": "workspace:*",
     "amqplib": "^0.10.5",
