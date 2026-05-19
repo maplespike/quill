@@ -626,7 +626,7 @@ NixOS (zephyr/nexus):
 | 9g | Sandbox Escalation | OS-level defense (microVM) | 🔴 TODO | 3-5 days |
 | 9h | MCP Server Hardening | OWASP MCP Server Guide | 🔴 TODO | 1-2 days |
 | 9i | Supply Chain Verification | LLM03:2025 — Supply Chain | 🔴 TODO | 1 day |
-| 9j | OWASP Threat Model Mapping | All categories | 🔴 TODO | Pre-build step |
+| 9j | OWASP Threat Model Mapping | All categories | DONE | [docs/owasp-threat-model-phase9.md](./docs/owasp-threat-model-phase9.md) |
 
 ### Phase 9a: Trust Context Tracker (Priority 1)
 
@@ -736,7 +736,7 @@ NixOS (zephyr/nexus):
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 🔴 OWASP category mapping per phase | TODO | Each control cross-referenced to LLM01-10 |
+| OWASP category mapping per phase | DONE | [docs/owasp-threat-model-phase9.md](./docs/owasp-threat-model-phase9.md) — full mapping matrix, coverage gaps, OWASP links |
 | 🔴 Compliance dashboard | TODO | Grafana panel showing coverage across categories |
 | 🔴 Penetration testing framework | TODO | Simulate known injection patterns against own defenses |
 
@@ -771,7 +771,7 @@ NixOS (zephyr/nexus):
 || 2026-05-15 | Thread-local session context | `get_current_session_id()` — TLS shared between pre/post/transform hooks |
 | 2026-05-17 | Three-tier licensing: AGPL core / Apache-2.0 interface / MIT client | Protects ingestion moat (AGPL network clause), drives API/MCP adoption (Apache-2.0 patent grant), zero-friction SDK (MIT). Commercial license path for enterprise. See [LICENSE.md](./LICENSE.md). |
 | 2026-05-17 | CLA required for all external contributions | Enables commercial re-licensing for MapleSpike Enterprise License — standard dual-license pattern (MongoDB, GitLab, Grafana) |
-| 2026-05-17 | Data vs. code license separation | Source data = OGL-Canada (always free). Code = three-tier. Derived outputs inherit data freedom. |
+| 2026-05-19 | OWASP LLM Top 10 threat model mapping for Phase 9 | All 9a-9j controls mapped to OWASP v1.1 categories. Coverage: LLM01/06/07/08 STRONG, LLM02/03/05 PARTIAL, LLM04/09/10 WEAK. See [docs/owasp-threat-model-phase9.md](./docs/owasp-threat-model-phase9.md) |
 
 ### Agent Firewall File Inventory
 
