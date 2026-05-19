@@ -13,6 +13,19 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 ---
 
+## Permanent Principles
+
+### Nix-native
+NixOS modules in `nix/` (flake.nix, devenv.nix) are the single source of truth for deployment config. No direct k8s YAML edits, no hand-crafted wrapper scripts — CI/CD generates all derivative manifests. If you need to change how MapleSpike is deployed, change the Nix module.
+
+### Gateway routing
+All AI backend traffic routes through the AI Inference Gateway — circuit breakers, rate limiting, MCP brokerage, and observability depend on it. Never route a client directly to a backend (NIM, llama-cpp, etc.). If a backend format is incompatible, fix the gateway's transformation layer, not the routing. Send `"model": "auto"` in requests to let the gateway handle per-request model selection.
+
+### Clean long-term solutions
+Fix root causes, not symptoms. Every change should be the cleanest solution that lasts — no TODOs, no half-measures, no "fix it later" debt. If a task seems to require a workaround, stop and fix the underlying problem instead.
+
+---
+
 ## Repository Identity
 
 | Attribute | Value |
