@@ -9,10 +9,26 @@ Closes #   <!-- or: Related to # -->
 
 **No issue = no PR.** If there's no issue, create one first.
 
-## Worktree Info
-- **Developed on:** [zephyr / nexus / forge / sentry]
-- **Worktree path:** `/data/projects/own/maplespike-NNN`
-- **Branch:** `issue-NNN-short-description`
+## Autonomous Pipeline
+
+### AI Review
+This PR will be reviewed by the AI PR Reviewer. If rejected, structured feedback
+will be appended to the source issue as `## Previous Attempt Feedback` and the
+`agent-ready` label will be re-added for Kelos retry.
+
+### Dependabot Fast-Track
+If this PR is from `dependabot/*` and only changes lockfiles or package.json
+version bumps, it will be auto-approved without full review.
+
+### Entity Resolution Integration
+If this PR adds a new data module, include a note on how it feeds
+entity resolution (#302):
+```
+## Cross-Reference Integration
+- **Person fields:** [which fields contain person names/identifiers]
+- **Organization fields:** [which fields contain org names/identifiers]
+- **Module readiness for #302:** [ready / needs schema changes / N/A]
+```
 
 ## Type of Change
 
@@ -23,7 +39,7 @@ Closes #   <!-- or: Related to # -->
 - [ ] API change
 - [ ] Documentation
 - [ ] Refactor / cleanup
-- [ ] CI/CD
+- [ ] CI/CD / templates
 
 ## Testing
 
@@ -49,3 +65,11 @@ Closes #   <!-- or: Related to # -->
 - [ ] Branch name: `issue-NNN-short-description`
 - [ ] Worktree cleaned up after merge: `git worktree remove /data/projects/own/maplespike-NNN`
 - [ ] Remote nodes synced: `git fetch origin && git reset --hard origin/main` on all 4 nodes
+
+## Clean Long-Term Solution
+
+- [ ] **Nix-native**: All deployment config in Nix, not raw k8s YAML
+- [ ] **Gateway routing**: AI traffic through AI Inference Gateway, not direct to providers
+- [ ] **Root cause, not workaround**: If this works around a limitation, fix the limitation instead
+- [ ] **No tech debt**: No TODO/FIXME left behind
+- [ ] **Backwards compatible**: Existing clients and configs continue working

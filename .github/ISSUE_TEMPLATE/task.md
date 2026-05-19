@@ -15,8 +15,37 @@ Why is this needed? What's the background?
 ## Scope
 What files/directories are in scope? What is out of scope?
 
+## Dependencies
+
+- **Blocks on #302 (Entity Resolution)?** [yes / no] — if yes, mark body with `**Depends on:** #302`
+- **Blocks on #268 (AI Ask)?** [yes / no]
+- **Related issues:** #
+
+## Cross-Reference Integration
+
+If this is a data module, document how it feeds entity resolution (#302):
+- **Person fields:** [which fields contain person names/identifiers]
+- **Organization fields:** [which fields contain org names/identifiers]
+- **Date fields for temporal linking:** [which fields link to time]
+- **Module readiness for #302:** [ready / needs schema changes / N/A]
+
 ## Required changes
 List the specific changes needed, concretely enough for autonomous execution.
+
+## Previous Attempt Feedback
+
+<!-- If this is a retry after AI PR review rejection, the reviewer will
+     prepend structured feedback here. Kelos reads this to fix the exact
+     problem. Format:
+
+## Previous Attempt Feedback
+Rule violated: [rule name]
+File: [file path]
+Line: [line number]
+Details: [specific explanation of what's wrong]
+Fix: [what the fix should look like]
+
+-->
 
 ## Clean long-term solution mandate
 

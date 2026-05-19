@@ -1,0 +1,26 @@
+# Commit message template for MapleSpike
+#
+# Every commit MUST reference the issue number:
+#   feat: add IRCC immigration module (#42)
+#   fix: resolve NPE in pipeline-core parser (#107)
+#   docs: update AGENTS.md workflow section (#203)
+#
+# Allowed prefixes:
+#   feat:     New feature or module
+#   fix:      Bug fix
+#   docs:     Documentation only
+#   refactor: Code restructuring with no behavior change
+#   test:     Adding or updating tests
+#   chore:    Build, CI, dependencies, templates
+#   perf:     Performance improvement
+#
+# First line: 72 chars max. Body: wrap at 72 chars.
+# Body is optional but recommended for complex changes.
+#
+# Example:
+#   feat: implement OWASP compliance dashboard (#123)
+#
+#   Adds a Grafana dashboard for OWASP Top 10 security monitoring
+#   with real-time alerting on data freshness violations.
+#
+#   Closes #123

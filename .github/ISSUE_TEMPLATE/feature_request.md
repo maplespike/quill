@@ -13,6 +13,20 @@ What area does this affect?
 ## Problem / Opportunity
 Why is this needed? What user or agent need does it address?
 
+## Dependencies
+
+- **Blocks on #302 (Entity Resolution)?** [yes / no] — if yes, this feature's value is gated on #302 being live first
+- **Blocks on #268 (AI Ask)?** [yes / no] — if yes, no NLQ features until AI Ask is live
+- **Related issues:** #
+
+## Cross-Reference Integration
+
+If this is a data module, document how it feeds entity resolution (#302):
+- **Person fields:** [which fields contain person names/identifiers]
+- **Organization fields:** [which fields contain org names/identifiers]
+- **Date fields for temporal linking:** [which fields link to time]
+- **Module readiness for #302:** [ready / needs schema changes / N/A]
+
 ## Proposed Solution
 - **Data source(s):** [URLs, APIs, update frequency, license verification]
 - **MCP tools needed:** [tool names following naming convention]
@@ -27,6 +41,7 @@ Why is this needed? What user or agent need does it address?
 - [ ] ROADMAP.md entry updated
 - [ ] docs/metrics.json updated
 - [ ] Unit tests with ≥80% coverage
+- [ ] Cross-reference section filled (how this feeds #302)
 
 ## Clean long-term solution checklist
 
@@ -37,6 +52,7 @@ Agents implementing this must ensure:
 - [ ] **Root cause, not workaround**: If this works around a limitation, fix the limitation instead
 - [ ] **No tech debt**: No TODOs left in code, no `# TODO: fix this later` comments
 - [ ] **Backwards compatible**: Existing clients and configs continue working
+- [ ] **Entity resolution aware**: Data schema includes fields needed for #302 linking
 
 ## Workflow
 - [ ] Single PR per feature
