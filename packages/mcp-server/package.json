@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/node": "^22.19.17",
     "tsx": "^4.21.0",
-    "typescript": "^5.7.0"
+    "typescript": "^6.0.0"
   },
   "sideEffects": false,
   "license": "Apache-2.0"
