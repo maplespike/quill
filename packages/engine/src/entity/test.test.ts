@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import type { Organization, Person } from "../types/index";
 import { AliasManager } from "./aliases";
 import { EntityResolver } from "./resolver";
+import { personBlockKey, orgBlockKey } from "./migration/resolve";
 
 function makeAliasManager(): AliasManager {
   const db = new Database(":memory:");
@@ -254,5 +255,38 @@ describe("EntityResolver — batch resolution", () => {
     );
     expect(lmEntity).toBeDefined();
     expect(lmEntity!.aliases.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("Blocking functions", () => {
+  it("personBlockKey uses last name initial + first initial", () => {
+    expect(personBlockKey("Jean Chrétien")).toBe("cj");
+    expect(personBlockKey("Sarah Mitchell")).toBe("ms");
+    expect(personBlockKey("S. Mitchell")).toBe("ms");
+  });
+
+  it("personBlockKey handles single names", () => {
+    expect(personBlockKey("Madonna")).toBe("mm");
+  });
+
+  it("personBlockKey normalizes accents", () => {
+    expect(personBlockKey("Stéphane Dion")).toBe("ds");
+  });
+
+  it("orgBlockKey uses first 3 chars", () => {
+    expect(orgBlockKey("Lockheed Martin Canada")).toBe("loc");
+    expect(orgBlockKey("DND")).toBe("dnd");
+    expect(orgBlockKey("Global Affairs Canada")).toBe("glo");
+  });
+
+  it("orgBlockKey normalizes case and punctuation", () => {
+    expect(orgBlockKey("L'Oreal Canada")).toBe("lor");
+    expect(orgBlockKey("3M Company")).toBe("3m ");
+  });
+
+  it("blocking puts similar names in same or adjacent blocks", () => {
+    const key1 = personBlockKey("Justin Trudeau");
+    const key2 = personBlockKey("Justin P.J. Trudeau");
+    expect(key1).toBe(key2);
   });
 });
