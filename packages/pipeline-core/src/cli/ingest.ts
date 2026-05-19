@@ -81,6 +81,10 @@ const PIPELINE_CONFIG: Record<string, string> = {
   'social-programs': 'social-programs',
   statcan: 'statcan',
   'transport-infrastructure': 'transport-infrastructure',
+  'indigenous-relations': 'indigenous-relations',
+  'health-canada': 'health-canada',
+  'science-research': 'science-research',
+  cmhc: 'cmhc',
 
 };
 
