@@ -1,0 +1,150 @@
+{
+  "_comment": "Container image digest registry — single source of truth for all pinned images",
+  "_updated": "2026-05-19",
+  "_note": "Run scripts/update-image-digests.sh to refresh digests. Apply with scripts/apply-image-pins.sh",
+  "third_party": {
+    "postgres": {
+      "image": "docker.io/library/postgres",
+      "tag": "17-alpine",
+      "digest": "sha256:979c4379dd698aba0b890599a6104e082035f98ef31d9b9291ec22f2b13059ca",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/prod/postgres.yaml", "charts/maplespike/values-prod.yaml"]
+    },
+    "prometheus": {
+      "image": "docker.io/prom/prometheus",
+      "tag": "v3.2.1",
+      "digest": "sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/prometheus-server.yaml"]
+    },
+    "pushgateway": {
+      "image": "docker.io/prom/pushgateway",
+      "tag": "v1.11.0",
+      "digest": "sha256:99392035ae99754b40e579088710df184b6a730b77670148f44102ba9ee01d2f",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/prometheus-pushgateway.yaml"]
+    },
+    "alertmanager": {
+      "image": "docker.io/prom/alertmanager",
+      "tag": "v0.28.1",
+      "digest": "sha256:27c475db5fb156cab31d5c18a4251ac7ed567746a2483ff264516437a39b15ba",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/alertmanager.yaml"]
+    },
+    "loki": {
+      "image": "docker.io/grafana/loki",
+      "tag": "3.4.2",
+      "digest": "sha256:58a6c186ce78ba04d58bfe2a927eff296ba733a430df09645d56cdc158f3ba08",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/loki.yaml"]
+    },
+    "promtail": {
+      "image": "docker.io/grafana/promtail",
+      "tag": "3.4.2",
+      "digest": "sha256:c6e9a987ca086cbfef945b8ebd708eb09f98b5e78bfb659e4e5a8b3bd604d11b",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/promtail.yaml"]
+    },
+    "uptime-kuma": {
+      "image": "docker.io/louislam/uptime-kuma",
+      "tag": "2",
+      "digest": "sha256:9aeb4e51d038047f414309c77a1af553281ca535723cb88907d907269d0a908e",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/uptime-kuma.yaml"]
+    },
+    "gitea": {
+      "image": "docker.io/gitea/gitea",
+      "tag": "latest-rootless",
+      "digest": "sha256:4c4256497e2e237ddebdd30986c7ce52cb6f936b3e90c34bb9f4665714599f62",
+      "pinned_at": "2026-05-19",
+      "used_in": ["k8s/gitea.yaml"]
+    }
+  },
+  "internal": {
+    "api": {
+      "image": "ghcr.io/reverb256/maplespike/maplespike-api",
+      "environments": {
+        "dev": {
+          "tag": "dev",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Mutable tag — dev environment updates frequently"
+        },
+        "prod": {
+          "tag": "stable",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Pinned by CI after each prod build"
+        }
+      },
+      "used_in": ["k8s/prod/api-deployment.yaml", "k8s/dev/api-deployment.yaml", "charts/maplespike/templates/deployments.yaml"]
+    },
+    "mcp": {
+      "image": "ghcr.io/reverb256/maplespike/maplespike-mcp",
+      "environments": {
+        "dev": {
+          "tag": "dev",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Mutable tag — dev environment updates frequently"
+        },
+        "prod": {
+          "tag": "stable",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Pinned by CI after each prod build"
+        },
+        "local-registry": {
+          "tag": "stable",
+          "registry": "nexus:5000",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Local registry mirror on nexus node"
+        }
+      },
+      "used_in": ["k8s/prod/mcp-deployment.yaml", "k8s/dev/mcp-deployment.yaml", "k8s/mcp-deployment.yaml", "charts/maplespike/templates/deployments.yaml"]
+    },
+    "portal": {
+      "image": "ghcr.io/reverb256/maplespike/maplespike-portal",
+      "environments": {
+        "dev": {
+          "tag": "dev",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Mutable tag — dev environment updates frequently"
+        },
+        "prod": {
+          "tag": "stable",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Pinned by CI after each prod build"
+        }
+      },
+      "used_in": ["k8s/prod/portal-deployment.yaml", "k8s/dev/portal-deployment.yaml", "charts/maplespike/templates/portal.yaml"]
+    },
+    "dashboard": {
+      "image": "ghcr.io/reverb256/maplespike/maplespike-dashboard",
+      "environments": {
+        "dev": {
+          "tag": "dev",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Mutable tag — dev environment updates frequently"
+        }
+      },
+      "used_in": ["k8s/dev/dashboard-deployment.yaml"]
+    },
+    "ingest": {
+      "image": "nexus:5000/maplespike-ingest",
+      "environments": {
+        "prod": {
+          "tag": "stable",
+          "digest": "",
+          "pinned_at": "",
+          "note": "Local registry — pinned by CI after each ingest build"
+        }
+      },
+      "used_in": ["k8s/cron/*.yaml (22 cronjobs)"]
+    }
+  }
+}

@@ -46,7 +46,7 @@ mcp:
 # PostgreSQL Database
 database:
   enabled: true
-  image: postgres:17-alpine
+  image: postgres@sha256:979c4379dd698aba0b890599a6104e082035f98ef31d9b9291ec22f2b13059ca # 17-alpine
   user: maplespike
   database: maplespike
   storage: 5Gi

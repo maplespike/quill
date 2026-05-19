@@ -79,6 +79,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build & push API (prod)
+        id: build-api
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -92,6 +93,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=api-prod
 
       - name: Build & push MCP (prod)
+        id: build-mcp
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -105,6 +107,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=mcp-prod
 
       - name: Build & push Portal (prod)
+        id: build-portal
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -116,6 +119,65 @@ jobs:
             ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
           cache-from: type=gha,scope=portal-prod
           cache-to: type=gha,mode=max,scope=portal-prod
+
+      - name: Record image digests
+        run: |
+          echo "API digest: ${{ steps.build-api.outputs.digest }}"
+          echo "MCP digest: ${{ steps.build-mcp.outputs.digest }}"
+          echo "Portal digest: ${{ steps.build-portal.outputs.digest }}"
+          python3 -c "
+import json
+from datetime import date
+with open('k8s/images.json', 'r') as f:
+    data = json.load(f)
+data['internal']['api']['environments']['prod']['digest'] = '${{ steps.build-api.outputs.digest }}'
+data['internal']['api']['environments']['prod']['pinned_at'] = str(date.today())
+data['internal']['mcp']['environments']['prod']['digest'] = '${{ steps.build-mcp.outputs.digest }}'
+data['internal']['mcp']['environments']['prod']['pinned_at'] = str(date.today())
+data['internal']['portal']['environments']['prod']['digest'] = '${{ steps.build-portal.outputs.digest }}'
+data['internal']['portal']['environments']['prod']['pinned_at'] = str(date.today())
+data['_updated'] = str(date.today())
+with open('k8s/images.json', 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+"
+
+      - name: Pin prod manifests to digests
+        run: |
+          python3 -c "
+import json, re, glob, os
+
+with open('k8s/images.json', 'r') as f:
+    data = json.load(f)
+
+# Pin prod deployments to digests
+prod_images = {
+    'maplespike-api': data['internal']['api']['environments']['prod'],
+    'maplespike-mcp': data['internal']['mcp']['environments']['prod'],
+    'maplespike-portal': data['internal']['portal']['environments']['prod'],
+}
+
+for name, env in prod_images.items():
+    digest = env.get('digest', '')
+    if not digest:
+        continue
+    image = env['image'] if 'image' in env else f\"ghcr.io/reverb256/maplespike/{name}\"
+    pinned = f\"{image}@{digest}\"
+    tag = env.get('tag', 'stable')
+
+    for manifest in glob.glob(f'k8s/prod/{name.replace(\"maplespike-\", \"\")}-deployment.yaml'):
+        with open(manifest, 'r') as f:
+            content = f.read()
+        # Replace tag reference with digest pin
+        content = re.sub(
+            rf'image:\s*{re.escape(image)}:{re.escape(tag)}',
+            f'image: {pinned}',
+            content
+        )
+        with open(manifest, 'w') as f:
+            f.write(content)
+        print(f'Pinned {manifest} -> {pinned}')
+"
 
   deploy:
     name: Deploy to K8s

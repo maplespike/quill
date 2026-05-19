@@ -23,7 +23,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: gitea
-          image: docker.io/gitea/gitea:latest-rootless
+          image: gitea/gitea@sha256:4c4256497e2e237ddebdd30986c7ce52cb6f936b3e90c34bb9f4665714599f62 # latest-rootless
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000

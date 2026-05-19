@@ -87,6 +87,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build & push API (dev)
+        id: build-api
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -99,6 +100,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=api-dev
 
       - name: Build & push MCP (dev)
+        id: build-mcp
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -111,6 +113,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=mcp-dev
 
       - name: Build & push Portal (dev)
+        id: build-portal
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -121,6 +124,28 @@ jobs:
             ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
           cache-from: type=gha,scope=portal-dev
           cache-to: type=gha,mode=max,scope=portal-dev
+
+      - name: Record image digests
+        run: |
+          echo "API digest: ${{ steps.build-api.outputs.digest }}"
+          echo "MCP digest: ${{ steps.build-mcp.outputs.digest }}"
+          echo "Portal digest: ${{ steps.build-portal.outputs.digest }}"
+          python3 -c "
+import json
+from datetime import date
+with open('k8s/images.json', 'r') as f:
+    data = json.load(f)
+data['internal']['api']['environments']['dev']['digest'] = '${{ steps.build-api.outputs.digest }}'
+data['internal']['api']['environments']['dev']['pinned_at'] = str(date.today())
+data['internal']['mcp']['environments']['dev']['digest'] = '${{ steps.build-mcp.outputs.digest }}'
+data['internal']['mcp']['environments']['dev']['pinned_at'] = str(date.today())
+data['internal']['portal']['environments']['dev']['digest'] = '${{ steps.build-portal.outputs.digest }}'
+data['internal']['portal']['environments']['dev']['pinned_at'] = str(date.today())
+data['_updated'] = str(date.today())
+with open('k8s/images.json', 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+"
 
   deploy:
     name: Deploy to K8s
