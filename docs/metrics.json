@@ -8,8 +8,8 @@
     "description": "65 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 61 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
-    "count": 30,
-    "description": "30 MCP tool definitions registered in tools/index.ts"
+    "count": 50,
+    "description": "50 MCP tool definitions registered in tools/index.ts"
   },
   "typescript": {
     "totalLines": 122972,
