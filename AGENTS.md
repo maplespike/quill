@@ -1,34 +1,49 @@
 ---
-last-reviewed: 2026-05-17
+last-reviewed: 2026-05-19
 status: active
 ---
 
-### Context-First Rule (ALL agents — Kelos, kagent, Hermes)
+# MapleSpike — Canada's Sovereign Data Layer
 
-Before ANY implementation or review step, verify reality — DO NOT assume the system state matches your training data.
+**Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
+**Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
 
-**For Kelos (OpenCode) agents:**
-1. Verify the AI Inference Gateway is reachable: `curl -s http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1/models`
-2. Verify the model in `/workspace/repo/opencode.json` is a valid model name (not `"auto"`) and matches a gateway-served model
-3. Check if the issue body contains `## Previous Attempt Feedback` — if so, READ IT and fix the exact problems listed
-4. Check if this issue depends on `#302` (entity resolution) or `#268` (AI Ask) — note dependencies in the PR body
-5. Verify MCP servers listed in `KELOS_MCP_SERVERS` are reachable before calling them
-
-**For kagent agents (pr-reviewer, gateway-mitigator):**
-1. Verify the gateway is healthy before starting work
-2. Verify MCP server dependencies are reachable
-3. If the source issue body contains `## Previous Attempt Feedback`, read it before acting
-
-**For all agents:** If any verification step fails, STOP and report the failure. Do not proceed with broken assumptions. A failed verification reported in the PR body is better than a broken PR that wastes the review cycle.
+> **Your job**: Implement the GitHub issue that spawned you. Read the issue body, make the changes, push the branch, and open a PR against `main`. **Do NOT stop until you have created a pull request.** If you hit an error, try a different approach. The task is not complete until a PR exists.
 
 ---
 
+## Quick reference
 
-# AGENTS.md — MapleSpike
-# Kelos test - 2026-05-18 - pipeline verified
+### Before implementing
 
-> **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
+1. **Read the issue body thoroughly** — it contains the exact requirements, acceptance criteria, and file paths
+2. **Check for `## Previous Attempt Feedback`** — if present, fix the exact problems listed before adding anything new
+3. **If the issue depends on #302 (entity resolution) or #268 (AI Ask)**, note the dependency in the PR body
 
-Quick reference for agents working in this repo. Don't guess — check here first.
+### Gateway verification
 
+The AI Inference Gateway is at `http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1`. If you need to check it:
+
+- Use **webfetch** tool (not bash) to call `http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1/models`
+- The model configured in `/workspace/repo/opencode.json` is valid and served by the gateway
+- The workspace setup already configured `opencode.json` with the correct model and provider
+
+### Important
+
+- The workspace at `/workspace/repo` is writable — work directly there
+- Branch: `kelos-task-{{.Number}}` (replaced automatically)
+- Every commit message must reference the issue number
+- PR body must include `Closes #<issue-number>`
+- If verification fails, report it and STOP. Do not proceed with broken assumptions.
+
+---
+
+## Hallucinating Agent Detection
+
+Known signatures of agent hallucination:
+- "Ops Manager Reports" header or "Boss — sprint-to-live" completions
+- Non-standard labels (`p0`, `kelos-ready`)
+- Fabricated PR numbers that 404
+- Stripped standard labels from legitimate issues
+
+If you detect these, restore the original content and close the issue as `not_planned`.
