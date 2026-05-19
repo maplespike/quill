@@ -722,6 +722,21 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
+  {
+    name: 'provincial-deep',
+    description: 'Provincial deep-dive datasets for larger provinces (ON, QC, BC, AB) via CKAN portals',
+    category: 'provincial',
+    modulePath: './provincial-deep/index.js',
+    ingestFunctions: ['ingestAllProvincialDeep'],
+    sources: [
+      { name: 'Ontario Open Data Portal', format: 'CKAN' },
+      { name: 'Quebec Open Data Portal', format: 'CKAN' },
+      { name: 'British Columbia Open Data Portal', format: 'CKAN' },
+      { name: 'Alberta Open Data Portal', format: 'CKAN' }
+    ],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+  },
 
   {
     name: 'provincial-orgs',
