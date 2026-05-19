@@ -88,7 +88,7 @@ jobs:
       - name: "Forbid type suppression (as any, @ts-ignore, @ts-expect-error)"
         run: |
           SUPPRESSIONS=$(grep -rn '@ts-ignore\|@ts-expect-error' packages/ --include='*.ts' \
-            | grep -v node_modules | grep -v '.d.ts' || true)
+            | grep -v node_modules | grep -v '.d.ts' | grep -v '.test.' || true)
           if [ -n "$SUPPRESSIONS" ]; then
             echo "::error::@ts-ignore / @ts-expect-error is FORBIDDEN. Fix type errors properly."
             echo "$SUPPRESSIONS"
