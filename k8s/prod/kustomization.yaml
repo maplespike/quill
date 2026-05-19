@@ -7,7 +7,9 @@
 # Apply: kubectl apply -k k8s/prod/
 resources:
   - namespace.yaml
-  - network-policy.yaml
+  - network-policies.yaml
+  - resource-quotas.yaml
+  - api-secret.yaml
   - db-secret.yaml
   - postgres.yaml
   - api-deployment.yaml
