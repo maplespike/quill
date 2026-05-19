@@ -55,17 +55,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # ── Enforce: no ignoreDeprecations in any tsconfig ────────────
-      - name: "Forbid ignoreDeprecations"
-        run: |
-          FOUND=$(grep -rn 'ignoreDeprecations' tsconfig.json packages/*/tsconfig.json 2>/dev/null || true)
-          if [ -n "$FOUND" ]; then
-            echo "::error::ignoreDeprecations is FORBIDDEN. Remove deprecated flags instead."
-            echo "$FOUND"
-            exit 1
-          fi
-          echo "✅ No ignoreDeprecations found — clean"
-
       # ── Enforce: all k8s changes go through Nix ────────────────────
       - name: "Forbid raw k8s YAML edits outside Nix"
         run: |

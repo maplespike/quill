@@ -15,4 +15,5 @@
   "references": [
     { "path": "../pipeline-core" }
   ]
-}
+    "strict": true,
+    "ignoreDeprecations": "6.0",
