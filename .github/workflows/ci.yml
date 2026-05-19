@@ -11,8 +11,8 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 permissions:
-  contents: read
-  pull-requests: read
+  contents: write
+  pull-requests: write
   actions: read
 
 jobs:
@@ -172,3 +172,15 @@ jobs:
       - name: Build api-server
         run: pnpm build
         working-directory: packages/api-server
+
+      # ── Auto-merge PRs from automated branches ─────────────────
+      - name: Auto-merge Kelos and Dependabot PRs
+        if: |
+          github.event_name == 'pull_request' &&
+          (startsWith(github.head_ref, 'kelos-task') || startsWith(github.head_ref, 'dependabot'))
+        run: |
+          echo "✅ All CI checks passed for ${{ github.head_ref }}"
+          echo "Auto-merging PR #${{ github.event.pull_request.number }}..."
+          gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+        env:
+          GH_TOKEN: ${{ github.token }}
