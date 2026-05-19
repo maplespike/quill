@@ -9,8 +9,18 @@ assignees: ''
 ## Task
 One-line summary.
 
-## Context
-Why is this needed? What's the background?
+## Context for Agent
+**Issue author:** Fill this section with the context the agent needs to verify before starting work.
+
+- **Gateway check:** Does the agent need to verify the AI Inference Gateway has the right models loaded?
+- **Previous attempts:** Is there a `## Previous Attempt Feedback` section below? (The AI reviewer adds this on retry)
+- **Services that must be up:** [e.g., "Gateway must be running", "Postgres must have schema migrated"]
+- **What to look at first:** [files, logs, or endpoints to inspect before writing code]
+- **What NOT to touch:** [files or directories that are out of scope]
+- **Model to use:** `nemotron-3-nano-30b-a3b` (default for coding) / `nemotron-3-super-120b-a12b` (hard tasks)
+
+## Background
+Why is this needed? What's the business or technical reason?
 
 ## Scope
 What files/directories are in scope? What is out of scope?
