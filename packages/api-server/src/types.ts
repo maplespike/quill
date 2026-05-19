@@ -11,6 +11,23 @@
 
 export type Tier = 'free' | 'pro' | 'business' | 'enterprise' | 'internal';
 
+export interface TenantBranding {
+  /** Tenant display name (overrides default product name) */
+  displayName?: string;
+  /** Logo URL (SVG or PNG) */
+  logoUrl?: string;
+  /** Primary brand color (hex) */
+  primaryColor?: string;
+  /** Secondary brand color (hex) */
+  secondaryColor?: string;
+  /** Favicon URL */
+  faviconUrl?: string;
+  /** Custom footer text */
+  footerText?: string;
+  /** Custom CSS URL for additional overrides */
+  customCssUrl?: string;
+}
+
 export interface Tenant {
   id: string;
   name: string;
@@ -20,6 +37,10 @@ export interface Tenant {
   tier: Tier;
   isActive: boolean;
   journalismMode: boolean;
+  /** White-label branding configuration */
+  branding?: TenantBranding;
+  /** Allowed origins for CORS (tenant-scoped) */
+  allowedOrigins?: string[];
 }
 
 export interface ApiKeyRecord {

@@ -13,6 +13,7 @@ import type { Tenant } from './types.js';
 import { verifyToken, tokenFromRequest } from './auth/jwt.js';
 import { getUser, getTenantForUser } from './auth/users.js';
 import type { MapleSpikeStorage } from './types.js';
+import { getTenant, getTenantBranding } from './tenant.js';
 
 /* ------------------------------------------------------------------ */
 /*  In-Memory API Key Store (legacy)                                   */
@@ -162,8 +163,9 @@ async function authenticateWithApiKey(
   if (entry) {
     const tenant = tenantDetails[entry.tenantId];
     if (!tenant || !tenant.isActive) return null;
+    const registryTenant = getTenant(entry.tenantId);
     return {
-      tenant,
+      tenant: registryTenant ? { ...tenant, branding: registryTenant.branding } : tenant,
       apiKeyId: `key-${entry.tenantId}`,
       authMethod: 'api-key',
     };
@@ -172,8 +174,9 @@ async function authenticateWithApiKey(
   if (!db) return null;
   const dbResult = await db.authenticate(rawKey);
   if (!dbResult) return null;
+  const registryTenant = getTenant(dbResult.tenant.id);
   return {
-    tenant: dbResult.tenant,
+    tenant: registryTenant ? { ...dbResult.tenant, branding: registryTenant.branding } : dbResult.tenant,
     apiKeyId: dbResult.apiKeyId,
     authMethod: 'api-key',
     rotatedKey: dbResult.rotatedKey,
@@ -196,6 +199,14 @@ function authenticateWithJwt(
   if (user) {
     const tenant = getTenantForUser(user.id);
     if (tenant && tenant.isActive) {
+      const registryTenant = getTenant(tenant.id);
+      if (registryTenant) {
+        return {
+          tenant: { ...tenant, branding: registryTenant.branding },
+          apiKeyId: `jwt-${user.id}`,
+          authMethod: method,
+        };
+      }
       return {
         tenant,
         apiKeyId: `jwt-${user.id}`,

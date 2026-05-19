@@ -85,6 +85,7 @@ import {
   logoutHandler,
   meHandler as authMeHandler,
 } from './auth/github.js';
+import { tenantBrandingHandler, tenantListHandler } from './routes/tenant.js';
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
@@ -143,6 +144,10 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/auth\/passkey\/login\/complete\/?$/, method: 'POST', params: [], handler: passkeyLoginCompleteHandler },
   { pattern: /^\/v1\/auth\/passkey\/credentials\/?$/, method: 'GET', params: [], handler: passkeyListHandler },
   { pattern: /^\/v1\/auth\/passkey\/credentials\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: passkeyDeleteHandler },
+
+  // --- Tenant / White-label ---
+  { pattern: /^\/v1\/tenant\/branding\/?$/, method: 'GET', params: [], handler: tenantBrandingHandler },
+  { pattern: /^\/v1\/tenant\/list\/?$/, method: 'GET', params: [], handler: tenantListHandler },
 ];
 
 /**

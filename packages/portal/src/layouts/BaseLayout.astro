@@ -1,6 +1,7 @@
 ---
 import "@/styles/globals.css";
 import AnimatedShaderBackground from "@/components/ui/animated-shader-background";
+import { resolveTenantConfig, brandingToCssVariables, DEFAULT_TENANT_CONFIG } from "@/lib/tenant";
 
 export interface Props {
   title: string;
@@ -15,6 +16,16 @@ const {
   ogImage = "/assets/og-image.png",
   lang = "en",
 } = Astro.props;
+
+const host = Astro.request.headers.get("Host") || "";
+const tenant = resolveTenantConfig(Astro.url, host);
+const brandTitle = tenant.branding.displayName !== "MapleSpike"
+  ? `${title} | ${tenant.branding.displayName}`
+  : `${title} | MapleSpike`;
+const brandDescription = tenant.branding.displayName !== "MapleSpike"
+  ? `${description}\nPowered by ${tenant.branding.displayName}.`
+  : description;
+const footerText = tenant.branding.footerText || "Contains information licensed under the Open Government Licence \u2013 Canada.";
 const langPrefix = lang === "fr" ? "/fr" : "";
 const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${Astro.url.pathname}`;
 ---
@@ -24,8 +35,8 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | MapleSpike</title>
-    <meta name="description" content={description} />
+    <title>{brandTitle}</title>
+    <meta name="description" content={brandDescription} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" href={canonical} hreflang={lang === "fr" ? "fr" : "en"} />
     <link
@@ -33,18 +44,25 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${
       href={`https://maplespike.ca${lang === "fr" ? "" : "/fr"}${Astro.url.pathname}`}
       hreflang={lang === "fr" ? "en" : "fr"}
     />
-    <meta property="og:title" content={`${title} | MapleSpike`} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={brandTitle} />
+    <meta property="og:description" content={brandDescription} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/svg+xml" href="/assets/maplespike_logo.svg" />
+    <link rel="icon" type="image/svg+xml" href={tenant.branding.faviconUrl} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <style is:inline set:html={brandingToCssVariables(tenant.branding)}></style>
+    {tenant.branding.faviconUrl !== DEFAULT_TENANT_CONFIG.branding.faviconUrl && (
+      <link rel="icon" type="image/svg+xml" href={tenant.branding.faviconUrl} />
+    )}
+    {tenant.branding.customCssUrl && (
+      <link rel="stylesheet" href={tenant.branding.customCssUrl} />
+    )}
     <script is:inline>
       (function () {
         var theme = localStorage.getItem("data-theme") || "dark";
@@ -61,8 +79,8 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${
     <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="container mx-auto flex h-16 items-center justify-between px-4">
         <a href="/" class="flex items-center gap-2">
-          <img src="/assets/maplespike_logo.svg" alt="MapleSpike" class="h-8 w-8" />
-          <span class="text-xl font-bold">MapleSpike</span>
+          <img src={tenant.branding.logoUrl} alt={tenant.branding.displayName} class="h-8 w-8" />
+          <span class="text-xl font-bold">{tenant.branding.displayName}</span>
         </a>
         <nav class="hidden md:flex items-center gap-6">
           <a href="/" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -207,8 +225,8 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${
           </div>
         </div>
         <div class="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} MapleSpike. All rights reserved.</p>
-          <p class="mt-1">Contains information licensed under the Open Government Licence \u2013 Canada.</p>
+          <p>&copy; {new Date().getFullYear()} {tenant.branding.displayName}. All rights reserved.</p>
+          <p class="mt-1">{footerText}</p>
         </div>
       </div>
     </footer>
