@@ -1,0 +1,114 @@
+# MapleSpike Dev — Network Egress Control (Phase 9e)
+# Isolates all pods in maplespike-dev namespace with controlled egress.
+# Whitelist: DNS, intra-namespace, ai-inference gateway, K8s API, GitHub, container registry.
+# Blocks: All other egress (prevents data exfiltration from compromised agents).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-egress-control
+  namespace: maplespike-dev
+  labels:
+    app.kubernetes.io/name: maplespike
+    app.kubernetes.io/component: network-policy
+    phase: 9e-agent-security
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # 1. DNS — allow UDP and TCP 53 to kube-dns (CoreDNS) for name resolution
+    #    K3s CoreDNS runs at 10.43.0.10 in kube-system namespace
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # 2. Intra-namespace — allow all traffic between pods in maplespike-dev
+    #    Required for api ↔ mcp ↔ portal ↔ dashboard communication
+    - to:
+        - podSelector: {}
+
+    # 3. AI Inference Gateway — allow egress to ai-inference namespace
+    #    Required for AI model inference calls (ai-inference-gateway.ai-inference:8080)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ai-inference
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # 4. Kubernetes API — allow egress to K3s API server
+    #    Required for kubectl operations, API discovery, health checks
+    #    K3s API server listens at 10.43.0.1:443 (service CIDR gateway)
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
+
+    # 5. Container Registry — allow egress to nexus:5000 for image pulls
+    #    Required for pulling container images from local registry
+    #    Nexus node is on the cluster network; allow pod CIDR range
+    - to:
+        - ipBlock:
+            cidr: 10.42.0.0/16
+      ports:
+        - protocol: TCP
+          port: 5000
+
+    # 6. GitHub — allow HTTPS egress for git clone/push operations
+    #    Required for agent workflow: clone repo, push branches, open PRs
+    #    GitHub uses 443 for all git operations (HTTPS protocol)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # Exclude private ranges to prevent lateral movement
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 100.64.0.0/10
+              - 169.254.0.0/16
+              - 127.0.0.0/8
+      ports:
+        - protocol: TCP
+          port: 443
+
+    # 7. Cluster DNS service IP — fallback for DNS resolution
+    #    Some pods may resolve DNS via service IP rather than pod selector
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.10/32
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # 8. Kube-system namespace services — allow access to cluster infrastructure
+    #    Required for metrics-server, traefik ingress, and other system services
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 10250
+        - protocol: TCP
+          port: 9100

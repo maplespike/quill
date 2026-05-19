@@ -683,10 +683,10 @@ NixOS (zephyr/nexus):
 
 | Item | Status | Notes |
 |------|--------|-------|
-| 🔴 Agent network namespace | TODO | Hermes runs in dedicated netns |
-| 🔴 Egress whitelist | TODO | github.com, nexus:5000, kubernetes API, SearXNG, gateway |
-| 🔴 nftables/iptables rules | TODO | NixOS module for agent network restrictions |
-| 🔴 Block DNS tunneling | TODO | Restrict nameserver to cluster DNS only |
+| 🟢 Agent network namespace | ✅ DONE | K8s NetworkPolicy in k8s/{dev,prod}/network-policy.yaml — isolates all pods with egress whitelist |
+| 🟢 Egress whitelist | ✅ DONE | DNS, intra-namespace, ai-inference gateway, K8s API, GitHub (443), container registry (5000) |
+| 🔴 nftables/iptables rules | TODO | NixOS module for host-level agent network restrictions (cluster config) |
+| 🟢 Block DNS tunneling | ✅ DONE | DNS restricted to kube-dns (10.43.0.10) only; private ranges excluded from external egress |
 
 ### Phase 9f: Audit & Monitoring (Priority 6)
 

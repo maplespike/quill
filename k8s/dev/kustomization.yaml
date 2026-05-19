@@ -4,6 +4,7 @@
 # NodePorts: portal=30965, api=31284, mcp=31746
 resources:
   - namespace.yaml
+  - network-policy.yaml
   - portal-config.yaml
   - api-deployment.yaml
   - api-service.yaml
