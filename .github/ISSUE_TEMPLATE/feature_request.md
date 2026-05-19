@@ -28,6 +28,16 @@ Why is this needed? What user or agent need does it address?
 - [ ] docs/metrics.json updated
 - [ ] Unit tests with ≥80% coverage
 
+## Clean long-term solution checklist
+
+Agents implementing this must ensure:
+
+- [ ] **Nix-native**: All deployment config in Nix (flake.nix, nix/ modules), not raw k8s YAML
+- [ ] **Gateway routing**: If this involves AI inference, route through the AI Inference Gateway, not directly to providers
+- [ ] **Root cause, not workaround**: If this works around a limitation, fix the limitation instead
+- [ ] **No tech debt**: No TODOs left in code, no `# TODO: fix this later` comments
+- [ ] **Backwards compatible**: Existing clients and configs continue working
+
 ## Workflow
 - [ ] Single PR per feature
 - [ ] Work in worktree on appropriate cluster node

@@ -15,6 +15,23 @@ Steps to reproduce.
 ## Expected vs Actual
 What should happen vs what actually happens.
 
+## Root-cause analysis (for agents)
+
+Before implementing a fix, identify whether this is:
+- **Nix-native issue** → revert any raw k8s YAML changes and express through Nix (flake.nix, nix/ modules)
+- **Gateway routing issue** → fix the gateway's transformation layer, not the routing (don't bypass the AI Inference Gateway)
+- **Data pipeline issue** → fix ingestion, verification, or storage in the pipeline
+- **MCP tool issue** → fix the tool implementation in the affected package
+
+## Clean long-term solution mandate
+
+Agents implementing fixes **must**:
+- Fix root causes, not apply workarounds
+- Express all deployment config through Nix (no raw k8s YAML)
+- Route AI traffic through the AI Inference Gateway (not directly to NIM/providers)
+- Include tests that prevent regression
+- Leave zero TODOs or half-measures
+
 ## Environment
 - **Package:** [pipeline-core / mcp-server / api-server / portal / engine / sdk / other]
 - **Working node:** [zephyr / nexus / forge / sentry]
