@@ -20,13 +20,14 @@ import type { Env, RouteHandler, RouteContext, ApiResponse } from './types.js';
 import { TIER_LIMITS, parseQueryOptions } from './types.js';
 import type { QueryOptions } from './types.js';
 import { authenticateRequest } from './auth.js';
-import { checkRateLimit } from './rate-limit.js';
+import { checkRateLimit, checkKeyRateLimit, getQuotaResetTime } from './rate-limit.js';
 import {
   buildError,
   buildSuccess,
   jsonResponse,
   corsPreflight,
   addRateLimitHeaders,
+  addQuotaHeaders,
   getAllowedOrigin,
 } from './response.js';
 import type { BuildContext } from './response.js';
@@ -382,58 +383,122 @@ export async function handleRequest(
   }
 
   // Rate limit (skip for health and spec)
-  let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
+  let rateCheck: { allowed: boolean; remaining: number; resetTime: number; limit: number } | null = null;
   if (route.handler !== healthHandler && route.handler !== openApiHandler) {
-    // Stricter limits for unauthenticated requests
     const isAuthenticated = tenant !== null;
     const tierLimits = TIER_LIMITS[ctx.tenant.tier];
-    const windowMs = 60 * 1000; // 1-minute sliding window for aggressive check
-    const maxPerWindow = isAuthenticated ? tierLimits.daily : 5; // unauthenticated: 5/min max
-    const check = checkRateLimit(ctx.tenant.id, maxPerWindow, windowMs);
-    rateCheck = check;
-    if (!check.allowed) {
-      await db.logAudit({
-        tenantId: ctx.tenant.id,
-        apiKeyId: ctx.apiKeyId,
-        operation: 'rate_limit',
-        endpoint: route.pattern.source,
-        outputSummary: 'Rate limited',
-        confidence: null,
-        success: false,
-        durationMs: Date.now() - startTime,
-      });
+    const windowMs = 60 * 1000; // 1-minute sliding window
 
-      const bc: BuildContext = {
-        tenant: ctx.tenant,
-        requestId,
-        startTime,
-        queryOptions,
-        metaOverrides: {
-          cacheStatus: 'miss',
-          creditsCharged,
-          authMethod,
+    // Check per-key rate limit first (more granular)
+    if (isAuthenticated && ctx.apiKeyId) {
+      const keyLimit = tierLimits.perMinute;
+      const keyCheck = checkKeyRateLimit(ctx.apiKeyId, keyLimit, windowMs);
+      if (!keyCheck.allowed) {
+        await db.logAudit({
+          tenantId: ctx.tenant.id,
+          apiKeyId: ctx.apiKeyId,
+          operation: 'rate_limit',
+          endpoint: route.pattern.source,
+          outputSummary: `Per-key rate limited (${keyCheck.limit}/min)`,
+          confidence: null,
+          success: false,
           durationMs: Date.now() - startTime,
-        },
-      };
-      const retryAfter = rateCheck ? Math.ceil((rateCheck.resetTime - Date.now()) / 1000) : 60;
-      let response = jsonResponse(buildError('RATE_LIMITED', 'Rate limit exceeded. Try again later.', bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) });
-      if (rateCheck) {
-        response = addRateLimitHeaders(response, rateCheck);
+        });
+
+        const bc: BuildContext = {
+          tenant: ctx.tenant,
+          requestId,
+          startTime,
+          queryOptions,
+          metaOverrides: {
+            cacheStatus: 'miss',
+            creditsCharged,
+            authMethod,
+            durationMs: Date.now() - startTime,
+          },
+        };
+        const retryAfter = Math.ceil((keyCheck.resetTime - Date.now()) / 1000);
+        let response = jsonResponse(buildError('RATE_LIMITED', `API key rate limit exceeded (${keyCheck.limit} requests/minute).`, bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) });
+        response = addRateLimitHeaders(response, keyCheck);
+        return response;
       }
-      return response;
+      rateCheck = keyCheck;
+    }
+
+    // Fallback to tenant-level rate limit for unauthenticated requests
+    if (!isAuthenticated) {
+      const maxPerWindow = 5; // unauthenticated: 5/min max
+      const check = checkRateLimit(ctx.tenant.id, maxPerWindow, windowMs);
+      rateCheck = { ...check, limit: maxPerWindow };
+      if (!check.allowed) {
+        await db.logAudit({
+          tenantId: ctx.tenant.id,
+          apiKeyId: ctx.apiKeyId,
+          operation: 'rate_limit',
+          endpoint: route.pattern.source,
+          outputSummary: 'Rate limited (unauthenticated)',
+          confidence: null,
+          success: false,
+          durationMs: Date.now() - startTime,
+        });
+
+        const bc: BuildContext = {
+          tenant: ctx.tenant,
+          requestId,
+          startTime,
+          queryOptions,
+          metaOverrides: {
+            cacheStatus: 'miss',
+            creditsCharged,
+            authMethod,
+            durationMs: Date.now() - startTime,
+          },
+        };
+        const retryAfter = rateCheck ? Math.ceil((rateCheck.resetTime - Date.now()) / 1000) : 60;
+        let response = jsonResponse(buildError('RATE_LIMITED', 'Rate limit exceeded. Try again later.', bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) });
+        if (rateCheck) {
+          response = addRateLimitHeaders(response, rateCheck);
+        }
+        return response;
+      }
     }
   }
 
   // ── Monthly quota check + usage increment ──
   // Skip for public/infrastructure routes (health, spec, etc.)
   const isPublicRoute = route.handler === healthHandler || route.handler === openApiHandler;
+  let quotaInfo: {
+    monthlyLimit: number;
+    monthlyRemaining: number;
+    monthlyReset: string;
+    dailyLimit: number;
+    dailyRemaining: number;
+    dailyReset: string;
+  } | null = null;
 
   if (!isPublicRoute) {
     const now = new Date();
+    const date = now.toISOString().slice(0, 10);
     const yearMonth = now.toISOString().slice(0, 7);
-    const monthlyUsage = await db.getMonthlyUsage(ctx.tenant.id, yearMonth);
     const tierLimits = TIER_LIMITS[ctx.tenant.tier];
 
+    // Get tenant-level usage
+    const [monthlyUsage, dailyUsage] = await Promise.all([
+      db.getMonthlyUsage(ctx.tenant.id, yearMonth),
+      db.getDailyUsage(ctx.tenant.id, date),
+    ]);
+
+    // Get per-key usage if authenticated
+    let keyMonthlyUsage = 0;
+    let keyDailyUsage = 0;
+    if (ctx.apiKeyId) {
+      [keyMonthlyUsage, keyDailyUsage] = await Promise.all([
+        db.getKeyMonthlyUsage(ctx.apiKeyId, yearMonth),
+        db.getKeyDailyUsage(ctx.apiKeyId, date),
+      ]);
+    }
+
+    // Monthly quota check (tenant-level)
     if (monthlyUsage >= tierLimits.monthly) {
       await db.logAudit({
         tenantId: ctx.tenant.id,
@@ -477,11 +542,68 @@ export async function handleRequest(
       // (overage billing via Stripe metered usage to be implemented)
     }
 
+    // Daily quota check
+    if (dailyUsage >= tierLimits.daily) {
+      await db.logAudit({
+        tenantId: ctx.tenant.id,
+        apiKeyId: ctx.apiKeyId,
+        operation: 'daily_quota_exhausted',
+        endpoint: route.pattern.source,
+        outputSummary: 'Daily quota exhausted',
+        confidence: null,
+        success: false,
+        durationMs: Date.now() - startTime,
+      });
+
+      const bc: BuildContext = {
+        tenant: ctx.tenant,
+        requestId,
+        startTime,
+        queryOptions,
+        metaOverrides: {
+          cacheStatus: 'miss',
+          creditsCharged,
+          authMethod,
+          durationMs: Date.now() - startTime,
+        },
+      };
+
+      if (ctx.tenant.tier === 'free') {
+        const resetDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0, 0));
+        const retryAfter = Math.floor((resetDate.getTime() - now.getTime()) / 1000);
+        let response = jsonResponse(
+          buildError('DAILY_QUOTA_EXHAUSTED',
+            'Daily API call limit reached. Try again tomorrow or upgrade your plan.',
+            bc),
+          429,
+          { 'Retry-After': String(Math.max(1, retryAfter)) },
+        );
+        if (rateCheck) response = addRateLimitHeaders(response, rateCheck);
+        return response;
+      }
+    }
+
+    // Increment tenant-level usage
     await db.incrementUsage(
       ctx.tenant.id,
-      now.toISOString().slice(0, 10),
+      date,
       yearMonth,
     );
+
+    // Increment per-key usage (if authenticated)
+    if (ctx.apiKeyId) {
+      await db.incrementKeyUsage(ctx.apiKeyId, date, yearMonth);
+    }
+
+    // Build quota info for headers
+    quotaInfo = {
+      monthlyLimit: tierLimits.monthly,
+      monthlyRemaining: Math.max(0, tierLimits.monthly - monthlyUsage - 1),
+      monthlyReset: getQuotaResetTime('monthly'),
+      dailyLimit: tierLimits.daily,
+      dailyRemaining: Math.max(0, tierLimits.daily - dailyUsage - 1),
+      dailyReset: getQuotaResetTime('daily'),
+    };
   }
 
   try {
@@ -505,8 +627,11 @@ export async function handleRequest(
     } catch {
       // If it's not JSON, pass through as-is
       let finalResponse = response;
+      if (quotaInfo) {
+        finalResponse = addQuotaHeaders(finalResponse, quotaInfo);
+      }
       if (rateCheck) {
-        finalResponse = addRateLimitHeaders(response, rateCheck);
+        finalResponse = addRateLimitHeaders(finalResponse, rateCheck);
       }
       return finalResponse;
     }
@@ -604,6 +729,9 @@ export async function handleRequest(
     }
 
     let finalResponse = jsonResponse(newBody as unknown as ApiResponse, response.status, {}, requestOrigin);
+    if (quotaInfo) {
+      finalResponse = addQuotaHeaders(finalResponse, quotaInfo);
+    }
     if (rateCheck) {
       finalResponse = addRateLimitHeaders(finalResponse, rateCheck);
     }
@@ -668,6 +796,9 @@ export async function handleRequest(
       },
     };
     let response = jsonResponse(buildError(errorCode, message, bc), statusCode);
+    if (quotaInfo) {
+      response = addQuotaHeaders(response, quotaInfo);
+    }
     if (rateCheck) {
       response = addRateLimitHeaders(response, rateCheck);
     }

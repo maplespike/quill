@@ -176,6 +176,42 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
         </Card>
       </div>
 
+      <!-- Per-Key Usage (full width) -->
+      <Card class="mb-8">
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle class="text-lg flex items-center gap-2">
+                <span class="font-mono text-xs text-muted-foreground">[03b]</span>
+                API Key Usage
+              </CardTitle>
+              <CardDescription>Usage breakdown by API key</CardDescription>
+            </div>
+            <span class="text-xs text-muted-foreground font-mono">This month</span>
+          </div>
+        </CardHeader>
+        <CardContent class="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Key Name</TableHead>
+                <TableHead>Daily Calls</TableHead>
+                <TableHead>Monthly Calls</TableHead>
+                <TableHead>Quota Used</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody id="key-usage-body">
+              <TableRow>
+                <TableCell colspan="5" class="text-center text-muted-foreground py-8 text-sm">
+                  No API keys configured. Create a key to see usage here.
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
       <!-- Recent Requests (full width) -->
       <Card class="mb-8">
         <CardHeader>
@@ -214,12 +250,56 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
 
       <!-- Bottom Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Billing Panel -->
+        <!-- Quota Panel -->
         <Card>
           <CardHeader>
             <div class="flex items-center justify-between">
               <CardTitle class="text-lg flex items-center gap-2">
                 <span class="font-mono text-xs text-muted-foreground">[04]</span>
+                Quotas
+              </CardTitle>
+              <Badge class="bg-blue-500/10 text-blue-600 border-blue-500/20 text-xs font-mono" id="quota-status">ACTIVE</Badge>
+            </div>
+            <CardDescription>Rate limits and quota enforcement</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                <span class="text-muted-foreground">Rate Limit</span>
+                <span class="font-medium font-mono" id="quota-rate-limit">10 req/min</span>
+              </div>
+              <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                <span class="text-muted-foreground">Daily Limit</span>
+                <span class="font-medium font-mono" id="quota-daily-limit">1,000 / day</span>
+              </div>
+              <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
+                <span class="text-muted-foreground">Monthly Quota</span>
+                <span class="font-medium font-mono" id="quota-monthly-limit">1,000 / month</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-muted-foreground">Quota Reset</span>
+                <span class="font-medium" id="quota-reset">June 1, 2026</span>
+              </div>
+            </div>
+            <Separator class="my-4" />
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-muted-foreground">Response Headers:</p>
+              <pre class="rounded-lg border bg-muted/30 p-3 text-xs font-mono leading-relaxed overflow-x-auto text-muted-foreground"><code>X-RateLimit-Limit: <span id="hdr-rate-limit">10</span>
+X-RateLimit-Remaining: <span id="hdr-rate-remaining">—</span>
+X-Quota-Limit: <span id="hdr-quota-limit">1000</span>
+X-Quota-Remaining: <span id="hdr-quota-remaining">—</span>
+X-Daily-Limit: <span id="hdr-daily-limit">1000</span>
+X-Daily-Remaining: <span id="hdr-daily-remaining">—</span></code></pre>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Billing Panel -->
+        <Card>
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <CardTitle class="text-lg flex items-center gap-2">
+                <span class="font-mono text-xs text-muted-foreground">[05]</span>
                 Billing
               </CardTitle>
               <Badge class="bg-green-500/10 text-green-600 border-green-500/20 text-xs font-mono">ACTIVE</Badge>
@@ -230,7 +310,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
             <div class="space-y-3">
               <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
                 <span class="text-muted-foreground">Plan</span>
-                <span class="font-medium">Public (Free)</span>
+                <span class="font-medium" id="billing-plan">Public (Free)</span>
               </div>
               <div class="flex items-center justify-between text-sm pb-2 border-b border-border/40">
                 <span class="text-muted-foreground">Monthly cost</span>
@@ -242,7 +322,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
               </div>
               <div class="flex items-center justify-between text-sm">
                 <span class="text-muted-foreground">Next billing</span>
-                <span class="font-medium">June 13, 2026</span>
+                <span class="font-medium" id="billing-next">June 13, 2026</span>
               </div>
             </div>
             <Separator class="my-4" />
@@ -484,7 +564,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
           const apiKey = localStorage.getItem("maplespike-api-key");
           const headers = {};
           if (apiKey) headers["X-API-Key"] = apiKey;
-          const resp = await fetch(base + "/v1/me", { headers });
+          const resp = await fetch(base + "/v1/usage", { headers });
           if (!resp.ok) return;
           const body = await resp.json();
           if (body.success && body.data) {
@@ -492,7 +572,10 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
             const tenant = body.data.tenant || {};
             const daily = usage.daily || {};
             const monthly = usage.monthly || {};
+            const rate = usage.rate || {};
+            const keys = body.data.keys || [];
 
+            // Update usage display
             document.getElementById("usage-daily").textContent = daily.calls ?? 0;
             document.getElementById("usage-monthly").textContent = monthly.calls ?? 0;
 
@@ -511,10 +594,77 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
             const monthlyPct = Math.min(((monthly.calls || 0) / (monthlyLimit || 1)) * 100, 100);
             document.getElementById("bar-daily").style.width = dailyPct + "%";
             document.getElementById("bar-monthly").style.width = monthlyPct + "%";
+
+            // Update rate limit display
+            const rateLimit = rate.perMinute || 10;
+            document.getElementById("usage-rate").textContent = rateLimit + " req/min";
+            const ratePct = Math.min(((rateLimit - (rate.remaining || rateLimit)) / rateLimit) * 100, 100);
+            document.getElementById("bar-rate").style.width = ratePct + "%";
+
+            // Update quota panel
+            document.getElementById("quota-rate-limit").textContent = rateLimit + " req/min";
+            document.getElementById("quota-daily-limit").textContent = dailyLimit.toLocaleString() + " / day";
+            document.getElementById("quota-monthly-limit").textContent = monthlyLimit.toLocaleString() + " / month";
+            if (monthly.resetAt) {
+              document.getElementById("quota-reset").textContent = new Date(monthly.resetAt).toLocaleDateString();
+            }
+
+            // Update header examples
+            document.getElementById("hdr-rate-limit").textContent = rateLimit;
+            document.getElementById("hdr-rate-remaining").textContent = rate.remaining ?? "—";
+            document.getElementById("hdr-quota-limit").textContent = monthlyLimit;
+            document.getElementById("hdr-quota-remaining").textContent = monthly.remaining ?? "—";
+            document.getElementById("hdr-daily-limit").textContent = dailyLimit;
+            document.getElementById("hdr-daily-remaining").textContent = daily.remaining ?? "—";
+
+            // Update billing panel
+            document.getElementById("billing-plan").textContent =
+              tier === "free" ? "Public (Free)" : tier.charAt(0).toUpperCase() + tier.slice(1);
+            if (monthly.resetAt) {
+              document.getElementById("billing-next").textContent = new Date(monthly.resetAt).toLocaleDateString();
+            }
+
+            // Update quota status badge
+            const quotaStatus = document.getElementById("quota-status");
+            if (monthly.percentUsed > 90) {
+              quotaStatus.textContent = "WARNING";
+              quotaStatus.className = "bg-red-500/10 text-red-600 border-red-500/20 text-xs font-mono";
+            } else if (monthly.percentUsed > 70) {
+              quotaStatus.textContent = "CAUTION";
+              quotaStatus.className = "bg-yellow-500/10 text-yellow-600 border-yellow-500/20 text-xs font-mono";
+            } else {
+              quotaStatus.textContent = "ACTIVE";
+              quotaStatus.className = "bg-blue-500/10 text-blue-600 border-blue-500/20 text-xs font-mono";
+            }
+
+            // Update per-key usage table
+            const keyUsageBody = document.getElementById("key-usage-body");
+            if (keys.length > 0) {
+              keyUsageBody.innerHTML = keys.map(function(key) {
+                var statusClass = key.monthlyPercentUsed > 90 ? "bg-red-500/10 text-red-600" :
+                                  key.monthlyPercentUsed > 70 ? "bg-yellow-500/10 text-yellow-600" :
+                                  "bg-green-500/10 text-green-600";
+                var statusText = key.monthlyPercentUsed > 90 ? "Critical" :
+                                 key.monthlyPercentUsed > 70 ? "Warning" : "OK";
+                return '<tr class="border-b border-border/40">' +
+                  '<td class="font-mono text-sm">' + escapeHtml(key.name) + '</td>' +
+                  '<td class="text-sm">' + key.dailyCalls.toLocaleString() + '</td>' +
+                  '<td class="text-sm">' + key.monthlyCalls.toLocaleString() + '</td>' +
+                  '<td class="text-sm">' + key.monthlyPercentUsed + '%</td>' +
+                  '<td><span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ' + statusClass + '">' + statusText + '</span></td>' +
+                  '</tr>';
+              }).join("");
+            }
           }
         } catch (_) {
           // API unavailable, use defaults
         }
+      }
+
+      function escapeHtml(text) {
+        var div = document.createElement("div");
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
       }
 
       // ── Checklist update ──

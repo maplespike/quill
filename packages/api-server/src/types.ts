@@ -60,13 +60,43 @@ export interface User {
 /*  Usage / Rate Limits                                                */
 /* ------------------------------------------------------------------ */
 
-export const TIER_LIMITS: Record<Tier, { monthly: number; daily: number }> = {
-  free:      { monthly: 1_000,  daily: 35 },
-  pro:       { monthly: 50_000, daily: 1_700 },
-  business:  { monthly: 250_000, daily: 8_500 },
-  enterprise:{ monthly: 1_000_000, daily: 35_000 },
-  internal:  { monthly: 1_000_000, daily: 35_000 },
+export const TIER_LIMITS: Record<Tier, { monthly: number; daily: number; perMinute: number }> = {
+  free:      { monthly: 1_000,  daily: 35,     perMinute: 10 },
+  pro:       { monthly: 50_000, daily: 1_700,  perMinute: 60 },
+  business:  { monthly: 250_000, daily: 8_500, perMinute: 200 },
+  enterprise:{ monthly: 1_000_000, daily: 35_000, perMinute: 500 },
+  internal:  { monthly: 1_000_000, daily: 35_000, perMinute: 500 },
 };
+
+/** Per-key rate limit overrides (optional, set by admin or key creation) */
+export interface KeyRateLimit {
+  /** Override the tier's per-minute limit for this specific key */
+  perMinute?: number;
+  /** Override the tier's daily limit for this specific key */
+  daily?: number;
+  /** Override the tier's monthly limit for this specific key */
+  monthly?: number;
+}
+
+/** Quota metadata returned in API response headers */
+export interface QuotaMeta {
+  /** Current rate limit (requests per window) */
+  rateLimit: number;
+  /** Remaining requests in current rate window */
+  rateRemaining: number;
+  /** Rate window reset timestamp (Unix seconds) */
+  rateReset: number;
+  /** Monthly quota limit */
+  quotaLimit: number;
+  /** Remaining monthly quota */
+  quotaRemaining: number;
+  /** Monthly quota reset date (ISO string) */
+  quotaReset: string;
+  /** Daily limit */
+  dailyLimit: number;
+  /** Remaining daily requests */
+  dailyRemaining: number;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Query Options (Token Optimization Params)                          */
@@ -168,6 +198,12 @@ export interface UsageMeta {
   periodCalls: number;
   periodLimit: number;
   tier: Tier;
+  /** Daily usage breakdown */
+  daily?: { calls: number; limit: number; remaining: number };
+  /** Monthly usage breakdown */
+  monthly?: { calls: number; limit: number; remaining: number };
+  /** Per-key usage (if available) */
+  byKey?: Array<{ keyId: string; keyName: string; calls: number }>;
 }
 
 export interface ResponseMeta {
@@ -220,6 +256,14 @@ export interface MapleSpikeStorage {
   getMonthlyUsage(tenantId: string, yearMonth: string): Promise<number>;
   /** Increment usage counters for a tenant. */
   incrementUsage(tenantId: string, date: string, yearMonth: string): Promise<void>;
+  /** Get current daily call count for a specific API key. */
+  getKeyDailyUsage(apiKeyId: string, date: string): Promise<number>;
+  /** Get current monthly call count for a specific API key. */
+  getKeyMonthlyUsage(apiKeyId: string, yearMonth: string): Promise<number>;
+  /** Increment per-key usage counters. */
+  incrementKeyUsage(apiKeyId: string, date: string, yearMonth: string): Promise<void>;
+  /** Get usage breakdown by key for a tenant. */
+  getKeyUsageBreakdown(tenantId: string, yearMonth: string): Promise<Array<{ keyId: string; keyName: string; monthlyCalls: number; dailyCalls: number }>>;
   /** Log an audit entry. */
   logAudit(entry: Omit<AuditEntry, 'id' | 'created_at'>): Promise<void>;
   /** Query audit log. */

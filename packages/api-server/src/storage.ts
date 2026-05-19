@@ -87,6 +87,54 @@ export class D1Storage implements MapleSpikeStorage {
     `).bind(tenantId, yearMonth).run();
   }
 
+  async getKeyDailyUsage(apiKeyId: string, date: string): Promise<number> {
+    const row = await this.db.prepare(
+      'SELECT call_count FROM key_daily_usage WHERE key_id = ?1 AND date = ?2',
+    ).bind(apiKeyId, date).first<{ call_count: number }>();
+    return row?.call_count || 0;
+  }
+
+  async getKeyMonthlyUsage(apiKeyId: string, yearMonth: string): Promise<number> {
+    const row = await this.db.prepare(
+      'SELECT call_count FROM key_monthly_usage WHERE key_id = ?1 AND year_month = ?2',
+    ).bind(apiKeyId, yearMonth).first<{ call_count: number }>();
+    return row?.call_count || 0;
+  }
+
+  async incrementKeyUsage(apiKeyId: string, date: string, yearMonth: string): Promise<void> {
+    await this.db.prepare(`
+      INSERT INTO key_daily_usage (key_id, date, call_count)
+      VALUES (?1, ?2, 1)
+      ON CONFLICT(key_id, date) DO UPDATE SET call_count = call_count + 1
+    `).bind(apiKeyId, date).run();
+
+    await this.db.prepare(`
+      INSERT INTO key_monthly_usage (key_id, year_month, call_count)
+      VALUES (?1, ?2, 1)
+      ON CONFLICT(key_id, year_month) DO UPDATE SET call_count = call_count + 1
+    `).bind(apiKeyId, yearMonth).run();
+  }
+
+  async getKeyUsageBreakdown(tenantId: string, yearMonth: string): Promise<Array<{ keyId: string; keyName: string; monthlyCalls: number; dailyCalls: number }>> {
+    const date = new Date().toISOString().slice(0, 10);
+    const result = await this.db.prepare(`
+      SELECT k.id AS key_id, k.name AS key_name,
+             COALESCE(kmu.call_count, 0) AS monthly_calls,
+             COALESCE(kdu.call_count, 0) AS daily_calls
+      FROM api_keys k
+      LEFT JOIN key_monthly_usage kmu ON k.id = kmu.key_id AND kmu.year_month = ?1
+      LEFT JOIN key_daily_usage kdu ON k.id = kdu.key_id AND kdu.date = ?2
+      WHERE k.tenant_id = ?3 AND k.is_active = 1
+      ORDER BY monthly_calls DESC
+    `).bind(yearMonth, date, tenantId).all<{ key_id: string; key_name: string; monthly_calls: number; daily_calls: number }>();
+    return (result.results || []).map((row) => ({
+      keyId: row.key_id,
+      keyName: row.key_name,
+      monthlyCalls: row.monthly_calls,
+      dailyCalls: row.daily_calls,
+    }));
+  }
+
   async logAudit(entry: Omit<AuditEntry, 'id' | 'created_at'>): Promise<void> {
     await this.db.prepare(`
       INSERT INTO audit_log (tenant_id, api_key_id, operation, model, endpoint, input_preview, output_summary, confidence, success, error_message, duration_ms)
@@ -179,8 +227,11 @@ export class KVCache implements MapleSpikeCache {
 export class MemoryStorage implements MapleSpikeStorage {
   private tenants: Map<string, Tenant> = new Map();
   private keyToTenant: Map<string, { tenantId: string; keyId: string }> = new Map();
+  private keyNames: Map<string, string> = new Map();
   private dailyUsage: Map<string, number> = new Map();
   private monthlyUsage: Map<string, number> = new Map();
+  private keyDailyUsage: Map<string, number> = new Map();
+  private keyMonthlyUsage: Map<string, number> = new Map();
   private auditLog: AuditEntry[] = [];
 
   constructor() {
@@ -200,12 +251,14 @@ export class MemoryStorage implements MapleSpikeStorage {
       tenantId: 'fg-internal',
       keyId: 'dev-key-1',
     });
+    this.keyNames.set('dev-key-1', 'dev');
   }
 
   /** Register a new tenant + key for testing. */
-  registerTenant(tenant: Tenant, keyHash: string, keyId: string): void {
+  registerTenant(tenant: Tenant, keyHash: string, keyId: string, keyName?: string): void {
     this.tenants.set(tenant.id, tenant);
     this.keyToTenant.set(keyHash, { tenantId: tenant.id, keyId });
+    if (keyName) this.keyNames.set(keyId, keyName);
   }
 
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
@@ -230,6 +283,35 @@ export class MemoryStorage implements MapleSpikeStorage {
     this.dailyUsage.set(dKey, (this.dailyUsage.get(dKey) || 0) + 1);
     const mKey = `${tenantId}:${yearMonth}`;
     this.monthlyUsage.set(mKey, (this.monthlyUsage.get(mKey) || 0) + 1);
+  }
+
+  async getKeyDailyUsage(apiKeyId: string, date: string): Promise<number> {
+    return this.keyDailyUsage.get(`${apiKeyId}:${date}`) || 0;
+  }
+
+  async getKeyMonthlyUsage(apiKeyId: string, yearMonth: string): Promise<number> {
+    return this.keyMonthlyUsage.get(`${apiKeyId}:${yearMonth}`) || 0;
+  }
+
+  async incrementKeyUsage(apiKeyId: string, date: string, yearMonth: string): Promise<void> {
+    const dKey = `${apiKeyId}:${date}`;
+    this.keyDailyUsage.set(dKey, (this.keyDailyUsage.get(dKey) || 0) + 1);
+    const mKey = `${apiKeyId}:${yearMonth}`;
+    this.keyMonthlyUsage.set(mKey, (this.keyMonthlyUsage.get(mKey) || 0) + 1);
+  }
+
+  async getKeyUsageBreakdown(tenantId: string, yearMonth: string): Promise<Array<{ keyId: string; keyName: string; monthlyCalls: number; dailyCalls: number }>> {
+    const date = new Date().toISOString().slice(0, 10);
+    const breakdown: Array<{ keyId: string; keyName: string; monthlyCalls: number; dailyCalls: number }> = [];
+    for (const [keyHash, mapping] of this.keyToTenant) {
+      if (mapping.tenantId === tenantId) {
+        const keyName = this.keyNames.get(mapping.keyId) || mapping.keyId;
+        const monthlyCalls = this.keyMonthlyUsage.get(`${mapping.keyId}:${yearMonth}`) || 0;
+        const dailyCalls = this.keyDailyUsage.get(`${mapping.keyId}:${date}`) || 0;
+        breakdown.push({ keyId: mapping.keyId, keyName, monthlyCalls, dailyCalls });
+      }
+    }
+    return breakdown.sort((a, b) => b.monthlyCalls - a.monthlyCalls);
   }
 
   async logAudit(entry: Omit<AuditEntry, 'id' | 'created_at'>): Promise<void> {

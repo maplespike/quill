@@ -90,6 +90,30 @@ export class SqliteStorage implements MapleSpikeStorage {
 
       CREATE INDEX IF NOT EXISTS idx_monthly_tenant ON monthly_usage(tenant_id, year_month);
 
+      CREATE TABLE IF NOT EXISTS key_daily_usage (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key_id TEXT NOT NULL,
+        date TEXT NOT NULL,
+        call_count INTEGER DEFAULT 0,
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(key_id, date),
+        FOREIGN KEY (key_id) REFERENCES api_keys(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_key_daily ON key_daily_usage(key_id, date);
+
+      CREATE TABLE IF NOT EXISTS key_monthly_usage (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key_id TEXT NOT NULL,
+        year_month TEXT NOT NULL,
+        call_count INTEGER DEFAULT 0,
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(key_id, year_month),
+        FOREIGN KEY (key_id) REFERENCES api_keys(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_key_monthly ON key_monthly_usage(key_id, year_month);
+
       CREATE TABLE IF NOT EXISTS audit_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tenant_id TEXT NOT NULL,
@@ -224,6 +248,54 @@ export class SqliteStorage implements MapleSpikeStorage {
       VALUES (?, ?, 1)
       ON CONFLICT(tenant_id, year_month) DO UPDATE SET call_count = call_count + 1
     `).run(tenantId, yearMonth);
+  }
+
+  async getKeyDailyUsage(apiKeyId: string, date: string): Promise<number> {
+    const row = this.db.prepare(
+      'SELECT call_count FROM key_daily_usage WHERE key_id = ? AND date = ?',
+    ).get(apiKeyId, date) as { call_count: number } | undefined;
+    return row?.call_count || 0;
+  }
+
+  async getKeyMonthlyUsage(apiKeyId: string, yearMonth: string): Promise<number> {
+    const row = this.db.prepare(
+      'SELECT call_count FROM key_monthly_usage WHERE key_id = ? AND year_month = ?',
+    ).get(apiKeyId, yearMonth) as { call_count: number } | undefined;
+    return row?.call_count || 0;
+  }
+
+  async incrementKeyUsage(apiKeyId: string, date: string, yearMonth: string): Promise<void> {
+    this.db.prepare(`
+      INSERT INTO key_daily_usage (key_id, date, call_count)
+      VALUES (?, ?, 1)
+      ON CONFLICT(key_id, date) DO UPDATE SET call_count = call_count + 1
+    `).run(apiKeyId, date);
+
+    this.db.prepare(`
+      INSERT INTO key_monthly_usage (key_id, year_month, call_count)
+      VALUES (?, ?, 1)
+      ON CONFLICT(key_id, year_month) DO UPDATE SET call_count = call_count + 1
+    `).run(apiKeyId, yearMonth);
+  }
+
+  async getKeyUsageBreakdown(tenantId: string, yearMonth: string): Promise<Array<{ keyId: string; keyName: string; monthlyCalls: number; dailyCalls: number }>> {
+    const date = new Date().toISOString().slice(0, 10);
+    const rows = this.db.prepare(`
+      SELECT k.id AS key_id, k.name AS key_name,
+             COALESCE(kmu.call_count, 0) AS monthly_calls,
+             COALESCE(kdu.call_count, 0) AS daily_calls
+      FROM api_keys k
+      LEFT JOIN key_monthly_usage kmu ON k.id = kmu.key_id AND kmu.year_month = ?
+      LEFT JOIN key_daily_usage kdu ON k.id = kdu.key_id AND kdu.date = ?
+      WHERE k.tenant_id = ? AND k.is_active = 1
+      ORDER BY monthly_calls DESC
+    `).all(yearMonth, date, tenantId) as Array<{ key_id: string; key_name: string; monthly_calls: number; daily_calls: number }>;
+    return rows.map((row) => ({
+      keyId: row.key_id,
+      keyName: row.key_name,
+      monthlyCalls: row.monthly_calls,
+      dailyCalls: row.daily_calls,
+    }));
   }
 
   async logAudit(entry: Omit<AuditEntry, 'id' | 'created_at'>): Promise<void> {

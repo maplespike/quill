@@ -297,16 +297,75 @@ export function addRateLimitHeaders(
   rateInfo: {
     remaining: number;
     resetTime: number;
+    limit?: number;
   },
 ): Response {
   const headers = new Headers(response.headers);
   headers.set('X-RateLimit-Remaining', String(Math.max(0, rateInfo.remaining)));
   headers.set('X-RateLimit-Reset', String(Math.floor(rateInfo.resetTime / 1000)));
+  if (rateInfo.limit !== undefined) {
+    headers.set('X-RateLimit-Limit', String(rateInfo.limit));
+  }
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
     headers,
   });
+}
+
+/**
+ * Attach quota headers to an existing Response.
+ * Includes monthly quota, daily limit, and reset times.
+ * Returns a new Response (headers are immutable after construction).
+ */
+export function addQuotaHeaders(
+  response: Response,
+  quotaInfo: {
+    monthlyLimit: number;
+    monthlyRemaining: number;
+    monthlyReset: string;
+    dailyLimit: number;
+    dailyRemaining: number;
+    dailyReset: string;
+  },
+): Response {
+  const headers = new Headers(response.headers);
+  headers.set('X-Quota-Limit', String(quotaInfo.monthlyLimit));
+  headers.set('X-Quota-Remaining', String(Math.max(0, quotaInfo.monthlyRemaining)));
+  headers.set('X-Quota-Reset', quotaInfo.monthlyReset);
+  headers.set('X-Daily-Limit', String(quotaInfo.dailyLimit));
+  headers.set('X-Daily-Remaining', String(Math.max(0, quotaInfo.dailyRemaining)));
+  headers.set('X-Daily-Reset', quotaInfo.dailyReset);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+/**
+ * Attach both rate limit and quota headers to a response.
+ * Convenience wrapper combining addRateLimitHeaders and addQuotaHeaders.
+ */
+export function addUsageHeaders(
+  response: Response,
+  rateInfo: {
+    remaining: number;
+    resetTime: number;
+    limit?: number;
+  },
+  quotaInfo: {
+    monthlyLimit: number;
+    monthlyRemaining: number;
+    monthlyReset: string;
+    dailyLimit: number;
+    dailyRemaining: number;
+    dailyReset: string;
+  },
+): Response {
+  let result = addRateLimitHeaders(response, rateInfo);
+  result = addQuotaHeaders(result, quotaInfo);
+  return result;
 }
 
 export function corsPreflight(requestOrigin?: string | null): Response {
