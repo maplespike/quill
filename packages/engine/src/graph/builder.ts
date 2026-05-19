@@ -492,4 +492,12 @@ export class GraphBuilder {
   setThreads(threads: IntelligenceThread[]): void {
     this.threads = threads;
   }
+
+  /** Get metrics about the current graph state */
+  getMetrics(): { nodeCount: number; edgeCount: number } {
+    return {
+      nodeCount: this.nodes.size,
+      edgeCount: this.edges.size,
+    };
+  }
 }
