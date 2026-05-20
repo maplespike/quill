@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { RouteHandler, RouteContext } from '../types.js';
 import { getAllPackageLicenses, checkLicense } from '../middleware/license-check.js';
-import { buildSuccess } from '../response.js';
+import { buildSuccess, jsonResponse } from '../response.js';
 
 export const licenseStatusHandler: RouteHandler = async (
   _request: Request,
@@ -10,25 +10,21 @@ export const licenseStatusHandler: RouteHandler = async (
   const licenses = getAllPackageLicenses();
   const compliance = checkLicense(ctx);
 
-  return new Response(
-    JSON.stringify({
-      success: true,
-      data: {
-        licenses,
-        compliance: {
-          compliant: compliance.compliant,
-          license: compliance.license,
-          reason: compliance.reason,
-        },
-      },
-      meta: {
-        timestamp: new Date().toISOString(),
-        version: '0.2.0',
-      },
-    }),
+  const response = buildSuccess(
     {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      licenses,
+      compliance: {
+        compliant: compliance.compliant,
+        license: compliance.license,
+        reason: compliance.reason,
+      },
+    },
+    {
+      tenant: ctx.tenant,
+      requestId: ctx.requestId,
+      startTime: ctx.startTime,
     }
   );
+
+  return jsonResponse(response);
 };

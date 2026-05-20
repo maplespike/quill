@@ -17,13 +17,14 @@ interface LicenseCheckResult {
 
 /**
  * Package license mapping for compliance checks
+ * Based on README.md: core (AGPL), interface (Apache-2.0), client (MIT)
  */
 const PACKAGE_LICENSES: Record<string, string> = {
   'pipeline-core': 'AGPL-3.0-or-later',
-  'engine': 'AGPL-3.0-or-later',
+  'engine': 'MIT',
   'database': 'AGPL-3.0-or-later',
   'api-server': 'Apache-2.0',
-  'mcp-server': 'Apache-2.0',
+  'mcp-server': 'MIT',
   'portal': 'MIT',
   'docs': 'Apache-2.0',
   'sdk': 'MIT',
