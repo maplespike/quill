@@ -16,17 +16,12 @@
 
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
-import { VAC_DATASETS, DND_DATASETS, VETERANS_TIMEOUT_MS, MAX_VETERANS_RECORDS } from './constants.js';
+import { VAC_DATASETS, DND_DATASETS, VETERANS_TIMEOUT_MS, MAX_VETERANS_RECORDS, VETERANS_UA, CKAN_BASE } from './constants.js';
 import type { VeteransRecord, VacBenefitStat, OsissClinicRecord, VeteranSuicideStat, DndVeteranProgramRecord } from './types.js';
-
-const CKAN_BASE = 'https://open.canada.ca/data/api/3/action';
-const VETERANS_UA = 'MapleSpike-Veterans/1.0';
 
 /* ------------------------------------------------------------------ */
 /*  Generic HTTP helpers                                                */
 /* ------------------------------------------------------------------ */
-
-import { httpGet } from '../../utils/http.js';
 
 async function fetchJson(url: string): Promise<any> {
   try {

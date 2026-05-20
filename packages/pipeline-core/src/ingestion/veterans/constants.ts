@@ -94,6 +94,8 @@ export const VETERANS_SOURCE = {
   ckanDataset: 'vac-benefits',
 };
 
+export const CKAN_BASE = 'https://open.canada.ca/data/api/3/action';
+export const VETERANS_UA = 'MapleSpike-Veterans/1.0';
 export const CULTURE_UA = 'MapleSpike-Veterans/1.0';
 export const VETERANS_TIMEOUT_MS = 15_000;
 export const MAX_VETERANS_RECORDS = 200;
