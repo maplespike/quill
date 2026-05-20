@@ -60,7 +60,7 @@ async function gatewayChat(
       if (MODEL_VERIFICATION_LOGGING) {
         console.info(`[ModelVerification] Verifying model ${CHAT_MODEL} (hash check simulated)`);
       }
-      
+
       // If enforcement is enabled and we can't verify, we might block
       // For this implementation, we'll allow it to proceed but log the verification status
       // In production, this would actually compute the hash of the model file and compare

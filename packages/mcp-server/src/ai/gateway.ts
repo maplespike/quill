@@ -85,7 +85,7 @@ export async function chatCompletion(
   if (config.modelVerification?.enforceVerification !== false) {
     const modelHashes = config.modelVerification?.modelHashes || {};
     const expectedHash = modelHashes[model];
-    
+
     if (expectedHash) {
       // In a real implementation, we would verify the actual model file
       // For now, we'll simulate verification by checking if we have a hash

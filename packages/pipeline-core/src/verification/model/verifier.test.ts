@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { 
-  verifyModelFile, 
+import {
+  verifyModelFile,
   verifySelectedModel,
   getExpectedModelHash,
   selectModelForTask,
@@ -22,10 +22,10 @@ describe('Model Verification', () => {
   it('should select correct model for task', () => {
     const chatModel = selectModelForTask('chat');
     assert.strictEqual(chatModel, 'qwen3.5-27b');
-    
+
     const analysisModel = selectModelForTask('analysis');
     assert.strictEqual(analysisModel, 'qwen3.5-27b'); // Same priority
-    
+
     const semanticModel = selectModelForTask('semantic');
     assert.strictEqual(semanticModel, 'gte-large-en-v1.5');
   });
