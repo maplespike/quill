@@ -86,8 +86,10 @@ import {
   meHandler as authMeHandler,
 } from './auth/github.js';
 import { tenantBrandingHandler, tenantListHandler } from './routes/tenant.js';
+import { licenseStatusHandler } from './routes/license.js';
 
 const ROUTES: Route[] = [
+  { pattern: /^\/v1\/license\/status\/?$/, method: 'GET', params: [], handler: licenseStatusHandler },
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: onboardingHandler },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },

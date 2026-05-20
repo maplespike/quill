@@ -13,3 +13,4 @@ export * from './audit/index.js';
 export * from './graph/index.js';
 export * from './brief/index.js';
 export * from './pipeline.js';
+export * from './legal-compliance.js';
