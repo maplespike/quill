@@ -574,8 +574,8 @@ Since this document's original writing, MapleSpike has expanded significantly. T
 reflects the pre-May-2026 state. Current coverage:
 
 - **65 modules** registered in `registry.ts` across 20 categories
-- **24 MCP tools** all returning live data
-- **~113K lines** of TypeScript across 12 packages
+- **50 MCP tools** all returning live data
+- **~123K lines** of TypeScript across 12 packages
 - All 13 provinces/territories with oversight coverage
 - 19 cities with direct open data fetchers, 3,490+ via CKAN federation
 
