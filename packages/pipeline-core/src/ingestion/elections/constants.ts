@@ -54,7 +54,7 @@ export const ELECTIONS_SOURCES = {
     /** Political Financing data — may contain third-party spending */
     POLITICAL_FINANCING: 'f6b7c8d9-e0f1-2345-6789-abcdef012345',
     /** Elections Canada financial returns — broader dataset */
-    FINANCIAL_RETURNS: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    FINANCIAL_RETURNS: 'c3d4e5f6-a7b8-9012-cdef-123456789abc',
   },
 } as const;
 
