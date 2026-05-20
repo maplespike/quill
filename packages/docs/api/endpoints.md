@@ -1,3 +1,12 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
+---
+last-reviewed: 2026-05-19
+status: active
+
 # API Endpoints — Complete Catalog
 
 The MapleSpike REST API is served at `http://maplespike.lan/v1/`. All responses follow a standard envelope with quality metadata, citations, and usage tracking.

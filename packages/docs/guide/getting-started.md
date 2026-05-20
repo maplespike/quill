@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # Getting Started
 
 This guide walks you through getting access to MapleSpike and making your first query.

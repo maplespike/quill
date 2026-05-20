@@ -8,7 +8,7 @@ status: active
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Static HTML/CSS/JS (portal)
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 65 modules, 50 MCP tools, ~123K lines TS, 12 packages.
 
 ---
 
@@ -66,7 +66,7 @@ maplespike/
 ## Build Plan (7 Phases)
 
 ```
-pipeline-core ──→ SQLite DB ──→ MCP server (22 live tools) ──→ Dashboard / Console
+pipeline-core ──→ SQLite DB ──→ MCP server (50 live tools) ──→ Dashboard / Console
      │                                                             │
      └── Engine reads same DB ──→ briefs/signals ─────────────────┘
                                                                     │
@@ -101,7 +101,7 @@ cd packages/mcp-server
 pnpm start
 ```
 
-**All 24 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
+**All 50 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
 ---
 

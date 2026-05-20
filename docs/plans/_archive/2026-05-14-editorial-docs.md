@@ -1,3 +1,11 @@
+---
+last-reviewed: 2026-05-19
+status: active
+
+---
+last-reviewed: 2026-05-19
+status: active
+
 # Editorial Docs Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.

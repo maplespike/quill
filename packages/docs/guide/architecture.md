@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # Architecture
 
 MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and component relationships.
@@ -39,7 +44,7 @@ MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K
 │  ┌──────────────────────────────────────────────────────┐    │
 │  │  MCP Server (SSE, port 3001)                        │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
-│  │  │  22 Tools (query_gov_data, search_*, ai_*)    │   │    │
+│  │  │  50 Tools (query_gov_data, search_*, ai_*)    │   │    │
 │  │  └──────────────────────────────────────────────┘   │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
   │  │  │  AI Gateway (chat, embed)                     │   │    │
@@ -68,7 +73,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 | **Fetch** | HTTP/API fetchers for each module — CKAN, StatCan WDS, RSS, HTML | ✅ All 65+ modules fetch data |
 | **Parse** | Data parsing into typed records with normalization | ✅ All modules parse into typed records |
 | **Persist** | SQLite database storage with upsert semantics | ✅ All modules persist via shared SQLite |
-| **Search** | MCP search tools querying pipeline-core DB | ✅ All 22 tools wired to real DB queries |
+| **Search** | MCP search tools querying pipeline-core DB | ✅ All 50 tools wired to real DB queries |
 | **Present** | Dashboard and presentation layer | 🟡 Static HTML — needs wiring to live API |
 
 ## Integration Points
@@ -123,7 +128,7 @@ Features:
 
 ### MCP Server (`@maplespike/mcp-server`)
 
-Model Context Protocol server with 22 tools. Transport:
+Model Context Protocol server with 50 tools. Transport:
 - **stdio** — For local development / desktop apps
 - **SSE** (Server-Sent Events) — For hosted / cluster deployment
 

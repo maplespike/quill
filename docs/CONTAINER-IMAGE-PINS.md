@@ -1,3 +1,11 @@
+---
+last-reviewed: 2026-05-19
+status: active
+
+---
+last-reviewed: 2026-05-19
+status: active
+
 # Container Image Digest Pins
 
 > OWASP LLM05: Supply Chain Vulnerability mitigation

@@ -6,7 +6,7 @@ status: active
 # MapleSpike — Canada's Sovereign Data Layer
 
 **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
-**Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
+**Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 50 MCP tools, ~123K lines TS, 12 packages.
 
 > **Your job**: Implement the GitHub issue that spawned you. Read the issue body, make the changes, push the branch, and open a PR against `main`. **Do NOT stop until you have created a pull request.** If you hit an error, try a different approach. The task is not complete until a PR exists.
 

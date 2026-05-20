@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # Authentication
 
 MapleSpike supports multiple authentication methods. Choose the one that fits your use case.

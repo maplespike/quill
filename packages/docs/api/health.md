@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # GET /v1/health
 
 Check service health and get current usage statistics. This is the only endpoint that does not consume a credit.

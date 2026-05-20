@@ -1,3 +1,11 @@
+---
+last-reviewed: 2026-05-19
+status: active
+
+---
+last-reviewed: 2026-05-19
+status: active
+
 # OWASP LLM Top 10 Threat Model — Phase 9: Agent Security Firewall
 
 > **Created:** 2026-05-19

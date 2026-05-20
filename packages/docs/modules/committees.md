@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # Committee Evidence Module
 
 The committees module ingests, parses, and indexes parliamentary committee evidence from the House of Commons and Senate. It powers the `search_committees` MCP tool.

@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # Immigration & Borders Module
 
 The immigration module ingests data from IRCC (Immigration, Refugees and Citizenship Canada), IRB (Immigration and Refugee Board), and CBSA (Canada Border Services Agency). It powers the `search_immigration` MCP tool.

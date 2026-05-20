@@ -1,3 +1,7 @@
+---
+last-reviewed: 2026-05-19
+status: active
+
 # Contributing to MapleSpike
 
 ## Workflow

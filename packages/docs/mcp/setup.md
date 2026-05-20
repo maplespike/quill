@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # MCP Setup Guide
 
 Configure MapleSpike's MCP server for use with Claude Desktop, Cursor, and other MCP-compatible AI clients.
@@ -151,7 +156,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | \
 
 ## Available Tools
 
-Once connected, all 22 tools are available. See the [Tools Reference](./tools) for complete documentation.
+Once connected, all 50 tools are available. See the [Tools Reference](./tools) for complete documentation.
 
 ### Example Prompts to Try
 

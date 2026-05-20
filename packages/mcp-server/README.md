@@ -5,9 +5,9 @@ status: active
 
 # MapleSpike MCP Server
 
-Model Context Protocol server for Canadian government data. Provides **22 tools** for AI agents to query, search, and verify Canadian government information. All tools return real data from the SQLite database with live-fetch fallbacks.
+Model Context Protocol server for Canadian government data. Provides **50 tools** for AI agents to query, search, and verify Canadian government information. All tools return real data from the SQLite database with live-fetch fallbacks.
 
-> **Status:** All 22 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
+> **Status:** All 50 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
 
 - **Package:** `@maplespike/mcp-server`
 - **Transport:** stdio (local) or SSE (hosted)
@@ -34,7 +34,7 @@ npm run start:sse
 # → http://localhost:3001/sse
 ```
 
-## Tools — All 22 Live
+## Tools — All 50 Live
 
 | Tool | Description | Input |
 |------|-------------|-------|
@@ -98,7 +98,7 @@ Add to your `claude_desktop_config.json`:
 └────────────┘     └──────────────────┘     └──────────────┘
 ```
 
-All 22 tools return real data from the SQLite database. When the database is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
+All 50 tools return real data from the SQLite database. When the database is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
 
 ## License
 

@@ -23,7 +23,7 @@ Every record includes SHA-256 citation hashes for independent verification.
 
 ### 1. MCP Server (Recommended)
 
-The MapleSpike MCP server exposes **24 tools** for AI agents. All return real data from live databases.
+The MapleSpike MCP server exposes **50 tools** for AI agents. All return real data from live databases.
 
 **Configure Claude Desktop (public when available):**
 

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-18
+last-reviewed: 2026-05-19
 status: active
 ---
 
@@ -168,7 +168,7 @@ K3s Cluster (nexus)
 │   ├── Portal config: config.prod.js → apiBase: https://maplespike-api.lan
 │   ├── Replicas: API=2, MCP=1, Portal=1
 │   │
-│   ├── MCP server (NodePort 31745) ── 24 tools, all live
+│   ├── MCP server (NodePort 31745) ── 50 tools, all live
 │   ├── API server (NodePort 31283, Bearer auth, rate limits)
 │   │     ├── SQLite (keys, usage, audit)
 │   │     ├── In-memory cache (node-cache)
@@ -196,7 +196,7 @@ K3s Cluster (nexus)
     ├── Portal config: config.dev.js → apiBase: https://dev-maplespike-api.lan
     ├── Replicas: API=1, MCP=1, Portal=1
     │
-    ├── MCP server (NodePort 31746) ── 24 tools, all live
+    ├── MCP server (NodePort 31746) ── 50 tools, all live
     ├── API server (NodePort 31284)
     │     └── pipeline-core (same module list as prod)
     └── Engine CronJobs (dev ingestion)
@@ -216,7 +216,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 | **pipeline-core fetchers** | ✅ All modules fetch data |
 | **pipeline-core parsers** | ✅ All modules parse into typed records |
 | **pipeline-core DB persistence** | ✅ All modules persist via shared SQLite database |
-| **MCP search tools** | ✅ All 24 tools wired to pipeline-core DB queries |
+| **MCP search tools** | ✅ All 50 tools wired to pipeline-core DB queries |
 | **Dashboard / presentation** | 🟡 Static HTML — needs wiring to live API |
 
 ### 3.3 Integration Points

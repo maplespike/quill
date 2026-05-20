@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # What Is MapleSpike?
 
 MapleSpike is **Canada's sovereign, AI-native government data pipeline**. It ingests, verifies, curates, and surfaces Canadian government data through a unified REST API, MCP server, and TypeScript SDK.
@@ -62,7 +67,7 @@ K3s Cluster (nexus)
 ## Status
 
 - **65 ingestion modules** — ~113K lines of TypeScript
-- **22 MCP tools** — all live and returning real data
+- **50 MCP tools** — all live and returning real data
 - **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
 - **1,141+ unique external endpoints** consumed across all modules
 - **19 cities** with direct open data fetchers; **3,490+** via federation

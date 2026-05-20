@@ -1,6 +1,11 @@
+---
+last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active
+
 # MCP Tools — Complete Reference
 
-The MapleSpike MCP server exposes **22 tools** for AI agents to query, search, and verify Canadian government data. All tools return real data from live databases with citations and quality metadata.
+The MapleSpike MCP server exposes **50 tools** for AI agents to query, search, and verify Canadian government data. All tools return real data from live databases with citations and quality metadata.
 
 ## Tool Categories
 

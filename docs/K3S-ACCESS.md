@@ -1,3 +1,11 @@
+---
+last-reviewed: 2026-05-19
+status: active
+
+---
+last-reviewed: 2026-05-19
+status: active
+
 # K3s Cluster Access
 
 MapleSpike runs on a 4-node K3s cluster: **zephyr**, **forge**, **sentry**, **nexus**.
