@@ -1,11 +1,10 @@
 
 ---
 last-reviewed: 2026-05-19
-last-reviewed: 2026-05-19
 status: active
 
-||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
- 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+||||||| e980c07
+ origin/main
 # TypeScript SDK
 
 The `@maplespike/sdk` package provides a typed client for all MapleSpike features. It ships as dual CJS/ESM and covers all 65+ ingestion modules.

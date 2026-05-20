@@ -1,11 +1,10 @@
 
 ---
 last-reviewed: 2026-05-19
-last-reviewed: 2026-05-19
 status: active
 
-||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
- 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+||||||| e980c07
+ origin/main
 # Quickstart
 
 A 5-minute walkthrough to get data from MapleSpike using curl and MCP.

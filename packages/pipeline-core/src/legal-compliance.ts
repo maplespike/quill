@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: AGPL-3.0-or-later
 /**
  * Legal Compliance Automation for MapleSpike
@@ -62,7 +63,16 @@ export function checkLicenseCompliance(
       }
       return { compliant: true };
     case "commercial":
-      return { compliant: true }; // Commercial license available
+      // Commercial use requires explicit license verification
+      // AGPL packages require commercial license purchase
+      if (AGPL_LICENSES.some(lic => packageLicense.includes(lic))) {
+        return {
+          compliant: false,
+          reason: "AGPL-3.0 requires commercial license purchase for proprietary use. " +
+                  "Contact MapleSpike for commercial licensing options."
+        };
+      }
+      return { compliant: true };
     default:
       return { compliant: false, reason: "Unknown use case" };
   }
@@ -84,8 +94,9 @@ export function logComplianceEvent(
     modified: context.modified || false
   };
 
-  // Write to compliance log
-  console.log(`[COMPLIANCE] ${JSON.stringify(entry)}`);
+  // Write to compliance log - use structured logging for production
+  // In production, this should write to a persistent audit store
+  console.log(JSON.stringify({ level: "info", type: "compliance", ...entry }));
 }
 
 /**
@@ -106,3 +117,5 @@ export function verifyAttribution(records: DataRecord[]): {
     rate: total > 0 ? valid / total : 0
   };
 }
+||||||| e980c07
+ origin/main

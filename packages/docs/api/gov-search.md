@@ -1,11 +1,10 @@
 
 ---
 last-reviewed: 2026-05-19
-last-reviewed: 2026-05-19
 status: active
 
-||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
- 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+||||||| e980c07
+ origin/main
 # GET /v1/gov/search
 
 Search across all Canadian government data sources. This is the primary data query endpoint, covering Statistics Canada cubes, open.canada.ca CKAN datasets, provincial data, federal spending, and more.

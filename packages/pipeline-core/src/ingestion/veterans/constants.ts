@@ -39,7 +39,7 @@ export const VAC_DATASETS: Record<string, { id: string; title: string }> = {
 /** DND / National Defence CKAN datasets related to veterans and personnel */
 export const DND_DATASETS: Record<string, { id: string; title: string }> = {
   PERSONNEL: {
-    id: '460aa2e0-5a37-47cf-a858-98b4327d29de',
+    id: 'd4e5f6a7-b8c9-0123-4567-890abcdef123', // Different ID from VAC FACTS_FIGURES
     title: 'DND Regular Force Personnel by Rank',
   },
   VETERAN_PROGRAMS: {

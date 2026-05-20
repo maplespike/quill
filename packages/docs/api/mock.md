@@ -1,11 +1,10 @@
 
 ---
 last-reviewed: 2026-05-19
-last-reviewed: 2026-05-19
 status: active
 
-||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
- 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+||||||| e980c07
+ origin/main
 # Mock Mode (`_mock=true`)
 
 MapleSpike includes a mock data mode for development, testing, and demonstration purposes. Append `_mock=true` to any API endpoint to receive curated sample data instead of live queries.

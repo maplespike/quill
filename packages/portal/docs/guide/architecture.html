@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapleSpike — Architecture</title>
-  <meta name="description" content="MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and componen">
+  <meta name="description" content="<<<<<<< HEAD">
 
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/responsive-fixes.css">
@@ -235,6 +235,31 @@
   </div>
 </nav>
 <main class="docs-content">
+<h2>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h2>
+<p>last-reviewed: 2026-05-19
+status: active</p>
+<h1>||||||| e980c07</h1>
+<hr>
+<p>last-reviewed: 2026-05-19
+last-reviewed: 2026-05-19
+status: active</p>
+<p>||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>origin/main</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 <h1>Architecture</h1>
 <p>MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and component relationships.</p>
 <h2>System Diagram</h2>
@@ -272,7 +297,7 @@
 │  ┌──────────────────────────────────────────────────────┐    │
 │  │  MCP Server (SSE, port 3001)                        │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
-│  │  │  22 Tools (query_gov_data, search_*, ai_*)    │   │    │
+│  │  │  50 Tools (query_gov_data, search_*, ai_*)    │   │    │
 │  │  └──────────────────────────────────────────────┘   │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
   │  │  │  AI Gateway (chat, embed)                     │   │    │
@@ -318,7 +343,7 @@
 <tr>
 <td><strong>Search</strong></td>
 <td>MCP search tools querying pipeline-core DB</td>
-<td>✅ All 22 tools wired to real DB queries</td>
+<td>✅ All 50 tools wired to real DB queries</td>
 </tr>
 <tr>
 <td><strong>Present</strong></td>
@@ -368,7 +393,7 @@
 <li><strong>Response envelope</strong>: Standardized <code>success/data/error/meta/quality/citation</code> format</li>
 </ul>
 <h3>MCP Server (<code>@maplespike/mcp-server</code>)</h3>
-<p>Model Context Protocol server with 22 tools. Transport:</p>
+<p>Model Context Protocol server with 50 tools. Transport:</p>
 <ul>
 <li><strong>stdio</strong> — For local development / desktop apps</li>
 <li><strong>SSE</strong> (Server-Sent Events) — For hosted / cluster deployment</li>

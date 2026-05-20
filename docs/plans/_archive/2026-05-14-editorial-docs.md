@@ -1,8 +1,10 @@
+
 ---
 last-reviewed: 2026-05-19
 status: active
----
 
+||||||| e980c07
+ origin/main
 # Editorial Docs Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.

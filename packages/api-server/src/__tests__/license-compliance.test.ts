@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: Apache-2.0
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,8 +23,15 @@ describe('checkLicenseCompliance', () => {
     assert.deepEqual(checkLicenseCompliance('MIT', 'proprietary'), { compliant: true });
   });
 
-  it('should allow commercial use with commercial license available', () => {
-    assert.deepEqual(checkLicenseCompliance('AGPL-3.0-or-later', 'commercial'), { compliant: true });
+  it('should require commercial license for AGPL packages in commercial use', () => {
+    const result = checkLicenseCompliance('AGPL-3.0-or-later', 'commercial');
+    assert.equal(result.compliant, false);
+    assert.ok(result.reason?.includes('commercial license'));
+  });
+
+  it('should allow commercial use for non-AGPL packages', () => {
+    assert.deepEqual(checkLicenseCompliance('Apache-2.0', 'commercial'), { compliant: true });
+    assert.deepEqual(checkLicenseCompliance('MIT', 'commercial'), { compliant: true });
   });
 });
 
@@ -68,3 +76,5 @@ describe('withLicenseCheck middleware', () => {
     assert.equal(result.allowed, true);
   });
 });
+||||||| e980c07
+ origin/main

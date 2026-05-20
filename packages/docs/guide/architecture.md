@@ -1,11 +1,10 @@
 
 ---
 last-reviewed: 2026-05-19
-last-reviewed: 2026-05-19
 status: active
 
-||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
- 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+||||||| e980c07
+ origin/main
 # Architecture
 
 MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and component relationships.

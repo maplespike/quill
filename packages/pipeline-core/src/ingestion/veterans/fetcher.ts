@@ -26,6 +26,8 @@ const VETERANS_UA = 'MapleSpike-Veterans/1.0';
 /*  Generic HTTP helpers                                                */
 /* ------------------------------------------------------------------ */
 
+import { httpGet } from '../../utils/http.js';
+
 async function fetchJson(url: string): Promise<any> {
   try {
     const resp = await httpGet(url, {

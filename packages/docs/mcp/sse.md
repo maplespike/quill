@@ -1,11 +1,10 @@
 
 ---
 last-reviewed: 2026-05-19
-last-reviewed: 2026-05-19
 status: active
 
-||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
- 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+||||||| e980c07
+ origin/main
 # SSE Transport Mode
 
 The MapleSpike MCP server supports **Server-Sent Events (SSE)** transport for hosted/cluster deployments. This enables AI agents to connect over HTTP instead of requiring local process execution.

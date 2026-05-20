@@ -1,8 +1,10 @@
+
 ---
 last-reviewed: 2026-05-19
 status: active
----
 
+||||||| e980c07
+ origin/main
 # Container Image Digest Pins
 
 > OWASP LLM05: Supply Chain Vulnerability mitigation
