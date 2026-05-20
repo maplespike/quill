@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # Ingestion Modules — Overview
 
 MapleSpike's data pipeline ingests from **65+ modules** covering every major category of Canadian government data. Each module fetches, parses, and persists data from a specific source. This page provides a complete catalog.

@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # POST /v1/ai_ask
 
 Ask a natural language question about Canadian government data. The AI searches across all pipeline sources (committees, lobbying, procurement, regulations, courts, oversight) and returns a cited, synthesized answer.

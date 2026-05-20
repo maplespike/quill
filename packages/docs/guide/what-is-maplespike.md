@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # What Is MapleSpike?
 
 MapleSpike is **Canada's sovereign, AI-native government data pipeline**. It ingests, verifies, curates, and surfaces Canadian government data through a unified REST API, MCP server, and TypeScript SDK.

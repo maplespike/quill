@@ -1,10 +1,7 @@
 ---
 last-reviewed: 2026-05-19
 status: active
-
 ---
-last-reviewed: 2026-05-19
-status: active
 
 # K3s Cluster Access
 
@@ -47,7 +44,7 @@ The script handles:
 
 ```bash
 for host in zephyr forge sentry nexus; do
-  echo "$host: $(ssh $host 'bash --norc --noprofile -c "kubectl cluster-info 2>&1 | head -1"' 2>/dev/null)"
+  echo "$host: $(ssh $host 'bash --norc --noprofile -c \"kubectl cluster-info 2>&1 | head -1\"' 2>/dev/null)"
 done
 ```
 

@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # Committee Evidence Module
 
 The committees module ingests, parses, and indexes parliamentary committee evidence from the House of Commons and Senate. It powers the `search_committees` MCP tool.

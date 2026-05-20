@@ -1,3 +1,4 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
@@ -7,6 +8,8 @@ status: active
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # API Endpoints — Complete Catalog
 
 The MapleSpike REST API is served at `http://maplespike.lan/v1/`. All responses follow a standard envelope with quality metadata, citations, and usage tracking.

@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # Immigration & Borders Module
 
 The immigration module ingests data from IRCC (Immigration, Refugees and Citizenship Canada), IRB (Immigration and Refugee Board), and CBSA (Canada Border Services Agency). It powers the `search_immigration` MCP tool.

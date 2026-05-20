@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # Transport & Infrastructure Module
 
 The transport-infrastructure module ingests data from the Transportation Safety Board (TSB), Transport Canada, the Canadian Transportation Agency (CTA), the Canada Infrastructure Bank (CIB), and Infrastructure Canada. It powers the `query_gov_data` MCP tool.

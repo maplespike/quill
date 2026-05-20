@@ -1,10 +1,7 @@
 ---
 last-reviewed: 2026-05-19
 status: active
-
 ---
-last-reviewed: 2026-05-19
-status: active
 
 # Container Image Digest Pins
 
@@ -70,7 +67,7 @@ Internal image digests are automatically recorded by CI pipelines:
 
 To manually resolve internal image digests:
 ```bash
-GHCR_TOKEN=your_token ./scripts/update-image-digests.sh
+GHCR_TOKEN=*** ./scripts/update-image-digests.sh
 ```
 
 ## Drift Detection

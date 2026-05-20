@@ -1,8 +1,11 @@
+
 ---
 last-reviewed: 2026-05-19
 last-reviewed: 2026-05-19
 status: active
 
+||||||| parent of 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
+ 940cc08 (feat: Add last-reviewed metadata to 50 documentation files #387)
 # LODE Geospatial Module
 
 The LODE (Linkable Open Data Environment) module provides access to Statistics Canada's geospatial databases — 12 databases covering addresses, buildings, healthcare, recreation, education, culture, businesses, infrastructure, greenhouses, pedestrian networks, transit networks, and cycling networks.
