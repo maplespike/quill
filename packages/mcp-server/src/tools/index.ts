@@ -113,10 +113,10 @@ export function getAllTools(): ToolModule[] {
     searchSocialPrograms,
     searchEducationResearch,
 
-    aiAsk,
-    aiAnalyze,
-    aiSearchSemantic,
-    systemHealth,
+  aiAsk,
+  aiAnalyze,
+  aiSearchSemantic,
+  systemHealth,
   ];
 }
 
