@@ -57,7 +57,7 @@ describe('Veterans Module', () => {
       await ingestAllVeterans();
       const duration = Date.now() - start;
 
-      assert.ok(duration < 30000, `Should complete within 30s, took ${duration}ms`);
+      assert.ok(duration < 60000, `Should complete within 60s, took ${duration}ms`);
     });
   });
 

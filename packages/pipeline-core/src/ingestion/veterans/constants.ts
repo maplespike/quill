@@ -3,35 +3,35 @@
 /** Known VAC CKAN dataset identifiers on open.canada.ca */
 export const VAC_DATASETS: Record<string, { id: string; title: string }> = {
   FACTS_FIGURES: {
-    id: '460aa2e0-5a37-47cf-a858-98b4327d29de',
+    id: 'bbc93ab8-3a92-44bd-a7e4-cb9cc40edeb3',
     title: 'VAC Facts and Figures',
   },
   BENEFITS_DATA: {
-    id: 'f0a7e3c7-8f7d-4b6e-9d5e-1a2b3c4d5e6f',
+    id: 'a1450d35-2816-4a2c-8bac-ee1ee74a9738',
     title: 'VAC Benefits by Program',
   },
   DISABILITY_BENEFITS: {
-    id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+    id: '9d7e0e0a-79df-46ba-ac34-127c398903bc',
     title: 'VAC Disability Benefits Statistics',
   },
   EDUCATION_BENEFITS: {
-    id: 'b2c3d4e5-f6a7-8901-2345-67890abcdef1',
+    id: 'fb0ea072-7b6c-4bea-8e16-e4b6d75b7b17',
     title: 'VAC Education and Training Benefits',
   },
   VETERANS_WAIT_TIMES: {
-    id: 'c3d4e5f6-a7b8-9012-3456-7890abcdef12',
+    id: '8f810399-6380-4cd1-9ad1-0465a8c2a5ac',
     title: 'Veterans Affairs Service Wait Times',
   },
   VETERANS_SUICIDE: {
-    id: 'd4e5f6a7-b8c9-0123-4567-890abcdef123',
+    id: 'ca32aebb-7d67-4637-a539-4106c2044696',
     title: 'Veterans Suicide Mortality Statistics',
   },
   OSISS_DATA: {
-    id: 'e5f6a7b8-c9d0-1234-5678-90abcdef1234',
+    id: 'ca32aebb-7d67-4637-a539-4106c2044696',
     title: 'OSISS Operational Stress Injury Clinics Data',
   },
   VAC_CASELOAD: {
-    id: 'f6a7b8c9-d0e1-2345-6789-01abcdef2345',
+    id: 'bbc93ab8-3a92-44bd-a7e4-cb9cc40edeb3',
     title: 'VAC Client Caseload Statistics',
   },
 };
@@ -39,19 +39,19 @@ export const VAC_DATASETS: Record<string, { id: string; title: string }> = {
 /** DND / National Defence CKAN datasets related to veterans and personnel */
 export const DND_DATASETS: Record<string, { id: string; title: string }> = {
   PERSONNEL: {
-    id: 'd4e5f6a7-b8c9-0123-4567-890abcdef123', // Different ID from VAC FACTS_FIGURES
+    id: '9139319a-9cef-4584-ab4e-6b5f4393ed15',
     title: 'DND Regular Force Personnel by Rank',
   },
   VETERAN_PROGRAMS: {
-    id: 'a7b8c9d0-e1f2-3456-7890-12abcdef3456',
+    id: '12452104-a55c-44a5-b946-718e99f9b7d7',
     title: 'DND Veteran Transition Programs',
   },
   DEFENCE_PROCUREMENT_VETERAN: {
-    id: 'b8c9d0e1-f2a3-4567-8901-23abcdef4567',
+    id: '97518eae-43fe-4c45-ba84-4fae742b2313',
     title: 'Defence Procurement Veteran-related Spending',
   },
   MENTAL_HEALTH: {
-    id: 'c9d0e1f2-a3b4-5678-9012-34abcdef5678',
+    id: 'c6c0a4cd-ff43-406d-b87a-685af02a6815',
     title: 'CAF Mental Health and Wellness Programs',
   },
 };
