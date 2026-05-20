@@ -7,6 +7,7 @@ name: CI
 on:
   pull_request: { branches: [main, prod] }
   push: { branches: [main, prod] }
+  workflow_dispatch:
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -14,6 +15,7 @@ permissions:
   contents: read
   pull-requests: write
   actions: read
+  checks: write
 
 jobs:
   test:
@@ -25,7 +27,18 @@ jobs:
         with:
           fetch-depth: 0  # Needed for commit signing check
 
-      # ── Install gh CLI (needed for labeling) ───────────────────
+      # Cache pnpm store and node_modules
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pnpm-store
+            **/node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      # Install gh CLI (needed for labeling)
       - name: Install gh CLI
         run: |
           type gh >/dev/null 2>&1 || sudo apt-get update -qq && sudo apt-get install -y -qq gh
