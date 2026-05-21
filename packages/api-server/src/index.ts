@@ -40,6 +40,7 @@ import { getMockData, MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES, MOCK_DATA_MAP } fr
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
 import { parseAgentAction, mockHandler } from './routes/mock.js';
+import { randomUUID } from 'node:crypto';
 
 interface Route {
   pattern: RegExp;
@@ -266,6 +267,8 @@ export async function handleRequest(
 ): Promise<Response> {
   const config = loadConfig(env);
   const requestId = generateRequestId();
+  // Extract trace ID from header or generate new one
+  const traceId = request.headers.get('X-Maplespike-Trace-Id') || requestId;
   const startTime = Date.now();
   const url = new URL(request.url);
   const queryOptions = parseQueryOptions(url);
@@ -680,35 +683,36 @@ export async function handleRequest(
         }
       : null;
 
-    const newBody: Record<string, unknown> = {
-      success: true,
-      data: parsedBody?.data ?? null,
-      text: null,
-      error: parsedBody?.error ?? null,
-      meta: {
-        requestId,
-        timestamp: new Date().toISOString(),
-        version: config.version,
-        usage: {
-          periodCalls: 0,
-          periodLimit: TIER_LIMITS[tier]?.monthly || 1000,
-          tier,
-        },
-        agent: 'maplespike',
-        action: url.pathname.replace('/v1/', '').replace(/\//g, '-') || 'api-call',
-        authMethod,
-        creditsCharged,
-        cacheStatus,
-        durationMs,
-      },
-      quality: {
-        freshness_seconds: freshness === Infinity ? Math.floor(durationMs / 1000) : freshness,
-        source_uptime_7d: 0.98,
-        confidence,
-        certainty_score: certainty,
-      },
-      citation,
-    };
+     const newBody: Record<string, unknown> = {
+       success: true,
+       data: parsedBody?.data ?? null,
+       text: null,
+       error: parsedBody?.error ?? null,
+       meta: {
+         requestId,
+         traceId,
+         timestamp: new Date().toISOString(),
+         version: config.version,
+         usage: {
+           periodCalls: 0,
+           periodLimit: TIER_LIMITS[tier]?.monthly || 1000,
+           tier,
+         },
+         agent: 'maplespike',
+         action: url.pathname.replace('/v1/', '').replace(/\//g, '-') || 'api-call',
+         authMethod,
+         creditsCharged,
+         cacheStatus,
+         durationMs,
+       },
+       quality: {
+         freshness_seconds: freshness === Infinity ? Math.floor(durationMs / 1000) : freshness,
+         source_uptime_7d: 0.98,
+         confidence,
+         certainty_score: certainty,
+       },
+       citation,
+     };
 
     // Apply token optimization to response data
     if (queryOptions._fields && newBody.data && typeof newBody.data === 'object' && !Array.isArray(newBody.data)) {

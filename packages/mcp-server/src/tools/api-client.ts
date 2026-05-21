@@ -35,6 +35,7 @@ interface ApiResponse<T> {
 export async function callApi<T>(
   path: string,
   params?: Record<string, string | number>,
+  traceId?: string,
 ): Promise<T> {
   const url = new URL(`${API_BASE}${path}`);
   if (params) {
@@ -45,12 +46,18 @@ export async function callApi<T>(
     }
   }
 
+  const headers: Record<string, string> = {
+    'X-API-Key': API_KEY,
+    'Accept': 'application/json',
+    'User-Agent': USER_AGENT,
+  };
+
+  if (traceId) {
+    headers['X-Maplespike-Trace-Id'] = traceId;
+  }
+
   const resp = await fetch(url.toString(), {
-    headers: {
-      'X-API-Key': API_KEY,
-      'Accept': 'application/json',
-      'User-Agent': USER_AGENT,
-    },
+    headers,
     signal: AbortSignal.timeout(15_000),
   });
 
@@ -69,10 +76,11 @@ export async function callApi<T>(
 
 // ── API endpoints ─────────────────────────────────────────────────
 
-export async function getPipelineReleases(limit = 20, category?: string) {
+export async function getPipelineReleases(limit = 20, category?: string, traceId?: string) {
   return callApi<{ releases: Record<string, unknown>[]; total: number }>(
     '/gov/releases',
     { limit, category: category || '', _format: 'compact' },
+    traceId,
   );
 }
 
@@ -80,18 +88,20 @@ export async function searchGovData(
   query: string,
   jurisdiction?: string,
   limit = 10,
+  traceId?: string,
 ) {
   return callApi<{ results: Record<string, unknown>[]; total: number }>(
     '/gov/search',
     { q: query, jurisdiction: jurisdiction || '', limit },
+    traceId,
   );
 }
 
-export async function getCitation(hash: string) {
-  return callApi<Record<string, unknown>>(`/citation/${hash}`);
+export async function getCitation(hash: string, traceId?: string) {
+  return callApi<Record<string, unknown>>(`/citation/${hash}`, undefined, traceId);
 }
 
-export async function getHealth() {
+export async function getHealth(traceId?: string) {
   return callApi<{
     status: string;
     service: string;
@@ -106,17 +116,17 @@ export async function getHealth() {
       error?: string;
     }>;
     timestamp: string;
-  }>('/health');
+  }>('/health', undefined, traceId);
 }
 
-export async function getUsage() {
+export async function getUsage(traceId?: string) {
   return callApi<{
     periodCalls: number;
     periodLimit: number;
     tier: string;
     daily: { count: number; limit: number };
     monthly: { count: number; limit: number };
-  }>('/usage');
+  }>('/usage', undefined, traceId);
 }
 
 export async function listKeys() {

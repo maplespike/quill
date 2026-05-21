@@ -48,6 +48,7 @@ export const handler: ToolHandler = async (args) => {
 
   const category = (args.category as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
+  const traceId = args.traceId as string | undefined;
 
   const categoryFilters: Record<string, string> = {
     cpi: 'consumer price index inflation',
@@ -65,7 +66,7 @@ export const handler: ToolHandler = async (args) => {
     }
   }
 
-  const result = await searchGovData(searchQuery, 'federal', limit);
+  const result = await searchGovData(searchQuery, 'federal', limit, traceId);
 
   return {
     content: {
@@ -73,6 +74,7 @@ export const handler: ToolHandler = async (args) => {
       query,
       category,
       limit,
+      traceId,
       results: result.results,
       totalCount: result.total,
     },

@@ -76,5 +76,3 @@ describe('withLicenseCheck middleware', () => {
     assert.equal(result.allowed, true);
   });
 });
-||||||| e980c07
- origin/main

@@ -6,6 +6,7 @@
  */
 
 import type { ToolDefinition, ToolHandler, ToolResponse } from './tools/types.js';
+import { randomUUID } from 'node:crypto';
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -210,61 +211,65 @@ export class McpServer {
     send(this.result(id ?? null, { tools: definitions }));
   }
 
-  private async handleToolCall(
-    id: string | number | undefined,
-    params: Record<string, unknown> | undefined,
-    send: (r: JsonRpcResponse) => void,
-  ): Promise<void> {
-    const toolName = params?.name as string | undefined;
-    const args = (params?.arguments as Record<string, unknown>) ?? {};
+   private async handleToolCall(
+     id: string | number | undefined,
+     params: Record<string, unknown> | undefined,
+     send: (r: JsonRpcResponse) => void,
+   ): Promise<void> {
+     const toolName = params?.name as string | undefined;
+     const args = (params?.arguments as Record<string, unknown>) ?? {};
 
-    if (!toolName) {
-      send(this.error(id ?? null, -32602, 'Invalid params: must include "name"'));
-      return;
-    }
+     if (!toolName) {
+       send(this.error(id ?? null, -32602, 'Invalid params: must include "name"'));
+       return;
+     }
 
-    const tool = this.tools.get(toolName);
-    if (!tool) {
-      send(this.error(id ?? null, -32602, `Unknown tool: ${toolName}`));
-      return;
-    }
+     const tool = this.tools.get(toolName);
+     if (!tool) {
+       send(this.error(id ?? null, -32602, `Unknown tool: ${toolName}`));
+       return;
+     }
 
-    // Validate arguments against the tool's inputSchema
-    const validationErrors = validateToolArgs(args, tool.definition.inputSchema);
-    if (validationErrors.length > 0) {
-      send(this.result(id ?? null, {
-        content: [{ type: 'text', text: validationErrors.join('\n') }],
-        isError: true,
-      }));
-      return;
-    }
+     // Validate arguments against the tool's inputSchema
+     const validationErrors = validateToolArgs(args, tool.definition.inputSchema);
+     if (validationErrors.length > 0) {
+       send(this.result(id ?? null, {
+         content: [{ type: 'text', text: validationErrors.join('\n') }],
+         isError: true,
+       }));
+       return;
+     }
 
-    // Run handler; catch sync and async errors
-    try {
-      const rawResult: ToolResponse = await tool.handler(args);
-      const result: ToolResponse = sanitizeOutput(rawResult);
+     // Generate trace ID for this tool invocation
+     const traceId = randomUUID();
 
-      // MCP tool result envelope
-      // content is an array of text|image|resource items
-      send(this.result(id ?? null, {
-        content: [
-          {
-            type: 'text',
-            text: typeof result.content === 'string'
-              ? result.content
-              : JSON.stringify(result.content, null, 2),
-          },
-        ],
-        isError: result.isError ?? false,
-      }));
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      send(this.result(id ?? null, {
-        content: [{ type: 'text', text: `Error: ${msg}` }],
-        isError: true,
-      }));
-    }
-  }
+     // Run handler; catch sync and async errors
+     try {
+       // Pass traceId to tool handler via args
+       const rawResult: ToolResponse = await tool.handler({ ...args, traceId });
+       const result: ToolResponse = sanitizeOutput(rawResult);
+
+       // MCP tool result envelope
+       // content is an array of text|image|resource items
+       send(this.result(id ?? null, {
+         content: [
+           {
+             type: 'text',
+             text: typeof result.content === 'string'
+               ? result.content
+               : JSON.stringify(result.content, null, 2),
+           },
+         ],
+         isError: result.isError ?? false,
+       }));
+     } catch (err) {
+       const msg = err instanceof Error ? err.message : String(err);
+       send(this.result(id ?? null, {
+         content: [{ type: 'text', text: `Error: ${msg}` }],
+         isError: true,
+       }));
+     }
+   }
 
   // ── JSON-RPC helpers ──────────────────────────────────────────────────
 
