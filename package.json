@@ -34,7 +34,8 @@
     "@changesets/cli": "^2.31.0",
     "@chenglou/pretext": "^0.0.7",
     "marked": "^18.0.3",
-    "turbo": "^2.9.14"
+    "turbo": "^2.9.14",
+    "typescript": "^5.9.3"
   },
   "license": "AGPL-3.0-or-later"
 }
