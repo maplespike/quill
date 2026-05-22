@@ -56,6 +56,9 @@ import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import { billingPlansHandler, billingCheckoutHandler } from './routes/billing.js';
+import { stripeCheckoutHandler, stripeWebhookHandler } from './routes/billing-stripe.js';
+import { cryptoQuoteHandler, cryptoVerifyHandler } from './routes/billing-crypto.js';
+import { interacGenerateHandler, interacConfirmHandler } from './routes/billing-interac.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
 import {
   oauthLoginHandler,
@@ -98,6 +101,15 @@ const ROUTES: Route[] = [
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },
   { pattern: /^\/v1\/billing\/checkout\/?$/, method: 'POST', params: [], handler: billingCheckoutHandler },
+  // Billing - Stripe
+  { pattern: /^\/v1\/billing\/stripe\/checkout\/?$/, method: 'POST', params: [], handler: stripeCheckoutHandler },
+  { pattern: /^\/v1\/billing\/stripe\/webhook\/?$/, method: 'POST', params: [], handler: stripeWebhookHandler },
+  // Billing - Crypto
+  { pattern: /^\/v1\/billing\/crypto\/quote\/?$/, method: 'POST', params: [], handler: cryptoQuoteHandler },
+  { pattern: /^\/v1\/billing\/crypto\/verify\/?$/, method: 'POST', params: [], handler: cryptoVerifyHandler },
+  // Billing - Interac
+  { pattern: /^\/v1\/billing\/interac\/generate\/?$/, method: 'POST', params: [], handler: interacGenerateHandler },
+  { pattern: /^\/v1\/billing\/interac\/confirm\/?$/, method: 'POST', params: [], handler: interacConfirmHandler },
   // AI
   { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
