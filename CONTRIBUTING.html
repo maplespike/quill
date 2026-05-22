@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contributing to MapleSpike</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      line-height: 1.6;
+      color: #1f2937;
+      background: #ffffff;
+    }
+    h1 {
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 0.5rem;
+      margin-top: 2rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 0.25rem;
+    }
+    h3 {
+      margin-top: 1.5rem;
+      color: #374151;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+    hr {
+      border: none;
+      border-top: 2px solid #e5e7eb;
+      margin: 2rem 0;
+    }
+    ul {
+      padding-left: 1.5rem;
+    }
+    li {
+      margin: 0.25rem 0;
+    }
+    input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Contributing to MapleSpike</h1>
+
+  <h2>Workflow</h2>
+
+  <p>Every change follows: <strong>Issue → Branch/Worktree → PR → Merge → Close Issue</strong></p>
+
+  <ol>
+    <li><strong>Issues:</strong> Every change needs a GitHub issue. No issue = no code.</li>
+    <li><strong>Worktrees:</strong> Use <code>git worktree add</code> on the cluster node closest to your workload.</li>
+    <li><strong>Branch naming:</strong> <code>issue-NNN-short-description</code></li>
+    <li><strong>Commit messages:</strong> <code>type: description (#NNN)</code> — conventional commits with issue ref.</li>
+    <li><strong>PR:</strong> Push branch → create PR with <code>Closes #NNN</code>. All changes through PRs.</li>
+    <li><strong>Merge:</strong> Squash merge preferred. Keep history clean.</li>
+  </ol>
+
+  <h2>Development Environment</h2>
+
+  <h3>Node Selection</h3>
+
+  <table>
+    <tr><th>Workload</th><th>Node</th><th>Reason</th></tr>
+    <tr><td>AI/GPU work</td><td>Sentry or Nexus</td><td>GPU access</td></tr>
+    <tr><td>Data ingestion</td><td>Nexus</td><td>46GB RAM</td></tr>
+    <tr><td>Infrastructure</td><td>Zephyr</td><td>Control plane</td></tr>
+    <tr><td>Light work</td><td>Any</td><td></td></tr>
+  </table>
+
+  <h3>SSH Workaround</h3>
+
+  <p>Remote nodes have fish/devenv startup noise. Use:</p>
+  <pre><code>ssh nexus 'bash --norc --noprofile -c "your command here"'</code></pre>
+
+  <h2>Code Standards</h2>
+
+  <h3>TypeScript</h3>
+  <ul>
+    <li>Strict mode, ES2022 target</li>
+    <li>No <code>as any</code>, <code>@ts-ignore</code>, or <code>@ts-expect-error</code></li>
+    <li>SHA-256 citation hashing for data sources</li>
+    <li>Trust scoring ≥60% threshold</li>
+  </ul>
+
+  <h3>Conventional Commits</h3>
+  <pre><code>feat:     New feature or data module
+fix:      Bug fix
+chore:    Maintenance, tooling, config
+refactor: Code change with no behavior change
+docs:     Documentation only
+test:     Test additions or changes
+ci:       CI/CD changes</code></pre>
+
+  <h2>Commit Signing</h2>
+
+  <p>All commits should be signed (GPG or SSH). CI will warn on unsigned commits.</p>
+  <pre><code>git config commit.gpgsign true
+git config user.signingkey &lt;key-id&gt;</code></pre>
+
+  <h2>PR Checklist</h2>
+
+  <ul>
+    <li><input type="checkbox" disabled> Single issue per PR</li>
+    <li><input type="checkbox" disabled> Work in a worktree on the right node</li>
+    <li><input type="checkbox" disabled> <code>pnpm build</code> passes</li>
+    <li><input type="checkbox" disabled> <code>pnpm test</code> passes</li>
+    <li><input type="checkbox" disabled> Commit messages reference <code>(#NNN)</code></li>
+    <li><input type="checkbox" disabled> PR body contains <code>Closes #NNN</code></li>
+    <li><input type="checkbox" disabled> ROADMAP.html updated if scope changed</li>
+    <li><input type="checkbox" disabled> CHANGELOG.html entry added (if user-facing)</li>
+    <li><input type="checkbox" disabled> Worktree cleaned up after merge: <code>git worktree remove /data/projects/own/maplespike-NNN</code></li>
+    <li><input type="checkbox" disabled> Remote nodes synced: <code>git fetch origin && git reset --hard origin/main</code></li>
+  </ul>
+
+  <h2>Repository Settings (GitHub)</h2>
+
+  <p>Branch protection rules are configured for <code>main</code>:</p>
+  <ul>
+    <li>Require pull request before merging</li>
+    <li>Require status checks (CI must pass)</li>
+    <li>Require up-to-date branches</li>
+    <li>Require signed commits (recommended)</li>
+  </ul>
+
+</body>
+</html>

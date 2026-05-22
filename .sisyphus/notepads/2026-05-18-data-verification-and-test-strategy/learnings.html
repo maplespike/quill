@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>learnings</title>
+  <style>
+    body {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  line-height: 1.6;
+  color: #1f2937;
+  background: #ffffff;
+}
+h1 {
+  border-bottom: 3px solid #3b82f6;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+}
+h2 {
+  margin-top: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.25rem;
+}
+h3 {
+  margin-top: 1.5rem;
+  color: #374151;
+}
+code {
+  background: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #6b7280;
+}
+hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+ul {
+  padding-left: 1.5rem;
+}
+li {
+  margin: 0.25rem 0;
+}
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.meta {
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.9em;
+}
+  </style>
+</head>
+<body>
+
+  <h1>Learnings — Data Verification &amp; Test Strategy</h1>
+<h2>2026-05-18</h2>
+<h3>Subagent reliability</h3>
+<ul>
+<li>Subagents frequently claim work is done but files may not actually be written</li>
+<li>MUST verify every file exists and is correct before accepting</li>
+<li>Portal-side effects from agents corrupting worktree are a major problem</li>
+</ul>
+<h3>registry.ts modification approach</h3>
+<ul>
+<li>Adding a new optional field to ModuleInfo requires manually updating all 64 entries</li>
+<li>Batch edits using module <code>name:</code> as unique identifier for oldString matching</li>
+<li>Build passes after changes (tsc -b succeeds)</li>
+</ul>
+<h3>Test patterns</h3>
+<ul>
+<li>Use <code>node --test</code> with tsx and <code>node:test</code>/<code>node:assert/strict</code> imports</li>
+<li>Live tests gate behind <code>process.env.LIVE_DATA_TEST === &#39;true&#39;</code></li>
+<li>Module coverage test is purely informational, must not fail CI</li>
+</ul>
+<h3>Portable Portal Prevention</h3>
+<ul>
+<li>EVERY agent prompt must start with: <code>CRITICAL: Do NOT modify packages/portal/, Dockerfile.portal, or pnpm-lock.yaml</code></li>
+<li>agents from <code>quick</code> category are most prone to portal side-effects — prefer <code>deep</code> for work near portal</li>
+<li>When agents must touch packages/ near portal, commit first then delegate</li>
+</ul>
+<h3>JS/TS Gotchas That Cause Test Failures</h3>
+<ul>
+<li><code>Function.length</code> counts params BEFORE first default value: <code>function foo(x = 1)</code> has <code>length === 0</code>, NOT 1</li>
+<li><code>as const</code> is compile-time ONLY — does NOT call <code>Object.freeze()</code> at runtime. <code>Object.isFrozen()</code> always returns <code>false</code></li>
+<li>Dynamic imports from <code>__tests__/</code> resolve relative to test file location, NOT the ingestion root. Must use <code>new URL(&#39;../$(PATH)&#39;, import.meta.url)</code> or <code>path.join(INGESTION_DIR, path)</code></li>
+<li>Default parameter values in async functions: <code>.length</code> is unreliable for verifying parameter acceptance. Use <code>toString().includes(&#39;paramName&#39;)</code> instead</li>
+</ul>
+<h3>Session Hygiene</h3>
+<ul>
+<li><code>git add &amp;&amp; git commit</code> after every verified batch — prevents portal agents from deleting untracked files</li>
+<li>Run <code>pnpm test</code> after EVERY delegation — catches assertion bugs immediately</li>
+<li>Verify generated scripts are callable immediately after creation: <code>node scripts/generate-metrics.mjs</code></li>
+<li>When stashing, use <code>git stash -u</code> (includes untracked) to capture new files</li>
+<li>If stash pop fails on lockfile conflict: <code>git add pnpm-lock.yaml &amp;&amp; git stash pop</code></li>
+</ul>
+<h3>Smoke test creation patterns</h3>
+<ul>
+<li>21 government-category modules needed smoke tests: committees, gic, gazette, oversight, elections, proactive-disclosure, ati, federal-budget, statcan, immigration, criminal-justice, indigenous-relations, federal, goc-spending, real-time-feeds, regional-authorities, municipal, municipal-long-tail, global-canada, geospatial, legislation</li>
+<li>Always verify exports by reading the module&#39;s index.ts barrel file — don&#39;t assume re-exports match registry.ts ingestFunctions</li>
+<li>GazettePart enum is NOT re-exported from gazette/index.ts (internal use only); test only what&#39;s in the barrel</li>
+<li>Dynamic import (<code>await import(&#39;..&#39;)</code>) works well for smoke tests — no need to import each named export</li>
+<li>Test files go in <code>__tests__/&lt;module&gt;.test.ts</code>, import paths use <code>../&lt;module&gt;/index.js</code> for subdirectory modules</li>
+<li>Verify with: <code>npx tsx --test src/ingestion/__tests__/&lt;module&gt;.test.ts</code></li>
+</ul>
+<h3>YAML workflow patterns</h3>
+<ul>
+<li>ci.yml uses consistent patterns: checkout, pnpm setup, install, clean, build, test</li>
+<li>Live-data workflow needs <code>issues: write</code> permission for auto-issue creation</li>
+<li>Always double-check which file the agent is modifying (agents confuse auto-assign-milestone with ci.yml)</li>
+</ul>
+
+</body>
+</html>

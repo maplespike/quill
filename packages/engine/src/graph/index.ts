@@ -19,4 +19,5 @@ export {
   detectSoleSourceHeavyLobbying,
   detectSpousalInterestProximity,
   runAllDetectors,
+  isoNow,
 } from "./signals";

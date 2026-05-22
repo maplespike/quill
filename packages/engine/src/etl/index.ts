@@ -50,7 +50,10 @@ export function transformLobbying(db: Database.Database): number {
 // ─── Contract Awards → contracts ──────────────────────────────────
 
 export function transformContracts(db: Database.Database): number {
-  const rows = db.prepare("SELECT * FROM contract_awards").all() as any[];
+  let rows: any[];
+  try {
+    rows = db.prepare("SELECT * FROM contract_awards").all() as any[];
+  } catch { /* table may not exist */ return 0; }
   const del = db.prepare("DELETE FROM contracts");
   del.run();
   const insert = db.prepare(`
@@ -161,14 +164,16 @@ export function transformOrganizations(db: Database.Database): number {
   }
 
   // From contract_awards (vendor organizations)
-  const contractRows = db.prepare("SELECT DISTINCT vendor_name as name, province FROM contract_awards WHERE vendor_name IS NOT NULL AND vendor_name != ''").all() as any[];
-  for (const r of contractRows) {
-    if (!seen.has(r.name)) {
-      seen.add(r.name);
-      insert.run(uid("org"), JSON.stringify([r.name]), "corporation", null, r.province || null, "open_canada_contracts", JSON.stringify(r), nowISO(), nowISO());
-      count++;
+  try {
+    const contractRows = db.prepare("SELECT DISTINCT vendor_name as name FROM contract_awards WHERE vendor_name IS NOT NULL AND vendor_name != ''").all() as any[];
+    for (const r of contractRows) {
+      if (!seen.has(r.name)) {
+        seen.add(r.name);
+        insert.run(uid("org"), JSON.stringify([r.name]), "corporation", null, null, "open_canada_contracts", JSON.stringify(r), nowISO(), nowISO());
+        count++;
+      }
     }
-  }
+  } catch { /* table may not exist */ }
 
   // From corporate_entities
   try {
