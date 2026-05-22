@@ -33,7 +33,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run clean
-      - run: pnpm build
+      - run: bash scripts/build-packages.sh
       - run: pnpm rebuild better-sqlite3
 
       - name: Start API server (background)
