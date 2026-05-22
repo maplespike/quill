@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   publish-npm:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -38,7 +38,7 @@ jobs:
           NPM_CONFIG_PROVENANCE: "true"
 
   publish-pypi:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     defaults:
       run:
         working-directory: packages/sdk-python
