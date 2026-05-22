@@ -50,8 +50,8 @@ jobs:
       # Clean before build to avoid stale dist issues
       - run: pnpm run clean
 
-      # Build all JS/TS packages (Turbo respects dependency order)
-      - run: pnpm -r build
+# Build all JS/TS packages (Turbo topological order — pnpm -r builds in parallel and races)
+- run: pnpm build
 
       # Build docs pages from markdown source
       - run: node scripts/build-docs.mjs
