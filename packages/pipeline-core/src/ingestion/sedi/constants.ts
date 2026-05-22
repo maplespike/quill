@@ -1,19 +1,16 @@
 /**
  * SEDI Constants — MapleSpike Pipeline
  *
- * URLs for the Canadian System for Electronic Disclosure by Insiders (SEDI)
- * and SEDAR+, plus a curated list of major TSX issuers and tracked
- * executive organizations.
+ * URLs for the Canadian System for Electronic Disclosure by Insiders (SEDI).
  *
  * Sources:
  *   SEDI search: https://www.sedi.ca/sedi/SVTOCPublish?language=en
- *   SEDAR+:      https://www.sedarplus.ca
  */
 
 import type { InsiderDataSource } from './types.js';
 
 /* ------------------------------------------------------------------ */
-/*  SEDI / SEDAR+ URLs                                                 */
+/*  SEDI URLs                                                          */
 /* ------------------------------------------------------------------ */
 
 export const SEDI_BASE_URL = 'https://www.sedi.ca' as const;
@@ -22,26 +19,14 @@ export const SEDI_SEARCH_URL = 'https://www.sedi.ca/sedi/SVTOCPublish?language=e
 /** SEDI report detail pages follow this pattern: /sedi/{language}/SVTOCDetail?id={reportId} */
 export const SEDI_REPORT_DETAIL = 'https://www.sedi.ca/sedi/SVTOCDetail' as const;
 
-/** SEDAR+ base URL for insider reports */
-export const SEDARPLUS_BASE_URL = 'https://www.sedarplus.ca' as const;
-
-/** SEDAR+ insider transaction search (if API-based endpoint exists) */
-export const SEDARPLUS_SEARCH_URL = 'https://www.sedarplus.ca/insider-transactions' as const;
-
 /**
  * Data source configurations.
- * SEDI is the primary source (HTML form-based); SEDAR+ is fallback.
  */
 export const INSIDER_SOURCES: Record<InsiderDataSource, { baseUrl: string; searchUrl: string; label: string }> = {
   sedi: {
     baseUrl: SEDI_BASE_URL,
     searchUrl: SEDI_SEARCH_URL,
     label: 'SEDI — System for Electronic Disclosure by Insiders',
-  },
-  sedarplus: {
-    baseUrl: SEDARPLUS_BASE_URL,
-    searchUrl: SEDARPLUS_SEARCH_URL,
-    label: 'SEDAR+ — Insider Reports',
   },
 };
 
