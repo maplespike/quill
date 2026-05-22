@@ -37,13 +37,13 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
-- run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
-  # Set working directory for composite TypeScript builds
-  - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
+      # Set working directory for composite TypeScript builds
+      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
 
-  - run: pnpm run clean
-  - run: pnpm build
+      - run: pnpm run clean
+      - run: pnpm build
       - run: node scripts/build-docs.mjs
       - run: pnpm rebuild better-sqlite3
 
