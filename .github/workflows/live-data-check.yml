@@ -32,8 +32,8 @@ jobs:
         with: { node-version: 22, cache: pnpm }
 
       - run: pnpm install --frozen-lockfile
-  - run: pnpm run clean
-  - run: pnpm build
+      - run: pnpm run clean
+      - run: pnpm build
       - run: pnpm rebuild better-sqlite3
 
       - name: Start API server (background)
