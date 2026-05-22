@@ -9,7 +9,7 @@
     "maplespike-mcp": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "start": "node dist/cli.js",
     "start:sse": "node dist/index.js",
