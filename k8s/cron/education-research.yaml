@@ -23,7 +23,7 @@ spec:
           nodeName: nexus
           containers:
           - name: maplespike-ingest
-            image: ghcr.io/reverb256/maplespike/maplespike-ingest:stable
+            image: ghcr.io/reverb256/maplespike/maplespike-ingest:dev
             imagePullPolicy: Always
             env:
             - name: NODE_ENV
