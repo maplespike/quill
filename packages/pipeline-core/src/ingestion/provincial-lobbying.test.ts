@@ -616,3 +616,54 @@ describe('fetcher exports', () => {
     assert.equal(typeof mod.ingestAllProvincial, 'function');
   });
 });
+
+/* ------------------------------------------------------------------ */
+/*  Live integration test — NU federal OCL proxy                        */
+/* ------------------------------------------------------------------ */
+
+const runNULive = process.env.LIVE_DATA_TEST === 'true';
+
+describe('NU OCL proxy live fetch', { skip: !runNULive }, () => {
+  if (!runNULive) return;
+
+  it('fetchNULobbying returns wrapper response shape', async () => {
+    const { fetchNULobbying } = await import('./provincial-lobbying/fetchers/nu.js');
+    const result = await fetchNULobbying({ limit: 5 });
+
+    assert.ok(Array.isArray(result.records));
+    assert.ok(['federal-ocl-search', 'none'].includes(result.source));
+    assert.ok(Array.isArray(result.errors));
+
+    if (result.records.length > 0) {
+      const record = result.records[0];
+      assert.ok(
+        record.clientName || record.registrationNumber,
+        'Record must have clientName or registrationNumber',
+      );
+      assert.ok(typeof record.sourceUrl === 'string');
+      assert.ok(record.sourceUrl.includes('lobbycanada.gc.ca'));
+    }
+  });
+
+  it('searchNURegistry finds records for "Nunavut Tunngavik"', async () => {
+    const { searchNURegistry } = await import('./provincial-lobbying/fetchers/nu.js');
+    const records = await searchNURegistry('Nunavut Tunngavik');
+
+    assert.ok(Array.isArray(records));
+    if (records.length > 0) {
+      const r = records[0];
+      assert.ok(r.clientName || r.registrationNumber);
+    }
+  });
+
+  it('searchNURegistry finds records for "Iqaluit"', async () => {
+    const { searchNURegistry } = await import('./provincial-lobbying/fetchers/nu.js');
+    const records = await searchNURegistry('Iqaluit');
+
+    assert.ok(Array.isArray(records));
+    if (records.length > 0) {
+      const r = records[0];
+      assert.ok(r.clientName || r.registrationNumber);
+    }
+  });
+});
