@@ -162,25 +162,26 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, nixos]
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Decrypt vault (JIT)
-        run: |
-          eval "$(./scripts/decrypt-secrets.sh)"
-          echo "MAPLESPIKE_GITHUB_PROMOTION_TOKEN=${MAPLESPIKE_GITHUB_PROMOTION_TOKEN}" >> $GITHUB_ENV
-        env:
-          AGE_SECRET_KEY: ${{ secrets.AGE_SECRET_KEY }}
+    - name: Decrypt vault (JIT)
+      run: |
+        eval "$(./scripts/decrypt-secrets.sh)"
+        echo "MAPLESPIKE_GITHUB_PROMOTION_TOKEN=${MAPLESPIKE_GITHUB_PROMOTION_TOKEN}" >> $GITHUB_ENV
+      env:
+        AGE_SECRET_KEY: ${{ secrets.AGE_SECRET_KEY }}
 
-      - name: Merge main to prod
-        uses: actions/checkout@v4
-        with:
-          token: ${{ env.MAPLESPIKE_GITHUB_PROMOTION_TOKEN }}
-          fetch-depth: 0
-      - run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main:main origin/prod:prod
-          git checkout prod
-          git merge main --no-edit
-          git push origin prod
-        working-directory: ${{ github.workspace }}
+    - name: Re-checkout with promotion token
+      uses: actions/checkout@v4
+      with:
+        token: ${{ env.MAPLESPIKE_GITHUB_PROMOTION_TOKEN }}
+        fetch-depth: 0
+
+    - name: Merge main to prod
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git fetch origin main:main origin/prod:prod
+        git checkout prod
+        git merge main --no-edit
+        git push origin prod
