@@ -43,7 +43,7 @@ jobs:
       - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
 
       - run: pnpm run clean
-      - run: pnpm build
+      - run: bash scripts/build-packages.sh
       - run: node scripts/build-docs.mjs
       - run: pnpm rebuild better-sqlite3
 
