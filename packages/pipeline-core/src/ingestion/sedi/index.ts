@@ -8,7 +8,7 @@
  * companies — catching executives selling shares before bad news.
  *
  * Architecture:
- *   1. Fetch HTML from SEDI (or SEDAR+ as fallback)
+ *   1. Fetch HTML from SEDI
  *   2. Parse HTML tables into InsiderTransaction records
  *   3. Deduplicate by SHA-256 hash
  *   4. Persist to D1 database (when db provided)
@@ -16,7 +16,7 @@
  *
  * Sources:
  *   SEDI:   https://www.sedi.ca/sedi/SVTOCPublish?language=en
- *   SEDAR+: https://www.sedarplus.ca
+ *   SEDI: https://www.sedi.ca/sedi/SVTOCPublish?language=en
  *
  * Design notes:
  *   - SEDI has no public API — all data is HTML-scraped
@@ -208,7 +208,7 @@ export async function ingestSediByIssuer(
   try {
     log(`[SEDI] Fetching insider transactions for issuer: "${issuer}"...`);
 
-    // Phase 1: Fetch HTML from SEDI (with SEDAR+ fallback)
+    // Phase 1: Fetch HTML from SEDI
     const { source, html, sourceUrl } = await fetchInsiderTransactions(issuer, {
       fromDate: options.fromDate,
       toDate: options.toDate,

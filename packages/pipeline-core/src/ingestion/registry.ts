@@ -528,11 +528,11 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'corporate-filings',
-    description: 'Corporate filings — SEDAR+, public company regulatory filings and disclosures',
+    description: 'Corporate filings — CKAN-based regulatory filings and public company disclosures',
     category: 'corporate',
     modulePath: './corporate-filings/index.js',
     ingestFunctions: ['ingestAllFilings'],
-    sources: [{ name: 'SEDAR+ regulatory filings', format: 'HTML' }],
+    sources: [{ name: 'CKAN corporate filings', format: 'REST API' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
   },
