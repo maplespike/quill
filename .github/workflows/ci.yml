@@ -55,7 +55,7 @@ jobs:
 
       - run: node scripts/build-docs.mjs
 
-      - run: pnpm rebuild better-sqlite3
+      - run: cd packages/pipeline-core && pnpm rebuild better-sqlite3
 
       - name: Validate metrics.json is up to date
         run: |
