@@ -188,3 +188,4 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 **Portal** (`packages/portal`): MIT
 
 Government data retains its original license (primarily [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada)).
+
