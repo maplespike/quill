@@ -12,6 +12,7 @@
 
 import { httpGet } from '../../utils/http.js';
 import { computeHash } from '../../verification/hashing.js';
+import { parseCsvLine } from '../../utils/csv.js';
 import {
   INDIGENOUS_SOURCES,
   CIRNAC_DATASETS,
@@ -155,53 +156,95 @@ export function parseLandClaim(raw: {
 /**
  * Compute hash for a land claim record (called after parseLandClaim).
  */
-export function computeLandClaimId(claim: Omit<LandClaim, 'id'>): string {
+export async function computeLandClaimId(claim: Omit<LandClaim, 'id'>): Promise<string> {
   const content = `${claim.claimant}|${claim.claimType}|${claim.status}|${claim.submissionDate ?? ''}|${claim.settlementAmountCad ?? 0}`;
-  // Will be set by the caller after generation
-  return '';
+  return computeHash(content, 'sha256');
 }
 
 /**
- * Fetch CIRNAC land claims (simulated — in production this calls CKAN
- * resource CSV or CIRNAC open data API).
+ * Fetch CIRNAC land claims from CKAN dataset resources.
  *
- * Returns parsed LandClaim records.
+ * Downloads resource CSVs/JSON from the CIRNAC CKAN dataset, parses them,
+ * and returns structured LandClaim records. Falls back to a meta-record
+ * when no structured data resources are available (e.g. PDF-only datasets).
  */
 export async function fetchLandClaims(
   limit: number = DEFAULT_MAX_RECORDS,
 ): Promise<LandClaim[]> {
-  const now = new Date().toISOString();
   const claims: LandClaim[] = [];
+  const errors: string[] = [];
 
   try {
-    // Query CKAN for CIRNAC specific claims dataset
     const ckanData = await fetchCirnacCkanDataset(CIRNAC_DATASETS.SPECIFIC_CLAIMS.id);
 
-    // In production, fetch and parse the actual resource CSVs/JSON.
-    // For now, return parsed metadata as a record.
-    // Real implementation: download resources[0].url, parse CSV/JSON
-    // and map to LandClaim records.
+    // Try to find a parseable resource (CSV or JSON)
+    const dataResource = ckanData.resources.find(
+      r => r.format.toUpperCase() === 'CSV' || r.format.toUpperCase() === 'JSON',
+    );
 
-    // Placeholder: create a single meta-record from CKAN metadata
-    const content = `cirnac-meta|${ckanData.id}|${ckanData.title}`;
-    const contentHash = await computeHash(content, 'sha256');
+    if (dataResource) {
+      try {
+        const resp = await httpGet(dataResource.url, {
+          headers: { Accept: 'text/csv,application/json' },
+          timeoutMs: 30_000,
+        });
+        if (resp.statusCode < 400) {
+          const body = resp.body;
+          if (dataResource.format.toUpperCase() === 'CSV') {
+            const lines = body.split('\n').filter((l: string) => l.trim());
+            if (lines.length > 1) {
+              const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase());
+              for (let i = 1; i < lines.length && claims.length < limit; i++) {
+                const fields = parseCsvLine(lines[i]);
+                if (fields.length < headers.length) continue;
+                const row: Record<string, string> = {};
+                headers.forEach((h, idx) => { row[h] = fields[idx]?.trim() ?? ''; });
+                const raw = {
+                  claimant: row['claimant'] || row['first_nation'] || row['group_name'] || '',
+                  provinceTerritory: row['province'] || row['territory'] || '',
+                  claimType: row['type'] || 'specific',
+                  description: row['description'] || row['notes'] || '',
+                  status: row['status'] || 'Active',
+                  submissionDate: row['submission_date'] || row['date_filed'] || undefined,
+                  settlementDate: row['settlement_date'] || undefined,
+                  settlementAmount: (parseFloat(row['settlement_amount'] || row['amount'] || '0') || null) === null ? undefined : parseFloat(row['settlement_amount'] || row['amount'] || '0'),
+                  negotiationStage: row['stage'] || row['phase'] || undefined,
+                  ckanDatasetId: CIRNAC_DATASETS.SPECIFIC_CLAIMS.id,
+                  sourceUrl: `https://open.canada.ca/data/en/dataset/${CIRNAC_DATASETS.SPECIFIC_CLAIMS.id}`,
+                };
+                if (raw.claimant) {
+                  const claim = parseLandClaim(raw);
+                  claim.id = await computeLandClaimId(claim);
+                  claims.push(claim);
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        console.warn('[CIRNAC] Failed to parse resource, falling back to meta-record');
+      }
+    }
 
-    claims.push({
-      id: contentHash,
-      claimType: 'specific',
-      claimant: ckanData.title,
-      provinceTerritory: '',
-      description: `CIRNAC specific claims dataset: ${ckanData.title} — ${ckanData.resources.length} resources`,
-      status: 'Active',
-      submissionDate: null,
-      settlementDate: null,
-      settlementAmountCad: null,
-      durationYears: null,
-      negotiationStage: 'Data source registered',
-      ckanDatasetId: CIRNAC_DATASETS.SPECIFIC_CLAIMS.id,
-      sourceUrl: `https://open.canada.ca/data/en/dataset/${CIRNAC_DATASETS.SPECIFIC_CLAIMS.id}`,
-      ingestedAt: now,
-    });
+    // Fallback: create a single meta-record from CKAN metadata
+    if (claims.length === 0) {
+      const raw = {
+        claimant: ckanData.title,
+        provinceTerritory: '',
+        claimType: 'specific' as const,
+        description: `CIRNAC specific claims dataset: ${ckanData.title} — ${ckanData.resources.length} resources`,
+        status: 'Active',
+        submissionDate: undefined,
+        settlementDate: undefined,
+        settlementAmount: undefined,
+        negotiationStage: 'Data source registered',
+        ckanDatasetId: CIRNAC_DATASETS.SPECIFIC_CLAIMS.id,
+        sourceUrl: `https://open.canada.ca/data/en/dataset/${CIRNAC_DATASETS.SPECIFIC_CLAIMS.id}`,
+      };
+      const claim = parseLandClaim(raw);
+      claim.id = await computeLandClaimId(claim);
+      claims.push(claim);
+    }
 
     return claims.slice(0, limit);
   } catch (err) {
@@ -217,37 +260,87 @@ export async function fetchLandClaims(
 /* ------------------------------------------------------------------ */
 
 /**
- * Fetch CIRNAC self-government agreement data.
+ * Fetch CIRNAC self-government agreement data from CKAN dataset resources.
  *
- * In production, this fetches from CKAN or CIRNAC's self-government
- * agreements page. Returns parsed SelfGovernmentAgreement records.
+ * Downloads resource CSVs/JSON from the CIRNAC CKAN dataset, parses them,
+ * and returns structured SelfGovernmentAgreement records. Falls back
+ * to a meta-record when no structured data resources are available.
  */
 export async function fetchSelfGovernmentAgreements(
   limit: number = DEFAULT_MAX_RECORDS,
 ): Promise<SelfGovernmentAgreement[]> {
-  const now = new Date().toISOString();
   const agreements: SelfGovernmentAgreement[] = [];
+  const now = new Date().toISOString();
 
   try {
     const ckanData = await fetchCirnacCkanDataset(CIRNAC_DATASETS.SELF_GOVERNMENT.id);
 
-    const content = `self-gov-meta|${ckanData.id}|${ckanData.title}`;
-    const contentHash = await computeHash(content, 'sha256');
+    // Try to find a parseable resource (CSV or JSON)
+    const dataResource = ckanData.resources.find(
+      r => r.format.toUpperCase() === 'CSV' || r.format.toUpperCase() === 'JSON',
+    );
 
-    agreements.push({
-      id: contentHash,
-      indigenousGroup: ckanData.title,
-      provinceTerritory: '',
-      stage: 'Data source registered',
-      agreementType: 'Self-Government',
-      signingDate: null,
-      effectiveDate: null,
-      keyProvisions: `CIRNAC self-government dataset: ${ckanData.title} — ${ckanData.resources.length} resources`,
-      jurisdictionAreas: [],
-      isCirnacLed: true,
-      sourceUrl: `https://open.canada.ca/data/en/dataset/${CIRNAC_DATASETS.SELF_GOVERNMENT.id}`,
-      ingestedAt: now,
-    });
+    if (dataResource) {
+      try {
+        const resp = await httpGet(dataResource.url, {
+          headers: { Accept: 'text/csv,application/json' },
+          timeoutMs: 30_000,
+        });
+        if (resp.statusCode < 400) {
+          const body = resp.body;
+          if (dataResource.format.toUpperCase() === 'CSV') {
+            const lines = body.split('\n').filter((l: string) => l.trim());
+            if (lines.length > 1) {
+              const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase());
+              for (let i = 1; i < lines.length && agreements.length < limit; i++) {
+                const fields = parseCsvLine(lines[i]);
+                if (fields.length < headers.length) continue;
+                const row: Record<string, string> = {};
+                headers.forEach((h, idx) => { row[h] = fields[idx]?.trim() ?? ''; });
+                const indigenousGroup = row['indigenous_group'] || row['first_nation'] || row['group_name'] || '';
+                if (!indigenousGroup) continue;
+                const content = `self-gov|${indigenousGroup}|${row['date'] || row['signing_date'] || ''}|${row['stage'] || ''}`;
+                agreements.push({
+                  id: await computeHash(content, 'sha256'),
+                  indigenousGroup,
+                  provinceTerritory: row['province'] || row['territory'] || '',
+                  stage: row['stage'] || 'Registered',
+                  agreementType: row['type'] || 'Self-Government',
+                  signingDate: row['signing_date'] || row['date'] || null,
+                  effectiveDate: row['effective_date'] || null,
+                  keyProvisions: row['provisions'] || row['description'] || '',
+                  jurisdictionAreas: row['jurisdiction'] ? row['jurisdiction'].split(';').map((s: string) => s.trim()) : [],
+                  isCirnacLed: (row['lead'] || '').toLowerCase() !== 'indigenous',
+                  sourceUrl: `https://open.canada.ca/data/en/dataset/${CIRNAC_DATASETS.SELF_GOVERNMENT.id}`,
+                  ingestedAt: now,
+                });
+              }
+            }
+          }
+        }
+      } catch {
+        console.warn('[CIRNAC] Failed to parse self-government resource, falling back to meta-record');
+      }
+    }
+
+    // Fallback: create a single meta-record from CKAN metadata
+    if (agreements.length === 0) {
+      const content = `self-gov-meta|${ckanData.id}|${ckanData.title}`;
+      agreements.push({
+        id: await computeHash(content, 'sha256'),
+        indigenousGroup: ckanData.title,
+        provinceTerritory: '',
+        stage: 'Data source registered',
+        agreementType: 'Self-Government',
+        signingDate: null,
+        effectiveDate: null,
+        keyProvisions: `CIRNAC self-government dataset: ${ckanData.title} — ${ckanData.resources.length} resources`,
+        jurisdictionAreas: [],
+        isCirnacLed: true,
+        sourceUrl: `https://open.canada.ca/data/en/dataset/${CIRNAC_DATASETS.SELF_GOVERNMENT.id}`,
+        ingestedAt: now,
+      });
+    }
 
     return agreements.slice(0, limit);
   } catch (err) {

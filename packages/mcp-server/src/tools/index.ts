@@ -30,6 +30,28 @@ import * as searchNgoRss from './search-ngo-rss.js';
 import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchHealth from './search-health.js';
 
+// ── Phase 5: New tools (#253) ─────────────────────────────────
+import * as searchProactiveDisclosure from './search-proactive-disclosure.js';
+import * as searchAti from './search-ati.js';
+import * as searchFederalBudget from './search-federal-budget.js';
+import * as searchStatcan from './search-statcan.js';
+import * as searchLegislation from './search-legislation.js';
+import * as searchGocSpending from './search-goc-spending.js';
+import * as searchMunicipal from './search-municipal.js';
+import * as searchGlobalCanada from './search-global-canada.js';
+import * as searchHealthCanada from './search-health-canada.js';
+import * as searchImpactAssessment from './search-impact-assessment.js';
+import * as searchSpeciesAtRisk from './search-species-at-risk.js';
+import * as searchFisheries from './search-fisheries.js';
+import * as searchAgriculture from './search-agriculture.js';
+import * as searchCrownCorporations from './search-crown-corporations.js';
+import * as searchCharityT3010 from './search-charity-t3010.js';
+import * as searchBankOfCanada from './search-bank-of-canada.js';
+import * as searchHousingCmhc from './search-housing-cmhc.js';
+import * as searchCrtcDecisions from './search-crtc-decisions.js';
+import * as searchSocialPrograms from './search-social-programs.js';
+import * as searchEducationResearch from './search-education-research.js';
+
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
@@ -69,10 +91,32 @@ export function getAllTools(): ToolModule[] {
     searchNarrativeTracker,
     searchHealth,
 
-    aiAsk,
-    aiAnalyze,
-    aiSearchSemantic,
-    systemHealth,
+    // Phase 5: New tools (#253)
+    searchProactiveDisclosure,
+    searchAti,
+    searchFederalBudget,
+    searchStatcan,
+    searchLegislation,
+    searchGocSpending,
+    searchMunicipal,
+    searchGlobalCanada,
+    searchHealthCanada,
+    searchImpactAssessment,
+    searchSpeciesAtRisk,
+    searchFisheries,
+    searchAgriculture,
+    searchCrownCorporations,
+    searchCharityT3010,
+    searchBankOfCanada,
+    searchHousingCmhc,
+    searchCrtcDecisions,
+    searchSocialPrograms,
+    searchEducationResearch,
+
+  aiAsk,
+  aiAnalyze,
+  aiSearchSemantic,
+  systemHealth,
   ];
 }
 

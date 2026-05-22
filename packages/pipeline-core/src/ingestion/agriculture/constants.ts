@@ -35,24 +35,63 @@ export const AAFC_SEARCH_QUERIES = {
 
 export const AAFC_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   CROPS: {
-    id: 'c29e4c8b-4e5f-4b8a-9c1d-7e8f2a3b4c5d',
+    id: '31226205-3654-4462-b50a-10ba53d7f362',
     title: 'AAFC Crops Production Data',
     description: 'Crop production data from Agriculture and Agri-Food Canada including area, yield, and production by commodity and province.',
   },
   LIVESTOCK: {
-    id: 'd3a5d9c-5f6a-4c9b-ad2e-8f9g3b4c5d6e',
+    id: '6adaeb1f-438b-4d74-b72b-d1b554f3a316',
     title: 'AAFC Livestock Production Data',
     description: 'Livestock and poultry production data including inventory, slaughter, and meat production.',
   },
   FARM_INCOME: {
-    id: 'e4b6e0d-6a7b-4d0a-be3f-9a0h4c5d6e7f',
+    id: '4add5f7d-ec19-411a-aa00-4289f40521a9',
     title: 'AAFC Farm Income Statistics',
     description: 'Farm cash receipts, realized net income, and government payments by province.',
   },
 };
 
+export const DAIRY_POULTRY_DATASETS: Record<string, { id: string; title: string; description: string }> = {
+  DAIRY_PRODUCTION: {
+    id: '076f6c6a-72cf-43f5-a661-b0c0d9e0c387',
+    title: 'Dairy Production and Statistics',
+    description: 'Canadian dairy production, milk shipments, butter and cheese production from the Canadian Dairy Commission.',
+  },
+  POULTRY: {
+    id: 'c64bf9ec-d142-4b7f-930a-a41ad9451bb4',
+    title: 'Poultry and Egg Production',
+    description: 'Poultry and egg production data including supply-managed commodities.',
+  },
+};
+
+export const CFIA_DATASETS: Record<string, { id: string; title: string; description: string }> = {
+  FOOD_RECALLS: {
+    id: 'a36ff706-d43f-46d6-9475-c4b468de86e6',
+    title: 'CFIA Food Recall List',
+    description: 'Complete list of food recall warnings issued by the Canadian Food Inspection Agency.',
+  },
+  IMPORTED_FOOD: {
+    id: '0ba773f6-ab7c-4c93-8de8-d2154209ab35',
+    title: 'CFIA Imported Food Data',
+    description: 'Data on imported food products inspected by the Canadian Food Inspection Agency.',
+  },
+};
+
+export const GRAIN_DATASETS: Record<string, { id: string; title: string; description: string }> = {
+  GRAIN_EXPORTS: {
+    id: 'f8ef10d3-24ca-402b-aa46-7ce8839bad1c',
+    title: 'Canadian Grain Exports',
+    description: 'Grain export data from the Canadian Grain Commission including volumes and destinations.',
+  },
+  GRAIN_PRODUCTION: {
+    id: '133e4473-5d60-40a1-a3de-0e4ad4a7fd41',
+    title: 'Canadian Grain Production',
+    description: 'Canadian grain production statistics by type and province.',
+  },
+};
+
 /* ------------------------------------------------------------------ */
-/*  Canadian Dairy Commission / Poultry                                */
+/* Canadian Dairy Commission / Poultry */
 /* ------------------------------------------------------------------ */
 
 export const DAIRY_POULTRY_QUERIES = {
@@ -61,21 +100,8 @@ export const DAIRY_POULTRY_QUERIES = {
   QUOTA: 'dairy+poultry+quota+canada',
 } as const;
 
-export const DAIRY_POULTRY_DATASETS: Record<string, { id: string; title: string; description: string }> = {
-  DAIRY_PRODUCTION: {
-    id: 'f5c7f1e-7b8c-4e1a-cf4g-0b1i5d6e7f8a',
-    title: 'Dairy Production and Statistics',
-    description: 'Canadian dairy production, milk shipments, butter and cheese production from the Canadian Dairy Commission.',
-  },
-  POULTRY: {
-    id: 'a6d8a2f-8c9d-4f2a-dg5h-1c2j6e7f8g9b',
-    title: 'Poultry and Egg Production',
-    description: 'Poultry and egg production data including supply-managed commodities.',
-  },
-};
-
 /* ------------------------------------------------------------------ */
-/*  CFIA — Canadian Food Inspection Agency                             */
+/* CFIA — Canadian Food Inspection Agency */
 /* ------------------------------------------------------------------ */
 
 export const CFIA_QUERIES = {
@@ -84,21 +110,8 @@ export const CFIA_QUERIES = {
   ALLERGENS: 'cfia+allergen+recalls',
 } as const;
 
-export const CFIA_DATASETS: Record<string, { id: string; title: string; description: string }> = {
-  FOOD_RECALLS: {
-    id: 'b7e9b3g-9d0e-4a3b-eh6i-2d3k7f8g9h0c',
-    title: 'CFIA Food Recall List',
-    description: 'Complete list of food recall warnings issued by the Canadian Food Inspection Agency.',
-  },
-  IMPORTED_FOOD: {
-    id: 'c8f0c4h-0e1f-4b4c-fi7j-3e4l8g9h0i1d',
-    title: 'CFIA Imported Food Data',
-    description: 'Data on imported food products inspected by the Canadian Food Inspection Agency.',
-  },
-};
-
 /* ------------------------------------------------------------------ */
-/*  Canadian Grain Commission                                          */
+/* Canadian Grain Commission */
 /* ------------------------------------------------------------------ */
 
 export const GRAIN_QUERIES = {
@@ -107,21 +120,8 @@ export const GRAIN_QUERIES = {
   QUALITY: 'grain+quality+survey+canada',
 } as const;
 
-export const GRAIN_DATASETS: Record<string, { id: string; title: string; description: string }> = {
-  GRAIN_EXPORTS: {
-    id: 'd9g1d5i-1f2g-4c5d-gj8k-4f5m9h0i1j2e',
-    title: 'Canadian Grain Exports',
-    description: 'Grain export data from the Canadian Grain Commission including volumes and destinations.',
-  },
-  GRAIN_PRODUCTION: {
-    id: 'e0h2e6j-2g3h-4d6e-hk9l-5g6n0i1j2k3f',
-    title: 'Canadian Grain Production',
-    description: 'Canadian grain production statistics by type and province.',
-  },
-};
-
 /* ------------------------------------------------------------------ */
-/*  Farm Credit Canada                                                 */
+/* Farm Credit Canada */
 /* ------------------------------------------------------------------ */
 
 export const FCC = {

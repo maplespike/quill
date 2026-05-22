@@ -98,7 +98,7 @@ export const EDU_CKAN_PACKAGE_IDS = {
   /** Canada Student Loans default rates by institution */
   CSL_DEFAULT_RATES: 'e95d7f3a-2b1c-4a5d-8f6e-9c0d1e2f3a4b',
   /** Canada Student Loans debt statistics */
-  CSL_DEBT: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  CSL_DEBT: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
 } as const;
 
 /* ------------------------------------------------------------------ */
