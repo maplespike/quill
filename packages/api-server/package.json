@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "node dist/dev-server.js",
     "dev:watch": "tsc --watch & node --watch dist/dev-server.js",
