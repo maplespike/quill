@@ -84,51 +84,32 @@ jobs:
         env:
           AGE_SECRET_KEY: ${{ secrets.AGE_SECRET_KEY }}
 
+      # Podman-native registry login (self-hosted NixOS runner has no Docker daemon)
       - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.MAPLESPIKE_GHCR_PAT_TOKEN || env.REGISTRY_PASS }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        run: |
+          echo "${{ env.MAPLESPIKE_GHCR_PAT_TOKEN || env.REGISTRY_PASS }}" | \
+            podman login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_USER }} --password-stdin
 
       - name: Build & push API (dev)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.api
-          push: true
-          tags: |
-            ghcr.io/reverb256/maplespike/maplespike-api:dev
-            ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
-          cache-from: type=gha,scope=api-dev
-          cache-to: type=gha,mode=max,scope=api-dev
+        run: |
+          podman build -f Dockerfile.api -t ghcr.io/reverb256/maplespike/maplespike-api:dev .
+          podman tag ghcr.io/reverb256/maplespike/maplespike-api:dev ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
+          podman push ghcr.io/reverb256/maplespike/maplespike-api:dev
+          podman push ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
 
       - name: Build & push MCP (dev)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.mcp
-          push: true
-          tags: |
-            ghcr.io/reverb256/maplespike/maplespike-mcp:dev
-            ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
-          cache-from: type=gha,scope=mcp-dev
-          cache-to: type=gha,mode=max,scope=mcp-dev
+        run: |
+          podman build -f Dockerfile.mcp -t ghcr.io/reverb256/maplespike/maplespike-mcp:dev .
+          podman tag ghcr.io/reverb256/maplespike/maplespike-mcp:dev ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
+          podman push ghcr.io/reverb256/maplespike/maplespike-mcp:dev
+          podman push ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
 
       - name: Build & push Portal (dev)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.portal
-          push: true
-          tags: |
-            ghcr.io/reverb256/maplespike/maplespike-portal:dev
-            ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
-          cache-from: type=gha,scope=portal-dev
-          cache-to: type=gha,mode=max,scope=portal-dev
+        run: |
+          podman build -f Dockerfile.portal -t ghcr.io/reverb256/maplespike/maplespike-portal:dev .
+          podman tag ghcr.io/reverb256/maplespike/maplespike-portal:dev ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
+          podman push ghcr.io/reverb256/maplespike/maplespike-portal:dev
+          podman push ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
 
   deploy:
     name: Deploy to K8s
@@ -137,11 +118,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install kubectl
-        run: |
-          curl -sLO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/kubectl
       - name: Apply K8s manifests
         run: |
           kubectl apply -f k8s/dev/ --prune --all --prune-allowlist=apps/v1/Deployment --prune-allowlist=/v1/Service --prune-allowlist=/v1/ConfigMap --prune-allowlist=/v1/Secret --validate=false
