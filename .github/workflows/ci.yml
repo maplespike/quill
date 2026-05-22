@@ -50,8 +50,7 @@ jobs:
       # Clean before build to avoid stale dist issues
       - run: pnpm run clean
 
-      # Build all JS/TS packages (Turbo respects dependency order)
-      - run: pnpm build
+- run: bash scripts/build-packages.sh
 
       # Build docs pages from markdown source
       - run: node scripts/build-docs.mjs
@@ -104,16 +103,3 @@ jobs:
         run: pnpm test
         working-directory: packages/sdk
 
-      # ── Verify build-only packages (no tests yet) ────────────
-
-      - name: Build legal-core
-        run: pnpm build
-        working-directory: packages/legal-core
-
-      - name: Build legislation
-        run: pnpm build
-        working-directory: packages/legislation
-
-      - name: Build api-server
-        run: pnpm build
-        working-directory: packages/api-server
