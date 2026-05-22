@@ -27,7 +27,7 @@ spec:
       nodeName: nexus
       containers:
         - name: maplespike-mcp
-          image: ghcr.io/reverb256/maplespike/maplespike-mcp:stable
+          image: ghcr.io/reverb256/maplespike/maplespike-mcp:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

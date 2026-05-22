@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>learnings</title>
+  <style>
+    body {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  line-height: 1.6;
+  color: #1f2937;
+  background: #ffffff;
+}
+h1 {
+  border-bottom: 3px solid #3b82f6;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+}
+h2 {
+  margin-top: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.25rem;
+}
+h3 {
+  margin-top: 1.5rem;
+  color: #374151;
+}
+code {
+  background: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #6b7280;
+}
+hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+ul {
+  padding-left: 1.5rem;
+}
+li {
+  margin: 0.25rem 0;
+}
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.meta {
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.9em;
+}
+  </style>
+</head>
+<body>
+
+  <h1>Portal Build Fix — Learnings</h1>
+<h2>Radix UI SSR Incompatibility</h2>
+<p>React 19 SSR breaks multiple Radix UI primitives (Tabs, Dialog/Sheet) in Astro.
+Symptom: &quot;X must be used within Y&quot; errors during <code>astro build</code> static generation.</p>
+<h2>Actual State (post-audit)</h2>
+<ul>
+<li>signal.astro — Already plain HTML tabs (no Radix). ✅</li>
+<li>dashboard.astro — No Tabs at all. ✅</li>
+<li>explorer.astro — No Tabs at all. ✅</li>
+<li>api-explorer.astro — Already plain HTML tabs, but had stale Radix <code>import</code>. Fixed by removing import.</li>
+<li>ask.astro — Already plain HTML tabs, no Radix import. ✅</li>
+<li>workspace.astro — Never used Tabs in template, but had stale import. Also had <code>&lt;Sheet&gt;</code> (Radix Dialog) which broke SSR. Replaced with plain HTML toggle panel.</li>
+</ul>
+<h2>Fix Pattern</h2>
+<p>Replace <code>&lt;Sheet&gt;</code> / <code>&lt;SheetTrigger&gt;</code> / <code>&lt;SheetContent&gt;</code> with:</p>
+<ol>
+<li><code>&lt;button&gt;</code> with manual class matching btn style</li>
+<li><code>&lt;div id=&quot;panel&quot;&gt;</code> + <code>&lt;div id=&quot;overlay&quot;&gt;</code> for the side panel</li>
+<li>Inline <code>&lt;script&gt;</code> for toggle logic (add/remove <code>hidden</code> class, toggle body overflow)</li>
+<li>Replace Radix <code>Badge</code> inside panel with inline <code>&lt;span&gt;</code> classes matching Badge variants</li>
+</ol>
+<p>Key: all Radix context-based primitives fail in Astro SSR with React 19. Replace with plain HTML + data attributes + inline scripts.</p>
+
+</body>
+</html>

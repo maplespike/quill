@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>AGENTS.md — MapleSpike</title>
+ <meta name="description" content="Quick reference for agents working in the MapleSpike repository — 65 modules, 50 MCP tools, 150+ planned">
+ <meta name="generator" content="MapleSpike HTML Converter v2.0">
+ <meta name="last-reviewed" content="2026-05-17">
+ <meta name="doc-status" content="active">
+ <link rel="canonical" href="https://github.com/reverb256/maplespike/blob/main/AGENTS.md">
+ <link rel="alternate" type="text/markdown" href="https://github.com/reverb256/maplespike/raw/main/AGENTS.md">
+
+ <!-- Structured Data for SEO/Agents -->
+ <script type="application/ld+json">
+ {
+   "@context": "https://schema.org",
+   "@type": "SoftwareDocumentation",
+   "name": "AGENTS.md — MapleSpike",
+   "description": "Quick reference for agents working in the MapleSpike repository",
+   "dateModified": "2026-05-17",
+   "author": { "@type": "Organization", "name": "MapleSpike" }
+ }
+ </script>
+
+ <style>
+  :root {
+    --color-bg: #ffffff;
+    --color-text: #1f2937;
+    --color-primary: #3b82f6;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-code-bg: #f3f4f6;
+    --font-sans: system-ui, -apple-system, sans-serif;
+    --font-mono: 'SF Mono', Monaco, Consolas, monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+  }
+
+  .freshness-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .freshness-fresh { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+  .freshness-stale { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+  .freshness-ancient { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .status-dot.success { background: var(--color-success); }
+  .status-dot.warning { background: var(--color-warning); }
+  .status-dot.danger { background: var(--color-danger); }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .breadcrumbs a { color: var(--color-primary); text-decoration: none; }
+  .breadcrumbs a:hover { text-decoration: underline; }
+
+  .toc {
+    position: sticky;
+    top: 1rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem 0 1rem 1.5rem;
+    max-width: 300px;
+    float: right;
+  }
+  .toc h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    text-transform: uppercase;
+  }
+  .toc ul { list-style: none; padding: 0; margin: 0; }
+  .toc li { margin: 0.25rem 0; }
+  .toc a { color: var(--color-text); text-decoration: none; font-size: 0.875rem; display: block; padding: 0.25rem 0.5rem; border-radius: 4px; }
+  .toc a:hover { background: var(--color-code-bg); color: var(--color-primary); }
+
+  h1 { border-bottom: 3px solid var(--color-primary); padding-bottom: 0.5rem; margin-top: 2rem; clear: both; }
+  h2 { margin-top: 2.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.25rem; scroll-margin-top: 5rem; }
+  h3 { margin-top: 1.5rem; color: #374151; }
+
+  code { background: var(--color-code-bg); padding: 0.2em 0.4em; border-radius: 3px; font-family: var(--font-mono); font-size: 0.9em; }
+  pre { background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0; }
+  pre code { background: transparent; padding: 0; color: inherit; }
+
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid var(--color-border); padding: 0.5rem 0.75rem; text-align: left; }
+  th { background: #f9fafb; font-weight: 600; }
+  tr:hover { background: var(--color-code-bg); }
+
+  blockquote { border-left: 4px solid var(--color-primary); padding-left: 1rem; margin: 1rem 0; color: var(--color-muted); }
+
+  a { color: var(--color-primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+ </style>
+</head>
+<body data-doc-type="agent-reference" data-last-reviewed="2026-05-17" data-doc-status="active">
+
+ <nav class="breadcrumbs" aria-label="Breadcrumb">
+   <a href="/">MapleSpike</a> <span>/</span> <span>Documentation</span>
+ </nav>
+
+ <div class="freshness-banner freshness-fresh" data-days-old="5" role="status" aria-live="polite">
+   <span class="status-dot success" aria-hidden="true"></span>
+   <strong>Fresh</strong> — Last reviewed 2026-05-17 (5 days ago)
+ </div>
+
+ <div class="toc" role="navigation" aria-label="Table of Contents">
+   <h3>On This Page</h3>
+   <ul>
+     <li><a href="#repository-identity">Repository Identity</a></li>
+     <li><a href="#package-quick-reference">Package Quick Reference <span class="section-count">11</span></a></li>
+     <li><a href="#commands">Commands</a></li>
+     <li><a href="#mcp-server-architecture">MCP Server Architecture</a></li>
+     <li><a href="#git-hooks">Git Hooks</a></li>
+     <li><a href="#primary-workflow">Primary Workflow <span class="section-count">MANDATORY</span></a></li>
+     <li><a href="#known-frictions">Known Frictions & Workarounds <span class="section-count">6</span></a></li>
+     <li><a href="#cicd-pipeline">CI/CD Pipeline</a></li>
+     <li><a href="#data-module-architecture">Data Module Architecture</a></li>
+     <li><a href="#testing-quirks">Testing Quirks</a></li>
+     <li><a href="#key-workflow-rules">Key Workflow Rules <span class="section-count">4</span></a></li>
+     <li><a href="#multi-host-worktree">Multi-Host Worktree Workflow <span class="section-count">4 nodes</span></a></li>
+     <li><a href="#current-cluster-state">Current Cluster State</a></li>
+     <li><a href="#quick-start">Quick Start</a></li>
+   </ul>
+ </div>

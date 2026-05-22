@@ -622,3 +622,5 @@ export function runAllDetectors(
     ),
   ];
 }
+
+export { isoNow };
