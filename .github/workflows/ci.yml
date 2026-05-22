@@ -40,21 +40,17 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
+      # Self-hosted NixOS runner provides Node 24 natively.
+      # actions/setup-node installs a different version into toolcache,
+      # causing V8 serialization version mismatch with tsx/node:test workers.
 
       - run: pnpm install --frozen-lockfile
 
       - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
 
       - run: pnpm run clean
-
       - run: bash scripts/build-packages.sh
-
       - run: node scripts/build-docs.mjs
-
       - run: cd packages/pipeline-core && pnpm rebuild better-sqlite3
 
       - name: Validate metrics.json is up to date
