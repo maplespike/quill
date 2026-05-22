@@ -1,8 +1,7 @@
 ---
 # Sisyphus Workflow — Repository Contract
-# This file defines how agents (Hermes, Claude, OMP, Pi) operate in this repo.
-# All tools call track.sh and follow the same worktree/PR conventions.
-# Version: 2
+# Canonical agent contract for all tools (Hermes, Claude, OMP, Pi).
+# Version: 3
 tracker:
   kind: github
   owner: reverb256
@@ -16,8 +15,7 @@ agent:
   retry_backoff_ms: 60000
 workspace:
   root: /data/projects/own/maplespike
-  prefix: maplespike-
-  pattern: /data/projects/own/maplespike-{num}
+  worktree_prefix: /data/projects/own/maplespike/worktrees/
   remote: origin
 hooks:
   after_create: |
@@ -43,7 +41,8 @@ You are implementing issue **{{issue.title}}**.
 **Worktree:** `{{workspace.path}}`
 **Branch:** `{{workspace.branch}}`
 **Remote:** origin (GitHub — accessible from all nodes)
-**Worktree was created by:** `.sisyphus/track.sh` (shared by Hermes, Claude, OMP, Pi)
+**Worktree created by:** `.sisyphus/track.sh` (shared by all agents)
+**State:** `.sisyphus/state.json`
 
 ## Rules
 
@@ -54,8 +53,7 @@ You are implementing issue **{{issue.title}}**.
 4. Use pnpm for all package operations.
 5. Commit with conventional commits: `type: description (#NNN)`
 6. Push to origin: `git push origin HEAD`
-7. Update `docs/metrics.json` if tools/modules change.
-8. Verify builds pass before finishing.
+7. Run proof-of-work before declaring done.
 
 ### MUST NOT DO
 1. Do not work outside the worktree directory.
@@ -63,11 +61,21 @@ You are implementing issue **{{issue.title}}**.
 3. Do not delete existing stubs or routes unless the issue explicitly asks.
 4. Do not add `as any` / `@ts-ignore` / `@ts-expect-error`.
 5. Do not add unrequested features or drive-by refactors.
-6. Do not run `nix` commands in the maplespike repo (that's for nixos-config).
+6. Do not run `nix` commands in the maplespike repo.
 
 ### Proof of Work
-- [ ] `pnpm build` passes
+- [ ] `pnpm build` passes (all packages or `--filter` for targeted)
 - [ ] `pnpm test` passes (relevant packages)
 - [ ] Commit pushed to origin
 - [ ] PR created with `Closes #NNN`
-- [ ] Worktree cleaned up after PR merge: `git worktree remove {{workspace.path}}`
+- [ ] Update `.sisyphus/state.json`: set `status=completed` and `pr_url`
+- [ ] Notify: `bash .sisyphus/track.sh done {{issue.number}} {{pr_url}}`
+- [ ] Worktree cleanup after PR merge
+
+### Continuation Turns (if this is turn > 1)
+- PR: `{{turn.pr_url}}`
+- CI failing: `{{turn.ci_failures}}`
+- Reviews requesting changes: `{{turn.reviews}}`
+- Fetch latest: `cd {{workspace.path}} && git pull --ff-only`
+- Read comments: `gh pr view {{turn.pr_number}} --comments`
+- Focus only on remaining issues. Do not redo completed work.
