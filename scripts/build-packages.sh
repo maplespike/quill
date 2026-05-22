@@ -2,24 +2,19 @@
 set -euo pipefail
 
 # Build packages in explicit topological order.
-# Turbo's dependsOn: ["^build"] should handle this but races on CI
-# (mcp-server starts before pipeline-core finishes writing .d.ts files).
+# tsc -b uses project references to resolve types through tsconfig.json
+# (not through node_modules), which avoids pnpm store staleness issues.
 
-# Layer 0: no workspace deps
-pnpm --filter @maplespike/database build
+# Layer 0: packages with no workspace deps (tsup-based)
 pnpm --filter @maplespike/legal-core build
 pnpm --filter @maplespike/legislation build
 pnpm --filter @maplespike/sdk build
 
-# Layer 1: depends on layer 0
-pnpm --filter @maplespike/pipeline-core build
-pnpm --filter @maplespike/engine build
+# Layer 1: tsc -b packages — built via root tsconfig project references.
+# tsc -b handles the dependency graph automatically (database → pipeline-core → mcp-server/api-server).
+tsc -b
 
-# Layer 2: depends on layer 1
-pnpm --filter @maplespike/mcp-server build
-pnpm --filter @maplespike/api-server build
-
-# Layer 3: standalone builds
+# Layer 2: standalone builds
 pnpm --filter @maplespike/docs build
 pnpm --filter @maplespike/portal build
 pnpm --filter @maplespike/dashboard build
