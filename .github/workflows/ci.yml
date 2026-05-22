@@ -1,16 +1,17 @@
-# ─────────────────────────────────────────────────────────────────
-# MapleSpike CI — runs on every PR and push to main
-# Covers all 10 packages: pipeline-core, mcp-server, engine, sdk,
-# legal-core, legislation, api-server, python-sdk, portal, pretext-civic
-# ─────────────────────────────────────────────────────────────────
 name: CI
+
 on:
-  pull_request: { branches: [main, prod] }
-  push: { branches: [main, prod] }
+  pull_request:
+    branches: [main, prod]
+  push:
+    branches: [main, prod]
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
-permissions: { contents: read }
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -18,9 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed for commit signing check
+          fetch-depth: 0
 
-      # ── Verify commit signatures on PRs ──────────────────────────
       - name: Verify commit signatures
         if: github.event_name == 'pull_request'
         run: |
@@ -28,7 +28,7 @@ jobs:
           FAILED=0
           for sha in $COMMITS; do
             if ! git verify-commit $sha 2>/dev/null; then
-              echo "⚠️  Commit $sha is NOT signed"
+              echo "⚠️ Commit $sha is NOT signed"
               FAILED=$((FAILED + 1))
             else
               echo "✅ Commit $sha is signed"
@@ -39,26 +39,24 @@ jobs:
           fi
 
       - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
+        with:
+          node-version: 22
+          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      # Set working directory to repo root for composite builds
       - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
 
-      # Clean before build to avoid stale dist issues
       - run: pnpm run clean
 
-- run: bash scripts/build-packages.sh
+      - run: bash scripts/build-packages.sh
 
-      # Build docs pages from markdown source
       - run: node scripts/build-docs.mjs
 
-      # Rebuild native modules (better-sqlite3) for CI runner's Node version
       - run: pnpm rebuild better-sqlite3
 
-      # ── Validate metrics.json is up to date ──────────────────
       - name: Validate metrics.json is up to date
         run: |
           node scripts/generate-metrics.mjs
@@ -66,8 +64,6 @@ jobs:
             echo "ERROR: docs/metrics.json is out of date. Run 'pnpm generate-metrics' and commit the changes."
             exit 1
           }
-
-      # ── Start API server for MCP integration tests ──────────
 
       - name: Start API server (background)
         run: |
@@ -81,14 +77,11 @@ jobs:
             sleep 1
           done
 
-      # ── Test packages that have tests ────────────────────────
-
       - name: Test pipeline-core
         run: pnpm test
         working-directory: packages/pipeline-core
 
       - name: Test mcp-server
-
         run: pnpm test
         working-directory: packages/mcp-server
         env:
@@ -102,4 +95,3 @@ jobs:
       - name: Test sdk
         run: pnpm test
         working-directory: packages/sdk
-
