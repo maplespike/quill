@@ -34,3 +34,4 @@ __pycache__/
 .hermes/
 state.json
 .sisyphus/state.json
+worktrees/
