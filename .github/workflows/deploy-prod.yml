@@ -45,7 +45,7 @@ jobs:
       - run: pnpm run clean
       - run: bash scripts/build-packages.sh
       - run: node scripts/build-docs.mjs
-      - run: pnpm rebuild better-sqlite3
+      - run: cd packages/pipeline-core && pnpm rebuild better-sqlite3
 
       - name: Test pipeline-core
         run: pnpm test
