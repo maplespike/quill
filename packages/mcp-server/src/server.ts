@@ -6,6 +6,14 @@
  */
 
 import type { ToolDefinition, ToolHandler, ToolResponse } from './tools/types.js';
+import { checkRateLimit } from './rate-limit.js';
+
+let RATE_LIMIT_PER_MINUTE = parseInt(process.env.MCP_RATE_LIMIT_PER_MINUTE ?? '60', 10);
+const RATE_LIMIT_WINDOW_MS = 60_000;
+
+export function setRateLimitPerMinute(limit: number): void {
+  RATE_LIMIT_PER_MINUTE = limit;
+}
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -111,6 +119,7 @@ export class McpServer {
     raw: unknown,
     locale: string,
     send: (response: JsonRpcResponse) => void,
+    tenantId?: string,
   ): Promise<void> {
     const msg = this.parseMessage(raw, send);
     if (!msg) return;
@@ -130,7 +139,7 @@ export class McpServer {
         this.handleToolsList(id, locale, send);
         break;
       case 'tools/call':
-        await this.handleToolCall(id, params, send);
+        await this.handleToolCall(id, params, send, tenantId);
         break;
       default:
         if (id != null) {
@@ -214,6 +223,7 @@ export class McpServer {
     id: string | number | undefined,
     params: Record<string, unknown> | undefined,
     send: (r: JsonRpcResponse) => void,
+    tenantId?: string,
   ): Promise<void> {
     const toolName = params?.name as string | undefined;
     const args = (params?.arguments as Record<string, unknown>) ?? {};
@@ -226,6 +236,15 @@ export class McpServer {
     const tool = this.tools.get(toolName);
     if (!tool) {
       send(this.error(id ?? null, -32602, `Unknown tool: ${toolName}`));
+      return;
+    }
+
+    // Rate limit check — OWASP LLM09: Model Denial of Service
+    const clientId = tenantId || 'anonymous';
+    const rateInfo = checkRateLimit(clientId, RATE_LIMIT_PER_MINUTE, RATE_LIMIT_WINDOW_MS);
+    if (!rateInfo.allowed) {
+      const retryAfter = Math.ceil((rateInfo.resetTime - Date.now()) / 1000);
+      send(this.error(id ?? null, -32000, `Rate limit exceeded. Retry after ${retryAfter}s. Remaining: ${rateInfo.remaining}`));
       return;
     }
 

@@ -143,8 +143,13 @@ if (PORT > 0) {
           const toolName = parsed?.params?.name || 'unknown';
           toolInvocations[toolName] = (toolInvocations[toolName] || 0) + 1;
           metricsCounters.tool_invocations_total++;
+
+          const authHeader = req.headers['authorization'] || '';
+          const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+          const tenantId = token || req.socket.remoteAddress || 'anonymous';
+
           const response = await new Promise<any>((resolve) => {
-            server.handleMessage(parsed, CLI_LOCALE, (resp) => resolve(resp));
+            server.handleMessage(parsed, CLI_LOCALE, (resp) => resolve(resp), tenantId);
           });
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(response));
