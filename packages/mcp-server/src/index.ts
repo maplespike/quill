@@ -1,40 +1,16 @@
-#!/usr/bin/env node
-// SPDX-License-Identifier: Apache-2.0
-
-/**
- * MapleSpike MCP Server — SSE transport (hosted)
- *
- * Serves the MCP protocol over HTTP Server-Sent Events.
- * Clients connect to /sse for events and POST to /messages for commands.
- *
- * Usage:
- *   node dist/index.js              # default port 3001
- *   PORT=8080 node dist/index.js    # custom port
- *
- * K8s health: GET /health returns 200
- */
-
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
-import { McpServer } from './server.js';
-import { getAllTools } from './tools/index.js';
+import { SessionManager } from './session.js';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 const API_KEY = process.env.MAPLESPIKE_API_KEY ?? 'dev-key';
 
-const server = new McpServer();
+const sessionManager = new SessionManager();
 
-// Register all tools (dynamically loaded from tools/index.ts)
-const tools = getAllTools();
-for (const tool of tools) {
-  server.registerTool(tool.definition, tool.handler);
-}
-
-console.error(`[maplespike-mcp] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
+console.error(`[maplespike-mcp] SSE server starting on port ${PORT}`);
 
 interface SseClient {
   id: string;
   res: ServerResponse;
-  locale: string;
 }
 
 let clientIdCounter = 0;
@@ -46,7 +22,7 @@ function sendSse(res: ServerResponse, event: string, data: unknown): void {
 }
 
 function authenticate(req: IncomingMessage): boolean {
-  if (API_KEY === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
+  if (API_KEY === 'dev-key' && process.env.NODE_ENV !== 'production') return true;
   const auth = req.headers.authorization ?? '';
   return auth === `Bearer ${API_KEY}` || auth === `Bearer ${Buffer.from(API_KEY).toString('base64')}`;
 }
@@ -57,7 +33,7 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
 
   if (path === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', tools: tools.length }));
+    res.end(JSON.stringify({ status: 'ok', sessions: sessionManager.getSessionCount() }));
     return;
   }
 
@@ -72,6 +48,8 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     const acceptLang = req.headers['accept-language'] || '';
     const locale = acceptLang.startsWith('fr') ? 'fr-CA' : 'en-CA';
 
+    sessionManager.createSession(clientId, locale, true);
+
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -79,14 +57,12 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       'Access-Control-Allow-Origin': '*',
     });
 
-    // Send initial endpoint event so client knows where to POST messages
     sendSse(res, 'endpoint', { endpoint: `/messages?clientId=${clientId}` });
 
-    clients.set(clientId, { id: clientId, res, locale });
+    clients.set(clientId, { id: clientId, res });
 
-    console.error(`[maplespike-mcp] SSE client connected: ${clientId} (total: ${clients.size})`);
+    console.error(`[maplespike-mcp] SSE client connected: ${clientId} (sessions: ${sessionManager.getSessionCount()})`);
 
-    // Heartbeat every 30s to keep connection alive
     const heartbeat = setInterval(() => {
       try {
         res.write(': heartbeat\n\n');
@@ -98,7 +74,8 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     req.on('close', () => {
       clearInterval(heartbeat);
       clients.delete(clientId);
-      console.error(`[maplespike-mcp] SSE client disconnected: ${clientId} (total: ${clients.size})`);
+      sessionManager.removeSession(clientId);
+      console.error(`[maplespike-mcp] SSE client disconnected: ${clientId} (sessions: ${sessionManager.getSessionCount()})`);
     });
 
     return;
@@ -114,6 +91,17 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       return;
     }
 
+    const rateLimit = sessionManager.checkRateLimit(clientId);
+    if (!rateLimit.allowed) {
+      res.writeHead(429, {
+        'Content-Type': 'application/json',
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(rateLimit.resetTime),
+      });
+      res.end(JSON.stringify({ error: 'Rate limit exceeded', resetTime: rateLimit.resetTime }));
+      return;
+    }
+
     let body = '';
     req.on('data', (chunk: string) => { body += chunk; });
     req.on('end', () => {
@@ -121,21 +109,23 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       try {
         parsed = JSON.parse(body);
       } catch {
-        // Send parse error back through SSE
         sendSse(client.res, 'error', { code: -32700, message: 'Parse error' });
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
         return;
       }
 
-      // Send response back through the client's SSE stream
-      const authHeader = req.headers['authorization'] || '';
-      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-      const tenantId = token || req.socket.remoteAddress || 'anonymous';
+      const session = sessionManager.getSession(clientId);
+      if (!session) {
+        sendSse(client.res, 'error', { code: -32000, message: 'Session not found' });
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Session not found' }));
+        return;
+      }
 
-      server.handleMessage(parsed, client.locale, (response) => {
+      session.server.handleMessage(parsed, session.locale, (response) => {
         sendSse(client.res, 'message', response);
-      }, tenantId).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
+      }).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
@@ -152,7 +142,6 @@ httpServer.listen(PORT, () => {
   console.log(`[maplespike-mcp] Hosted SSE server running on http://0.0.0.0:${PORT}`);
   console.log(`[maplespike-mcp] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
   console.log(`[maplespike-mcp] Health check: http://0.0.0.0:${PORT}/health`);
-  console.log(`[maplespike-mcp] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
 });
 
 process.on('SIGINT', () => {
