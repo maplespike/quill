@@ -12,7 +12,8 @@ pnpm --filter @maplespike/sdk build
 
 # Layer 1: tsc -b packages — built via root tsconfig project references.
 # tsc -b handles the dependency graph automatically (database → pipeline-core → mcp-server/api-server).
-tsc -b
+# Use pnpm exec so tsc is resolved from node_modules/.bin even when not in global PATH.
+pnpm exec tsc -b
 
 # Layer 2: standalone builds
 pnpm --filter @maplespike/docs build
