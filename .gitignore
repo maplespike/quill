@@ -27,6 +27,8 @@ packages/engine/src/**/*.d.ts
 packages/engine/src/**/*.js.map
 packages/engine/src/**/*.d.ts.map
 
+.turbo/
+
 # Python
 __pycache__/
 *.pyc
@@ -34,3 +36,4 @@ __pycache__/
 .hermes/
 state.json
 .sisyphus/state.json
+.sisyphus/run-continuation/
