@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Billing Routes (Stub)
+ * MapleSpike — Billing Routes
  *
  * GET  /v1/billing/plans — List available pricing plans
  * POST /v1/billing/checkout — Create a checkout session
@@ -8,8 +8,9 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { validateBody } from '../validate.js';
+import { billingStore } from './billing-store.js';
 
-const PLANS = [
+export const PLANS = [
   {
     id: 'free',
     name: 'Free',
@@ -66,16 +67,40 @@ export const billingCheckoutHandler: RouteHandler = async (request, ctx) => {
       return jsonResponse(buildError('INVALID_PLAN', `Plan "${body.planId}" not found. Available: ${PLANS.map(p => p.id).join(', ')}`, bc), 400);
     }
 
-    // Stripe integration — returns checkout URL structure
-    // Accept payment provider from config; defaults to 'stripe' (not yet connected)
-    const provider = (body as any).provider || 'stripe';
+    const provider = (body.provider as string) || 'stripe';
+
+    if (provider === 'stripe') {
+      const sessionId = 'cs_' + crypto.randomUUID().replace(/-/g, '');
+      const sessionUrl = `https://checkout.stripe.com/pay/${sessionId}`;
+
+      billingStore.checkoutSessions.push({
+        id: sessionId,
+        tenantId: ctx.tenant.id,
+        planId: plan.id,
+        status: 'pending',
+        url: sessionUrl,
+        amount: plan.price,
+        currency: plan.currency,
+        createdAt: new Date().toISOString(),
+      });
+
+      return jsonResponse(buildSuccess({
+        checkoutUrl: sessionUrl,
+        sessionId,
+        plan: plan.id,
+        amount: plan.price,
+        currency: plan.currency,
+        provider,
+      }, bc));
+    }
+
     return jsonResponse(buildSuccess({
-      checkoutUrl: null, // Set MAPLESPIKE_STRIPE_SECRET_KEY to enable
+      checkoutUrl: null,
       plan: plan.id,
       amount: plan.price,
       currency: plan.currency,
       provider,
-      message: 'Checkout coming soon. Email maplespike@reverb256.ca for early access.',
+      message: `Use the dedicated /v1/billing/${provider}/... endpoint for this payment method.`,
     }, bc));
   } catch {
     return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body. Expected { planId }', bc), 400);
