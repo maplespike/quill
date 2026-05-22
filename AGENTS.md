@@ -249,6 +249,8 @@ ssh nexus 'bash --norc --noprofile -c "cd /data/projects/own/maplespike && git f
 | `prod` | Deploy Prod (deploy-prod.yml) | Build images → deploy to `maplespike-prod` |
 | `prod` | Publish (publish.yml) | npm (via Changesets) + PyPI |
 
+**Self-hosted runner**: All workflows use `runs-on: [self-hosted, nixos]` → maplespike-k3s-runner. Bypasses GitHub Actions billing.
+
 **CI test order**: pipeline-core → mcp-server (needs API server running) → engine → sdk → build-only checks (legal-core, legislation, api-server).
 
 **CRITICAL**: Never commit/push to `prod` directly. Pre-commit hook blocks it. All changes flow `main → CI → deploy-dev → auto-merge to prod → deploy-prod`.
@@ -398,3 +400,52 @@ export MAPLESPIKE_API_KEY=dev-key
 export MAPLESPIKE_API_URL=http://localhost:8082/v1
 cd packages/mcp-server && pnpm start
 ```
+
+
+## Kelos Workflow
+
+The Kelos workflow is the primary mechanism by which agents implement changes, enabling autonomous execution of well‑scoped tasks.
+
+### Steps in the Kelos workflow
+
+1. **Issue creation** – Create a GitHub issue with clear acceptance criteria and assign an appropriate label (e.g., `bug`, `enhancement`, `p1`, `p2`).
+2. **Labeling** – Add the `agent-ready` label to the issue. Kelos monitors issues with this label and triggers the workflow within ~5 minutes.
+3. **Agent execution** – Kelos spawns an agent on the Sentry control plane. The agent:
+   - Clones the repository to a dedicated worktree,
+   - Checks out the branch corresponding to the issue,
+   - Implements the requested change,
+   - Commits with a message that includes the issue number (e.g., `feat: add IRCC immigration module (#42)`),
+   - Pushes the branch to the `bare` remote (which auto‑mirrors to `origin` and `gitea`).
+4. **Pull Request** – An agent opens a PR against `main` with a title that includes the issue number and a body containing `Closes #<issue_number>`.
+5. **Human review** – Humans review the PR, request changes if needed, and verify tests.
+6. **Merge** – The PR is squash‑merged via the GitHub UI or API.
+7. **Cleanup** – Kelos automatically removes the worktree and issue label after the TTL expires; agents clean up any temporary resources.
+
+### Manual fallback
+
+For exploratory, architectural, or otherwise complex work that is not suited for full automation, use the manual workflow:
+
+1. Create a GitHub issue and label it appropriately.
+2. Create a worktree for the issue branch (e.g., `git worktree add -B issue-<NNN>-desc /path/to/worktree main`).
+3. Develop on the worktree, committing with the issue number in each commit message.
+4. Push the branch to `origin` (or `bare` for local mirroring).
+5. Open a PR, have it reviewed, and merge.
+6. Remove the worktree and associated branch when the work is complete.
+
+### Key points
+
+- All commits must include the issue number in parentheses (`(#NNN)`) to link work to the originating issue.
+- PR titles follow the pattern `feat: <summary> (#NNN)`.
+- The workflow ensures traceability from issue → implementation → PR → merge.
+- When a worktree becomes stale or a node reports an outdated HEAD, synchronize it with the latest `origin/main` before proceeding.
+
+## Kelos First Workflow
+
+The AI Inference Gateway now follows the **Kelos-first workflow** for all feature implementations and bug fixes.
+- **Issue creation**: All work begins as a GitHub issue with a clear description and labeled `agent-ready`.
+- **Kelos pickup**: Once labeled, Kelos automatically assigns the task, creates a worktree branch, and begins implementation.
+- **Branch naming**: Worktrees use names like `kelos/<issue_number>-<short-description>`.
+- **Development**: Agents implement the change, commit with (`#ISSUE_NUMBER`) in the message, and push to the worktree remote.
+- **Pull request**: Upon completion, a pull request is opened, targeting `main`. The PR includes `#ISSUE_NUMBER` in the title and description.
+- **Review & merge**: Human reviewers examine the PR and merge via squash-merge in GitHub UI.
+- **Cleanup**: Kelos automatically removes the worktree and marks the issue as closed after successful merge.

@@ -17,6 +17,7 @@ import { getRawDb } from "@maplespike/database";
 import { AliasManager } from "./entity/aliases";
 import { EntityResolver } from "./entity/resolver";
 import { GraphBuilder } from "./graph/builder";
+import { isoNow } from "./graph";
 import {
   runAllDetectors,
   type MandatePromise,

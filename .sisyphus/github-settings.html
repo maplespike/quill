@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>github-settings</title>
+  <style>
+    body {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  line-height: 1.6;
+  color: #1f2937;
+  background: #ffffff;
+}
+h1 {
+  border-bottom: 3px solid #3b82f6;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+}
+h2 {
+  margin-top: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.25rem;
+}
+h3 {
+  margin-top: 1.5rem;
+  color: #374151;
+}
+code {
+  background: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #6b7280;
+}
+hr {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+ul {
+  padding-left: 1.5rem;
+}
+li {
+  margin: 0.25rem 0;
+}
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+.badge-success { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.meta {
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.9em;
+}
+  </style>
+</head>
+<body>
+
+  <h1>GitHub Repository Configuration Guide</h1>
+<p>This document specifies the mandatory GitHub settings for MapleSpike to ensure repository integrity and enforce the issue-driven workflow. Since these settings are configured via the GitHub UI, this file serves as the source of truth for auditors and maintainers.</p>
+<h2>1. Branch Protection Rules</h2>
+<p>Apply the following rules to the <code>main</code> and <code>prod</code> branches:</p>
+<h3>Required Status Checks</h3>
+<ul>
+<li><strong>Require status checks to pass before merging:</strong> ✅ Enabled</li>
+<li><strong>Required Checks:</strong><ul>
+<li><code>ci.yml</code> (Standard CI build and test)</li>
+<li><code>pr-validation.yml</code> (PR structural checks)</li>
+<li><code>metrics-validation.yml</code> (If applicable to the change)</li>
+</ul>
+</li>
+</ul>
+<h3>Review Requirements</h3>
+<ul>
+<li><strong>Require a pull request before merging:</strong> ✅ Enabled</li>
+<li><strong>Required approving reviews:</strong> 1</li>
+<li><strong>Dismiss stale pull request approvals when new commits are pushed:</strong> ✅ Enabled</li>
+<li><strong>Require review from Code Owners:</strong> ✅ Enabled (if CODEOWNERS file is present)</li>
+</ul>
+<h3>History Integrity</h3>
+<ul>
+<li><strong>Allow force pushes:</strong> ❌ Disabled</li>
+<li><strong>Allow deletions:</strong> ❌ Disabled</li>
+<li><strong>Require linear history:</strong> ✅ Enabled (Encourages rebasing and prevents merge-commit noise)</li>
+</ul>
+
+</body>
+</html>
