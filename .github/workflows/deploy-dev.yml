@@ -38,6 +38,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+
+      # Set working directory for composite TypeScript builds
+      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
+
       - run: pnpm run clean
       - run: pnpm -r build
       - run: node scripts/build-docs.mjs
@@ -64,8 +68,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
+      - with: { node-version: 22, cache: pnpm }
+
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run clean
+      - run: pnpm -r build
+
+      # Build docs pages from markdown source
       - run: node scripts/build-docs.mjs
 
       - name: Decrypt vault (JIT)
