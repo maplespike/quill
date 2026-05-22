@@ -40,14 +40,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       # Set working directory for composite TypeScript builds
-      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
+- run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
 
-      - run: pnpm run clean
-      - run: pnpm -r build
-      - run: node scripts/build-docs.mjs
-      - run: pnpm rebuild better-sqlite3
+  - run: pnpm run clean
+  - run: pnpm build
+  - run: node scripts/build-docs.mjs
+  - run: pnpm rebuild better-sqlite3
 
-      - name: Test pipeline-core
+  - name: Test pipeline-core
         run: pnpm test
         working-directory: packages/pipeline-core
       - name: Test mcp-server
@@ -70,9 +70,9 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run clean
-      - run: pnpm -r build
+- run: pnpm install --frozen-lockfile
+  - run: pnpm run clean
+  - run: pnpm build
 
       # Build docs pages from markdown source
       - run: node scripts/build-docs.mjs
