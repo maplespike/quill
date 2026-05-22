@@ -129,10 +129,13 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       }
 
       // Send response back through the client's SSE stream
+      const authHeader = req.headers['authorization'] || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+      const tenantId = token || req.socket.remoteAddress || 'anonymous';
+
       server.handleMessage(parsed, client.locale, (response) => {
-        // Responses with an id go to the specific client
         sendSse(client.res, 'message', response);
-      }).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
+      }, tenantId).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
