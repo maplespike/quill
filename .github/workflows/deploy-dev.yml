@@ -62,7 +62,7 @@ jobs:
 
   build:
     name: Build & Push Images
-    needs: test
+    needs: build-and-push
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
