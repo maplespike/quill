@@ -54,7 +54,7 @@ export interface DomainThrottleConfig {
   refillPerSecond: number;
 }
 
-// Default throttle: 2 req/s per domain (fits CKAN APIs, StatCan 25 req/s)
+// Default throttle: 2 req/s per domain (overridable per-request via options.throttle)
 const DEFAULT_DOMAIN_THROTTLE: DomainThrottleConfig = { maxTokens: 2, refillPerSecond: 1 };
 
 // Per-domain token buckets — rate limiter, not concurrency limiter (tokens don't return)
@@ -115,8 +115,8 @@ export interface HttpGetOptions {
   headers?: Record<string, string>;
   /** Timeout in milliseconds (default 30_000). */
   timeoutMs?: number;
-  /** Per-domain rate-limit override. Default: 2 req/s. */
-  throttle?: DomainThrottleConfig;
+  /** Per-domain rate-limit override. Default: 2 req/s. false = disable throttling. */
+  throttle?: DomainThrottleConfig | false;
   /** HTTP method (default 'GET'). Use 'HEAD' for lightweight health checks. */
   method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 }
@@ -185,8 +185,10 @@ export async function httpGet(
   // Per-domain rate limiting — acquire token before request
   const domain = new URL(url).hostname;
   const pathname = url.split('?')[0];
-  const domainThrottleConfig = options.throttle ?? DEFAULT_DOMAIN_THROTTLE;
-  await acquireToken(domain, domainThrottleConfig);
+  if (options.throttle !== false) {
+    const domainThrottleConfig = options.throttle ?? DEFAULT_DOMAIN_THROTTLE;
+    await acquireToken(domain, domainThrottleConfig);
+  }
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
