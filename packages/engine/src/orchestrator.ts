@@ -83,9 +83,6 @@ export interface OrchestratorResult {
   summary: OrchestratorSummary;
 }
 
-function isoNow(): string {
-  return new Date().toISOString();
-}
 function generateMandatePromises(
   contracts: Contract[],
 ): MandatePromise[] {

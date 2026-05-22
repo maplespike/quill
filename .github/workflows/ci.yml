@@ -44,6 +44,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Set working directory to repo root for composite builds
+      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
+
       # Clean before build to avoid stale dist issues
       - run: pnpm run clean
 
