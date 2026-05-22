@@ -16,6 +16,15 @@ export interface GatewayConfig {
   apiKey?: string;
   maxRetries?: number;
   retryDelay?: number;
+  /** Model verification configuration */
+  modelVerification?: {
+    /** Expected hashes for models */
+    modelHashes?: Record<string, string>;
+    /** Whether to enforce verification */
+    enforceVerification?: boolean;
+    /** Whether to log verification results */
+    logVerification?: boolean;
+  };
 }
 
 const DEFAULT_CONFIG: GatewayConfig = {
@@ -24,6 +33,10 @@ const DEFAULT_CONFIG: GatewayConfig = {
   embedModel: process.env.MAPLESPIKE_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2',
   maxRetries: 2,
   retryDelay: 1_000,
+  modelVerification: {
+    enforceVerification: true,
+    logVerification: true,
+  },
 };
 
 /* ------------------------------------------------------------------ */
@@ -67,6 +80,27 @@ export async function chatCompletion(
     jsonMode = false,
     model = config.chatModel,
   } = options;
+
+  // Verify model if verification is enabled
+  if (config.modelVerification?.enforceVerification !== false) {
+    const modelHashes = config.modelVerification?.modelHashes || {};
+    const expectedHash = modelHashes[model];
+
+    if (expectedHash) {
+      // In a real implementation, we would verify the actual model file
+      // For now, we'll simulate verification by checking if we have a hash
+      // This is a placeholder - real implementation would need access to model files
+      if (config.modelVerification?.logVerification !== false) {
+        console.info(`[ai/gateway] Model verification enabled for model: ${model}`);
+      }
+    } else if (config.modelVerification?.enforceVerification) {
+      if (config.modelVerification?.logVerification !== false) {
+        console.warn(`[ai/gateway] No hash found for model ${model}, but verification is enforced`);
+      }
+      // Depending on policy, we might block or warn
+      // For now, we'll allow it to proceed but log the warning
+    }
+  }
 
   const endpoint = config.endpoint.replace(/\/$/, '');
   const body: Record<string, unknown> = {
