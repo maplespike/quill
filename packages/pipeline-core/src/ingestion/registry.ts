@@ -251,6 +251,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship.html',
   },
   {
+    name: 'ircc',
+    description: 'Immigration, Refugees and Citizenship Canada — family sponsorship applications',
+    category: 'government',
+    modulePath: './ircc/index.js',
+    ingestFunctions: ['ingestFamilySponsorship', 'searchSponsorshipByProvince', 'searchSponsorshipByCategory', 'getSponsorshipProcessingTime'],
+    sources: [{ name: 'IRCC family sponsorship (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship.html',
+  },
+  {
     name: 'criminal-justice',
     description: 'Criminal justice — CSC prison population, parole board, RCMP stats, PPSC prosecutions, youth justice',
     category: 'government',
