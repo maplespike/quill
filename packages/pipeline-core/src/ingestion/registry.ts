@@ -277,6 +277,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
   },
   {
+    name: 'isc',
+    description: 'Indigenous Services Canada — community safety programs',
+    category: 'indigenous',
+    modulePath: './isc/index.js',
+    ingestFunctions: ['ingestCommunitySafety', 'searchSafetyByCommunity', 'searchSafetyByType'],
+    sources: [{ name: 'ISC community safety (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
     name: 'federal',
     description: 'Federal deep-dive datasets — supplementary federal data sources',
     category: 'government',
