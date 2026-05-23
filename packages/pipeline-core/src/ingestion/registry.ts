@@ -2,7 +2,7 @@
 /**
  * Ingestion Module Registry
  *
- * Discoverable catalog of all 61 ingestion modules.
+ * Discoverable catalog of all 65 ingestion modules.
  * Use this instead of importing individual modules directly.
  *
  * Usage:
@@ -251,17 +251,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship.html',
   },
   {
-    name: 'ircc',
-    description: 'Immigration, Refugees and Citizenship Canada — family sponsorship applications',
-    category: 'government',
-    modulePath: './ircc/index.js',
-    ingestFunctions: ['ingestFamilySponsorship', 'searchSponsorshipByProvince', 'searchSponsorshipByCategory', 'getSponsorshipProcessingTime'],
-    sources: [{ name: 'IRCC family sponsorship (open.canada.ca)', format: 'CSV' }],
-    updateFrequency: 'quarterly',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship.html',
-  },
-  {
     name: 'criminal-justice',
     description: 'Criminal justice — CSC prison population, parole board, RCMP stats, PPSC prosecutions, youth justice',
     category: 'government',
@@ -286,17 +275,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-  },
-  {
-    name: 'isc',
-    description: 'Indigenous Services Canada — community safety programs',
-    category: 'indigenous',
-    modulePath: './isc/index.js',
-    ingestFunctions: ['ingestCommunitySafety', 'searchSafetyByCommunity', 'searchSafetyByType'],
-    sources: [{ name: 'ISC community safety (open.canada.ca)', format: 'CSV' }],
-    updateFrequency: 'quarterly',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'federal',
@@ -871,6 +849,44 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestCipo', 'searchCipoRecords', 'getCipoByOwner'],
     sources: [{ name: 'CIPO open data', format: 'CSV' }],
     updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+  },
+
+  // ── Mining / Natural Resources ─────────────────────────────────────
+  {
+    name: 'indigenous-services-directory',
+    description: 'Indigenous Services Canada — searchable directory of Indigenous service providers',
+    category: 'indigenous',
+    modulePath: './indigenous-services-directory/index.js',
+    ingestFunctions: ['ingestServicesDirectory'],
+    sources: [
+      { name: 'sac-isc.gc.ca', format: 'JSON' },
+    ],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+  },
+  {
+    name: 'ircc-family-sponsorship',
+    description: 'Immigration, Refugees and Citizenship Canada — family sponsorship statistics by visa office',
+    category: 'government',
+    modulePath: './ircc-family-sponsorship/index.js',
+    ingestFunctions: ['ingestFamilySponsorshipStats'],
+    sources: [
+      { name: 'ircc.canada.ca', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+  },
+  {
+    name: 'isc-programs',
+    description: 'Indigenous Services Canada — community safety programs and funding data',
+    category: 'indigenous',
+    modulePath: './isc-programs/index.js',
+    ingestFunctions: ['ingestCommunitySafetyPrograms'],
+    sources: [
+      { name: 'sac-isc.gc.ca', format: 'CSV' },
+    ],
+    updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
 ];
