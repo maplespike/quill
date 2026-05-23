@@ -1,3 +1,4 @@
+---
 name: CI
 
 on:
@@ -38,11 +39,11 @@ jobs:
             echo "::warning::$FAILED commit(s) without signature. Consider enabling commit signing."
           fi
 
-      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
-      # Self-hosted NixOS runner provides Node 24 natively.
-      # actions/setup-node installs a different version into toolcache,
-      # causing V8 serialization version mismatch with tsx/node:test workers.
+      - uses: pnpm/action-setup@v4
 
       - run: pnpm install --frozen-lockfile
 
