@@ -1,197 +1,128 @@
 /**
- * Health Canada Parser — MapleSpike Pipeline
+ * Health Canada Ingestion — MapleSpike Pipeline
  *
- * Parses raw Health Canada records into structured HealthCanadaRecall objects.
- * Normalizes data across different source formats and classifications.
+ * Parsers for Health Canada dataset formats (CSV/JSON).
  */
 
-import { createHash } from 'node:crypto';
-import { RECALL_CLASSIFICATION_MAP, RISK_LEVEL_MAP, TRUST_THRESHOLD } from './constants.js';
-import type { HealthCanadaRecall, RawHealthCanadaRecord, HealthCanadaCategory } from './types.js';
+import type {
+  DrugApproval,
+  MedicalDevice,
+  FoodRecall,
+  AdverseReaction,
+  PesticideRegistration,
+  CannabisLicence,
+  ControlledSubstance,
+} from './types.js';
 
 /**
- * Generate SHA-256 citation hash for a record.
+ * Parse drug approval data from CSV/JSON format.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-function generateCitationHash(record: RawHealthCanadaRecord): string {
-  const citationString = JSON.stringify(record);
-  return createHash('sha256').update(citationString).digest('hex');
+export function parseDrugApproval(raw: string, source: string): DrugApproval[] {
+  // Placeholder - actual parsing depends on data format from CKAN
+  return [{
+    id: `drug-${Date.now()}`,
+    drugName: '',
+    manufacturer: '',
+    approvalDate: '',
+    status: 'Active',
+    source,
+    trustScore: 0.6,
+  }];
 }
 
 /**
- * Parse recall date from various formats.
+ * Parse medical device data.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-function parseRecallDate(dateStr: string | undefined): string | null {
-  if (!dateStr) return null;
-
-  const isoMatch = dateStr.match(/^\d{4}-\d{2}-\d{2}/);
-  if (isoMatch) return isoMatch[0];
-
-  const dmyMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-  if (dmyMatch) {
-    return `${dmyMatch[3]}-${dmyMatch[2]}-${dmyMatch[1]}`;
-  }
-
-  const mdyMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-  if (mdyMatch) {
-    return `${mdyMatch[3]}-${mdyMatch[1]}-${mdyMatch[2]}`;
-  }
-
-  return null;
+export function parseMedicalDevice(raw: string, source: string): MedicalDevice[] {
+  return [{
+    id: `device-${Date.now()}`,
+    deviceName: '',
+    manufacturer: '',
+    licenceDate: '',
+    status: 'Licensed',
+    source,
+    trustScore: 0.6,
+  }];
 }
 
 /**
- * Parse incident count from string.
+ * Parse food recall data.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-function parseIncidentCount(incidents: string | undefined): number | null {
-  if (!incidents) return null;
-
-  const match = incidents.match(/\d+/);
-  return match ? parseInt(match[0], 10) : null;
+export function parseFoodRecall(raw: string, source: string): FoodRecall[] {
+  return [{
+    id: `recall-${Date.now()}`,
+    product: '',
+    hazard: '',
+    date: '',
+    distribution: [],
+    source,
+    trustScore: 0.6,
+  }];
 }
 
 /**
- * Infer category from product description.
+ * Parse adverse reaction data.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-function inferCategory(product: string | undefined): HealthCanadaCategory {
-  if (!product) return 'consumer';
-
-  const lower = product.toLowerCase();
-
-  if (lower.includes('food') || lower.includes('beverage') || lower.includes('restaurant')) {
-    return 'food';
-  }
-
-  if (lower.includes('drug') || lower.includes('medication') || lower.includes('pharmaceutical')) {
-    return 'drug';
-  }
-
-  if (lower.includes('device') || lower.includes('medical') || lower.includes('equipment')) {
-    return 'device';
-  }
-
-  if (lower.includes('advisory') || lower.includes('warning') || lower.includes('safety')) {
-    return 'advisory';
-  }
-
-  return 'consumer';
+export function parseAdverseReaction(raw: string, source: string): AdverseReaction[] {
+  return [{
+    id: `adverse-${Date.now()}`,
+    drugName: '',
+    reaction: '',
+    date: '',
+    severity: 'Mild',
+    source,
+    trustScore: 0.6,
+  }];
 }
 
 /**
- * Safely convert a raw field to string.
+ * Parse pesticide registration data.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-function asString(value: unknown): string {
-  if (value === null || value === undefined) return '';
-  return String(value);
+export function parsePesticideRegistration(raw: string, source: string): PesticideRegistration[] {
+  return [{
+    id: `pesticide-${Date.now()}`,
+    productName: '',
+    activeIngredient: '',
+    registrationDate: '',
+    status: 'Registered',
+    source,
+    trustScore: 0.6,
+  }];
 }
 
 /**
- * Safely get a field value as string with optional default.
+ * Parse cannabis licence data.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-function getStringField(raw: RawHealthCanadaRecord, keys: string[], defaultValue: string): string {
-  for (const key of keys) {
-    const value = raw[key];
-    if (value !== null && value !== undefined && value !== '') {
-      return asString(value);
-    }
-  }
-  return defaultValue;
+export function parseCannabisLicence(raw: string, source: string): CannabisLicence[] {
+  return [{
+    id: `cannabis-${Date.now()}`,
+    licenceHolder: '',
+    province: '',
+    licenceType: '',
+    facility: '',
+    source,
+    trustScore: 0.6,
+  }];
 }
 
 /**
- * Calculate trust score for a record based on completeness.
+ * Parse controlled substance data.
+ * TODO: Implement actual parsing logic based on dataset format.
  */
-export function calculateTrustScore(recall: Partial<Pick<HealthCanadaRecall, 'productName' | 'company' | 'hazard' | 'recallDate' | 'distribution' | 'recallType' | 'sourceUrl' | 'ckanPackageId'>>): number {
-  let score = 0;
-  const maxScore = 8;
-
-  if (recall.productName && recall.productName !== 'Unknown Product') score += 1;
-  if (recall.company && recall.company !== 'Unknown Company') score += 1;
-  if (recall.hazard && recall.hazard !== 'Not specified') score += 1;
-  if (recall.recallDate) score += 1;
-  if (recall.distribution && recall.distribution !== 'Not specified') score += 1;
-  if (recall.recallType) score += 1;
-  if (recall.sourceUrl && recall.sourceUrl !== 'https://open.canada.ca') score += 1;
-  if (recall.ckanPackageId) score += 1;
-
-  return score / maxScore;
-}
-
-/**
- * Parse raw Health Canada record into structured object.
- */
-export function parseHealthCanadaRecord(
-  raw: RawHealthCanadaRecord,
-  options: {
-    category?: HealthCanadaCategory;
-    sourceSystem?: string;
-    ckanPackageId?: string;
-    ckanResourceId?: string;
-  } = {},
-): HealthCanadaRecall {
-  const productName = getStringField(raw, ['product', 'Product', 'Product Name'], 'Unknown Product');
-  const company = getStringField(raw, ['company', 'Company', 'Company Name'], 'Unknown Company');
-  const classification = getStringField(raw, ['classification', 'Classification'], 'Advisory');
-  const hazard = getStringField(raw, ['hazard', 'Hazard', 'Issue Description'], 'Not specified');
-
-  const recallType = RECALL_CLASSIFICATION_MAP[classification] || classification;
-  const riskLevel = RISK_LEVEL_MAP[classification] || 'moderate';
-
-  const recallDate = parseRecallDate(getStringField(raw, ['recall_date', 'Recall Date', 'date'], ''));
-
-  const distribution = getStringField(raw, ['distribution', 'Distribution', 'Distribution Area'], 'Not specified');
-
-  const incidentCount = parseIncidentCount(getStringField(raw, ['incidents', 'Incidents', 'Incident Count'], ''));
-
-  const incidentsField = getStringField(raw, ['injuries', 'Injuries'], '');
-  const injuries = incidentsField.toLowerCase().includes('yes') || false;
-
-  const deathsField = getStringField(raw, ['deaths', 'Deaths'], '');
-  const deaths = deathsField.toLowerCase().includes('yes') || false;
-
-  const category = options.category || inferCategory(productName);
-
-  const sourceUrl = asString(raw.url) || 'https://open.canada.ca';
-
-  const result: HealthCanadaRecall = {
-    id: generateCitationHash(raw),
-    category,
-    productName,
-    company,
-    recallType,
-    riskLevel,
-    hazard,
-    recallDate: recallDate || new Date().toISOString().split('T')[0],
-    distribution,
-    unitsAffected: null,
-    incidents: (incidentCount ?? 0) > 0,
-    incidentCount: incidentCount,
-    injuries,
-    deaths,
-    sourceUrl,
-    ckanPackageId: options.ckanPackageId || null,
-    ckanResourceId: options.ckanResourceId || null,
-    ingestedAt: new Date().toISOString(),
-    trustScore: 0,
-  };
-
-  result.trustScore = calculateTrustScore(result);
-
-  return result;
-}
-
-/**
- * Parse multiple raw records.
- */
-export function parseHealthCanadaRecords(
-  rawRecords: RawHealthCanadaRecord[],
-  options: {
-    category?: HealthCanadaCategory;
-    sourceSystem?: string;
-    ckanPackageId?: string;
-    ckanResourceId?: string;
-  } = {},
-): HealthCanadaRecall[] {
-  return rawRecords
-    .map(raw => parseHealthCanadaRecord(raw, options))
-    .filter(recall => recall.trustScore >= TRUST_THRESHOLD);
+export function parseControlledSubstance(raw: string, source: string): ControlledSubstance[] {
+  return [{
+    id: `substance-${Date.now()}`,
+    substance: '',
+    authorization: '',
+    facility: '',
+    province: '',
+    source,
+    trustScore: 0.6,
+  }];
 }
