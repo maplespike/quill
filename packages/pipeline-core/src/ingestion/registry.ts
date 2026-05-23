@@ -2,7 +2,7 @@
 /**
  * Ingestion Module Registry
  *
- * Discoverable catalog of all 76 ingestion modules.
+* Discoverable catalog of all 76 ingestion modules.
  * Use this instead of importing individual modules directly.
  *
  * Usage:
@@ -889,8 +889,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
-
-  // ── NRCan / Natural Resources (batch 2) ───────────────────
+// ── NRCan / Natural Resources (batch 2) ───────────────────
   {
     name: 'nrcan-renewable',
     description: 'NRCan — Renewable energy capacity, generation, and installations by province',
@@ -1010,6 +1009,98 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     modulePath: './isc/land-claims/index.js',
     ingestFunctions: ['ingestLandClaim', 'searchLandClaimsByGroup', 'searchLandClaimsByProvince'],
     sources: [{ name: 'ISC land claims (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+
+  // ── IRCC / Immigration (batch 2) ─────────────────────────
+  {
+    name: 'ircc-processing-times',
+    description: 'IRCC — Application processing times by visa office and application type',
+    category: 'government',
+    modulePath: './ircc/processing-times/index.js',
+    ingestFunctions: ['ingestProcessingTime', 'searchByVisaOffice', 'searchByApplicationType'],
+    sources: [{ name: 'IRCC processing times (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
+    name: 'ircc-entry-exit',
+    description: 'IRCC — Quarterly entry/exit data by port of entry, mode of travel, and nationality',
+    category: 'government',
+    modulePath: './ircc/entry-exit/index.js',
+    ingestFunctions: ['ingestEntryExit', 'searchByNationality', 'searchByQuarter'],
+    sources: [{ name: 'IRCC entry/exit data (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
+    name: 'ircc-pr-admissions',
+    description: 'IRCC — Permanent resident admissions by province, category, and year',
+    category: 'government',
+    modulePath: './ircc/pr-admissions/index.js',
+    ingestFunctions: ['ingestPermanentResidentAdmission', 'searchByProvince', 'searchByCategory'],
+    sources: [{ name: 'IRCC PR admissions (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
+    name: 'ircc-citizenship',
+    description: 'IRCC — Citizenship grants by province, demographic, and year',
+    category: 'government',
+    modulePath: './ircc/citizenship/index.js',
+    ingestFunctions: ['ingestCitizenshipGrant', 'searchCitizenshipByProvince', 'searchCitizenshipByYear'],
+    sources: [{ name: 'IRCC citizenship grants (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
+    name: 'ircc-work-permits',
+    description: 'IRCC — Work permit holders by NOC code, province, country, and year',
+    category: 'government',
+    modulePath: './ircc/work-permits/index.js',
+    ingestFunctions: ['ingestWorkPermit', 'searchWorkPermitsByProvince', 'searchWorkPermitsByNoc'],
+    sources: [{ name: 'IRCC work permit holders (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
+    name: 'ircc-study-permits',
+    description: 'IRCC — Study permit holders by institution, province, country, and year',
+    category: 'government',
+    modulePath: './ircc/study-permits/index.js',
+    ingestFunctions: ['ingestStudyPermit', 'searchStudyPermitsByProvince', 'searchStudyPermitsByInstitution'],
+    sources: [{ name: 'IRCC study permit holders (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+  {
+    name: 'ircc-express-entry',
+    description: 'IRCC — Express Entry rounds: CRS cutoffs, invitations, and program draws',
+    category: 'government',
+    modulePath: './ircc/express-entry/index.js',
+    ingestFunctions: ['ingestExpressEntryRound', 'searchByProgram', 'searchByCrsCutoff'],
+    sources: [{ name: 'IRCC Express Entry (open.canada.ca)', format: 'CSV' }],
+    updateFrequency: 'biweekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
+
+  // ── ISC / Indigenous Services (batch 2) ───────────────────
+  {
+    name: 'isc-communities',
+    description: 'ISC — First Nations communities directory with population, band numbers, and tribal councils',
+    category: 'indigenous',
+    modulePath: './isc/communities/index.js',
+    ingestFunctions: ['ingestFirstNationCommunity', 'searchCommunitiesByProvince', 'searchCommunitiesByName'],
+    sources: [{ name: 'ISC First Nations communities (open.canada.ca)', format: 'CSV' }],
     updateFrequency: 'quarterly',
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://open.canada.ca',
