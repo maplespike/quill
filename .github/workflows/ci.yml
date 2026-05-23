@@ -27,9 +27,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -x  # Enable debugging
+          echo "Checking PR #${{ github.event.pull_request.number }}"
           COMMITS=$(gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[].oid')
+          echo "Found commits: $COMMITS"
           FAILED=0
           for sha in $COMMITS; do
+            echo "Verifying commit $sha"
             if ! git verify-commit $sha 2>/dev/null; then
               echo "⚠️ Commit $sha is NOT signed"
               FAILED=$((FAILED + 1))
