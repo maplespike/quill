@@ -509,6 +509,20 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
+  {
+    name: 'nrcan',
+    description: 'Natural Resources Canada — mining activities, topographic maps',
+    category: 'environment',
+    modulePath: './nrcan/index.js',
+    ingestFunctions: ['ingestMiningActivities', 'ingestTopographicMaps', 'ingestAllNrcan', 'searchMiningByProvince', 'searchMiningByCommodity', 'searchMapsByNtsNumber', 'searchMapsByScale'],
+    sources: [
+      { name: 'NRCan mining activities (open.canada.ca)', format: 'CSV' },
+      { name: 'NRCan topographic maps (open.canada.ca)', format: 'CSV' },
+    ],
+    updateFrequency: 'quarterly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
+  },
 
   // ── Corporate ────────────────────────────────────────────
   {
