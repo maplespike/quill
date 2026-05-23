@@ -36,6 +36,9 @@ import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
 import * as systemHealth from './system-health.js';
 
+import * as resolveEntity from './resolve-entity.js';
+import * as findConnections from './find-connections.js';
+
 export interface ToolModule {
   definition: ToolDefinition;
   handler: ToolHandler;
@@ -75,6 +78,9 @@ export function getAllTools(): ToolModule[] {
     aiAnalyze,
     aiSearchSemantic,
     systemHealth,
+
+    resolveEntity,
+    findConnections,
   ];
 }
 
