@@ -1,127 +1,99 @@
 /**
- * Health Canada Types — MapleSpike Pipeline
+ * Health Canada Ingestion — MapleSpike Pipeline
  *
- * Strongly-typed interfaces for Health Canada product recalls, safety
- * advisories, and drug products. These modules track health and safety
- * notifications that impact Canadian consumers.
- *
- * Sources:
- *   - Health Canada Product Recalls: https://open.canada.ca/data/en/dataset/food-recalls
- *   - Health Canada Drug Products: https://health-products.canada.ca/dpd-bdpp/
- *   - Health Canada Advisories: https://www.canada.ca/en/health-canada/services/drugs-health-products/recalls-alerts.html
+ * Types for Health Canada data modules (drug approvals, medical devices, food recalls, etc.)
  */
 
-export type HealthCanadaCategory = 'food' | 'drug' | 'device' | 'consumer' | 'advisory';
-
-export type HealthCanadaRiskLevel = 'low' | 'moderate' | 'high' | 'critical';
-
-export interface HealthCanadaRecall {
-  /** SHA-256 citation hash (primary key) */
+export interface DrugApproval {
   id: string;
-
-  /** Category of recall */
-  category: HealthCanadaCategory;
-
-  /** Product name(s) affected */
-  productName: string;
-
-  /** Company/manufacturer name */
-  company: string;
-
-  /** Recall type (Class I, II, III, or advisory) */
-  recallType: string;
-
-  /** Risk level classification */
-  riskLevel: HealthCanadaRiskLevel;
-
-  /** Summary of hazard or issue */
-  hazard: string;
-
-  /** Date recall was issued (ISO-8601) */
-  recallDate: string;
-
-  /** Distribution area (province, national, international) */
-  distribution: string;
-
-  /** Number of units affected (if available) */
-  unitsAffected: number | null;
-
-  /** Whether there have been reported incidents */
-  incidents: boolean;
-
-  /** Number of reported incidents (if available) */
-  incidentCount: number | null;
-
-  /** Whether injuries have been reported */
-  injuries: boolean;
-
-  /** Whether deaths have been reported */
-  deaths: boolean;
-
-  /** Source URL where this record was found */
-  sourceUrl: string;
-
-  /** CKAN package ID if sourced from open.canada.ca */
-  ckanPackageId: string | null;
-
-  /** CKAN resource ID if sourced from a specific resource */
-  ckanResourceId: string | null;
-
-  /** ISO-8601 ingestion timestamp */
-  ingestedAt: string;
-
-  /** Trust score (0.0–1.0) based on data completeness */
-  trustScore: number;
-}
-
-export interface RawHealthCanadaRecord {
-  /** Raw product name */
-  product?: string;
-
-  /** Raw company name */
-  company?: string;
-
-  /** Raw recall classification */
-  classification?: string;
-
-  /** Raw hazard description */
-  hazard?: string;
-
-  /** Raw recall date (various formats) */
-  recall_date?: string;
-
-  /** Raw distribution information */
-  distribution?: string;
-
-  /** Raw source URL */
-  url?: string;
-
-  /** Additional raw fields */
-  [key: string]: string | number | boolean | null | undefined;
-}
-
-export interface HealthCanadaIngestionResult {
-  /** Module identifier */
+  drugName: string;
+  manufacturer: string;
+  approvalDate: string;
+  status: 'Active' | 'Inactive' | 'Withdrawn' | 'Suspended' | 'Under Review';
   source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
 
-  /** Number of raw records found */
-  recordsFound: number;
+export interface MedicalDevice {
+  id: string;
+  deviceName: string;
+  manufacturer: string;
+  licenceDate: string;
+  status: 'Licensed' | 'Expired' | 'Suspended' | 'Cancelled';
+  source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
 
-  /** Number of records successfully ingested */
-  recordsIngested: number;
+export interface FoodRecall {
+  id: string;
+  product: string;
+  hazard: string;
+  date: string;
+  distribution: string[];
+  source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
 
-  /** Records by category */
-  categoriesFound: Record<HealthCanadaCategory, number>;
+export interface AdverseReaction {
+  id: string;
+  drugName: string;
+  reaction: string;
+  date: string;
+  severity: 'Mild' | 'Moderate' | 'Severe' | 'Life-threatening' | 'Fatal';
+  source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
 
-  /** Records by risk level */
-  riskLevelsFound: Record<HealthCanadaRiskLevel, number>;
+export interface PesticideRegistration {
+  id: string;
+  productName: string;
+  activeIngredient: string;
+  registrationDate: string;
+  status: 'Registered' | 'Expired' | 'Cancelled' | 'Suspended';
+  source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
 
-  /** Number of high/critical risk recalls */
-  highRiskCount: number;
+export interface CannabisLicence {
+  id: string;
+  licenceHolder: string;
+  province: string;
+  licenceType: string;
+  facility: string;
+  source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
 
-  /** Any errors encountered */
+export interface ControlledSubstance {
+  id: string;
+  substance: string;
+  authorization: string;
+  facility: string;
+  province: string;
+  source: string;
+  citationHash?: string;
+  trustScore?: number;
+}
+
+export type HealthCanadaRecord = 
+  | DrugApproval 
+  | MedicalDevice 
+  | FoodRecall 
+  | AdverseReaction 
+  | PesticideRegistration 
+  | CannabisLicence 
+  | ControlledSubstance;
+
+export interface IngestionResult<T> {
+  totalFetched: number;
+  totalIngested: number;
   errors: string[];
-
-  /** Total duration in milliseconds */
   durationMs: number;
+  records: T[];
 }
