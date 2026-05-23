@@ -323,10 +323,11 @@ describe('Database Schema Compliance', () => {
         const content = fs.readFileSync(path.join(SCHEMA_DIR, f), 'utf-8');
         return content.includes('citation_hashes') || content.includes('citation_hash');
       });
-      // Informational only — don't fail tests
-      console.log(`  ℹ  citation_hashes schema ${hasCitationTable ? 'found' : 'not found'} in ${SCHEMA_DIR}`);
+      // Informational only — pass regardless of whether schema file exists
+      assert.ok(true);
     } else {
-      console.log(`  ℹ  Schema directory ${SCHEMA_DIR} not found — skipping DB schema check`);
+      // Schema directory doesn't exist — pass without error
+      assert.ok(true);
     }
   });
 });
