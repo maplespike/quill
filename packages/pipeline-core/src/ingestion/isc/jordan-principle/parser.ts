@@ -1,0 +1,66 @@
+/**
+ * Isc Parser — MapleSpike Pipeline
+ *
+ * Parse and normalize Jordan Principle Requests CSV data.
+ */
+
+import { computeHash } from '../../../verification/hashing.js';
+import type { JordanPrincipleRequest } from './types.js';
+
+export async function parseJordanPrincipleRequest(csv: string): Promise<JordanPrincipleRequest[]> {
+  const lines = csv.trim().split('\n');
+  if (lines.length < 2) return [];
+
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+  const records: JordanPrincipleRequest[] = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseCSVLine(lines[i]);
+    if (values.length === 0) continue;
+
+    const record: JordanPrincipleRequest = {
+      id: await computeHash(lines[i]),
+      childId: (mapField(values, headers, 'childId') || mapField(values, headers, 'Child Id')) ?? '',
+      serviceType: (mapField(values, headers, 'serviceType') || mapField(values, headers, 'Service Type')) ?? '',
+      fundingAmount: parseNumeric(mapField(values, headers, 'fundingAmount') || mapField(values, headers, 'Funding Amount')),
+      status: (mapField(values, headers, 'status') || mapField(values, headers, 'Status')) ?? '',
+      decisionDate: mapField(values, headers, 'decisionDate') || mapField(values, headers, 'Decision Date'),
+      ingestedAt: new Date().toISOString(),
+    };
+
+    records.push(record);
+  }
+
+  return records;
+}
+
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim().replace(/^"|"$/g, ''));
+      current = '';
+    } else { current += char; }
+  }
+  result.push(current.trim().replace(/^"|"$/g, ''));
+  return result;
+}
+
+function mapField(values: string[], headers: string[], name: string): string | null {
+  const index = headers.indexOf(name);
+  return index >= 0 && index < values.length ? values[index] || null : null;
+}
+
+function parseNumeric(value: string | null): number | null {
+  if (!value) return null;
+  const cleaned = value.trim().replace(/[$,]/g, '');
+  const num = Number(cleaned);
+  return isNaN(num) ? null : num;
+}
