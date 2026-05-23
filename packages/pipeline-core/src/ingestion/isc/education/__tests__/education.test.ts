@@ -1,0 +1,15 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+
+describe('isc:education', () => {
+  it('should define the ingest function', async () => {
+    const mod = await import('../index.js');
+    assert.strictEqual(typeof mod.ingestEducationFunding, 'function');
+  });
+
+  it('should define search functions', async () => {
+    const mod = await import('../index.js');
+    assert.strictEqual(typeof mod.searchEducationBySchool, 'function');
+    assert.strictEqual(typeof mod.searchEducationByProvince, 'function');
+  });
+});
