@@ -30,11 +30,15 @@ import * as searchNgoRss from './search-ngo-rss.js';
 import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchHealth from './search-health.js';
 import * as searxngHealth from './searxng-health.js';
+import * as knowledgeFabric from './search-knowledge-fabric.js';
 
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
 import * as systemHealth from './system-health.js';
+
+import * as resolveEntity from './resolve-entity.js';
+import * as findConnections from './find-connections.js';
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -70,11 +74,15 @@ export function getAllTools(): ToolModule[] {
   searchNarrativeTracker,
   searchHealth,
   searxngHealth,
+  knowledgeFabric,
 
   aiAsk,
     aiAnalyze,
     aiSearchSemantic,
     systemHealth,
+
+    resolveEntity,
+    findConnections,
   ];
 }
 
