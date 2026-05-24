@@ -5,7 +5,7 @@
  * Provides upsert and search operations for the D1 database.
  */
 
-import type { HealthCanadaRecall } from './types.js';
+import type { HealthCanadaRecord } from './types.js';
 
 export interface DatabaseResult {
   success: boolean;
@@ -19,9 +19,9 @@ export interface DatabaseResult {
  * This implementation is a placeholder. In production, it would
  * connect to the D1 database and perform an upsert operation.
  */
-export async function upsertHealthCanadaRecall(
+export async function upsertHealthCanadaRecord(
   db: any, // D1Database type
-  recall: HealthCanadaRecall,
+  recall: HealthCanadaRecord,
 ): Promise<DatabaseResult> {
   try {
     // Placeholder implementation
@@ -43,15 +43,15 @@ export async function upsertHealthCanadaRecall(
 /**
  * Upsert multiple Health Canada recall records.
  */
-export async function upsertHealthCanadaRecalls(
+export async function upsertHealthCanadaRecords(
   db: any,
-  recalls: HealthCanadaRecall[],
+  recalls: HealthCanadaRecord[],
 ): Promise<DatabaseResult> {
   let recordsAffected = 0;
   let failedCount = 0;
 
   for (const recall of recalls) {
-    const result = await upsertHealthCanadaRecall(db, recall);
+    const result = await upsertHealthCanadaRecord(db, recall);
     if (result.success) {
       recordsAffected += result.recordsAffected;
     } else {
@@ -71,11 +71,11 @@ export async function upsertHealthCanadaRecalls(
 /**
  * Search Health Canada recalls by product name.
  */
-export async function searchHealthCanadaRecalls(
+export async function searchHealthCanadaRecords(
   db: any,
   query: string,
   limit: number = 50,
-): Promise<HealthCanadaRecall[]> {
+): Promise<HealthCanadaRecord[]> {
   // Placeholder implementation
   return [];
 }
@@ -83,11 +83,11 @@ export async function searchHealthCanadaRecalls(
 /**
  * Get Health Canada recalls by category.
  */
-export async function getHealthCanadaRecallsByCategory(
+export async function getHealthCanadaRecordsByCategory(
   db: any,
   category: string,
   limit: number = 50,
-): Promise<HealthCanadaRecall[]> {
+): Promise<HealthCanadaRecord[]> {
   // Placeholder implementation
   return [];
 }
@@ -95,10 +95,10 @@ export async function getHealthCanadaRecallsByCategory(
 /**
  * Get high/critical risk Health Canada recalls.
  */
-export async function getHighRiskHealthCanadaRecalls(
+export async function getHighRiskHealthCanadaRecords(
   db: any,
   limit: number = 100,
-): Promise<HealthCanadaRecall[]> {
+): Promise<HealthCanadaRecord[]> {
   // Placeholder implementation
   return [];
 }
