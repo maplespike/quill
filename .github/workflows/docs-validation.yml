@@ -27,7 +27,7 @@ permissions:
 jobs:
   validate:
     name: "Documentation checks"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
         with:

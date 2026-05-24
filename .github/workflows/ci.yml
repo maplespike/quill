@@ -70,7 +70,9 @@ jobs:
           }
 
       - name: Start API server (background)
-        continue-on-error: true
+        env:
+          JWT_SECRET: maplespike-ci-test-secret-not-for-production
+          PORT: "8082"
         run: |
           pnpm install
           pnpm --filter @maplespike/api-server run dev &
