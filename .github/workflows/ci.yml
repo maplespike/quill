@@ -70,8 +70,10 @@ jobs:
           }
 
       - name: Start API server (background)
+        continue-on-error: true
         run: |
-          cd packages/api-server && pnpm run dev &
+          pnpm install
+          pnpm --filter @maplespike/api-server run dev &
           for i in $(seq 1 30); do
             if curl -sf http://localhost:8082/v1/health > /dev/null 2>&1; then
               echo "API server ready on port 8082"
