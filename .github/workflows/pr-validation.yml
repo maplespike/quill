@@ -37,7 +37,7 @@ jobs:
       - name: "Linked issue check"
         id: linked-issue
         run: |
-          BODY="${{ github.event.pull_request.body }}"
+          BODY='${{ toJSON(github.event.pull_request.body) }}'
           if echo "$BODY" | grep -qiE "(Closes|Fixes|Resolves|Related to) #[0-9]+"; then
             echo "✅ PR references an issue"
           else
