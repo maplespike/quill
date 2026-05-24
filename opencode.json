@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "nvidia/nemotron-3-nano-30b-a3b",
+  "provider": {
+    "nvidia": {
+      "options": {
+        "baseURL": "http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1"
+      },
+      "models": {
+        "nemotron-3-nano-30b-a3b": {
+          "name": "Llama 3.1 70B Instruct",
+          "id": "meta/llama-3.1-70b-instruct"
+        },
+        "nemotron-3-super-120b-a12b": {
+          "name": "Llama 3.1 70B Instruct",
+          "id": "meta/llama-3.1-70b-instruct"
+        },
+        "nemotron-3-nano-omni-30b-a3b-reasoning": {
+          "name": "Gemma 3 12B IT",
+          "id": "google/gemma-3-12b-it"
+        },
+        "llama-3.3-nemotron-super-49b-v1": {
+          "name": "Llama 3.1 8B Instruct",
+          "id": "meta/llama-3.1-8b-instruct"
+        },
+        "llama-3.1-70b-instruct": {
+          "name": "Llama 3.1 70B Instruct",
+          "id": "meta/llama-3.1-70b-instruct"
+        }
+      }
+    }
+  }
+}
+
