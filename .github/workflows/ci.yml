@@ -98,3 +98,51 @@ jobs:
       - name: Test sdk
         run: pnpm test
         working-directory: packages/sdk
+
+      # ── Phase 5: Documentation rot check ─────────────────────────
+      - name: "Docs rot check — TODO diff vs base"
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_TODOS=$(git show origin/${{ github.base_ref }}:packages/docs/ 2>/dev/null | grep -ci "TODO\|FIXME" || echo "0")
+          CURRENT_TODOS=$(grep -ci "TODO\|FIXME" packages/docs/**/*.md 2>/dev/null | awk -F: '{s+=$NF}END{print s}' || echo "0")
+
+          echo "## 📝 Documentation Rot Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Base (${{ github.base_ref }}) | Current |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| TODO/FIXME count | $BASE_TODOS | $CURRENT_TODOS |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$CURRENT_TODOS" -gt "$BASE_TODOS" ] 2>/dev/null; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ TODO count increased from $BASE_TODOS to $CURRENT_TODOS" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::TODO count increased from $BASE_TODOS to $CURRENT_TODOS"
+          elif [ "$CURRENT_TODOS" -lt "$BASE_TODOS" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ TODO count decreased — great work!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ TODO count unchanged" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: "Metrics drift check"
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## 📊 Metrics Drift Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ ! -f "docs/metrics.json" ]; then
+            echo "ℹ️ No docs/metrics.json found" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          # Check metrics.json hasn't drifted from what generate-metrics produces
+          node scripts/generate-metrics.mjs 2>/dev/null
+          git diff --stat docs/metrics.json
+          git diff --exit-code docs/metrics.json || {
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ docs/metrics.json is out of sync with codebase" >> $GITHUB_STEP_SUMMARY
+            echo "::error::docs/metrics.json is out of sync. Run 'pnpm generate-metrics'."
+            exit 1
+          }
+
+          echo "✅ docs/metrics.json is synchronized with codebase" >> $GITHUB_STEP_SUMMARY

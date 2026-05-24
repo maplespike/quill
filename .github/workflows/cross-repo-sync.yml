@@ -1,0 +1,55 @@
+---
+name: "Cross-Repo Sync"
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # Weekly on Sunday midnight
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync-checks:
+    name: "Cross-repo consistency"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo:
+          - reverb256/maplespike
+          - reverb256/frostbite-gazette
+          - reverb256/mcp-canada
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo }}
+
+      - name: "Check for AGENTS.md"
+        run: |
+          echo "## 📋 ${{ matrix.repo }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "AGENTS.md" ]; then
+            LAST_REVIEWED=$(grep "^last-reviewed:" AGENTS.md | sed 's/.*: *//' || echo "missing")
+            STATUS=$(grep "^status:" AGENTS.md | sed 's/.*: *//' || echo "missing")
+            echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "| AGENTS.md | ✅ Exists |" >> $GITHUB_STEP_SUMMARY
+            echo "| last-reviewed | $LAST_REVIEWED |" >> $GITHUB_STEP_SUMMARY
+            echo "| status | $STATUS |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No AGENTS.md found in ${{ matrix.repo }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: "Check .github/workflows"
+        run: |
+          if [ -d ".github/workflows" ]; then
+            COUNT=$(ls .github/workflows/*.yml 2>/dev/null | wc -l)
+            echo "| Workflows | $COUNT workflows |" >> $GITHUB_STEP_SUMMARY
+            for wf in .github/workflows/*.yml; do
+              NAME=$(grep "^name:" "$wf" | sed 's/name: *//' || basename "$wf")
+              echo "  - $NAME" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "| Workflows | ⚠️ None |" >> $GITHUB_STEP_SUMMARY
+          fi
