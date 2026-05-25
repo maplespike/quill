@@ -5,6 +5,24 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./test-framework": {
+      "import": "./dist/test-framework/index.js",
+      "types": "./dist/test-framework/index.d.ts"
+    },
+    "./health-monitoring": {
+      "import": "./dist/health-monitoring/index.js",
+      "types": "./dist/health-monitoring/index.d.ts"
+    },
+    "./doc-generator": {
+      "import": "./dist/doc-generator/index.js",
+      "types": "./dist/doc-generator/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
