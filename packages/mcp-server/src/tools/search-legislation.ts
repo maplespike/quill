@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 export const definition: ToolDefinition = {
   name: 'search_legislation',
@@ -29,7 +29,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     return { content: { tool: 'search_legislation', query: '', error: 'No search query provided. Try an act name, keyword, or jurisdiction.' }, isError: true };
   }
   try {
-    const result = await searchGovData(query, 'all', limit);
+    const result = await searchCkan(query, limit);
     return { content: { tool: 'search_legislation', query, limit, ...result } };
   } catch (err) {
     return { content: { tool: 'search_legislation', query, error: err instanceof Error ? err.message : 'Unknown error' }, isError: true };

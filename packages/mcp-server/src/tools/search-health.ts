@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 export const definition: ToolDefinition = {
   name: 'search_health',
@@ -70,7 +70,7 @@ export const handler: ToolHandler = async (args) => {
     }
   }
 
-  const result = await searchGovData(searchQuery, 'all', limit);
+  const result = await searchCkan(searchQuery, limit);
   let results = result.results;
   let total = result.total;
 
