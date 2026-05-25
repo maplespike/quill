@@ -44,7 +44,15 @@ import * as cacheStatus from './cache-status.js';
 import * as cacheClear from './cache-clear.js';
 import * as searchStatcan from './search-statcan.js';
 import * as searchIrccCitizenship from './search-ircc-citizenship.js';
-
+// Batch 2 — government transparency and financial modules
+import * as searchProactiveDisclosure from './search-proactive-disclosure.js';
+import * as searchAti from './search-ati.js';
+import * as searchFederalBudget from './search-federal-budget.js';
+import * as searchCraCharity from './search-cra-charity.js';
+import * as searchBankOfCanada from './search-bank-of-canada.js';
+import * as searchCmhc from './search-cmhc.js';
+import * as searchSedi from './search-sedi.js';
+import * as searchGocSpending from './search-goc-spending.js';
 export interface ToolModule {
   definition: ToolDefinition;
   handler: ToolHandler;
@@ -92,9 +100,18 @@ export function getAllTools(): ToolModule[] {
     cacheStatus,
     cacheClear,
 
-    // New tools for priority modules (batch 1)
     searchStatcan,
     searchIrccCitizenship,
+
+    // Batch 2 — government transparency and financial modules
+    searchProactiveDisclosure,
+    searchAti,
+    searchFederalBudget,
+    searchCraCharity,
+    searchBankOfCanada,
+    searchCmhc,
+    searchSedi,
+    searchGocSpending,
   ];
 }
 
