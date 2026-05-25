@@ -128,3 +128,14 @@ export async function fetchOversight(query: string, limit = 10): Promise<{ resul
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
 }
+
+// ── Generic CKAN Search ────────────────────────────────────────────
+
+export async function searchCkan(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('ckan', { query, limit }, async () => {
+    const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query)}&rows=${limit}`,
+    );
+    return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
+  });
+}
