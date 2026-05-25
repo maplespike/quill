@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { fetchCommittees } from './upstream-fetcher.js';
 
 /**
  * Search House of Commons and Senate committee evidence, transcripts, and proceedings.
@@ -67,7 +67,7 @@ export const handler: ToolHandler = async (args) => {
   let results: Record<string, unknown>[] = [];
   let total = 0;
   try {
-    const result = await searchGovData(query, 'all', limit);
+    const result = await fetchCommittees(query, limit);
     results = result.results;
     total = result.total;
   } catch {
