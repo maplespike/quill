@@ -35,7 +35,7 @@ function cached<T>(tool: string, params: Record<string, unknown>, fn: () => Prom
 export async function fetchCommittees(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('committees', { query, limit }, async () => {
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' committees')}&rows=${limit}`,
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' committees')}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
@@ -43,20 +43,33 @@ export async function fetchCommittees(query: string, limit = 10): Promise<{ resu
 
 // ── Canada Gazette ─────────────────────────────────────────────────
 
+const GAZETTE_RSS_URLS = [
+  { part: 'Part I', url: 'https://www.gazette.gc.ca/rss/p1-eng.xml' },
+  { part: 'Part II', url: 'https://www.gazette.gc.ca/rss/p2-eng.xml' },
+  { part: 'Part III', url: 'https://www.gazette.gc.ca/rss/en-ls-eng.xml' },
+];
+
 export async function fetchGazette(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('gazette', { query, limit }, async () => {
-    const text = await fetchText(`https://gazette.gc.ca/rp-pr/p1/index.rss`);
     const items: Record<string, unknown>[] = [];
-    const titleRe = /<title>([^<]+)<\/title>/g;
-    const linkRe = /<link>([^<]+)<\/link>/g;
-    const titles = [...text.matchAll(titleRe)].slice(1).map(m => m[1]);
-    const links = [...text.matchAll(linkRe)].slice(1).map(m => m[1]);
-    for (let i = 0; i < Math.min(titles.length, links.length, limit); i++) {
-      if (titles[i].toLowerCase().includes(query.toLowerCase())) {
-        items.push({ title: titles[i], url: links[i], source: 'Canada Gazette Part I' });
-      }
+    for (const feed of GAZETTE_RSS_URLS) {
+      try {
+        const text = await fetchText(feed.url);
+        const titles: string[] = []; const links: string[] = [];
+        let m: RegExpExecArray | null;
+        const tRe = /<title>([^<]*)<\/title>/g;
+        while ((m = tRe.exec(text)) !== null) titles.push(m[1]);
+        const lRe = /<link>([^<]*)<\/link>/g;
+        while ((m = lRe.exec(text)) !== null) links.push(m[1]);
+        // Skip first title/link (channel-level), compare 1..n with query
+        for (let i = 1; i < Math.min(titles.length, links.length, limit + 1); i++) {
+          if (titles[i].toLowerCase().includes(query.toLowerCase())) {
+            items.push({ title: titles[i], url: links[i], source: 'Canada ' + feed.part });
+          }
+        }
+      } catch { continue; }
     }
-    return { results: items, total: items.length };
+    return { results: items.slice(0, limit), total: items.length };
   });
 }
 
@@ -65,7 +78,7 @@ export async function fetchGazette(query: string, limit = 10): Promise<{ results
 export async function fetchCorporate(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('corporate', { query, limit }, async () => {
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' lobbying')}&rows=${limit}`,
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' lobbying')}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
@@ -88,7 +101,7 @@ export async function fetchGicAppointments(query: string, limit = 10): Promise<{
 export async function fetchElections(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('elections', { query, limit }, async () => {
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' elections')}&rows=${limit}`,
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' elections')}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
@@ -112,7 +125,7 @@ export async function fetchCanlii(query: string, limit = 10): Promise<{ results:
 export async function fetchLmia(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('lmia', { query, limit }, async () => {
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' lmia')}&rows=${limit}`,
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' lmia')}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
@@ -123,7 +136,7 @@ export async function fetchLmia(query: string, limit = 10): Promise<{ results: R
 export async function fetchOversight(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('oversight', { query, limit }, async () => {
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' oversight')}&rows=${limit}`,
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' oversight')}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
@@ -134,7 +147,7 @@ export async function fetchOversight(query: string, limit = 10): Promise<{ resul
 export async function searchCkan(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('ckan', { query, limit }, async () => {
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://open.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query)}&rows=${limit}`,
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query)}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
