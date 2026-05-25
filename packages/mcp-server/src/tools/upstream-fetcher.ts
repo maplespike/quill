@@ -283,3 +283,27 @@ export async function fetchEntityCrossReference(name: string): Promise<{ mp: Rec
     return { mp, lobbyingRecords: lobbyJson.result?.total ?? 0, gicAppointments: gicJson.result?.total ?? 0, committeeMemberships: 0, sources: ['openparliament.ca', 'ouvert.canada.ca'] };
   });
 }
+
+// ── Socrata (SODA API) ─────────────────────────────────────────────
+
+const SOCRATA_DOMAINS: Record<string, string> = {
+  'novascotia': 'https://data.novascotia.ca',
+  'newbrunswick': 'https://gnb.socrata.com',
+  'peel': 'https://opendata.peelregion.ca',
+  'calgary': 'https://data.calgary.ca',
+  'toronto': 'https://open.toronto.ca',
+};
+
+export async function searchSocrata(domain: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('socrata_' + domain, { query, limit }, async () => {
+    const base = SOCRATA_DOMAINS[domain] || `https://${domain}.socrata.com`;
+    const json = await fetchJson<Array<Record<string, unknown>>>(`${base}/api/views?q=${encodeURIComponent(query)}&limit=${limit}`);
+    return { results: json ?? [], total: (json ?? []).length };
+  });
+}
+
+export async function fetchSocrataDataset(domain: string, datasetId: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  const base = SOCRATA_DOMAINS[domain] || `https://${domain}.socrata.com`;
+  const json = await fetchJson<Array<Record<string, unknown>>>(`${base}/resource/${datasetId}.json?$limit=${limit}`);
+  return { results: json ?? [], total: (json ?? []).length };
+}
