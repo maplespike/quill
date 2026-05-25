@@ -84,15 +84,14 @@ export async function fetchCorporate(query: string, limit = 10): Promise<{ resul
   });
 }
 
-// ── GIC Appointments (Infobase) ────────────────────────────────────
+// ── GIC Appointments ─────────────────────────────────────────────
 
 export async function fetchGicAppointments(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('gic', { query, limit }, async () => {
-    const json = await fetchJson<{ data: Record<string, unknown>[] }>(
-      `https://www.infobasegc.ca/api/v1/search?q=${encodeURIComponent(query)}&limit=${limit}`,
-      5000,
+    const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' governor council appointment')}&rows=${limit}`,
     );
-    return { results: json.data ?? [], total: (json.data ?? []).length };
+    return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
 }
 
@@ -111,12 +110,19 @@ export async function fetchElections(query: string, limit = 10): Promise<{ resul
 
 export async function fetchCanlii(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('canlii', { query, limit }, async () => {
-    // CanLII v1 search — public endpoint
-    const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
-      `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
-      8000,
-    );
-    return { results: json.results ?? [], total: json.total ?? 0 };
+    try {
+      const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
+        `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
+        8000,
+      );
+      return { results: json.results ?? [], total: json.total ?? 0 };
+    } catch {
+      // Fallback to CKAN if CanLII API is unavailable
+      const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+        `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' court decision')}&rows=${limit}`,
+      );
+      return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
+    }
   });
 }
 
