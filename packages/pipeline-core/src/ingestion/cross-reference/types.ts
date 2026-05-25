@@ -1,9 +1,12 @@
+import type { TrustScore as TrustScoreResult } from './trust-scoring.js';
+
 export interface CrossReferenceResult {
   entity: string;
   entityType: 'person' | 'organization';
   matches: CrossReferenceMatch[];
   totalMatches: number;
   timeline: CrossReferenceTimelineEntry[];
+  trustScore: TrustScoreResult;
   ingestedAt: string;
 }
 
@@ -14,6 +17,8 @@ export interface CrossReferenceMatch {
   title: string;
   description: string;
   relevance: 'direct' | 'indirect';
+  authorityScore?: number;
+  citationHash?: string;
 }
 
 export interface CrossReferenceTimelineEntry {
@@ -30,4 +35,6 @@ export interface CrossReferenceQuery {
   target?: CrossReferenceSearchTarget;
   modules?: string[];
   limit?: number;
+  minSources?: number;
+  highSensitivity?: boolean;
 }
