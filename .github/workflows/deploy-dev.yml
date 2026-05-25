@@ -35,7 +35,6 @@ jobs:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
 
       # Set working directory for composite TypeScript builds
@@ -65,7 +64,6 @@ jobs:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
       - run: pnpm run clean
       - run: bash scripts/build-packages.sh
