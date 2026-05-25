@@ -5819,3 +5819,19 @@ import * as searchCipo from './search-cipo.js';
     searchNrcan,
     searchCrtc,
     searchCipo,
+
+    searchSocialPrograms,
+    searchUnions,
+    searchEducationResearch,
+    searchUniversities,
+    searchCulture,
+    searchProvincialLegislatures,
+    searchMunicipal,
+    searchCrownCorporations,import * as searchSocialPrograms from './search-social-programs.js';
+import * as searchUnions from './search-unions.js';
+import * as searchEducationResearch from './search-education-research.js';
+import * as searchUniversities from './search-universities.js';
+import * as searchCulture from './search-culture.js';
+import * as searchProvincialLegislatures from './search-provincial-legislatures.js';
+import * as searchMunicipal from './search-municipal.js';
+import * as searchCrownCorporations from './search-crown-corporations.js';
