@@ -4,7 +4,7 @@
  * Fetcher for Health Canada datasets via CKAN portal.
  */
 
-import { httpGet } from '../utils/http.js';
+import { httpGet } from '../../utils/http.js';
 import { USER_AGENT, getResourceUrl } from './constants.js';
 
 /**
