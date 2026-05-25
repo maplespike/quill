@@ -5,39 +5,53 @@ status: active
 
 # MapleSpike MCP Server
 
-Model Context Protocol server for Canadian government data. Provides **34 tools** for AI agents to query, search, and verify Canadian government information. All tools return real data from the SQLite database with live-fetch fallbacks.
+Model Context Protocol server for Canadian government data. Provides **80+ tools** for AI agents to search, query, and monitor Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
 
-> **Status:** All 34 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
+> **Status:** All tools standalone. Zero config. `npx @maplespike/mcp-server` and it just works.
 
 - **Package:** `@maplespike/mcp-server`
-- **Transport:** stdio (local) or SSE (hosted)
-- **Deployment:** K8s cluster with Caddy ingress
-- **Cluster endpoint:** http://maplespike-mcp.ai-inference.svc.lan:3001
+- **Transport:** stdio (local) for Claude Desktop / Cursor / any MCP host
+- **No dependencies:** no SQLite, no API server, no environment variables needed
 
 ---
 
 ## Quick Start
 
-### Local (stdio)
+### Claude Desktop
 
-```bash
-export MAPLESPIKE_API_KEY=dev-key
-cd packages/mcp-server
-pnpm start
-# → stdio MCP server ready
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "maplespike-canada": {
+      "command": "npx",
+      "args": ["@maplespike/mcp-server"]
+    }
+  }
+}
 ```
 
-### Hosted (SSE)
+No API key, no config file, no database. Just `npx`.
+
+### Local development
 
 ```bash
-npm run start:sse
+cd packages/mcp-server
+pnpm start
+# → 🍁 MapleSpike MCP Server ready
+# → Tools: 80+ registered
+# → Mode: standalone
+```
+
+### Hosted / SSE mode
+
+```bash
+PORT=3001 pnpm start:sse
 # → http://localhost:3001/sse
 ```
 
-## Tools — All 34 Live
-
-| Tool | Description | Input |
-|------|-------------|-------|
+## Tools — All 80+ Live
 | `query_gov_data` | Query government data (StatCan, CKAN, provincial portals) | query, jurisdiction, category, limit |
 | `fact_check` | Check claims against official government data | claim |
 | `get_citation` | Retrieve and verify SHA-256 citation hashes | hash |
