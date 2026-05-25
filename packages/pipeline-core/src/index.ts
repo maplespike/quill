@@ -13,3 +13,5 @@ export * from './audit/index.js';
 export * from './legal-compliance.js';
 export * from './validation/index.js';
 export * from './health-monitoring/index.js';
+export * from './test-framework/index.js';
+export * from './doc-generator/index.js';
