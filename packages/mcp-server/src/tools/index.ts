@@ -83,6 +83,7 @@ import * as searchRealTimeFeeds from './search-real-time-feeds.js';
 import * as searchRegionalAuthorities from './search-regional-authorities.js';
 import * as searchScience from './search-science.js';
 import * as searchSedi from './search-sedi.js';
+import * as smartSearch from './smart-search.js';
 import * as searchSocialPrograms from './search-social-programs.js';
 import * as searchSpeciesAtRisk from './search-species-at-risk.js';
 import * as searchStatcan from './search-statcan.js';
@@ -186,6 +187,7 @@ export function getAllTools(): ToolModule[] {
     searchRegionalAuthorities,
     searchScience,
     searchSedi,
+    smartSearch,
     searchSocialPrograms,
     searchSpeciesAtRisk,
     searchStatcan,
