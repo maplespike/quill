@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 /**
  * Search provincial lobbying registries across Canadian provinces.
@@ -62,7 +62,7 @@ export const handler: ToolHandler = async (args) => {
   const province = (args.province as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  const result = await searchGovData(query, 'all', limit);
+  const result = await searchCkan(query, limit);
   let results = result.results;
   let total = result.total;
 
