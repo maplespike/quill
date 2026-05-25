@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # Health Data Modules
 
 MapleSpike ingests health data from multiple Canadian federal health agencies. Two primary modules handle health data: `health-canada` and `health-data`.

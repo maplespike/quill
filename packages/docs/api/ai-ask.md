@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # POST /v1/ai_ask
 
 Ask a natural language question about Canadian government data. The AI searches across all pipeline sources (committees, lobbying, procurement, regulations, courts, oversight) and returns a cited, synthesized answer.

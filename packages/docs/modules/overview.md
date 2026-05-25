@@ -1,6 +1,11 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # Ingestion Modules — Overview
 
-MapleSpike's data pipeline ingests from **65+ modules** covering every major category of Canadian government data. Each module fetches, parses, and persists data from a specific source. This page provides a complete catalog.
+MapleSpike's data pipeline ingests from **88+ modules** covering every major category of Canadian government data. Each module fetches, parses, and persists data from a specific source. This page provides a complete catalog.
 
 ## Architecture
 

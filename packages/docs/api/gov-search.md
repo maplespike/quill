@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # GET /v1/gov/search
 
 Search across all Canadian government data sources. This is the primary data query endpoint, covering Statistics Canada cubes, open.canada.ca CKAN datasets, provincial data, federal spending, and more.
