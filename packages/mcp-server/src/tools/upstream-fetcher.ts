@@ -84,14 +84,15 @@ export async function fetchCorporate(query: string, limit = 10): Promise<{ resul
   });
 }
 
-// ── GIC Appointments ─────────────────────────────────────────────
+// ── GIC Appointments (Infobase) ────────────────────────────────────
 
 export async function fetchGicAppointments(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('gic', { query, limit }, async () => {
-    const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' governor council appointment')}&rows=${limit}`,
+    const json = await fetchJson<{ data: Record<string, unknown>[] }>(
+      `https://www.infobasegc.ca/api/v1/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      5000,
     );
-    return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
+    return { results: json.data ?? [], total: (json.data ?? []).length };
   });
 }
 
@@ -110,19 +111,12 @@ export async function fetchElections(query: string, limit = 10): Promise<{ resul
 
 export async function fetchCanlii(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('canlii', { query, limit }, async () => {
-    try {
-      const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
-        `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
-        8000,
-      );
-      return { results: json.results ?? [], total: json.total ?? 0 };
-    } catch {
-      // Fallback to CKAN if CanLII API is unavailable
-      const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-        `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' court decision')}&rows=${limit}`,
-      );
-      return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
-    }
+    // CanLII v1 search — public endpoint
+    const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
+      `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
+      8000,
+    );
+    return { results: json.results ?? [], total: json.total ?? 0 };
   });
 }
 
@@ -156,5 +150,98 @@ export async function searchCkan(query: string, limit = 10): Promise<{ results: 
       `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query)}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
+  });
+}
+
+// ── Open Parliament ────────────────────────────────────────────────
+
+export async function fetchParliamentDebates(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('debates', { query, limit }, async () => {
+    const json = await fetchJson<{ objects: Record<string, unknown>[] }>(
+      `https://api.openparliament.ca/debates/?limit=${limit}&format=json`,
+    );
+    const objects = json.objects ?? [];
+    return {
+      results: query ? objects.filter(o => JSON.stringify(o).toLowerCase().includes(query.toLowerCase())) : objects,
+      total: objects.length,
+    };
+  });
+}
+
+export async function fetchPoliticians(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('politicians', { query, limit }, async () => {
+    const json = await fetchJson<{ objects: Record<string, unknown>[] }>(
+      `https://api.openparliament.ca/politicians/?limit=${limit}&format=json`,
+    );
+    const objects = json.objects ?? [];
+    return {
+      results: query ? objects.filter(o => JSON.stringify(o).toLowerCase().includes(query.toLowerCase())) : objects,
+      total: objects.length,
+    };
+  });
+}
+
+export async function fetchParliamentBills(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('bills', { query, limit }, async () => {
+    const json = await fetchJson<{ objects: Record<string, unknown>[] }>(
+      `https://api.openparliament.ca/bills/?limit=${limit}&format=json`,
+    );
+    const objects = json.objects ?? [];
+    return {
+      results: query ? objects.filter(o => JSON.stringify(o).toLowerCase().includes(query.toLowerCase())) : objects,
+      total: objects.length,
+    };
+  });
+}
+
+// ── Infrastructure (StatCan Core Public Infrastructure) ────────────
+
+export async function fetchBridgeConditions(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('bridges', { query, limit }, async () => {
+    const resp = await fetch('https://www150.statcan.gc.ca/n1/tbl/csv/34100288-eng.zip', {
+      headers: { 'User-Agent': USER_AGENT },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!resp.ok) return { results: [], total: 0 };
+    const zipBuf = await resp.arrayBuffer();
+    const { extractFromZip } = await import('./optimization/zip-util.js');
+    const csvText = await extractFromZip(zipBuf);
+    const lines = csvText.split('\n').filter(l => l.trim()).slice(1);
+    const results: Record<string, unknown>[] = [];
+    for (const line of lines) {
+      const cols = line.split(',');
+      if (cols.length < 6) continue;
+      results.push({
+        province: cols[0], assetType: cols[3],
+        condition: cols[4], percentage: parseFloat(cols[5]) || 0,
+      });
+    }
+    const filtered = query ? results.filter(r => JSON.stringify(r).toLowerCase().includes(query.toLowerCase())) : results;
+    return { results: filtered.slice(0, limit), total: filtered.length };
+  });
+}
+
+export async function fetchInfrastructureCosts(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('infra_costs', { query, limit }, async () => {
+    const resp = await fetch('https://www150.statcan.gc.ca/n1/tbl/csv/34100284-eng.zip', {
+      headers: { 'User-Agent': USER_AGENT },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!resp.ok) return { results: [], total: 0 };
+    const zipBuf = await resp.arrayBuffer();
+    const { extractFromZip } = await import('./optimization/zip-util.js');
+    const csvText = await extractFromZip(zipBuf);
+    const lines = csvText.split('\n').filter(l => l.trim()).slice(1);
+    const results: Record<string, unknown>[] = [];
+    for (const line of lines) {
+      const cols = line.split(',');
+      if (cols.length < 6) continue;
+      results.push({
+        province: cols[0], assetType: cols[3],
+        metric: cols[4], value: parseFloat(cols[5]) || 0,
+      });
+    }
+    const filtered = query ? results.filter(r => JSON.stringify(r).toLowerCase().includes(query.toLowerCase())) : results;
+    return { results: filtered.slice(0, limit), total: filtered.length };
   });
 }
