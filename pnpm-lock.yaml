@@ -30,9 +30,12 @@ importers:
 
   packages/api-server:
     dependencies:
+      '@maplespike/engine':
+        specifier: workspace:*
+        version: link:../engine
       '@maplespike/pipeline-core':
         specifier: workspace:*
-        version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(pg@8.20.0)
+        version: link:../pipeline-core
       '@simplewebauthn/server':
         specifier: ^13.3.0
         version: 13.3.0
@@ -195,7 +198,7 @@ importers:
     dependencies:
       '@maplespike/pipeline-core':
         specifier: workspace:*
-        version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(pg@8.20.0)
+        version: file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.5)
     devDependencies:
       '@types/node':
         specifier: ^22.19.17
@@ -5655,7 +5658,7 @@ snapshots:
       - sql.js
       - sqlite3
 
-  '@maplespike/pipeline-core@file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(pg@8.20.0)':
+  '@maplespike/pipeline-core@file:packages/pipeline-core(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.5)':
     dependencies:
       '@maplespike/database': file:packages/database(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(@types/react@19.2.14)(pg@8.20.0)(react@19.2.5)
       amqplib: 0.10.9
