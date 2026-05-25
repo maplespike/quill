@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 import { chatCompletion } from '../ai/gateway.js';
 
 export const definition: ToolDefinition = {
@@ -65,7 +65,7 @@ export const handler: ToolHandler = async (args) => {
   const query = organization || topic || '';
 
   try {
-    const result = await searchGovData(query, 'all', limit);
+    const result = await searchCkan(query, limit);
     const results = result.results ?? [];
     const total = result.total ?? 0;
 

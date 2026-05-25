@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 /**
  * Search IRCC — Citizenship grants by province, demographic, and year.
@@ -43,7 +43,7 @@ export const handler: ToolHandler = async (args) => {
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
   // Live search via API server
-  const result = await searchGovData(query, 'all', limit);
+  const result = await searchCkan(query, limit);
   return {
     content: {
       tool: 'search_ircc-citizenship',

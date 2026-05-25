@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { fetchLmia } from './upstream-fetcher.js';
 
 /**
  * Search Labour Market Impact Assessment (LMIA) data — ESDC quarterly statistics
@@ -55,7 +55,7 @@ export const handler: ToolHandler = async (args) => {
   const stream = (args.stream as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  const result = await searchGovData(query, 'all', limit);
+  const result = await fetchLmia(query, limit);
   let results = result.results;
   let total = result.total;
 

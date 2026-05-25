@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 /**
  * Search immigration data — IRCC permanent residents, Express Entry, IRB refugee decisions,
@@ -67,7 +67,7 @@ export const handler: ToolHandler = async (args) => {
   if (source === 'cbsa' || source === 'all') sourceKeys.push('immigration');
 
   const q = query + (year ? ` ${year}` : '');
-  const result = await searchGovData(q, 'all', limit);
+  const result = await searchCkan(q, limit);
   let results = result.results;
   let total = result.total;
 
