@@ -437,7 +437,7 @@ export const SASKATCHEWAN = {
   HANSARD_URL: 'https://www.legassembly.sk.ca/hansard/',
   COMMITTEES_URL: 'https://www.legassembly.sk.ca/committees/',
   BILLS_URL: 'https://publications.saskatchewan.ca/#/products?q=bills',
-  CKAN_URL: 'https://dashboard.saskatchewan.ca/api/3/action/package_search',
+  CKAN_URL: 'https://dashboard.saskatchewan.ca',
   USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
 };
 
@@ -448,7 +448,7 @@ export const NOVA_SCOTIA = {
   HANSARD_URL: 'https://nslegislature.ca/legislative-business/hansard-debates',
   COMMITTEES_URL: 'https://nslegislature.ca/legislative-business/committees',
   BILLS_URL: 'https://nslegislature.ca/legislative-business/bills',
-  CKAN_URL: 'https://data.novascotia.ca/api/3/action/package_search',
+  CKAN_URL: 'https://data.novascotia.ca',
   USER_AGENT: 'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)',
 };
 

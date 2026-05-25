@@ -93,14 +93,14 @@ export const PROVINCIAL_ORGS: ProvincialOrgConfig[] = [
   { code: 'ns-ombudsman', name: 'Nova Scotia Office of the Ombudsman', province: 'NS', bodyType: 'ombudsman', baseUrl: 'https://www.novascotiaombudsman.ca/', description: 'Nova Scotia Ombudsman investigations', enabled: true },
   { code: 'ns-hr-tribunal', name: 'Nova Scotia Human Rights Commission', province: 'NS', bodyType: 'human-rights-tribunal', baseUrl: 'https://humanrights.novascotia.ca/', description: 'Nova Scotia human rights decisions', enabled: true },
   { code: 'ns-elections', name: 'Elections Nova Scotia', province: 'NS', bodyType: 'campaign-finance', baseUrl: 'https://electionsnovascotia.ca/', description: 'Nova Scotia campaign finance records', enabled: true },
-  { code: 'ns-nssc', name: 'Nova Scotia Securities Commission', province: 'NS', bodyType: 'securities-regulator', baseUrl: 'https://nssc.gov.ns.ca/', description: 'Securities regulation', enabled: true, ckanBaseUrl: 'https://data.novascotia.ca/api/3/action' },
+  { code: 'ns-nssc', name: 'Nova Scotia Securities Commission', province: 'NS', bodyType: 'securities-regulator', baseUrl: 'https://nssc.gov.ns.ca/', description: 'Securities regulation', enabled: true, ckanBaseUrl: 'https://data.novascotia.ca' },
   { code: 'ns-lsns', name: 'Nova Scotia Barristers Society', province: 'NS', bodyType: 'law-society', baseUrl: 'https://nsbs.org/', description: 'Lawyer licensing and discipline', enabled: true },
 
   // ── New Brunswick ────────────────────────────────────
   { code: 'nb-ag', name: 'Office of the Auditor General of New Brunswick', province: 'NB', bodyType: 'auditor-general', baseUrl: 'https://www.agnb-vgnb.ca/', description: 'New Brunswick AG audits and reports', enabled: true },
   { code: 'nb-ombudsman', name: 'Ombudsman New Brunswick', province: 'NB', bodyType: 'ombudsman', baseUrl: 'https://www.ombudnbed-bmpnb.ca/', description: 'New Brunswick Ombudsman investigations', enabled: true },
   { code: 'nb-hr-tribunal', name: 'New Brunswick Human Rights Commission', province: 'NB', bodyType: 'human-rights-tribunal', baseUrl: 'https://www.gnb.ca/humanrights', description: 'New Brunswick human rights decisions', enabled: true },
-  { code: 'nb-fcnb', name: 'Financial and Consumer Services Commission', province: 'NB', bodyType: 'securities-regulator', baseUrl: 'https://fcnb.ca/', description: 'Securities and consumer regulation', enabled: true, ckanBaseUrl: 'https://data.gnb.ca/api/3/action' },
+  { code: 'nb-fcnb', name: 'Financial and Consumer Services Commission', province: 'NB', bodyType: 'securities-regulator', baseUrl: 'https://fcnb.ca/', description: 'Securities and consumer regulation', enabled: true, ckanBaseUrl: 'https://gnb.socrata.com' },
   { code: 'nb-lsnb', name: 'Law Society of New Brunswick', province: 'NB', bodyType: 'law-society', baseUrl: 'https://lawsociety-nb.ca/', description: 'Lawyer licensing and discipline', enabled: true },
 
   // ── Newfoundland and Labrador ───────────────────────
