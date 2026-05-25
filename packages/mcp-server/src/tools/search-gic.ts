@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { fetchGicAppointments } from './upstream-fetcher.js';
 
 /**
  * Search Governor-in-Council (GiC) appointments — order-in-council appointments
@@ -54,7 +54,7 @@ export const handler: ToolHandler = async (args) => {
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
   // Live search via API server
-  const result = await searchGovData(query, 'all', limit);
+  const result = await fetchGicAppointments(query, limit);
   let results = result.results;
   let total = result.total;
 
