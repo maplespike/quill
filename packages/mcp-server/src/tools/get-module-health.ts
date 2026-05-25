@@ -22,15 +22,15 @@ export const definition: ToolDefinition = {
   },
 };
 
-export const handler: ToolHandler = async ({ moduleName }) => {
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   try {
+    const moduleName = String(args.moduleName ?? '');
     const monitor = getHealthMonitor();
     const health = await monitor.getModuleHealthWithUpstream(moduleName);
 
     return {
       content: {
         tool: 'get_module_health',
-        moduleName,
         ...health,
       },
     };
