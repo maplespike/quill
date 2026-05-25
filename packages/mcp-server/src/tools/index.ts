@@ -83,6 +83,7 @@ import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
 import * as searchVeterans from './search-veterans.js';
 import * as searxngHealth from './searxng-health.js';
+import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
 
 import type { ToolDefinition, ToolHandler } from './types.js';
@@ -174,6 +175,7 @@ export function getAllTools(): ToolModule[] {
     searchUniversities,
     searchVeterans,
     searxngHealth,
+    signalCheck,
     systemHealth,
   ];
 }
