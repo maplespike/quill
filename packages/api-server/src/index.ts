@@ -49,6 +49,7 @@ interface Route {
 
 import { healthHandler } from './routes/health.js';
 import { addAttributionHeader } from './middleware/attribution.js';
+import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
@@ -85,6 +86,7 @@ import {
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
+  { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: complianceHandler },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: onboardingHandler },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
   { pattern: /^\/v1\/register\/?$/, method: 'POST', params: [], handler: registerHandler },
@@ -289,6 +291,7 @@ export async function handleRequest(
 
   // Authentication (public routes: health, openapi, register, github login/callback, refresh, logout)
   const authExempt = route.handler === healthHandler
+    || route.handler === complianceHandler
     || route.handler === searchGovHandler
     || route.handler === openApiHandler
     || route.handler === getCitationHandler
