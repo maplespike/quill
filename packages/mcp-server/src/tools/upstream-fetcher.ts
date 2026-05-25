@@ -311,20 +311,53 @@ export async function fetchSocrataDataset(domain: string, datasetId: string, lim
 // ── Provincial Data: Socrata + CKAN unified ──────────────────────
 
 export async function fetchProvincialData(province: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
-  const { searchCkan } = await import('./upstream-fetcher.js');
   const prov = province.toLowerCase();
+  // Socrata provinces
   if (prov === 'ns' || prov === 'novascotia') {
-    try {
-      const r = await searchSocrata('novascotia', query, limit);
-      if (r.total > 0) return r;
-    } catch {}
+    try { const r = await searchSocrata('novascotia', query, limit); if (r.total > 0) return r; } catch {}
   }
   if (prov === 'nb' || prov === 'newbrunswick') {
-    try {
-      const r = await searchSocrata('newbrunswick', query, limit);
-      if (r.total > 0) return r;
-    } catch {}
+    try { const r = await searchSocrata('newbrunswick', query, limit); if (r.total > 0) return r; } catch {}
   }
-  // Fallback to CKAN for this province
-  return searchCkan(query + ' ' + province, limit);
+  // CKAN provinces (try provincial portal first, fall back to federal CKAN)
+  try {
+    const r = await fetchProvincialCkan(prov, query, limit);
+    if (r.total > 0) return r;
+  } catch {}
+  // Federal CKAN fallback
+  const { searchCkan } = await import('./upstream-fetcher.js');
+  try { return await searchCkan(query + ' ' + province, limit); } catch { return { results: [], total: 0 }; }
+}
+
+// ── Provincial CKAN endpoints ──────────────────────────────────────
+
+const PROVINCIAL_CKAN: Record<string, string> = {
+  qc: 'https://www.donneesquebec.ca/api/3/action/package_search?q=',
+  bc: 'https://catalogue.data.gov.bc.ca/api/3/action/package_search?q=',
+  yt: 'https://open.yukon.ca/api/3/action/package_search?q=',
+  on: 'https://data.ontario.ca/api/3/action/package_search?q=',
+  nl: 'https://opendata.gov.nl.ca/api/3/action/package_search?q=',
+  nt: 'https://opendata.gov.nt.ca/api/3/action/package_search?q=',
+  ns: 'https://data.novascotia.ca/api/views?q=',
+};
+
+export async function fetchProvincialCkan(province: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('prov_' + province, { query, limit }, async () => {
+    const base = PROVINCIAL_CKAN[province];
+    if (!base) return { results: [], total: 0 };
+    const url = province === 'ns'
+      ? `${base}${encodeURIComponent(query)}&limit=${limit}`
+      : `${base}${encodeURIComponent(query)}&rows=${limit}`;
+    try {
+      const resp = await fetch(url, { headers: { 'User-Agent': USER_AGENT, 'Accept': 'application/json' }, signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) return { results: [], total: 0 };
+      const json: any = await resp.json().catch(() => null);
+      if (!json) return { results: [], total: 0 };
+      // CKAN format
+      if (json?.result?.results) return { results: json.result.results, total: json.result.total ?? json.result.results.length };
+      // Socrata format (array of views)
+      if (Array.isArray(json)) return { results: json, total: json.length };
+      return { results: [], total: 0 };
+    } catch { return { results: [], total: 0 }; }
+  });
 }
