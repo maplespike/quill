@@ -111,26 +111,57 @@ Rules:
 
     const userMessage = `Question: ${query}${contextBlock}`;
 
-    // Step 4: Send to AI Gateway for synthesis
-    const aiResult = await chatCompletion(
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      { temperature: 0.3, maxTokens: 2048 },
-    );
+    // Step 4: Try AI synthesis, fall back to search-only mode
+    let aiResult: any = null;
+    let synthesisError: string | null = null;
+    try {
+      aiResult = await chatCompletion(
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        { temperature: 0.3, maxTokens: 2048 },
+      );
+    } catch (err) {
+      synthesisError = (err as Error).message;
+      // Graceful degradation: return search results without AI synthesis
+    }
 
+    if (aiResult) {
+      return {
+        content: {
+          tool: 'ai_ask',
+          query,
+          sourceFilter: sourceFilter || undefined,
+          answer: (aiResult as any)?.content ?? '',
+          citations,
+          totalPipelineRecordsFound: totalFound,
+          pipelineRecordsUsed: searchResults.length,
+          model: (aiResult as any)?.model ?? '',
+          usage: (aiResult as any)?.usage ?? {},
+        },
+      };
+    }
+
+    // Search-only fallback (no AI gateway available)
     return {
       content: {
         tool: 'ai_ask',
         query,
         sourceFilter: sourceFilter || undefined,
-        answer: (aiResult as any)?.content ?? '',
+        answer: null,
+        mode: 'search_only',
+        note: synthesisError?.includes('fetch failed')
+          ? 'AI synthesis unavailable (no inference gateway). Showing raw search results below.'
+          : `AI synthesis unavailable: ${synthesisError}. Showing raw search results.`,
         citations,
-        totalPipelineRecordsFound: totalFound,
-        pipelineRecordsUsed: searchResults.length,
-        model: (aiResult as any)?.model ?? '',
-        usage: (aiResult as any)?.usage ?? {},
+        totalRecordsFound: totalFound,
+        results: searchResults.slice(0, 10).map((r: Record<string, unknown>) => ({
+          title: r.title || r.name || 'Record',
+          source: (r._source || r.source || 'unknown') as string,
+          url: (r.url || '') as string,
+          summary: ((r.summary || r.description || '') as string).slice(0, 500),
+        })),
       },
     };
   } catch (error) {
