@@ -46,12 +46,6 @@ jobs:
             echo "::warning::$FAILED commit(s) without signature. Consider enabling commit signing."
           fi
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - uses: pnpm/action-setup@v4
-
       - run: pnpm install --frozen-lockfile
 
       - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
