@@ -395,3 +395,54 @@ export async function queryArcGISService(serverUrl: string, limit = 10): Promise
     return { results: [{ service: serverUrl, count: json?.count ?? 0 }], total: json?.count ?? 0 };
   } catch { return { results: [], total: 0 }; }
 }
+
+// ── Municipal Data Routing ─────────────────────────────────────────
+
+const MUNICIPAL_PORTALS: Record<string, { url: string; format: string }> = {
+  toronto: { url: 'https://open.toronto.ca', format: 'socrata' },
+  vancouver: { url: 'https://opendata.vancouver.ca', format: 'ckan' },
+  montreal: { url: 'https://donnees.montreal.ca', format: 'ckan' },
+  calgary: { url: 'https://data.calgary.ca', format: 'socrata' },
+  ottawa: { url: 'https://open.ottawa.ca', format: 'ckan' },
+  edmonton: { url: 'https://data.edmonton.ca', format: 'socrata' },
+  winnipeg: { url: 'https://data.winnipeg.ca', format: 'ckan' },
+  quebec: { url: 'https://donnees.ville.quebec.qc.ca', format: 'ckan' },
+  hamilton: { url: 'https://open.hamilton.ca', format: 'ckan' },
+  mississauga: { url: 'https://data.mississauga.ca', format: 'ckan' },
+};
+
+export async function searchMunicipalData(city: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('muni_' + city, { query, limit }, async () => {
+    const info = MUNICIPAL_PORTALS[city];
+    if (!info) return { results: [], total: 0 };
+    const base = info.url;
+    let url: string;
+    if (info.format === 'socrata') { url = base + '/api/views?q=' + encodeURIComponent(query) + '&limit=' + limit; }
+    else { url = base + '/api/3/action/package_search?q=' + encodeURIComponent(query) + '&rows=' + limit; }
+    try {
+      const resp = await fetch(url, { headers: { 'User-Agent': USER_AGENT, 'Accept': 'application/json' }, signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) return { results: [], total: 0 };
+      const json: any = await resp.json().catch(() => null);
+      if (!json) return { results: [], total: 0 };
+      if (Array.isArray(json)) return { results: json, total: json.length };
+      if (json?.result?.results) return { results: json.result.results, total: json.result.total ?? json.result.results.length };
+      return { results: [], total: 0 };
+    } catch { return { results: [], total: 0 }; }
+  });
+}
+
+// ── ArcGIS Layer Search ────────────────────────────────────────────
+
+export async function searchArcGISLayers(province: string, keyword: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('arcgis_search_' + province + '_' + keyword, {}, async () => {
+    const info = ARCGIS_SERVERS[province];
+    if (!info) return { results: [], total: 0 };
+    const resp = await fetch(info.server + '?f=json', { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) return { results: [], total: 0 };
+    const json: any = await resp.json().catch(() => null);
+    const services = json?.services ?? [];
+    const lower = keyword.toLowerCase();
+    const matched = services.filter((s: any) => s.name?.toLowerCase().includes(lower));
+    return { results: matched.map((s: any) => ({ name: s.name, type: s.type, server: info.server })), total: matched.length };
+  });
+}

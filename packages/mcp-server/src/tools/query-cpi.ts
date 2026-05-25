@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import type { ToolDefinition, ToolHandler } from './types.js';
+import { fetchStatCanTable } from './statcan-helper.js';
+
+export const definition: ToolDefinition = {
+  name: 'query_cpi',
+  description: 'Consumer Price Index (inflation) from Statistics Canada. Uses Statistics Canada data. Returns time-series data with values and reference dates.',
+  inputSchema: { type: 'object', properties: {
+    limit: { type: 'number', minimum: 1, maximum: 100, description: 'Data points to return' },
+  } },
+};
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  try {
+    const limit = Math.min((args.limit as number) ?? 20, 100);
+    const { rows, header } = await fetchStatCanTable('18100004');
+    return { content: { tool: 'query_cpi', data: rows.slice(0, limit), total: rows.length, source: 'https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=18100004' } };  
+  } catch (error) {
+    return { content: { tool: 'query_cpi', error: (error as Error).message }, isError: true };
+  }
+};
