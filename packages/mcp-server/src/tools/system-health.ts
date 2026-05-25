@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import * as api from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 import { cacheStats } from '../optimization/cache.js';
 
 export const definition: ToolDefinition = {

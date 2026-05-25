@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 export const definition: ToolDefinition = {
   name: 'search_indigenous_relations',
@@ -56,7 +56,7 @@ export const handler: ToolHandler = async (args) => {
   const source = (args.source as string) ?? 'all';
 
   const q = query + (year ? ` ${year}` : '');
-  const result = await searchGovData(q, source, limit);
+  const result = await searchCkan(q, limit);
 
   return {
     content: {
