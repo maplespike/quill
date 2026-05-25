@@ -20,12 +20,18 @@ import * as getPipelineHealth from './get-pipeline-health.js';
 import * as getPoliticianInfluence from './get-politician-influence.js';
 import * as latestReleases from './latest-releases.js';
 import * as queryBridges from './query-bridges.js';
+import * as queryCpi from './query-cpi.js';
+import * as queryGdp from './query-gdp.js';
 import * as queryGovData from './query-gov-data.js';
 import * as qaSchema from './qa-schema.js';
 import * as qaValidateModule from './qa-validate-module.js';
+import * as queryLabour from './query-labour.js';
+import * as queryPopulation from './query-population.js';
+import * as queryTrade from './query-trade.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as searchA2aj from './search-a2aj.js';
 import * as searchAgriculture from './search-agriculture.js';
+import * as searchArcGisLayers from './search-arcgis-layers.js';
 import * as searchAti from './search-ati.js';
 import * as searchBills from './search-bills.js';
 import * as searchBankOfCanada from './search-bank-of-canada.js';
@@ -70,6 +76,7 @@ import * as searchLegislation from './search-legislation.js';
 import * as searchLmia from './search-lmia.js';
 import * as searchLode from './search-lode.js';
 import * as searchMunicipal from './search-municipal.js';
+import * as searchMunicipalData from './search-municipal-data.js';
 import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchNgoRss from './search-ngo-rss.js';
 import * as searchNpri from './search-npri.js';
@@ -125,12 +132,18 @@ export function getAllTools(): ToolModule[] {
     getPoliticianInfluence,
     latestReleases,
     queryBridges,
+    queryCpi,
+    queryGdp,
     queryGovData,
     qaSchema,
     qaValidateModule,
+    queryLabour,
+    queryPopulation,
+    queryTrade,
     resolveEntity,
     searchA2aj,
     searchAgriculture,
+    searchArcGisLayers,
     searchAti,
     searchBankOfCanada,
     searchBills,
@@ -175,6 +188,7 @@ export function getAllTools(): ToolModule[] {
     searchLmia,
     searchLode,
     searchMunicipal,
+    searchMunicipalData,
     searchNarrativeTracker,
     searchNgoRss,
     searchNpri,

@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import type { ToolDefinition, ToolHandler } from './types.js';
+import { searchMunicipalData } from './upstream-fetcher.js';
+
+const CITIES = ['toronto','vancouver','montreal','calgary','ottawa','edmonton','winnipeg','quebec','hamilton','mississauga'];
+
+export const definition: ToolDefinition = {
+  name: 'search_municipal_data',
+  description: 'Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. Returns datasets from each city\'s open data portal.',
+  inputSchema: { type: 'object', properties: {
+    query: { type: 'string', description: 'Search terms (e.g., "budget", "transit", "crime", "permits")' },
+    city: { type: 'string', enum: CITIES, description: 'City to search (omit for all)' },
+    limit: { type: 'number', minimum: 1, maximum: 30, description: 'Results per city' },
+  }, required: ['query'] },
+};
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  const query = String(args.query ?? '').trim();
+  const city = (args.city as string) || '';
+  const limit = Math.min((args.limit as number) ?? 5, 30);
+  if (!query) return { content: { tool: 'search_municipal_data', error: 'No query' }, isError: true };
+
+  try {
+    const targets = city ? [city] : CITIES;
+    const results: Record<string, { total: number }> = {};
+    let totalAll = 0;
+    for (const c of targets) {
+      try { const r = await searchMunicipalData(c, query, limit); if (r.total > 0) { results[c] = { total: r.total }; totalAll += r.total; } } catch {}
+    }
+    return { content: { tool: 'search_municipal_data', query, cityFilter: city || undefined, citiesSearched: targets.length, citiesWithResults: Object.keys(results).length, results, totalResults: totalAll } };
+  } catch (error) {
+    return { content: { tool: 'search_municipal_data', error: (error as Error).message }, isError: true };
+  }
+};
