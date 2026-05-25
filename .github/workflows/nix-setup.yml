@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────
+# MapleSpike — Nix environment setup (reusable workflow)
+# Provides Nix packages for CI/CD on self-hosted NixOS runners.
+# 
+# Usage:
+#   jobs:
+#     test:
+#       runs-on: [self-hosted, nixos]
+#     steps:
+#       - uses: actions/checkout@v4
+#       - run: pnpm install --frozen-lockfile
+#       ...
+#
+# The self-hosted NixOS runner provides all tools via system packages:
+#   - node v24.x, pnpm, python3, kubectl, podman, gh, git, jq, age
+# No additional setup actions needed.
+# ─────────────────────────────────────────────────────────────────
+name: Nix Setup
+
+on:
+  workflow_call:
+
+jobs:
+  # Informational job — tools are already on the runner
+  show-tools:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - run: |
+          echo "## Nix Environment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Tool | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| node | $(node --version 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| pnpm | $(pnpm --version 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| python3 | $(python3 --version 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| kubectl | $(kubectl version --client -o json 2>/dev/null | python3 -c 'import sys,json; print(json.load(sys.stdin).get("clientVersion",{}).get("gitVersion","N/A"))' 2>/dev/null || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| podman | $(podman version 2>/dev/null | head -1 | awk '{print $2}' || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| gh | $(gh --version 2>/dev/null | head -1 | awk '{print $3}' || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
+          echo "| git | $(git --version 2>/dev/null | awk '{print $3}' || echo 'N/A') |" >> $GITHUB_STEP_SUMMARY
