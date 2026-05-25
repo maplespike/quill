@@ -1,6 +1,11 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # MCP Tools — Complete Reference
 
-The MapleSpike MCP server exposes **22 tools** for AI agents to query, search, and verify Canadian government data. All tools return real data from live databases with citations and quality metadata.
+The MapleSpike MCP server exposes **34 tools** for AI agents to query, search, and verify Canadian government data. All tools return real data from live databases with citations and quality metadata.
 
 ## Tool Categories
 
@@ -9,8 +14,13 @@ The MapleSpike MCP server exposes **22 tools** for AI agents to query, search, a
 | **Data Query** | `query_gov_data`, `fact_check`, `get_citation`, `latest_releases` |
 | **Parliamentary** | `search_committees`, `search_gazette`, `search_gic`, `search_elections` |
 | **Corporate & Influence** | `search_corporate`, `search_influence`, `search_provincial_lobbying` |
-| **Legal & Immigration** | `search_canlii`, `search_lmia`, `search_immigration`, `search_tribunals` |
-| **Oversight & Science** | `search_oversight`, `search_science` |
+| **Legal & Immigration** | `search_canlii`, `search_lmia`, `search_immigration`, `search_tribunals`, `search_criminal_justice` |
+| **Oversight & Science** | `search_oversight`, `search_science`, `search_health`, `searxng_health` |
+| **Defence & Veterans** | `search_defence`, `search_veterans` |
+| **Transport & Safety** | `search_transport_safety` |
+| **Indigenous Relations** | `search_indigenous_relations` |
+| **Media & Narratives** | `search_ngo_rss`, `search_narrative_tracker` |
+| **Knowledge Graph** | `search_knowledge_fabric`, `resolve_entity`, `find_connections` |
 | **Geospatial** | `search_lode` |
 | **AI Tools** | `ai_ask`, `ai_analyze`, `ai_search_semantic` |
 | **System** | `system_health` |

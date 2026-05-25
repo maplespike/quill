@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # SSE Transport Mode
 
 The MapleSpike MCP server supports **Server-Sent Events (SSE)** transport for hosted/cluster deployments. This enables AI agents to connect over HTTP instead of requiring local process execution.

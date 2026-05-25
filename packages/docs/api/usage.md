@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # GET /v1/usage
 
 View your current API usage statistics and quota information. This endpoint does not consume a credit.
