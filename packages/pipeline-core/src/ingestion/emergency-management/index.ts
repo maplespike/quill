@@ -152,7 +152,7 @@ export async function ingestEmergencyManagementRecords(
       }
     }
   } catch (err) {
-    result.errors.push(`${pascal} ingestion failed: ${(err as Error).message}`);
+    result.errors.push(`EmergencyManagement ingestion failed: ${(err as Error).message}`);
   }
 
   result.durationMs = Date.now() - startTime;

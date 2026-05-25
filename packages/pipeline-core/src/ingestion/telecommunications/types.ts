@@ -9,6 +9,11 @@ export interface TelecommunicationsRecord {
   url: string | null;
   publishedAt: string | null;
   ingestedAt: string;
+  provider?: string;
+  serviceType?: string;
+  revenue?: number | null;
+  subscribers?: number | null;
+  year?: number;
 }
 
 export interface RawTelecommunicationsRecord {

@@ -9,6 +9,11 @@ export interface PharmaceuticalsRecord {
   url: string | null;
   publishedAt: string | null;
   ingestedAt: string;
+  drugName?: string;
+  manufacturer?: string;
+  shortageDate?: string | null;
+  shortageReason?: string;
+  status?: string;
 }
 
 export interface RawPharmaceuticalsRecord {

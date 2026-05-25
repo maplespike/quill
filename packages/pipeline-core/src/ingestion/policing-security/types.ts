@@ -9,6 +9,12 @@ export interface PolicingSecurityRecord {
   url: string | null;
   publishedAt: string | null;
   ingestedAt: string;
+  // Structured crime data fields
+  geo?: string;
+  violations?: string;
+  statistics?: string;
+  value?: number | null;
+  year?: number;
 }
 
 export interface RawPolicingSecurityRecord {
@@ -17,6 +23,11 @@ export interface RawPolicingSecurityRecord {
   url?: string;
   publishedAt?: string;
   sourceSystem?: string;
+  geo?: string;
+  violations?: string;
+  statistics?: string;
+  value?: number | null;
+  year?: number;
   [key: string]: unknown;
 }
 

@@ -152,7 +152,7 @@ export async function ingestPolicingSecurityRecords(
       }
     }
   } catch (err) {
-    result.errors.push(`${pascal} ingestion failed: ${(err as Error).message}`);
+    result.errors.push(`PolicingSecurity ingestion failed: ${(err as Error).message}`);
   }
 
   result.durationMs = Date.now() - startTime;

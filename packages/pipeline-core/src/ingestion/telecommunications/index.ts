@@ -152,7 +152,7 @@ export async function ingestTelecommunicationsRecords(
       }
     }
   } catch (err) {
-    result.errors.push(`${pascal} ingestion failed: ${(err as Error).message}`);
+    result.errors.push(`Telecommunications ingestion failed: ${(err as Error).message}`);
   }
 
   result.durationMs = Date.now() - startTime;

@@ -1110,7 +1110,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'policing-security',
     description: 'Policing, intelligence & national security data — RCMP crime stats, CSIS reports, CSE advisories, CSC corrections',
-    category: 'security',
+    category: 'defence',
     modulePath: './policing-security/index.js',
     ingestFunctions: ['ingestPolicingSecurityRecords', 'searchPolicingSecurityRecords'],
     sources: [

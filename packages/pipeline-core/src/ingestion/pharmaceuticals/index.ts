@@ -152,7 +152,7 @@ export async function ingestPharmaceuticalsRecords(
       }
     }
   } catch (err) {
-    result.errors.push(`${pascal} ingestion failed: ${(err as Error).message}`);
+    result.errors.push(`Pharmaceuticals ingestion failed: ${(err as Error).message}`);
   }
 
   result.durationMs = Date.now() - startTime;

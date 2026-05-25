@@ -9,6 +9,11 @@ export interface EmergencyManagementRecord {
   url: string | null;
   publishedAt: string | null;
   ingestedAt: string;
+  disasterType?: string;
+  location?: string;
+  eventDate?: string | null;
+  estimatedCost?: number | null;
+  fatalities?: number | null;
 }
 
 export interface RawEmergencyManagementRecord {
