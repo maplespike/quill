@@ -245,3 +245,41 @@ export async function fetchInfrastructureCosts(query: string, limit = 10): Promi
     return { results: filtered.slice(0, limit), total: filtered.length };
   });
 }
+
+// ── Open Parliament: Extended Tools ────────────────────────────────
+
+export async function fetchParliamentVotes(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('votes', { query, limit }, async () => {
+    const json = await fetchJson<{ objects: Record<string, unknown>[] }>(
+      `https://api.openparliament.ca/votes/?limit=${limit}&format=json`,
+    );
+    const objects = json.objects ?? [];
+    return { results: query ? objects.filter((o: Record<string, unknown>) => JSON.stringify(o).toLowerCase().includes(query.toLowerCase())) : objects, total: objects.length };
+  });
+}
+
+export async function fetchParliamentCommittees(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('op_committees', { query, limit }, async () => {
+    const json = await fetchJson<{ objects: Record<string, unknown>[] }>(
+      `https://api.openparliament.ca/committees/?limit=${limit}&format=json`,
+    );
+    const objects = json.objects ?? [];
+    return { results: query ? objects.filter((o: Record<string, unknown>) => JSON.stringify(o).toLowerCase().includes(query.toLowerCase())) : objects, total: objects.length };
+  });
+}
+
+export async function fetchEntityCrossReference(name: string): Promise<{ mp: Record<string, unknown> | null; lobbyingRecords: number; gicAppointments: number; committeeMemberships: number; sources: string[] }> {
+  return cached('entity_xref', { name }, async () => {
+    const mpJson = await fetchJson<{ objects: Record<string, unknown>[] }>(
+      'https://api.openparliament.ca/politicians/?limit=5&format=json',
+    );
+    const mp = mpJson.objects?.find((o: Record<string, unknown>) => JSON.stringify(o).toLowerCase().includes(name.toLowerCase())) ?? null;
+    const lobbyJson = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(name + ' lobbying')}&rows=5`,
+    );
+    const gicJson = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(name + ' governor council appointment')}&rows=5`,
+    );
+    return { mp, lobbyingRecords: lobbyJson.result?.total ?? 0, gicAppointments: gicJson.result?.total ?? 0, committeeMemberships: 0, sources: ['openparliament.ca', 'ouvert.canada.ca'] };
+  });
+}
