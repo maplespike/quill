@@ -27,7 +27,16 @@ function cached<T>(tool: string, params: Record<string, unknown>, fn: () => Prom
   const key = cacheKey(tool, params);
   const cached = cacheGet<T>(key);
   if (cached) return Promise.resolve(cached);
-  return fn().then(result => { cacheSet(key, result, CACHE_TTL_MS); return result; });
+  return fn().then(result => {
+    // Auto-attach citation metadata for search results
+    if (result && typeof result === 'object' && 'results' in (result as any) && 'total' in (result as any)) {
+      const r = result as any;
+      const meta = { source: tool, retrievedAt: new Date().toISOString(), license: 'OGL-Canada (https://open.canada.ca/en/open-government-licence-canada)' };
+      result = { ...r, results: r.results.map((item: any) => ({ ...item, ...meta })), total: r.total };
+    }
+    cacheSet(key, result, CACHE_TTL_MS);
+    return result;
+  });
 }
 
 // ── Committees: open.canada.ca CKAN ───────────────────────────────
