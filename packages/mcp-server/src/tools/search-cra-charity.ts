@@ -1,0 +1,61 @@
+import type { ToolDefinition, ToolHandler } from './types.js';
+import { searchGovData } from './api-client.js';
+
+export const definition: ToolDefinition = {
+  name: 'search_cra_charity',
+  description:
+    'Search CRA (Canada Revenue Agency) registered charity T3010 data. ' +
+    'Covers detailed financials, directors, programs, and political activities ' +
+    'of every registered Canadian charity.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'Search terms — charity name, BN/registration number, or keyword (e.g., "United Way", "climate justice", "registered charity")',
+      },
+      limit: {
+        type: 'number',
+        description: 'Max results to return (default 20)',
+      },
+    },
+    required: ['query'],
+  },
+};
+
+export const handler: ToolHandler = async (args: Record<string, unknown>) => {
+  const query = String(args.query ?? '');
+  const limit = Number(args.limit ?? 20);
+
+  if (!query.trim()) {
+    return {
+      content: {
+        tool: 'search_cra_charity',
+        query: '',
+        error: 'No search query provided. Try a charity name, registration number, or keyword.',
+      },
+      isError: true,
+    };
+  }
+
+  try {
+    const result = await searchGovData(query, 'all', limit);
+    return {
+      content: {
+        tool: 'search_cra_charity',
+        query,
+        limit,
+        ...result,
+      },
+    };
+  } catch (err) {
+    return {
+      content: {
+        tool: 'search_cra_charity',
+        query,
+        error: err instanceof Error ? err.message : 'Unknown error',
+      },
+      isError: true,
+    };
+  }
+};
