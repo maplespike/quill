@@ -31,6 +31,11 @@ import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchHealth from './search-health.js';
 import * as searxngHealth from './searxng-health.js';
 import * as knowledgeFabric from './search-knowledge-fabric.js';
+import * as searchFederalBudget from './search-federal-budget.js';
+import * as searchLegislation from './search-legislation.js';
+import * as searchCraCharity from './search-cra-charity.js';
+import * as searchCorporateFilings from './search-corporate-filings.js';
+import * as searchGocSpending from './search-goc-spending.js';
 
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
@@ -70,11 +75,16 @@ export function getAllTools(): ToolModule[] {
     searchTribunals,
     searchLode,
     searchVeterans,
-  searchNgoRss,
-  searchNarrativeTracker,
-  searchHealth,
-  searxngHealth,
-  knowledgeFabric,
+    searchNgoRss,
+    searchNarrativeTracker,
+    searchHealth,
+    searxngHealth,
+    knowledgeFabric,
+    searchFederalBudget,
+    searchLegislation,
+    searchCraCharity,
+    searchCorporateFilings,
+    searchGocSpending,
 
   aiAsk,
     aiAnalyze,
