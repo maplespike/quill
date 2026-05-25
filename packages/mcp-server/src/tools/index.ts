@@ -8,6 +8,7 @@ import * as aiAsk from './ai-ask.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
 import * as cacheClear from './cache-clear.js';
 import * as cacheStatus from './cache-status.js';
+import * as exploreCatalog from './explore-catalog.js';
 import * as factCheck from './fact-check.js';
 import * as findConnections from './find-connections.js';
 import * as getCitation from './get-citation.js';
@@ -100,6 +101,7 @@ export function getAllTools(): ToolModule[] {
     aiSearchSemantic,
     cacheClear,
     cacheStatus,
+    exploreCatalog,
     factCheck,
     findConnections,
     getCitation,
