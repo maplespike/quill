@@ -225,6 +225,24 @@ ROUTES.push({
   }) as unknown as RouteHandler,
 });
 
+// Engine status route — check if engine has run and data is available
+import { engineStatusHandler } from './routes/engine-status.js';
+ROUTES.push({
+  pattern: /^\/v1\/engine\/status\/?$/,
+  method: 'GET',
+  params: [],
+  handler: engineStatusHandler,
+});
+
+// Engine run route — trigger engine orchestrator
+import { engineRunHandler } from './routes/engine-run.js';
+ROUTES.push({
+  pattern: /^\/v1\/engine\/run\/?$/,
+  method: 'POST',
+  params: [],
+  handler: engineRunHandler,
+});
+
 function matchRoute(url: string, method: string): { route: Route; params: Record<string, string> } | null {
   const pathname = new URL(url, 'http://localhost').pathname;
 
@@ -303,6 +321,7 @@ export async function handleRequest(
     || route.handler === githubCallbackHandler
     || route.handler === refreshTokenHandler
     || route.handler === logoutHandler
+    || route.handler === engineStatusHandler
     // Generic OAuth entry points
     || route.handler === oauthProvidersHandler
     || route.handler === oauthLoginHandler
