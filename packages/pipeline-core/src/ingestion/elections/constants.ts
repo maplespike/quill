@@ -50,11 +50,11 @@ export const ELECTIONS_SOURCES = {
   /** open.canada.ca CKAN known package IDs for third-party data */
   KNOWN_PACKAGES: {
     /** Third Party Advertising — Election Advertising Reports */
-    THIRD_PARTY_ADVERTISING: 'e4a5e4e0-5b2c-4f6c-9b0a-3b8c5d6e7f8a',
+    THIRD_PARTY_ADVERTISING: 'ef1e3528-b570-4a42-92ef-18a9749af8f2',
     /** Political Financing data — may contain third-party spending */
-    POLITICAL_FINANCING: 'f6b7c8d9-e0f1-2345-6789-abcdef012345',
+    POLITICAL_FINANCING: 'c6a5d285-7c8a-4c33-a56b-a4adb360d6fd',
     /** Elections Canada financial returns — broader dataset */
-    FINANCIAL_RETURNS: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    FINANCIAL_RETURNS: '6495ea57-3824-48f0-a2b2-88477122a286',
   },
 } as const;
 

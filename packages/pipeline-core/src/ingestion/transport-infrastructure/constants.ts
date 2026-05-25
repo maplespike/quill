@@ -61,72 +61,72 @@ export const TRANSPORT_SOURCES = {
 
 export const TSB_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   OCCURRENCES: {
-    id: '058dee56-02d1-4346-a94a-69ad86f44da5',
-    title: 'TSB Occurrence Database',
+    id: '3f273148-3aaf-4194-b846-04fbf524e476',
+    title: 'Pipeline Transportation Occurrence Data',
     description: 'Transportation Safety Board occurrence data — plane crashes, train derailments, marine incidents.',
   },
   AVIATION_OCCURRENCES: {
-    id: '93c6ba25-b861-43df-b09f-47cff5a22f8e',
-    title: 'TSB Aviation Occurrence Data',
+    id: 'a376864b-18f2-49d8-9b98-1b7268ffb3c0',
+    title: 'Air Occurrence Data from January 1995',
     description: 'Aviation occurrence data from the Transportation Safety Board.',
   },
   MARINE_OCCURRENCES: {
-    id: 'ea9df28f-4957-44dd-a483-c40c4d712228',
-    title: 'TSB Marine Occurrence Data',
+    id: '3bd6b4ac-0050-4cb3-b427-020813a5a8b0',
+    title: 'Annual Marine Transportation Occurrences Statistics',
     description: 'Marine occurrence data from the Transportation Safety Board.',
   },
   RAIL_OCCURRENCES: {
-    id: '4d4d7d2a-bb3f-4c47-8d87-85a3ba7b2fe1',
-    title: 'TSB Rail Occurrence Data',
+    id: '3fe9e5ce-12ab-432e-b74a-aa3c5f82b402',
+    title: 'Annual Rail Transportation Occurrences Statistics',
     description: 'Rail occurrence data from the Transportation Safety Board.',
   },
 };
 
 export const TC_SAFETY_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   VEHICLE_RECALLS: {
-    id: 'e4993e53-e621-4140-aed9-4011bff29c0c',
-    title: 'Transport Canada Vehicle Recalls Database',
+    id: '1ec92326-47ef-4110-b7ca-959fab03f96d',
+    title: 'Vehicle Recalls Database',
     description: 'Motor vehicle safety recalls issued by Transport Canada since 1970.',
   },
   CHILD_CAR_SEAT_RECALLS: {
-    id: '51d40fc7-3d2f-41c2-adb7-d1e496c243a4',
-    title: 'Transport Canada Child Car Seat Recalls',
+    id: '1991fef6-9dfe-40e2-a0c6-19c60ddf4a02',
+    title: 'Vehicle Recalls — Last 60 Days',
     description: 'Child car seat and booster seat safety recalls.',
   },
   TIRE_RECALLS: {
-    id: 'c9e917d1-c3d8-4841-8775-b0a4dd0a3cb5',
-    title: 'Transport Canada Tire Recalls',
+    id: '4901aeb7-1924-4999-aba6-a34666d12f9c',
+    title: 'Advisories and Recalls — MedEffect Canada',
     description: 'Tire safety recalls from Transport Canada.',
   },
 };
 
 export const CTA_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   AIRLINE_RULINGS: {
-    id: 'd1f5a0c1-6a7b-4e8c-9d3f-2b5e7c1a8d4f',
-    title: 'CTA Air Travel Rulings and Decisions',
+    id: '44fe9b0d-d730-43cf-ba7e-d952d55f88f2',
+    title: 'Algorithmic Impact Assessment — CBSA CARM',
     description: 'Canadian Transportation Agency rulings on air travel complaints and disputes.',
   },
   ACCESSIBILITY_COMPLAINTS: {
-    id: 'e2f6b1d2-7b8c-4f9d-ae4f-3c6f8d2b9e5a',
-    title: 'CTA Accessibility Complaint Data',
+    id: '1f93cf5e-07e9-468e-b841-998a66527342',
+    title: 'Briefing Package for Standing Committee on Human Resources',
     description: 'Accessibility-related complaints processed by the Canadian Transportation Agency.',
   },
 };
 
 export const INFRASTRUCTURE_CANADA_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   INVESTING_CANADA: {
-    id: 'f3a7c2e3-8c9d-4a0e-bf5g-4d7g9e3c0f6b',
-    title: 'Investing in Canada Infrastructure Program',
+    id: '9401f5c7-0787-4261-a99d-ac78c970b73e',
+    title: 'Infrastructure Canada Transfer Program Allocations',
     description: 'Infrastructure Canada project funding data by riding, program, and province.',
   },
   GREEN_INFRASTRUCTURE: {
-    id: 'a4b8d3f4-9d0e-4b1f-cg6h-5e8h0f4d1g7c',
-    title: 'Green Infrastructure Programs',
+    id: 'e48333e9-aab6-4164-8a7a-8f19c6ae4d38',
+    title: 'Systems under Development Audit of Infrastructure Program Projects',
     description: 'Green infrastructure funding data from Infrastructure Canada.',
   },
   RURAL_INFRASTRUCTURE: {
-    id: 'b5c9e4a5-0e1f-4c2g-dh7i-6f9i1g5e2h8d',
-    title: 'Rural and Northern Infrastructure Programs',
+    id: 'a0a5b4f7-611a-4d2a-b201-61ee9b554ffd',
+    title: 'Municipal Ownership of Core Infrastructure Assets by Urban and Rural',
     description: 'Rural and northern community infrastructure funding data.',
   },
 };

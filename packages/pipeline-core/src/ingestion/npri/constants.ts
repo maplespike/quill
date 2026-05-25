@@ -41,8 +41,8 @@ export const NPRI_SOURCES = {
 /* ------------------------------------------------------------------ */
 
 export const NPRI_CKAN_PACKAGE_IDS: Record<string, string> = {
-  NPRI_FACILITY_SUBSTANCE: '7a5d0d1e-3c0a-4b9e-b8c2-7e1f2a3b4c5d',
-  NPRI_SUBSTANCE_SUMMARIES: '9b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+  NPRI_FACILITY_SUBSTANCE: '7f9d942b-20dd-4c92-acbb-bfa04d7c294e',
+  NPRI_SUBSTANCE_SUMMARIES: 'ea0dc8ae-d93c-4e24-9f61-946f1736a26f',
 };
 
 /* ------------------------------------------------------------------ */
