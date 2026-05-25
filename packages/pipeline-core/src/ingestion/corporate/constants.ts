@@ -30,16 +30,16 @@ export const CORPORATE_SOURCES = {
     SOSA: 'https://canadabuys.canada.ca/en/standing-offers-and-supply-arrangements',
     /** Contract History (buyandsell legacy) */
     CONTRACT_HISTORY: 'https://buyandsell.gc.ca/procurement-data',
-    /** Open Canada dataset (proactive disclosure) */
-    OPEN_DATA: 'https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948',
+  /** Open Canada dataset (proactive disclosure) */
+  OPEN_DATA: 'https://open.canada.ca/data/en/dataset/d8f85d91-7dec-4fd1-8055-483b77225d8b',
     RSS_FEED: 'https://canadabuys.canada.ca/notices/rss',
   },
 
   /** Corporations Canada */
   CORPORATIONS: {
     BASE: 'https://ised-isde.canada.ca/cc/lc/gcrecherche-recherche.html',
-    /** Open Data — federal corporations dataset */
-    OPEN_DATA: 'https://open.canada.ca/data/en/dataset/7d315c6d-5993-4b2d-93ef-bccfd20c2645',
+  /** Open Data — federal corporations dataset */
+  OPEN_DATA: 'https://open.canada.ca/data/en/dataset/0032ce54-c5dd-4b66-99a0-320a7b5e99f2',
   },
 
   /** Open Canada CKAN search templates */
