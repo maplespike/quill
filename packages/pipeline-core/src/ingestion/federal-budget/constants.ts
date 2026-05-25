@@ -85,23 +85,21 @@ export const BUDGET_SOURCES = {
  */
 export const BUDGET_CKAN_PACKAGE_IDS = {
   /** Federal Budget 2023 */
-  BUDGET_2023: '0e66ab09-99cf-4356-9a07-694f81837ff8',
+  BUDGET_2023: 'b29d0131-33ac-4499-9fe9-598ccf103217',
   /** Federal Budget 2024 */
-  BUDGET_2024: '3b0d22f8-e8d1-472b-8b5b-bbccaa431aa7',
+  BUDGET_2024: '94ca1f06-d184-4e80-81fe-9c5a5645c11c',
   /** Federal Budget 2025 */
-  BUDGET_2025: '3e1f4f4e-2e66-4a23-bb86-1c9c8e72a45b',
-  /** Public Accounts of Canada 2023 */
-  PUBLIC_ACCOUNTS_2023: 'aae5a1b5-a11e-4dfd-a251-946a16c845f2',
-  /** Public Accounts of Canada 2024 */
-  PUBLIC_ACCOUNTS_2024: '9a98a522-eec5-4a19-afac-5b8ad34a28a0',
-  /** Fiscal Reference Tables */
-  FISCAL_REFERENCE_TABLES: '84873541-65e6-4115-87a9-073007504568',
+  BUDGET_2025: '74d8b323-6bd8-4fc0-a971-8fbbed2350cf',
+  /** Public Accounts of Canada (single CKAN dataset) */
+  PUBLIC_ACCOUNTS: '350b4f13-d84a-4e94-b221-1109dc00ab39',
+  /** Fiscal Reference Tables (closest CKAN entry — 2010 tables; current FRT published on fin.gc.ca) */
+  FISCAL_REFERENCE_TABLES: '6a962654-72c6-4130-ba48-83e65042d66f',
   /** Fiscal Monitor data tables */
-  FISCAL_MONITOR_DATA: '58c9e0c9-9bf0-4edd-90f2-c72a30dcc56e',
-  /** Departmental Plans (GC InfoBase dump) */
-  DEPARTMENTAL_PLANS: '21cfb56f-1ba5-4074-9c0a-81918320e672',
-  /** Departmental Results Reports */
-  DEPARTMENTAL_RESULTS: '3f910023-7e82-4c1e-9adc-4e718333851e',
+  FISCAL_MONITOR_DATA: '7680320b-c837-4b67-b73f-9361c4a9716d',
+  /** GC InfoBase — Departmental Plans and Results Reports */
+  DEPARTMENTAL_PLANS: 'b15ee8d7-2ac0-4656-8330-6c60d085cda8',
+  /** Departmental Results Reports (2017-18) */
+  DEPARTMENTAL_RESULTS: '5cbebf5f-ea26-4e43-a764-72e6a668935b',
 } as const;
 
 export type BudgetCkanPackageId = keyof typeof BUDGET_CKAN_PACKAGE_IDS;

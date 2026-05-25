@@ -13,16 +13,16 @@ export const DND_DATASETS: Record<string, { id: string; title: string; descripti
     url: 'https://open.canada.ca/data/en/dataset/460aa2e0-5a37-47cf-a858-98b4327d29de',
   },
   CIVILIAN_PERSONNEL: {
-    id: '72c8bbf1-3a22-4510-8bc4-28c3c5e38838',
+    id: '881a781c-8247-4990-b7e7-1d99317bd4b2',
     title: 'DND Civilian Personnel by Classification',
     description: 'DND civilian employee counts by classification group and tenure.',
-    url: 'https://open.canada.ca/data/en/dataset/72c8bbf1-3a22-4510-8bc4-28c3c5e38838',
+    url: 'https://open.canada.ca/data/en/dataset/881a781c-8247-4990-b7e7-1d99317bd4b2',
   },
   DEFENCE_PROCUREMENT: {
-    id: 'd4c13b9a-2e1c-4f5d-9b7a-8e3f6c2a1b4d', // proactive disclosure procurement
+    id: 'cd84dfb1-5129-4bd6-a063-0e4f0e2c3f66',
     title: 'Defence Procurement Contracts',
     description: 'DND contracts over $10K from proactive disclosure.',
-    url: 'https://open.canada.ca/data/en/dataset/proactive-disclosure',
+    url: 'https://open.canada.ca/data/en/dataset/cd84dfb1-5129-4bd6-a063-0e4f0e2c3f66',
   },
 };
 

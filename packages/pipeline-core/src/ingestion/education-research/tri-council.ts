@@ -8,9 +8,9 @@
  * resources containing recipient, amount, program, and project details.
  *
  * Sources:
- *   - CIHR:  https://open.canada.ca/data/dataset/0a76d7f9-b406-4c9c-8fd8-13c441ae375a
- *   - NSERC: https://open.canada.ca/data/dataset/f85f71e0-3cc5-43b1-a9e4-11f29f90c33c
- *   - SSHRC: https://open.canada.ca/data/dataset/f0e25a8a-7a3f-4470-8ef0-d0b5e6e8c5ef
+ * - CIHR: https://open.canada.ca/data/dataset/49edb1d7-5cb4-4fa7-897c-515d1aad5da3
+ * - NSERC: https://open.canada.ca/data/dataset/c1b0f627-8c29-427c-ab73-33968ad9176e
+ * - SSHRC: https://open.canada.ca/data/dataset/b4e2b302-9bc6-4b33-b880-6496f8cef0f1
  */
 
 import { httpGet } from '../../utils/http.js';
