@@ -16,13 +16,13 @@ export const PROVINCIAL_CKAN: Record<string, string> = {
   BC: 'https://catalogue.data.gov.bc.ca/api/3/action',
   AB: 'https://open.alberta.ca/api/3/action',
   SK: 'https://catalogue.saskatchewan.ca/api/3/action',
-  MB: 'https://data.gov.mb.ca/api/3/action',
+  MB: 'https://web2.gov.mb.ca/api/3/action',
   QC: 'https://www.donneesquebec.ca/recherche/api/3/action',
   NB: 'https://www.snb.ca/api/3/action',
   NS: 'https://data.novascotia.ca/api/3/action',
   PE: 'https://data.princeedwardisland.ca/api/3/action',
   NL: 'https://opendata.gov.nl.ca/api/3/action',
-  YT: 'https://data.yukon.ca/api/3/action',
+  YT: 'https://open.yukon.ca/api/3/action',
 };
 
 /** Key regulatory categories to search for in CKAN portals */
