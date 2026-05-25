@@ -395,4 +395,68 @@ describe('Response shapes', () => {
       } catch {}
     });
   });
+
+  // ── Optimization: Cache ──
+
+  describe('optimization cache', () => {
+    it('cache set and get works', async () => {
+      const { cacheSet, cacheGet, cacheClear } = await import('../optimization/cache.js');
+      cacheClear();
+      cacheSet('test-key', { foo: 'bar' });
+      const result = cacheGet<{ foo: string }>('test-key');
+      assert.notEqual(result, null);
+      assert.equal(result?.foo, 'bar');
+    });
+
+    it('cache miss returns null', async () => {
+      const { cacheGet, cacheClear } = await import('../optimization/cache.js');
+      cacheClear();
+      const result = cacheGet('nonexistent');
+      assert.equal(result, null);
+    });
+
+    it('cache stats are accurate', async () => {
+      const { cacheSet, cacheGet, cacheStats, cacheClear } = await import('../optimization/cache.js');
+      cacheClear();
+      cacheSet('a', 1);
+      cacheGet('a'); // hit
+      cacheGet('b'); // miss
+      const stats = cacheStats();
+      assert.equal(stats.hits, 1);
+      assert.equal(stats.misses, 1);
+      assert.equal(stats.hitRate, 0.5);
+    });
+
+    it('cacheKey generates deterministic keys', async () => {
+      const { cacheKey } = await import('../optimization/cache.js');
+      const k1 = cacheKey('test_tool', { a: 1, b: 2 });
+      const k2 = cacheKey('test_tool', { b: 2, a: 1 });
+      assert.equal(k1, k2);
+    });
+  });
+
+  // ── Optimization: Limiter ──
+
+  describe('optimization limiter', () => {
+    it('applyLimit respects requested limit', async () => {
+      const { applyLimit } = await import('../optimization/limiter.js');
+      const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      const result = applyLimit(data, 3);
+      assert.equal(result.length, 3);
+    });
+
+    it('applyLimit caps at ABSOLUTE_MAX', async () => {
+      const { applyLimit } = await import('../optimization/limiter.js');
+      const data = new Array(2000).fill(0);
+      const result = applyLimit(data, 5000);
+      assert.ok(result.length <= 1000);
+    });
+
+    it('validateLimit returns null for invalid input', async () => {
+      const { validateLimit } = await import('../optimization/limiter.js');
+      assert.equal(validateLimit(-1), null);
+      assert.equal(validateLimit(0), null);
+      assert.equal(validateLimit('abc'), null);
+    });
+  });
 });

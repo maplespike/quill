@@ -40,6 +40,9 @@ import * as systemHealth from './system-health.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as findConnections from './find-connections.js';
 
+import * as cacheStatus from './cache-status.js';
+import * as cacheClear from './cache-clear.js';
+
 export interface ToolModule {
   definition: ToolDefinition;
   handler: ToolHandler;
@@ -70,11 +73,11 @@ export function getAllTools(): ToolModule[] {
     searchTribunals,
     searchLode,
     searchVeterans,
-  searchNgoRss,
-  searchNarrativeTracker,
-  searchHealth,
-  searxngHealth,
-  knowledgeFabric,
+    searchNgoRss,
+    searchNarrativeTracker,
+    searchHealth,
+    searxngHealth,
+    knowledgeFabric,
 
   aiAsk,
     aiAnalyze,
@@ -83,6 +86,9 @@ export function getAllTools(): ToolModule[] {
 
     resolveEntity,
     findConnections,
+
+    cacheStatus,
+    cacheClear,
   ];
 }
 
