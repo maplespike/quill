@@ -1,12 +1,14 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import * as api from './api-client.js';
+import { cacheStats } from '../optimization/cache.js';
 
 export const definition: ToolDefinition = {
   name: 'system_health',
   description:
     'Check the MapleSpike API service health. Returns service status, ' +
     'version, environment, tenant tier, current API call usage (daily/monthly), ' +
-    'and per-dependency health checks (API server, storage, cache) with response times. ' +
+    'per-dependency health checks (API server, storage, cache) with response times, ' +
+    'and query optimization statistics (cache hit rate, result limits). ' +
     'Use this to verify the API is responding and to check your quota.',
   inputSchema: {
     type: 'object',
@@ -18,6 +20,7 @@ export const handler: ToolHandler = async () => {
   try {
     const health = await api.getHealth();
     const usage = await api.getUsage();
+    const optStats = cacheStats();
 
     return {
       content: {
@@ -32,6 +35,14 @@ export const handler: ToolHandler = async () => {
           monthly: health.usage.monthly,
           periodCalls: usage.periodCalls,
           periodLimit: usage.periodLimit,
+        },
+        optimization: {
+          cacheSize: optStats.size,
+          cacheHits: optStats.hits,
+          cacheMisses: optStats.misses,
+          cacheHitRate: Math.round(optStats.hitRate * 100),
+          maxResultsLimit: 200,
+          absoluteMax: 1000,
         },
         dependencies: health.dependencies,
         timestamp: health.timestamp,
