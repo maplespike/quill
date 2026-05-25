@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # Billing & Rate Limits
 
 MapleSpike offers tiered pricing for different usage levels. Rate limits and monthly quotas vary by tier.

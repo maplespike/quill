@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # Mock Mode (`_mock=true`)
 
 MapleSpike includes a mock data mode for development, testing, and demonstration purposes. Append `_mock=true` to any API endpoint to receive curated sample data instead of live queries.
