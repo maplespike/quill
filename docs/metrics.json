@@ -12,7 +12,7 @@
     "description": "95 MCP tool definitions registered in tools/index.ts"
   },
   "typescript": {
-    "totalLines": 139554,
+    "totalLines": 139588,
     "totalFiles": 816,
     "packages": 12,
     "perPackage": {
@@ -42,7 +42,7 @@
       },
       "mcp-server": {
         "files": 115,
-        "lines": 10434
+        "lines": 10468
       },
       "pipeline-core": {
         "files": 570,
