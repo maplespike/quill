@@ -9,10 +9,11 @@ on:
   push:
     branches: [prod]
     paths:
-      - 'packages/**'
-      - 'Dockerfile.*'
-      - 'k8s/**'
-      - '.github/workflows/deploy-prod.yml'
+    - 'packages/**'
+    - 'flake.nix'
+    - 'flake.lock'
+    - 'k8s/**'
+    - '.github/workflows/deploy-prod.yml'
 
 concurrency:
   group: deploy-prod-${{ github.ref }}
@@ -74,29 +75,35 @@ jobs:
           echo "${{ env.REGISTRY_PASS }}" | \
             podman login ${{ env.REGISTRY }} -u ${{ env.REGISTRY_USER }} --password-stdin
 
-      - name: Build & push API (prod)
+      - name: Build & push API (prod) — Nix
         run: |
-          podman build -f Dockerfile.api -t ghcr.io/reverb256/maplespike/maplespike-api:latest .
-          podman tag ghcr.io/reverb256/maplespike/maplespike-api:latest ghcr.io/reverb256/maplespike/maplespike-api:stable
-          podman tag ghcr.io/reverb256/maplespike/maplespike-api:latest ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
+          nix build .#maplespike-api-image -L
+          podman load < result
+          podman tag maplespike-api:latest ghcr.io/reverb256/maplespike/maplespike-api:latest
+          podman tag maplespike-api:latest ghcr.io/reverb256/maplespike/maplespike-api:stable
+          podman tag maplespike-api:latest ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
           podman push ghcr.io/reverb256/maplespike/maplespike-api:latest
           podman push ghcr.io/reverb256/maplespike/maplespike-api:stable
           podman push ghcr.io/reverb256/maplespike/maplespike-api:${{ github.sha }}
 
-      - name: Build & push MCP (prod)
+      - name: Build & push MCP (prod) — Nix
         run: |
-          podman build -f Dockerfile.mcp -t ghcr.io/reverb256/maplespike/maplespike-mcp:latest .
-          podman tag ghcr.io/reverb256/maplespike/maplespike-mcp:latest ghcr.io/reverb256/maplespike/maplespike-mcp:stable
-          podman tag ghcr.io/reverb256/maplespike/maplespike-mcp:latest ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
+          nix build .#maplespike-mcp-image -L
+          podman load < result
+          podman tag maplespike-mcp:latest ghcr.io/reverb256/maplespike/maplespike-mcp:latest
+          podman tag maplespike-mcp:latest ghcr.io/reverb256/maplespike/maplespike-mcp:stable
+          podman tag maplespike-mcp:latest ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
           podman push ghcr.io/reverb256/maplespike/maplespike-mcp:latest
           podman push ghcr.io/reverb256/maplespike/maplespike-mcp:stable
           podman push ghcr.io/reverb256/maplespike/maplespike-mcp:${{ github.sha }}
 
-      - name: Build & push Portal (prod)
+      - name: Build & push Portal (prod) — Nix
         run: |
-          podman build -f Dockerfile.portal -t ghcr.io/reverb256/maplespike/maplespike-portal:latest .
-          podman tag ghcr.io/reverb256/maplespike/maplespike-portal:latest ghcr.io/reverb256/maplespike/maplespike-portal:stable
-          podman tag ghcr.io/reverb256/maplespike/maplespike-portal:latest ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
+          nix build .#maplespike-portal-image -L
+          podman load < result
+          podman tag maplespike-portal:latest ghcr.io/reverb256/maplespike/maplespike-portal:latest
+          podman tag maplespike-portal:latest ghcr.io/reverb256/maplespike/maplespike-portal:stable
+          podman tag maplespike-portal:latest ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
           podman push ghcr.io/reverb256/maplespike/maplespike-portal:latest
           podman push ghcr.io/reverb256/maplespike/maplespike-portal:stable
           podman push ghcr.io/reverb256/maplespike/maplespike-portal:${{ github.sha }}
