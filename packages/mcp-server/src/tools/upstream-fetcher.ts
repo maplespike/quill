@@ -307,3 +307,24 @@ export async function fetchSocrataDataset(domain: string, datasetId: string, lim
   const json = await fetchJson<Array<Record<string, unknown>>>(`${base}/resource/${datasetId}.json?$limit=${limit}`);
   return { results: json ?? [], total: (json ?? []).length };
 }
+
+// ── Provincial Data: Socrata + CKAN unified ──────────────────────
+
+export async function fetchProvincialData(province: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  const { searchCkan } = await import('./upstream-fetcher.js');
+  const prov = province.toLowerCase();
+  if (prov === 'ns' || prov === 'novascotia') {
+    try {
+      const r = await searchSocrata('novascotia', query, limit);
+      if (r.total > 0) return r;
+    } catch {}
+  }
+  if (prov === 'nb' || prov === 'newbrunswick') {
+    try {
+      const r = await searchSocrata('newbrunswick', query, limit);
+      if (r.total > 0) return r;
+    } catch {}
+  }
+  // Fallback to CKAN for this province
+  return searchCkan(query + ' ' + province, limit);
+}
