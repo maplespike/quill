@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # What Is MapleSpike?
 
 MapleSpike is **Canada's sovereign, AI-native government data pipeline**. It ingests, verifies, curates, and surfaces Canadian government data through a unified REST API, MCP server, and TypeScript SDK.
@@ -12,7 +17,7 @@ Canada's open data ecosystem is fragmented. Developers and journalists navigate 
 
 ## Data Sources
 
-MapleSpike ingests from **65+ data modules** covering every major category of Canadian government information:
+MapleSpike ingests from **88+ data modules** covering every major category of Canadian government information:
 
 | Category | Modules |
 |----------|---------|
@@ -42,7 +47,7 @@ K3s Cluster (nginx)
   └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
 
 K3s Cluster (nexus)
-  ├── MCP server (SSE, port 3001) ── 22 tools, all live
+  ├── MCP server (SSE, port 3001) ── 34 tools, all live
   ├── API server (REST, Bearer auth, rate limits)
   │     ├── SQLite (keys, usage, audit)
   │     ├── In-memory cache (node-cache)
@@ -54,19 +59,19 @@ K3s Cluster (nexus)
 
 | Method | Description | Best For |
 |--------|-------------|----------|
-| **MCP Server** | 22 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
+| **MCP Server** | 34 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
 | **REST API** | HTTP endpoints at `/v1/*` with Bearer auth | Scripts, apps, direct integration |
 | **TypeScript SDK** | `@maplespike/sdk` — typed client for all modules | Node.js/TypeScript projects |
 | **CLI** | Run the MCP server locally via stdio | Local development |
 
 ## Status
 
-- **65 ingestion modules** — ~113K lines of TypeScript
-- **22 MCP tools** — all live and returning real data
+- **88 ingestion modules** — ~131K lines of TypeScript
+- **34 MCP tools** — all live and returning real data
 - **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
 - **1,141+ unique external endpoints** consumed across all modules
 - **19 cities** with direct open data fetchers; **3,490+** via federation
-- **11 packages** — compile clean with full CI/CD pipeline
+- **12 packages** — compile clean with full CI/CD pipeline
 
 ## Attribution
 

@@ -6,7 +6,7 @@ status: active
 # AGENTS.md — MapleSpike
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 65 modules, 24 MCP tools, ~115K lines TS, 10 packages.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 88 modules, 34 MCP tools, ~131K lines TS, 12 packages.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
@@ -19,7 +19,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | Type | pnpm monorepo (pnpm@10.32.1) |
 | Orchestrator | Turbo (workspace config in `turbo.json`) |
 | Node | ≥18 (CI uses 22) |
-| Packages | 11 in `packages/*` |
+| Packages | 12 in `packages/*` |
 | TS | strict mode, ES2022 target, ESNext modules (bundler resolution) |
 | No ESLint/Prettier | Match existing code style |
 | npm scope | `@maplespike/` |

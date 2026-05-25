@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # Quickstart
 
 A 5-minute walkthrough to get data from MapleSpike using curl and MCP.

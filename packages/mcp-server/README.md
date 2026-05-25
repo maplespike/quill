@@ -5,9 +5,9 @@ status: active
 
 # MapleSpike MCP Server
 
-Model Context Protocol server for Canadian government data. Provides **22 tools** for AI agents to query, search, and verify Canadian government information. All tools return real data from the SQLite database with live-fetch fallbacks.
+Model Context Protocol server for Canadian government data. Provides **34 tools** for AI agents to query, search, and verify Canadian government information. All tools return real data from the SQLite database with live-fetch fallbacks.
 
-> **Status:** All 22 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
+> **Status:** All 34 tools wired and returning real data. See [ROADMAP.md](../../ROADMAP.md) for the build plan.
 
 - **Package:** `@maplespike/mcp-server`
 - **Transport:** stdio (local) or SSE (hosted)
@@ -34,7 +34,7 @@ npm run start:sse
 # → http://localhost:3001/sse
 ```
 
-## Tools — All 22 Live
+## Tools — All 34 Live
 
 | Tool | Description | Input |
 |------|-------------|-------|
@@ -60,6 +60,18 @@ npm run start:sse
 | `ai_analyze` | AI-powered data analysis | data, analysis_type |
 | `ai_search_semantic` | Semantic search across datasets | query, limit |
 | `system_health` | System health and usage metrics | — |
+| `search_criminal_justice` | CSC prison stats, Parole Board, RCMP crime data | query, source, year, limit |
+| `search_defence` | DND personnel, defence procurement, VAC services | query, source, limit |
+| `search_health` | CIHI wait times, PHAC disease, CFIA recalls, drug shortages | query, category, limit |
+| `search_indigenous_relations` | CIRNAC claims, ISC transparency, TRC Calls to Action | query, source, limit |
+| `search_knowledge_fabric` | Vector knowledge base deep research with citations | query, file_back |
+| `search_ngo_rss` | NGO/think tank publications from 30+ organizations | query, limit |
+| `search_transport_safety` | TSB occurrences, TC recalls, Infrastructure Canada | query, source, year, limit |
+| `search_veterans` | VAC benefits, disability claims, wait times | query, limit |
+| `ngo_narrative_tracker` | Narrative alignment and coordinated messaging analysis | organization, topic, timeframe, narrative_type, limit |
+| `searxng_health` | SearXNG search engine health monitoring | checkEngines, maxResults |
+| `resolve_entity` | Cross-module entity resolution (person/org/location) | query, entity_type, confidence_threshold |
+| `find_connections` | Relationship graph between entities | entity_id, relationship_type, max_depth |
 
 ## Claude Desktop Configuration
 
@@ -98,7 +110,7 @@ Add to your `claude_desktop_config.json`:
 └────────────┘     └──────────────────┘     └──────────────┘
 ```
 
-All 22 tools return real data from the SQLite database. When the database is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
+All 34 tools return real data from the SQLite database. When the database is unavailable, tools fall back to live HTTP fetching from upstream Canadian government APIs.
 
 ## License
 

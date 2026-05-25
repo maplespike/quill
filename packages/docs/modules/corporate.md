@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-05-25
+status: active
+---
+
 # Corporate & Lobbying Module
 
 The corporate module ingests federal lobbying registry data, procurement contracts, corporate filings, and executive statements. It powers the `search_corporate` MCP tool and cross-references with influence tracking.
