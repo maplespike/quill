@@ -87,7 +87,7 @@
         };
 
       in {
-        packages = {
+        packages = rec {
           default = self.packages.${system}.maplespike-mcp-image;
 
           maplespike-mcp-image = mkImage {
@@ -195,9 +195,64 @@
           '';
         };
 
-        apps.default = {
-          type = "app";
-          program = "${pnpm}/bin/pnpm";
+        apps = {
+          default = {
+            type = "app";
+            program = "${pnpm}/bin/pnpm";
+          };
+
+          build = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "maplespike-build" ''
+              set -euo pipefail
+              pnpm build
+            ''}/bin/maplespike-build";
+          };
+
+          test = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "maplespike-test" ''
+              set -euo pipefail
+              pnpm test
+            ''}/bin/maplespike-test";
+          };
+
+          deploy-dev = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "maplespike-deploy-dev" ''
+              set -euo pipefail
+              TAG=''${TAG:-dev}
+              for img in maplespike-mcp-image maplespike-api-image maplespike-portal-image; do
+                nix build ".#$img" --print-out-paths -L
+              done
+              echo "✅ Dev images built. Deploy via kubectl apply -f k8s/dev/"
+            ''}/bin/maplespike-deploy-dev";
+          };
+
+          deploy-prod = {
+            type = "app";
+            program = "${pkgs.writeShellScriptBin "maplespike-deploy-prod" ''
+              set -euo pipefail
+              TAG=''${TAG:-stable}
+              for img in maplespike-mcp-image maplespike-api-image maplespike-portal-image; do
+                nix build ".#$img" --print-out-paths -L
+              done
+              echo "✅ Prod images built. Deploy via kubectl apply -f k8s/prod/"
+            ''}/bin/maplespike-deploy-prod";
+          };
+        };
+
+        checks = {
+          images-exist = pkgs.runCommand "check-images-exist" { } ''
+            mkdir -p $out
+            echo "✅ ${builtins.toString (builtins.attrNames {
+              mcp = self.packages.${system}.maplespike-mcp-image;
+              api = self.packages.${system}.maplespike-api-image;
+              ingest = self.packages.${system}.maplespike-ingest-image;
+              engine = self.packages.${system}.maplespike-engine-image;
+              portal = self.packages.${system}.maplespike-portal-image;
+            })}" > $out/result
+          '';
         };
 
         devShells.default = pkgs.mkShell {
