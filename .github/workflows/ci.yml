@@ -61,6 +61,16 @@ jobs:
       - run: node scripts/build-docs.mjs
       - run: cd packages/pipeline-core && pnpm rebuild better-sqlite3
 
+      - name: Forbid legacy Dockerfiles
+        run: |
+          FOUND=$(find . -name "Dockerfile*" -not -path "./.devenv/*" -not -path "./node_modules/*" 2>/dev/null)
+          if [ -n "$FOUND" ]; then
+            echo "::error::Legacy Dockerfiles found (Nix builds all images):"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "✅ No legacy Dockerfiles — all images built via Nix"
+
       - name: Validate metrics.json is up to date
         run: |
           node scripts/generate-metrics.mjs
