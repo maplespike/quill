@@ -1,15 +1,40 @@
 /**
  * MapleSpike — Unified API Client for MCP Tools
  *
- * SINGLE data access layer for all MCP tools.
- * All data comes from the live API server — no local file fallbacks.
+ * Single data access layer for all MCP tools.
+ * Tries the live API server first. Falls back to direct upstream
+ * fetches or cached data when the server is unreachable.
+ *
+ * Environment:
+ *   MAPLESPIKE_API_URL  — HTTP API server (optional, user-side mode without it)
+ *   MAPLESPIKE_API_KEY  — API key for the server
  */
 
-const API_BASE = process.env.MAPLESPIKE_API_URL || 'http://maplespike-api:8084/v1';
+const API_BASE = process.env.MAPLESPIKE_API_URL || '';
 const API_KEY = process.env.MAPLESPIKE_API_KEY || 'maplespike-dev-key';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 
-// ── API Server calls ──────────────────────────────────────────────
+let serverAvailable: boolean | null = null;
+let lastServerCheck = 0;
+const SERVER_CHECK_INTERVAL = 30_000;
+
+async function checkServer(): Promise<boolean> {
+  if (!API_BASE) return false;
+  const now = Date.now();
+  if (serverAvailable !== null && now - lastServerCheck < SERVER_CHECK_INTERVAL) {
+    return serverAvailable;
+  }
+  try {
+    const resp = await fetch(`${API_BASE}/health`, {
+      signal: AbortSignal.timeout(3_000),
+    });
+    serverAvailable = resp.ok;
+  } catch {
+    serverAvailable = false;
+  }
+  lastServerCheck = now;
+  return serverAvailable;
+}
 
 interface ApiResponse<T> {
   success: boolean;
@@ -30,12 +55,19 @@ interface ApiResponse<T> {
 }
 
 /**
- * Call the API server and return typed data.
+ * Call the API server. Throws if server unreachable.
  */
 export async function callApi<T>(
   path: string,
   params?: Record<string, string | number>,
 ): Promise<T> {
+  if (!API_BASE) {
+    throw new ServerUnavailableError('No MAPLESPIKE_API_URL configured — running in user-side mode');
+  }
+  if (!(await checkServer())) {
+    throw new ServerUnavailableError('API server unreachable');
+  }
+
   const url = new URL(`${API_BASE}${path}`);
   if (params) {
     for (const [key, val] of Object.entries(params)) {
@@ -65,6 +97,13 @@ export async function callApi<T>(
   }
 
   return json.data;
+}
+
+export class ServerUnavailableError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = 'ServerUnavailableError';
+  }
 }
 
 // ── API endpoints ─────────────────────────────────────────────────
