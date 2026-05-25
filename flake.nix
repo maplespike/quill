@@ -5,9 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     agenix.url = "github:ryantm/agenix";
+    easykubenix.url = "github:lillecarl/easykubenix";
+    easykubenix.flake = false;
   };
 
-  outputs = { self, nixpkgs, flake-utils, agenix }:
+  outputs = { self, nixpkgs, flake-utils, agenix, easykubenix }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -160,7 +162,21 @@
             echo "=== All done ==="
           '';
 
-          maplespike-push-all = pkgs.writeShellScriptBin "maplespike-push-all" ''
+          # ── K8s manifests via easykubenix ────────────────────────────
+  # easykubenix is a flake=false input, so import returns the default.nix
+  # which IS the easykubenix function: { pkgs, modules, ... } -> attrset
+  # Output: .manifestYAMLFile (derivation producing multi-doc YAML)
+  k8s-manifests = (import easykubenix {
+    inherit pkgs;
+    modules = [
+      ./k8s/cron.nix
+      ./k8s/dev.nix
+      ./k8s/prod.nix
+      ./k8s/infra.nix
+    ];
+  }).manifestYAMLFile;
+
+  maplespike-push-all = pkgs.writeShellScriptBin "maplespike-push-all" ''
             set -euo pipefail
             REGISTRY="ghcr.io/reverb256"
             TAG="''${TAG:-stable}"
