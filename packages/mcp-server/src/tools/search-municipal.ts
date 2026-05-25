@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 export const definition: ToolDefinition = {
   name: 'search_municipal',
@@ -27,7 +27,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const limit = Number(args.limit ?? 20);
   if (!query.trim()) return { content: { tool: 'search_municipal', query: '', error: 'No search query provided.' }, isError: true };
   try {
-    const result = await searchGovData(query, 'all', limit);
+    const result = await searchCkan(query, limit);
     return { content: { tool: 'search_municipal', query, limit, ...result } };
   } catch (err) {
     return { content: { tool: 'search_municipal', query, error: err instanceof Error ? err.message : 'Unknown error' }, isError: true };
