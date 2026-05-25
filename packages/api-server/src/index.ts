@@ -48,6 +48,7 @@ interface Route {
 }
 
 import { healthHandler } from './routes/health.js';
+import { addAttributionHeader } from './middleware/attribution.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
@@ -408,6 +409,7 @@ export async function handleRequest(
       if (rateCheck) {
         response = addRateLimitHeaders(response, rateCheck);
       }
+      addAttributionHeader(response);
       return response;
     }
   }
@@ -459,6 +461,7 @@ export async function handleRequest(
           { 'Retry-After': String(retryAfter) },
         );
         if (rateCheck) response = addRateLimitHeaders(response, rateCheck);
+        addAttributionHeader(response);
         return response;
       }
       // Paid tiers: soft cap — warn via header but allow
@@ -496,6 +499,7 @@ export async function handleRequest(
       if (rateCheck) {
         finalResponse = addRateLimitHeaders(response, rateCheck);
       }
+      addAttributionHeader(finalResponse);
       return finalResponse;
     }
 
@@ -621,6 +625,7 @@ export async function handleRequest(
       });
     }
 
+    addAttributionHeader(finalResponse);
     return finalResponse;
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error';
@@ -659,6 +664,7 @@ export async function handleRequest(
     if (rateCheck) {
       response = addRateLimitHeaders(response, rateCheck);
     }
+    addAttributionHeader(response);
     return response;
   }
 }
