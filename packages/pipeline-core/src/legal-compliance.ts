@@ -1,6 +1,11 @@
 // pipeline-core: AGPL-3.0-or-later, engine: MIT, api-server: Apache-2.0,
 // mcp-server: MIT, sdk: MIT, sdk-python: MIT, legal-core: MIT, legislation: MIT
 
+import { ConsoleAuditLogger } from './audit/logger.js';
+import type { AuditEntry, AuditLogger } from './audit/logger.js';
+
+const AUDIT_LOGGER: AuditLogger = new ConsoleAuditLogger();
+
 export interface ComplianceResult {
   package: string;
   license: string;
@@ -16,6 +21,15 @@ export interface AttributionRecord {
   hasAttribution: boolean;
 }
 
+export interface ComplianceAuditEntry {
+  package: string;
+  action: string;
+  license: string;
+  source: string;
+  success: boolean;
+  detail?: string;
+}
+
 const PACKAGE_LICENSES: Record<string, { license: string; attributionRequired: boolean }> = {
   'pipeline-core': { license: 'AGPL-3.0-or-later', attributionRequired: true },
   engine: { license: 'MIT', attributionRequired: false },
@@ -28,6 +42,19 @@ const PACKAGE_LICENSES: Record<string, { license: string; attributionRequired: b
 };
 
 const VALID_PACKAGES = Object.keys(PACKAGE_LICENSES);
+
+export async function logComplianceEvent(entry: ComplianceAuditEntry): Promise<void> {
+  const auditEntry: Omit<AuditEntry, 'timestamp'> = {
+    operation: 'ingestion',
+    model: 'none',
+    inputPreview: `${entry.action} on ${entry.package}`,
+    outputSummary: entry.detail || `${entry.action} - ${entry.success ? 'OK' : 'FAIL'}`,
+    confidence: null,
+    success: entry.success,
+    durationMs: 0,
+  };
+  await AUDIT_LOGGER.log(auditEntry);
+}
 
 export function getComplianceCheck(packageName: string): ComplianceResult {
   const info = PACKAGE_LICENSES[packageName];

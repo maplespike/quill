@@ -53,6 +53,7 @@ import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
+import { auditGetHandler } from './routes/audit-get.js';
 import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
@@ -97,6 +98,7 @@ const ROUTES: Route[] = [
 
   { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: getCitationHandler },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
+  { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: auditGetHandler },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },

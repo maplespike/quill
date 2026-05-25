@@ -140,4 +140,33 @@ describe('API Server Routes', () => {
       assert.ok(createBody.data?.key?.startsWith('maplespike_'));
     }
   });
+
+  it('GET /v1/audit returns 200', async () => {
+    const { auditGetHandler } = await import('../routes/audit-get.js');
+    const ctx = makeCtx();
+    const resp = await auditGetHandler(new Request('http://localhost/v1/audit'), ctx as any, {});
+    assert.equal(resp.status, 200);
+    const body = await resp.json();
+    assert.ok(body.success);
+    assert.ok(Array.isArray(body.data.entries));
+  });
+
+  it('GET /v1/audit filters by operation', async () => {
+    const { auditGetHandler } = await import('../routes/audit-get.js');
+    const ctx = makeCtx();
+    const resp = await auditGetHandler(new Request('http://localhost/v1/audit?operation=api_call'), ctx as any, {});
+    assert.equal(resp.status, 200);
+    const body = await resp.json();
+    assert.ok(body.success);
+    assert.equal(body.data.query.operation, 'api_call');
+  });
+
+  it('GET /v1/audit respects limit param', async () => {
+    const { auditGetHandler } = await import('../routes/audit-get.js');
+    const ctx = makeCtx();
+    const resp = await auditGetHandler(new Request('http://localhost/v1/audit?limit=5'), ctx as any, {});
+    assert.equal(resp.status, 200);
+    const body = await resp.json();
+    assert.equal(body.data.query.limit, 5);
+  });
 });
