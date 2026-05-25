@@ -15,6 +15,8 @@ import * as getModuleHealth from './get-module-health.js';
 import * as getPipelineHealth from './get-pipeline-health.js';
 import * as latestReleases from './latest-releases.js';
 import * as queryGovData from './query-gov-data.js';
+import * as qaSchema from './qa-schema.js';
+import * as qaValidateModule from './qa-validate-module.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as searchA2aj from './search-a2aj.js';
 import * as searchAgriculture from './search-agriculture.js';
@@ -104,6 +106,8 @@ export function getAllTools(): ToolModule[] {
     getPipelineHealth,
     latestReleases,
     queryGovData,
+    qaSchema,
+    qaValidateModule,
     resolveEntity,
     searchA2aj,
     searchAgriculture,
