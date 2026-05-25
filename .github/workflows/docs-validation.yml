@@ -1,0 +1,179 @@
+---
+name: "Docs Validation"
+on:
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - "*.md"
+      - "packages/docs/**/*.md"
+      - "packages/*/README.md"
+      - "docs/**/*.md"
+      - "docs/metrics.json"
+  push:
+    branches: [main, prod]
+    paths:
+      - "*.md"
+      - "packages/docs/**/*.md"
+      - "packages/*/README.md"
+      - "docs/**/*.md"
+      - "docs/metrics.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  validate:
+    name: "Documentation checks"
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Check 1: Metadata coverage ──────────────────────────────
+      - name: "Check last-reviewed metadata"
+        id: metadata-check
+        run: |
+          echo "## 📋 Metadata Coverage Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Collect all docs files (root .md, packages/docs, READMEs)
+          DOCS=$(find . -maxdepth 1 -name "*.md" -not -name "LICENSE.md" -not -path "./node_modules/*" 2>/dev/null
+          find packages/docs -name "*.md" 2>/dev/null
+          find packages -maxdepth 2 -name "README.md" 2>/dev/null)
+
+          MISSING=""
+          TOTAL=0
+          PASS=0
+
+          for f in $DOCS; do
+            TOTAL=$((TOTAL + 1))
+            if [ -f "$f" ]; then
+              if grep -q "^last-reviewed:" "$f" 2>/dev/null; then
+                REVIEWED=$(grep "^last-reviewed:" "$f" | sed 's/.*: *//')
+                echo "✅ $f (last-reviewed: $REVIEWED)" >> $GITHUB_STEP_SUMMARY
+                PASS=$((PASS + 1))
+              else
+                echo "❌ $f (missing last-reviewed)" >> $GITHUB_STEP_SUMMARY
+                MISSING="$MISSING $f"
+              fi
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Coverage: $PASS/$TOTAL files**" >> $GITHUB_STEP_SUMMARY
+
+          if [ -n "$MISSING" ]; then
+            echo "::warning::Missing last-reviewed metadata in: $MISSING"
+          fi
+
+          echo "missing_count=$((TOTAL - PASS))" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASS" >> $GITHUB_OUTPUT
+
+      # ── Check 2: TODO/FIXME density (warn if > 5%) ────────────
+      - name: "Check TODO density"
+        id: todo-check
+        run: |
+          echo "## 📝 TODO/FIXME Density Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for f in packages/docs/**/*.md; do
+            [ -f "$f" ] || continue
+            TOTAL_LINES=$(wc -l < "$f")
+            TODO_COUNT=$(grep -ci "TODO\|FIXME\|HACK\|XXX" "$f" 2>/dev/null || echo 0)
+            if [ "$TOTAL_LINES" -gt 0 ] && [ "$TODO_COUNT" -gt 0 ]; then
+              DENSITY=$(echo "scale=1; $TODO_COUNT * 100 / $TOTAL_LINES" | bc)
+              if [ "$(echo "$DENSITY > 5" | bc)" -eq 1 ]; then
+                echo "⚠️ $f: $TODO_COUNT TODOs in $TOTAL_LINES lines ($DENSITY%)" >> $GITHUB_STEP_SUMMARY
+                echo "::warning::$f has $TODO_COUNT TODOs ($DENSITY% density, threshold 5%)"
+              else
+                echo "✅ $f: $TODO_COUNT TODOs ($DENSITY%)" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+          done
+
+          # Security docs get stricter treatment
+          for f in packages/docs/**/owasp-*.md; do
+            [ -f "$f" ] || continue
+            TODO_COUNT=$(grep -ci "TODO\|FIXME" "$f" 2>/dev/null || echo 0)
+            if [ "$TODO_COUNT" -gt 0 ]; then
+              echo "❌ $f: $TODO_COUNT TODOs in security docs (target: 0)" >> $GITHUB_STEP_SUMMARY
+              echo "::error::$f has $TODO_COUNT TODOs (security docs must have 0)"
+            fi
+          done
+
+      # ── Check 3: Validate metrics alignment ────────────────────
+      - name: "Validate metrics.json alignment"
+        id: metrics-check
+        run: |
+          echo "## 📊 Metrics Alignment Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ ! -f "docs/metrics.json" ]; then
+            echo "ℹ️ No docs/metrics.json found — skipping metrics check" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          # Count MCP tools from mcp-server package
+          MCP_TOOLS_CLAIMED=$(jq -r '.mcpTools.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
+          echo "📌 Claimed MCP tools: $MCP_TOOLS_CLAIMED" >> $GITHUB_STEP_SUMMARY
+
+          # Count modules from docs
+          MODULE_COUNT=$(ls -d packages/docs/modules/*.md 2>/dev/null | wc -l)
+          MODULES_CLAIMED=$(jq -r '.modules.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
+          echo "📌 Claimed modules: $MODULES_CLAIMED (actual: $MODULE_COUNT)" >> $GITHUB_STEP_SUMMARY
+          if [ "$MODULE_COUNT" -ne "$MODULES_CLAIMED" ] 2>/dev/null; then
+            echo "⚠️ Module count mismatch: actual=$MODULE_COUNT claimed=$MODULES_CLAIMED" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::module count mismatch: actual=$MODULE_COUNT ≠ claimed=$MODULES_CLAIMED"
+          fi
+
+          # Count packages
+          PACKAGE_COUNT=$(ls -d packages/*/package.json 2>/dev/null | wc -l)
+          PACKAGES_CLAIMED=$(jq -r '.packages.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
+          echo "📌 Claimed packages: $PACKAGES_CLAIMED (actual: $PACKAGE_COUNT)" >> $GITHUB_STEP_SUMMARY
+          if [ "$PACKAGE_COUNT" -ne "$PACKAGES_CLAIMED" ] 2>/dev/null; then
+            echo "⚠️ Package count mismatch: actual=$PACKAGE_COUNT claimed=$PACKAGES_CLAIMED" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::package count mismatch: actual=$PACKAGE_COUNT ≠ claimed=$PACKAGES_CLAIMED"
+          fi
+
+      # ── Check 4: Status field in AGENTS.md ──────────────────────
+      - name: "Check AGENTS.md status"
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## 📄 AGENTS.md Status Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "AGENTS.md" ]; then
+            if grep -q "^status:" "AGENTS.md" 2>/dev/null; then
+              STATUS=$(grep "^status:" "AGENTS.md" | sed 's/.*: *//')
+              echo "✅ AGENTS.md status: $STATUS" >> $GITHUB_STEP_SUMMARY
+              if [ "$STATUS" = "inactive" ] || [ "$STATUS" = "deprecated" ]; then
+                echo "⚠️ AGENTS.md is $STATUS — consider updating"
+              fi
+            else
+              echo "⚠️ AGENTS.md missing status field" >> $GITHUB_STEP_SUMMARY
+            fi
+            if grep -q "^last-reviewed:" "AGENTS.md" 2>/dev/null; then
+              REVIEWED=$(grep "^last-reviewed:" "AGENTS.md" | sed 's/.*: *//')
+              echo "✅ Last reviewed: $REVIEWED" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ AGENTS.md missing last-reviewed" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      # ── Summary ─────────────────────────────────────────────────
+      - name: "Validation summary"
+        if: always()
+        run: |
+          echo "## ✅ Docs Validation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Metadata coverage | ${{ steps.metadata-check.outputs.passed }}/${{ steps.metadata-check.outputs.total }} files ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| TODO density | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
+          echo "| Metrics alignment | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
+          echo "| AGENTS.md status | ✅ Checked |" >> $GITHUB_STEP_SUMMARY

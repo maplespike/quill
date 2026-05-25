@@ -870,7 +870,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     description: 'Immigration, Refugees and Citizenship Canada — family sponsorship statistics by visa office',
     category: 'government',
     modulePath: './ircc-family-sponsorship/index.js',
-    ingestFunctions: ['ingestFamilySponsorshipStats'],
+    ingestFunctions: ['ingestFamilySponsorship'],
     sources: [
       { name: 'ircc.canada.ca', format: 'CSV' },
     ],
@@ -882,7 +882,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     description: 'Indigenous Services Canada — community safety programs and funding data',
     category: 'indigenous',
     modulePath: './isc-programs/index.js',
-    ingestFunctions: ['ingestCommunitySafetyPrograms'],
+    ingestFunctions: ['ingestCommunitySafety'],
     sources: [
       { name: 'sac-isc.gc.ca', format: 'CSV' },
     ],
