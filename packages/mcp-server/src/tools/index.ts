@@ -5834,7 +5834,9 @@ import * as searchCipo from './search-cipo.js';
     searchGlobalCanada,
     searchRegionalAuthorities,
     searchProvincialRegulators,
-    searchGeospatial,    searchCrownCorporations,import * as searchSocialPrograms from './search-social-programs.js';
+
+    getModuleHealth,
+    getPipelineHealth,    searchGeospatial,    searchCrownCorporations,import * as searchSocialPrograms from './search-social-programs.js';
 import * as searchUnions from './search-unions.js';
 import * as searchEducationResearch from './search-education-research.js';
 import * as searchUniversities from './search-universities.js';
@@ -5849,3 +5851,5 @@ import * as searchGlobalCanada from './search-global-canada.js';
 import * as searchRegionalAuthorities from './search-regional-authorities.js';
 import * as searchProvincialRegulators from './search-provincial-regulators.js';
 import * as searchGeospatial from './search-geospatial.js';
+import * as getModuleHealth from './get-module-health.js';
+import * as getPipelineHealth from './get-pipeline-health.js';
