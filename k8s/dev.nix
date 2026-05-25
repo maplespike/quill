@@ -1,5 +1,5 @@
 # MapleSpike Dev environment — Nix-generated K8s manifests
-# Namespace: maplespike-dev
+# Namespace: maplespike (main/dev)
 # NodePorts: portal=30965, api=31284, mcp=31746
 { lib, ... }:
 
@@ -55,7 +55,7 @@ in {
   config.kubernetes.objects = {
 
     # ── Namespace ───────────────────────────────────────────────
-    maplespike-dev.Namespace.maplespike-dev = {
+    maplespike.Namespace.maplespike = {
       metadata.labels = {
         pod-security.kubernetes.io.enforce = "baseline";
         pod-security.kubernetes.io.enforce-version = "latest";
@@ -63,7 +63,7 @@ in {
     };
 
     # ── Portal ConfigMap ────────────────────────────────────────
-    maplespike-dev.ConfigMap.portal-config = {
+    maplespike.ConfigMap.portal-config = {
       metadata.labels = {
         app = "maplespike-portal";
         component = "portal";
@@ -81,7 +81,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── API Deployment ──────────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-api = {
+    maplespike.Deployment.maplespike-api = {
       metadata.labels = {
         app = "maplespike-api";
         component = "api";
@@ -117,7 +117,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   PORT = { name = "PORT"; value = "8082"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
                   STORAGE = { name = "MAPLESPIKE_STORAGE"; value = "memory"; };
-                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-dev-key"; };
+                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-key"; };
                   AI_ENDPOINT = { name = "MAPLESPIKE_AI_ENDPOINT"; value = "http://ai-inference-gateway.ai-inference:8080/v1"; };
                   AI_MODEL = { name = "MAPLESPIKE_AI_MODEL"; value = "qwen3.5-27b"; };
                 };
@@ -143,7 +143,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── API Service ─────────────────────────────────────────────
-    maplespike-dev.Service.maplespike-api = {
+    maplespike.Service.maplespike-api = {
       metadata.labels = {
         app = "maplespike-api";
         component = "api";
@@ -160,7 +160,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Deployment ──────────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-mcp = {
+    maplespike.Deployment.maplespike-mcp = {
       metadata.labels = {
         app = "maplespike-mcp";
         component = "mcp";
@@ -195,8 +195,8 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   _namedlist = true;
                   PORT = { name = "PORT"; value = "3001"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
-                  API_URL = { name = "MAPLESPIKE_API_URL"; value = "http://maplespike-api.maplespike-dev.svc.cluster.local:8082/v1"; };
-                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-dev-key"; };
+                  API_URL = { name = "MAPLESPIKE_API_URL"; value = "http://maplespike-api.maplespike.svc.cluster.local:8082/v1"; };
+                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-key"; };
                   AI_ENDPOINT = { name = "AI_ENDPOINT"; value = "http://ai-inference-gateway.ai-inference:8080/v1"; };
                   AI_MODEL = { name = "AI_MODEL"; value = "qwen3.5-27b"; };
                 };
@@ -222,7 +222,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Service ─────────────────────────────────────────────
-    maplespike-dev.Service.maplespike-mcp = {
+    maplespike.Service.maplespike-mcp = {
       metadata.labels = {
         app = "maplespike-mcp";
         component = "mcp";
@@ -239,7 +239,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Portal Deployment ───────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-portal = {
+    maplespike.Deployment.maplespike-portal = {
       metadata.labels = {
         app = "maplespike-portal";
         component = "portal";
@@ -273,7 +273,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                 env = {
                   _namedlist = true;
                   PORT = { name = "PORT"; value = "8080"; };
-                  API_URL = { name = "API_URL"; value = "http://maplespike-api.maplespike-dev.svc.cluster.local:8082/v1"; };
+                  API_URL = { name = "API_URL"; value = "http://maplespike-api.maplespike.svc.cluster.local:8082/v1"; };
                 };
                 volumeMounts = {
                   _namedlist = true;
@@ -318,7 +318,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Portal Service ──────────────────────────────────────────
-    maplespike-dev.Service.maplespike-portal = {
+    maplespike.Service.maplespike-portal = {
       metadata.labels = {
         app = "maplespike-portal";
         component = "portal";
@@ -335,7 +335,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Dashboard Deployment ────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-dashboard = {
+    maplespike.Deployment.maplespike-dashboard = {
       metadata.labels = {
         app = "maplespike-dashboard";
         component = "dashboard";
@@ -394,7 +394,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Dashboard Service ───────────────────────────────────────
-    maplespike-dev.Service.maplespike-dashboard = {
+    maplespike.Service.maplespike-dashboard = {
       metadata.labels = {
         app = "maplespike-dashboard";
         component = "dashboard";

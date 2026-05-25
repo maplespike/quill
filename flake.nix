@@ -10,7 +10,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, agenix, easykubenix }:
-    flake-utils.lib.eachDefaultSystem (system:
+  (flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
@@ -276,5 +276,33 @@
           '';
         };
       }
-    );
+    )
+  ) // {
+
+  # ── NixOS module: service registration for nixos-config's DNS/Caddy ──
+  nixosModules.default = { lib, ... }: {
+    options.services.maplespike = lib.mkOption {
+      type = lib.types.attrs;
+      default = {};
+      description = "MapleSpike services for DNS/Caddy registration";
+    };
+    config.services.maplespike = {
+      prod-api     = { port = 8082; host = "api.maplespike.lan";     namespace = "maplespike-prod"; nodePort = 31283; };
+      prod-mcp     = { port = 3001; host = "mcp.maplespike.lan";     namespace = "maplespike-prod"; nodePort = 31745; };
+      prod-portal  = { port = 80;   host = "maplespike.lan";         namespace = "maplespike-prod"; nodePort = 30964; };
+      prod-status  = { port = 3001; host = "status.maplespike.lan";  namespace = "maplespike-prod"; nodePort = 31832; };
+      dev-api      = { port = 8082; host = "dev-api.maplespike.lan"; namespace = "maplespike";      nodePort = 31284; };
+      dev-mcp      = { port = 3001; host = "dev-mcp.maplespike.lan"; namespace = "maplespike";      nodePort = 31746; };
+      dev-portal   = { port = 80;   host = "dev.maplespike.lan";     namespace = "maplespike";      nodePort = 30965; };
+    };
+  };
+
+  # ── K8s manifests (easykubenix) ──────────────────────────────
+  # Already built via the per-system `k8s-manifests` package above.
+  # Added here as a top-level output for CI/CD convenience.
+  k8sManifests = (import easykubenix {
+    pkgs = import nixpkgs { system = "x86_64-linux"; };
+    modules = [ ./k8s/default.nix ];
+  }).manifestYAMLFile;
+  };
 }
