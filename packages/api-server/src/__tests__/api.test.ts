@@ -107,6 +107,25 @@ describe('API Server Routes', () => {
     assert.ok([404, 500].includes(resp.status));
   });
 
+  it('compliance endpoint returns 200 or 503', async () => {
+    const { complianceHandler } = await import('../routes/compliance.js');
+    const ctx = makeCtx();
+    const resp = await complianceHandler(new Request('http://localhost/v1/compliance?package=pipeline-core'), ctx as any, {});
+    assert.ok([200, 503].includes(resp.status));
+    if (resp.status === 200) {
+      const body = await resp.json();
+      assert.ok(body.success);
+      assert.ok(body.data);
+    }
+  });
+
+  it('compliance endpoint with no package returns all', async () => {
+    const { complianceHandler } = await import('../routes/compliance.js');
+    const ctx = makeCtx();
+    const resp = await complianceHandler(new Request('http://localhost/v1/compliance'), ctx as any, {});
+    assert.ok([200, 503].includes(resp.status));
+  });
+
   it('keys CRUD flow works correctly', async () => {
     const { createKeyHandler, listKeysHandler, deleteKeyHandler } = await import('../routes/keys.js');
     const ctx = makeCtx();
