@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { fetchCanlii } from './upstream-fetcher.js';
 
 /**
  * Search CanLII (Canadian Legal Information Institute) court decisions.
@@ -54,7 +54,7 @@ export const handler: ToolHandler = async (args) => {
   const court = (args.court as string) ?? '';
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
-  const result = await searchGovData(query, 'all', limit);
+  const result = await fetchCanlii(query, limit);
   let results = result.results;
   let total = result.total;
 

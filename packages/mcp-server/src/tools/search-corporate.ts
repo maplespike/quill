@@ -1,5 +1,5 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchGovData } from './api-client.js';
+import { fetchCorporate } from './upstream-fetcher.js';
 
 /**
  * Search corporate registry data, federal lobbying records, procurement contracts,
@@ -67,7 +67,7 @@ export const handler: ToolHandler = async (args) => {
   let results: Record<string, unknown>[] = [];
   let total = 0;
   try {
-    const result = await searchGovData(query, 'all', limit);
+    const result = await fetchCorporate(query, limit);
     results = result.results;
     total = result.total;
   } catch {
