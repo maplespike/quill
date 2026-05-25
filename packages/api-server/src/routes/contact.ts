@@ -1,6 +1,6 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
-import { contactSchema, validateBody, validationError } from '../validation';
+import { contactSchema, validateBody, validationError } from '../validation.js';
 import { sendContactEmail } from '../email.js';
 
 interface RateEntry {
