@@ -132,9 +132,9 @@ for (const dept of ATI_DEPARTMENTS) {
  */
 export const ATI_CKAN_PACKAGE_IDS: Record<string, string> = {
   /** GC ATI completions — comprehensive multi-department dataset */
-  GC_ATI_COMPLETIONS: 'd8f3d0e1-3c0a-4b9e-b8c2-7e1f2a3b4c5d',
+  GC_ATI_COMPLETIONS: '0797e893-751e-4695-8229-a5066e4fe43c',
   /** TBS ATI completion statistics */
-  TBS_ATI_STATS: '9a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d',
+  TBS_ATI_STATS: '236294e1-bc74-486f-ab97-422227bc8832',
 };
 
 /* ------------------------------------------------------------------ */

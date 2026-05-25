@@ -10,8 +10,8 @@
  *   - Repayment rates
  *
  * Sources:
- *   - Default rates:    https://open.canada.ca/data/dataset/e95d7f3a-2b1c-4a5d-8f6e-9c0d1e2f3a4b
- *   - Debt statistics:  https://open.canada.ca/data/dataset/a1b2c3d4-e5f6-7890-abcd-ef1234567890
+ * - Default rates: https://open.canada.ca/data/dataset/0840231b-5bbf-447f-81ce-3ec0673aefc4
+ * - Debt statistics: https://open.canada.ca/data/dataset/8a6a3f7e-dbca-467c-ad55-8ab6ddc7754b
  */
 
 import { httpGet } from '../../utils/http.js';

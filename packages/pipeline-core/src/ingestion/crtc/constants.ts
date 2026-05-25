@@ -96,11 +96,11 @@ export const CRTC_CKAN_PACKAGE_SHOW = `${CRTC_CKAN_BASE}/api/3/action/package_sh
  */
 export const CRTC_CKAN_PACKAGE_IDS = {
   /** Broadcasting ownership data */
-  BROADCASTING_OWNERSHIP: 'e1e2e3e4-a5b6-c7d8-e9f0-1234567890ab',
+  BROADCASTING_OWNERSHIP: 'aee4fb68-9bcb-431f-9a10-00382a341799',
   /** Telecom financial data */
-  TELECOM_FINANCIAL: 'f2f3f4f5-b6c7-d8e9-f0a1-234567890abc',
+  TELECOM_FINANCIAL: 'f92a9711-fe13-421c-bbfb-38c93d7807e5',
   /** Telecommunications service area maps */
-  TELECOM_SERVICE_AREAS: 'a3b4c5d6-e7f8-9012-3456-789abcdef012',
+  TELECOM_SERVICE_AREAS: 'cb02d3b1-dacb-4401-beec-9f9fe178fc1c',
 } as const;
 
 /**

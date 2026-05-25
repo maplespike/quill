@@ -384,7 +384,7 @@ async function fetchNationalFilmBoard(): Promise<CultureRecord[]> {
   const now = new Date().toISOString();
 
   // NFB CKAN package data
-  const nfbCkanId = 'b2c3d4e5-f6a7-8901-2345-67890abcdef1';
+  const nfbCkanId = '4066a19d-f185-4b0d-9d9c-91997fe40acd';
   try {
     const pkg = await fetchCkanPackage(nfbCkanId);
     if (pkg) {

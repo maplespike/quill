@@ -7,7 +7,7 @@
  * CFI awards fund research infrastructure at Canadian universities,
  * colleges, research hospitals, and non-profit research institutions.
  *
- * Source: https://open.canada.ca/data/dataset/4080c7d5-0e3f-4b4f-9b1b-0e3d4a5f6c7d
+ * Source: https://open.canada.ca/data/dataset/4112e654-b080-4ce0-a4e4-d739e8f274f7
  */
 
 import { httpGet } from '../../utils/http.js';
