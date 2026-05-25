@@ -7,7 +7,7 @@
  * The CRC program awards Tier 1 (senior, 7-year) and Tier 2 (emerging, 5-year)
  * chairs to outstanding researchers at Canadian universities.
  *
- * Source: https://open.canada.ca/data/dataset/3146af5e-f6a9-4f5e-9f1b-06e8f86e7a7c
+ * Source: https://open.canada.ca/data/dataset/9606b8cd-0c80-4b3b-a771-e8872b9d6616
  */
 
 import { httpGet } from '../../utils/http.js';

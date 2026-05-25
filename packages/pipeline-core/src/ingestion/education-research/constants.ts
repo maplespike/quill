@@ -86,19 +86,19 @@ export const EDU_CKAN_QUERIES = {
  */
 export const EDU_CKAN_PACKAGE_IDS = {
   /** CIHR funded grants */
-  CIHR_GRANTS: '0a76d7f9-b406-4c9c-8fd8-13c441ae375a',
+  CIHR_GRANTS: '49edb1d7-5cb4-4fa7-897c-515d1aad5da3',
   /** NSERC research grants */
-  NSERC_GRANTS: 'f85f71e0-3cc5-43b1-a9e4-11f29f90c33c',
+  NSERC_GRANTS: 'c1b0f627-8c29-427c-ab73-33968ad9176e',
   /** SSHRC awarded grants */
-  SSHRC_GRANTS: 'f0e25a8a-7a3f-4470-8ef0-d0b5e6e8c5ef',
+  SSHRC_GRANTS: 'b4e2b302-9bc6-4b33-b880-6496f8cef0f1',
   /** Canada Research Chairs holders list */
-  CRC_HOLDERS: '3146af5e-f6a9-4f5e-9f1b-06e8f86e7a7c',
+  CRC_HOLDERS: '9606b8cd-0c80-4b3b-a771-e8872b9d6616',
   /** CFI awarded infrastructure grants */
-  CFI_GRANTS: '4080c7d5-0e3f-4b4f-9b1b-0e3d4a5f6c7d',
+  CFI_GRANTS: '4112e654-b080-4ce0-a4e4-d739e8f274f7',
   /** Canada Student Loans default rates by institution */
-  CSL_DEFAULT_RATES: 'e95d7f3a-2b1c-4a5d-8f6e-9c0d1e2f3a4b',
+  CSL_DEFAULT_RATES: '0840231b-5bbf-447f-81ce-3ec0673aefc4',
   /** Canada Student Loans debt statistics */
-  CSL_DEBT: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  CSL_DEBT: '8a6a3f7e-dbca-467c-ad55-8ab6ddc7754b',
 } as const;
 
 /* ------------------------------------------------------------------ */

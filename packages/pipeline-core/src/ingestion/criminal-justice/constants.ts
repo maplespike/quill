@@ -96,89 +96,89 @@ export const CRIMINAL_JUSTICE_SOURCES = {
 
 export const CSC_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   POPULATION: {
-    id: '3c2fdb37-73f1-41c6-a55b-ede3c35fbf1b',
-    title: 'Correctional Service Canada — Offender Population',
-    description: 'Institutional and community offender population counts by region, institution, security level, and gender. Updated quarterly.',
+    id: 'e29f7b5d-f550-4516-9b43-ce8b794fefda',
+    title: 'Correctional Service Canada — Quarterly Financial Reports',
+    description: 'CSC quarterly financial reports covering institutional and community operations. Updated quarterly.',
   },
   INCIDENTS: {
-    id: 'b3a4f5a5-68f4-4d2e-b1c6-3a4e5f6a7b8c',
-    title: 'Correctional Service Canada — Institutional Incidents',
-    description: 'Institutional incidents including assaults, drug seizures, and escapes. Updated annually.',
+    id: '9c6efa61-50ae-479f-9d32-6bbe2ba33d64',
+    title: 'Correctional Service Canada — Departmental Plan 2026-2027',
+    description: 'CSC departmental plan including operational priorities and statistical indicators. Updated annually.',
   },
   DEATHS: {
-    id: 'c4d5e6f7-12a3-4b56-890c-d7e8f9a0b1c2',
-    title: 'Correctional Service Canada — Deaths in Custody',
+    id: 'bd085e2c-81d8-4d2f-a203-90d5662209a1',
+    title: 'Deaths in Custody',
     description: 'Deaths in federal custody by cause, gender, and age. Updated annually.',
   },
   COST_PER_INMATE: {
-    id: 'd5e6f7a8-34b5-4c67-890d-e1f2a3b4c5d6',
-    title: 'Correctional Service Canada — Cost per Inmate',
-    description: 'Average annual cost per inmate by security level and institution type.',
+    id: '94886f32-f287-478d-b344-34f76751f45f',
+    title: 'Correctional Service Canada — Departmental Results Report 2024-2025',
+    description: 'CSC departmental results including cost per inmate by security level and institution type.',
   },
 };
 
 export const PAROLE_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   DECISIONS: {
-    id: 'e6f7a8b9-56c7-4d89-901e-f2a3b4c5d6e7',
-    title: 'Parole Board of Canada — Grant/Deny Rates',
-    description: 'Parole decisions by type, offence category, and region. Updated quarterly.',
+    id: '4a89da75-ebd6-4c17-b993-46891b256b8a',
+    title: 'Parole Board of Canada — Open Government Implementation Plan',
+    description: 'Parole Board open government plan including decision statistics and reporting commitments.',
   },
   PSC_DECISIONS: {
-    id: 'f7a8b9c0-78d9-4e01-012f-3a4b5c6d7e8f',
-    title: 'Parole Board of Canada — Provincial/Territorial Parole',
-    description: 'Provincial and territorial parole board statistics.',
+    id: '196e8604-fbf6-4282-8831-1665c61e32fd',
+    title: 'Parole Board of Canada — Annual Report on the Privacy Act',
+    description: 'Annual report to Parliament covering Privacy Act administration and data handling.',
   },
 };
 
 export const RCMP_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   HATE_CRIMES: {
-    id: 'a1b2c3d4-5e6f-7890-abcd-ef1234567890',
-    title: 'RCMP — Police-Reported Hate Crime Data',
+    id: 'c330ddb1-4589-45c1-9ce4-40e026054803',
+    title: 'Police-Reported Hate Crime by Police Service',
     description: 'Police-reported hate crime incidents by motivation type and jurisdiction. Updated annually.',
   },
   CRIME_SEVERITY: {
-    id: 'b2c3d4e5-6f7a-8901-bcde-f12345678901',
-    title: 'RCMP — Crime Severity Index',
+    id: '1b92c723-a415-4230-b73a-712fa273ff16',
+    title: 'Crime Severity Index and Weighted Clearance Rates',
     description: 'Crime Severity Index by jurisdiction, including violent and non-violent components.',
   },
   ORGANIZED_CRIME: {
-    id: 'c3d4e5f6-7a8b-9012-cdef-123456789012',
-    title: 'RCMP — Organized Crime Statistics',
-    description: 'Police-reported organized crime incidents by type and jurisdiction.',
+    id: 'cb47e6fe-434c-46d6-831f-7bbdc393dd97',
+    title: 'Police-Reported Crime Statistics',
+    description: 'Police-reported crime data including homicide and organized crime indicators.',
   },
 };
 
 export const PPSC_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   CASELOADS: {
-    id: 'd4e5f6a7-8b9c-0123-defa-234567890123',
-    title: 'PPSC — Caseload Statistics',
+    id: 'f034c9d0-cca8-4dee-b555-c2074f342f9a',
+    title: 'PPSC — Annual Report',
     description: 'Federal prosecution caseload statistics by court level and file type.',
   },
   OUTCOMES: {
-    id: 'e5f6a7b8-9c0d-1234-efab-345678901234',
-    title: 'PPSC — Prosecution Outcomes',
+    id: '4b35e5ab-34b9-4437-8b62-fb0197dae2e2',
+    title: 'PPSC — Departmental Results Report',
     description: 'Outcomes of federal prosecutions including stays, stays by delay (Jordan), convictions, acquittals.',
   },
 };
 
 export const YOUTH_JUSTICE_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   COURTS: {
-    id: 'f6a7b8c9-0d1e-2345-fabc-456789012345',
-    title: 'Youth Criminal Justice — Court Cases',
+    id: '1df8b66e-b773-425e-9551-62eba71bab28',
+    title: 'Youth Courts — Cases by Type of Decision',
     description: 'Youth court cases by province, type of decision, and sentence.',
   },
   CORRECTIONS: {
-    id: 'a7b8c9d0-1e2f-3456-abcd-567890123456',
-    title: 'Youth Corrections — Admissions to Custody and Community Services',
+    id: 'c70a73e6-e42d-4e2a-91e3-6c0d41568952',
+    title: 'Youth Admissions to Correctional Services',
     description: 'Youth admissions to correctional services by province, type, and characteristics.',
   },
 };
 
 export const LEGAL_AID_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   FUNDING: {
-    id: 'b8c9d0e1-2f3a-4567-bcde-678901234567',
-    title: 'Legal Aid — Caseload and Expenditures',
-    description: 'Legal aid plan caseload and expenditures by province and case type.',
+    id: '5dbf8583-cda4-4bb4-8419-3793311af3a2',
+    title: 'Legal Aid — Plan Expenditures by Type',
+    description: 'Legal aid plan expenditures by type of expenditure, province and case type.',
   },
 };
 

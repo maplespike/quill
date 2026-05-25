@@ -1245,7 +1245,7 @@ export async function ingestNWTLobbying(
 
     log('[NT-Lobbying] Normalizing records to federal schema...');
     const normalized = await normalizeBatch('NT', fetched.records as unknown as RawOntarioRecord[], {
-      sourceSystem: 'nt-stub',
+      sourceSystem: 'nt-no-registry',
     });
     log(`[NT-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
 
@@ -1347,7 +1347,7 @@ export async function ingestNunavutLobbying(
 
     log('[NU-Lobbying] Normalizing records to federal schema...');
     const normalized = await normalizeBatch('NU', fetched.records as unknown as RawOntarioRecord[], {
-      sourceSystem: 'nu-stub',
+      sourceSystem: 'nu-no-registry',
     });
     log(`[NU-Lobbying] Normalized ${normalized.length} provincial lobbying records`);
 

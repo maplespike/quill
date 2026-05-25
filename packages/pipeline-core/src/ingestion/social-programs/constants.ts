@@ -60,19 +60,19 @@ export const SOCIAL_CKAN_QUERIES = {
  */
 export const SOCIAL_CKAN_PACKAGE_IDS: Record<string, string> = {
   // CPP/OAS beneficiaries — ESDC publication
-  CPP_OAS_BENEFICIARIES: 'c3f7a7c3-8c4a-4d7c-8f0a-9e1b2c3d4e5f',
+  CPP_OAS_BENEFICIARIES: 'f064a144-b4e0-4e9b-9970-e0fc2f84d1a8',
   // EI statistics by province/month
-  EI_STATISTICS: 'd4e8b8d4-9d5a-5e8d-9f1a-0e2a3b4c5d6e',
+  EI_STATISTICS: 'cf441b48-129d-4561-8523-6ee617897adf',
   // Canada Child Benefit by federal riding
-  CCB_BY_RIDING: 'e5f9c9e5-0e6b-4f9e-0f2b-1f3a4b5c6d7f',
+  CCB_BY_RIDING: 'faec2e23-b4e1-4be1-9922-8c02d501a329',
   // Low Income Cut-offs (LICO)
-  LICO: 'f6a0d0f6-1f7c-5a0f-1a3c-2a4b5c6d7e8a',
+  LICO: 'bb9f8da1-f39e-4fbe-b861-109fc72fb3d3',
   // Low Income Measure (LIM)
-  LIM: 'a7b1e1a7-2a8d-4b1a-2b4d-3b5c6d7e8f9b',
+  LIM: '95be823a-fef8-490f-8dec-eb55cc13d632',
   // Market Basket Measure (MBM)
-  MBM: 'b8c2f2b8-3b9e-5c2b-3c5e-4c6d7e8f9a0c',
+  MBM: '710db18e-6792-48ac-85f1-5758eda90f78',
   // Reaching Home homelessness counts
-  HOMELESSNESS_COUNTS: 'c9d3a3c9-4c0f-4d3c-4d6f-5d7e8f9a0b1d',
+  HOMELESSNESS_COUNTS: '1ae08707-1581-47e7-8798-da27906cf9b9',
 };
 
 /**

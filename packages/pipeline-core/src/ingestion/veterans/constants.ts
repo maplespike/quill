@@ -7,52 +7,52 @@ export const VAC_DATASETS: Record<string, { id: string; title: string }> = {
     title: 'VAC Facts and Figures',
   },
   BENEFITS_DATA: {
-    id: 'f0a7e3c7-8f7d-4b6e-9d5e-1a2b3c4d5e6f',
-    title: 'VAC Benefits by Program',
+    id: '9d7e0e0a-79df-46ba-ac34-127c398903bc',
+    title: 'VAC Evaluation of Disability Benefits',
   },
   DISABILITY_BENEFITS: {
-    id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
-    title: 'VAC Disability Benefits Statistics',
+    id: '9d7e0e0a-79df-46ba-ac34-127c398903bc',
+    title: 'VAC Disability Benefits Evaluation',
   },
   EDUCATION_BENEFITS: {
-    id: 'b2c3d4e5-f6a7-8901-2345-67890abcdef1',
-    title: 'VAC Education and Training Benefits',
+    id: 'fb0ea072-7b6c-4bea-8e16-e4b6d75b7b17',
+    title: 'VAC Education and Training Benefit Policy',
   },
   VETERANS_WAIT_TIMES: {
-    id: 'c3d4e5f6-a7b8-9012-3456-7890abcdef12',
-    title: 'Veterans Affairs Service Wait Times',
+    id: '8f810399-6380-4cd1-9ad1-0465a8c2a5ac',
+    title: 'VAC Wait Time Tool',
   },
   VETERANS_SUICIDE: {
-    id: 'd4e5f6a7-b8c9-0123-4567-890abcdef123',
-    title: 'Veterans Suicide Mortality Statistics',
+    id: 'fb739176-4bca-4a24-9046-5bb164041e15',
+    title: 'CAF Suicide Standardized Mortality Ratios',
   },
   OSISS_DATA: {
-    id: 'e5f6a7b8-c9d0-1234-5678-90abcdef1234',
-    title: 'OSISS Operational Stress Injury Clinics Data',
+    id: '6122e674-58a4-424c-8801-dadcc30dd5c7',
+    title: 'VAC OSI Treatment Clinic Evaluation',
   },
   VAC_CASELOAD: {
-    id: 'f6a7b8c9-d0e1-2345-6789-01abcdef2345',
-    title: 'VAC Client Caseload Statistics',
+    id: 'bbc93ab8-3a92-44bd-a7e4-cb9cc40edeb3',
+    title: 'VAC Facts and Figures — Client Statistics',
   },
 };
 
 /** DND / National Defence CKAN datasets related to veterans and personnel */
 export const DND_DATASETS: Record<string, { id: string; title: string }> = {
   PERSONNEL: {
-    id: '460aa2e0-5a37-47cf-a858-98b4327d29de',
-    title: 'DND Regular Force Personnel by Rank',
+    id: 'fa39335d-9524-4592-9ce7-88845d1c896e',
+    title: 'DND Military Personnel Seasonally Adjusted',
   },
   VETERAN_PROGRAMS: {
-    id: 'a7b8c9d0-e1f2-3456-7890-12abcdef3456',
-    title: 'DND Veteran Transition Programs',
+    id: '7f59c976-3bd5-48f4-93b6-6f1853be8e16',
+    title: 'DND Transition Material 2019',
   },
   DEFENCE_PROCUREMENT_VETERAN: {
-    id: 'b8c9d0e1-f2a3-4567-8901-23abcdef4567',
-    title: 'Defence Procurement Veteran-related Spending',
+    id: 'd25c25c4-4964-489a-9dff-9f9a26c759b6',
+    title: 'DND Supplementary Estimates (C) Binder',
   },
   MENTAL_HEALTH: {
-    id: 'c9d0e1f2-a3b4-5678-9012-34abcdef5678',
-    title: 'CAF Mental Health and Wellness Programs',
+    id: '73b4caf6-5b0a-46c0-ba8b-1ed878074e5a',
+    title: 'Injury in Review — Traumatic Brain Injuries Across the Life Course',
   },
 };
 

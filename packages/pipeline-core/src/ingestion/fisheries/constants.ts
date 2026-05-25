@@ -34,23 +34,23 @@ export const DFO_SEARCH_QUERIES = {
 
 export const DFO_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   FISH_STOCKS: {
-    id: 'e4f5a6b7-8c9d-0e1f-2a3b-4c5d6e7f8a9b',
-    title: 'DFO Fish Stock Status',
+    id: '1d5c9235-5706-4e8c-a9bf-c6e6a2177117',
+    title: 'Status of Major Fish Stocks by Stock Group',
     description: 'Fisheries and Oceans Canada fish stock status reports and assessments.',
   },
   SALMON_CATCH: {
-    id: 'f5a6b7c8-9d0e-1f2a-3b4c-5d6e7f8a9b0c',
-    title: 'DFO Salmon Fishery Catch Data',
+    id: '82c7eaa7-7078-4d38-a880-25d53f00c579',
+    title: 'Pacific Region Commercial Salmon Fishery Post-Season Catch Estimates',
     description: 'Salmon fishery catch data by species, region, and year from Fisheries and Oceans Canada.',
   },
   GROUNDFISH: {
-    id: 'a6b7c8d9-0e1f-2a3b-4c5d-6e7f8a9b0c1d',
-    title: 'DFO Groundfish Fishery Data',
+    id: 'a278d1af-d567-4964-a109-ae1e84cbd24a',
+    title: 'Groundfish Synoptic Bottom Trawl Surveys',
     description: 'Groundfish fishery data including catch, effort, and landings.',
   },
   SHELLFISH: {
-    id: 'b7c8d9e0-1f2a-3b4c-5d6e-7f8a9b0c1d2e',
-    title: 'DFO Shellfish Fishery Data',
+    id: '27dfcbf6-d320-4afc-9d0c-3d5df107dbe6',
+    title: 'Shellfish and Finfish Transfers to and from BC Aquaculture Sites',
     description: 'Shellfish fishery data including lobster, crab, and shrimp landings.',
   },
 };
@@ -67,14 +67,14 @@ export const AQUACULTURE_QUERIES = {
 
 export const AQUACULTURE_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   LICENCES: {
-    id: 'c8d9e0f1-2a3b-4c5d-6e7f-8a9b0c1d2e3f',
-    title: 'Aquaculture Licences and Production',
+    id: '522d1b67-30d8-4a34-9b62-5da99b1035e6',
+    title: 'Current Valid BC Aquaculture Licence Holders',
     description: 'Aquaculture licence and production data from Fisheries and Oceans Canada.',
   },
   PRODUCTION: {
-    id: 'd9e0f1a2-3b4c-5d6e-7f8a-9b0c1d2e3f4a',
-    title: 'Canadian Aquaculture Production',
-    description: 'Canadian aquaculture production statistics by species and province.',
+    id: '5cfd93bd-b3ee-4b0b-8816-33d388f6811d',
+    title: 'DFO Sea Lice Audits of BC Marine Finfish Aquaculture Sites',
+    description: 'Canadian aquaculture production and monitoring statistics by species and province.',
   },
 };
 
@@ -90,13 +90,13 @@ export const COAST_GUARD_QUERIES = {
 
 export const COAST_GUARD_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   INCIDENTS: {
-    id: 'e0f1a2b3-4c5d-6e7f-8a9b-0c1d2e3f4a5b',
-    title: 'Canadian Coast Guard Incidents',
+    id: '90597ca8-b981-4e67-932e-4cac649957a8',
+    title: 'Marine Transportation Safety Investigation Reports',
     description: 'Canadian Coast Guard incident response and icebreaking data.',
   },
   SEARCH_RESCUE: {
-    id: 'f1a2b3c4-5d6e-7f8a-9b0c-1d2e3f4a5b6c',
-    title: 'CCG Search and Rescue Data',
+    id: '0229e2d5-3adc-4305-965e-4ed6d8397cd7',
+    title: 'Marine Sectors in Canada — Summaries',
     description: 'Canadian Coast Guard search and rescue statistics and operations.',
   },
 };
@@ -112,14 +112,14 @@ export const MPA_QUERIES = {
 
 export const MPA_DATASETS: Record<string, { id: string; title: string; description: string }> = {
   MARINE_AREAS: {
-    id: 'a2b3c4d5-6e7f-8a9b-0c1d-2e3f4a5b6c7d',
-    title: 'Marine Protected Areas',
-    description: 'Marine protected area boundaries and designations in Canadian waters.',
+    id: 'de446830-8893-11e0-8e61-6cf049291510',
+    title: 'Protected Areas',
+    description: 'Protected areas including marine protected area boundaries and designations in Canadian waters.',
   },
   OCEANS_SITES: {
-    id: 'b3c4d5e6-7f8a-9b0c-1d2e-3f4a5b6c7d8e',
-    title: 'Oceans Act Marine Protected Areas',
-    description: 'Marine protected areas designated under the Oceans Act.',
+    id: '8e8f3aa7-2469-4697-932b-18c6f0b81488',
+    title: 'Protected and Conserved Ocean and Coastal Ecosystem Extent',
+    description: 'Protected and conserved ocean and coastal ecosystem extent account for Canada.',
   },
 };
 
