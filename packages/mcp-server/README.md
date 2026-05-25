@@ -5,7 +5,7 @@ status: active
 
 # MapleSpike MCP Server
 
-Model Context Protocol server for Canadian government data. **102 tools** for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
+Model Context Protocol server for Canadian government data. **126 tools** for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
 
 > **Status:** All tools standalone. Zero config. `npx @maplespike/mcp-server` and it just works.
 
@@ -99,7 +99,7 @@ PORT=3001 pnpm start:sse
 ### Utility
 | Tool | Description |
 |------|-------------|
-| `explore_catalog` | Browse all 102 tools by category |
+| `explore_catalog` | Browse all 126 tools by category |
 | `signal_check` | Change detection across committees, Gazette, lobbying, procurement, oversight |
 | `ai_ask` | Natural language Q&A with search-only fallback |
 | `qa_validate_module` | Validate data records against schema |
