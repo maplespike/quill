@@ -151,3 +151,31 @@ jobs:
           }
 
           echo "✅ docs/metrics.json is synchronized with codebase" >> $GITHUB_STEP_SUMMARY
+
+  k8s-manifests:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate K8s Nix manifests build
+        run: nix build .#k8s-manifests --no-link --print-out-paths
+
+      - name: Verify generated manifest resource counts
+        run: |
+          MANIFEST=$(nix build .#k8s-manifests --no-link --print-out-paths)
+          CRONJOBS=$(grep -c "^kind: CronJob" "$MANIFEST")
+          DEPLOYMENTS=$(grep -c "^kind: Deployment" "$MANIFEST")
+          SERVICES=$(grep -c "^kind: Service" "$MANIFEST")
+          NAMESPACES=$(grep -c "^kind: Namespace" "$MANIFEST")
+          echo "## ☸️ K8s Manifest Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| CronJobs | $CRONJOBS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployments | $DEPLOYMENTS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Services | $SERVICES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Namespaces | $NAMESPACES |" >> $GITHUB_STEP_SUMMARY
+          TOTAL=$(grep -c "^kind:" "$MANIFEST")
+          echo "| **Total** | **$TOTAL** |" >> $GITHUB_STEP_SUMMARY
