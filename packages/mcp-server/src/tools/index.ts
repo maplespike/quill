@@ -5827,7 +5827,14 @@ import * as searchCipo from './search-cipo.js';
     searchCulture,
     searchProvincialLegislatures,
     searchMunicipal,
-    searchCrownCorporations,import * as searchSocialPrograms from './search-social-programs.js';
+
+    searchRealTimeFeeds,
+    searchCorporateFilings,
+    searchA2aj,
+    searchGlobalCanada,
+    searchRegionalAuthorities,
+    searchProvincialRegulators,
+    searchGeospatial,    searchCrownCorporations,import * as searchSocialPrograms from './search-social-programs.js';
 import * as searchUnions from './search-unions.js';
 import * as searchEducationResearch from './search-education-research.js';
 import * as searchUniversities from './search-universities.js';
@@ -5835,3 +5842,10 @@ import * as searchCulture from './search-culture.js';
 import * as searchProvincialLegislatures from './search-provincial-legislatures.js';
 import * as searchMunicipal from './search-municipal.js';
 import * as searchCrownCorporations from './search-crown-corporations.js';
+import * as searchRealTimeFeeds from './search-real-time-feeds.js';
+import * as searchCorporateFilings from './search-corporate-filings.js';
+import * as searchA2aj from './search-a2aj.js';
+import * as searchGlobalCanada from './search-global-canada.js';
+import * as searchRegionalAuthorities from './search-regional-authorities.js';
+import * as searchProvincialRegulators from './search-provincial-regulators.js';
+import * as searchGeospatial from './search-geospatial.js';
