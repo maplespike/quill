@@ -12,6 +12,7 @@ import * as exploreCatalog from './explore-catalog.js';
 import * as factCheck from './fact-check.js';
 import * as findConnections from './find-connections.js';
 import * as getCitation from './get-citation.js';
+import * as getEntityProfile from './get-entity-profile.js';
 import * as getMemberInfo from './get-member-info.js';
 import * as getModuleHealth from './get-module-health.js';
 import * as getPipelineHealth from './get-pipeline-health.js';
@@ -30,6 +31,7 @@ import * as searchCanlii from './search-canlii.js';
 import * as searchCipo from './search-cipo.js';
 import * as searchCmhc from './search-cmhc.js';
 import * as searchCommittees from './search-committees.js';
+import * as searchCommitteesOp from './search-committees-op.js';
 import * as searchCorporate from './search-corporate.js';
 import * as searchCorporateFilings from './search-corporate-filings.js';
 import * as searchCraCharity from './search-cra-charity.js';
@@ -87,6 +89,7 @@ import * as searchTribunals from './search-tribunals.js';
 import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
 import * as searchVeterans from './search-veterans.js';
+import * as searchVotes from './search-votes.js';
 import * as searxngHealth from './searxng-health.js';
 import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
@@ -109,6 +112,7 @@ export function getAllTools(): ToolModule[] {
     factCheck,
     findConnections,
     getCitation,
+    getEntityProfile,
     getMemberInfo,
     getModuleHealth,
     getPipelineHealth,
@@ -127,6 +131,7 @@ export function getAllTools(): ToolModule[] {
     searchCipo,
     searchCmhc,
     searchCommittees,
+    searchCommitteesOp,
     searchCorporate,
     searchCorporateFilings,
     searchCraCharity,
@@ -184,6 +189,7 @@ export function getAllTools(): ToolModule[] {
     searchUnions,
     searchUniversities,
     searchVeterans,
+    searchVotes,
     searxngHealth,
     signalCheck,
     systemHealth,
