@@ -12,9 +12,11 @@ import * as exploreCatalog from './explore-catalog.js';
 import * as factCheck from './fact-check.js';
 import * as findConnections from './find-connections.js';
 import * as getCitation from './get-citation.js';
+import * as getMemberInfo from './get-member-info.js';
 import * as getModuleHealth from './get-module-health.js';
 import * as getPipelineHealth from './get-pipeline-health.js';
 import * as latestReleases from './latest-releases.js';
+import * as queryBridges from './query-bridges.js';
 import * as queryGovData from './query-gov-data.js';
 import * as qaSchema from './qa-schema.js';
 import * as qaValidateModule from './qa-validate-module.js';
@@ -22,6 +24,7 @@ import * as resolveEntity from './resolve-entity.js';
 import * as searchA2aj from './search-a2aj.js';
 import * as searchAgriculture from './search-agriculture.js';
 import * as searchAti from './search-ati.js';
+import * as searchBills from './search-bills.js';
 import * as searchBankOfCanada from './search-bank-of-canada.js';
 import * as searchCanlii from './search-canlii.js';
 import * as searchCipo from './search-cipo.js';
@@ -34,6 +37,7 @@ import * as searchCriminalJustice from './search-criminal-justice.js';
 import * as searchCrownCorporations from './search-crown-corporations.js';
 import * as searchCrtc from './search-crtc.js';
 import * as searchCulture from './search-culture.js';
+import * as searchDebates from './search-debates.js';
 import * as searchDefence from './search-defence.js';
 import * as searchEducationResearch from './search-education-research.js';
 import * as searchElections from './search-elections.js';
@@ -105,9 +109,11 @@ export function getAllTools(): ToolModule[] {
     factCheck,
     findConnections,
     getCitation,
+    getMemberInfo,
     getModuleHealth,
     getPipelineHealth,
     latestReleases,
+    queryBridges,
     queryGovData,
     qaSchema,
     qaValidateModule,
@@ -116,6 +122,7 @@ export function getAllTools(): ToolModule[] {
     searchAgriculture,
     searchAti,
     searchBankOfCanada,
+    searchBills,
     searchCanlii,
     searchCipo,
     searchCmhc,
@@ -127,6 +134,7 @@ export function getAllTools(): ToolModule[] {
     searchCrownCorporations,
     searchCrtc,
     searchCulture,
+    searchDebates,
     searchDefence,
     searchEducationResearch,
     searchElections,
