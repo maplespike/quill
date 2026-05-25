@@ -76,6 +76,7 @@ import * as searchNpri from './search-npri.js';
 import * as searchNrcan from './search-nrcan.js';
 import * as searchOversight from './search-oversight.js';
 import * as searchProactiveDisclosure from './search-proactive-disclosure.js';
+import * as searchProvincialData from './search-provincial-data.js';
 import * as searchProvincialLegislatures from './search-provincial-legislatures.js';
 import * as searchProvincialLobbying from './search-provincial-lobbying.js';
 import * as searchProvincialRegulators from './search-provincial-regulators.js';
@@ -180,6 +181,7 @@ export function getAllTools(): ToolModule[] {
     searchNrcan,
     searchOversight,
     searchProactiveDisclosure,
+    searchProvincialData,
     searchProvincialLegislatures,
     searchProvincialLobbying,
     searchProvincialRegulators,
