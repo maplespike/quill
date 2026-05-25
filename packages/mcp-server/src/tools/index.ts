@@ -11,7 +11,7 @@ import * as searchCommittees from './search-committees.js';
 import * as searchCorporate from './search-corporate.js';
 import * as searchInfluence from './search-influence.js';
 import * as searchGazette from './search-gazette.js';
-import * as searchGic from './search-gic.js';
+import *   as searchGic from './search-gic.js';
 import * as searchElections from './search-elections.js';
 import * as searchProvincialLobbying from './search-provincial-lobbying.js';
 import * as searchOversight from './search-oversight.js';
@@ -42,6 +42,8 @@ import * as findConnections from './find-connections.js';
 
 import * as cacheStatus from './cache-status.js';
 import * as cacheClear from './cache-clear.js';
+import * as searchStatcan from './search-statcan.js';
+import * as searchIrccCitizenship from './search-ircc-citizenship.js';
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -79,7 +81,7 @@ export function getAllTools(): ToolModule[] {
     searxngHealth,
     knowledgeFabric,
 
-  aiAsk,
+    aiAsk,
     aiAnalyze,
     aiSearchSemantic,
     systemHealth,
@@ -89,6 +91,10 @@ export function getAllTools(): ToolModule[] {
 
     cacheStatus,
     cacheClear,
+
+    // New tools for priority modules (batch 1)
+    searchStatcan,
+    searchIrccCitizenship,
   ];
 }
 
