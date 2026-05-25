@@ -8,8 +8,7 @@ export const engineRunHandler: RouteHandler = async (request, ctx) => {
     // Dynamic import — engine may not be built or installed
     let engine: any = null;
     try {
-      // @ts-expect-error — dynamic runtime import, engine may not be built
-    engine = await import('@maplespike/engine');
+      engine = await import('@maplespike/engine');
     } catch {
       return jsonResponse(
         buildError('ENGINE_NOT_BUILT', 'Engine package not available. Run pnpm --filter @maplespike/engine build first.', ctx),
