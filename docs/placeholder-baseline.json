@@ -1,0 +1,11 @@
+{
+  "packages/api-server/src/index.ts:mock-endpoint": true,
+  "packages/api-server/src/mock-data.ts:mock-endpoint": true,
+  "packages/api-server/src/routes/mock.ts:mock-endpoint": true,
+  "packages/docs/api/mock.md:mock-endpoint": true,
+  "packages/engine/src/db/connection.ts:todo-placeholder": true,
+  "packages/pipeline-core/src/ingestion/criminal-justice/constants.ts:todo-placeholder": true,
+  "packages/pipeline-core/src/ingestion/gic/parser.ts:todo-placeholder": true,
+  "packages/pipeline-core/src/ingestion/healthcanada/parser.ts:todo-placeholder": true,
+  "packages/pipeline-core/src/ingestion/social-programs/social-assistance.ts:todo-placeholder": true
+}

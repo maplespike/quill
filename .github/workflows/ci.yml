@@ -73,6 +73,9 @@ jobs:
             exit 1
           }
 
+      - name: Placeholder audit — detect new mocks/stubs/placeholders
+        run: node scripts/audit-placeholders.mjs
+
       - name: Start API server (background)
         env:
           JWT_SECRET: maplespike-ci-test-secret-not-for-production
