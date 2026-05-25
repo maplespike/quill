@@ -32,6 +32,20 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
+// Startup banner — zero-config npx experience
+const toolCount = tools.length;
+const toolNames = tools.map(t => t.definition.name).sort();
+process.stderr.write(`\n`);
+process.stderr.write(`  🍁 MapleSpike MCP Server ready\n`);
+process.stderr.write(`  ─────────────────────────────\n`);
+process.stderr.write(`  Tools: ${toolCount} registered\n`);
+process.stderr.write(`  Mode:  standalone (no API server needed)\n`);
+process.stderr.write(`  Cache: in-memory (5 min TTL)\n`);
+process.stderr.write(`\n`);
+process.stderr.write(`  Sample tools: ${toolNames.slice(0, 5).join(', ')}, ...\n`);
+process.stderr.write(`  Explore: signal_check | explore_catalog | ai_ask\n`);
+process.stderr.write(`\n`);
+
 const CLI_LOCALE = process.env.MAPLESPIKE_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
 
 // ── Lightweight metrics counters ──────────────────────────────────
