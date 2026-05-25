@@ -17,6 +17,7 @@ import type {
 } from './types.js';
 import type { Tenant } from './types.js';
 import { TIER_LIMITS } from './types.js';
+import { normalizeFields, convertUnits } from './utils/normalize.js';
 
 export type { CitationMeta, QualityMeta };
 
@@ -155,8 +156,15 @@ function applyTokenOptimization<T>(
     }
   }
 
-  // TODO: _normalize — normalize field names across sources
-  // TODO: _units — unit conversion (metric/imperial) for numeric fields
+  // _normalize — normalize field names across sources
+  if (opts._normalize) {
+    result = normalizeFields(result);
+  }
+
+  // _units — unit conversion (metric/imperial) for numeric fields
+  if (opts._units && opts._units !== 'metric') {
+    result = convertUnits(result, opts._units);
+  }
 
   return result as T;
 }
