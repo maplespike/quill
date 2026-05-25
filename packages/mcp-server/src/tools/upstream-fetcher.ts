@@ -361,3 +361,37 @@ export async function fetchProvincialCkan(province: string, query: string, limit
     } catch { return { results: [], total: 0 }; }
   });
 }
+
+// ── ArcGIS Hub / Portal (MB, SK, PEI) ─────────────────────────────
+
+const ARCGIS_SERVERS: Record<string, { name: string; server: string }> = {
+  mb: { name: 'Manitoba', server: 'https://services.arcgis.com/mMUesHYPkXjaFGfS/arcgis/rest/services' },
+  sk: { name: 'Saskatchewan', server: 'https://services3.arcgis.com/zcv98lgAl8xQ04cW/arcgis/rest/services' },
+  pe: { name: 'Prince Edward Island', server: 'https://gis.princeedwardisland.ca/server/rest/services' },
+  pei: { name: 'Prince Edward Island', server: 'https://gis.princeedwardisland.ca/server/rest/services' },
+};
+
+export async function listArcGISServices(province: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('arcgis_services_' + province, {}, async () => {
+    const info = ARCGIS_SERVERS[province];
+    if (!info) return { results: [], total: 0 };
+    const resp = await fetch(info.server + '?f=json', { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) return { results: [], total: 0 };
+    const json: any = await resp.json().catch(() => null);
+    const services = json?.services ?? [];
+    return {
+      results: services.map((s: Record<string, unknown>) => ({ name: s.name, type: s.type, url: info.server + '/' + s.name + '/FeatureServer' })),
+      total: services.length,
+    };
+  });
+}
+
+export async function queryArcGISService(serverUrl: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  try {
+    const queryUrl = serverUrl.endsWith('/') ? serverUrl + 'query?f=json&returnCountOnly=true' : serverUrl + '/query?f=json&returnCountOnly=true';
+    const resp = await fetch(queryUrl, { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) return { results: [], total: 0 };
+    const json: any = await resp.json().catch(() => null);
+    return { results: [{ service: serverUrl, count: json?.count ?? 0 }], total: json?.count ?? 0 };
+  } catch { return { results: [], total: 0 }; }
+}
