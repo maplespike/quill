@@ -53,6 +53,14 @@ import * as searchBankOfCanada from './search-bank-of-canada.js';
 import * as searchCmhc from './search-cmhc.js';
 import * as searchSedi from './search-sedi.js';
 import * as searchGocSpending from './search-goc-spending.js';
+import * as searchIrccProcessingTimes from './search-ircc-processing-times.js';
+import * as searchIrccEntryExit from './search-ircc-entry-exit.js';
+import * as searchIrccPrAdmissions from './search-ircc-pr-admissions.js';
+import * as searchIrccWorkPermits from './search-ircc-work-permits.js';
+import * as searchIrccStudyPermits from './search-ircc-study-permits.js';
+import * as searchIrccExpressEntry from './search-ircc-express-entry.js';
+import * as searchIrccFamilySponsorship from './search-ircc-family-sponsorship.js';
+import * as searchLegislation from './search-legislation.js';
 export interface ToolModule {
   definition: ToolDefinition;
   handler: ToolHandler;
@@ -96,6 +104,7 @@ export function getAllTools(): ToolModule[] {
 
     resolveEntity,
     findConnections,
+<<<<<<< HEAD
 
     cacheStatus,
     cacheClear,
@@ -112,6 +121,16 @@ export function getAllTools(): ToolModule[] {
     searchCmhc,
     searchSedi,
     searchGocSpending,
+
+    searchIrccProcessingTimes,
+    searchIrccEntryExit,
+    searchIrccPrAdmissions,
+    searchIrccWorkPermits,
+    searchIrccStudyPermits,
+    searchIrccExpressEntry,
+    searchIrccFamilySponsorship,
+    searchLegislation,
+  ];>>>>>>> 5c26e5e (feat(mcp-server): add 8 MCP tools for IRCC sub-modules and legislation (#443 batch 3))
   ];
 }
 
