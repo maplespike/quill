@@ -5,7 +5,7 @@ import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 import { fetchStatCanTable } from './statcan-helper.js';
 import {
   searchCkan, fetchParliamentDebates, fetchParliamentBills, fetchParliamentVotes,
-  fetchPoliticians, fetchGazette, fetchParliamentCommittees,
+  fetchPoliticians, fetchGazette, fetchParliamentCommittees, searchSocrata,
 } from './upstream-fetcher.js';
 
 const SYNONYMS: Record<string, string[]> = {
@@ -61,6 +61,8 @@ const SOURCES: SourceDef[] = [
   { name: 'government_crime', keywords: ['crime', 'police', 'rcmp', 'criminal', 'justice', 'courts'], fetch: (q, l) => searchCkan(q + ' crime', l) },
   { name: 'government_defence', keywords: ['defence', 'military', 'dnd', 'veteran', 'armed forces'], fetch: (q, l) => searchCkan(q + ' defence', l) },
   { name: 'government_indigenous', keywords: ['indigenous', 'first nations', 'metis', 'inuit', 'native'], fetch: (q, l) => searchCkan(q + ' indigenous', l) },
+  { name: 'province_ns', keywords: ['nova scotia', 'halifax', 'ns '], fetch: (q, l) => searchSocrata('novascotia', q, l) },
+  { name: 'province_nb', keywords: ['new brunswick', 'fredericton', 'nb '], fetch: (q, l) => searchSocrata('newbrunswick', q, l) },
   { name: 'government_general', keywords: [], fetch: (q, l) => searchCkan(q, l) },
 ];
 
