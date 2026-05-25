@@ -25,6 +25,37 @@ const INGESTION_DIR = join(__dirname, '..', 'src', 'ingestion');
 
 // ── Helpers ────────────────────────────────────────────────────────
 
+function updateRegistry(moduleName, info) {
+  const registryPath = join(INGESTION_DIR, 'registry.ts');
+  if (!existsSync(registryPath)) {
+    console.error(`  ⚠ Registry not found at ${registryPath}`);
+    return;
+  }
+
+  const content = readFileSync(registryPath, 'utf-8');
+  const entry = `  {
+    name: '${info.name}',
+    description: '${info.description}',
+    category: '${info.category}',
+    modulePath: '${info.modulePath}',
+    ingestFunctions: ${JSON.stringify(info.ingestFunctions)},
+    sources: ${JSON.stringify(info.sources)},
+    updateFrequency: '${info.updateFrequency}',
+    testCallPattern: 'runModule',
+    healthCheckUrl: '${info.healthCheckUrl}',
+  },`;
+
+  const lastBracketIndex = content.lastIndexOf('];');
+  if (lastBracketIndex === -1) {
+    console.error('  ⚠ Could not find end of MODULE_REGISTRY array in registry.ts');
+    return;
+  }
+
+  const updatedContent = content.slice(0, lastBracketIndex) + entry + '\n' + content.slice(lastBracketIndex);
+  writeFileSync(registryPath, updatedContent, 'utf-8');
+  console.log(`  ✓ Added ${moduleName} to registry.ts`);
+}
+
 function toPascal(kebab) {
   return kebab.split(/[-_]/).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('');
 }
@@ -77,6 +108,7 @@ Options:
   --record <name>        Record type name (default: PascalCase)
   --status               Also output registry.ts and ingest.ts snippets (default: true)
   --no-status            Skip status output
+  --auto-register        Automatically add module to registry.ts
   --help                 Show this help
 
 Interactive mode (no flags):
@@ -108,6 +140,7 @@ for (let i = 0; i < args.length; i++) {
   if (args[i] === '--parent') flags.parent = args[++i];
   if (args[i] === '--table') flags.table = args[++i];
   if (args[i] === '--record') flags.record = args[++i];
+  if (args[i] === '--auto-register') flags.autoRegister = true;
 }
 
 // ── Derived names ──────────────────────────────────────────────────
@@ -886,6 +919,23 @@ for (const [filename, content] of Object.entries(files)) {
   }
   writeFileSync(filePath, content, 'utf-8');
   console.log(`  ✓ Created ${filename}`);
+}
+
+if (flags.autoRegister) {
+  const registryPath = flags.parent
+    ? `./${flags.parent}/${moduleName}/index.js`
+    : `./${moduleName}/index.js`;
+
+  updateRegistry(moduleName, {
+    name: moduleName,
+    description: flags.description,
+    category: flags.category,
+    modulePath: registryPath,
+    ingestFunctions: [`ingest${pascal}Records`],
+    sources: [{ name: flags.sourceName, format: flags.sourceFormat }],
+    updateFrequency: flags.frequency,
+    healthCheckUrl: flags.sourceUrl,
+  });
 }
 
 // ── Registry snippet ────────────────────────────────────────────────
