@@ -8,7 +8,35 @@ import {
   fetchPoliticians, fetchGazette, fetchParliamentCommittees,
 } from './upstream-fetcher.js';
 
-// ── Intent → Source mapping ─────────────────────────────────────────
+const SYNONYMS: Record<string, string[]> = {
+  drug: ['pharmaceutical', 'medication', 'prescription', 'pharma', 'medicine'],
+  health: ['healthcare', 'medical', 'phac', 'cihi', 'wellness'],
+  economy: ['economic', 'gdp', 'inflation', 'cpi', 'trade', 'market'],
+  tax: ['taxation', 'fiscal', 'revenue', 'levy'],
+  environment: ['climate', 'green', 'emission', 'carbon', 'pollution'],
+  defence: ['military', 'armed forces', 'dnd', 'veteran'],
+  immigration: ['ircc', 'visa', 'refugee', 'citizenship', 'permit'],
+  indigenous: ['first nations', 'metis', 'inuit', 'isc', 'rcaanc'],
+  lobbying: ['lobby', 'influence', 'advocacy', 'registrant'],
+  committee: ['standing committee', 'subcommittee', 'joint committee'],
+  vote: ['voted', 'yea', 'nay', 'ballot', 'passed', 'defeated'],
+  bill: ['legislation', 'act', 'proposed law', 'c-', 's-'],
+  regulation: ['regulatory', 'gazette', 'sor', 'notice'],
+  spending: ['budget', 'expenditure', 'grant', 'contract', 'procurement'],
+  housing: ['cmhc', 'mortgage', 'rental', 'shelter', 'affordable'],
+  labour: ['employment', 'unemployment', 'job', 'wage', 'union'],
+  crime: ['criminal', 'police', 'rcmp', 'corrections', 'csc'],
+  education: ['school', 'university', 'college', 'student', 'training'],
+};
+
+function expandQuery(query: string): string[] {
+  const lower = query.toLowerCase();
+  const expanded = new Set<string>([query]);
+  for (const [word, syns] of Object.entries(SYNONYMS)) {
+    if (lower.includes(word)) syns.forEach(s => expanded.add(s));
+  }
+  return Array.from(expanded);
+}
 
 interface SourceDef {
   name: string;
@@ -19,75 +47,131 @@ interface SourceDef {
 const SOURCES: SourceDef[] = [
   { name: 'parliament_debates', keywords: ['debate', 'hansard', 'parliament', 'house of commons', 'said', 'speaker'], fetch: (q, l) => fetchParliamentDebates(q, l) },
   { name: 'parliament_bills', keywords: ['bill', 'legislation', 'c-', 's-', 'law', 'proposed', 'enacted'], fetch: (q, l) => fetchParliamentBills(q, l) },
-  { name: 'parliament_votes', keywords: ['vote', 'voted', 'yea', 'nay', 'passed', 'defeated', 'majority'], fetch: (q, l) => fetchParliamentVotes(q, l) },
+  { name: 'parliament_votes', keywords: ['vote', 'voted', 'yea', 'nay', 'passed', 'defeated', 'ballot'], fetch: (q, l) => fetchParliamentVotes(q, l) },
   { name: 'parliament_mps', keywords: ['mp', 'member', 'politician', 'member of parliament', 'party', 'riding'], fetch: (q, l) => fetchPoliticians(q, l) },
   { name: 'parliament_committees', keywords: ['committee', 'standing committee', 'study', 'witness'], fetch: (q, l) => fetchParliamentCommittees(q, l) },
-  { name: 'gazette', keywords: ['regulation', 'gazette', 'regulatory', 'notice', 'proposed regulation'], fetch: (q, l) => fetchGazette(q, l) },
-  { name: 'government_ckan', keywords: ['program', 'grant', 'funding', 'department', 'agency', 'data', 'report', 'canada'], fetch: (q, l) => searchCkan(q, l) },
+  { name: 'gazette', keywords: ['regulation', 'gazette', 'regulatory', 'notice', 'sor'], fetch: (q, l) => fetchGazette(q, l) },
+  { name: 'government_health', keywords: ['health', 'healthcare', 'medical', 'drug', 'pharmaceutical', 'recall', 'covid'], fetch: (q, l) => searchCkan(q + ' health', l) },
+  { name: 'government_economy', keywords: ['economy', 'gdp', 'inflation', 'cpi', 'trade', 'fiscal'], fetch: (q, l) => searchCkan(q + ' economy', l) },
+  { name: 'government_environment', keywords: ['environment', 'climate', 'emission', 'carbon', 'pollution', 'weather'], fetch: (q, l) => searchCkan(q + ' environment', l) },
+  { name: 'government_immigration', keywords: ['immigration', 'ircc', 'visa', 'refugee', 'citizenship'], fetch: (q, l) => searchCkan(q + ' immigration', l) },
+  { name: 'government_labour', keywords: ['labour', 'employment', 'unemployment', 'job', 'wage', 'union'], fetch: (q, l) => searchCkan(q + ' labour', l) },
+  { name: 'government_spending', keywords: ['spending', 'budget', 'expenditure', 'contract', 'procurement', 'grant'], fetch: (q, l) => searchCkan(q + ' spending', l) },
+  { name: 'government_housing', keywords: ['housing', 'cmhc', 'mortgage', 'rental', 'shelter'], fetch: (q, l) => searchCkan(q + ' housing', l) },
+  { name: 'government_crime', keywords: ['crime', 'police', 'rcmp', 'criminal', 'justice', 'courts'], fetch: (q, l) => searchCkan(q + ' crime', l) },
+  { name: 'government_defence', keywords: ['defence', 'military', 'dnd', 'veteran', 'armed forces'], fetch: (q, l) => searchCkan(q + ' defence', l) },
+  { name: 'government_indigenous', keywords: ['indigenous', 'first nations', 'metis', 'inuit', 'native'], fetch: (q, l) => searchCkan(q + ' indigenous', l) },
+  { name: 'government_general', keywords: [], fetch: (q, l) => searchCkan(q, l) },
 ];
 
 function detectSources(query: string): SourceDef[] {
   const lower = query.toLowerCase();
-  const matched = SOURCES.filter(s => s.keywords.some(k => lower.includes(k)));
-  return matched.length > 0 ? matched : [SOURCES[SOURCES.length - 1]]; // default: CKAN
+  const matched = SOURCES.filter(s => s.keywords.length > 0 && s.keywords.some(k => lower.includes(k)));
+  return matched.length > 0 ? matched : [SOURCES[SOURCES.length - 1]];
 }
 
-// ── Tool definition ─────────────────────────────────────────────────
+// #3: Time-series
+const TIME_TABLES: Record<string, { id: string; label: string }> = {
+  cpi: { id: '18100004', label: 'Consumer Price Index' },
+  gdp: { id: '36100114', label: 'Gross Domestic Product' },
+  population: { id: '17100009', label: 'Population estimates' },
+  labour: { id: '14100270', label: 'Labour force' },
+};
+
+function detectTimeSeries(query: string): string | null {
+  const l = query.toLowerCase();
+  if (l.includes('cpi') || l.includes('inflation')) return 'cpi';
+  if (l.includes('gdp') || l.includes('economic growth')) return 'gdp';
+  if (l.includes('population')) return 'population';
+  if (l.includes('unemployment') || l.includes('labour') || l.includes('jobs')) return 'labour';
+  return null;
+}
+
+async function fetchTimeSeries(key: string, limit = 20): Promise<{ label: string; data: Record<string, unknown>[]; source: string } | null> {
+  const t = TIME_TABLES[key];
+  if (!t) return null;
+  try {
+    const { rows } = await fetchStatCanTable(t.id);
+    return { label: t.label, data: rows.slice(0, limit), source: 'https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=' + t.id };
+  } catch { return null; }
+}
+
+// #4: Citations
+function buildMeta(source: string, count: number) {
+  return { source, totalEntries: count, retrievedAt: new Date().toISOString(), license: 'OGL-Canada (https://open.canada.ca/en/open-government-licence-canada)' };
+}
+
+// #5: Trends
+async function fetchTrends(limit = 5) {
+  const r: Record<string, { items: Record<string, unknown>[]; total: number }> = {};
+  for (const [name, fn] of Object.entries({
+    gazette: () => fetchGazette('', limit),
+    debates: () => fetchParliamentDebates('', limit),
+    bills: () => fetchParliamentBills('', limit),
+  })) {
+    try { const d = await fn(); r[name] = { items: d.results, total: d.total }; } catch { r[name] = { items: [], total: 0 }; }
+  }
+  return r;
+}
+
+// ── Tool ────────────────────────────────────────────────────────────
 
 export const definition: ToolDefinition = {
   name: 'smart_search',
-  description: 'Smart semantic search across all Canadian government data sources. Automatically detects the best sources for your question and searches them in parallel. Sources include: Parliament (debates, bills, votes, MPs, committees), Canada Gazette (regulations), and Government of Canada open data (programs, grants, spending, reports).',
+  description: 'Intelligent search across all Canadian government data. Understands intent, expands synonyms, detects time-series queries, and summarizes recent changes. Sources: Parliament (debates, bills, votes, MPs, committees), Gazette (regulations), Government open data (health, economy, environment, immigration, spending, etc.)',
   inputSchema: {
     type: 'object',
     properties: {
-      query: {
-        type: 'string',
-        description: 'Natural language question or search terms (e.g., "What bills are before parliament?", "Find regulations about carbon pricing", "How did MPs vote on the budget?")',
-      },
-      limit: {
-        type: 'number', minimum: 1, maximum: 30, description: 'Results per source (default: 5)',
-      },
+      query: { type: 'string', description: 'Question or keywords (e.g., "inflation trends", "health regulations", "what changed this week")' },
+      mode: { type: 'string', enum: ['search', 'trends'], default: 'search', description: '"search" or "trends"' },
+      limit: { type: 'number', minimum: 1, maximum: 30, default: 5 },
     },
-    required: ['query'],
   },
 };
 
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
-  const query = String(args.query ?? '').trim();
+  const mode = (args.mode as string) || 'search';
   const limit = Math.min((args.limit as number) ?? 5, 30);
-  if (!query) return { content: { tool: 'smart_search', error: 'No query provided' }, isError: true };
 
-  try {
-    const sources = detectSources(query);
-    const results = await Promise.allSettled(
-      sources.map(s => s.fetch(query, limit).then(r => ({ source: s.name, ...r })))
-    );
-
-    const sourceResults: Record<string, { results: Record<string, unknown>[]; total: number }> = {};
-    let totalAll = 0;
-
-    for (const r of results) {
-      if (r.status === 'fulfilled') {
-        sourceResults[r.value.source] = { results: r.value.results, total: r.value.total };
-        totalAll += r.value.total;
-      }
-    }
-
-    return {
-      content: {
-        tool: 'smart_search',
-        query,
-        intent: {
-          detectedSources: sources.map(s => s.name),
-          primarySource: sources[0]?.name ?? 'government_ckan',
-        },
-        results: sourceResults,
-        totalResults: totalAll,
-        summary: `Searched ${Object.keys(sourceResults).length} source(s). Found ${totalAll} matching records.`,
-        note: 'Results are from government open data sources (OGL-Canada). Verify critical information.',
-      },
-    };
-  } catch (error) {
-    return { content: { tool: 'smart_search', status: 'error', error: (error as Error).message }, isError: true };
+  // Trends mode
+  if (mode === 'trends') {
+    try {
+      const trends = await fetchTrends(limit);
+      return { content: {
+        tool: 'smart_search', mode: 'trends',
+        trends: Object.entries(trends).map(([s, d]) => ({ source: s, total: d.total, items: d.items.map((i: Record<string, unknown>) => ({ title: (i.title || i.name || "").toString().slice(0, 200) })) })),
+        ...buildMeta('multiple', Object.values(trends).reduce((a, t) => a + t.total, 0)),
+      } };
+    } catch (e) { return { content: { tool: 'smart_search', error: (e as Error).message }, isError: true }; }
   }
+
+  // Search mode
+  const query = String(args.query ?? '').trim();
+  if (!query) return { content: { tool: 'smart_search', error: 'No query' }, isError: true };
+
+  const expanded = expandQuery(query);
+  const sources = detectSources(query);
+  const timeKey = detectTimeSeries(query);
+
+  const [searchRes, tsData] = await Promise.all([
+    Promise.allSettled(sources.map(s => s.fetch(query, limit).then(r => ({ source: s.name, ...r })))),
+    timeKey ? fetchTimeSeries(timeKey, limit) : Promise.resolve(null),
+  ]);
+
+  const results: Record<string, { results: Record<string, unknown>[]; total: number }> = {};
+  let total = 0;
+  for (const r of searchRes) {
+    if (r.status === 'fulfilled') { results[r.value.source] = { results: r.value.results, total: r.value.total }; total += r.value.total; }
+  }
+
+  return {
+    content: {
+      tool: 'smart_search', mode: 'search', query,
+      synonyms: expanded.slice(1),
+      sourcesSearched: Object.keys(results),
+      timeSeries: tsData,
+      results, totalResults: total,
+      ...buildMeta(sources[0]?.name ?? 'ckan', total),
+    },
+  };
 };
