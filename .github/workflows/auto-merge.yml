@@ -1,0 +1,93 @@
+---
+name: Auto-merge Dependabot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]' || github.actor == 'reverb256'
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if safe to auto-merge
+        id: check
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_TITLE="${{ github.event.pull_request.title }}"
+
+          # Determine if this is a safe update (patch or minor, not major)
+          if echo "$PR_TITLE" | grep -qiE "major|breaking|BREAKING"; then
+            echo "safe=false" >> $GITHUB_OUTPUT
+            echo "reason=Major version bump — manual review required" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check only specific low-risk packages for full auto-merge
+          LOW_RISK="better-sqlite3|@types/|typescript|eslint|vitest|turbo"
+          if echo "$PR_TITLE" | grep -qiE "$LOW_RISK"; then
+            echo "safe=true" >> $GITHUB_OUTPUT
+            echo "reason=Low-risk dependency" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Framework deps (Next.js, Astro, Drizzle) — only patch level
+          if echo "$PR_TITLE" | grep -qiE "next|astro|drizzle"; then
+            # Check if it's a patch version bump (third segment changes)
+            if echo "$PR_TITLE" | grep -qE "from [0-9]+\.[0-9]+\.[0-9]+ to [0-9]+\.[0-9]+\.[0-9]+"; then
+              FROM=$(echo "$PR_TITLE" | grep -oP 'from \K[0-9]+\.[0-9]+\.[0-9]+')
+              TO=$(echo "$PR_TITLE" | grep -oP 'to \K[0-9]+\.[0-9]+\.[0-9]+')
+              FROM_MAJOR=$(echo "$FROM" | cut -d. -f1)
+              TO_MAJOR=$(echo "$TO" | cut -d. -f1)
+              FROM_MINOR=$(echo "$FROM" | cut -d. -f2)
+              TO_MINOR=$(echo "$TO" | cut -d. -f2)
+              if [ "$FROM_MAJOR" = "$TO_MAJOR" ] && [ "$FROM_MINOR" = "$TO_MINOR" ]; then
+                echo "safe=true" >> $GITHUB_OUTPUT
+                echo "reason=Patch-level framework update" >> $GITHUB_OUTPUT
+              else
+                echo "safe=false" >> $GITHUB_OUTPUT
+                echo "reason=Minor/major framework update — manual review" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "safe=false" >> $GITHUB_OUTPUT
+              echo "reason=Cannot determine version change — manual review" >> $GITHUB_OUTPUT
+            fi
+            exit 0
+          fi
+
+          # Default: don't auto-merge unknown deps
+          echo "safe=false" >> $GITHUB_OUTPUT
+          echo "reason=Not in auto-merge whitelist — manual review" >> $GITHUB_OUTPUT
+
+      - name: Wait for CI checks
+        if: steps.check.outputs.safe == 'true'
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: "test"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+
+      - name: Approve and auto-merge
+        if: steps.check.outputs.safe == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh pr review $PR_NUMBER --approve --body "Auto-approved: ${{ steps.check.outputs.reason }}"
+          gh pr merge $PR_NUMBER --squash --auto --subject "chore: ${{ github.event.pull_request.title }}"
+
+      - name: Report skipped merge
+        if: steps.check.outputs.safe != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "⏸️ Auto-merge skipped: ${{ steps.check.outputs.reason }}"
