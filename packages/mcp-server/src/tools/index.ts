@@ -8,6 +8,7 @@ import * as aiAsk from './ai-ask.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
 import * as cacheClear from './cache-clear.js';
 import * as cacheStatus from './cache-status.js';
+import * as compareRegions from './compare-regions.js';
 import * as exploreCatalog from './explore-catalog.js';
 import * as factCheck from './fact-check.js';
 import * as findConnections from './find-connections.js';
@@ -16,6 +17,7 @@ import * as getEntityProfile from './get-entity-profile.js';
 import * as getMemberInfo from './get-member-info.js';
 import * as getModuleHealth from './get-module-health.js';
 import * as getPipelineHealth from './get-pipeline-health.js';
+import * as getPoliticianInfluence from './get-politician-influence.js';
 import * as latestReleases from './latest-releases.js';
 import * as queryBridges from './query-bridges.js';
 import * as queryGovData from './query-gov-data.js';
@@ -84,6 +86,7 @@ import * as searchSedi from './search-sedi.js';
 import * as searchSocialPrograms from './search-social-programs.js';
 import * as searchSpeciesAtRisk from './search-species-at-risk.js';
 import * as searchStatcan from './search-statcan.js';
+import * as trackBill from './track-bill.js';
 import * as searchTransport from './search-transport.js';
 import * as searchTribunals from './search-tribunals.js';
 import * as searchUnions from './search-unions.js';
@@ -108,6 +111,7 @@ export function getAllTools(): ToolModule[] {
     aiSearchSemantic,
     cacheClear,
     cacheStatus,
+    compareRegions,
     exploreCatalog,
     factCheck,
     findConnections,
@@ -116,6 +120,7 @@ export function getAllTools(): ToolModule[] {
     getMemberInfo,
     getModuleHealth,
     getPipelineHealth,
+    getPoliticianInfluence,
     latestReleases,
     queryBridges,
     queryGovData,
@@ -184,6 +189,7 @@ export function getAllTools(): ToolModule[] {
     searchSocialPrograms,
     searchSpeciesAtRisk,
     searchStatcan,
+    trackBill,
     searchTransport,
     searchTribunals,
     searchUnions,
