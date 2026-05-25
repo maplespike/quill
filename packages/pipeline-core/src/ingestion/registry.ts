@@ -1105,6 +1105,76 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://open.canada.ca',
   },
+
+  // ── Policing, Intelligence & National Security (#311) ────────
+  {
+    name: 'policing-security',
+    description: 'Policing, intelligence & national security data — RCMP crime stats, CSIS reports, CSE advisories, CSC corrections',
+    category: 'security',
+    modulePath: './policing-security/index.js',
+    ingestFunctions: ['ingestPolicingSecurityRecords', 'searchPolicingSecurityRecords'],
+    sources: [
+      { name: 'RCMP crime stats (StatCan)', format: 'CSV' },
+      { name: 'CSIS annual reports', format: 'HTML' },
+      { name: 'CSE cybersecurity advisories', format: 'HTML' },
+      { name: 'CSC institution data', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.statcan.gc.ca',
+  },
+
+  // ── Telecommunications & Digital (#312) ─────────────────────
+  {
+    name: 'telecommunications',
+    description: 'Telecommunications & digital data — CRTC market reports, ISED spectrum, CIRA internet, broadband coverage',
+    category: 'media',
+    modulePath: './telecommunications/index.js',
+    ingestFunctions: ['ingestTelecommunicationsRecords', 'searchTelecommunicationsRecords'],
+    sources: [
+      { name: 'CRTC communications market reports', format: 'HTML' },
+      { name: 'ISED spectrum management', format: 'HTML' },
+      { name: 'CIRA internet data', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://crtc.gc.ca',
+  },
+
+  // ── Pharmaceuticals & Drug Policy (#313) ────────────────────
+  {
+    name: 'pharmaceuticals',
+    description: 'Pharmaceuticals & drug policy data — PMPRB pricing, Health Canada DPD, drug shortages, CADTH reviews',
+    category: 'health',
+    modulePath: './pharmaceuticals/index.js',
+    ingestFunctions: ['ingestPharmaceuticalsRecords', 'searchPharmaceuticalsRecords'],
+    sources: [
+      { name: 'PMPRB drug pricing', format: 'HTML' },
+      { name: 'Health Canada Drug Product Database', format: 'CSV' },
+      { name: 'Drug Shortages Canada', format: 'JSON' },
+      { name: 'CADTH reports', format: 'HTML' },
+    ],
+    updateFrequency: 'daily',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://health-products.canada.ca',
+  },
+
+  // ── Emergency Management & Public Safety (#314) ──────────────
+  {
+    name: 'emergency-management',
+    description: 'Emergency management & public safety — Canadian Disaster Database, ECCC alerts, NRCan geohazards, provincial emergencies',
+    category: 'government',
+    modulePath: './emergency-management/index.js',
+    ingestFunctions: ['ingestEmergencyManagementRecords', 'searchEmergencyManagementRecords'],
+    sources: [
+      { name: 'Canadian Disaster Database', format: 'CSV' },
+      { name: 'ECCC weather alerts (CAP-CP)', format: 'XML' },
+      { name: 'NRCan earthquakes & geohazards', format: 'HTML' },
+    ],
+    updateFrequency: 'daily',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.publicsafety.gc.ca',
+  },
 ];
 
 // Build lookup map
