@@ -1,6 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { chatCompletion } from '../ai/gateway.js';
-import { searchGovData } from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 /**
  * AI Ask Tool
@@ -77,7 +77,7 @@ export const handler: ToolHandler = async (args) => {
 
   try {
     // Step 1: Search live API
-    const searchResult = await searchGovData(query, 'all', 15);
+    const searchResult = await searchCkan(query, 15);
     const searchResults = (searchResult as any)?.results ?? [];
     const totalFound = (searchResult as any)?.total ?? 0;
 

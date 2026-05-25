@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import * as api from './api-client.js';
+import { searchCkan } from './upstream-fetcher.js';
 
 const KNOWN_JURISDICTIONS = ['federal', 'ontario', 'british-columbia', 'alberta', 'quebec', 'all'];
 
@@ -76,7 +77,7 @@ export const handler: ToolHandler = async (args) => {
   }
 
   try {
-    const data = await api.searchGovData(query, jurisdiction, limit);
+    const data = await searchCkan(query, limit);
 
     return {
       content: {
