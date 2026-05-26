@@ -21,6 +21,10 @@
     "./doc-generator": {
       "import": "./dist/doc-generator/index.js",
       "types": "./dist/doc-generator/index.d.ts"
+    },
+    "./ingestion/worldbank": {
+      "import": "./dist/ingestion/worldbank/index.js",
+      "types": "./dist/ingestion/worldbank/index.d.ts"
     }
   },
   "scripts": {

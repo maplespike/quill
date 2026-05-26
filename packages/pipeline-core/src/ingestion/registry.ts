@@ -17,7 +17,8 @@ export type ModuleCategory =
   | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
   | 'elections' | 'provincial' | 'science' | 'social' | 'health'
   | 'defence' | 'education' | 'environment' | 'infrastructure'
-  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss';
+  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial'
+  | 'international' | 'rss';
 
 export interface ModuleInfo {
   name: string;
@@ -1174,6 +1175,28 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://www.publicsafety.gc.ca',
+  },
+
+  // ── International — World Bank (issue-580) ─────────────────────
+  {
+    name: 'worldbank',
+    description:
+      'World Bank Indicators API — 16,000+ development indicators across 200+ countries. ' +
+      'Covers GDP, trade, health, education, population, environment, ' +
+      'infrastructure, poverty, finance, energy, and agriculture.',
+    category: 'international',
+    modulePath: './worldbank/index.js',
+    ingestFunctions: [
+      'ingestAllWorldBank',
+      'ingestByIndicator',
+      'ingestByCategory',
+    ],
+    sources: [
+      { name: 'World Bank Indicators API V2', format: 'REST JSON' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://api.worldbank.org/v2/country/CA/indicator/NY.GDP.MKTP.CD?format=json&per_page=1',
   },
 ];
 

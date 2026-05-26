@@ -126,6 +126,7 @@ import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
 import * as searchVeterans from './search-veterans.js';
 import * as searchVotes from './search-votes.js';
+import * as searchWorldbank from './search-worldbank.js';
 import * as searxngHealth from './searxng-health.js';
 import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
@@ -262,6 +263,7 @@ export function getAllTools(): ToolModule[] {
     searchUniversities,
     searchVeterans,
     searchVotes,
+    searchWorldbank,
     searxngHealth,
     signalCheck,
     systemHealth,
