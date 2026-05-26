@@ -23,15 +23,13 @@ jobs:
       - run: bash scripts/build-packages.sh
 
       # npm publish via OIDC Trusted Publishing
-      - name: Create Release PR or Publish
-        uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish
-          commit: "chore: version packages"
-          title: "chore: version packages"
+      - name: Version and Publish
+        run: |
+          pnpm changeset version
+          pnpm --filter @reverb256/mcp-server publish --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-pypi:
     runs-on: [self-hosted, nixos]
