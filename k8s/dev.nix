@@ -1,5 +1,5 @@
 # MapleSpike Dev environment — Nix-generated K8s manifests
-# Namespace: maplespike-dev
+# Namespace: maplespike
 # NodePorts: portal=30965, api=31284, mcp=31746
 { lib, ... }:
 
@@ -55,7 +55,7 @@ in {
   config.kubernetes.objects = {
 
     # ── Namespace ───────────────────────────────────────────────
-    maplespike-dev.Namespace.maplespike-dev = {
+    maplespike.Namespace.maplespike = {
       metadata.labels = {
         pod-security.kubernetes.io.enforce = "baseline";
         pod-security.kubernetes.io.enforce-version = "latest";
@@ -63,7 +63,7 @@ in {
     };
 
     # ── Portal ConfigMap ────────────────────────────────────────
-    maplespike-dev.ConfigMap.portal-config = {
+    maplespike.ConfigMap.portal-config = {
       metadata.labels = {
         app = "maplespike-portal";
         component = "portal";
@@ -73,7 +73,7 @@ in {
 // MapleSpike Portal Configuration — Dev Environment
 // Mounted at /usr/share/nginx/html/config.js
 window.MAPLESPIKE = window.MAPLESPIKE || {};
-MAPLESPIKE.apiBase = "https://dev-maplespike-api.lan";
+MAPLESPIKE.apiBase = "https://dev-api.maplespike.lan";
 MAPLESPIKE.apiKey = "";
 MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
 '';
@@ -81,7 +81,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── API Deployment ──────────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-api = {
+    maplespike.Deployment.maplespike-api = {
       metadata.labels = {
         app = "maplespike-api";
         component = "api";
@@ -143,7 +143,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── API Service ─────────────────────────────────────────────
-    maplespike-dev.Service.maplespike-api = {
+    maplespike.Service.maplespike-api = {
       metadata.labels = {
         app = "maplespike-api";
         component = "api";
@@ -160,7 +160,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Deployment ──────────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-mcp = {
+    maplespike.Deployment.maplespike-mcp = {
       metadata.labels = {
         app = "maplespike-mcp";
         component = "mcp";
@@ -222,7 +222,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Service ─────────────────────────────────────────────
-    maplespike-dev.Service.maplespike-mcp = {
+    maplespike.Service.maplespike-mcp = {
       metadata.labels = {
         app = "maplespike-mcp";
         component = "mcp";
@@ -239,7 +239,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Portal Deployment ───────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-portal = {
+    maplespike.Deployment.maplespike-portal = {
       metadata.labels = {
         app = "maplespike-portal";
         component = "portal";
@@ -318,7 +318,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Portal Service ──────────────────────────────────────────
-    maplespike-dev.Service.maplespike-portal = {
+    maplespike.Service.maplespike-portal = {
       metadata.labels = {
         app = "maplespike-portal";
         component = "portal";
@@ -335,7 +335,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Dashboard Deployment ────────────────────────────────────
-    maplespike-dev.Deployment.maplespike-dashboard = {
+    maplespike.Deployment.maplespike-dashboard = {
       metadata.labels = {
         app = "maplespike-dashboard";
         component = "dashboard";
@@ -370,7 +370,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   _namedlist = true;
                   PORT = { name = "PORT"; value = "4322"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
-                  API_BASE = { name = "NEXT_PUBLIC_API_BASE"; value = "https://dev-maplespike-api.lan/v1"; };
+                  API_BASE = { name = "NEXT_PUBLIC_API_BASE"; value = "https://dev-api.maplespike.lan/v1"; };
                 };
                 resources = {
                   requests = { cpu = "50m"; memory = "128Mi"; };
@@ -394,7 +394,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Dashboard Service ───────────────────────────────────────
-    maplespike-dev.Service.maplespike-dashboard = {
+    maplespike.Service.maplespike-dashboard = {
       metadata.labels = {
         app = "maplespike-dashboard";
         component = "dashboard";
