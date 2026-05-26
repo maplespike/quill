@@ -122,6 +122,7 @@ import * as searchStatcan from './search-statcan.js';
 import * as trackBill from './track-bill.js';
 import * as searchTransport from './search-transport.js';
 import * as searchTribunals from './search-tribunals.js';
+import * as searchUn from './search-un.js';
 import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
 import * as searchVeterans from './search-veterans.js';
@@ -258,6 +259,7 @@ export function getAllTools(): ToolModule[] {
     trackBill,
     searchTransport,
     searchTribunals,
+    searchUn,
     searchUnions,
     searchUniversities,
     searchVeterans,

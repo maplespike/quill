@@ -21,6 +21,10 @@
     "./doc-generator": {
       "import": "./dist/doc-generator/index.js",
       "types": "./dist/doc-generator/index.d.ts"
+    },
+    "./ingestion/un": {
+      "import": "./dist/ingestion/un/index.js",
+      "types": "./dist/ingestion/un/index.d.ts"
     }
   },
   "scripts": {

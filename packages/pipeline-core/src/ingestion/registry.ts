@@ -17,7 +17,8 @@ export type ModuleCategory =
   | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
   | 'elections' | 'provincial' | 'science' | 'social' | 'health'
   | 'defence' | 'education' | 'environment' | 'infrastructure'
-  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss';
+  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss'
+  | 'international';
 
 export interface ModuleInfo {
   name: string;
@@ -1174,6 +1175,21 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://www.publicsafety.gc.ca',
+  },
+
+  // ── International Data Sources (#582) ────────────────────────
+  {
+    name: 'un-data',
+    description: 'UN Data Sources — UNdata SDMX REST API: population, trade, national accounts, development indicators, environment, energy, education, health, gender, industry',
+    category: 'international',
+    modulePath: './un/index.js',
+    ingestFunctions: ['ingestUnDataset', 'ingestByDatabase', 'ingestAllUn'],
+    sources: [
+      { name: 'UNdata SDMX REST API', format: 'SDMX-ML/JSON' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'http://data.un.org/ws/rest/',
   },
 ];
 
