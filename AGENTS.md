@@ -6,7 +6,7 @@ status: active
 # AGENTS.md — MapleSpike
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 88 modules, 34 MCP tools, ~131K lines TS, 12 packages.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 92 modules, 126 MCP tools, ~140K lines TS, 12 packages.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
