@@ -24,6 +24,12 @@
     "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   },
+  "files": [
+    "dist/"
+  ],
   "sideEffects": false,
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  }
 }
