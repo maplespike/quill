@@ -7,9 +7,9 @@ status: active
 
 Model Context Protocol server for Canadian government data. **126 tools** for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
 
-> **Status:** All tools standalone. Zero config. `npx @maplespike/mcp-server` and it just works.
+> **Status:** All tools standalone. Zero config. `npx @reverb256/mcp-server` and it just works.
 
-- **Package:** `@maplespike/mcp-server`
+- **Package:** `@reverb256/mcp-server`
 - **Transport:** stdio (local) for Claude Desktop / Cursor / any MCP host
 - **No dependencies:** no SQLite, no API server, no environment variables needed
 
@@ -26,7 +26,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "maplespike-canada": {
       "command": "npx",
-      "args": ["@maplespike/mcp-server"]
+      "args": ["@reverb256/mcp-server"]
     }
   }
 }

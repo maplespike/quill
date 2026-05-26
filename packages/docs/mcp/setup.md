@@ -41,7 +41,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "maplespike-canada": {
       "command": "npx",
-      "args": ["@maplespike/mcp-server"],
+      "args": ["@reverb256/mcp-server"],
       "env": {
         "MAPLESPIKE_API_KEY": "your-api-key-here"
       }
@@ -82,7 +82,7 @@ Or for local mode:
 ```
 Name: MapleSpike
 Type: command
-Command: npx @maplespike/mcp-server
+Command: npx @reverb256/mcp-server
 Environment: MAPLESPIKE_API_KEY=your-api-key
 ```
 
