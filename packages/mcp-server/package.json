@@ -1,5 +1,5 @@
 {
-  "name": "@maplespike/mcp-server",
+  "name": "@reverb256/mcp-server",
   "version": "0.2.0",
   "description": "MapleSpike MCP Server - tools wrapping pipeline-core for AI agent consumption",
   "type": "module",

@@ -1,6 +1,7 @@
 # ─────────────────────────────────────────────────────────────────
 # MapleSpike Publish — publishes SDK packages to npm + PyPI
 # Triggered by push to prod branch
+# Uses npm Trusted Publishing (OIDC) — no token needed
 # ─────────────────────────────────────────────────────────────────
 name: Publish
 on:
@@ -21,7 +22,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/build-packages.sh
 
-      # npm publish via Changesets
+      # npm publish via OIDC Trusted Publishing
       - name: Create Release PR or Publish
         uses: changesets/action@v1
         with:
@@ -30,8 +31,6 @@ jobs:
           title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
 
   publish-pypi:
     runs-on: [self-hosted, nixos]
