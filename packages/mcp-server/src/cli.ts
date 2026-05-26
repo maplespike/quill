@@ -11,7 +11,7 @@
  *   "mcpServers": {
  *     "maplespike-canada": {
  *       "command": "npx",
- *       "args": ["@maplespike/mcp-server"]
+ *       "args": ["@reverb256/mcp-server"]
  *     }
  *   }
  * }

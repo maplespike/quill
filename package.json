@@ -10,7 +10,7 @@
     "build": "turbo build",
     "generate-metrics": "node scripts/generate-metrics.mjs",
     "build:docs": "node scripts/build-docs.mjs",
-    "build:mcp": "pnpm --filter @maplespike/mcp-server build",
+    "build:mcp": "pnpm --filter @reverb256/mcp-server build",
     "build:api": "pnpm --filter @maplespike/api-server build",
     "build:pipeline": "pnpm --filter @maplespike/pipeline-core build",
     "build:engine": "pnpm --filter @maplespike/engine build",
