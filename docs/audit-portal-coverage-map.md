@@ -43,19 +43,19 @@ The 100+ portals run on these platforms:
 
 | Province | Portal URL | MapleSpike Module | Status |
 |----------|-----------|:-----------------:|:------:|
-| **AB** | open.alberta.ca | `provincial-ckan` | ✅ Covered |
-| **BC** | catalogue.data.gov.bc.ca | `provincial-ckan` | ✅ Covered |
-| **MB** | (no standalone portal — uses open.canada.ca) | — | ❌ **Partial** |
-| **NB** | gnb.socrata.com | ⚠️ Not explicitly in registry | ❌ **Gap** |
-| **NL** | opendata.gov.nl.ca | ⚠️ Not explicitly in registry | ❌ **Gap** |
-| **NS** | data.novascotia.ca | `provincial-ckan` (Socrata) | ⚠️ Partial |
-| **NT** | (no central portal) | — | ❌ **Gap** |
-| **NU** | (no central portal) | — | ❌ **Gap** |
-| **ON** | data.ontario.ca | `provincial-ckan` | ✅ Covered |
-| **PE** | data.princeedwardisland.ca | ⚠️ Not explicitly in registry | ❌ **Gap** |
-| **QC** | donneesquebec.ca | `provincial-ckan` | ✅ Covered |
-| **SK** | data.saskatchewan.ca | `provincial-ckan` | ✅ Covered |
-| **YT** | (no central portal — see Whitehorse municipal) | — | ❌ **Gap** |
+| **AB** | open.alberta.ca | `provincial-ckan` | ✅ Covered (CKAN API: open.alberta.ca) |
+| **BC** | catalogue.data.gov.bc.ca | `provincial-ckan` | ✅ Covered (CKAN API: catalogue.data.gov.bc.ca) |
+| **MB** | data.gov.mb.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **NB** | data.gnb.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **NL** | data.gov.nl.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **NS** | data.novascotia.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **NT** | www.gov.nt.ca/data | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **NU** | data.gov.nu.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **ON** | data.ontario.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **PE** | data.princeedwardisland.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **QC** | donneesquebec.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **SK** | data.saskatchewan.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
+| **YT** | data.yukon.ca | `provincial-ckan` | ✅ Covered (CKAN API) |
 
 ### Coverage gaps: NB, NL, PE, NT, NU, YT provincial portals
 
