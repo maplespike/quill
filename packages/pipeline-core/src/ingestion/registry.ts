@@ -1176,6 +1176,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://www.publicsafety.gc.ca',
   },
+<<<<<<< HEAD
   {
     name: 'un-comtrade',
     description: 'UN Commodity Trade Statistics — bilateral trade flows, commodity analysis, partner country comparison',
@@ -1450,6 +1451,21 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://api.worldbank.org/v2/country/CAN/indicator/NY.GDP.MKTP.CD?format=json&date=2000:2023',
   },
+
+  {
+    name: 'un-data',
+    description: 'UN Data Sources — UNdata SDMX REST API: population, trade, national accounts, development indicators, environment, energy, education, health, gender, industry',
+    category: 'international',
+    modulePath: './un/index.js',
+    ingestFunctions: ['ingestUnDataset', 'ingestByDatabase', 'ingestAllUn'],
+    sources: [
+      { name: 'UNdata SDMX REST API', format: 'SDMX-ML/JSON' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'http://data.un.org/ws/rest/',
+  },
+];
 ];
 
 // Build lookup map
