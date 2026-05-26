@@ -21,15 +21,15 @@
 | Data Type | Portals with this type | MapleSpike Module | Coverage Status |
 |-----------|:---------------------:|:-----------------:|:---------------:|
 | **Libraries** | 17 portals (ON: Ottawa, Toronto, Kingston, Kitchener, etc.; QC: Montreal, Quebec City, Gatineau, etc.) | ❌ **None** | 🚫 **GAP** |
-| **Hospitals** | 16 portals (BC, AB, ON, QC, NL, NS, NB, PE, SK) | ⚠️ Health Canada, CIHI (partial) | ⚠️ Partial — no structured hospital facility data |
+| **Hospitals** | 16 portals (BC, AB, ON, QC, NL, NS, NB, PE, SK) | ✅ Health Canada, CIHI, health-data | ✅ Covered (facility-level via ODHF) |
 | **GTFS Transit** | 29 portals (municipal transit agencies across ON, QC, BC, AB) | ❌ **None** | 🚫 **GAP** |
-| **Buildings** | 70+ portals | ❌ **None** (ODB exists but not ingested) | 🚫 **GAP** |
+| **Buildings** | 70+ portals | ✅ LODE module (ODB) | ✅ Covered (14.4M features ingested) |
 | **Businesses** | 20+ portals (Toronto, Brampton, Edmonton, Calgary, Surrey, etc.) | ✅ Corporate registry, CRA Charity | ✅ Covered |
-| **Police** | 16 portals (Toronto, Calgary, Edmonton, Winnipeg, Peel, etc.) | ❌ **None** (emergency module removed) | 🚫 **GAP** |
-| **Fire** | 15 portals (Toronto, Calgary, Edmonton, Mississauga, etc.) | ❌ **None** | 🚫 **GAP** |
-| **Education** | 17 portals (Ontario, BC AB, QC, SK, etc.) | ⚠️ Education research, statistics (partial) | ⚠️ Partial |
-| **Parks** | 12 portals (Calgary, Mississauga, Surrey, Gatineau, etc.) | ❌ **None** | 🚫 **GAP** |
-| **Community Centers** | 10 portals (Calgary, Mississauga, Surrey, etc.) | ❌ **None** | 🚫 **GAP** |
+| **Police** | 16 portals (Toronto, Calgary, Edmonton, Winnipeg, Peel, etc.) | ✅ criminal-justice, policing-security | ✅ Covered |
+| **Fire** | 15 portals (Toronto, Calgary, Edmonton, Mississauga, etc.) | ✅ emergency-management | ✅ Covered |
+| **Education** | 17 portals (Ontario, BC AB, QC, SK, etc.) | ✅ education-research, universities, ODEF | ✅ Covered (facility-level via ODEF) |
+| **Parks** | 12 portals (Calgary, Mississauga, Surrey, Gatineau, etc.) | ✅ municipal, ODRECF | ✅ Covered |
+| **Community Centers** | 10 portals (Calgary, Mississauga, Surrey, etc.) | ✅ municipal | ✅ Covered |
 
 ---
 
@@ -41,17 +41,13 @@
 |:---:|:-----------------:|:------:|
 | **Libraries** | 17+ (Toronto, Ottawa, Montreal, etc.) | **High** — civic infrastructure tracking |
 | **GTFS Transit** | 29+ (TTC, STM, TransLink, OC Transpo, etc.) | **Very High** — mobility patterns, urban influence |
-| **Police Data** | 16+ (Toronto Police, Calgary, Edmonton, etc.) | **Very High** — accountability tracking (already removed from registry) |
-| **Fire Stations** | 15+ (major cities) | **Medium** — emergency infrastructure |
 | **Parks & Recreation** | 12+ | **Medium** — urban planning, public goods |
 
 ### Secondary Gaps (partial coverage, could be enhanced)
 
 | Gap | Current Coverage | Enhancement Needed |
 |:---:|:----------------:|:------------------:|
-| **Hospitals / Healthcare** | CIHI data, Health Canada drug approvals | No facility-level hospital data |
-| **Education Facilities** | Statistics Canada, education research | No school-level facility data |
-| **Buildings** | Corporate addresses only | Open Database of Buildings (14.4M features) not ingested |
+| **Education Facilities** | Statistics Canada, education research | More granular facility data (beyond ODEF) |
 
 ---
 
