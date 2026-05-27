@@ -56,9 +56,9 @@ jobs:
 
       - name: Run QA validation on registered modules
         run: |
-          node -e "
-            const { getAllModules } = require('@maplespike/pipeline-core');
-            const { validateAgainstSchema, computeSuiteResult } = require('@maplespike/pipeline-core/test-framework');
+          node --input-type=module -e "
+            import { getAllModules } from '@maplespike/pipeline-core';
+            import { validateAgainstSchema, computeSuiteResult } from '@maplespike/pipeline-core/test-framework';
             const modules = getAllModules();
             console.log('## QA Module Validation Report');
             console.log('');
@@ -87,12 +87,13 @@ jobs:
 
       - name: Verify attestation module exports
         run: |
-          node -e "
-            const { buildCitation, buildMerkleRoot, computeHash } = require('@maplespike/pipeline-core');
+          node --input-type=module -e "
+            import { buildCitation, buildMerkleRoot, computeHash } from '@maplespike/pipeline-core';
             const testData = { name: 'test', value: 42 };
-            const hash = computeHash(JSON.stringify(testData));
+            const hash = await computeHash(JSON.stringify(testData));
             const citation = buildCitation({ data: testData, hash });
-            const root = buildMerkleRoot([hash]);
+            const merkleResult = await buildMerkleRoot([hash]);
+            const root = typeof merkleResult === 'string' ? merkleResult : merkleResult.root;
             console.log('✅ Attestation chain operational');
             console.log('Hash:', hash.substring(0, 16) + '...');
             console.log('Citation:', citation.id?.substring(0, 16) + '...' || 'generated');
