@@ -7,15 +7,19 @@ import {
   WDI_PER_PAGE,
   WDI_USER_AGENT,
 } from './constants.js';
-import type { WdiApiResponse, WdiIndicatorDatum } from './types.js';
 
 export async function fetchCountryIndicator(
   countryCode: string,
   indicatorCode: string,
-): Promise<WdiIndicatorDatum[]> {
-  const url = `${WDI_BASE_URL}/country/${countryCode}/indicator/${indicatorCode}?format=json&per_page=${WDI_PER_PAGE}&date=1960:2025`;
+  dateRange?: string,
+  perPage?: number,
+): Promise<any[]> {
+  const url = new URL(`${WDI_BASE_URL}/country/${countryCode}/indicator/${indicatorCode}`);
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('per_page', String(perPage ?? WDI_PER_PAGE));
+  url.searchParams.set('date', dateRange ?? '1960:2025');
 
-  const resp = await httpGet(url, {
+  const resp = await httpGet(url.toString(), {
     timeoutMs: WDI_TIMEOUT_MS,
     headers: { 'User-Agent': WDI_USER_AGENT },
   });
@@ -24,7 +28,7 @@ export async function fetchCountryIndicator(
     return [];
   }
 
-  const body = (await resp.json()) as WdiApiResponse;
+  const body = await resp.json() as any;
   if (!Array.isArray(body) || body.length < 2 || !body[1]) {
     return [];
   }
@@ -35,17 +39,17 @@ export async function fetchCountryIndicator(
 export async function fetchMultiCountryIndicator(
   countryCodes: string[],
   indicatorCode: string,
-): Promise<Map<string, WdiIndicatorDatum[]>> {
-  const results = new Map<string, WdiIndicatorDatum[]>();
+  dateRange?: string,
+): Promise<Map<string, any[]>> {
+  const results = new Map<string, any[]>();
 
   for (const country of countryCodes) {
     try {
-      const data = await fetchCountryIndicator(country, indicatorCode);
+      const data = await fetchCountryIndicator(country, indicatorCode, dateRange);
       if (data.length > 0) {
         results.set(country, data);
       }
     } catch {
-      // Skip countries that fail
     }
   }
 
@@ -55,20 +59,47 @@ export async function fetchMultiCountryIndicator(
 export async function fetchCountryAllIndicators(
   countryCode: string,
   indicatorCodes: string[],
-): Promise<Map<string, WdiIndicatorDatum[]>> {
-  const results = new Map<string, WdiIndicatorDatum[]>();
+  dateRange?: string,
+): Promise<Map<string, any[]>> {
+  const results = new Map<string, any[]>();
 
   const fetches = indicatorCodes.map(async (indicator) => {
     try {
-      const data = await fetchCountryIndicator(countryCode, indicator);
+      const data = await fetchCountryIndicator(countryCode, indicator, dateRange);
       if (data.length > 0) {
         results.set(indicator, data);
       }
     } catch {
-      // Skip failed indicators
     }
   });
 
   await Promise.all(fetches);
   return results;
+}
+
+export async function fetchIndicatorMetadata(indicatorCode: string): Promise<{ code: string; name: string; unit: string } | null> {
+  const url = new URL(`${WDI_BASE_URL}/indicator/${indicatorCode}`);
+  url.searchParams.set('format', 'json');
+
+  const resp = await httpGet(url.toString(), {
+    timeoutMs: WDI_TIMEOUT_MS,
+    headers: { 'User-Agent': WDI_USER_AGENT },
+  });
+
+  if (resp.statusCode >= 400) {
+    return null;
+  }
+
+  const body = await resp.json() as any;
+
+  if (!Array.isArray(body) || body.length < 2 || !body[1] || body[1].length === 0) {
+    return null;
+  }
+
+  const indicator = body[1][0];
+  return {
+    code: indicator.id,
+    name: indicator.value,
+    unit: indicator.unit || '',
+  };
 }

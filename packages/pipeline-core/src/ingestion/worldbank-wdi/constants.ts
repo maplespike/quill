@@ -6,36 +6,117 @@ export const WDI_TIMEOUT_MS = 15_000;
 export const WDI_MAX_RECORDS = 1000;
 export const WDI_PER_PAGE = 250;
 
-/** Default list of countries to fetch (ISO 3166-1 alpha-3 codes) */
 export const DEFAULT_COUNTRIES = [
   'CAN', 'USA', 'GBR', 'DEU', 'FRA', 'JPN', 'AUS', 'NZL',
   'MEX', 'BRA', 'IND', 'CHN', 'ZAF', 'NOR', 'SWE', 'CHE',
 ];
 
-/** Default indicators to fetch */
 export const DEFAULT_INDICATORS = [
-  'NY.GDP.MKTP.CD',      // GDP (current US$)
-  'NY.GDP.PCAP.CD',      // GDP per capita (current US$)
-  'SP.POP.TOTL',         // Population, total
-  'SP.POP.GROW',         // Population growth (annual %)
-  'SH.XPD.CHEX.GD.ZS',   // Current health expenditure (% of GDP)
-  'SE.XPD.TOTL.GD.ZS',   // Government expenditure on education, total (% of GDP)
-  'MS.MIL.XPND.GD.ZS',   // Military expenditure (% of GDP)
-  'GB.XPD.RSDV.GD.ZS',   // Research and development expenditure (% of GDP)
-  'NY.GNP.PCAP.CD',      // GNI per capita (current US$)
-  'SL.UEM.TOTL.ZS',      // Unemployment, total (% of total labor force)
-  'FP.CPI.TOTL.ZG',      // Inflation, consumer prices (annual %)
-  'DT.ODA.ODAT.GD.ZS',   // Net ODA received (% of GNI)
-  'BX.KLT.DINV.WD.GD.ZS', // Foreign direct investment, net inflows (% of GDP)
-  'NE.EXP.GNFS.ZS',      // Exports of goods and services (% of GDP)
-  'NE.IMP.GNFS.ZS',      // Imports of goods and services (% of GDP)
+  'NY.GDP.MKTP.CD',
+  'NY.GDP.PCAP.CD',
+  'SP.POP.TOTL',
+  'SP.POP.GROW',
+  'SH.XPD.CHEX.GD.ZS',
+  'SE.XPD.TOTL.GD.ZS',
+  'MS.MIL.XPND.GD.ZS',
+  'GB.XPD.RSDV.GD.ZS',
+  'NY.GNP.PCAP.CD',
+  'SL.UEM.TOTL.ZS',
+  'FP.CPI.TOTL.ZG',
+  'DT.ODA.ODAT.GD.ZS',
+  'BX.KLT.DINV.WD.GD.ZS',
+  'NE.EXP.GNFS.ZS',
+  'NE.IMP.GNFS.ZS',
 ];
 
 export const WDI_USER_AGENT = 'MapleSpike-WDI/1.0';
 
-import type { Indicator } from './types.js';
+export const TOPIC_INDICATORS = {
+  economy: {
+    code: 'economy',
+    name: 'Economic Indicators',
+    indicators: [
+      'NY.GDP.MKTP.CD',
+      'NY.GDP.PCAP.CD',
+      'NY.GNP.PCAP.CD',
+      'FP.CPI.TOTL.ZG',
+      'SL.UEM.TOTL.ZS',
+      'BX.KLT.DINV.WD.GD.ZS',
+      'NE.EXP.GNFS.ZS',
+      'NE.IMP.GNFS.ZS',
+      'GC.TAX.TOTL.GD.ZS',
+      'DT.DOD.DECT.GN.ZA',
+    ],
+  },
+  social: {
+    code: 'social',
+    name: 'Social Indicators',
+    indicators: [
+      'SP.POP.TOTL',
+      'SP.POP.GROW',
+      'SP.DYN.TFRT.IN',
+      'SP.DYN.LE00.IN',
+      'SL.TLF.CACT.FE.ZS',
+      'SL.TLF.CACT.MA.ZS',
+      'SE.XPD.TOTL.GD.ZS',
+      'SE.SEC.ENRL',
+      'SI.POV.NAHC',
+    ],
+  },
+  health: {
+    code: 'health',
+    name: 'Health Indicators',
+    indicators: [
+      'SH.XPD.CHEX.GD.ZS',
+      'SH.DYN.MORT',
+      'SH.STA.SUIC.P5',
+      'SH.MED.BEDS.ZS',
+      'SH.MED.PHYS.ZS',
+      'SH.H2O.SAFE.ZS',
+      'SH.STA.ANVC.ZS',
+      'SP.DYN.IMRT.IN',
+    ],
+  },
+  infrastructure: {
+    code: 'infrastructure',
+    name: 'Infrastructure Indicators',
+    indicators: [
+      'IT.NET.USER.ZS',
+      'IT.CEL.SETS.P2',
+      'EG.USE.ELEC.KH.PC',
+      'EG.FEC.RNEW.ZS',
+      'IS.SHP.GOOD.TU',
+      'IS.AIR.DPTM',
+      'TX.VAL.TECH.MF.ZS',
+    ],
+  },
+  environment: {
+    code: 'environment',
+    name: 'Environmental Indicators',
+    indicators: [
+      'EN.ATM.CO2E.KT',
+      'EN.ATM.METH.KT.CE',
+      'EN.ATM.NOXE.KT.CE',
+      'AG.LND.AGRI.ZS',
+      'AG.LND.FRST.ZS',
+      'ER.H2O.FWTL.ZS',
+      'EG.USE.COMM.GD.PP.KD.OE',
+    ],
+  },
+  governance: {
+    code: 'governance',
+    name: 'Governance Indicators',
+    indicators: [
+      'GB.XPD.RSDV.GD.ZS',
+      'MS.MIL.XPND.GD.ZS',
+      'GC.XPN.TOTL.GD.ZS',
+      'GC.REV.XGRT.GD.ZS',
+      'IQ.SCI.MTHD',
+    ],
+  },
+};
 
-export const CORE_INDICATORS: Indicator[] = [
+export const CORE_INDICATORS: { code: string; name: string }[] = [
   { code: 'NY.GDP.MKTP.CD', name: 'GDP (current US$)' },
   { code: 'NY.GDP.PCAP.CD', name: 'GDP per capita' },
   { code: 'SP.POP.TOTL', name: 'Population total' },

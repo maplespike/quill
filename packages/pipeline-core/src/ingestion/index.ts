@@ -167,5 +167,19 @@ export {
 } from './ngo-influence-rss/index.js';
 export type { NgoRssItem, NgoRssIngestionResult } from './ngo-influence-rss/types.js';
 
+// ── OECD ────────────────────────────────────────────────────────
+export {
+  ingestOecdDataset,
+  ingestByTopic,
+  ingestAllOecd,
+  searchOecdRecords,
+} from './oecd/index.js';
+export type {
+  OecdRecord,
+  OecdIngestionResult,
+  OecdDataset,
+  OecdTopic,
+} from './oecd/types.js';
+
 
 

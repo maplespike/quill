@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import type { CountryCode2 } from '../../shared/country-codes.js';
-
 export interface IndicatorValue {
   id: string;
-  country: CountryCode2;
+  country: any;
   indicatorCode: string;
   year: number;
   value: number;
+}
+
+export interface IndicatorMetadata {
+  code: string;
+  name: string;
+  unit: string;
 }
 
 export interface WdiCountryProfile {
@@ -22,18 +26,15 @@ export interface WdiComparison {
   lastUpdated: string;
 }
 
-export interface WdiApiResponse {
-  indicator: { id: string; value: string };
-  country: { id: string; value: string };
-  countryiso3code: string;
-  date: string;
-  value: string | null;
-  unit: string;
-  obs_status: string;
-  decimal: number;
+export interface WdiTrendAnalysis {
+  indicatorCode: string;
+  country: string;
+  trend: 'increasing' | 'decreasing' | 'stable' | 'no_data';
+  changeRate: number;
+  startYear: number;
+  endYear: number;
+  dataPoints: IndicatorValue[];
 }
-
-export type WdiIndicatorDatum = WdiApiResponse;
 
 export interface Indicator {
   code: string;
