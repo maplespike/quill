@@ -3,10 +3,10 @@
 import { computeHash } from '../../verification/hashing.js';
 import type { IndicatorValue, WdiIndicatorDatum, WdiCountryProfile, WdiComparison } from './types.js';
 
-export function parseIndicatorDatum(
+export async function parseIndicatorDatum(
   datum: WdiIndicatorDatum,
   countryCode: string,
-): IndicatorValue | null {
+): Promise<IndicatorValue | null> {
   if (datum.value === null) return null;
 
   const year = parseInt(datum.date, 10);
@@ -20,18 +20,18 @@ export function parseIndicatorDatum(
     indicatorCode: datum.indicator?.id ?? '',
     year,
     value,
-    id: computeHash(`${countryCode}:${datum.indicator?.id}:${year}`),
+    id: await computeHash(`${countryCode}:${datum.indicator?.id}:${year}`),
   };
 }
 
-export function parseIndicatorData(
+export async function parseIndicatorData(
   data: WdiIndicatorDatum[],
   countryCode: string,
-): IndicatorValue[] {
+): Promise<IndicatorValue[]> {
   const results: IndicatorValue[] = [];
 
   for (const datum of data) {
-    const parsed = parseIndicatorDatum(datum, countryCode);
+    const parsed = await parseIndicatorDatum(datum, countryCode);
     if (parsed) {
       results.push(parsed);
     }
@@ -40,14 +40,14 @@ export function parseIndicatorData(
   return results;
 }
 
-export function buildCountryProfile(
+export async function buildCountryProfile(
   countryCode: string,
   indicatorData: Map<string, WdiIndicatorDatum[]>,
-): WdiCountryProfile {
+): Promise<WdiCountryProfile> {
   const indicators: IndicatorValue[] = [];
 
-  for (const [indicatorCode, data] of indicatorData) {
-    const parsed = parseIndicatorData(data, countryCode);
+  for (const [, data] of indicatorData) {
+    const parsed = await parseIndicatorData(data, countryCode);
     indicators.push(...parsed);
   }
 
@@ -58,14 +58,14 @@ export function buildCountryProfile(
   };
 }
 
-export function buildComparison(
+export async function buildComparison(
   indicatorCode: string,
   dataByCountry: Map<string, WdiIndicatorDatum[]>,
-): WdiComparison {
+): Promise<WdiComparison> {
   const entries: Array<{ country: string; values: IndicatorValue[] }> = [];
 
   for (const [country, data] of dataByCountry) {
-    const parsed = parseIndicatorData(data, country);
+    const parsed = await parseIndicatorData(data, country);
     if (parsed.length > 0) {
       entries.push({ country, values: parsed });
     }

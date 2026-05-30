@@ -12,16 +12,16 @@ const POPULATION_TYPE_MAP: Record<string, RefugeeRecord['populationType']> = {
   'Returnees': 'returnees',
 };
 
-export function parsePopulationRecord(
+export async function parsePopulationRecord(
   record: { iso3?: string; year?: number; population_type?: string; population_value?: number },
-): RefugeeRecord | null {
+): Promise<RefugeeRecord | null> {
   if (!record.iso3 || record.population_value == null) return null;
 
   const populationType = POPULATION_TYPE_MAP[record.population_type ?? ''];
   if (!populationType) return null;
 
   return {
-    id: computeHash(`UNHCR:${record.iso3}:${record.year}:${populationType}`),
+    id: await computeHash(`UNHCR:${record.iso3}:${record.year}:${populationType}`),
     countryCode: record.iso3,
     year: record.year ?? 0,
     populationType,
@@ -30,12 +30,12 @@ export function parsePopulationRecord(
   };
 }
 
-export function parsePopulationRecords(
+export async function parsePopulationRecords(
   records: Array<{ iso3?: string; year?: number; population_type?: string; population_value?: number }>,
-): RefugeeRecord[] {
+): Promise<RefugeeRecord[]> {
   const results: RefugeeRecord[] = [];
   for (const record of records) {
-    const parsed = parsePopulationRecord(record);
+    const parsed = await parsePopulationRecord(record);
     if (parsed) results.push(parsed);
   }
   return results;

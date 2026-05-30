@@ -21,6 +21,50 @@
     "./doc-generator": {
       "import": "./dist/doc-generator/index.js",
       "types": "./dist/doc-generator/index.d.ts"
+    },
+    "./ontario-provincial": {
+      "import": "./dist/ingestion/ontario-provincial/index.js",
+      "types": "./dist/ingestion/ontario-provincial/index.d.ts"
+    },
+    "./worldbank-wdi": {
+      "import": "./dist/ingestion/worldbank-wdi/index.js",
+      "types": "./dist/ingestion/worldbank-wdi/index.d.ts"
+    },
+    "./un-comtrade": {
+      "import": "./dist/ingestion/un-comtrade/index.js",
+      "types": "./dist/ingestion/un-comtrade/index.d.ts"
+    },
+    "./gtfs-transit": {
+      "import": "./dist/ingestion/gtfs-transit/index.js",
+      "types": "./dist/ingestion/gtfs-transit/index.d.ts"
+    },
+    "./police-data": {
+      "import": "./dist/ingestion/police-data/index.js",
+      "types": "./dist/ingestion/police-data/index.d.ts"
+    },
+    "./political-donations": {
+      "import": "./dist/ingestion/political-donations/index.js",
+      "types": "./dist/ingestion/political-donations/index.d.ts"
+    },
+    "./parliamentary-voting": {
+      "import": "./dist/ingestion/parliamentary-voting/index.js",
+      "types": "./dist/ingestion/parliamentary-voting/index.d.ts"
+    },
+    "./public-accounts": {
+      "import": "./dist/ingestion/public-accounts/index.js",
+      "types": "./dist/ingestion/public-accounts/index.d.ts"
+    },
+    "./fire-emergency": {
+      "import": "./dist/ingestion/fire-emergency/index.js"
+    },
+    "./oecd-stat": {
+      "import": "./dist/ingestion/oecd-stat/index.js"
+    },
+    "./undp-hdi": {
+      "import": "./dist/ingestion/undp-hdi/index.js"
+    },
+    "./unhcr-refugees": {
+      "import": "./dist/ingestion/unhcr-refugees/index.js"
     }
   },
   "scripts": {

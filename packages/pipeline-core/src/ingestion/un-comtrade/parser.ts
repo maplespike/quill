@@ -16,7 +16,7 @@ function parseTradeFlow(raw: string): 'imports' | 'exports' {
   return TRADE_FLOW_MAP[raw] ?? 'imports';
 }
 
-export function parseTradeRecord(record: ComtradeRecord): TradeFlow | null {
+export async function parseTradeRecord(record: ComtradeRecord): Promise<TradeFlow | null> {
   const year = parseInt(record.yr ?? '0', 10);
   const period = parseInt(record.period ?? '0', 10);
   const value = parseFloat(record.TradeValue ?? '0');
@@ -34,14 +34,14 @@ export function parseTradeRecord(record: ComtradeRecord): TradeFlow | null {
     tradeFlow: parseTradeFlow(record.rgDesc ?? ''),
     value,
     netWeight,
-    id: computeHash(`${record.rtCode}:${record.ptCode}:${year}:${record.cc}:${record.rgDesc}`),
+    id: await computeHash(`${record.rtCode}:${record.ptCode}:${year}:${record.cc}:${record.rgDesc}`),
   };
 }
 
-export function parseTradeRecords(records: ComtradeRecord[]): TradeFlow[] {
+export async function parseTradeRecords(records: ComtradeRecord[]): Promise<TradeFlow[]> {
   const results: TradeFlow[] = [];
   for (const record of records) {
-    const parsed = parseTradeRecord(record);
+    const parsed = await parseTradeRecord(record);
     if (parsed) {
       results.push(parsed);
     }

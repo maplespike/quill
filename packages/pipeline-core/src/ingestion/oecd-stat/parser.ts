@@ -3,10 +3,10 @@
 import type { OECDIndicator } from './types.js';
 import { computeHash } from '../../verification/hashing.js';
 
-export function parseOECDObservations(
+export async function parseOECDObservations(
   datasetId: string,
   observations: Record<string, string[]>,
-): OECDIndicator[] {
+): Promise<OECDIndicator[]> {
   const results: OECDIndicator[] = [];
   for (const [key, values] of Object.entries(observations)) {
     if (!values?.[0]) continue;
@@ -22,7 +22,7 @@ export function parseOECDObservations(
       year,
       value,
       unit: '',
-      id: computeHash(`OECD:${datasetId}:${key}:${year}`),
+      id: await computeHash(`OECD:${datasetId}:${key}:${year}`),
     });
   }
   return results;

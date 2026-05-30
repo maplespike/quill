@@ -24,7 +24,7 @@ export async function ingestWDIIndicator(indicatorCode: string, countries?: stri
   for (const [, data] of dataByCountry) {
     const countryCode = data[0]?.countryiso3code ?? '';
     if (countryCode) {
-      values.push(...parseIndicatorData(data, countryCode));
+      values.push(...await parseIndicatorData(data, countryCode));
     }
   }
 
@@ -38,7 +38,7 @@ export async function getCountryProfile(country: string) {
   }
 
   const indicatorData = await fetchCountryAllIndicators(normalizedCountry, DEFAULT_INDICATORS);
-  const profile: WdiCountryProfile = buildCountryProfile(normalizedCountry, indicatorData);
+  const profile: WdiCountryProfile = await buildCountryProfile(normalizedCountry, indicatorData);
 
   const attribution = makeAttribution();
   return withAttribution(profile, attribution);
@@ -50,7 +50,7 @@ export async function compareCountries(indicatorCode: string, countries: string[
     .filter((c): c is string => c !== undefined);
 
   const dataByCountry = await fetchMultiCountryIndicator(normalizedCountries, indicatorCode);
-  const comparison: WdiComparison = buildComparison(indicatorCode, dataByCountry);
+  const comparison: WdiComparison = await buildComparison(indicatorCode, dataByCountry);
 
   const attribution = makeAttribution();
   return withAttribution(comparison, attribution);

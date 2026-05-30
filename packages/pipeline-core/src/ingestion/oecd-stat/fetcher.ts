@@ -38,13 +38,16 @@ export async function fetchOECDDataset(datasetId: string): Promise<OECDFetchResu
       const obs = body.dataSets[0].observations;
       for (const [key, values] of Object.entries(obs)) {
         if (values?.[0]) {
+          const year = parseInt(key.split(':')[0] ?? '0', 10);
+          const value = parseFloat(values[0]);
           indicators.push({
+            id: `${datasetId}:${key}:${year}`,
             datasetId,
             datasetName: datasetId,
             indicatorCode: key,
             country: 'CAN',
-            year: parseInt(key.split(':')[0] ?? '0', 10),
-            value: parseFloat(values[0]),
+            year,
+            value,
             unit: '',
           });
         }

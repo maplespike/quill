@@ -18,7 +18,7 @@ export async function fetchRefugeeDataByCountry(countryCode: string, year?: numb
   const attribution = makeAttribution();
   const targetYear = year ?? DEFAULT_YEARS[0];
   const result = await fetchRefugeePopulation(countryCode, targetYear);
-  const records = parsePopulationRecords(result.records);
+  const records = await parsePopulationRecords(result.records);
 
   return withAttribution({
     countryCode,
@@ -50,7 +50,7 @@ export async function fetchRefugeeDataMultiCountry(options?: {
       if (result.error) {
         errors.push(`${country}/${year}: ${result.error}`);
       } else {
-        const records = parsePopulationRecords(result.records);
+const records = await parsePopulationRecords(result.records);
         allRecords.push(...records);
         sourcesSucceeded++;
       }

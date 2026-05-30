@@ -50,14 +50,14 @@ export async function ingestComtrade(partner?: string, year?: number) {
       throw new Error(`Invalid country code: ${partner}`);
     }
     const result = await fetchCanadaTradeByPartner(getComtradeCode(normalizedPartner), period);
-    const flows: TradeFlow[] = parseTradeRecords(result.records);
+    const flows: TradeFlow[] = await parseTradeRecords(result.records);
     return withAttribution({ flows, period }, attribution);
   }
 
   const allFlows: TradeFlow[] = [];
   for (const partnerCode of DEFAULT_PARTNERS) {
     const result = await fetchCanadaTradeByPartner(getComtradeCode(partnerCode), period);
-    const flows = parseTradeRecords(result.records);
+    const flows = await parseTradeRecords(result.records);
     allFlows.push(...flows);
   }
 
@@ -71,8 +71,8 @@ export async function getTradeByCommodity(commodityCode: string) {
   }
 
   const result = await fetchCanadaTotalTrade();
-  const flows: TradeFlow[] = parseTradeRecords(result.records)
-    .filter(f => f.commodityCode.startsWith(commodityCode));
+  const parsedFlows = await parseTradeRecords(result.records);
+  const flows = parsedFlows.filter(f => f.commodityCode.startsWith(commodityCode));
 
   const attribution = makeAttribution();
   return withAttribution({ commodityCode, flows, period: DEFAULT_PERIOD }, attribution);

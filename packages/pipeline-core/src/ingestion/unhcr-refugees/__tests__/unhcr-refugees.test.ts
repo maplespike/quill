@@ -11,7 +11,7 @@ describe('unhcr-refugees Module', () => {
 
   it('parser parses population record correctly', async () => {
     const { parsePopulationRecord } = await import('../parser.js');
-    const result = parsePopulationRecord({
+    const result = await parsePopulationRecord({
       iso3: 'CAN',
       year: 2023,
       population_type: "Refugees (under UNHCR's mandate)",
@@ -25,7 +25,7 @@ describe('unhcr-refugees Module', () => {
 
   it('parser returns null for unknown population type', async () => {
     const { parsePopulationRecord } = await import('../parser.js');
-    const result = parsePopulationRecord({
+    const result = await parsePopulationRecord({
       iso3: 'CAN',
       population_type: 'Unknown',
       population_value: 100,

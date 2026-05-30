@@ -575,6 +575,70 @@ describe('normalizeToFederalSchema', () => {
 /*  Fetcher exports                                                     */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/*  Live End-to-End Tests (gated: LIVE_DATA_TEST=true)                   */
+/* ------------------------------------------------------------------ */
+
+const shouldRunLive = process.env.LIVE_DATA_TEST === 'true';
+
+describe('NT NWT Meeting Registry live tests', { skip: !shouldRunLive }, () => {
+  it('should fetch CSV from production endpoint', async () => {
+    const { fetchNTCsv } = await import('./provincial-lobbying/fetchers/nt.js');
+    const csv = await fetchNTCsv();
+    assert.ok(csv, 'CSV should be non-empty string');
+    assert.equal(typeof csv, 'string');
+    assert.ok(csv.length > 100, 'CSV should contain substantial data');
+  });
+
+  it('should parse CSV into structured records', async () => {
+    const { fetchNTCsv, parseNTCsv } = await import('./provincial-lobbying/fetchers/nt.js');
+    const csv = await fetchNTCsv();
+    const records = parseNTCsv(csv);
+    assert.ok(records.length > 0, 'Should parse at least one record');
+    // Verify first 5 records have critical fields populated
+    for (const r of records.slice(0, 5)) {
+      assert.ok(r.registrationNumber, 'registrationNumber should exist');
+      assert.ok(r.lobbyistName, 'lobbyistName should exist');
+      assert.ok(r.clientName, 'clientName should exist');
+      assert.ok(r.communicationDate, 'communicationDate should exist');
+    }
+  });
+
+  it('should handle empty CSV gracefully', async () => {
+    const { parseNTCsv } = await import('./provincial-lobbying/fetchers/nt.js');
+    const records = parseNTCsv('"Header1","Header2"\n');
+    assert.deepEqual(records, []);
+  });
+
+  it('should search by keyword', async () => {
+    const { searchNTRegistry } = await import('./provincial-lobbying/fetchers/nt.js');
+    const results = await searchNTRegistry('minister');
+    assert.ok(Array.isArray(results), 'Results should be an array');
+  });
+});
+
+describe('NU Nunavut federal proxy live tests', { skip: !shouldRunLive }, () => {
+  it('should search federal OCL registry for Nunavut', async () => {
+    const { searchNURegistry } = await import('./provincial-lobbying/fetchers/nu.js');
+    const results = await searchNURegistry('Nunavut');
+    assert.ok(Array.isArray(results), 'Should return an array');
+  });
+
+  it('should search federal OCL registry for Iqaluit', async () => {
+    const { searchNURegistry } = await import('./provincial-lobbying/fetchers/nu.js');
+    const results = await searchNURegistry('Iqaluit');
+    assert.ok(Array.isArray(results), 'Should return an array');
+  });
+
+  it('should fetch NULobbying with no query returns records or empty gracefully', async () => {
+    const { fetchNULobbying } = await import('./provincial-lobbying/fetchers/nu.js');
+    const result = await fetchNULobbying({ limit: 5 });
+    assert.ok(Array.isArray(result.records));
+    assert.equal(typeof result.source, 'string');
+    assert.ok(Array.isArray(result.errors));
+  });
+});
+
 describe('fetcher exports', () => {
   it('fetchOntarioLobbying is a function', async () => {
     const mod = await import('./provincial-lobbying/index.js');

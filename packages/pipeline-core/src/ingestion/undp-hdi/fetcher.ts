@@ -29,7 +29,7 @@ export async function fetchHDIRanking(countryCode = 'CAN'): Promise<HdiFetchResu
       return { hdiValue: null, rank: null, error: `HTTP ${resp.statusCode}` };
     }
 
-    const html = await resp.text();
+    const html = resp.body;
     const hdiMatch = html.match(/HDI.*?(\d+\.\d{3})/i);
     const rankMatch = html.match(/Rank.*?(\d+)/i);
     const hdiValue = hdiMatch ? parseFloat(hdiMatch[1]) : null;

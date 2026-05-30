@@ -17,7 +17,7 @@ function makeAttribution() {
 export async function fetchHDIByCountry(countryCode: string, year?: number) {
   const attribution = makeAttribution();
   const { hdiValue, rank, error } = await fetchHDIRanking(countryCode);
-  const record = parseHDIRanking(countryCode, hdiValue, rank, year ?? DEFAULT_YEAR);
+  const record = await parseHDIRanking(countryCode, hdiValue, rank, year ?? DEFAULT_YEAR);
   return withAttribution({ record, error }, attribution);
 }
 
@@ -30,7 +30,7 @@ export async function fetchAllHDIData(years?: number[]) {
   for (const year of targets) {
     const rankings = await fetchAllHDIRankings();
     if (rankings.length > 0) {
-      const records = parseHDIRankings(rankings, year);
+      const records = await parseHDIRankings(rankings, year);
       allRecords.push(...records);
     } else {
       errors.push(`No data for year ${year}`);

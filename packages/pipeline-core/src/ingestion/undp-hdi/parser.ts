@@ -10,16 +10,16 @@ export function classifyHDI(value: number): HDIRecord['category'] {
   return 'low';
 }
 
-export function parseHDIRanking(
+export async function parseHDIRanking(
   countryCode: string,
   hdiValue: number | null,
   rank: number | null,
   year: number,
-): HDIRecord | null {
+): Promise<HDIRecord | null> {
   if (hdiValue === null) return null;
 
   return {
-    id: computeHash(`UNDP:${countryCode}:${year}`),
+    id: await computeHash(`UNDP:${countryCode}:${year}`),
     country: countryCode,
     countryCode,
     hdiValue,
@@ -29,14 +29,14 @@ export function parseHDIRanking(
   };
 }
 
-export function parseHDIRankings(
+export async function parseHDIRankings(
   raw: Array<{ country_code?: string; hdi_2022?: number; rank_2022?: number }>,
   year: number,
-): HDIRecord[] {
+): Promise<HDIRecord[]> {
   const results: HDIRecord[] = [];
   for (const item of raw) {
     if (!item.country_code || item.hdi_2022 == null) continue;
-    const record = parseHDIRanking(item.country_code, item.hdi_2022, item.rank_2022 ?? null, year);
+    const record = await parseHDIRanking(item.country_code, item.hdi_2022, item.rank_2022 ?? null, year);
     if (record) results.push(record);
   }
   return results;

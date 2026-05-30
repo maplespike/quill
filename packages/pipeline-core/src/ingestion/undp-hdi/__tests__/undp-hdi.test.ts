@@ -19,7 +19,7 @@ describe('undp-hdi Module', () => {
 
   it('parser returns null for null HDI value', async () => {
     const { parseHDIRanking } = await import('../parser.js');
-    const result = parseHDIRanking('CAN', null, null, 2022);
+    const result = await parseHDIRanking('CAN', null, null, 2022);
     assert.equal(result, null);
   });
 });

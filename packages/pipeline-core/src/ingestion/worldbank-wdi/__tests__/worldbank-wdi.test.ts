@@ -28,7 +28,7 @@ describe('worldbank-wdi Module', () => {
       obs_status: '',
       decimal: 0,
     }];
-    const results = parseIndicatorData(mockData, 'CAN');
+    const results = await parseIndicatorData(mockData, 'CAN');
     assert.equal(results.length, 1);
     assert.equal(results[0].country, 'CAN');
     assert.equal(results[0].year, 2022);
