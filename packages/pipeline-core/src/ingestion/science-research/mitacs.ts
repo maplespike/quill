@@ -1,9 +1,9 @@
 import { httpGet } from '../../utils/http.js';
 import { SOURCES } from './constants.js';
 import type { ResearchGrant } from './types.js';
-import { computeHash } from '../../verification/hashing.js';
-
+import { toMitacsGrant } from './parser.js';
 import { parseCsvLine } from '../../utils/csv.js';
+
 export async function fetchMitacsGrants(): Promise<ResearchGrant[]> {
   const grants: ResearchGrant[] = [];
   const now = new Date().toISOString();
@@ -23,38 +23,13 @@ export async function fetchMitacsGrants(): Promise<ResearchGrant[]> {
 
         const year = parseInt(cols[2], 10);
         const amount = parseFloat(cols[3].replace(/[$,]/g, ''));
-
         if (isNaN(year)) continue;
 
-        const id = await computeHash(`mitacs:${cols[0]}:${cols[1]}:${year}`, 'sha256');
-        grants.push({
-          id,
-          agency: 'mitacs',
-          program: cols[4] || 'Accelerate',
-          recipient: cols[0],
-          recipientType: detectRecipientType(cols[0]),
-          amountCad: isNaN(amount) ? 0 : amount,
-          year,
-          province: cols[5] || '',
-          title: cols[1] || '',
-          description: cols[6] || null,
-          sourceUrl: SOURCES.MITACS.openDataCsv,
-          ingestedAt: now,
-        });
+        grants.push(await toMitacsGrant(cols, year, amount, SOURCES.MITACS.openDataCsv, now));
       }
     }
-    } catch {
-    }
+  } catch {
+  }
 
   return grants;
-}
-
-
-
-function detectRecipientType(name: string): ResearchGrant['recipientType'] {
-  const lc = name.toLowerCase();
-  if (lc.includes('university') || lc.includes('college') || lc.includes('institute')) return 'university';
-  if (lc.includes('inc.') || lc.includes('ltd.') || lc.includes('corporation') || lc.includes('corp')) return 'company';
-  if (lc.includes('hospital') || lc.includes('foundation')) return 'nonprofit';
-  return 'company';
 }
