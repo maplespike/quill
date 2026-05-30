@@ -3,17 +3,17 @@
   "//_generated": "2026-05-30",
   "version": "2026-05-30",
   "modules": {
-    "registryCount": 103,
-    "ingestionDirs": 84,
-    "description": "103 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 84 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "registryCount": 104,
+    "ingestionDirs": 85,
+    "description": "104 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 85 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
-    "count": 126,
-    "description": "126 MCP tool definitions registered in tools/index.ts"
+    "count": 129,
+    "description": "129 MCP tool definitions registered in tools/index.ts"
   },
   "typescript": {
-    "totalLines": 140607,
-    "totalFiles": 847,
+    "totalLines": 141130,
+    "totalFiles": 854,
     "packages": 12,
     "perPackage": {
       "api-server": {
@@ -41,12 +41,12 @@
         "lines": 41
       },
       "mcp-server": {
-        "files": 147,
-        "lines": 11314
+        "files": 148,
+        "lines": 11434
       },
       "pipeline-core": {
-        "files": 571,
-        "lines": 109755
+        "files": 577,
+        "lines": 110158
       },
       "portal": {
         "files": 2,
