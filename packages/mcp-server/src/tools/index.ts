@@ -137,6 +137,7 @@ import * as parliamentaryVoting from './parliamentary-voting.js';
 import * as publicAccounts from './public-accounts.js';
 import * as unComtrade from './un-comtrade.js';
 import * as worldbankWdi from './worldbank-wdi.js';
+import * as searchOecd from './search-oecd.js';
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 
@@ -273,6 +274,7 @@ export function getAllTools(): ToolModule[] {
     searxngHealth,
     signalCheck,
     systemHealth,
+<<<<<<< Updated upstream
     // Phase 1 Expansion Tools
     gtfsTransit.getGTFSByCityDefinition,
     gtfsTransit.getGTFSSchedulesDefinition,
@@ -298,6 +300,77 @@ export function getAllTools(): ToolModule[] {
     worldbankWdi.getWDIIndicatorDefinition,
     worldbankWdi.compareWDICountriesDefinition,
     worldbankWdi.getCountryWDIProfileDefinition,
+||||||| Stash base
+    // Phase 1 Expansion Tools - GTFS Transit
+    { definition: gtfsTransit.getGTFSByCityDefinition, handler: gtfsTransit.getGTFSByCityHandler },
+    { definition: gtfsTransit.getGTFSSchedulesDefinition, handler: gtfsTransit.getGTFSSchedulesHandler },
+    { definition: gtfsTransit.getGTFSTrendsDefinition, handler: gtfsTransit.getGTFSTrendsHandler },
+    // Phase 1 Expansion Tools - Police Data
+    { definition: policeData.getPoliceByCityDefinition, handler: policeData.getPoliceByCityHandler },
+    { definition: policeData.comparePoliceCrimeDefinition, handler: policeData.comparePoliceCrimeHandler },
+    { definition: policeData.getPoliceTrendsDefinition, handler: policeData.getPoliceTrendsHandler },
+    // Phase 1 Expansion Tools - Fire Emergency
+    { definition: fireEmergency.getFireByCityDefinition, handler: fireEmergency.getFireByCityHandler },
+    { definition: fireEmergency.compareFireResponseDefinition, handler: fireEmergency.compareFireResponseHandler },
+    { definition: fireEmergency.getFireTrendsDefinition, handler: fireEmergency.getFireTrendsHandler },
+    // Phase 1 Expansion Tools - Political Donations
+    { definition: politicalDonations.getDonationsByJurisdictionDefinition, handler: politicalDonations.getDonationsByJurisdictionHandler },
+    { definition: politicalDonations.compareDonationsPartiesDefinition, handler: politicalDonations.compareDonationsPartiesHandler },
+    { definition: politicalDonations.getDonationsTrendsDefinition, handler: politicalDonations.getDonationsTrendsHandler },
+    // Phase 1 Expansion Tools - Parliamentary Voting
+    { definition: parliamentaryVoting.getVotingRecordDefinition, handler: parliamentaryVoting.getVotingRecordHandler },
+    { definition: parliamentaryVoting.getMPVotingPatternDefinition, handler: parliamentaryVoting.getMPVotingPatternHandler },
+    { definition: parliamentaryVoting.comparePartyVotingDefinition, handler: parliamentaryVoting.comparePartyVotingHandler },
+    // Phase 1 Expansion Tools - Public Accounts
+    { definition: publicAccounts.getPublicAccountsDefinition, handler: publicAccounts.getPublicAccountsHandler },
+    { definition: publicAccounts.getDepartmentSpendingDefinition, handler: publicAccounts.getDepartmentSpendingHandler },
+    { definition: publicAccounts.compareSpendingTrendsDefinition, handler: publicAccounts.compareSpendingTrendsHandler },
+    // Phase 1 Expansion Tools - UN Comtrade
+    { definition: unComtrade.getComtradeByPartnerDefinition, handler: unComtrade.getComtradeByPartnerHandler },
+    { definition: unComtrade.getComtradeByCommodityDefinition, handler: unComtrade.getComtradeByCommodityHandler },
+    { definition: unComtrade.getComtradeTrendsDefinition, handler: unComtrade.getComtradeTrendsHandler },
+    // Phase 1 Expansion Tools - World Bank WDI
+    { definition: worldbankWdi.getWDIIndicatorDefinition, handler: worldbankWdi.getWDIIndicatorHandler },
+    { definition: worldbankWdi.compareWDICountriesDefinition, handler: worldbankWdi.compareWDICountriesHandler },
+    { definition: worldbankWdi.getCountryWDIProfileDefinition, handler: worldbankWdi.getCountryWDIProfileHandler },
+=======
+    // Phase 1 Expansion Tools - GTFS Transit
+    { definition: gtfsTransit.getGTFSByCityDefinition, handler: gtfsTransit.getGTFSByCityHandler },
+    { definition: gtfsTransit.getGTFSSchedulesDefinition, handler: gtfsTransit.getGTFSSchedulesHandler },
+    { definition: gtfsTransit.getGTFSTrendsDefinition, handler: gtfsTransit.getGTFSTrendsHandler },
+    // Phase 1 Expansion Tools - Police Data
+    { definition: policeData.getPoliceByCityDefinition, handler: policeData.getPoliceByCityHandler },
+    { definition: policeData.comparePoliceCrimeDefinition, handler: policeData.comparePoliceCrimeHandler },
+    { definition: policeData.getPoliceTrendsDefinition, handler: policeData.getPoliceTrendsHandler },
+    // Phase 1 Expansion Tools - Fire Emergency
+    { definition: fireEmergency.getFireByCityDefinition, handler: fireEmergency.getFireByCityHandler },
+    { definition: fireEmergency.compareFireResponseDefinition, handler: fireEmergency.compareFireResponseHandler },
+    { definition: fireEmergency.getFireTrendsDefinition, handler: fireEmergency.getFireTrendsHandler },
+    // Phase 1 Expansion Tools - Political Donations
+    { definition: politicalDonations.getDonationsByJurisdictionDefinition, handler: politicalDonations.getDonationsByJurisdictionHandler },
+    { definition: politicalDonations.compareDonationsPartiesDefinition, handler: politicalDonations.compareDonationsPartiesHandler },
+    { definition: politicalDonations.getDonationsTrendsDefinition, handler: politicalDonations.getDonationsTrendsHandler },
+    // Phase 1 Expansion Tools - Parliamentary Voting
+    { definition: parliamentaryVoting.getVotingRecordDefinition, handler: parliamentaryVoting.getVotingRecordHandler },
+    { definition: parliamentaryVoting.getMPVotingPatternDefinition, handler: parliamentaryVoting.getMPVotingPatternHandler },
+    { definition: parliamentaryVoting.comparePartyVotingDefinition, handler: parliamentaryVoting.comparePartyVotingHandler },
+    // Phase 1 Expansion Tools - Public Accounts
+    { definition: publicAccounts.getPublicAccountsDefinition, handler: publicAccounts.getPublicAccountsHandler },
+    { definition: publicAccounts.getDepartmentSpendingDefinition, handler: publicAccounts.getDepartmentSpendingHandler },
+    { definition: publicAccounts.compareSpendingTrendsDefinition, handler: publicAccounts.compareSpendingTrendsHandler },
+    // Phase 1 Expansion Tools - UN Comtrade
+    { definition: unComtrade.getComtradeByPartnerDefinition, handler: unComtrade.getComtradeByPartnerHandler },
+    { definition: unComtrade.getComtradeByCommodityDefinition, handler: unComtrade.getComtradeByCommodityHandler },
+    { definition: unComtrade.getComtradeTrendsDefinition, handler: unComtrade.getComtradeTrendsHandler },
+    // Phase 1 Expansion Tools - World Bank WDI
+    { definition: worldbankWdi.getWDIIndicatorDefinition, handler: worldbankWdi.getWDIIndicatorHandler },
+    { definition: worldbankWdi.compareWDICountriesDefinition, handler: worldbankWdi.compareWDICountriesHandler },
+    { definition: worldbankWdi.getCountryWDIProfileDefinition, handler: worldbankWdi.getCountryWDIProfileHandler },
+    // Phase 1 Expansion Tools - OECD Data Explorer
+    { definition: searchOecd.searchOecdDefinition, handler: searchOecd.searchOecdHandler },
+    { definition: searchOecd.getOecdDatasetDefinition, handler: searchOecd.getOecdDatasetHandler },
+    { definition: searchOecd.getOecdByTopicDefinition, handler: searchOecd.getOecdByTopicHandler },
+>>>>>>> Stashed changes
   ].filter(Boolean);
 }
 

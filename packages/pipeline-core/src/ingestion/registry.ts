@@ -17,7 +17,8 @@ export type ModuleCategory =
   | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
   | 'elections' | 'provincial' | 'science' | 'social' | 'health'
   | 'defence' | 'education' | 'environment' | 'infrastructure'
-  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss';
+  | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss'
+  | 'international';
 
 export interface ModuleInfo {
   name: string;
@@ -545,7 +546,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     description: 'Corporate filings — SEDAR+, public company regulatory filings and disclosures',
     category: 'corporate',
     modulePath: './corporate-filings/index.js',
-    ingestFunctions: ['ingestAllFilings'],
+    ingestFunctions: ['ingestFilingsForIssuer', 'ingestAllFilings', 'searchCorporateFilings'],
     sources: [{ name: 'SEDAR+ regulatory filings', format: 'HTML' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
@@ -1424,6 +1425,20 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
 
   // ── International Indicators ─────────────────────────────────────
+  {
+    name: 'oecd',
+    description: 'OECD Data Explorer — national accounts, health statistics, and comparative indicators',
+    category: 'international',
+    modulePath: './oecd/index.js',
+    ingestFunctions: ['ingestOecdDataset', 'ingestByTopic', 'ingestAllOecd', 'searchOecdRecords'],
+    sources: [
+      { name: 'OECD National Accounts (NAAG)', format: 'CSV' },
+      { name: 'OECD Health Statistics', format: 'CSV' },
+    ],
+    updateFrequency: 'quarterly (NAAG), annual (health)',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data-explorer.oecd.org',
+  },
   {
     name: 'un-comtrade',
     description: 'UN Comtrade — international trade statistics by commodity and partner country',
