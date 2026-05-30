@@ -167,5 +167,16 @@ export {
 } from './ngo-influence-rss/index.js';
 export type { NgoRssItem, NgoRssIngestionResult } from './ngo-influence-rss/types.js';
 
+export {
+  ingestUnDataset,
+  ingestMultipleDatasets,
+  UN_DATABASES,
+} from './un/index.js';
+export type {
+  UnRecord,
+  UnIngestionResult,
+  UnFilterOptions,
+} from './un/types.js';
+
 
 

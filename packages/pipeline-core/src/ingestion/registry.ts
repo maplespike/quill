@@ -1446,6 +1446,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://api.worldbank.org/v2/country/CAN/indicator/NY.GDP.MKTP.CD?format=json&date=2000:2023',
   },
+  {
+    name: 'un',
+    description: 'UN SDMX REST API — UN statistical databases (UNCTAD, ILO, WHO, UNESCO, FAO, UNDP)',
+    category: 'government',
+    modulePath: './un/index.js',
+    ingestFunctions: ['ingestUnDataset', 'ingestMultipleDatasets'],
+    sources: [{ name: 'UN Data Portal', format: 'JSON/SDMX-ML/XML/CSV' }],
+    updateFrequency: 'annual',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.un.org/ws/rest',
+  },
 ];
 
 // Build lookup map

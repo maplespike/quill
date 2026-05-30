@@ -137,6 +137,7 @@ import * as parliamentaryVoting from './parliamentary-voting.js';
 import * as publicAccounts from './public-accounts.js';
 import * as unComtrade from './un-comtrade.js';
 import * as worldbankWdi from './worldbank-wdi.js';
+import * as searchUn from './search-un.js';
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 
@@ -298,6 +299,9 @@ export function getAllTools(): ToolModule[] {
     worldbankWdi.getWDIIndicatorDefinition,
     worldbankWdi.compareWDICountriesDefinition,
     worldbankWdi.getCountryWDIProfileDefinition,
+    searchUn.getUnDatasetDefinition,
+    searchUn.searchUnIndicatorsDefinition,
+    searchUn.compareUnCountriesDefinition,
   ].filter(Boolean);
 }
 
