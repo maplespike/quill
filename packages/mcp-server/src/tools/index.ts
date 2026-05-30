@@ -129,6 +129,14 @@ import * as searchVotes from './search-votes.js';
 import * as searxngHealth from './searxng-health.js';
 import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
+import * as gtfsTransit from './gtfs-transit.js';
+import * as policeData from './police-data.js';
+import * as fireEmergency from './fire-emergency.js';
+import * as politicalDonations from './political-donations.js';
+import * as parliamentaryVoting from './parliamentary-voting.js';
+import * as publicAccounts from './public-accounts.js';
+import * as unComtrade from './un-comtrade.js';
+import * as worldbankWdi from './worldbank-wdi.js';
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 
@@ -265,7 +273,32 @@ export function getAllTools(): ToolModule[] {
     searxngHealth,
     signalCheck,
     systemHealth,
-  ];
+    // Phase 1 Expansion Tools
+    gtfsTransit.getGTFSByCityDefinition,
+    gtfsTransit.getGTFSSchedulesDefinition,
+    gtfsTransit.getGTFSTrendsDefinition,
+    policeData.getPoliceByCityDefinition,
+    policeData.comparePoliceCrimeDefinition,
+    policeData.getPoliceTrendsDefinition,
+    fireEmergency.getFireByCityDefinition,
+    fireEmergency.compareFireResponseDefinition,
+    fireEmergency.getFireTrendsDefinition,
+    politicalDonations.getDonationsByJurisdictionDefinition,
+    politicalDonations.compareDonationsPartiesDefinition,
+    politicalDonations.getDonationsTrendsDefinition,
+    parliamentaryVoting.getVotingRecordDefinition,
+    parliamentaryVoting.getMPVotingPatternDefinition,
+    parliamentaryVoting.comparePartyVotingDefinition,
+    publicAccounts.getPublicAccountsDefinition,
+    publicAccounts.getDepartmentSpendingDefinition,
+    publicAccounts.compareSpendingTrendsDefinition,
+    unComtrade.getComtradeByPartnerDefinition,
+    unComtrade.getComtradeByCommodityDefinition,
+    unComtrade.getComtradeTrendsDefinition,
+    worldbankWdi.getWDIIndicatorDefinition,
+    worldbankWdi.compareWDICountriesDefinition,
+    worldbankWdi.getCountryWDIProfileDefinition,
+  ].filter(Boolean);
 }
 
 export function getToolNames(): string[] {
