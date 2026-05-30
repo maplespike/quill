@@ -1,20 +1,29 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { buildAttribution, withAttribution } from '../../shared/attribution.js';
 import { fetchOecdDataset, parseCsvData, validateCsvHeaders } from './fetcher.js';
 import { OECD_DATASETS, OECD_TOPICS, DEFAULT_DATASETS, TOPIC_NAAG, TOPIC_HEALTH } from './constants.js';
 import { parseOecdRecords } from './parser.js';
 import type { OecdIngestionResult, OecdRecord } from './types.js';
 
+function makeAttribution() {
+  return buildAttribution('OECD Data Explorer', {
+    sourceUrl: 'https://data-explorer.oecd.org',
+    license: 'OECD Open Data',
+    attributionText: 'Data sourced from OECD Data Explorer',
+  });
+}
+
 export async function ingestOecdDataset(datasetId: string) {
   const dataset = OECD_DATASETS.find((d) => d.id === datasetId);
   if (!dataset) {
-    return {
+    return withAttribution({
       datasetsAttempted: 1,
       datasetsSucceeded: 0,
       records: [],
       errors: [{ datasetId, error: `Unknown dataset: ${datasetId}` }],
       durationMs: 0,
-    };
+    }, makeAttribution());
   }
 
   const startTime = Date.now();
@@ -24,56 +33,56 @@ export async function ingestOecdDataset(datasetId: string) {
     const rows = parseCsvData(csvText);
 
     if (rows.length === 0) {
-      return {
+      return withAttribution({
         datasetsAttempted: 1,
         datasetsSucceeded: 0,
         records: [],
         errors: [{ datasetId, error: 'No data returned' }],
         durationMs: Date.now() - startTime,
-      };
+      }, makeAttribution());
     }
 
     const headers = Object.keys(rows[0]);
     if (!validateCsvHeaders(headers)) {
-      return {
+      return withAttribution({
         datasetsAttempted: 1,
         datasetsSucceeded: 0,
         records: [],
         errors: [{ datasetId, error: 'Invalid CSV headers' }],
         durationMs: Date.now() - startTime,
-      };
+      }, makeAttribution());
     }
 
     const records = await parseOecdRecords(rows, datasetId, dataset.name);
 
-    return {
+    return withAttribution({
       datasetsAttempted: 1,
       datasetsSucceeded: 1,
       records,
       errors: [],
       durationMs: Date.now() - startTime,
-    };
+    }, makeAttribution());
   } catch (err) {
-    return {
+    return withAttribution({
       datasetsAttempted: 1,
       datasetsSucceeded: 0,
       records: [],
       errors: [{ datasetId, error: String(err) }],
       durationMs: Date.now() - startTime,
-    };
+    }, makeAttribution());
   }
 }
 
 export async function ingestByTopic(topic: string) {
   const topicData = OECD_TOPICS[topic as keyof typeof OECD_TOPICS];
   if (!topicData) {
-    return {
+    return withAttribution({
       datasetsAttempted: 0,
       datasetsSucceeded: 0,
       records: [],
       errors: [{ datasetId: topic, error: `Unknown topic: ${topic}` }],
       durationMs: 0,
-    };
+    }, makeAttribution());
   }
 
   const startTime = Date.now();
@@ -83,17 +92,18 @@ export async function ingestByTopic(topic: string) {
   const allErrors: Array<{ datasetId: string; error: string }> = [];
 
   for (const result of results) {
-    allRecords.push(...result.records);
-    allErrors.push(...result.errors);
+    const ingestionResult = result.data as OecdIngestionResult;
+    allRecords.push(...ingestionResult.records);
+    allErrors.push(...ingestionResult.errors);
   }
 
-  return {
+  return withAttribution({
     datasetsAttempted: results.length,
-    datasetsSucceeded: results.filter((r) => r.datasetsSucceeded > 0).length,
+    datasetsSucceeded: results.filter((r) => (r.data as OecdIngestionResult).datasetsSucceeded > 0).length,
     records: allRecords,
     errors: allErrors,
     durationMs: Date.now() - startTime,
-  };
+  }, makeAttribution());
 }
 
 export async function ingestAllOecd(datasets?: string[]) {
@@ -106,17 +116,18 @@ export async function ingestAllOecd(datasets?: string[]) {
   const allErrors: Array<{ datasetId: string; error: string }> = [];
 
   for (const result of results) {
-    allRecords.push(...result.records);
-    allErrors.push(...result.errors);
+    const ingestionResult = result.data as OecdIngestionResult;
+    allRecords.push(...ingestionResult.records);
+    allErrors.push(...ingestionResult.errors);
   }
 
-  return {
+  return withAttribution({
     datasetsAttempted: results.length,
-    datasetsSucceeded: results.filter((r) => r.datasetsSucceeded > 0).length,
+    datasetsSucceeded: results.filter((r) => (r.data as OecdIngestionResult).datasetsSucceeded > 0).length,
     records: allRecords,
     errors: allErrors,
     durationMs: Date.now() - startTime,
-  };
+  }, makeAttribution());
 }
 
 export async function searchOecdRecords(
@@ -126,8 +137,8 @@ export async function searchOecdRecords(
   const result = await ingestAllOecd();
 
   const lower = keyword.toLowerCase();
-  let filtered = result.records.filter(
-    (r) =>
+  let filtered = (result.data as OecdIngestionResult).records.filter(
+    (r: OecdRecord) =>
       r.indicatorName.toLowerCase().includes(lower) ||
       r.indicatorCode.toLowerCase().includes(lower) ||
       r.topic.toLowerCase().includes(lower),
