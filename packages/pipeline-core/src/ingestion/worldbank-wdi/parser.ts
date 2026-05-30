@@ -20,7 +20,7 @@ export function parseIndicatorDatum(
     indicatorCode: datum.indicator?.id ?? '',
     year,
     value,
-    id: computeHash(`${countryCode}:${datum.indicator?.id}:${year}`),
+    id: `${countryCode}:${datum.indicator?.id}:${year}`,
   };
 }
 
