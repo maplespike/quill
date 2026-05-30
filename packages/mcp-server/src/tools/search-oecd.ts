@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { ingestOecdDataset, ingestByTopic, ingestAllOecd, searchOecdRecords } from '@maplespike/pipeline-core/oecd';
+import { ingestOecdDataset, ingestByTopic, ingestAllOecd, searchOecdRecords } from '@maplespike/pipeline-core';
 
 export const searchOecdDefinition: ToolDefinition = {
   name: 'search_oecd',
@@ -114,7 +114,7 @@ export const getOecdDatasetHandler: ToolHandler = async (args) => {
   const datasetId = args.datasetId as string;
 
   try {
-    const result = await ingestOecdDataset(datasetId);
+    const result = await ingestOecdDataset(datasetId) as any;
 
     return {
       content: {
@@ -145,7 +145,7 @@ export const getOecdByTopicHandler: ToolHandler = async (args) => {
   const topic = args.topic as string;
 
   try {
-    const result = await ingestByTopic(topic);
+    const result = await ingestByTopic(topic) as any;
 
     return {
       content: {
@@ -157,7 +157,7 @@ export const getOecdByTopicHandler: ToolHandler = async (args) => {
         durationMs: result.data.durationMs,
         errors: result.data.errors,
         data: result.data.records,
-        attribution: result.data.records.length > 0 ? result.attribution.attributionText : undefined,
+        attribution: result.data.records.length > 0 ? result.attribution?.attributionText : undefined,
       },
     };
   } catch (error) {
