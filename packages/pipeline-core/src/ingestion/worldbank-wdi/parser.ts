@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { computeHash } from '../../verification/hashing.js';
-import type { IndicatorValue, WdiIndicatorDatum, WdiCountryProfile, WdiComparison } from './types.js';
+import type { IndicatorValue, WdiCountryProfile, WdiComparison, WdiTrendAnalysis } from './types.js';
 
 export function parseIndicatorDatum(
-  datum: WdiIndicatorDatum,
+  datum: any,
   countryCode: string,
 ): IndicatorValue | null {
   if (datum.value === null) return null;
@@ -15,17 +14,19 @@ export function parseIndicatorDatum(
   const value = parseFloat(datum.value);
   if (isNaN(value)) return null;
 
+  const id = `${countryCode}:${datum.indicator?.id}:${year}`;
+
   return {
-    country: countryCode as any,
+    country: countryCode,
     indicatorCode: datum.indicator?.id ?? '',
     year,
     value,
-    id: `${countryCode}:${datum.indicator?.id}:${year}`,
+    id,
   };
 }
 
 export function parseIndicatorData(
-  data: WdiIndicatorDatum[],
+  data: any[],
   countryCode: string,
 ): IndicatorValue[] {
   const results: IndicatorValue[] = [];
@@ -42,7 +43,7 @@ export function parseIndicatorData(
 
 export function buildCountryProfile(
   countryCode: string,
-  indicatorData: Map<string, WdiIndicatorDatum[]>,
+  indicatorData: Map<string, any[]>,
 ): WdiCountryProfile {
   const indicators: IndicatorValue[] = [];
 
@@ -60,7 +61,7 @@ export function buildCountryProfile(
 
 export function buildComparison(
   indicatorCode: string,
-  dataByCountry: Map<string, WdiIndicatorDatum[]>,
+  dataByCountry: Map<string, any[]>,
 ): WdiComparison {
   const entries: Array<{ country: string; values: IndicatorValue[] }> = [];
 
@@ -75,5 +76,48 @@ export function buildComparison(
     indicatorCode,
     entries,
     lastUpdated: new Date().toISOString(),
+  };
+}
+
+export function analyzeTrend(
+  data: IndicatorValue[],
+): WdiTrendAnalysis {
+  if (data.length < 2) {
+    return {
+      indicatorCode: data[0]?.indicatorCode ?? '',
+      country: data[0]?.country ?? '',
+      trend: 'no_data',
+      changeRate: 0,
+      startYear: 0,
+      endYear: 0,
+      dataPoints: data,
+    };
+  }
+
+  const sorted = [...data].sort((a, b) => a.year - b.year);
+  const startYear = sorted[0].year;
+  const endYear = sorted[sorted.length - 1].year;
+  const startValue = sorted[0].value;
+  const endValue = sorted[sorted.length - 1].value;
+
+  const changeRate = ((endValue - startValue) / startValue) * 100;
+
+  let trend: WdiTrendAnalysis['trend'] = 'stable';
+  if (Math.abs(changeRate) < 0.1) {
+    trend = 'stable';
+  } else if (changeRate > 0) {
+    trend = 'increasing';
+  } else {
+    trend = 'decreasing';
+  }
+
+  return {
+    indicatorCode: sorted[0].indicatorCode,
+    country: sorted[0].country,
+    trend,
+    changeRate,
+    startYear,
+    endYear,
+    dataPoints: sorted,
   };
 }
