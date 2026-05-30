@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+import type { OecdDataset } from './types.js';
+
+export const OECD_DATA_EXPLORER_BASE_URL = 'https://data-explorer.oecd.org';
+export const OECD_CSV_EXPORT_BASE_URL = 'https://sdmx.oecd.org/public/rest/data';
+
+export const OECD_TIMEOUT_MS = 30_000;
+export const OECD_USER_AGENT = 'MapleSpike-OECD/1.0';
+
+export const TOPIC_NAAG = 'NAAG';
+export const TOPIC_HEALTH = 'HEALTH';
+
+export const DEFAULT_DATASETS = ['NAAG', 'HEALTH'];
+
+export const OECD_DATASETS: OecdDataset[] = [
+  {
+    id: 'NAAG',
+    name: 'National Accounts',
+    description: 'National accounts: GDP, GNI, expenditure, consumption by category',
+    updateFrequency: 'quarterly',
+    csvUrlTemplate: `${OECD_CSV_EXPORT_BASE_URL}/OECD,SNA_TABLE1/1.0/.`,
+  },
+  {
+    id: 'HEALTH',
+    name: 'Health Statistics',
+    description: 'Health expenditure, resources, outcomes by country',
+    updateFrequency: 'annual',
+    csvUrlTemplate: `${OECD_CSV_EXPORT_BASE_URL}/OECD,HEALTH_STAT/1.0/.`,
+  },
+];
+
+export const OECD_TOPICS = {
+  [TOPIC_NAAG]: {
+    code: TOPIC_NAAG,
+    name: 'National Accounts',
+    datasets: ['NAAG'],
+    description: 'GDP, GNI, government expenditure, consumption by category',
+  },
+  [TOPIC_HEALTH]: {
+    code: TOPIC_HEALTH,
+    name: 'Health Statistics',
+    datasets: ['HEALTH'],
+    description: 'Health expenditure, workforce, outcomes by country',
+  },
+} as const;
+
+export function buildDatasetUrl(datasetId: string, format: 'csv' | 'json' = 'csv'): string {
+  const dataset = OECD_DATASETS.find((d) => d.id === datasetId);
+  if (!dataset) {
+    throw new Error(`Unknown dataset: ${datasetId}`);
+  }
+  return `${dataset.csvUrlTemplate}?format=${format}&startPeriod=2000&endPeriod=2025`;
+}
+
+export function validateDatasetId(datasetId: string): boolean {
+  return OECD_DATASETS.some((d) => d.id === datasetId);
+}
