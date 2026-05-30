@@ -16,4 +16,5 @@
 
 export { fetchContracts, listDataFiles, ingestAllGoCSpending } from './fetcher.js';
 export { GOC_CONTRACTS_DDL, GOC_DEPT_SPENDING_DDL } from './constants.js';
+export { toGoCContract, toGoCDeptSpending, toGoCVendorSpending, parseGoCContracts, parseGoCDeptSpending, parseGoCVendorSpending } from './parser.js';
 export type { GoCContract, GoCDeptSpending, GoCVendorSpending, GoCIngestionResult } from './types.js';
