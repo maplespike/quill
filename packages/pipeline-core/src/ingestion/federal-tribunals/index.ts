@@ -1,7 +1,7 @@
 import { httpGet } from '../../utils/http.js';
 import { TRIBUNAL_SOURCES } from './constants.js';
 import type { TribunalDecision, TribunalCase, TribunalIngestionResult, TribunalName } from './types.js';
-import { computeHash } from '../../verification/hashing.js';
+import { toTribunalDecision } from './parser.js';
 
 export { TRIBUNAL_SOURCES } from './constants.js';
 export type { TribunalDecision, TribunalCase, TribunalIngestionResult, TribunalName } from './types.js';
@@ -28,21 +28,8 @@ async function fetchTribunalDecisions(tribunal: TribunalName): Promise<TribunalD
         const json = JSON.parse(html) as Record<string, unknown>;
         const items = (json.results || json.data || json.items || []) as Record<string, unknown>[];
         for (const item of items) {
-          const caseNum = String(item.caseNumber ?? item.docket ?? item.fileNumber ?? '');
-          const id = await computeHash(`${tribunal}:${caseNum}`, 'sha256');
-          decisions.push({
-            id,
-            tribunal: source.name,
-            caseNumber: caseNum,
-            title: String(item.title ?? item.name ?? ''),
-            applicant: String(item.applicant ?? item.party ?? ''),
-            respondent: String(item.respondent ?? ''),
-            decisionDate: String(item.date ?? item.decisionDate ?? now.split('T')[0]),
-            outcome: String(item.outcome ?? item.decision ?? ''),
-            summary: String(item.summary ?? item.description ?? null) || null,
-            sourceUrl: `${source.baseUrl}/en/decisions/${item.id ?? ''}`,
-            ingestedAt: now,
-          });
+          const parsed = await toTribunalDecision(item, tribunal, source.name, source.baseUrl, now);
+          if (parsed) decisions.push(parsed);
         }
       } catch {
       }

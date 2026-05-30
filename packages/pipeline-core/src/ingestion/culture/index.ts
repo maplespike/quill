@@ -13,7 +13,7 @@
  * Licensed under AGPL-3.0 — see LICENSE
  */
 
-import { computeHash } from '../../verification/hashing.js';
+import { toCultureRecord, batchToCultureRecords, parseCmfEntries } from './parser.js';
 import type { CultureRecord, CultureIngestionResult } from './types.js';
 import {
   CKAN_BASE,
@@ -30,7 +30,6 @@ import {
   CRTC_OWNERSHIP_URL,
   CRTC_CULTURAL_URL,
   NFB_BASE_URL,
-  NFB_API_URL,
   CBC_CKAN_PACKAGE_ID,
   CULTURE_CKAN_QUERIES,
 } from './constants.js';
@@ -89,9 +88,7 @@ async function fetchPchGrants(): Promise<CultureRecord[]> {
     try {
       const results = await searchCkan(q);
       for (const item of results) {
-        const id = await computeHash(`culture:pch:${item.id}`, 'sha256');
-        records.push({
-          id,
+        records.push(await toCultureRecord(`pch:${item.id}`, {
           year: item.metadata_created?.substring(0, 4)
             ? parseInt(item.metadata_created.substring(0, 4))
             : new Date().getFullYear(),
@@ -99,11 +96,9 @@ async function fetchPchGrants(): Promise<CultureRecord[]> {
           subcategory: q.replace(/\+/g, ' '),
           value: 1,
           description: item.title ?? item.name ?? '',
-          region: 'Canada',
           sourceUrl: `https://open.canada.ca/data/en/dataset/${item.id}`,
           sourceName: 'Canadian Heritage',
-          ingestedAt: now,
-        });
+        }, now));
       }
     } catch { /* individual query failure ok */ }
   }
@@ -113,9 +108,7 @@ async function fetchPchGrants(): Promise<CultureRecord[]> {
     try {
       const pkg = await fetchCkanPackage(ds.id);
       if (!pkg) continue;
-      const id = await computeHash(`culture:pch:${key}`, 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord(`pch:${key}`, {
         year: pkg.metadata_created?.substring(0, 4)
           ? parseInt(pkg.metadata_created.substring(0, 4))
           : new Date().getFullYear(),
@@ -123,11 +116,9 @@ async function fetchPchGrants(): Promise<CultureRecord[]> {
         subcategory: key,
         value: pkg.resources?.length ?? 1,
         description: pkg.notes ?? pkg.title ?? ds.title,
-        region: 'Canada',
         sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
         sourceName: 'Canadian Heritage',
-        ingestedAt: now,
-      });
+      }, now));
     } catch { /* skip */ }
   }
 
@@ -143,49 +134,36 @@ async function fetchCanadaCouncil(): Promise<CultureRecord[]> {
   const now = new Date().toISOString();
 
   try {
-    // Canada Council research data tables page
     const html = await fetchText(CANADA_COUNCIL_URL);
     if (html) {
-      const id = await computeHash('culture:canada-council-main', 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord('canada-council-main', {
         year: new Date().getFullYear(),
         category: 'Canada Council for the Arts',
         subcategory: 'Grants and Research Data',
         value: 1,
         description: 'Canada Council for the Arts grant data, research tables, and funding statistics across multiple disciplines including theatre, music, dance, visual arts, and publishing',
-        region: 'Canada',
         sourceUrl: CANADA_COUNCIL_URL,
         sourceName: 'Canada Council for the Arts',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 
-  // Canada Council grant programs by year
   const programs = [
-    'Explore and Create',
-    'Supporting Artistic Practice',
-    'Engage and Participate',
-    'Strategic Initiatives',
-    'Grants to National Arts Service Organizations',
-    'Prizes and Awards',
+    'Explore and Create', 'Supporting Artistic Practice',
+    'Engage and Participate', 'Strategic Initiatives',
+    'Grants to National Arts Service Organizations', 'Prizes and Awards',
   ];
   for (const program of programs) {
     try {
-      const id = await computeHash(`culture:canada-council:${program}`, 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord(`canada-council:${program}`, {
         year: new Date().getFullYear(),
         category: 'Canada Council for the Arts',
         subcategory: program,
         value: 1,
         description: `${program} — Canada Council for the Arts funding program`,
-        region: 'Canada',
         sourceUrl: 'https://canadacouncil.ca/funding',
         sourceName: 'Canada Council for the Arts',
-        ingestedAt: now,
-      });
+      }, now));
     } catch { /* skip */ }
   }
 
@@ -200,49 +178,36 @@ async function fetchTelefilm(): Promise<CultureRecord[]> {
   const records: CultureRecord[] = [];
   const now = new Date().toISOString();
 
-  // Telefilm production funding by year
   const recentYears = [2024, 2025];
   for (const year of recentYears) {
     try {
-      const id = await computeHash(`culture:telefilm:${year}`, 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord(`telefilm:${year}`, {
         year,
         category: 'Telefilm Canada',
         subcategory: year.toString(),
         value: 1,
-        description: `Telefilm Canada production funding data and studies for ${year} — feature films, documentaries, and digital media production funding`,
-        region: 'Canada',
+        description: `Telefilm Canada production funding data and studies for ${year}`,
         sourceUrl: `https://telefilm.ca/en/studies-and-reports?year=${year}`,
         sourceName: 'Telefilm Canada',
-        ingestedAt: now,
-      });
+      }, now));
     } catch { /* skip */ }
   }
 
-  // Telefilm performance reports
   const reportTypes = [
-    'Annual Report',
-    'Production Report',
-    'Market Analysis',
-    'Diversity Report',
-    'Regional Production',
+    'Annual Report', 'Production Report', 'Market Analysis',
+    'Diversity Report', 'Regional Production',
   ];
   for (const report of reportTypes) {
     try {
-      const id = await computeHash(`culture:telefilm:${report}`, 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord(`telefilm:${report}`, {
         year: new Date().getFullYear(),
         category: 'Telefilm Canada',
         subcategory: report,
         value: 1,
         description: `${report} — Telefilm Canada ${report.toLowerCase()} on production funding and industry performance`,
-        region: 'Canada',
         sourceUrl: TELEFILM_URL,
         sourceName: 'Telefilm Canada',
-        ingestedAt: now,
-      });
+      }, now));
     } catch { /* skip */ }
   }
 
@@ -257,48 +222,26 @@ async function fetchCanadaMediaFund(): Promise<CultureRecord[]> {
   const records: CultureRecord[] = [];
   const now = new Date().toISOString();
 
-  // Try CMF API endpoint for envelope data
   try {
     const envelopeData = await fetchJson(`${CMF_DATA_URL}/envelopes?limit=20`);
     if (envelopeData) {
       const entries = Array.isArray(envelopeData) ? envelopeData : (envelopeData.data ?? []);
-      for (const entry of entries.slice(0, MAX_RECORDS_PER_SOURCE)) {
-        const id = await computeHash(`culture:cmf:${entry.id ?? entry.projectId ?? Math.random()}`, 'sha256');
-        records.push({
-          id,
-          year: entry.year ?? new Date().getFullYear(),
-          category: 'Canada Media Fund',
-          subcategory: entry.category ?? 'Production Envelope',
-          value: 1,
-          amount: entry.amount ?? undefined,
-          description: entry.title ?? entry.project ?? `CMF ${entry.category ?? 'funding'} envelope`,
-          region: entry.province ?? 'Canada',
-          program: entry.program ?? entry.stream ?? '',
-          recipient: entry.company ?? entry.recipient ?? '',
-          sourceUrl: entry.url ?? CMF_ENVELOPES_URL,
-          sourceName: 'Canada Media Fund',
-          ingestedAt: now,
-        });
-      }
+      const parsed = parseCmfEntries(entries, CMF_ENVELOPES_URL, now);
+      records.push(...await batchToCultureRecords(parsed, 'Canada Media Fund', 'Canada Media Fund', now));
     }
   } catch { /* CMF endpoint may not respond */ }
 
-  // Fallback: record CMF as a known data source with metadata
   try {
     const cmfMain = await fetchText(CMF_API_BASE);
-    const id = await computeHash('culture:cmf-main', 'sha256');
-    records.push({
-      id,
+    records.push(await toCultureRecord('cmf-main', {
       year: new Date().getFullYear(),
       category: 'Canada Media Fund',
       subcategory: 'Data Portal',
       value: cmfMain ? 1 : 0,
       description: 'Canada Media Fund open data portal — production envelopes, funding allocations, and television/digital media statistics',
-      region: 'Canada',
       sourceUrl: CMF_API_BASE,
       sourceName: 'Canada Media Fund',
-      ingestedAt: now,
-    });
+    }, now));
   } catch { /* ignore */ }
 
   return records;
@@ -312,63 +255,48 @@ async function fetchCrtcCultural(): Promise<CultureRecord[]> {
   const records: CultureRecord[] = [];
   const now = new Date().toISOString();
 
-  // CRTC broadcasting ownership data
   try {
     const ownership = await fetchText(CRTC_OWNERSHIP_URL);
     if (ownership) {
-      const id = await computeHash('culture:crtc-ownership', 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord('crtc-ownership', {
         year: new Date().getFullYear(),
         category: 'CRTC Broadcasting',
         subcategory: 'Ownership Charts',
         value: 1,
         description: 'CRTC broadcasting ownership charts and media concentration data for Canadian television, radio, and telecommunications companies',
-        region: 'Canada',
         sourceUrl: CRTC_OWNERSHIP_URL,
         sourceName: 'CRTC',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 
-  // CRTC broadcasting statistics
   try {
     const stats = await fetchText(CRTC_BROADCASTING_STATS);
     if (stats) {
-      const id = await computeHash('culture:crtc-broadcasting-stats', 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord('crtc-broadcasting-stats', {
         year: new Date().getFullYear(),
         category: 'CRTC Broadcasting',
         subcategory: 'Statistical Reports',
         value: 1,
         description: 'CRTC broadcasting statistical reports — Canadian programming expenditures, revenues, and viewing trends',
-        region: 'Canada',
         sourceUrl: CRTC_BROADCASTING_STATS,
         sourceName: 'CRTC',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 
-  // CRTC Canadian content data
   try {
     const cancon = await fetchText(CRTC_CULTURAL_URL);
     if (cancon) {
-      const id = await computeHash('culture:crtc-cancon', 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord('crtc-cancon', {
         year: new Date().getFullYear(),
         category: 'CRTC Canadian Content',
         subcategory: 'Cultural Statistics',
         value: 1,
         description: 'CRTC Canadian content regulations and cultural statistics — CanCon requirements, Canadian programming expenditures, and diversity metrics',
-        region: 'Canada',
         sourceUrl: CRTC_CULTURAL_URL,
         sourceName: 'CRTC',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 
@@ -383,14 +311,11 @@ async function fetchNationalFilmBoard(): Promise<CultureRecord[]> {
   const records: CultureRecord[] = [];
   const now = new Date().toISOString();
 
-  // NFB CKAN package data
   const nfbCkanId = '4066a19d-f185-4b0d-9d9c-91997fe40acd';
   try {
     const pkg = await fetchCkanPackage(nfbCkanId);
     if (pkg) {
-      const id = await computeHash('culture:nfb-ckan', 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord('nfb-ckan', {
         year: pkg.metadata_created?.substring(0, 4)
           ? parseInt(pkg.metadata_created.substring(0, 4))
           : new Date().getFullYear(),
@@ -398,51 +323,39 @@ async function fetchNationalFilmBoard(): Promise<CultureRecord[]> {
         subcategory: 'CKAN Dataset',
         value: pkg.resources?.length ?? 1,
         description: pkg.notes ?? pkg.title ?? 'National Film Board data via open.canada.ca',
-        region: 'Canada',
         sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
         sourceName: 'National Film Board',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 
-  // NFB API collection data
   try {
     const nfbCollections = ['documentary', 'animation', 'interactive', 'fiction'];
     for (const collection of nfbCollections) {
-      const id = await computeHash(`culture:nfb:${collection}`, 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord(`nfb:${collection}`, {
         year: new Date().getFullYear(),
         category: 'National Film Board',
         subcategory: collection.charAt(0).toUpperCase() + collection.slice(1),
         value: 1,
         description: `NFB ${collection} productions — National Film Board catalogue of Canadian ${collection} films and interactive works`,
-        region: 'Canada',
         sourceUrl: `${NFB_BASE_URL}/browse/${collection}/`,
         sourceName: 'National Film Board',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 
-  // NFB production stats by decade
   const decades = ['1940', '1950', '1960', '1970', '1980', '1990', '2000', '2010', '2020'];
   for (const decade of decades) {
     try {
-      const id = await computeHash(`culture:nfb:decade-${decade}`, 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord(`nfb:decade-${decade}`, {
         year: parseInt(decade),
         category: 'National Film Board',
         subcategory: `Decade: ${decade}s`,
         value: 1,
-        description: `National Film Board productions from the ${decade}s — NFB's contribution to Canadian cinema and documentary filmmaking`,
-        region: 'Canada',
+        description: `National Film Board productions from the ${decade}s`,
         sourceUrl: `${NFB_BASE_URL}/browse/?decade=${decade}`,
         sourceName: 'National Film Board',
-        ingestedAt: now,
-      });
+      }, now));
     } catch { /* skip */ }
   }
 
@@ -460,9 +373,7 @@ async function fetchCbcData(): Promise<CultureRecord[]> {
   try {
     const pkg = await fetchCkanPackage(CBC_CKAN_PACKAGE_ID);
     if (pkg) {
-      const id = await computeHash('culture:cbc-ckan', 'sha256');
-      records.push({
-        id,
+      records.push(await toCultureRecord('cbc-ckan', {
         year: pkg.metadata_created?.substring(0, 4)
           ? parseInt(pkg.metadata_created.substring(0, 4))
           : new Date().getFullYear(),
@@ -470,11 +381,9 @@ async function fetchCbcData(): Promise<CultureRecord[]> {
         subcategory: 'Operational Data',
         value: pkg.resources?.length ?? 1,
         description: pkg.notes ?? pkg.title ?? 'CBC/Radio-Canada operational and financial data',
-        region: 'Canada',
         sourceUrl: `https://open.canada.ca/data/en/dataset/${pkg.id}`,
         sourceName: 'CBC/Radio-Canada',
-        ingestedAt: now,
-      });
+      }, now));
     }
   } catch { /* ignore */ }
 

@@ -1,7 +1,7 @@
 import { httpGet } from '../../utils/http.js';
 import { SOURCES } from './constants.js';
 import type { SpaceMission, ResearchGrant } from './types.js';
-import { computeHash } from '../../verification/hashing.js';
+import { toSpaceMission } from './parser.js';
 
 export async function fetchCsaMissions(): Promise<{ missions: SpaceMission[]; grants: ResearchGrant[] }> {
   const missions: SpaceMission[] = [];
@@ -19,18 +19,11 @@ export async function fetchCsaMissions(): Promise<{ missions: SpaceMission[]; gr
       const now = new Date().toISOString();
 
       for (const raw of data) {
-        const id = await computeHash(`csa:mission:${raw.id ?? raw.name}`, 'sha256');
-        missions.push({
-          id,
-          mission: String(raw.name ?? ''),
-          agency: 'csa',
-          status: mapStatus(String(raw.status ?? '')),
-          launchYear: raw.launchYear ? Number(raw.launchYear) : null,
-          description: String(raw.description ?? ''),
-          budgetCad: raw.budget ? Number(raw.budget) : null,
-          sourceUrl: `${SOURCES.CSA.baseUrl}/eng/missions/${raw.id ?? ''}`,
-          ingestedAt: now,
-        });
+        const parsed = await toSpaceMission(raw, now);
+        if (parsed) {
+          parsed.sourceUrl = `${SOURCES.CSA.baseUrl}/eng/missions/${raw.id ?? ''}`;
+          missions.push(parsed);
+        }
       }
     }
   } catch (err) {
@@ -38,13 +31,4 @@ export async function fetchCsaMissions(): Promise<{ missions: SpaceMission[]; gr
   }
 
   return { missions, grants };
-}
-
-function mapStatus(raw: string): SpaceMission['status'] {
-  const s = raw.toLowerCase();
-  if (s.includes('operational') || s.includes('active')) return 'active';
-  if (s.includes('complete') || s.includes('ended')) return 'completed';
-  if (s.includes('plan') || s.includes('future')) return 'planned';
-  if (s.includes('cancel')) return 'cancelled';
-  return 'planned';
 }
