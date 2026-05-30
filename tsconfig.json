@@ -16,7 +16,16 @@
       "@maplespike/database": ["./packages/database/dist"],
       "@maplespike/database/*": ["./packages/database/dist/*"],
       "@maplespike/pipeline-core": ["./packages/pipeline-core/dist"],
-      "@maplespike/pipeline-core/*": ["./packages/pipeline-core/dist/*"]
+      "@maplespike/pipeline-core/*": ["./packages/pipeline-core/dist/*"],
+      "@maplespike/pipeline-core/ontario-provincial": ["./packages/pipeline-core/src/ingestion/ontario-provincial"],
+      "@maplespike/pipeline-core/worldbank-wdi": ["./packages/pipeline-core/src/ingestion/worldbank-wdi"],
+      "@maplespike/pipeline-core/un-comtrade": ["./packages/pipeline-core/src/ingestion/un-comtrade"],
+      "@maplespike/pipeline-core/gtfs-transit": ["./packages/pipeline-core/src/ingestion/gtfs-transit"],
+      "@maplespike/pipeline-core/police-data": ["./packages/pipeline-core/src/ingestion/police-data"],
+      "@maplespike/pipeline-core/political-donations": ["./packages/pipeline-core/src/ingestion/political-donations"],
+      "@maplespike/pipeline-core/parliamentary-voting": ["./packages/pipeline-core/src/ingestion/parliamentary-voting"],
+      "@maplespike/pipeline-core/public-accounts": ["./packages/pipeline-core/src/ingestion/public-accounts"],
+      "@maplespike/pipeline-core/fire-emergency": ["./packages/pipeline-core/src/ingestion/fire-emergency"]
     }
   },
   "files": [],
