@@ -18,7 +18,7 @@ export type ModuleCategory =
   | 'elections' | 'provincial' | 'science' | 'social' | 'health'
   | 'defence' | 'education' | 'environment' | 'infrastructure'
   | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss'
-  | 'international';
+  | 'international' | 'criminal-justice';
 
 export interface ModuleInfo {
   name: string;
@@ -1350,7 +1350,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'police-data',
     description: 'Police statistics — crime data, response times, incident reports from 6 Canadian cities',
-    category: 'criminal_justice',
+    category: 'criminal-justice',
     modulePath: './police-data/index.js',
     ingestFunctions: ['ingestPoliceData', 'ingestAllPoliceData'],
     sources: [
