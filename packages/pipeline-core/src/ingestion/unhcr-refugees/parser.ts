@@ -21,7 +21,7 @@ export function parsePopulationRecord(
   if (!populationType) return null;
 
   return {
-    id: computeHash(`UNHCR:${record.iso3}:${record.year}:${populationType}`),
+    id: `UNHCR:${record.iso3}:${record.year}:${populationType}`,
     countryCode: record.iso3,
     year: record.year ?? 0,
     populationType,

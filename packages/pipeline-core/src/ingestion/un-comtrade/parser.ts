@@ -34,7 +34,7 @@ export function parseTradeRecord(record: ComtradeRecord): TradeFlow | null {
     tradeFlow: parseTradeFlow(record.rgDesc ?? ''),
     value,
     netWeight,
-    id: computeHash(`${record.rtCode}:${record.ptCode}:${year}:${record.cc}:${record.rgDesc}`),
+    id: `${record.rtCode}:${record.ptCode}:${year}:${record.cc}:${record.rgDesc}`,
   };
 }
 

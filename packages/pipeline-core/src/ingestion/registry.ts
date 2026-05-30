@@ -1177,17 +1177,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.publicsafety.gc.ca',
   },
   {
-    name: 'worldbank-wdi',
-    description: 'World Bank World Development Indicators — economic, social, health, education indicators for 200+ countries',
-    category: 'government',
-    modulePath: './worldbank-wdi/index.js',
-    ingestFunctions: ['ingestAllWDI', 'fetchWDIIndicator', 'searchWDIIndicators', 'compareWDICountries', 'getCountryWDIProfile'],
-    sources: [{ name: 'World Bank WDI API', format: 'REST API' }],
-    updateFrequency: 'annual',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://api.worldbank.org/v2/country/CAN/indicator/SP.POP.TOTL?format=json',
-  },
-  {
     name: 'un-comtrade',
     description: 'UN Commodity Trade Statistics — bilateral trade flows, commodity analysis, partner country comparison',
     category: 'government',
