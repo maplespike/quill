@@ -22,7 +22,7 @@ export function parseOECDObservations(
       year,
       value,
       unit: '',
-      id: computeHash(`OECD:${datasetId}:${key}:${year}`),
+      id: `OECD:${datasetId}:${key}:${year}`,
     });
   }
   return results;

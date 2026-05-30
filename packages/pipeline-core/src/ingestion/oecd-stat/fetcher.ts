@@ -46,6 +46,7 @@ export async function fetchOECDDataset(datasetId: string): Promise<OECDFetchResu
             year: parseInt(key.split(':')[0] ?? '0', 10),
             value: parseFloat(values[0]),
             unit: '',
+            id: `OECD:${datasetId}:${key}:${parseInt(key.split(':')[0] ?? '0', 10)}`,
           });
         }
       }
