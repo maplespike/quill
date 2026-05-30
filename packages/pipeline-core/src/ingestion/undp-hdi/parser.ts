@@ -19,7 +19,7 @@ export function parseHDIRanking(
   if (hdiValue === null) return null;
 
   return {
-    id: computeHash(`UNDP:${countryCode}:${year}`),
+    id: `UNDP:${countryCode}:${year}`,
     country: countryCode,
     countryCode,
     hdiValue,
