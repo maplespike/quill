@@ -1176,7 +1176,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://www.publicsafety.gc.ca',
   },
-<<<<<<< HEAD
   {
     name: 'un-comtrade',
     description: 'UN Commodity Trade Statistics — bilateral trade flows, commodity analysis, partner country comparison',
@@ -1465,7 +1464,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'http://data.un.org/ws/rest/',
   },
-];
 ];
 
 // Build lookup map
