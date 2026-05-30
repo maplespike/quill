@@ -91,6 +91,7 @@ export const searchOecdHandler: ToolHandler = async (args) => {
         yearEnd,
         count: records.length,
         data: records,
+        attribution: records.length > 0 ? 'OECD Data Explorer — https://data-explorer.oecd.org (OECD Open Data)' : undefined,
       },
     };
   } catch (error) {
@@ -119,12 +120,13 @@ export const getOecdDatasetHandler: ToolHandler = async (args) => {
       content: {
         tool: 'get_oecd_dataset',
         datasetId,
-        datasetsAttempted: result.datasetsAttempted,
-        datasetsSucceeded: result.datasetsSucceeded,
-        recordsCount: result.records.length,
-        durationMs: result.durationMs,
-        errors: result.errors,
-        data: result.records,
+        datasetsAttempted: result.data.datasetsAttempted,
+        datasetsSucceeded: result.data.datasetsSucceeded,
+        recordsCount: result.data.records.length,
+        durationMs: result.data.durationMs,
+        errors: result.data.errors,
+        data: result.data.records,
+        attribution: result.data.records.length > 0 ? result.attribution.attributionText : undefined,
       },
     };
   } catch (error) {
@@ -149,12 +151,13 @@ export const getOecdByTopicHandler: ToolHandler = async (args) => {
       content: {
         tool: 'get_oecd_by_topic',
         topic,
-        datasetsAttempted: result.datasetsAttempted,
-        datasetsSucceeded: result.datasetsSucceeded,
-        recordsCount: result.records.length,
-        durationMs: result.durationMs,
-        errors: result.errors,
-        data: result.records,
+        datasetsAttempted: result.data.datasetsAttempted,
+        datasetsSucceeded: result.data.datasetsSucceeded,
+        recordsCount: result.data.records.length,
+        durationMs: result.data.durationMs,
+        errors: result.data.errors,
+        data: result.data.records,
+        attribution: result.data.records.length > 0 ? result.attribution.attributionText : undefined,
       },
     };
   } catch (error) {
