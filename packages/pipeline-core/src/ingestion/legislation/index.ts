@@ -1,4 +1,5 @@
 import { ingestAllLegislation } from './fetcher.js';
+import { toLegislationRecord, parseJusticeCanadaXml, parseProvincialCkanPackages, parseProvincialWebHtml } from './parser.js';
 import { LEGISLATION_SOURCES } from './constants.js';
 import type { LegislationRecord, LegislationIngestionResult } from './types.js';
 
@@ -7,4 +8,5 @@ export async function ingestAllLegislationData(): Promise<LegislationIngestionRe
 }
 
 export { LEGISLATION_SOURCES };
+export { toLegislationRecord, parseJusticeCanadaXml, parseProvincialCkanPackages, parseProvincialWebHtml } from './parser.js';
 export type { LegislationRecord, LegislationIngestionResult };
