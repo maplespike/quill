@@ -33,7 +33,8 @@
       "@maplespike/pipeline-core/housing-data": ["./packages/pipeline-core/src/ingestion/housing-data"],
       "@maplespike/pipeline-core/financial-regulation": ["./packages/pipeline-core/src/ingestion/financial-regulation"],
       "@maplespike/pipeline-core/energy": ["./packages/pipeline-core/src/ingestion/energy"],
-      "@maplespike/pipeline-core/real-estate": ["./packages/pipeline-core/src/ingestion/real-estate"]
+      "@maplespike/pipeline-core/real-estate": ["./packages/pipeline-core/src/ingestion/real-estate"],
+      "@maplespike/pipeline-core/opencorporates": ["./packages/pipeline-core/src/ingestion/opencorporates"]
     }
   },
   "files": [],

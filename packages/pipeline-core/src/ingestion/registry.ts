@@ -580,6 +580,16 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://lobbycanada.gc.ca',
   },
   {
+    name: 'opencorporates',
+    description: 'OpenCorporates API — corporate officers, directors, and cross-border ownership for Canadian companies',
+    category: 'corporate',
+    modulePath: './opencorporates/index.js',
+    ingestFunctions: ['searchCompanies', 'getCompany', 'getOfficers', 'getCorporateGroupings'],
+    sources: [{ name: 'OpenCorporates API v0.4', format: 'REST' }],
+    updateFrequency: 'on-demand (rate limited)',
+    testCallPattern: 'skip',
+  },
+  {
     name: 'corporate-filings',
     description: 'Corporate filings — SEDAR+, public company regulatory filings and disclosures',
     category: 'corporate',
