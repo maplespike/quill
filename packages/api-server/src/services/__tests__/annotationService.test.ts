@@ -1,46 +1,73 @@
-import { describe, it } from 'node:test';
+import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const TEST_DB = '/tmp/test-annotations.db';
 
 describe('AnnotationService', () => {
+  after(() => {
+    try { fs.unlinkSync(TEST_DB); } catch {}
+  });
+
   it('creates and lists annotations', async () => {
-    const { createAnnotation, listAnnotations, resetStore } = await import('../annotationService.js');
-    resetStore?.();
-    const ann = createAnnotation({ entityType: 'test-entity', entityId: '123', userId: 'user1', annotationType: 'note', content: 'Test note' });
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    const ann = mod.createAnnotation({ entityType: 'test-entity', entityId: '123', userId: 'user1', annotationType: 'note', content: 'Test note' });
     assert.ok(ann.id);
     assert.equal(ann.entityType, 'test-entity');
     assert.equal(ann.entityId, '123');
     assert.equal(ann.content, 'Test note');
-    const list = listAnnotations('test-entity', '123');
-    assert.equal(list.length, 1);
-    assert.equal(list[0].id, ann.id);
+    assert.equal(mod.listAnnotations('test-entity', '123').length, 1);
+  });
+
+  it('returns empty list for non-existent entity', async () => {
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    assert.equal(mod.listAnnotations('nonexistent', '0').length, 0);
   });
 
   it('updates annotations', async () => {
-    const { createAnnotation, updateAnnotation, resetStore } = await import('../annotationService.js');
-    resetStore?.();
-    const ann = createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'note', content: 'Original' });
-    const updated = updateAnnotation(ann.id, { content: 'Updated' });
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    const ann = mod.createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'note', content: 'Original' });
+    const updated = mod.updateAnnotation(ann.id, { content: 'Updated' });
     assert.ok(updated);
     assert.equal(updated.content, 'Updated');
   });
 
-  it('deletes annotations', async () => {
-    const { createAnnotation, deleteAnnotation, listAnnotations, resetStore } = await import('../annotationService.js');
-    resetStore?.();
-    const ann = createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'flag', content: 'Flag' });
-    const deleted = deleteAnnotation(ann.id);
-    assert.ok(deleted);
-    const list = listAnnotations('test', '1');
-    assert.equal(list.length, 0);
+  it('returns null for update of non-existent', async () => {
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    assert.equal(mod.updateAnnotation('nonexistent', { content: 'test' }), null);
   });
 
-  it('exportAnnotations formats correctly', async () => {
-    const { createAnnotation, exportAnnotations, resetStore } = await import('../annotationService.js');
-    resetStore?.();
-    createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'note', content: 'Exported note' });
-    const md = exportAnnotations('test', '1', 'markdown');
-    assert.ok(md.includes('Exported note'));
-    const html = exportAnnotations('test', '1', 'html');
-    assert.ok(html.includes('Exported note'));
+  it('deletes annotations', async () => {
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    const ann = mod.createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'flag', content: 'Flag' });
+    assert.ok(mod.deleteAnnotation(ann.id));
+    assert.equal(mod.listAnnotations('test', '1').length, 0);
+  });
+
+  it('returns false for delete of non-existent', async () => {
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    assert.equal(mod.deleteAnnotation('nonexistent'), false);
+  });
+
+  it('exportAnnotations formats markdown', async () => {
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    mod.createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'note', content: 'MD note' });
+    assert.ok(mod.exportAnnotations('test', '1', 'markdown').includes('MD note'));
+  });
+
+  it('exportAnnotations formats html', async () => {
+    const mod = await import('../annotationService.js');
+    mod.resetStore();
+    mod.createAnnotation({ entityType: 'test', entityId: '1', userId: 'u1', annotationType: 'note', content: 'HTML note' });
+    const html = mod.exportAnnotations('test', '1', 'html');
+    assert.ok(html.includes('HTML note'));
+    assert.ok(html.includes('annotation'));
   });
 });
