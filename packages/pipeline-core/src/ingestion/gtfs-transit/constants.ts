@@ -84,9 +84,9 @@ export const GTFS_FEED_URLS: Record<string, string> = {
   winnipeg: 'http://gtfs.winnipegtransit.com/google_transit.zip',
 
   // ON
-  ttc: 'https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7795b45e-e65a-4465-81fc-c36b9dfff169/resource/cfb6b2b8-6191-41e3-bda1-b175c51148cb/download/TTC Routes and Schedules Data.zip',
+  ttc: 'https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/7795b45e-e65a-4465-81fc-c36b9dfff169/resource/cfb6b2b8-6191-41e3-bda1-b175c51148cb/download/TTC%20Routes%20and%20Schedules%20Data.zip',
   'oc-transpo': 'https://oct-gtfs-emasagcnfmcgeham.z01.azurefd.net/public-access/GTFSExport.zip',
-  'go-transit': 'https://assets.metrolinx.com/raw/upload/v1683228856/Documents/Metrolinx/Open Data/GO-GTFS.zip',
+  'go-transit': 'https://assets.metrolinx.com/raw/upload/v1683228856/Documents/Metrolinx/Open%20Data/GO-GTFS.zip',
   miway: 'https://www.miapp.ca/GTFS/google_transit.zip',
   brampton: 'https://www.arcgis.com/sharing/rest/content/items/a355aabd5a8c490186bdce559c9c75fb/data',
   yrt: 'https://www.yrt.ca/gtfs/google_transit.zip',
@@ -99,7 +99,7 @@ export const GTFS_FEED_URLS: Record<string, string> = {
 
   // QC
   stm: 'https://www.stm.info/sites/default/files/gtfs/gtfs_stm.zip',
-  exo: 'https://exo.quebec/data/gtfs/2025/gtfs_exo_2025.zip',
+  exo: 'https://exo.quebec/data/gtfs/gtfs_exo_2025.zip',
   sto: 'https://www.sto.ca/gtfs/gtfs_sto.zip',
   rtc: '',
   rtl: '',

@@ -5,9 +5,9 @@ import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-async function fetchJson<T>(url: string, timeoutMs = 10_000): Promise<T> {
+async function fetchJson<T>(url: string, timeoutMs = 10_000, extraHeaders: Record<string, string> = {}): Promise<T> {
   const resp = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json', ...extraHeaders },
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
@@ -120,10 +120,24 @@ export async function fetchElections(query: string, limit = 10): Promise<{ resul
 
 export async function fetchCanlii(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('canlii', { query, limit }, async () => {
-    // CanLII v1 search — public endpoint
+    // CanLII v1 search — requires free API key from https://www.canlii.org/en/feedback/feedback.html
+    const apiKey = process.env['CANLII_API_KEY'];
+    if (!apiKey) {
+      // Fallback: search CKAN for court decisions
+      try {
+        const fallback = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+          `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' court decision')}&rows=${limit}`,
+          8000,
+        );
+        return { results: fallback?.result?.results ?? [], total: fallback?.result?.total ?? 0 };
+      } catch {
+        return { results: [], total: 0 };
+      }
+    }
     const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
       `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
       8000,
+      { Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}` },
     );
     return { results: json.results ?? [], total: json.total ?? 0 };
   });
