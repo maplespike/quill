@@ -120,26 +120,29 @@ export async function fetchElections(query: string, limit = 10): Promise<{ resul
 
 export async function fetchCanlii(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('canlii', { query, limit }, async () => {
-    // CanLII v1 search — requires free API key from https://www.canlii.org/en/feedback/feedback.html
-    const apiKey = process.env['CANLII_API_KEY'];
-    if (!apiKey) {
-      // Fallback: search CKAN for court decisions
-      try {
-        const fallback = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-          `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' court decision')}&rows=${limit}`,
-          8000,
-        );
-        return { results: fallback?.result?.results ?? [], total: fallback?.result?.total ?? 0 };
-      } catch {
-        return { results: [], total: 0 };
+    // Try CKAN as primary search — indexes court decisions with full metadata
+    try {
+      const ckan = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+        `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' court decision')}&rows=${limit}`,
+        8000,
+      );
+      if (ckan?.result?.results?.length) {
+        return { results: ckan.result.results, total: ckan.result.total ?? ckan.result.results.length };
       }
+    } catch {}
+
+    // Fallback: CanLII API with api_key query param (free key from https://www.canlii.org/en/feedback/feedback.html)
+    const apiKey = process.env['CANLII_API_KEY'];
+    if (!apiKey) return { results: [], total: 0 };
+    try {
+      const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
+        `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision&api_key=${encodeURIComponent(apiKey)}`,
+        8000,
+      );
+      return { results: json.results ?? [], total: json.total ?? 0 };
+    } catch {
+      return { results: [], total: 0 };
     }
-    const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
-      `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
-      8000,
-      { Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}` },
-    );
-    return { results: json.results ?? [], total: json.total ?? 0 };
   });
 }
 
