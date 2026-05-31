@@ -31,7 +31,8 @@
       "@maplespike/pipeline-core/parks": ["./packages/pipeline-core/src/ingestion/parks"],
       "@maplespike/pipeline-core/utilities": ["./packages/pipeline-core/src/ingestion/utilities"],
       "@maplespike/pipeline-core/housing-data": ["./packages/pipeline-core/src/ingestion/housing-data"],
-      "@maplespike/pipeline-core/financial-regulation": ["./packages/pipeline-core/src/ingestion/financial-regulation"]
+      "@maplespike/pipeline-core/financial-regulation": ["./packages/pipeline-core/src/ingestion/financial-regulation"],
+      "@maplespike/pipeline-core/energy": ["./packages/pipeline-core/src/ingestion/energy"]
     }
   },
   "files": [],
