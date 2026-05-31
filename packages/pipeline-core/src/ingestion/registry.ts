@@ -648,6 +648,20 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
+  {
+    name: 'financial-regulation',
+    description: 'Financial Regulation — OSFI, CDIC, FCAC, and securities regulator data from open.canada.ca',
+    category: 'financial',
+    modulePath: './financial-regulation/index.js',
+    ingestFunctions: ['ingestOSFI', 'ingestCDIC', 'ingestFCAC', 'ingestAllFinancialRegulation'],
+    sources: [
+      { name: 'OSFI regulatory data', format: 'CKAN' },
+      { name: 'CDIC member institutions', format: 'CKAN' },
+      { name: 'FCAC consumer complaints', format: 'CKAN' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+  },
 
   // ── Influence ────────────────────────────────────────────
   {
