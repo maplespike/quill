@@ -24,6 +24,20 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
     if (resp.statusCode < 400) return 'socrata';
   } catch {}
 
+  try {
+    // Detect ArcGIS Hub by checking the OGC API Records endpoint
+    const resp = await httpGet(`${portal.baseUrl}/api/search/v1/collections/all/items?limit=1`, {
+      timeoutMs: MUNICIPAL_TIMEOUT_MS,
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT, 'Accept': 'application/json' },
+    });
+    if (resp.statusCode < 400) {
+      try {
+        const body = JSON.parse(resp.body);
+        if (body?.type === 'FeatureCollection') return 'arcgis';
+      } catch {}
+    }
+  } catch {}
+
   return 'custom';
 }
 
@@ -39,6 +53,10 @@ export async function fetchMunicipalDataset(
     url = `${portal.baseUrl}/api/3/action/package_show?id=${dataset}`;
   } else if (portal.portalType === 'socrata') {
     url = `${portal.baseUrl}/resource/${dataset}.json`;
+  } else if (portal.portalType === 'arcgis') {
+    // Use OGC API Records endpoint for ArcGIS Hub portals
+    // Returns GeoJSON FeatureCollection with dataset metadata
+    url = `${portal.baseUrl}/api/search/v1/collections/all/items?limit=100`;
   } else if (portal.portalType === 'custom') {
     url = `${portal.baseUrl}/api/${dataset}`;
   } else {

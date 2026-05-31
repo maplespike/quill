@@ -7,7 +7,6 @@ export interface GtfsFetchResult {
   agencyId: string;
   agencyName: string;
   fetchUrl: string;
-  mimeType: string;
   error?: string;
   body?: Buffer;
 }
@@ -15,12 +14,12 @@ export interface GtfsFetchResult {
 export async function fetchGtfsFeed(agencyId: string): Promise<GtfsFetchResult> {
   const agency = GTFS_AGENCIES.find(a => a.id === agencyId);
   if (!agency) {
-    return { agencyId, agencyName: agencyId, fetchUrl: '', mimeType: '', error: `Unknown agency: ${agencyId}` };
+    return { agencyId, agencyName: agencyId, fetchUrl: '', error: `Unknown agency: ${agencyId}` };
   }
 
   const url = GTFS_FEED_URLS[agencyId];
   if (!url) {
-    return { agencyId, agencyName: agency.name, fetchUrl: '', mimeType: '', error: `No feed URL for: ${agencyId}` };
+    return { agencyId, agencyName: agency.name, fetchUrl: '', error: `No feed URL for: ${agencyId}` };
   }
 
   try {
@@ -30,15 +29,13 @@ export async function fetchGtfsFeed(agencyId: string): Promise<GtfsFetchResult> 
     });
 
     if (resp.statusCode >= 400) {
-      return { agencyId, agencyName: agency.name, fetchUrl: url, mimeType: '', error: `HTTP ${resp.statusCode}` };
+      return { agencyId, agencyName: agency.name, fetchUrl: url, error: `HTTP ${resp.statusCode}` };
     }
 
-    const mimeType = typeof resp.headers?.['content-type'] === 'string' ? resp.headers['content-type'] : 'application/zip';
     const body = Buffer.from(resp.body, 'binary');
-
-    return { agencyId, agencyName: agency.name, fetchUrl: url, mimeType, body };
+    return { agencyId, agencyName: agency.name, fetchUrl: url, body };
   } catch (err) {
-    return { agencyId, agencyName: agency.name, fetchUrl: url, mimeType: '', error: String(err) };
+    return { agencyId, agencyName: agency.name, fetchUrl: url, error: String(err) };
   }
 }
 

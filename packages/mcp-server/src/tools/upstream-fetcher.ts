@@ -5,9 +5,9 @@ import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-async function fetchJson<T>(url: string, timeoutMs = 10_000): Promise<T> {
+async function fetchJson<T>(url: string, timeoutMs = 10_000, extraHeaders: Record<string, string> = {}): Promise<T> {
   const resp = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json', ...extraHeaders },
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
@@ -120,12 +120,29 @@ export async function fetchElections(query: string, limit = 10): Promise<{ resul
 
 export async function fetchCanlii(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
   return cached('canlii', { query, limit }, async () => {
-    // CanLII v1 search — public endpoint
-    const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
-      `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision`,
-      8000,
-    );
-    return { results: json.results ?? [], total: json.total ?? 0 };
+    // Try CKAN as primary search — indexes court decisions with full metadata
+    try {
+      const ckan = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
+        `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query + ' court decision')}&rows=${limit}`,
+        8000,
+      );
+      if (ckan?.result?.results?.length) {
+        return { results: ckan.result.results, total: ckan.result.total ?? ckan.result.results.length };
+      }
+    } catch {}
+
+    // Fallback: CanLII API with api_key query param (free key from https://www.canlii.org/en/feedback/feedback.html)
+    const apiKey = process.env['CANLII_API_KEY'];
+    if (!apiKey) return { results: [], total: 0 };
+    try {
+      const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
+        `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision&api_key=${encodeURIComponent(apiKey)}`,
+        8000,
+      );
+      return { results: json.results ?? [], total: json.total ?? 0 };
+    } catch {
+      return { results: [], total: 0 };
+    }
   });
 }
 

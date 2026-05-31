@@ -90,6 +90,42 @@ export async function parseSocrataResponse(
   return records;
 }
 
+interface ArcGISServiceInfo {
+  name: string;
+  type: string;
+  description?: string;
+  id?: string;
+}
+
+export async function parseArcGISResponse(
+  data: ArcGISServiceInfo[],
+  municipalityId: string,
+  dataset: string,
+): Promise<MunicipalRecord[]> {
+  const portal = MUNICIPAL_PORTALS[municipalityId];
+  const records: MunicipalRecord[] = [];
+
+  for (let i = 0; i < data.length; i++) {
+    const service = data[i];
+    const id = await computeHash(`municipal:${municipalityId}:${dataset}:${service.name || i}`);
+    records.push({
+      id,
+      municipality: portal?.name ?? municipalityId,
+      municipalityId,
+      province: portal?.province ?? '',
+      dataset,
+      title: service.name || `ArcGIS Service ${i}`,
+      url: `${portal?.baseUrl}/arcgis/rest/services/${service.name}`,
+      format: service.type || 'json',
+      lastModified: null,
+      created: null,
+      portalType: 'arcgis',
+    });
+  }
+
+  return records;
+}
+
 export function parseMunicipalData(
   raw: unknown,
   municipalityId: string,
@@ -101,6 +137,9 @@ export function parseMunicipalData(
   }
   if (portalType === 'socrata') {
     return parseSocrataResponse(raw as SocrataRow[], municipalityId, dataset);
+  }
+  if (portalType === 'arcgis') {
+    return parseArcGISResponse(raw as ArcGISServiceInfo[], municipalityId, dataset);
   }
   return [];
 }

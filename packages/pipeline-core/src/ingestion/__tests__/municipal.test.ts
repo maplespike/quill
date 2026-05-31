@@ -5,10 +5,10 @@ describe('municipal Module', () => {
   it('has required exports', async () => {
     const mod = await import('../municipal/index.js');
     assert.ok(mod, 'Module loaded');
-    assert.equal(typeof mod.ingestMunicipal, 'function', 'Should export ingestMunicipal');
-    assert.equal(typeof mod.searchMunicipalMeetings, 'function', 'Should export searchMunicipalMeetings');
-    assert.equal(typeof mod.getRecentMeetings, 'function', 'Should export getRecentMeetings');
-    assert.equal(typeof mod.getBudgetMeetings, 'function', 'Should export getBudgetMeetings');
-    assert.equal(typeof mod.getMeetingsByVendor, 'function', 'Should export getMeetingsByVendor');
+    assert.equal(typeof mod.ingestMunicipalDataset, 'function', 'Should export ingestMunicipalDataset');
+    assert.equal(typeof mod.ingestAllMunicipal, 'function', 'Should export ingestAllMunicipal');
+    assert.equal(typeof mod.searchMunicipal, 'function', 'Should export searchMunicipal');
+    assert.equal(typeof mod.detectPortalType, 'function', 'Should export detectPortalType');
+    assert.equal(typeof mod.fetchMunicipalDataset, 'function', 'Should export fetchMunicipalDataset');
   });
 });

@@ -30,9 +30,28 @@
       "import": "./dist/ingestion/un-comtrade/index.js",
       "types": "./dist/ingestion/un-comtrade/index.d.ts"
     },
+    "./ontario-provincial": {
+      "import": "./dist/ingestion/ontario-provincial/index.js"
+    },
     "./gtfs-transit": {
       "import": "./dist/ingestion/gtfs-transit/index.js",
       "types": "./dist/ingestion/gtfs-transit/index.d.ts"
+    },
+    "./library": {
+      "import": "./dist/ingestion/library/index.js",
+      "types": "./dist/ingestion/library/index.d.ts"
+    },
+    "./parks": {
+      "import": "./dist/ingestion/parks/index.js",
+      "types": "./dist/ingestion/parks/index.d.ts"
+    },
+    "./utilities": {
+      "import": "./dist/ingestion/utilities/index.js",
+      "types": "./dist/ingestion/utilities/index.d.ts"
+    },
+    "./housing-data": {
+      "import": "./dist/ingestion/housing-data/index.js",
+      "types": "./dist/ingestion/housing-data/index.d.ts"
     },
     "./police-data": {
       "import": "./dist/ingestion/police-data/index.js",
