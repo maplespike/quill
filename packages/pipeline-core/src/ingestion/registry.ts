@@ -18,7 +18,7 @@ export type ModuleCategory =
   | 'elections' | 'provincial' | 'science' | 'social' | 'health'
   | 'defence' | 'education' | 'environment' | 'infrastructure'
   | 'culture' | 'media' | 'labour' | 'indigenous' | 'financial' | 'rss'
-  | 'international' | 'criminal-justice';
+  | 'international' | 'criminal-justice' | 'energy';
 
 export interface ModuleInfo {
   name: string;
@@ -689,7 +689,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'energy',
     description: 'Energy & Natural Resources — CER oil, gas, electricity, and NRCan mining data from open.canada.ca',
-    category: 'infrastructure',
+    category: 'energy',
     modulePath: './energy/index.js',
     ingestFunctions: ['ingestOilProduction', 'ingestGasProduction', 'ingestElectricity', 'ingestMining', 'ingestAllEnergy'],
     sources: [

@@ -1,2 +1,2 @@
-export { ingestRentalMarket, ingestHousingStarts, ingestHousePrices, ingestPropertyAssessments, ingestMortgageArrears, ingestAllRealEstate } from './fetcher.js';
-export type { RentalMarketData, PropertyAssessment, HousingStart, HousePriceIndex, RealEstateRecord, RealEstateIngestionResult } from './types.js';
+export { ingestRentalMarket, ingestHousingStarts, ingestHousePrices, ingestAllRealEstate } from './fetcher.js';
+export type { RealEstateRecord, RealEstateIngestionResult } from './types.js';
