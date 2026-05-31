@@ -73,6 +73,10 @@
       "import": "./dist/ingestion/energy/index.js",
       "types": "./dist/ingestion/energy/index.d.ts"
     },
+    "./real-estate": {
+      "import": "./dist/ingestion/real-estate/index.js",
+      "types": "./dist/ingestion/real-estate/index.d.ts"
+    },
     "./financial-regulation": {
       "import": "./dist/ingestion/financial-regulation/index.js",
       "types": "./dist/ingestion/financial-regulation/index.d.ts"
