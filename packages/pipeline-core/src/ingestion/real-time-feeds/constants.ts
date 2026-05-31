@@ -56,6 +56,24 @@ export const REALTIME_SOURCES: RealtimeSourceConfig[] = [
     description: 'Latest hourly weather observations from stations across Canada',
     enabled: true,
   },
+  {
+    source: 'eccc-aqhi',
+    name: 'Environment Canada Air Quality Health Index',
+    url: 'https://dd.weather.gc.ca/air_quality/aqhi/pollen/forecast/aqhi_forecast_hourly.csv',
+    format: 'json',
+    refreshSeconds: 3600,
+    description: 'Air Quality Health Index readings and forecasts for Canadian cities. Includes PM2.5, ozone, NO2 levels.',
+    enabled: true,
+  },
+  {
+    source: 'water-survey-flood',
+    name: 'Water Survey of Canada — Real-Time Hydrometric Data',
+    url: 'https://dd.weather.gc.ca/hydrometric/csv/',
+    format: 'json',
+    refreshSeconds: 3600,
+    description: 'Real-time river levels, streamflow, and water level data from monitoring stations. Flood warnings and high-flow alerts.',
+    enabled: true,
+  },
 ];
 
 export const REALTIME_FETCH_TIMEOUT_MS = 15_000;

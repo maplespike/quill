@@ -24,6 +24,15 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
     if (resp.statusCode < 400) return 'socrata';
   } catch {}
 
+  try {
+    // Detect ArcGIS Hub by checking for ArcGIS REST API
+    const resp = await httpGet(`${portal.baseUrl}/arcgis/rest/services`, {
+      timeoutMs: MUNICIPAL_TIMEOUT_MS,
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+    });
+    if (resp.statusCode < 400 && resp.body.includes('ArcGIS REST')) return 'arcgis';
+  } catch {}
+
   return 'custom';
 }
 
@@ -39,6 +48,8 @@ export async function fetchMunicipalDataset(
     url = `${portal.baseUrl}/api/3/action/package_show?id=${dataset}`;
   } else if (portal.portalType === 'socrata') {
     url = `${portal.baseUrl}/resource/${dataset}.json`;
+  } else if (portal.portalType === 'arcgis') {
+    url = `${portal.baseUrl}/arcgis/rest/services/${dataset}?f=pjson`;
   } else if (portal.portalType === 'custom') {
     url = `${portal.baseUrl}/api/${dataset}`;
   } else {

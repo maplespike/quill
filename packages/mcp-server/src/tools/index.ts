@@ -88,6 +88,7 @@ import * as searchIrccProcessingTimes from './search-ircc-processing-times.js';
 import * as searchIrccStudyPermits from './search-ircc-study-permits.js';
 import * as searchIrccWorkPermits from './search-ircc-work-permits.js';
 import * as searchKnowledgeFabric from './search-knowledge-fabric.js';
+import * as searchLibraries from './search-libraries.js';
 import * as searchLegislation from './search-legislation.js';
 import * as searchLmia from './search-lmia.js';
 import * as searchLode from './search-lode.js';
@@ -101,6 +102,7 @@ import * as searchNrcan from './search-nrcan.js';
 import * as searchNunavutData from './search-nunavut-data.js';
 import * as searchOfficialLanguages from './search_official_languages.js';
 import * as searchOversight from './search-oversight.js';
+import * as searchParks from './search-parks.js';
 import * as searchPatents from './search_patents.js';
 import * as searchProactiveDisclosure from './search-proactive-disclosure.js';
 import * as searchProvincialData from './search-provincial-data.js';
@@ -124,6 +126,7 @@ import * as searchTransport from './search-transport.js';
 import * as searchTribunals from './search-tribunals.js';
 import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
+import * as searchUtilities from './search-utilities.js';
 import * as searchVeterans from './search-veterans.js';
 import * as searchVotes from './search-votes.js';
 import * as searxngHealth from './searxng-health.js';
@@ -233,6 +236,7 @@ export function getAllTools(): ToolModule[] {
     searchIrccWorkPermits,
     searchKnowledgeFabric,
     searchLegislation,
+    searchLibraries,
     searchLmia,
     searchLode,
     searchMiningData,
@@ -244,6 +248,7 @@ export function getAllTools(): ToolModule[] {
     searchNunavutData,
     searchOfficialLanguages,
     searchOversight,
+    searchParks,
     searchPatents,
     searchProactiveDisclosure,
     searchProvincialData,
@@ -267,6 +272,7 @@ export function getAllTools(): ToolModule[] {
     searchTribunals,
     searchUnions,
     searchUniversities,
+    searchUtilities,
     searchVeterans,
     searchVotes,
     searxngHealth,
@@ -274,12 +280,14 @@ export function getAllTools(): ToolModule[] {
     systemHealth,
     // Phase 1 Expansion Tools - GTFS Transit
     { definition: gtfsTransit.getGTFSByCityDefinition, handler: gtfsTransit.getGTFSByCityHandler },
-    { definition: gtfsTransit.getGTFSSchedulesDefinition, handler: gtfsTransit.getGTFSSchedulesHandler },
-    { definition: gtfsTransit.getGTFSTrendsDefinition, handler: gtfsTransit.getGTFSTrendsHandler },
+    { definition: gtfsTransit.listGTFSAgenciesDefinition, handler: gtfsTransit.listGTFSAgenciesHandler },
+    { definition: gtfsTransit.searchGTFSRoutesDefinition, handler: gtfsTransit.searchGTFSRoutesHandler },
+    { definition: gtfsTransit.searchGTFSStopsDefinition, handler: gtfsTransit.searchGTFSStopsHandler },
     // Phase 1 Expansion Tools - Police Data
     { definition: policeData.getPoliceByCityDefinition, handler: policeData.getPoliceByCityHandler },
     { definition: policeData.comparePoliceCrimeDefinition, handler: policeData.comparePoliceCrimeHandler },
     { definition: policeData.getPoliceTrendsDefinition, handler: policeData.getPoliceTrendsHandler },
+    { definition: policeData.searchPoliceAgenciesDefinition, handler: policeData.searchPoliceAgenciesHandler },
     // Phase 1 Expansion Tools - Fire Emergency
     { definition: fireEmergency.getFireByCityDefinition, handler: fireEmergency.getFireByCityHandler },
     { definition: fireEmergency.compareFireResponseDefinition, handler: fireEmergency.compareFireResponseHandler },
