@@ -12,6 +12,14 @@ import { TIER_LIMITS } from '../types.js';
 import type { Tenant, MapleSpikeStorage } from '../types.js';
 import { sendVerificationEmail, sendWelcomeEmail } from '../email.js';
 import { registerSchema, validateBody, validationError } from '../validation.js';
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 
 interface RegisterBody {
@@ -84,7 +92,7 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
 
     // Send verification email (async, non-blocking)
     sendVerificationEmail({ to: email, name, token: verificationToken }).catch(err =>
-      console.error('[Register] Failed to send verification email:', err)
+      log.error({ requestId: ctx.requestId }, `Failed to send verification email: ${err}`)
     );
 
     return jsonResponse(buildSuccess({
@@ -105,7 +113,7 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
     }, ctx), 201);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Registration failed';
-    console.error('[Register] Error:', message);
+    log.error({ requestId: ctx.requestId }, `Register error: ${message}`);
     return jsonResponse(buildError('REGISTRATION_FAILED', message, ctx), 500);
   }
 };
@@ -136,7 +144,7 @@ export const verifyHandler: RouteHandler = async (request, ctx, params) => {
           to: tenant.email,
           name: tenant.name,
           apiKey: ctx.apiKeyId || 'your-api-key'
-        }).catch(err => console.error('[Verify] Failed to send welcome email:', err));
+        }).catch(err => log.error({ requestId: ctx.requestId }, `Failed to send welcome email: ${err}`));
       }
       return jsonResponse(buildSuccess({ verified: true, message: 'Email verified successfully.' }, ctx));
     }
@@ -144,7 +152,7 @@ export const verifyHandler: RouteHandler = async (request, ctx, params) => {
     return jsonResponse(buildError('NOT_SUPPORTED', 'Verification not available on this storage backend', ctx), 501);
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Verification failed';
-    console.error('[Verify] Error:', message);
+    log.error({ requestId: ctx.requestId }, `Verify error: ${message}`);
     return jsonResponse(buildError('VERIFICATION_FAILED', message, ctx), 500);
   }
 };

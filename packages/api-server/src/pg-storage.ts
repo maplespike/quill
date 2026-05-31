@@ -8,6 +8,14 @@
 import pg from 'pg';
 import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 const { Pool } = pg;
 
@@ -28,7 +36,7 @@ export class PgStorage implements MapleSpikeStorage {
 
     this.pool = new Pool({ connectionString: connStr, max: 10 });
     this.pool.on('error', (err) => {
-      console.error('[PgStorage] Unexpected pool error:', err.message);
+      log.error(`Unexpected pool error: ${err.message}`);
     });
   }
 
