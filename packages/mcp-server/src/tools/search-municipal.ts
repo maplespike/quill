@@ -1,35 +1,60 @@
-import type { ToolDefinition, ToolHandler } from './types.js';
-import { searchCkan } from './upstream-fetcher.js';
+// SPDX-License-Identifier: MIT
 
-export const definition: ToolDefinition = {
+import type { ToolDefinition, ToolHandler } from './types.js';
+import { searchMunicipal } from '@maplespike/pipeline-core/municipal';
+
+export const searchMunicipalDefinition: ToolDefinition = {
   name: 'search_municipal',
-  description:
-    'Search Canadian municipal government data — council meetings, agendas, decisions, budgets, ' +
-    'and by-laws across major Canadian cities and regional authorities.',
+  description: 'Search municipal open data from Canadian cities (Victoria, Edmonton, Toronto, Vancouver, Montreal, Ottawa, Calgary, etc.)',
   inputSchema: {
     type: 'object',
     properties: {
+      municipality: {
+        type: 'string',
+        description: 'Municipality ID (e.g., victoria, toronto, ottawa, vancouver, montreal)',
+      },
+      province: {
+        type: 'string',
+        description: 'Filter by province code (e.g., ON, BC, AB, QC)',
+      },
+      dataset: {
+        type: 'string',
+        description: 'Dataset type (budget, permits, zoning, transit, 311-calls)',
+      },
       query: {
         type: 'string',
-        description: 'Search terms — city, topic, or department (e.g., "Toronto budget 2024", "Vancouver zoning", "Montreal transit")',
-      },
-      limit: {
-        type: 'number',
-        description: 'Max results to return (default 20)',
+        description: 'Search query within dataset',
       },
     },
-    required: ['query'],
   },
 };
 
-export const handler: ToolHandler = async (args: Record<string, unknown>) => {
-  const query = String(args.query ?? '');
-  const limit = Number(args.limit ?? 20);
-  if (!query.trim()) return { content: { tool: 'search_municipal', query: '', error: 'No search query provided.' }, isError: true };
+export const searchMunicipalHandler: ToolHandler = async (args) => {
+  const municipality = args.municipality as string | undefined;
+  const province = args.province as string | undefined;
+  const dataset = args.dataset as string | undefined;
+  const query = args.query as string | undefined;
+
   try {
-    const result = await searchCkan(query, limit);
-    return { content: { tool: 'search_municipal', query, limit, ...result } };
-  } catch (err) {
-    return { content: { tool: 'search_municipal', query, error: err instanceof Error ? err.message : 'Unknown error' }, isError: true };
+    const results = searchMunicipal({ municipality, province, dataset, query });
+
+    return {
+      content: {
+        tool: 'search_municipal',
+        params: { municipality, province, dataset, query },
+        count: results.length,
+        municipalities: [...new Set(results.map((r: { municipality: string }) => r.municipality))],
+        records: results,
+      },
+    };
+  } catch (error) {
+    return {
+      content: {
+        tool: 'search_municipal',
+        params: { municipality, province, dataset, query },
+        error: (error as Error).message,
+      },
+      isError: true,
+    };
   }
 };

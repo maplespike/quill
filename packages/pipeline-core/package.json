@@ -69,6 +69,36 @@
     },
     "./unhcr-refugees": {
       "import": "./dist/ingestion/unhcr-refugees/index.js"
+    },
+    "./ingestion/un": {
+      "import": "./dist/ingestion/un/index.js",
+      "types": "./dist/ingestion/un/index.d.ts"
+    },
+    "./corporate-filings": {
+      "import": "./dist/ingestion/corporate-filings/index.js",
+      "types": "./dist/ingestion/corporate-filings/index.d.ts"
+    },
+    "./municipal": {
+      "import": "./dist/ingestion/municipal/index.js",
+      "types": "./dist/ingestion/municipal/index.d.ts"
+    },
+    "./fire-emergency": {
+      "import": "./dist/ingestion/fire-emergency/index.js"
+    },
+    "./gtfs-transit": {
+      "import": "./dist/ingestion/gtfs-transit/index.js"
+    },
+    "./police-data": {
+      "import": "./dist/ingestion/police-data/index.js"
+    },
+    "./parliamentary-voting": {
+      "import": "./dist/ingestion/parliamentary-voting/index.js"
+    },
+    "./political-donations": {
+      "import": "./dist/ingestion/political-donations/index.js"
+    },
+    "./public-accounts": {
+      "import": "./dist/ingestion/public-accounts/index.js"
     }
   },
   "scripts": {

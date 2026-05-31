@@ -181,5 +181,18 @@ export type {
   OecdTopic,
 } from './oecd/types.js';
 
+// ── Municipal ────────────────────────────────────────────────────
+export {
+  ingestMunicipalDataset,
+  ingestAllMunicipal,
+  searchMunicipal,
+  detectPortalType,
+} from './municipal/index.js';
+export type {
+  MunicipalRecord,
+  MunicipalSearchParams,
+  MunicipalIngestionResult,
+} from './municipal/types.js';
+
 
 
