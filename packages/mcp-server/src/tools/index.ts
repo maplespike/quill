@@ -236,7 +236,6 @@ export function getAllTools(): ToolModule[] {
     searchLmia,
     searchLode,
     searchMiningData,
-    searchMunicipal,
     searchMunicipalData,
     searchNarrativeTracker,
     searchNgoRss,
@@ -308,6 +307,7 @@ export function getAllTools(): ToolModule[] {
     { definition: worldbankWdi.analyzeIndicatorTrendDefinition, handler: worldbankWdi.analyzeIndicatorTrendHandler },
     { definition: worldbankWdi.fetchTopicIndicatorsDefinition, handler: worldbankWdi.fetchTopicIndicatorsHandler },
     { definition: worldbankWdi.getIndicatorMetadataDefinition, handler: worldbankWdi.getIndicatorMetadataHandler },
+    { definition: searchMunicipal.searchMunicipalDefinition, handler: searchMunicipal.searchMunicipalHandler },
   ].filter(Boolean);
 }
 
