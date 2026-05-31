@@ -32,10 +32,15 @@ interface ServerCapabilities {
 
 // ─── Logging ────────────────────────────────────────────────────────────
 
-function log(level: 'info' | 'warn' | 'error', msg: string, ...args: unknown[]) {
-  // stderr so it doesn't interfere with stdio transport
-  console.error(`[maplespike-mcp] ${level}: ${msg}`, ...args.map(a => typeof a === 'string' ? a : JSON.stringify(a)));
-}
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+  redact: ['req.headers.authorization', 'req.headers.cookie'],
+});
 
 // ─── Output Sanitization ─────────────────────────────────────────────────
 // OWASP LLM07: Insecure Output Handling — strip dangerous content before
@@ -102,7 +107,7 @@ export class McpServer {
 
   registerTool(definition: ToolDefinition, handler: ToolHandler): void {
     this.tools.set(definition.name, { definition, handler });
-    log('info', `Registered tool: ${definition.name}`);
+    log.info(`Registered tool: ${definition.name}`);
   }
 
   // ── Incoming message handling ──────────────────────────────────────────
@@ -123,7 +128,7 @@ export class McpServer {
         break;
       case 'notifications/initialized':
         this.initialized = true;
-        log('info', 'Client initialized');
+        log.info('Client initialized');
         // Notifications don't have an id — no response
         break;
       case 'tools/list':
@@ -176,7 +181,7 @@ export class McpServer {
   ): void {
     this.clientCapabilities = (params?.capabilities as Record<string, unknown>) ?? {};
 
-    log('info', `Initialize: protocolVersion=${params?.protocolVersion ?? 'unknown'}`);
+    log.info(`Initialize: protocolVersion=${params?.protocolVersion ?? 'unknown'}`);
 
     const capabilities: ServerCapabilities = {
       tools: {}, // tools/list is supported
