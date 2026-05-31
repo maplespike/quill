@@ -1,6 +1,6 @@
 ---
 import "@/styles/globals.css";
-import AnimatedShaderBackground from "@/components/ui/animated-shader-background";
+import { ViewTransitions } from "astro:transitions";
 
 export interface Props {
   title: string;
@@ -39,6 +39,14 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/assets/maplespike_logo.svg" />
+    <ViewTransitions />
+    <style is:global>
+      html { view-transition-name: none; }
+      ::view-transition-old(root) { animation: 100ms ease-out both fadeOut; }
+      ::view-transition-new(root) { animation: 100ms ease-out both fadeIn; }
+      @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+      @keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -55,7 +63,6 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${
     </script>
   </head>
   <body class="min-h-screen bg-background text-foreground font-sans antialiased">
-    <AnimatedShaderBackground client:only="react" />
 
     <!-- Navigation -->
     <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
