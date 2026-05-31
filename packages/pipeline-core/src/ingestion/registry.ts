@@ -662,6 +662,21 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
   },
+  {
+    name: 'energy',
+    description: 'Energy & Natural Resources — CER oil, gas, electricity, and NRCan mining data from open.canada.ca',
+    category: 'infrastructure',
+    modulePath: './energy/index.js',
+    ingestFunctions: ['ingestOilProduction', 'ingestGasProduction', 'ingestElectricity', 'ingestMining', 'ingestAllEnergy'],
+    sources: [
+      { name: 'CER oil production', format: 'CKAN' },
+      { name: 'CER natural gas', format: 'CKAN' },
+      { name: 'CER electricity', format: 'CKAN' },
+      { name: 'NRCan mineral production', format: 'CKAN' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+  },
 
   // ── Influence ────────────────────────────────────────────
   {
