@@ -26,7 +26,11 @@
       "@maplespike/pipeline-core/parliamentary-voting": ["./packages/pipeline-core/src/ingestion/parliamentary-voting"],
       "@maplespike/pipeline-core/public-accounts": ["./packages/pipeline-core/src/ingestion/public-accounts"],
       "@maplespike/pipeline-core/fire-emergency": ["./packages/pipeline-core/src/ingestion/fire-emergency"],
-      "@maplespike/pipeline-core/municipal": ["./packages/pipeline-core/src/ingestion/municipal"]
+      "@maplespike/pipeline-core/municipal": ["./packages/pipeline-core/src/ingestion/municipal"],
+      "@maplespike/pipeline-core/library": ["./packages/pipeline-core/src/ingestion/library"],
+      "@maplespike/pipeline-core/parks": ["./packages/pipeline-core/src/ingestion/parks"],
+      "@maplespike/pipeline-core/utilities": ["./packages/pipeline-core/src/ingestion/utilities"],
+      "@maplespike/pipeline-core/housing-data": ["./packages/pipeline-core/src/ingestion/housing-data"]
     }
   },
   "files": [],

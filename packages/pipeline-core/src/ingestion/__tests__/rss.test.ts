@@ -8,19 +8,19 @@ describe('RSS Module', () => {
     it('returns empty feed for empty string', () => {
       const res = parseRSS('');
       assert.ok(Array.isArray(res.items));
-      assert.equal(res.items.length, 0);
+      assert.equal(res.items!.length, 0);
     });
 
     it('returns empty feed for null', () => {
       const res = parseRSS(null as unknown as string);
       assert.ok(Array.isArray(res.items));
-      assert.equal(res.items.length, 0);
+      assert.equal(res.items!.length, 0);
     });
 
     it('returns empty feed for non-XML text', () => {
       const res = parseRSS('not xml at all');
       assert.ok(Array.isArray(res.items));
-      assert.equal(res.items.length, 0);
+      assert.equal(res.items!.length, 0);
     });
 
     it('parses a minimal RSS item with required fields', () => {
@@ -35,10 +35,10 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items.length, 1);
-      assert.equal(res.items[0].title, 'Test Article');
-      assert.equal(res.items[0].link, 'https://example.com/article');
-      assert.equal(res.items[0].guid, 'abc123');
+      assert.equal(res.items!.length, 1);
+      assert.equal(res.items![0].title, 'Test Article');
+      assert.equal(res.items![0].link, 'https://example.com/article');
+      assert.equal(res.items![0].guid, 'abc123');
     });
 
     it('parses multiple items', () => {
@@ -51,9 +51,9 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items.length, 3);
-      assert.equal(res.items[0].title, 'Article 1');
-      assert.equal(res.items[2].title, 'Article 3');
+      assert.equal(res.items!.length, 3);
+      assert.equal(res.items![0].title, 'Article 1');
+      assert.equal(res.items![2].title, 'Article 3');
     });
 
     it('handles CDATA in title', () => {
@@ -67,8 +67,8 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items.length, 1);
-      assert.equal(res.items[0].title, 'Canada & US Trade Deal');
+      assert.equal(res.items!.length, 1);
+      assert.equal(res.items![0].title, 'Canada & US Trade Deal');
     });
 
     it('handles CDATA in description', () => {
@@ -83,8 +83,8 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items.length, 1);
-      assert.ok(res.items[0].contentSnippet?.includes('Paragraph with bold text'));
+      assert.equal(res.items!.length, 1);
+      assert.ok(res.items![0].contentSnippet?.includes('Paragraph with bold text'));
     });
 
     it('extracts pubDate', () => {
@@ -99,7 +99,7 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items[0].pubDate, 'Mon, 01 Jan 2026 12:00:00 GMT');
+      assert.equal(res.items![0].pubDate, 'Mon, 01 Jan 2026 12:00:00 GMT');
     });
 
     it('skips items with no title or link', () => {
@@ -111,8 +111,8 @@ describe('RSS Module', () => {
   </channel>
 </rss>`;
       const res = parseRSS(xml);
-      assert.equal(res.items.length, 1);
-      assert.equal(res.items[0].title, 'Valid');
+      assert.equal(res.items!.length, 1);
+      assert.equal(res.items![0].title, 'Valid');
     });
   });
 

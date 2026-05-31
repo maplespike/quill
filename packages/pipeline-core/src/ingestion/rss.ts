@@ -57,7 +57,6 @@ export const RSS_SOURCES: RSSSource[] = [
   { name: 'CBC Business', url: 'https://www.cbc.ca/webfeed/rss/rss-business', category: 'business' },
   { name: 'CBC Technology', url: 'https://www.cbc.ca/webfeed/rss/rss-technology', category: 'technology' },
   { name: 'CBC Health', url: 'https://www.cbc.ca/webfeed/rss/rss-health', category: 'health' },
-  { name: 'CBC Indigenous', url: 'https://www.cbc.ca/webfeed/rss/rss-indigenous', category: 'indigenous' },
   { name: 'CBC World', url: 'https://www.cbc.ca/webfeed/rss/rss-world', category: 'world' },
 
   // National newspapers
