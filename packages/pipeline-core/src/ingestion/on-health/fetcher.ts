@@ -113,7 +113,7 @@ async function fetchOhipClaims(
   try {
     // Query CKAN API for OHIP claims dataset
     const datasetId = 'ohip-claims';
-    const ckanUrl = `${ON_HEALTH_SOURCES.CKAN.API}/package_show?id=${datasetId}`;
+    const ckanUrl = `${ON_HEALTH_SOURCES.OHIP_CLAIMS.CKAN_API}/package_show?id=${datasetId}`;
 
     const dataset = await fetchJson<Record<string, unknown>>(ckanUrl);
 
