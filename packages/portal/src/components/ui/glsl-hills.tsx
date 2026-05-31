@@ -140,4 +140,4 @@ void main(void){
   );
 };
 
-export default GLSLHills;
+export { GLSLHills };
