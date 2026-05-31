@@ -1,4 +1,5 @@
 /**
+export { parseInfluenceActor, parseInfluenceActors } from './parser.js';
  * Influence Ingestion — MapleSpike Pipeline
  *
  * Orchestrates influence tracking across all sources:

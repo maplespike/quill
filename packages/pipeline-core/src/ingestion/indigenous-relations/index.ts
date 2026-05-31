@@ -1,4 +1,5 @@
 /**
+export { parseLandClaim, parseLandClaims } from './parser.js';
  * MapleSpike — Indigenous Relations Data Ingestion Orchestration
  *
  * Coordinates CIRNAC land claims, ISC community spending, First Nations
