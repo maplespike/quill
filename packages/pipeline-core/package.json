@@ -217,6 +217,7 @@
     "@maplespike/database": "workspace:*",
     "amqplib": "^0.10.5",
     "fast-xml-parser": "^5.8.0",
+    "pino": "^10.3.1",
     "undici": "^8.2.0"
   },
   "devDependencies": {
