@@ -69,6 +69,10 @@
       "import": "./dist/ingestion/public-accounts/index.js",
       "types": "./dist/ingestion/public-accounts/index.d.ts"
     },
+    "./opencorporates": {
+      "import": "./dist/ingestion/opencorporates/index.js",
+      "types": "./dist/ingestion/opencorporates/index.d.ts"
+    },
     "./energy": {
       "import": "./dist/ingestion/energy/index.js",
       "types": "./dist/ingestion/energy/index.d.ts"
