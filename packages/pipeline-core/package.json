@@ -22,10 +22,6 @@
       "import": "./dist/doc-generator/index.js",
       "types": "./dist/doc-generator/index.d.ts"
     },
-    "./ontario-provincial": {
-      "import": "./dist/ingestion/ontario-provincial/index.js",
-      "types": "./dist/ingestion/ontario-provincial/index.d.ts"
-    },
     "./worldbank-wdi": {
       "import": "./dist/ingestion/worldbank-wdi/index.js",
       "types": "./dist/ingestion/worldbank-wdi/index.d.ts"
@@ -82,23 +78,101 @@
       "import": "./dist/ingestion/municipal/index.js",
       "types": "./dist/ingestion/municipal/index.d.ts"
     },
-    "./fire-emergency": {
-      "import": "./dist/ingestion/fire-emergency/index.js"
+    "./on-health": {
+      "import": "./dist/ingestion/on-health/index.js",
+      "types": "./dist/ingestion/on-health/index.d.ts"
     },
-    "./gtfs-transit": {
-      "import": "./dist/ingestion/gtfs-transit/index.js"
+    "./on-immigration": {
+      "import": "./dist/ingestion/on-immigration/index.js",
+      "types": "./dist/ingestion/on-immigration/index.d.ts"
     },
-    "./police-data": {
-      "import": "./dist/ingestion/police-data/index.js"
+    "./on-courts": {
+      "import": "./dist/ingestion/on-courts/index.js",
+      "types": "./dist/ingestion/on-courts/index.d.ts"
     },
-    "./parliamentary-voting": {
-      "import": "./dist/ingestion/parliamentary-voting/index.js"
+    "./on-education": {
+      "import": "./dist/ingestion/on-education/index.js",
+      "types": "./dist/ingestion/on-education/index.d.ts"
     },
-    "./political-donations": {
-      "import": "./dist/ingestion/political-donations/index.js"
+    "./on-infrastructure": {
+      "import": "./dist/ingestion/on-infrastructure/index.js",
+      "types": "./dist/ingestion/on-infrastructure/index.d.ts"
     },
-    "./public-accounts": {
-      "import": "./dist/ingestion/public-accounts/index.js"
+    "./on-economic": {
+      "import": "./dist/ingestion/on-economic/index.js",
+      "types": "./dist/ingestion/on-economic/index.d.ts"
+    },
+    "./bc-health": {
+      "import": "./dist/ingestion/bc-health/index.js",
+      "types": "./dist/ingestion/bc-health/index.d.ts"
+    },
+    "./bc-immigration": {
+      "import": "./dist/ingestion/bc-immigration/index.js",
+      "types": "./dist/ingestion/bc-immigration/index.d.ts"
+    },
+    "./bc-courts": {
+      "import": "./dist/ingestion/bc-courts/index.js",
+      "types": "./dist/ingestion/bc-courts/index.d.ts"
+    },
+    "./bc-education": {
+      "import": "./dist/ingestion/bc-education/index.js",
+      "types": "./dist/ingestion/bc-education/index.d.ts"
+    },
+    "./bc-infrastructure": {
+      "import": "./dist/ingestion/bc-infrastructure/index.js",
+      "types": "./dist/ingestion/bc-infrastructure/index.d.ts"
+    },
+    "./bc-economic": {
+      "import": "./dist/ingestion/bc-economic/index.js",
+      "types": "./dist/ingestion/bc-economic/index.d.ts"
+    },
+    "./ab-health": {
+      "import": "./dist/ingestion/ab-health/index.js",
+      "types": "./dist/ingestion/ab-health/index.d.ts"
+    },
+    "./ab-immigration": {
+      "import": "./dist/ingestion/ab-immigration/index.js",
+      "types": "./dist/ingestion/ab-immigration/index.d.ts"
+    },
+    "./ab-courts": {
+      "import": "./dist/ingestion/ab-courts/index.js",
+      "types": "./dist/ingestion/ab-courts/index.d.ts"
+    },
+    "./ab-education": {
+      "import": "./dist/ingestion/ab-education/index.js",
+      "types": "./dist/ingestion/ab-education/index.d.ts"
+    },
+    "./ab-infrastructure": {
+      "import": "./dist/ingestion/ab-infrastructure/index.js",
+      "types": "./dist/ingestion/ab-infrastructure/index.d.ts"
+    },
+    "./ab-economic": {
+      "import": "./dist/ingestion/ab-economic/index.js",
+      "types": "./dist/ingestion/ab-economic/index.d.ts"
+    },
+    "./qc-health": {
+      "import": "./dist/ingestion/qc-health/index.js",
+      "types": "./dist/ingestion/qc-health/index.d.ts"
+    },
+    "./qc-immigration": {
+      "import": "./dist/ingestion/qc-immigration/index.js",
+      "types": "./dist/ingestion/qc-immigration/index.d.ts"
+    },
+    "./qc-courts": {
+      "import": "./dist/ingestion/qc-courts/index.js",
+      "types": "./dist/ingestion/qc-courts/index.d.ts"
+    },
+    "./qc-education": {
+      "import": "./dist/ingestion/qc-education/index.js",
+      "types": "./dist/ingestion/qc-education/index.d.ts"
+    },
+    "./qc-infrastructure": {
+      "import": "./dist/ingestion/qc-infrastructure/index.js",
+      "types": "./dist/ingestion/qc-infrastructure/index.d.ts"
+    },
+    "./qc-economic": {
+      "import": "./dist/ingestion/qc-economic/index.js",
+      "types": "./dist/ingestion/qc-economic/index.d.ts"
     }
   },
   "scripts": {
