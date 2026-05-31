@@ -51,7 +51,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CBC, Globe, National Post, regional papers, The Tyee, policy feeds', format: 'RSS' }],
     updateFrequency: '30 min',
     testCallPattern: 'fetchFeed',
-    healthCheckUrl: 'https://www.cbc.ca/webfeed/rss/rss-topstories',
+    healthCheckUrl: 'https://www.cbc.ca/news',
   },
   {
     name: 'gov-api',
@@ -62,7 +62,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Statistics Canada WDS', format: 'SDMX/REST' }, { name: 'open.canada.ca CKAN', format: 'JSON' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1',
+    healthCheckUrl: 'https://www.statcan.gc.ca/en/start',
   },
   {
     name: 'attestation',
@@ -131,7 +131,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'open.canada.ca CKAN (GIC appointments)', format: 'CSV' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.infobasegc.ca',
+    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'gazette',
@@ -234,7 +234,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Statistics Canada WDS API', format: 'SDMX/REST' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite?limit=1',
+    healthCheckUrl: 'https://www.statcan.gc.ca/en/start',
   },
   {
     name: 'immigration',

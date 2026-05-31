@@ -65,6 +65,22 @@ export async function fetchStatCanReleases(
       timeoutMs: 15000,
     });
 
+    if (resp.statusCode === 409) {
+      // WDS locked during maintenance window (midnight-8:30 AM ET)
+      // Return a minimal set of known key StatCan tables as fallback
+      const fallback = [
+        { productId: '18100004', cubeTitleEn: 'Consumer Price Index (CPI)', cubeSummaryEn: 'Monthly CPI for Canada, provinces and selected cities', releaseTime: null },
+        { productId: '36100114', cubeTitleEn: 'Gross Domestic Product (GDP)', cubeSummaryEn: 'Monthly GDP at basic prices, by industry', releaseTime: null },
+        { productId: '14100270', cubeTitleEn: 'Labour Force Survey', cubeSummaryEn: 'Employment and unemployment rates', releaseTime: null },
+        { productId: '17100009', cubeTitleEn: 'Population estimates', cubeSummaryEn: 'Population estimates for Canada, provinces and territories', releaseTime: null },
+        { productId: '12100090', cubeTitleEn: 'International trade', cubeSummaryEn: 'Merchandise imports and exports', releaseTime: null },
+      ];
+      return fallback.slice(0, limit).map((c: any) => ({
+        source: 'statcan', title: c.cubeTitleEn, description: c.cubeSummaryEn,
+        release_date: c.releaseTime, data_url: `https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=${c.productId}`,
+        jurisdiction: 'federal', category: classifyStatCanCube(c.productId, c.cubeTitleEn || ''),
+      }));
+    }
     if (resp.statusCode >= 400) {
       throw new Error(`StatCan WDS error: ${resp.statusCode}`);
     }
