@@ -8,3 +8,4 @@ export async function searchCrossReference(query: CrossReferenceQuery): Promise<
 
 export { CROSS_REF_MODULES };
 export type { CrossReferenceResult, CrossReferenceMatch, CrossReferenceTimelineEntry, CrossReferenceQuery };
+export { parseCrossReferenceResult, parseCrossReferenceResults, normalizeDate, parseNumeric } from './parser.js';

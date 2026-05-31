@@ -266,3 +266,4 @@ export {
 } from './fetcher.js';
 
 export type { AgricultureRecord, AgricultureIngestionResult } from './types.js';
+export { parseAgricultureRecord, parseAgricultureRecords, normalizeDate, parseNumeric } from './parser.js';

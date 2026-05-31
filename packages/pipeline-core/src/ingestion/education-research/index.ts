@@ -33,6 +33,7 @@ import type { EduIngestionResult } from './types.js';
 
 export { EDU_CKAN_PACKAGE_IDS, EDU_CKAN_QUERIES, EDU_DDL, EDU_SOURCES } from './constants.js';
 export type { EduIngestionResult } from './types.js';
+export { parseTriCouncilGrant, parseTriCouncilGrants, normalizeDate, parseNumeric } from './parser.js';
 
 /* ------------------------------------------------------------------ */
 /*  Individual Ingestion Functions                                     */

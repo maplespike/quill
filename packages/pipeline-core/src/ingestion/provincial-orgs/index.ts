@@ -73,3 +73,4 @@ export function searchProvincialOrg(records: ProvincialOrgRecord[], query: strin
 
 export { PROVINCIAL_ORGS } from './constants.js';
 export type { ProvincialOrgRecord, ProvincialOrgIngestionResult } from './types.js';
+export { parseProvincialOrgRecord, parseProvincialOrgRecords, normalizeDate, parseNumeric } from './parser.js';

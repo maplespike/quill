@@ -22,6 +22,7 @@ export {
   LODE_DATABASES,
   LODE_SOURCE_NAMES,
 } from './lode/index.js';
+export { parseGeospatialRecord, parseGeospatialRecords, normalizeDate, parseNumeric } from './parser.js';
 export type {
   LodeDatabaseInfo,
   LodeAddress,

@@ -1,4 +1,5 @@
 /**
+export { parseHealthDataRecord, parseHealthDataRecords } from './parser.js';
  * Health Data Ingestion — MapleSpike Pipeline
  *
  * Unified orchestration module for deep health-data ingestion from:

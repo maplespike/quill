@@ -1,4 +1,5 @@
 /**
+export { parseStatCanRecord, parseStatCanRecords } from './parser.js';
  * StatCan Ingestion — MapleSpike Pipeline
  *
  * Orchestrates Statistics Canada data ingestion across all

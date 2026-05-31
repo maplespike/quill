@@ -308,6 +308,7 @@ export {
   fetchCtaRulings,
   fetchCtaDecisions,
 } from './cta.js';
+export { parseTsbOccurrence, parseTsbOccurrences, normalizeDate, parseNumeric } from './parser.js';
 export {
   fetchInfrastructureProjects,
   fetchNationalTradeCorridors,
