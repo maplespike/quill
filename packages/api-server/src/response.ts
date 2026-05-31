@@ -262,6 +262,8 @@ const ALLOWED_ORIGINS = [
   'http://localhost:8082',
   'http://127.0.0.1:8082',
   'http://localhost:4321',
+  'http://10.1.1.120:4321',
+  'http://10.1.1.100:4321',
   'https://maplespike.ca',
   'https://www.maplespike.ca',
   'https://api.maplespike.ca',
