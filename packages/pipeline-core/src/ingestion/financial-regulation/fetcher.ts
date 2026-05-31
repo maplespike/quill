@@ -48,7 +48,27 @@ export async function ingestFCAC(): Promise<FinRegIngestionResult> {
   };
 }
 
+export async function ingestCSA(): Promise<FinRegIngestionResult> {
+  const start = Date.now();
+  const results = await searchCkan('securities regulation canada', 10);
+  return {
+    source: 'csa', recordsFound: results.length,
+    records: results.map((r: any) => ({ ...r, regulator: 'CSA', category: 'securities-regulation', jurisdiction: 'federal-provincial' })),
+    errors: [], durationMs: Date.now() - start,
+  };
+}
+
+export async function ingestOBSI(): Promise<FinRegIngestionResult> {
+  const start = Date.now();
+  const results = await searchCkan('banking ombudsman complaints', 10);
+  return {
+    source: 'obsi', recordsFound: results.length,
+    records: results.map((r: any) => ({ ...r, regulator: 'OBSI', category: 'banking-ombudsman', jurisdiction: 'federal' })),
+    errors: [], durationMs: Date.now() - start,
+  };
+}
+
 export async function ingestAllFinancialRegulation(): Promise<Record<string, FinRegIngestionResult>> {
-  const [osfi, cdic, fcac] = await Promise.all([ingestOSFI(), ingestCDIC(), ingestFCAC()]);
-  return { osfi, cdic, fcac };
+  const [osfi, cdic, fcac, csa, obsi] = await Promise.all([ingestOSFI(), ingestCDIC(), ingestFCAC(), ingestCSA(), ingestOBSI()]);
+  return { osfi, cdic, fcac, csa, obsi };
 }

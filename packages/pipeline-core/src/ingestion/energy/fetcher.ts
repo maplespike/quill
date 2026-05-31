@@ -42,7 +42,22 @@ export async function ingestMining(): Promise<EnergyIngestionResult> {
   return { source: 'mining', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
 }
 
+export async function ingestPipelineData(): Promise<EnergyIngestionResult> {
+  const start = Date.now();
+  const records = (await searchCkan('pipeline capacity throughput canada', 10)).map((r: any) => ({ ...r, sector: 'pipeline', category: 'energy' }));
+  return { source: 'pipeline-data', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
+}
+
+export async function ingestRenewableEnergy(): Promise<EnergyIngestionResult> {
+  const start = Date.now();
+  const records = (await searchCkan('renewable energy wind solar canada', 10)).map((r: any) => ({ ...r, sector: 'renewable', category: 'energy' }));
+  return { source: 'renewable-energy', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
+}
+
 export async function ingestAllEnergy(): Promise<Record<string, EnergyIngestionResult>> {
-  const [oil, gas, elec, mining] = await Promise.all([ingestOilProduction(), ingestGasProduction(), ingestElectricity(), ingestMining()]);
-  return { 'oil-production': oil, 'gas-production': gas, electricity: elec, mining };
+  const [oil, gas, elec, mining, pipeline, renewable] = await Promise.all([
+    ingestOilProduction(), ingestGasProduction(), ingestElectricity(),
+    ingestMining(), ingestPipelineData(), ingestRenewableEnergy(),
+  ]);
+  return { 'oil-production': oil, 'gas-production': gas, electricity: elec, mining, 'pipeline-data': pipeline, 'renewable-energy': renewable };
 }
