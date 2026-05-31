@@ -9,7 +9,12 @@ export {
   getThreadsForEntity,
   getTopSignals,
 } from "./queries";
-export type { MandatePromise } from "./signals";
+export { detectCycles } from "./cycles";
+export type { Cycle } from "./cycles";
+export { computeMetrics } from "./metrics";
+export type { GraphMetrics } from "./metrics";
+export { validateGraphData, validateNode, validateEdge } from "./validation";
+export type { ValidatedNode, ValidatedEdge, ValidatedGraphData } from "./schemas";
 export {
   detectDonationProximityCorrelation,
   detectInternationalLayering,
