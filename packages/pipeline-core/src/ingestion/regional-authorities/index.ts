@@ -12,3 +12,4 @@ export function searchRegionalAuthorities(records: RegionalRecord[], query: stri
 
 export { REGIONAL_AUTHORITIES, REGIONAL_AUTHORITY_MAP };
 export type { RegionalRecord, RegionalIngestionResult, RegionalAuthorityCode, RegionalPortalType, RegionalAuthorityConfig };
+export { parseRegionalRecord, parseRegionalRecords, normalizeDate, parseNumeric } from './parser.js';

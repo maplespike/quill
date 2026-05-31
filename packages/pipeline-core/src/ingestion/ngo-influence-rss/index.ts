@@ -38,3 +38,4 @@ export function classifyNarrative(item: NgoRssItem): NarrativeFlag[] {
 
 export { NGO_RSS_SOURCES } from './constants.js';
 export type { NgoRssItem, NgoRssIngestionResult, NgoRssConfig, NgoCategory, NarrativeFlag } from './types.js';
+export { parseNgoRssItem, parseNgoRssItems, normalizeDate, parseNumeric } from './parser.js';

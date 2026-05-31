@@ -3,3 +3,4 @@ import type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } f
 
 export { ingestAllRegulators, getRegulatorCoverage };
 export type { ProvincialRegulatorRecord, ProvincialRegulatorsIngestionResult } from './types.js';
+export { parseProvincialRegulatorRecord, parseProvincialRegulatorRecords, normalizeDate, parseNumeric } from './parser.js';

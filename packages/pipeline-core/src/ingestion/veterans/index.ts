@@ -95,3 +95,4 @@ export async function getStatsSummary(): Promise<{
 }
 
 export type { VeteransRecord, VeteransIngestionResult, VacBenefitStat, OsissClinicRecord, VeteranSuicideStat, DndVeteranProgramRecord } from './types.js';
+export { parseVeteransRecord, parseVeteransRecords, normalizeDate, parseNumeric } from './parser.js';

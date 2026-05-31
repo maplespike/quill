@@ -1,4 +1,5 @@
 /**
+export { parseCppOasBeneficiary, parseCppOasBeneficiarys } from './parser.js';
  * Social Programs Ingestion — MapleSpike Pipeline
  *
  * Orchestrates ingestion of Canadian social program data from
