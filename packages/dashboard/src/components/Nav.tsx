@@ -33,6 +33,7 @@ export default function Nav() {
         <Link href="/search" style={linkStyle}>SEARCH</Link>
         <Link href="/briefs" style={linkStyle}>BRIEFS</Link>
         <Link href="/signals" style={linkStyle}>SIGNALS</Link>
+        <Link href="/billing" style={linkStyle}>BILLING</Link>
       </div>
       {authed ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
