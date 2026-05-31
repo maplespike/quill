@@ -94,6 +94,10 @@ import * as searchLode from './search-lode.js';
 import * as searchMiningData from './search_mining_data.js';
 import * as searchMunicipal from './search-municipal.js';
 import * as searchMunicipalData from './search-municipal-data.js';
+import * as searchOnData from './search-on-data.js';
+import * as searchBcData from './search-bc-data.js';
+import * as searchAbData from './search-ab-data.js';
+import * as searchQcData from './search-qc-data.js';
 import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchNgoRss from './search-ngo-rss.js';
 import * as searchNpri from './search-npri.js';
@@ -308,6 +312,11 @@ export function getAllTools(): ToolModule[] {
     { definition: worldbankWdi.fetchTopicIndicatorsDefinition, handler: worldbankWdi.fetchTopicIndicatorsHandler },
     { definition: worldbankWdi.getIndicatorMetadataDefinition, handler: worldbankWdi.getIndicatorMetadataHandler },
     { definition: searchMunicipal.searchMunicipalDefinition, handler: searchMunicipal.searchMunicipalHandler },
+    // Provincial Data Tools
+    searchOnData,
+    searchBcData,
+    searchAbData,
+    searchQcData,
   ].filter(Boolean);
 }
 
