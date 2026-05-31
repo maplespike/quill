@@ -1,4 +1,4 @@
-export { ingestRentalMarket, ingestHousingStarts, ingestHousePrices, ingestAllRealEstate } from './fetcher.js';
+export { ingestRentalMarket, ingestHousingStarts, ingestHousePrices, ingestLandRegistry, ingestRentalRegistries, ingestAllRealEstate } from './fetcher.js';
 
 export {
   parseRentalMarketData,
