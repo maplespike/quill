@@ -1,0 +1,81 @@
+import { useEffect, useState } from "react";
+import { getPlans, Plan, Chain } from "../../lib/api";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+
+export default function BillingPlans() {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [chains, setChains] = useState<Chain[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [selectedChain, setSelectedChain] = useState("solana-usdc");
+  const [order, setOrder] = useState<null | { orderId: string; wallet: string; amount: number; token: string; explorer: string }>(null);
+  const [txHash, setTxHash] = useState("");
+
+  useEffect(() => {
+    getPlans().then(d => { setPlans(d.plans); setChains(d.chains); });
+  }, []);
+
+  async function handleOrder() {
+    const r = await fetch("/api/billing/order", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ planId: selectedPlan, chainId: selectedChain }),
+    });
+    const d = await r.json();
+    if (d.success) setOrder(d.data);
+  }
+
+  return (
+    <div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {plans.filter(p => p.priceUsd > 0).map(p => (
+          <Card key={p.id} onClick={() => setSelectedPlan(p.id)}
+            class={`cursor-pointer transition-all ${selectedPlan === p.id ? 'ring-2 ring-primary' : ''}`}>
+            <CardHeader>
+              <CardTitle>{p.name}</CardTitle>
+              <CardDescription>${p.priceUsd}/mo</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p class="text-sm text-muted-foreground">{p.requests.toLocaleString()} requests/mo</p>
+              <p class="text-sm text-muted-foreground">{p.rateLimit} req/s</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      {selectedPlan && (
+        <Card class="mb-8">
+          <CardHeader>
+            <CardTitle>Pay with Crypto</CardTitle>
+            <CardDescription>Select a chain and send payment</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="flex flex-wrap gap-2 mb-4">
+              {chains.filter(c => c.usdc).map(c => (
+                <Button key={c.id} variant={selectedChain === c.id ? "default" : "outline"} size="sm" onClick={() => setSelectedChain(c.id)}>
+                  {c.name} ({c.token})
+                </Button>
+              ))}
+            </div>
+            <Button onClick={handleOrder}>Generate Payment Address</Button>
+            {order && (
+              <div class="mt-4 p-4 bg-muted rounded-lg space-y-3">
+                <p class="text-sm">Send <strong>${order.amount} {order.token}</strong> to:</p>
+                <code class="block p-3 bg-background rounded text-xs break-all">{order.wallet}</code>
+                <input value={txHash} onChange={e => setTxHash(e.target.value)}
+                  placeholder="Paste transaction hash"
+                  class="w-full p-2 border rounded text-sm bg-background" />
+                <Button onClick={async () => {
+                  const r = await fetch("/api/billing/verify", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderId: order.orderId, txHash }),
+                  });
+                  const d = await r.json();
+                  if (d.success) alert("Payment verified!");
+                }}>Verify Payment</Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

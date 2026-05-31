@@ -5,7 +5,8 @@ status: active
 
 # MapleSpike — Developer Portal
 
-SaaS landing page, documentation, AI agent setup guide, and developer dashboard placeholder for the MapleSpike API.
+SaaS landing page, documentation, AI agent setup guide, and live developer dashboard.
+**Migrated from Next.js → Astro + React + shadcn/ui + Tailwind v4.**
 
 **Status:** Served from K3s cluster on LAN. GitHub Pages deployment is planned for public launch.
 
