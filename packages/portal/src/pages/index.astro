@@ -1,9 +1,13 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import GLSLHills from "@/components/ui/glsl-hills";
 ---
 
 <BaseLayout title="Canada's Government Data Intelligence Layer" lang="en">
-  <section class="relative flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
+  <section class="relative min-h-[80vh] flex flex-col items-center justify-center px-4 text-center overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <GLSLHills client:load width="100vw" height="80vh" cameraZ={125} planeSize={256} speed={0.5} />
+    </div>
     <div class="relative z-10 max-w-4xl">
       <h1 class="text-4xl font-bold tracking-tight sm:text-6xl">
         Canada's
