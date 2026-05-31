@@ -2,6 +2,14 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { contactSchema, validateBody, validationError } from '../validation.js';
 import { sendContactEmail } from '../email.js';
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 interface RateEntry {
   timestamps: number[];
@@ -70,7 +78,7 @@ export const contactHandler: RouteHandler = async (request, ctx) => {
     const contactTo = config.CONTACT_EMAIL || 'maplespike@reverb256.ca';
 
     sendContactEmail({ to: contactTo, name, email, subject, message }).catch(err =>
-      console.error('[Contact] Failed to send email:', err)
+      log.error({ requestId: ctx.requestId }, `Failed to send email: ${err}`)
     );
 
     return jsonResponse(buildSuccess({
@@ -78,7 +86,7 @@ export const contactHandler: RouteHandler = async (request, ctx) => {
     }, ctx));
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Contact form submission failed';
-    console.error('[Contact] Error:', message);
+    log.error({ requestId: ctx.requestId }, `Contact error: ${message}`);
     return jsonResponse(buildError('CONTACT_FAILED', message, ctx), 500);
   }
 };

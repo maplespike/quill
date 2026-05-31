@@ -9,6 +9,15 @@
  *   await sendVerificationEmail({ to: 'user@example.com', token: 'abc123' });
  */
 
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
+
 export interface EmailConfig {
   provider: 'sendgrid' | 'console';
   sendgridApiKey?: string;
@@ -167,11 +176,11 @@ async function sendEmail({
   }
 
   // Console fallback (development)
-  console.log('[Email] --- Console email (not sent) ---');
-  console.log(`[Email] To: ${to}`);
-  console.log(`[Email] Subject: ${subject}`);
-  console.log(`[Email] Body: ${text.substring(0, 200)}...`);
-  console.log('[Email] --- End console email ---');
+  log.info('--- Console email (not sent) ---');
+  log.info(`To: ${to}`);
+  log.info(`Subject: ${subject}`);
+  log.info(`Body: ${text.substring(0, 200)}...`);
+  log.info('--- End console email ---');
   return { sent: false, provider: 'console' };
 }
 
@@ -208,14 +217,14 @@ async function sendViaSendgrid({
 
     if (!response.ok) {
       const errBody = await response.text();
-      console.error(`[Email] SendGrid error ${response.status}: ${errBody}`);
+      log.error(`SendGrid error ${response.status}: ${errBody}`);
       return { sent: false, provider: 'sendgrid' };
     }
 
-    console.log(`[Email] Sent via SendGrid to ${to} (subject: ${subject})`);
+    log.info(`Sent via SendGrid to ${to} (subject: ${subject})`);
     return { sent: true, provider: 'sendgrid' };
   } catch (err) {
-    console.error('[Email] SendGrid send failed:', err instanceof Error ? err.message : String(err));
+    log.error(`SendGrid send failed: ${err instanceof Error ? err.message : String(err)}`);
     return { sent: false, provider: 'sendgrid' };
   }
 }

@@ -15,6 +15,14 @@ import { computeHash } from '@maplespike/pipeline-core';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 /* ------------------------------------------------------------------ */
 /*  Pipeline data loader                                               */
@@ -39,14 +47,14 @@ function loadPipelineData(): Record<string, any> | null {
       try {
         const raw = readFileSync(p, 'utf-8');
         pipelineData = JSON.parse(raw);
-        console.error(`[citation] Loaded pipeline data from ${p} (${raw.length} bytes)`);
+        log.info(`Loaded pipeline data from ${p} (${raw.length} bytes)`);
         return pipelineData;
       } catch (err) {
-        console.error(`[citation] Failed to load ${p}:`, err);
+        log.error(`Failed to load ${p}: ${err}`);
       }
     }
   }
-  console.error('[citation] Pipeline data not found at any path');
+  log.error('Pipeline data not found at any path');
   return null;
 }
 

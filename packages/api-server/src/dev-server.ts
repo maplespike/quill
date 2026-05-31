@@ -17,6 +17,14 @@ import { MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { initEmailConfig } from './email.js';
 import { validateConfig } from './config.js';
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
 const AI_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
@@ -26,8 +34,8 @@ const MAPLESPIKE_DB_PATH = process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') {
-  console.error('FATAL: JWT_SECRET environment variable must be set to a secure random value.');
-  console.error('  Generate one with: openssl rand -hex 64');
+  log.error('FATAL: JWT_SECRET environment variable must be set to a secure random value.');
+  log.error('  Generate one with: openssl rand -hex 64');
   process.exit(1);
 }
 
@@ -46,7 +54,7 @@ const env = {
 try {
   validateConfig({ ...process.env });
 } catch (e) {
-  console.error('[Config] ' + (e instanceof Error ? e.message : String(e)));
+  log.error(`Config error: ${e instanceof Error ? e.message : String(e)}`);
   process.exit(1);
 }
 
@@ -56,20 +64,20 @@ let db: MapleSpikeStorage;
 let cache: MapleSpikeCache;
 
 if (MAPLESPIKE_STORAGE === 'postgres') {
-  console.log('[Storage] Using PostgreSQL backend');
+  log.info('Using PostgreSQL backend');
   const { PgStorage, PgCache } = await import('./pg-storage.js');
   const pgDb = new PgStorage();
   await pgDb.init();
   db = pgDb;
   cache = new PgCache();
 } else if (MAPLESPIKE_STORAGE === 'sqlite') {
-  console.log(`[Storage] Using SQLite backend: ${MAPLESPIKE_DB_PATH}`);
+  log.info(`Using SQLite backend: ${MAPLESPIKE_DB_PATH}`);
   // Dynamic import so that better-sqlite3 native module is only loaded when needed
   const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
   db = new SqliteStorage(MAPLESPIKE_DB_PATH);
   cache = new SqliteStorageCache();
 } else {
-  console.log('[Storage] Using in-memory backend');
+  log.info('Using in-memory backend');
 
   const memDb = new MemoryStorage();
   cache = new MemoryCache();
@@ -144,14 +152,14 @@ const server = http.createServer(async (req, res) => {
     const responseBody = await response.text();
     res.end(responseBody);
   } catch (err) {
-    console.error('[DevServer] Fatal:', err);
+    log.error(`Fatal: ${err}`);
     res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Server error' } }));
   }
 });
 
 if (!verifyStorageHealth()) {
-  console.error('[Storage] Health check failed — aborting startup');
+  log.error('Health check failed — aborting startup');
   process.exit(1);
 }
 

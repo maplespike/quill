@@ -18,6 +18,7 @@ import * as getMemberInfo from './get-member-info.js';
 import * as getModuleHealth from './get-module-health.js';
 import * as getPipelineHealth from './get-pipeline-health.js';
 import * as getPoliticianInfluence from './get-politician-influence.js';
+import * as getAnnotations from './get-annotations.js';
 import * as latestReleases from './latest-releases.js';
 import * as queryBridges from './query-bridges.js';
 import * as queryCpi from './query-cpi.js';
@@ -165,6 +166,7 @@ export function getAllTools(): ToolModule[] {
     findConnections,
     getCitation,
     getEntityProfile,
+    getAnnotations,
     getMemberInfo,
     getModuleHealth,
     getPipelineHealth,

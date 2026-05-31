@@ -19,3 +19,22 @@ export function searchUtilities(params: { province?: string; type?: string; quer
 }
 
 export { UTILITY_PROVIDERS } from './constants.js';
+
+export {
+  parseHydroRecord,
+  parseGasRecord,
+  parseUtilityRecords,
+  detectUtilityType,
+  normalizeProvince,
+  normalizeUtilityName,
+  normalizeRateType,
+  parseNumeric,
+} from './parser.js';
+
+export type {
+  UtilityType,
+  HydroRecord,
+  GasRecord,
+  UtilityParsedRecord,
+  UtilityParserOptions,
+} from './types.js';
