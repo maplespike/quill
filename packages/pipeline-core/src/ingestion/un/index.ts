@@ -208,6 +208,7 @@ export function parseUnObs(
   };
 }
 
+export { parseUnRecord, parseUnRecords, normalizeDate, parseNumeric } from './parser.js';
 export {
   UN_DATABASES,
   UN_DATABASES_BY_CATEGORY,

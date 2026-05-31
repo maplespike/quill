@@ -1,0 +1,41 @@
+import { computeHash } from '../../verification/hashing.js';
+import type { CppOasBeneficiary } from './types.js';
+
+export function normalizeDate(dateStr: string | null | undefined): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? dateStr.substring(0, 10) : d.toISOString().substring(0, 10);
+}
+
+export function parseNumeric(val: unknown): number | null {
+  if (val === null || val === undefined) return null;
+  const s = String(val).replace(/[,$€£\s]/g, '');
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+export async function parseCppOasBeneficiary(raw: Record<string, unknown>): Promise<CppOasBeneficiary | null> {
+  try {
+    const id = await computeHash(`social-programs:${JSON.stringify(raw)}`, 'sha256');
+    return { id, ...raw } as unknown as CppOasBeneficiary;
+  } catch (err) {
+    console.warn(`[social-programs Parser] Skipping: ${(err as Error).message}`);
+    return null;
+  }
+}
+
+export async function parseCppOasBeneficiarys(rawRecords: Record<string, unknown>[]): Promise<CppOasBeneficiary[]> {
+  const results: CppOasBeneficiary[] = [];
+  const seen = new Set<string>();
+  for (const raw of rawRecords) {
+    try {
+      const id = await computeHash(`social-programs:${JSON.stringify(raw)}`, 'sha256');
+      if (seen.has(id)) continue;
+      seen.add(id);
+      results.push({ id, ...raw } as unknown as CppOasBeneficiary);
+    } catch (err) {
+      console.warn(`[social-programs Parser] Skipping: ${(err as Error).message}`);
+    }
+  }
+  return results;
+}

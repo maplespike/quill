@@ -1,4 +1,5 @@
 /**
+export { parseLobbyingRecord, parseLobbyingRecords } from './parser.js';
  * Corporate Ingestion — MapleSpike Pipeline
  *
  * Orchestrates corporate/business data ingestion across all sources:

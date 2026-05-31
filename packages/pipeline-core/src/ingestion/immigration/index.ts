@@ -1,4 +1,5 @@
 /**
+export { parsePermanentResidentAdmission, parsePermanentResidentAdmissions } from './parser.js';
  * Immigration Ingestion — MapleSpike Pipeline
  *
  * Orchestrates immigration, refugee, and border data ingestion

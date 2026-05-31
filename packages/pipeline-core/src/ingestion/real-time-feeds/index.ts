@@ -8,3 +8,4 @@ export async function ingestAllRealtime(): Promise<RealtimeIngestionResult> {
 
 export { REALTIME_SOURCES };
 export type { RealtimeRecord, RealtimeIngestionResult };
+export { parseRealtimeRecord, parseRealtimeRecords, normalizeDate, parseNumeric } from './parser.js';

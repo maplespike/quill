@@ -1,4 +1,5 @@
 /**
+export { parseCscPopulation, parseCscPopulations } from './parser.js';
  * Criminal Justice Ingestion Orchestration — MapleSpike Pipeline
  *
  * Orchestrates the four criminal justice data pipelines:
