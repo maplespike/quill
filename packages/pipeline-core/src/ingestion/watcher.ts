@@ -5,7 +5,7 @@
  * comparison, and logs changes to a change_log store.
  */
 
-import { httpGet } from '../../utils/http.js';
+import { httpGet } from '../utils/http.js';
 
 export interface WatchedSource {
   id: string;
