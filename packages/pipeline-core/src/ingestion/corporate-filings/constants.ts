@@ -1,40 +1,15 @@
-export const FILINGS_USER_AGENT = 'MapleSpike-CorporateFilings/1.0';
-export const FILINGS_TIMEOUT_MS = 15_000;
-export const MAX_FILINGS = 200;
-export const RETRY_COUNT = 3;
-export const RETRY_DELAY_MS = 1000;
-export const CONCURRENCY_LIMIT = 5;
+export const FILINGS_USER_AGENT = 'MapleSpike-CorporateFilings/2.0';
+export const FILINGS_TIMEOUT_MS = 60_000;
+export const MAX_FILINGS = 5000;
 
-export const SEDARPLUS_BASE_URL = 'https://www.sedarplus.ca';
-export const SEDARPLUS_SEARCH_URL = 'https://www.sedarplus.ca/DisplayProfile.do?docType=company&issuerName=';
-export const SEDARPLUS_LANDING = 'https://www.sedarplus.ca/LandingPage.do';
-export const CKAN_FALLBACK_URL = 'https://open.canada.ca/data/en/api/3/action/package_search';
+export const FED_CORP_CKAN_ID = '0032ce54-c5dd-4b66-99a0-320a7b5e99f2';
 
-export const SEDARPLUS_DEFAULT_HEADERS = {
-  'User-Agent': FILINGS_USER_AGENT,
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'en-CA,en-US;q=0.9,en;q=0.8',
-};
-
-export const FILING_TYPE_MAP: Record<string, string> = {
-  'annual': 'annual-report',
-  'md&a': 'management-discussion',
-  'management discussion': 'management-discussion',
-  'md and a': 'management-discussion',
-  'proxy': 'proxy-circular',
-  'circular': 'proxy-circular',
-  'material change': 'material-change',
-  'financial': 'financial-statement',
-  'interim': 'financial-statement',
-  'prospectus': 'prospectus',
-  'takeover': 'takeover-bid',
-  'bid': 'issuer-bid',
-  'meeting': 'meeting-materials',
-  'governance': 'governance',
-  'acquisition': 'acquisition',
-  'press release': 'press-release',
-  'news': 'press-release',
-};
+export const FED_CORP_CSV_URLS = [
+  { name: 'active-business', url: 'https://d4bf66bykfyaf.cloudfront.net/corporations-active-cbca-en.csv' },
+  { name: 'active-other', url: 'https://d4bf66bykfyaf.cloudfront.net/corporations-active-non-cbca-en.csv' },
+  { name: 'inactive-business', url: 'https://d4bf66bykfyaf.cloudfront.net/corporations-inactive-or-dissolved-cbca-en.csv' },
+  { name: 'inactive-other', url: 'https://d4bf66bykfyaf.cloudfront.net/corporations-inactive-or-dissolved-non-cbca-en.csv' },
+];
 
 export const FILING_TYPE_CATEGORIES = [
   'annual-report',
