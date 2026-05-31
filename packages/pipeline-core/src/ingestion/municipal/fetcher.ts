@@ -25,12 +25,17 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
   } catch {}
 
   try {
-    // Detect ArcGIS Hub by checking for ArcGIS REST API
-    const resp = await httpGet(`${portal.baseUrl}/arcgis/rest/services`, {
+    // Detect ArcGIS Hub by checking the OGC API Records endpoint
+    const resp = await httpGet(`${portal.baseUrl}/api/search/v1/collections/all/items?limit=1`, {
       timeoutMs: MUNICIPAL_TIMEOUT_MS,
-      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT, 'Accept': 'application/json' },
     });
-    if (resp.statusCode < 400 && resp.body.includes('ArcGIS REST')) return 'arcgis';
+    if (resp.statusCode < 400) {
+      try {
+        const body = JSON.parse(resp.body);
+        if (body?.type === 'FeatureCollection') return 'arcgis';
+      } catch {}
+    }
   } catch {}
 
   return 'custom';
@@ -49,7 +54,9 @@ export async function fetchMunicipalDataset(
   } else if (portal.portalType === 'socrata') {
     url = `${portal.baseUrl}/resource/${dataset}.json`;
   } else if (portal.portalType === 'arcgis') {
-    url = `${portal.baseUrl}/arcgis/rest/services/${dataset}?f=pjson`;
+    // Use OGC API Records endpoint for ArcGIS Hub portals
+    // Returns GeoJSON FeatureCollection with dataset metadata
+    url = `${portal.baseUrl}/api/search/v1/collections/all/items?limit=100`;
   } else if (portal.portalType === 'custom') {
     url = `${portal.baseUrl}/api/${dataset}`;
   } else {
