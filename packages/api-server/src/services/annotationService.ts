@@ -43,3 +43,7 @@ export function exportAnnotations(entityType: string, entityId: string, format: 
   }
   return annotations.map(a => `## ${a.annotationType}\n\n${a.content}\n\n— ${a.createdAt}\n`).join('---\n');
 }
+
+export function resetStore(): void {
+  store.clear();
+}
