@@ -1,4 +1,5 @@
 import { HOUSING_DATASETS } from './constants.js';
+import type { HousingMarketRecord, HousingStartRecord, HousingCompletionRecord, HousingCategory, HousingType, RawHousingMarketRecord, RawHousingStartRecord, RawHousingCompletionRecord, HousingDataIngestionOptions, HousingDataIngestionResult, HousingDataSearchOptions } from './types.js';
 
 export interface HousingRecord {
   id: string;
@@ -20,4 +21,25 @@ export function searchHousing(params: { category?: string; provider?: string; qu
   return results;
 }
 
-export { HOUSING_DATASETS } from './constants.js';
+export { HOUSING_DATASETS, METRO_AREA_MAP, HOUSING_TYPE_MAP, HOUSING_TIMEOUT_MS } from './constants.js';
+export {
+  parseHousingMarketRecord,
+  parseHousingStartRecord,
+  parseHousingCompletionRecord,
+  parseHousingDataRecords,
+  parseHousingMarketBatch,
+  parseHousingStartBatch,
+  parseHousingCompletionBatch,
+} from './parser.js';
+
+export type { HousingMarketRecord };
+export type { HousingStartRecord };
+export type { HousingCompletionRecord };
+export type { HousingCategory };
+export type { HousingType };
+export type { RawHousingMarketRecord };
+export type { RawHousingStartRecord };
+export type { RawHousingCompletionRecord };
+export type { HousingDataIngestionOptions };
+export type { HousingDataIngestionResult };
+export type { HousingDataSearchOptions };

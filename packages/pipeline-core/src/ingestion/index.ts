@@ -23,6 +23,15 @@ export type {
   ModuleCategory,
 } from './registry.js';
 
+// ── Entity Resolution ───────────────────────────────────────────────
+export {
+  EntityResolutionService,
+} from './entity-resolution-service.js';
+export type {
+  ServiceMatchResult,
+  EntityResolutionServiceConfig,
+} from './entity-resolution-service.js';
+
 // ── Core Utilities (consumed by api-server, mcp-server, sdk) ─────
 export {
   parseRSS,
