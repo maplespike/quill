@@ -47,10 +47,32 @@ export async function ingestRentalRegistries() {
   return { source: 'rental-registries', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
 }
 
+export async function ingestPropertyAssessments() {
+  const start = Date.now();
+  const [bc, on, ab] = await Promise.all([
+    searchCkan('bc assessment property values', 5),
+    searchCkan('mpac ontario property assessment', 5),
+    searchCkan('alberta property assessment', 5),
+  ]);
+  const records = [
+    ...bc.map((r: any) => ({ ...r, sector: 'property-assessment', jurisdiction: 'bc' })),
+    ...on.map((r: any) => ({ ...r, sector: 'property-assessment', jurisdiction: 'on' })),
+    ...ab.map((r: any) => ({ ...r, sector: 'property-assessment', jurisdiction: 'ab' })),
+  ];
+  return { source: 'property-assessments', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
+}
+
+export async function ingestMortgageArrears() {
+  const start = Date.now();
+  const records = (await searchCkan('mortgage arrears canada', 10)).map((r: any) => ({ ...r, sector: 'mortgage-arrears', jurisdiction: 'federal' }));
+  return { source: 'mortgage-arrears', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
+}
+
 export async function ingestAllRealEstate() {
-  const [rental, starts, prices, land, rentalReg] = await Promise.all([
+  const [rental, starts, prices, land, rentalReg, assessments, arrears] = await Promise.all([
     ingestRentalMarket(), ingestHousingStarts(), ingestHousePrices(),
     ingestLandRegistry(), ingestRentalRegistries(),
+    ingestPropertyAssessments(), ingestMortgageArrears(),
   ]);
-  return { 'rental-market': rental, 'housing-starts': starts, 'house-prices': prices, 'land-registry': land, 'rental-registries': rentalReg };
+  return { 'rental-market': rental, 'housing-starts': starts, 'house-prices': prices, 'land-registry': land, 'rental-registries': rentalReg, 'property-assessments': assessments, 'mortgage-arrears': arrears };
 }
