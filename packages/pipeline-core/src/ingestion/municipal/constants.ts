@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-export type PortalType = 'ckan' | 'socrata' | 'custom' | 'none';
+export type PortalType = 'ckan' | 'socrata' | 'arcgis' | 'custom' | 'none';
 
 export interface MunicipalPortal {
   name: string;
@@ -150,6 +150,83 @@ export const MUNICIPAL_PORTALS: Record<string, MunicipalPortal> = {
     baseUrl: 'https://data.london.ca',
     portalType: 'socrata',
     datasets: ['budget', 'transit'],
+  },
+  'mississauga': {
+    name: 'Mississauga',
+    province: 'ON',
+    baseUrl: 'https://data.mississauga.ca',
+    portalType: 'ckan',
+    datasets: ['budget', 'permits', 'development'],
+  },
+  'brampton': {
+    name: 'Brampton',
+    province: 'ON',
+    baseUrl: 'https://geohub.brampton.ca',
+    portalType: 'ckan',
+    datasets: ['budget', 'permits'],
+  },
+  'surrey': {
+    name: 'Surrey',
+    province: 'BC',
+    baseUrl: 'https://data.surrey.ca',
+    portalType: 'arcgis',
+    datasets: ['budget', 'development'],
+  },
+  'burnaby': {
+    name: 'Burnaby',
+    province: 'BC',
+    baseUrl: 'https://data.burnaby.ca',
+    portalType: 'arcgis',
+    datasets: ['budget', 'development'],
+  },
+  'richmond': {
+    name: 'Richmond',
+    province: 'BC',
+    baseUrl: 'https://opendata.richmond.ca',
+    portalType: 'ckan',
+    datasets: ['budget'],
+  },
+  'markham': {
+    name: 'Markham',
+    province: 'ON',
+    baseUrl: 'https://www.markham.ca/about-city-markham/open-data-markham',
+    portalType: 'custom',
+    datasets: ['budget', 'development'],
+  },
+  'vaughan': {
+    name: 'Vaughan',
+    province: 'ON',
+    baseUrl: 'https://www.vaughan.ca/city-hall/data-statistics/open-data',
+    portalType: 'custom',
+    datasets: ['budget', 'development'],
+  },
+  'oakville': {
+    name: 'Oakville',
+    province: 'ON',
+    baseUrl: 'https://www.oakville.ca/business-development/oakville-data-hub/',
+    portalType: 'custom',
+    datasets: ['budget'],
+  },
+  'laval': {
+    name: 'Laval',
+    province: 'QC',
+    baseUrl: 'https://www.laval.ca/ville-donnees-ouvertes',
+    portalType: 'custom',
+    datasets: ['budget', 'development'],
+  },
+  'red-deer': {
+    name: 'Red Deer',
+    province: 'AB',
+    baseUrl: 'https://www.reddeer.ca/data',
+    portalType: 'custom',
+    datasets: ['budget', 'development'],
+  },
+  'lethbridge': {
+    name: 'Lethbridge',
+    province: 'AB',
+    baseUrl: 'https://www.lethbridge.ca/data',
+    portalType: 'custom',
+    datasets: ['budget'],
   },
 };
 

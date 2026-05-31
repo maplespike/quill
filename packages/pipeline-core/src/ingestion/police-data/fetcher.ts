@@ -1,45 +1,32 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
-
 import { httpGet } from '../../utils/http.js';
 import { POLICE_AGENCIES, POLICE_TIMEOUT_MS, POLICE_USER_AGENT } from './constants.js';
 
 export interface PoliceFetchResult {
   city: string;
+  agency: string;
   province: string;
-  rawRecords: Record<string, unknown>[];
+  rawData: unknown;
   error?: string;
 }
 
 export async function fetchPoliceData(city: string): Promise<PoliceFetchResult> {
-  const agency = POLICE_AGENCIES.find(a => a.city === city);
-  if (!agency) {
-    return { city, province: '', rawRecords: [], error: `Unknown city: ${city}` };
-  }
+  const agency = POLICE_AGENCIES.find(a => a.city.toLowerCase() === city.toLowerCase());
+  if (!agency) return { city, agency: city, province: '', rawData: null, error: `Unknown city: ${city}` };
 
   try {
-    const resp = await httpGet(agency.url, {
-      timeoutMs: POLICE_TIMEOUT_MS,
-      headers: { 'User-Agent': POLICE_USER_AGENT },
-    });
+    let url: string;
+    if (agency.portalType === 'ckan') url = `${agency.url}/api/3/action/package_show?id=${agency.datasetId}`;
+    else if (agency.portalType === 'socrata') url = `${agency.url}/resource/${agency.datasetId}.json`;
+    else url = `${agency.url}/api/${agency.datasetId}`;
 
-    if (resp.statusCode >= 400) {
-      return { city, province: agency.province, rawRecords: [], error: `HTTP ${resp.statusCode}` };
-    }
-
-    const body = await resp.json<Record<string, unknown>>();
-    const records = ((body as any)?.result?.records ?? (body as any)?.records ?? []) as Record<string, unknown>[];
-
-    return { city, province: agency.province, rawRecords: records };
+    const resp = await httpGet(url, { timeoutMs: POLICE_TIMEOUT_MS, headers: { 'User-Agent': POLICE_USER_AGENT } });
+    if (resp.statusCode >= 400) return { city: agency.city, agency: agency.name, province: agency.province, rawData: null, error: `HTTP ${resp.statusCode}` };
+    return { city: agency.city, agency: agency.name, province: agency.province, rawData: JSON.parse(resp.body) };
   } catch (err) {
-    return { city, province: agency.province, rawRecords: [], error: String(err) };
+    return { city: agency.city, agency: agency.name, province: agency.province, rawData: null, error: String(err) };
   }
 }
 
-export async function fetchAllPoliceAgencies(): Promise<PoliceFetchResult[]> {
-  const results: PoliceFetchResult[] = [];
-  for (const agency of POLICE_AGENCIES) {
-    const result = await fetchPoliceData(agency.city);
-    results.push(result);
-  }
-  return results;
+export async function fetchAllPolice(): Promise<PoliceFetchResult[]> {
+  return Promise.all(POLICE_AGENCIES.map(a => fetchPoliceData(a.city)));
 }

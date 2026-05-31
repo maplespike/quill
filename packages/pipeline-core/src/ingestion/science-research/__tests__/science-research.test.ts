@@ -1,0 +1,11 @@
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+
+describe('science-research Module', () => {
+  it('has required exports', async () => {
+    const mod = await import('../index.js');
+    assert.ok(mod, 'Module loaded');
+    assert.equal(typeof mod.ingestAllScience, 'function', 'Should export ingestAllScience');
+    assert.equal(typeof mod.searchScience, 'function', 'Should export searchScience');
+  });
+});

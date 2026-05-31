@@ -58,7 +58,8 @@ import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
-import { billingPlansHandler, billingCheckoutHandler } from './routes/billing.js';
+import { billingPlansHandler, billingOrderHandler, billingVerifyHandler } from './routes/billing.js';
+import { listKeysHandler as apiKeysListHandler, createKeyHandler as apiKeysCreateHandler, revokeKeyHandler as apiKeysRevokeHandler } from './routes/api-keys.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
 import {
   oauthLoginHandler,
@@ -102,7 +103,13 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },
-  { pattern: /^\/v1\/billing\/checkout\/?$/, method: 'POST', params: [], handler: billingCheckoutHandler },
+  { pattern: /^\/v1\/billing\/order\/?$/, method: 'POST', params: [], handler: billingOrderHandler },
+  { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
+
+  // API Key Management
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: apiKeysListHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: apiKeysCreateHandler },
+  { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: apiKeysRevokeHandler },
   // AI
   { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },

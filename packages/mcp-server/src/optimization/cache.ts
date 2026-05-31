@@ -39,6 +39,8 @@ export function cacheSet(key: string, data: unknown, ttlMs = DEFAULT_TTL_MS): vo
 
 export function cacheClear(): void {
   store.clear();
+  hits = 0;
+  misses = 0;
 }
 
 export function cacheStats(): CacheStats {

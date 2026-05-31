@@ -1,0 +1,21 @@
+import { UTILITY_PROVIDERS } from './constants.js';
+
+export function searchUtilities(params: { province?: string; type?: string; query?: string }) {
+  let results = UTILITY_PROVIDERS;
+  if (params.province) results = results.filter(u => u.province === params.province);
+  if (params.type) results = results.filter(u => u.type === params.type);
+  if (params.query) {
+    const q = params.query.toLowerCase();
+    results = results.filter(u => u.name.toLowerCase().includes(q) || u.serviceArea.toLowerCase().includes(q));
+  }
+  return results.map((u, i) => ({
+    id: `util:${i}`,
+    name: u.name,
+    province: u.province,
+    type: u.type,
+    serviceArea: u.serviceArea,
+    url: u.url,
+  }));
+}
+
+export { UTILITY_PROVIDERS } from './constants.js';
