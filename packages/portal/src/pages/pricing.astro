@@ -22,7 +22,7 @@ const tiers = [
     badgeVariant: "outline" as const,
     features: [
       "1,000 API calls per month",
-      "Access to all 88 data modules",
+      "Access to all 126 data modules",
       "7-day historical data window",
       "REST API access (rate-limited)",
       "Community Discord support",
@@ -34,7 +34,7 @@ const tiers = [
   },
   {
     name: "Pro",
-    price: "$99",
+    price: "$49",
     period: "/mo",
     description: "For journalists, analysts, and teams who need real-time government intelligence.",
     badge: "Popular",
@@ -53,9 +53,9 @@ const tiers = [
     highlighted: true,
   },
   {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
+    name: "Business",
+    price: "$199",
+    period: "/mo",
     description: "For government departments, media organizations, and large-scale compliance teams.",
     badge: "Enterprise",
     badgeVariant: "secondary" as const,
@@ -86,7 +86,7 @@ const allFeatures = [
   "SHA-256 citations",
 ];
 const featureValues: Record<string, (string | boolean)[]> = {
-  "Data modules": ["88 modules", "88 modules", "88 + custom"],
+  "Data modules": ["126 modules", "126 modules", "126 + custom"],
   "API calls": ["1,000/mo", "100,000/mo", "Unlimited"],
   "Historical access": ["7 days", "Full", "Full"],
   "Real-time signals": [false, true, true],
@@ -285,7 +285,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
         <div>
           <h3 class="mb-2 font-semibold">What data modules are included?</h3>
           <p class="text-sm text-muted-foreground">
-            All 88 modules across federal, provincial, municipal, corporate, legal, and regulatory
+            All 126 modules across federal, provincial, municipal, corporate, legal, and regulatory
             sources are available on every plan.
           </p>
         </div>
