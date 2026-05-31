@@ -3,7 +3,13 @@
  *
  * OpenAI-compatible HTTP client for the cluster's AI Inference Gateway
  * at http://nexus:30880/. Supports chat completions and embeddings.
+ *
+ * PII Sanitization: ALL messages sent to the AI and ALL responses received
+ * are scanned for Canadian PII (SIN, passport, health card, etc.) and
+ * redacted before transmission/storage.
  */
+
+import { scanPII } from '@maplespike/pipeline-core';
 
 /* ------------------------------------------------------------------ */
 /*  Configuration                                                      */
@@ -72,7 +78,10 @@ export async function chatCompletion(
   const endpoint = config.endpoint.replace(/\/$/, '');
   const body: Record<string, unknown> = {
     model,
-    messages,
+    messages: messages.map(m => ({
+      role: m.role,
+      content: scanPII(m.content).redacted,
+    })),
     temperature,
     max_tokens: maxTokens,
   };
@@ -109,7 +118,7 @@ export async function chatCompletion(
       }
 
       return {
-        content: choice.message.content,
+        content: scanPII(choice.message.content).redacted,
         model: data.model || model,
         usage: {
           promptTokens: data.usage?.prompt_tokens ?? 0,
