@@ -591,11 +591,11 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'corporate-filings',
-    description: 'Corporate filings — SEDAR+, public company regulatory filings and disclosures',
+    description: 'Corporate filings — Federal Corporations Registry (CBCA) — 400K+ active and inactive corporations from open.canada.ca',
     category: 'corporate',
     modulePath: './corporate-filings/index.js',
     ingestFunctions: ['ingestAllFilings', 'fetchAllFilings'],
-    sources: [{ name: 'SEDAR+ regulatory filings', format: 'HTML' }],
+    sources: [{ name: 'Federal Corporations Registry CKAN', format: 'CSV' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
   },
