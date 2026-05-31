@@ -1,4 +1,4 @@
-export { ingestOilProduction, ingestGasProduction, ingestElectricity, ingestMining, ingestAllEnergy } from './fetcher.js';
+export { ingestOilProduction, ingestGasProduction, ingestElectricity, ingestMining, ingestPipelineData, ingestRenewableEnergy, ingestAllEnergy } from './fetcher.js';
 export type { EnergyRecord, EnergyIngestionResult } from './types.js';
 
 export {

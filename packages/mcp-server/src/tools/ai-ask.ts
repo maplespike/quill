@@ -1,6 +1,7 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { chatCompletion } from '../ai/gateway.js';
 import { searchGovData } from './api-client.js';
+import { scanPII } from '@maplespike/pipeline-core';
 
 /**
  * AI Ask Tool
@@ -81,7 +82,7 @@ export const handler: ToolHandler = async (args) => {
     const searchResults = (searchResult as any)?.results ?? [];
     const totalFound = (searchResult as any)?.total ?? 0;
 
-    // Step 2: Build context from pipeline results
+    // Step 2: Build context from pipeline results (PII-redacted before AI sees it)
     const contextParts: string[] = [];
     const citations: Array<{ source: string; title: string; url?: string }> = [];
 
@@ -89,7 +90,7 @@ export const handler: ToolHandler = async (args) => {
       const source = record._source || record.source || 'unknown';
       const title = record.title || record.name || record.caseName || 'Record';
       const url = record.url || record.source || '';
-      const summary = record.summary || record.description || '';
+      const summary = scanPII(record.summary || record.description || '').redacted;
 
       contextParts.push(`[Source: ${source}] ${title}${summary ? ': ' + summary.slice(0, 500) : ''}`);
       citations.push({ source, title, url });
@@ -133,7 +134,7 @@ Rules:
           tool: 'ai_ask',
           query,
           sourceFilter: sourceFilter || undefined,
-          answer: (aiResult as any)?.content ?? '',
+          answer: scanPII((aiResult as any)?.content ?? '').redacted,
           citations,
           totalPipelineRecordsFound: totalFound,
           pipelineRecordsUsed: searchResults.length,
@@ -160,7 +161,7 @@ Rules:
           title: r.title || r.name || 'Record',
           source: (r._source || r.source || 'unknown') as string,
           url: (r.url || '') as string,
-          summary: ((r.summary || r.description || '') as string).slice(0, 500),
+          summary: scanPII(((r.summary || r.description || '') as string).slice(0, 500)).redacted,
         })),
       },
     };

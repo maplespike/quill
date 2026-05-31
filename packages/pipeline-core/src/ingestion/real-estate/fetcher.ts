@@ -35,7 +35,22 @@ export async function ingestHousePrices() {
   return { source: 'house-prices', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
 }
 
+export async function ingestLandRegistry() {
+  const start = Date.now();
+  const records = (await searchCkan('property registry land titles assessment canada', 10)).map((r: any) => ({ ...r, sector: 'land-registry', jurisdiction: 'provincial' }));
+  return { source: 'land-registry', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
+}
+
+export async function ingestRentalRegistries() {
+  const start = Date.now();
+  const records = (await searchCkan('rental registry licensing property standards canada', 10)).map((r: any) => ({ ...r, sector: 'rental-registries', jurisdiction: 'municipal' }));
+  return { source: 'rental-registries', recordsFound: records.length, records, errors: [], durationMs: Date.now() - start };
+}
+
 export async function ingestAllRealEstate() {
-  const [rental, starts, prices] = await Promise.all([ingestRentalMarket(), ingestHousingStarts(), ingestHousePrices()]);
-  return { 'rental-market': rental, 'housing-starts': starts, 'house-prices': prices };
+  const [rental, starts, prices, land, rentalReg] = await Promise.all([
+    ingestRentalMarket(), ingestHousingStarts(), ingestHousePrices(),
+    ingestLandRegistry(), ingestRentalRegistries(),
+  ]);
+  return { 'rental-market': rental, 'housing-starts': starts, 'house-prices': prices, 'land-registry': land, 'rental-registries': rentalReg };
 }

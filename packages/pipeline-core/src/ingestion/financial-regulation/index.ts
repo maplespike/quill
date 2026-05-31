@@ -1,5 +1,5 @@
 import { ingestFCAC } from './fetcher.js';
-export { ingestOSFI, ingestCDIC, ingestFCAC, ingestAllFinancialRegulation } from './fetcher.js';
+export { ingestOSFI, ingestCDIC, ingestFCAC, ingestCSA, ingestOBSI, ingestAllFinancialRegulation } from './fetcher.js';
 export {
   parseOSFIRecord,
   parseCDICRecord,
