@@ -10,29 +10,176 @@ export interface Annotation {
   updatedAt: string;
 }
 
-const store = new Map<string, Annotation>();
+interface AnnotationStore {
+  list(entityType: string, entityId: string): Annotation[];
+  create(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation;
+  update(id: string, updates: Partial<Pick<Annotation, 'content' | 'annotationType' | 'metadata'>>): Annotation | null;
+  delete(id: string): boolean;
+  clear(): void;
+}
+
+// ── In-memory store (fallback) ─────────────────────────────────────
+
+class InMemoryAnnotationStore implements AnnotationStore {
+  private store = new Map<string, Annotation>();
+
+  list(entityType: string, entityId: string): Annotation[] {
+    return Array.from(this.store.values()).filter(a => a.entityType === entityType && a.entityId === entityId);
+  }
+
+  create(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation {
+    const id = `ann_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const now = new Date().toISOString();
+    const ann: Annotation = { ...annotation, id, createdAt: now, updatedAt: now };
+    this.store.set(id, ann);
+    return ann;
+  }
+
+  update(id: string, updates: Partial<Pick<Annotation, 'content' | 'annotationType' | 'metadata'>>): Annotation | null {
+    const ann = this.store.get(id);
+    if (!ann) return null;
+    Object.assign(ann, updates, { updatedAt: new Date().toISOString() });
+    return ann;
+  }
+
+  delete(id: string): boolean {
+    return this.store.delete(id);
+  }
+
+  clear(): void { this.store.clear(); }
+}
+
+// ── SQLite store (persistent) ──────────────────────────────────────
+
+class SqliteAnnotationStore implements AnnotationStore {
+  private db: any;
+
+  constructor(dbPath?: string) {
+    const path = dbPath || process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
+    try {
+      // better-sqlite3 is already a project dependency (used in sqlite-storage.ts)
+      const mod = require('better-sqlite3');
+      this.db = new (mod.default || mod)(path);
+      this.db.pragma('journal_mode = WAL');
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS annotations (
+          id TEXT PRIMARY KEY,
+          entity_type TEXT NOT NULL,
+          entity_id TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          annotation_type TEXT NOT NULL CHECK(annotation_type IN ('note','override','flag','context')),
+          content TEXT NOT NULL,
+          metadata TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_annotations_entity ON annotations(entity_type, entity_id);
+        CREATE INDEX IF NOT EXISTS idx_annotations_user ON annotations(user_id);
+      `);
+    } catch (err) {
+      console.warn(`[AnnotationService] SQLite unavailable, falling back to in-memory: ${(err as Error).message}`);
+      throw err;
+    }
+  }
+
+  list(entityType: string, entityId: string): Annotation[] {
+    try {
+      const rows = this.db.prepare(
+        'SELECT * FROM annotations WHERE entity_type = ? AND entity_id = ? ORDER BY created_at DESC',
+      ).all(entityType, entityId);
+      return rows.map(this.rowToAnnotation);
+    } catch { return []; }
+  }
+
+  create(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation {
+    const id = `ann_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const now = new Date().toISOString();
+    const ann: Annotation = { ...annotation, id, createdAt: now, updatedAt: now };
+    try {
+      this.db.prepare(`
+        INSERT INTO annotations (id, entity_type, entity_id, user_id, annotation_type, content, metadata, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, ann.entityType, ann.entityId, ann.userId, ann.annotationType, ann.content,
+        ann.metadata ? JSON.stringify(ann.metadata) : null, now, now);
+    } catch (err) {
+      console.warn(`[AnnotationService] Failed to create annotation: ${(err as Error).message}`);
+    }
+    return ann;
+  }
+
+  update(id: string, updates: Partial<Pick<Annotation, 'content' | 'annotationType' | 'metadata'>>): Annotation | null {
+    try {
+      const existing = this.db.prepare('SELECT * FROM annotations WHERE id = ?').get(id);
+      if (!existing) return null;
+      const now = new Date().toISOString();
+      const content = updates.content ?? existing.content;
+      const annotationType = updates.annotationType ?? existing.annotation_type;
+      const metadata = updates.metadata !== undefined
+        ? (updates.metadata ? JSON.stringify(updates.metadata) : null)
+        : existing.metadata;
+      this.db.prepare(
+        'UPDATE annotations SET content = ?, annotation_type = ?, metadata = ?, updated_at = ? WHERE id = ?',
+      ).run(content, annotationType, metadata, now, id);
+      return this.rowToAnnotation({ ...existing, content, annotation_type: annotationType, metadata, updated_at: now });
+    } catch { return null; }
+  }
+
+  delete(id: string): boolean {
+    try {
+      const result = this.db.prepare('DELETE FROM annotations WHERE id = ?').run(id);
+      return result.changes > 0;
+    } catch { return false; }
+  }
+
+  clear(): void {
+    try { this.db.exec('DELETE FROM annotations'); } catch {}
+  }
+
+  private rowToAnnotation(row: any): Annotation {
+    return {
+      id: row.id,
+      entityType: row.entity_type,
+      entityId: row.entity_id,
+      userId: row.user_id,
+      annotationType: row.annotation_type,
+      content: row.content,
+      metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+}
+
+// ── Active store ───────────────────────────────────────────────────
+
+let activeStore: AnnotationStore = new InMemoryAnnotationStore();
+
+export function initAnnotationStore(dbPath?: string): void {
+  if (dbPath || process.env.MAPLESPIKE_DB_PATH) {
+    try {
+      activeStore = new SqliteAnnotationStore(dbPath);
+    } catch {
+      activeStore = new InMemoryAnnotationStore();
+    }
+  } else {
+    activeStore = new InMemoryAnnotationStore();
+  }
+}
 
 export function listAnnotations(entityType: string, entityId: string): Annotation[] {
-  return Array.from(store.values()).filter(a => a.entityType === entityType && a.entityId === entityId);
+  return activeStore.list(entityType, entityId);
 }
 
 export function createAnnotation(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation {
-  const id = `ann_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const now = new Date().toISOString();
-  const ann: Annotation = { ...annotation, id, createdAt: now, updatedAt: now };
-  store.set(id, ann);
-  return ann;
+  return activeStore.create(annotation);
 }
 
 export function updateAnnotation(id: string, updates: Partial<Pick<Annotation, 'content' | 'annotationType' | 'metadata'>>): Annotation | null {
-  const ann = store.get(id);
-  if (!ann) return null;
-  Object.assign(ann, updates, { updatedAt: new Date().toISOString() });
-  return ann;
+  return activeStore.update(id, updates);
 }
 
 export function deleteAnnotation(id: string): boolean {
-  return store.delete(id);
+  return activeStore.delete(id);
 }
 
 export function exportAnnotations(entityType: string, entityId: string, format: 'markdown' | 'html' = 'markdown'): string {
@@ -45,5 +192,5 @@ export function exportAnnotations(entityType: string, entityId: string, format: 
 }
 
 export function resetStore(): void {
-  store.clear();
+  activeStore.clear();
 }
