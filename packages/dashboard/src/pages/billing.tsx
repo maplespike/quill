@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getPlans, getHealth } from '../lib/api'
+import { usePretext } from '../lib/use-pretext'
 
 interface Plan {
   id: string; name: string; priceUsd: number; requests: number; rateLimit: number
@@ -7,6 +8,11 @@ interface Plan {
 
 interface Chain {
   id: string; name: string; token: string; usdc: boolean; kind: string
+}
+
+function PretextStat({ children, font = '24px Inter' }: { children: React.ReactNode; font?: string }) {
+  const { ref } = usePretext({ font })
+  return <span ref={ref as any} className="stat-value" style={{ fontSize: '1.5rem', fontWeight: 700 }}>{children}</span>
 }
 
 export default function Billing() {
@@ -50,14 +56,14 @@ export default function Billing() {
   return (
     <div className="page">
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 24 }}>Billing & Plans</h1>
-      <p style={{ marginBottom: 24, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+      <p style={{ marginBottom: 24, color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
         Current tier: <strong>{currentTier}</strong>
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 32 }}>
-        {plans.filter(p => p.priceUsd > 0).map(plan => (
-          <div key={plan.id} onClick={() => setSelectedPlan(plan.id)} style={{
-            padding: 24, borderRadius: 'var(--radius)', border: `2px solid ${selectedPlan === plan.id ? 'var(--accent)' : 'var(--border)'}`,
+        {plans.filter(p => p.priceUsd > 0).map((plan, i) => (
+          <div key={plan.id} className="card-entrance" onClick={() => setSelectedPlan(plan.id)} style={{
+            padding: 24, borderRadius: 'var(--radius-lg)', border: `2px solid ${selectedPlan === plan.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
             background: selectedPlan === plan.id ? 'var(--bg-elevated)' : 'transparent', cursor: 'pointer',
           }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{plan.name}</h3>
