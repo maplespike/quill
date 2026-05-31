@@ -649,6 +649,20 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
   },
   {
+    name: 'real-estate',
+    description: 'Real Estate & Housing — CMHC rental markets, housing starts, house prices from open.canada.ca',
+    category: 'financial',
+    modulePath: './real-estate/index.js',
+    ingestFunctions: ['ingestRentalMarket', 'ingestHousingStarts', 'ingestHousePrices', 'ingestAllRealEstate'],
+    sources: [
+      { name: 'CMHC Rental Market Survey', format: 'CKAN' },
+      { name: 'CMHC Housing Starts', format: 'CKAN' },
+      { name: 'New Housing Price Index', format: 'CKAN' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+  },
+  {
     name: 'financial-regulation',
     description: 'Financial Regulation — OSFI, CDIC, FCAC, and securities regulator data from open.canada.ca',
     category: 'financial',
