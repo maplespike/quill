@@ -25,7 +25,8 @@
       "@maplespike/pipeline-core/political-donations": ["./packages/pipeline-core/src/ingestion/political-donations"],
       "@maplespike/pipeline-core/parliamentary-voting": ["./packages/pipeline-core/src/ingestion/parliamentary-voting"],
       "@maplespike/pipeline-core/public-accounts": ["./packages/pipeline-core/src/ingestion/public-accounts"],
-      "@maplespike/pipeline-core/fire-emergency": ["./packages/pipeline-core/src/ingestion/fire-emergency"]
+      "@maplespike/pipeline-core/fire-emergency": ["./packages/pipeline-core/src/ingestion/fire-emergency"],
+      "@maplespike/pipeline-core/municipal": ["./packages/pipeline-core/src/ingestion/municipal"]
     }
   },
   "files": [],
