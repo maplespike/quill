@@ -345,6 +345,7 @@ const PROVINCIAL_CKAN: Record<string, string> = {
   bc: 'https://catalogue.data.gov.bc.ca/api/3/action/package_search?q=',
   yt: 'https://open.yukon.ca/api/3/action/package_search?q=',
   on: 'https://data.ontario.ca/api/3/action/package_search?q=',
+  ab: 'https://open.alberta.ca/api/3/action/package_search?q=',
   nl: 'https://opendata.gov.nl.ca/api/3/action/package_search?q=',
   nt: 'https://opendata.gov.nt.ca/api/3/action/package_search?q=',
   ns: 'https://data.novascotia.ca/api/views?q=',
