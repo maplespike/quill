@@ -3,7 +3,9 @@ export type RealtimeSource =
   | 'cbsa-border-wait-times'
   | 'alert-ready'
   | 'parole-board-decisions'
-  | 'eccc-weather-observations';
+  | 'eccc-weather-observations'
+  | 'eccc-aqhi'
+  | 'water-survey-flood';
 
 export interface RealtimeRecord {
   source: RealtimeSource;

@@ -75,6 +75,9 @@ export const handler: ToolHandler = async (args) => {
       limit,
       results: filteredResults,
       totalCount: court ? filteredResults.length : total,
+      source: 'CanLII — Canadian Legal Information Institute (https://www.canlii.org)',
+      license: 'CanLII Terms of Use (https://www.canlii.org/en/info/terms.html)',
+      attribution: 'Reproduced with permission from CanLII. Copyright © CanLII.',
     },
   };
 };

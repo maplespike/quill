@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { ingestPoliceCity } from '@maplespike/pipeline-core/police-data';
+import { ingestPoliceCity, searchPolice, POLICE_AGENCIES } from '@maplespike/pipeline-core/police-data';
 
 export const getPoliceByCityDefinition: ToolDefinition = {
   name: 'get_police_by_city',
@@ -48,6 +48,19 @@ export const getPoliceTrendsDefinition: ToolDefinition = {
       },
     },
     required: ['city'],
+  },
+};
+
+export const searchPoliceAgenciesDefinition: ToolDefinition = {
+  name: 'search_police_agencies',
+  description: 'Search Canadian municipal police agencies by city, province, or name. Covers 16 cities: Toronto, Ottawa, Peel, Durham, York, Hamilton, London, Edmonton, Calgary, Vancouver, Surrey, Montreal, Quebec City, Winnipeg, Halifax, Sherbrooke.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      city: { type: 'string', description: 'City name' },
+      province: { type: 'string', description: 'Province code (ON, AB, BC, QC, MB, NS)' },
+      query: { type: 'string', description: 'Search agency name or city' },
+    },
   },
 };
 
@@ -126,5 +139,24 @@ export const getPoliceTrendsHandler: ToolHandler = async (args) => {
       },
       isError: true,
     };
+  }
+};
+
+export const searchPoliceAgenciesHandler: ToolHandler = async (args) => {
+  const city = args.city as string | undefined;
+  const province = args.province as string | undefined;
+  const query = args.query as string | undefined;
+
+  try {
+    const results = searchPolice({ city, province, query });
+    return {
+      content: {
+        tool: 'search_police_agencies',
+        total: results.length,
+        agencies: results.map(r => ({ agency: r.agency, city: r.city, province: r.province })),
+      },
+    };
+  } catch (error) {
+    return { content: { tool: 'search_police_agencies', error: (error as Error).message }, isError: true };
   }
 };

@@ -1,126 +1,137 @@
 // SPDX-License-Identifier: MIT
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { ingestGTFSAgency } from '@maplespike/pipeline-core/gtfs-transit';
+import { ingestGTFSAgency, GTFS_AGENCIES, GTFS_FEED_URLS } from '@maplespike/pipeline-core/gtfs-transit';
+
+export const listGTFSAgenciesDefinition: ToolDefinition = {
+  name: 'list_gtfs_agencies',
+  description: 'List all 31 Canadian transit agencies with GTFS data. Covers all provinces with routes, stops, and schedule data.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      province: {
+        type: 'string',
+        description: 'Filter by province code (BC, AB, SK, MB, ON, QC, NS, NB, NL)',
+      },
+      type: {
+        type: 'string',
+        enum: ['urban', 'regional', 'ferry', 'rail'],
+        description: 'Filter by transit type',
+      },
+    },
+  },
+};
 
 export const getGTFSByCityDefinition: ToolDefinition = {
   name: 'get_gtf_by_city',
-  description: 'Fetch GTFS transit data for a specific city/agency (STM, Exo, BC Transit, etc.)',
+  description: 'Fetch GTFS transit data for a specific city/agency (STM, Exo, BC Transit, TransLink, etc.)',
   inputSchema: {
     type: 'object',
     properties: {
       city: {
         type: 'string',
-        description: 'Transit agency name (e.g., STM, Exo, BC Transit)',
+        description: 'Transit agency ID or name (e.g., translink, calgary, ttc, stm, go-transit)',
       },
     },
     required: ['city'],
   },
 };
 
-export const getGTFSSchedulesDefinition: ToolDefinition = {
-  name: 'get_gtfs_schedules',
-  description: 'Fetch GTFS schedules for a specific city and optional route',
+export const searchGTFSRoutesDefinition: ToolDefinition = {
+  name: 'search_gtfs_routes',
+  description: 'Search GTFS routes across Canadian transit agencies. Returns route names, types, and colors.',
   inputSchema: {
     type: 'object',
     properties: {
-      city: { type: 'string' },
-      routeId: { type: 'string' },
-    },
-    required: ['city'],
-  },
-};
-
-export const getGTFSTrendsDefinition: ToolDefinition = {
-  name: 'get_gtfs_trends',
-  description: 'Get GTFS trends over time (week, month, quarter, year)',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      city: { type: 'string' },
-      period: {
+      agencyId: {
         type: 'string',
-        enum: ['week', 'month', 'quarter', 'year'],
+        description: 'Agency ID (e.g., ttc, translink, stm)',
+      },
+      query: {
+        type: 'string',
+        description: 'Search route name or number',
       },
     },
-    required: ['city', 'period'],
+    required: ['agencyId'],
   },
+};
+
+export const searchGTFSStopsDefinition: ToolDefinition = {
+  name: 'search_gtfs_stops',
+  description: 'Search GTFS stops across Canadian transit agencies. Returns stop locations and names.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      agencyId: {
+        type: 'string',
+        description: 'Agency ID (e.g., ttc, translink, stm)',
+      },
+      query: {
+        type: 'string',
+        description: 'Search stop name',
+      },
+    },
+    required: ['agencyId'],
+  },
+};
+
+export const listGTFSAgenciesHandler: ToolHandler = async (args) => {
+  const province = args.province as string | undefined;
+  const type = args.type as string | undefined;
+
+  let agencies = GTFS_AGENCIES;
+  if (province) agencies = agencies.filter(a => a.province === province);
+  if (type) agencies = agencies.filter(a => a.type === type);
+
+  return {
+    content: {
+      tool: 'list_gtfs_agencies',
+      total: agencies.length,
+      agencies: agencies.map(a => ({
+        id: a.id,
+        name: a.name,
+        province: a.province,
+        type: a.type,
+        hasFeedUrl: !!GTFS_FEED_URLS[a.id],
+      })),
+    },
+  };
 };
 
 export const getGTFSByCityHandler: ToolHandler = async (args) => {
   const city = args.city as string;
-
   try {
     const result = await ingestGTFSAgency(city);
-    return {
-      content: {
-        tool: 'get_gtf_by_city',
-        city,
-        data: result,
-      },
-    };
+    return { content: { tool: 'get_gtf_by_city', city, data: result } };
   } catch (error) {
-    return {
-      content: {
-        tool: 'get_gtf_by_city',
-        city,
-        error: (error as Error).message,
-      },
-      isError: true,
-    };
+    return { content: { tool: 'get_gtf_by_city', city, error: (error as Error).message }, isError: true };
   }
 };
 
-export const getGTFSSchedulesHandler: ToolHandler = async (args) => {
-  const city = args.city as string;
-  const routeId = args.routeId as string | undefined;
-
+export const searchGTFSRoutesHandler: ToolHandler = async (args) => {
+  const agencyId = args.agencyId as string;
+  const query = (args.query as string || '').toLowerCase();
   try {
-    const result = await ingestGTFSAgency(city);
-    return {
-      content: {
-        tool: 'get_gtfs_schedules',
-        city,
-        routeId,
-        data: result,
-      },
-    };
+    const result = await ingestGTFSAgency(agencyId);
+    const routes = query
+      ? result.routes.filter(r => r.routeLongName.toLowerCase().includes(query) || r.routeShortName.toLowerCase().includes(query))
+      : result.routes;
+    return { content: { tool: 'search_gtfs_routes', agencyId, query: query || undefined, total: routes.length, routes: routes.slice(0, 20) } };
   } catch (error) {
-    return {
-      content: {
-        tool: 'get_gtfs_schedules',
-        city,
-        routeId,
-        error: (error as Error).message,
-      },
-      isError: true,
-    };
+    return { content: { tool: 'search_gtfs_routes', agencyId, error: (error as Error).message }, isError: true };
   }
 };
 
-export const getGTFSTrendsHandler: ToolHandler = async (args) => {
-  const city = args.city as string;
-  const period = args.period as string;
-
+export const searchGTFSStopsHandler: ToolHandler = async (args) => {
+  const agencyId = args.agencyId as string;
+  const query = (args.query as string || '').toLowerCase();
   try {
-    const result = await ingestGTFSAgency(city);
-    return {
-      content: {
-        tool: 'get_gtfs_trends',
-        city,
-        period,
-        data: result,
-      },
-    };
+    const result = await ingestGTFSAgency(agencyId);
+    const stops = query
+      ? result.stops.filter(s => s.stopName.toLowerCase().includes(query))
+      : result.stops;
+    return { content: { tool: 'search_gtfs_stops', agencyId, query: query || undefined, total: stops.length, stops: stops.slice(0, 20) } };
   } catch (error) {
-    return {
-      content: {
-        tool: 'get_gtfs_trends',
-        city,
-        period,
-        error: (error as Error).message,
-      },
-      isError: true,
-    };
+    return { content: { tool: 'search_gtfs_stops', agencyId, error: (error as Error).message }, isError: true };
   }
 };

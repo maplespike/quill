@@ -1,42 +1,65 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { buildAttribution, withAttribution } from '../../shared/attribution.js';
-import type { GTFSRoute, GTFSStop, GTFSTrip, Agency } from './types.js';
-import { GTFS_AGENCIES } from './types.js';
+import { GTFS_AGENCIES, GTFS_TIMEOUT_MS, GTFS_USER_AGENT, GTFS_FEED_URLS } from './constants.js';
+import { fetchGtfsFeed } from './fetcher.js';
+import { parseGtfsZip } from './parser.js';
+import type { GTFSRoute, GTFSStop, GTFSTrip, GTFSCalendar, GtfsIngestionResult } from './types.js';
 
-export async function ingestGTFSAgency(agencyId: string) {
+export async function ingestGTFSAgency(agencyId: string): Promise<GtfsIngestionResult> {
+  const start = Date.now();
   const agency = GTFS_AGENCIES.find(a => a.id === agencyId);
+
   if (!agency) {
-    throw new Error(`Unknown GTFS agency: ${agencyId}`);
+    return {
+      agencyId, agencyName: agencyId, province: '',
+      routes: [], stops: [], trips: [], calendars: [],
+      errors: [`Unknown agency: ${agencyId}`], durationMs: Date.now() - start,
+    };
   }
 
-  const attribution = buildAttribution(agency.name, {
-    sourceUrl: agency.url,
-    license: 'Open Data License',
-    attributionText: `Source: ${agency.name} Open Data`,
-  });
+  const feedUrl = GTFS_FEED_URLS[agencyId];
+  if (!feedUrl) {
+    return {
+      agencyId, agencyName: agency.name, province: agency.province,
+      routes: [], stops: [], trips: [], calendars: [],
+      errors: [`No feed URL configured for: ${agencyId}`], durationMs: Date.now() - start,
+    };
+  }
 
-  const data = {
-    routes: [] as GTFSRoute[],
-    stops: [] as GTFSStop[],
-    trips: [] as GTFSTrip[],
-    agency: agency as Agency,
-  };
+  try {
+    const result = await fetchGtfsFeed(agencyId);
+    if (result.error || !result.body) {
+      return {
+        agencyId, agencyName: agency.name, province: agency.province,
+        routes: [], stops: [], trips: [], calendars: [],
+        errors: [result.error || 'Empty response'], durationMs: Date.now() - start,
+      };
+    }
 
-  return withAttribution(data, attribution);
+    const parsed = parseGtfsZip(result.body, agency.name);
+    return {
+      agencyId, agencyName: agency.name, province: agency.province,
+      ...parsed, errors: parsed.errors, durationMs: Date.now() - start,
+    };
+  } catch (err) {
+    return {
+      agencyId, agencyName: agency.name, province: agency.province,
+      routes: [], stops: [], trips: [], calendars: [],
+      errors: [String(err)], durationMs: Date.now() - start,
+    };
+  }
 }
 
-export async function ingestAllAgencies() {
-  const results: Array<{ agencyId: string; success: boolean; error?: string }> = [];
-
+export async function ingestAllAgencies(): Promise<GtfsIngestionResult[]> {
+  const results: GtfsIngestionResult[] = [];
   for (const agency of GTFS_AGENCIES) {
-    try {
-      await ingestGTFSAgency(agency.id);
-      results.push({ agencyId: agency.id, success: true });
-    } catch (error) {
-      results.push({ agencyId: agency.id, success: false, error: String(error) });
-    }
+    const result = await ingestGTFSAgency(agency.id);
+    results.push(result);
   }
-
   return results;
 }
+
+export { GTFS_AGENCIES, GTFS_FEED_URLS, GTFS_TIMEOUT_MS, GTFS_USER_AGENT } from './constants.js';
+export { fetchGtfsFeed } from './fetcher.js';
+export { parseGtfsRouteCsv, parseGtfsStopCsv, parseGtfsZip } from './parser.js';
+export type { GTFSRoute, GTFSStop, GTFSTrip, GTFSCalendar, GtfsIngestionResult } from './types.js';
