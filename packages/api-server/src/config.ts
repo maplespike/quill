@@ -5,6 +5,14 @@
  */
 
 import type { Env } from './types.js';
+import pino from 'pino';
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 /** Curated AI model with priority for routing */
 export interface CuratedModel {
@@ -49,7 +57,7 @@ export function validateConfig(env: Record<string, string | undefined>): void {
     if (envName === 'production') {
       throw new Error(msg);
     }
-    console.warn('[Config] Warning: ' + msg);
+    log.warn(`Warning: ${msg}`);
   }
 }
 

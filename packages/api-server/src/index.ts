@@ -39,6 +39,7 @@ import { getMockData, MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES, MOCK_DATA_MAP } fr
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
 import { parseAgentAction, mockHandler } from './routes/mock.js';
+import pino from 'pino';
 
 interface Route {
   pattern: RegExp;
@@ -170,6 +171,13 @@ function generateRequestId(): string {
   crypto.getRandomValues(bytes);
   return 'maplespike-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
+
+const log = pino({
+  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
+    : undefined,
+});
 
 // Signals route handler — lazy-loaded via eval to avoid tsc following cross-package imports
 ROUTES.push({
@@ -685,9 +693,9 @@ export async function handleRequest(
         : 500;
 
     // Log full error details
-    console.error(`[API] ${errorCode} (${requestId}):`, message);
+    log.error({ requestId }, `${errorCode}: ${message}`);
     if (err instanceof Error && (err as any).stack) {
-      console.error(`[API] Stack:`, (err as any).stack?.split('\n').slice(0, 6).join('\n'));
+      log.error({ requestId }, `Stack: ${(err as any).stack?.split('\n').slice(0, 6).join('\n')}`);
     }
 
     const bc: BuildContext = {

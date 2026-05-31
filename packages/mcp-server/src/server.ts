@@ -45,6 +45,9 @@ const log = pino({
 // ─── Output Sanitization ─────────────────────────────────────────────────
 // OWASP LLM07: Insecure Output Handling — strip dangerous content before
 // returning tool results to MCP clients (AI agents).
+// Two layers: XSS sanitization (inline) + PII redaction (pipeline-core).
+
+import { sanitizeOutput as sanitizePII } from '@maplespike/pipeline-core';
 
 function sanitizeString(val: string): string {
   let s = val;
@@ -90,6 +93,9 @@ function sanitizeOutput(response: ToolResponse): ToolResponse {
   } else {
     sanitized = sanitizeValue(content ?? {}) as Record<string, unknown>;
   }
+
+  // Layer 2: PII redaction — applied after XSS sanitization
+  sanitized = sanitizePII(sanitized) as ToolResponse['content'];
 
   return { ...response, content: sanitized };
 }

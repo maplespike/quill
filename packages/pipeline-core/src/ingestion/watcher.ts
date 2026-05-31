@@ -26,6 +26,155 @@ export interface ChangeEvent {
   recordCount: number;
 }
 
+export interface WatcherStore {
+  getHash(sourceId: string): string | null;
+  setHash(sourceId: string, hash: string): void;
+  logEvent(event: ChangeEvent): void;
+  getEvents(limit: number): ChangeEvent[];
+}
+
+export class SqliteWatcherStore implements WatcherStore {
+  private dbPath: string | null;
+  private db: any = null;
+
+  constructor(dbPath?: string) {
+    this.dbPath = dbPath || null;
+    if (this.dbPath) {
+      this.initializeDb();
+    }
+  }
+
+  private initializeDb() {
+    try {
+      const Database = require('better-sqlite3');
+      this.db = new Database(this.dbPath);
+      this.db.pragma('journal_mode = WAL');
+
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS watcher_hashes (
+          sourceId TEXT PRIMARY KEY,
+          hash TEXT NOT NULL,
+          updatedAt TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS watcher_changelog (
+          id TEXT PRIMARY KEY,
+          sourceId TEXT NOT NULL,
+          sourceName TEXT NOT NULL,
+          detectedAt TEXT NOT NULL,
+          previousHash TEXT NOT NULL,
+          currentHash TEXT NOT NULL,
+          changed INTEGER NOT NULL,
+          summary TEXT NOT NULL,
+          recordCount INTEGER NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_changelog_source ON watcher_changelog(sourceId);
+        CREATE INDEX IF NOT EXISTS idx_changelog_detected ON watcher_changelog(detectedAt);
+      `);
+    } catch (err) {
+      console.warn(`Failed to initialize SQLite watcher store: ${(err as Error).message}`);
+      this.db = null;
+    }
+  }
+
+  getHash(sourceId: string): string | null {
+    if (!this.db) {
+      return null;
+    }
+
+    try {
+      const row = this.db.prepare(
+        'SELECT hash FROM watcher_hashes WHERE sourceId = ?'
+      ).get(sourceId);
+      return row?.hash || null;
+    } catch {
+      return null;
+    }
+  }
+
+  setHash(sourceId: string, hash: string): void {
+    if (!this.db) {
+      return;
+    }
+
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO watcher_hashes (sourceId, hash, updatedAt)
+        VALUES (?, ?, ?)
+        ON CONFLICT(sourceId) DO UPDATE SET
+          hash = excluded.hash,
+          updatedAt = excluded.updatedAt
+      `);
+      stmt.run(sourceId, hash, new Date().toISOString());
+    } catch (err) {
+      console.warn(`Failed to set hash: ${(err as Error).message}`);
+    }
+  }
+
+  logEvent(event: ChangeEvent): void {
+    if (!this.db) {
+      return;
+    }
+
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO watcher_changelog (
+          id, sourceId, sourceName, detectedAt, previousHash,
+          currentHash, changed, summary, recordCount
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      stmt.run(
+        `${event.sourceId}-${event.detectedAt}-${Math.random().toString(36).substr(2, 9)}`,
+        event.sourceId,
+        event.sourceName,
+        event.detectedAt,
+        event.previousHash,
+        event.currentHash,
+        event.changed ? 1 : 0,
+        event.summary,
+        event.recordCount
+      );
+    } catch (err) {
+      console.warn(`Failed to log event: ${(err as Error).message}`);
+    }
+  }
+
+  getEvents(limit: number): ChangeEvent[] {
+    if (!this.db) {
+      return [];
+    }
+
+    try {
+      const rows = this.db.prepare(`
+        SELECT * FROM watcher_changelog
+        ORDER BY detectedAt DESC
+        LIMIT ?
+      `).all(limit);
+
+      return rows.map((row: any) => ({
+        sourceId: row.sourceId,
+        sourceName: row.sourceName,
+        detectedAt: row.detectedAt,
+        previousHash: row.previousHash,
+        currentHash: row.currentHash,
+        changed: row.changed === 1,
+        summary: row.summary,
+        recordCount: row.recordCount,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  close() {
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+    }
+  }
+}
+
 const WATCHED_SOURCES: WatchedSource[] = [
   { id: 'committees', name: 'House Committees', url: 'https://www.ourcommons.ca/Committees/en/Search?search=all', intervalMs: 86400000, type: 'committee' },
   { id: 'gazette', name: 'Canada Gazette Part I', url: 'https://www.gazette.gc.ca/rss/p1-eng.xml', intervalMs: 86400000, type: 'gazette' },
