@@ -19,7 +19,7 @@ function extractSocrataParks(raw: unknown, city: string, province: string): Park
 
 function extractCkanParks(raw: unknown, city: string, province: string): ParkRecord[] {
   const pkg = (raw as any)?.result;
-  if (!pkg?.resources) return [];
+  if (!pkg || !Array.isArray(pkg.resources)) return [];
   return pkg.resources.map((r: any, i: number) => ({
     id: `${city}:park:${i}`,
     city, province,
@@ -31,5 +31,15 @@ function extractCkanParks(raw: unknown, city: string, province: string): ParkRec
 export function parseParkData(raw: unknown, city: string, province: string, portalType: string): ParkRecord[] {
   if (portalType === 'socrata') return extractSocrataParks(raw, city, province);
   if (portalType === 'ckan') return extractCkanParks(raw, city, province);
+  if (portalType === 'arcgis') {
+    const features = (raw as any)?.features;
+    if (!Array.isArray(features)) return [];
+    return features.map((f: any, i: number) => ({
+      id: `${city}:park:${i}`, city, province,
+      parkName: f.properties?.title || `Feature ${i}`,
+      parkType: f.properties?.type || '',
+      address: '', url: f.properties?.url || '',
+    }));
+  }
   return [];
 }

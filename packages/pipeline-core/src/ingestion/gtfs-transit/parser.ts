@@ -143,28 +143,28 @@ export function parseGtfsZip(zipBuf: Buffer, agencyName: string): {
   let trips: GTFSTrip[] = [];
   let calendars: GTFSCalendar[] = [];
 
-  const findEntry = (name: string): string | null => {
+  const findEntry = (name: string, required = false): string | null => {
     const entry = entries.find(e => e.name === name || e.name.endsWith('/' + name));
     if (!entry) {
-      errors.push(`Missing GTFS file: ${name}`);
+      if (required) errors.push(`Missing required GTFS file: ${name}`);
       return null;
     }
     return entry.data.toString('utf-8');
   };
 
-  const routesCsv = findEntry('routes.txt');
+  const routesCsv = findEntry('routes.txt', true);
   if (routesCsv) {
     routes = parseGtfsRouteCsv(routesCsv);
     routes.forEach(r => r.agency = agencyName);
   }
 
-  const stopsCsv = findEntry('stops.txt');
+  const stopsCsv = findEntry('stops.txt', true);
   if (stopsCsv) {
     stops = parseGtfsStopCsv(stopsCsv);
     stops.forEach(s => s.agency = agencyName);
   }
 
-  const tripsCsv = findEntry('trips.txt');
+  const tripsCsv = findEntry('trips.txt', true);
   if (tripsCsv) {
     trips = parseGtfsTripCsv(tripsCsv);
     trips.forEach(t => t.agency = agencyName);

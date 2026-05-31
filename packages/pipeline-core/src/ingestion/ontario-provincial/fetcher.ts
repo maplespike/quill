@@ -21,13 +21,14 @@ export async function fetchOntarioDataset(id: string) {
 }
 
 export async function ingestOntarioProvincial() {
+  const start = Date.now();
   const results: Array<{ topic: string; title: string; id: string; url: string }> = [];
   const errors: string[] = [];
   for (const topic of ['health', 'education', 'environment', 'transportation', 'economy', 'labour', 'housing']) {
     const data = await fetchOntarioPackages(topic, 5);
     results.push(...data.results.map((r: any) => ({ topic, title: r.title, id: r.id, url: `https://data.ontario.ca/dataset/${r.id}` })));
   }
-  return { source: 'ontario-provincial', recordsFound: results.length, records: results, errors, durationMs: Date.now() - 0 };
+  return { source: 'ontario-provincial', recordsFound: results.length, records: results, errors, durationMs: Date.now() - start };
 }
 
 export async function searchOntarioProvincial(query: string) {
