@@ -181,6 +181,108 @@ export type {
   OecdTopic,
 } from './oecd/types.js';
 
+// ── Provincial Pipeline Modules (ON, BC, AB, QC) ──────────────
+
+// Health
+export {
+  ON_HEALTH_DDL, OntarioHealthError,
+  fetchOntarioHealthRecords, fetchAllOntarioHealthRecords,
+  parseOntarioHealthRecord, parseOntarioHealthBatch, normalizeOntarioHealthRecordType,
+} from './on-health/index.js';
+
+export {
+  BC_HEALTH_DDL, BCHealthError,
+  fetchPharmaCareClaims, fetchBCCDCPublications, fetchAllBCHealthData,
+  parsePharmaCareRecord, parsePharmaCareBatch, parseBCCDCRecord, parseBCCDCBatch,
+} from './bc-health/index.js';
+
+export {
+  AB_HEALTH_DDL, ABHealthError,
+  fetchAHSData, fetchAllAHSData, fetchABHealthPublications,
+  parseAHSRecord, parseAHSBatch, parseABHealthPublication, parseABHealthPublicationBatch,
+} from './ab-health/index.js';
+
+export {
+  QC_HEALTH_DDL, QCHealthError,
+  fetchQCHealthRecords, fetchAllQCHealthRecords,
+  parseRAMQRecord, parseRAMQBatch, parseQCHealthRecord, parseQCHealthBatch,
+} from './qc-health/index.js';
+
+// Education
+export {
+  ONEDUCATION_DDL, OnEducationError,
+  fetchOnEducationRecords, parseOnEducationRecord, parseOnEducationBatch,
+  ingestOnEducationData, searchOnEducationRecords, initializeOnEducationTable,
+} from './on-education/index.js';
+
+export {
+  BCEDUCATION_DDL, BcEducationError,
+  fetchBcEducationRecords, parseBcEducationRecord, parseBcEducationBatch,
+  ingestBcEducationData, searchBcEducationRecords, initializeBcEducationTable,
+} from './bc-education/index.js';
+
+export {
+  ABEDUCATION_DDL, AbEducationError,
+  fetchAbEducationRecords, parseAbEducationRecord, parseAbEducationBatch,
+  ingestAbEducationData, searchAbEducationRecords, initializeAbEducationTable,
+} from './ab-education/index.js';
+
+export {
+  QCEDUCATION_DDL, QcEducationError,
+  fetchQcEducationRecords, parseQcEducationRecord, parseQcEducationBatch,
+  ingestQcEducationData, searchQcEducationRecords, initializeQcEducationTable,
+} from './qc-education/index.js';
+
+// Infrastructure
+export {
+  OnInfrastructure_DDL, OnInfrastructureError,
+  fetchOnInfrastructureRecords, parseOnInfrastructureRecord, parseOnInfrastructureBatch,
+  ingestOnInfrastructureData, searchOnInfrastructureRecords, initializeOnInfrastructureTable,
+} from './on-infrastructure/index.js';
+
+export {
+  BcInfrastructure_DDL, BcInfrastructureError,
+  fetchBcInfrastructureRecords, parseBcInfrastructureRecord, parseBcInfrastructureBatch,
+  ingestBcInfrastructureData, searchBcInfrastructureRecords, initializeBcInfrastructureTable,
+} from './bc-infrastructure/index.js';
+
+export {
+  AbInfrastructure_DDL, AbInfrastructureError,
+  fetchAbInfrastructureRecords, parseAbInfrastructureRecord, parseAbInfrastructureBatch,
+  ingestAbInfrastructureData, searchAbInfrastructureRecords, initializeAbInfrastructureTable,
+} from './ab-infrastructure/index.js';
+
+export {
+  QcInfrastructure_DDL, QcInfrastructureError,
+  fetchQcInfrastructureRecords, parseQcInfrastructureRecord, parseQcInfrastructureBatch,
+  ingestQcInfrastructureData, searchQcInfrastructureRecords, initializeQcInfrastructureTable,
+} from './qc-infrastructure/index.js';
+
+// Economic
+export {
+  OnEconomic_DDL, OnEconomicError,
+  fetchOnEconomicRecords, parseOnEconomicRecord, parseOnEconomicBatch,
+  ingestOnEconomicData, searchOnEconomicRecords, initializeOnEconomicTable,
+} from './on-economic/index.js';
+
+export {
+  BcEconomic_DDL, BcEconomicError,
+  fetchBcEconomicRecords, parseBcEconomicRecord, parseBcEconomicBatch,
+  ingestBcEconomicData, searchBcEconomicRecords, initializeBcEconomicTable,
+} from './bc-economic/index.js';
+
+export {
+  AbEconomic_DDL, AbEconomicError,
+  fetchAbEconomicRecords, parseAbEconomicRecord, parseAbEconomicBatch,
+  ingestAbEconomicData, searchAbEconomicRecords, initializeAbEconomicTable,
+} from './ab-economic/index.js';
+
+export {
+  QcEconomic_DDL, QcEconomicError,
+  fetchQcEconomicRecords, parseQcEconomicRecord, parseQcEconomicBatch,
+  ingestQcEconomicData, searchQcEconomicRecords, initializeQcEconomicTable,
+} from './qc-economic/index.js';
+
 // ── Municipal ────────────────────────────────────────────────────
 export {
   ingestMunicipalDataset,
