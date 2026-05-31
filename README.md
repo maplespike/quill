@@ -8,13 +8,13 @@ status: active
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Static HTML/CSS/JS (portal)
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 92 modules, 126 MCP tools, ~140K lines TS, 12 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 126 modules, 130 MCP tools, ~159K lines TS, 12 packages.
 
 ---
 
 ## What it is
 
-MapleSpike ingests, verifies, and surfaces **88 data modules** of Canadian public-domain government data across every sector.
+MapleSpike ingests, verifies, and surfaces **126 data modules** of Canadian public-domain government data across every sector.
 
 **Coverage:**
 - **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
@@ -101,7 +101,7 @@ cd packages/mcp-server
 pnpm start
 ```
 
-**All 126 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
+**All 130 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
 ---
 
