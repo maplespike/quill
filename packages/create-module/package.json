@@ -1,0 +1,25 @@
+{
+  "name": "@maplespike/create-module",
+  "version": "0.1.0",
+  "description": "CLI tool to scaffold new MapleSpike ingestion modules",
+  "type": "module",
+  "bin": {
+    "create-maplespike-module": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "start": "node --loader tsx ./src/cli.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "tsx": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.9.3"
+  },
+  "license": "MIT"
+}

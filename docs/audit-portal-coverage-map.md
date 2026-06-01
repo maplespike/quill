@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Audit: Canadian Open Data Portal Coverage Map
 
 > Issue: #568

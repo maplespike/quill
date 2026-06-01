@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # BuildCanada & GovTrace — Cross-Reference Audit
 
 > Issue: #571

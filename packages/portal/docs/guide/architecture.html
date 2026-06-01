@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapleSpike — Architecture</title>
-  <meta name="description" content="MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and componen">
+  <meta name="description" content="---">
 
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/responsive-fixes.css">
@@ -235,6 +235,9 @@
   </div>
 </nav>
 <main class="docs-content">
+<hr>
+<h2>last-reviewed: 2026-05-25
+status: active</h2>
 <h1>Architecture</h1>
 <p>MapleSpike is built as a monorepo with 10+ packages, deployed on a self-hosted K3s cluster. This page describes the system architecture, data flow, and component relationships.</p>
 <h2>System Diagram</h2>
@@ -259,7 +262,7 @@
 │  │  ┌──────────────────────────────────────────────┐   │    │
 │  │  │  pipeline-core (ingestion, curation, verify)  │   │    │
 │  │  │  ┌─────────┐ ┌──────────┐ ┌──────────────┐   │   │    │
-│  │  │  │ 65+     │ │ Citation │ │  SQLite       │   │   │    │
+│ │ │ │ 88+ │ │ Citation │ │ SQLite │ │ │ │
 │  │  │  │ Modules │ │ SHA-256  │ │  DB (data)    │   │   │    │
 │  │  │  └─────────┘ └──────────┘ └──────────────┘   │   │    │
 │  │  │  ┌─────────┐ ┌──────────┐                    │   │    │
@@ -272,7 +275,7 @@
 │  ┌──────────────────────────────────────────────────────┐    │
 │  │  MCP Server (SSE, port 3001)                        │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
-│  │  │  22 Tools (query_gov_data, search_*, ai_*)    │   │    │
+│ │ │ 34 Tools (query_gov_data, search_*, ai_*) │ │ │
 │  │  └──────────────────────────────────────────────┘   │    │
 │  │  ┌──────────────────────────────────────────────┐   │    │
   │  │  │  AI Gateway (chat, embed)                     │   │    │
@@ -303,7 +306,7 @@
 <tbody><tr>
 <td><strong>Fetch</strong></td>
 <td>HTTP/API fetchers for each module — CKAN, StatCan WDS, RSS, HTML</td>
-<td>✅ All 65+ modules fetch data</td>
+<td>✅ All 126 modules fetch data</td>
 </tr>
 <tr>
 <td><strong>Parse</strong></td>
@@ -318,7 +321,7 @@
 <tr>
 <td><strong>Search</strong></td>
 <td>MCP search tools querying pipeline-core DB</td>
-<td>✅ All 22 tools wired to real DB queries</td>
+<td>✅ All 34 tools wired to real DB queries</td>
 </tr>
 <tr>
 <td><strong>Present</strong></td>
@@ -346,7 +349,7 @@
 </ul>
 <h2>Component Details</h2>
 <h3>pipeline-core (<code>@maplespike/pipeline-core</code>)</h3>
-<p>The core library containing all 65+ ingestion modules. Each module follows a consistent pattern:</p>
+<p>The core library containing all 126 ingestion modules. Each module follows a consistent pattern:</p>
 <pre><code>Module/
   constants.ts  — URL configs, source definitions, lookup tables
   types.ts      — TypeScript interfaces and types
@@ -367,8 +370,8 @@
 <li><strong>Audit logging</strong>: All operations logged to SQLite with request IDs</li>
 <li><strong>Response envelope</strong>: Standardized <code>success/data/error/meta/quality/citation</code> format</li>
 </ul>
-<h3>MCP Server (<code>@maplespike/mcp-server</code>)</h3>
-<p>Model Context Protocol server with 22 tools. Transport:</p>
+<h3>MCP Server (<code>@reverb256/mcp-server</code>)</h3>
+<p>Model Context Protocol server with 34 tools. Transport:</p>
 <ul>
 <li><strong>stdio</strong> — For local development / desktop apps</li>
 <li><strong>SSE</strong> (Server-Sent Events) — For hosted / cluster deployment</li>

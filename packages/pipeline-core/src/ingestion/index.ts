@@ -32,6 +32,44 @@ export type {
   EntityResolutionServiceConfig,
 } from './entity-resolution-service.js';
 
+// ── Watcher / Webhooks ──────────────────────────────────────────────
+export {
+  InMemoryWatcherStore,
+  SqliteWatcherStore,
+  setWatcherStore,
+  getWatcherStore,
+  checkSource,
+  checkAllSources,
+  getChangeLog,
+  getWatcherStatus,
+  getWatchedSources,
+} from './watcher.js';
+export type {
+  WatchedSource,
+  ChangeEvent,
+  WatcherStore,
+  ReIngestCallback,
+} from './watcher.js';
+
+export {
+  InMemoryWebhookStore,
+  SqliteWebhookStore,
+  setWebhookStore,
+  getWebhookStore,
+  notifyWebhooks,
+  createWebhook,
+  deleteWebhook,
+  listWebhooks,
+  getWebhook,
+  dispatchToWebhook,
+} from './webhooks.js';
+export type {
+  WebhookConfig,
+  WebhookDelivery,
+  WebhookStore,
+  DispatchResult,
+} from './webhooks.js';
+
 // ── Core Utilities (consumed by api-server, mcp-server, sdk) ─────
 export {
   parseRSS,

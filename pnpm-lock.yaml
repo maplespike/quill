@@ -83,6 +83,19 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0
 
+  packages/create-module:
+    dependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.19.19
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/database:
     dependencies:
       better-sqlite3:
