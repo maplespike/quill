@@ -26,6 +26,7 @@
  */
 
 import { getModule, runModule, runAllModules } from '../ingestion/registry.js';
+import { runEntityResolution } from '../entity/integration.js';
 
 import type { D1Database } from '../ingestion/committees/db.js';
 
@@ -107,6 +108,14 @@ async function main() {
       const status = (result as any)?.error ? '❌' : '✅';
       console.log(`  ${status} ${name}: ${JSON.stringify(result).substring(0, 100)}`);
       if ((result as any)?.error) failed++; else passed++;
+
+      const records = (result as any)?.records || [];
+      if (records.length > 0) {
+        const entityResult = await runEntityResolution(NULL_DB as any, name, records);
+        if (entityResult.mentionsInserted > 0) {
+          console.log(`    🧠 Entity resolution: ${entityResult.mentionsInserted} mentions, ${entityResult.recordsProcessed} records`);
+        }
+      }
     }
     console.log(`\n[CLI] Done: ${passed} passed, ${failed} failed`);
     process.exit(failed > 0 ? 1 : 0);
@@ -129,6 +138,15 @@ async function main() {
   try {
     const result = await runModule(moduleName, NULL_DB, {});
     console.log(`[CLI] ✅ ${mod.name} complete:`, JSON.stringify(result).substring(0, 200));
+
+    const records = (result as any)?.records || [];
+    if (records.length > 0) {
+      const entityResult = await runEntityResolution(NULL_DB as any, moduleName, records);
+      if (entityResult.mentionsInserted > 0) {
+        console.log(`[CLI] 🧠 Entity resolution: ${entityResult.mentionsInserted} mentions, ${entityResult.recordsProcessed} records`);
+      }
+    }
+
     process.exit(0);
   } catch (err) {
     console.error(`[CLI] ❌ ${mod.name} failed:`, err);

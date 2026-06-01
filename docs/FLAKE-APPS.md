@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Nix Flake Apps
 
 MapleSpike's `flake.nix` provides Nix apps for common development and deployment operations.

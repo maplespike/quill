@@ -5,7 +5,7 @@ status: active
 
 # TypeScript SDK
 
-The `@maplespike/sdk` package provides a typed client for all MapleSpike features. It ships as dual CJS/ESM and covers all 88+ ingestion modules.
+The `@maplespike/sdk` package provides a typed client for all MapleSpike features. It ships as dual CJS/ESM and covers all 126 ingestion modules.
 
 ## Installation
 

@@ -35,10 +35,17 @@ describe('Module Coverage', () => {
         importError = String(err);
       }
 
-      // Check test file existence at both locations
+      // Check test file existence at multiple locations
       const testPath1 = path.join(INGESTION_DIR, '__tests__', `${mod.name}.test.ts`);
       const testPath2 = path.join(INGESTION_DIR, mod.name, '__tests__', `${mod.name}.test.ts`);
-      const hasTests = fs.existsSync(testPath1) || fs.existsSync(testPath2);
+      // Also check the module's actual filesystem path (e.g. ircc/citizenship/__tests__/)
+      const modDir = path.dirname(mod.modulePath.replace(/^\.\//, ''));
+      const testInModDir = path.join(INGESTION_DIR, modDir, '__tests__');
+      let hasTests = fs.existsSync(testPath1) || fs.existsSync(testPath2);
+      if (!hasTests && fs.existsSync(testInModDir)) {
+        const testFiles = fs.readdirSync(testInModDir).filter(f => f.endsWith('.test.ts'));
+        hasTests = testFiles.length > 0;
+      }
 
       results.push({ name: mod.name, hasTests, foundFunctions: found, expectedFunctions: expected, importError });
     }

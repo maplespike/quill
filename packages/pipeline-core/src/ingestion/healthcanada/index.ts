@@ -13,7 +13,7 @@
  * - Controlled Substances (quarterly updates)
  */
 
-import { 
+import {
   parseDrugApproval,
   parseMedicalDevice,
   parseFoodRecall,
@@ -24,6 +24,7 @@ import {
 } from './parser.js';
 import { fetchHealthCanadaDataset } from './fetcher.js';
 import { DATASET_INFO } from './constants.js';
+import { computeHash } from '../../verification/hashing.js';
 import type {
   DrugApproval,
   MedicalDevice,
@@ -72,12 +73,12 @@ async function ingestHealthCanadaDataset<T extends HealthCanadaRecord>(
     // Parse records
     const parsedRecords = parser(rawData, source);
     
-    // Apply SHA-256 citations (simplified for now)
-    const recordsWithCitations = parsedRecords.map(r => ({
+    // Apply SHA-256 citations
+    const recordsWithCitations = await Promise.all(parsedRecords.map(async r => ({
       ...r,
-      citationHash: crypto.randomUUID(), // TODO: compute actual SHA-256
+      citationHash: await computeHash(JSON.stringify(r), 'sha256'),
       trustScore: info.trustThreshold || 0.6,
-    }));
+    })));
 
     result.totalFetched = parsedRecords.length;
     result.totalIngested = recordsWithCitations.length;

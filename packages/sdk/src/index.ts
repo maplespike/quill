@@ -504,6 +504,28 @@ export class MapleSpike {
     spendingSummary: (p: any = {}) => this.query('goc-spending', 'spending-summary', p),
   };
 
+  // ─── Domain: Financial Regulation ─────────────────
+  financialRegulation = {
+    data: (p: any = {}) => this.query('financial-regulation', 'data', p),
+    crossReference: (p: any = {}) => this.query('financial-regulation', 'cross-reference', p),
+  };
+
+  // ─── Domain: Energy ───────────────────────────────
+  energy = {
+    data: (p: any = {}) => this.query('energy', 'data', p),
+  };
+
+  // ─── Domain: Real Estate ──────────────────────────
+  realEstate = {
+    data: (p: any = {}) => this.query('real-estate', 'data', p),
+  };
+
+  // ─── Domain: Watcher / Monitoring ─────────────────
+  watcher = {
+    status: (p: any = {}) => this.query('watcher', 'status', p),
+    events: (p: any = {}) => this.query('watcher', 'events', p),
+  };
+
   // ─── MCP Integration ──────────────────────────────────────────
 
   /**

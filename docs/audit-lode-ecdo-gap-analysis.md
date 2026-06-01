@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Audit: LODE-ECDO Data-Type Coverage Gap Analysis
 
 > Issue: #569
