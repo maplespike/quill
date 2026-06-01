@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Metrics Validation
 
 MapleSpike has automated checks to ensure documented metrics match the codebase.

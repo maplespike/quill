@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Module Parser Audit — 2026-05-29
 
 **Source:** Issue #548  

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapleSpike — Setup Guide</title>
-  <meta name="description" content="Configure MapleSpike's MCP server for use with Claude Desktop, Cursor, and other MCP-compatible AI clients.">
+  <meta name="description" content="---">
 
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/responsive-fixes.css">
@@ -235,6 +235,9 @@
   </div>
 </nav>
 <main class="docs-content">
+<hr>
+<h2>last-reviewed: 2026-05-25
+status: active</h2>
 <h1>MCP Setup Guide</h1>
 <p>Configure MapleSpike&#39;s MCP server for use with Claude Desktop, Cursor, and other MCP-compatible AI clients.</p>
 <h2>Prerequisites</h2>
@@ -265,7 +268,7 @@
   &quot;mcpServers&quot;: {
     &quot;maplespike-canada&quot;: {
       &quot;command&quot;: &quot;npx&quot;,
-      &quot;args&quot;: [&quot;@maplespike/mcp-server&quot;],
+      &quot;args&quot;: [&quot;@reverb256/mcp-server&quot;],
       &quot;env&quot;: {
         &quot;MAPLESPIKE_API_KEY&quot;: &quot;your-api-key-here&quot;
       }
@@ -296,7 +299,7 @@ URL: http://maplespike-mcp.ai-inference.svc.lan:3001/sse
 <p>Or for local mode:</p>
 <pre><code>Name: MapleSpike
 Type: command
-Command: npx @maplespike/mcp-server
+Command: npx @reverb256/mcp-server
 Environment: MAPLESPIKE_API_KEY=your-api-key
 </code></pre>
 <h2>VS Code Extension (claude-dev / Continue)</h2>
@@ -367,7 +370,7 @@ echo &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quo
   node dist/index.js
 </code></pre>
 <h2>Available Tools</h2>
-<p>Once connected, all 22 tools are available. See the <a href="./tools">Tools Reference</a> for complete documentation.</p>
+<p>Once connected, all 34 tools are available. See the <a href="./tools">Tools Reference</a> for complete documentation.</p>
 <h3>Example Prompts to Try</h3>
 <p>Once configured, ask your AI agent:</p>
 <ul>

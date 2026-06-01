@@ -137,3 +137,5 @@ function getExtractionConfig(
 
   return { ...base, extractionRules: rules };
 }
+
+export { getExtractionConfig };

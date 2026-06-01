@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # K8s Nix Manifests
 
 All Kubernetes manifests are generated from Nix modules using [easykubenix](https://github.com/lillecarl/easykubenix).

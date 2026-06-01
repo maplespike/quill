@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Nix in GitHub Actions
 
 MapleSpike CI/CD runs on self-hosted NixOS runners (`runs-on: [self-hosted, nixos]`). All build tools are provided by Nix system packages — no `apt-get`, no `setup-node`, no `pnpm/action-setup`.
