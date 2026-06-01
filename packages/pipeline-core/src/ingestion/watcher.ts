@@ -6,6 +6,7 @@
  */
 
 import { httpGet } from '../utils/http.js';
+import { notifyWebhooks } from './webhooks.js';
 
 export interface WatchedSource {
   id: string;
@@ -32,6 +33,45 @@ export interface WatcherStore {
   logEvent(event: ChangeEvent): void;
   getEvents(limit: number): ChangeEvent[];
 }
+
+/**
+ * Callback type for re-ingestion triggers.
+ * Called when a source change is detected.
+ */
+export type ReIngestCallback = (source: WatchedSource, event: ChangeEvent) => Promise<void> | void;
+
+// ── In-memory store (default fallback) ──
+
+export class InMemoryWatcherStore implements WatcherStore {
+  private hashes = new Map<string, { hash: string; timestamp: number }>();
+  private events: ChangeEvent[] = [];
+
+  getHash(sourceId: string): string | null {
+    return this.hashes.get(sourceId)?.hash ?? null;
+  }
+
+  setHash(sourceId: string, hash: string): void {
+    this.hashes.set(sourceId, { hash, timestamp: Date.now() });
+  }
+
+  logEvent(event: ChangeEvent): void {
+    this.events.push(event);
+  }
+
+  getEvents(limit: number): ChangeEvent[] {
+    return this.events.slice(-limit);
+  }
+
+  get changesDetected(): number {
+    return this.events.length;
+  }
+
+  get lastCheck(): string | null {
+    return this.events.length > 0 ? this.events[this.events.length - 1].detectedAt : null;
+  }
+}
+
+// ── SQLite-backed store ──
 
 export class SqliteWatcherStore implements WatcherStore {
   private dbPath: string | null;
@@ -79,14 +119,9 @@ export class SqliteWatcherStore implements WatcherStore {
   }
 
   getHash(sourceId: string): string | null {
-    if (!this.db) {
-      return null;
-    }
-
+    if (!this.db) return null;
     try {
-      const row = this.db.prepare(
-        'SELECT hash FROM watcher_hashes WHERE sourceId = ?'
-      ).get(sourceId);
+      const row = this.db.prepare('SELECT hash FROM watcher_hashes WHERE sourceId = ?').get(sourceId);
       return row?.hash || null;
     } catch {
       return null;
@@ -94,10 +129,7 @@ export class SqliteWatcherStore implements WatcherStore {
   }
 
   setHash(sourceId: string, hash: string): void {
-    if (!this.db) {
-      return;
-    }
-
+    if (!this.db) return;
     try {
       const stmt = this.db.prepare(`
         INSERT INTO watcher_hashes (sourceId, hash, updatedAt)
@@ -113,10 +145,7 @@ export class SqliteWatcherStore implements WatcherStore {
   }
 
   logEvent(event: ChangeEvent): void {
-    if (!this.db) {
-      return;
-    }
-
+    if (!this.db) return;
     try {
       const stmt = this.db.prepare(`
         INSERT INTO watcher_changelog (
@@ -133,7 +162,7 @@ export class SqliteWatcherStore implements WatcherStore {
         event.currentHash,
         event.changed ? 1 : 0,
         event.summary,
-        event.recordCount
+        event.recordCount,
       );
     } catch (err) {
       console.warn(`Failed to log event: ${(err as Error).message}`);
@@ -141,10 +170,7 @@ export class SqliteWatcherStore implements WatcherStore {
   }
 
   getEvents(limit: number): ChangeEvent[] {
-    if (!this.db) {
-      return [];
-    }
-
+    if (!this.db) return [];
     try {
       const rows = this.db.prepare(`
         SELECT * FROM watcher_changelog
@@ -175,6 +201,20 @@ export class SqliteWatcherStore implements WatcherStore {
   }
 }
 
+// ── Module-level store ──
+
+let defaultStore: WatcherStore = new InMemoryWatcherStore();
+
+export function setWatcherStore(store: WatcherStore): void {
+  defaultStore = store;
+}
+
+export function getWatcherStore(): WatcherStore {
+  return defaultStore;
+}
+
+// ── Watched sources ──
+
 const WATCHED_SOURCES: WatchedSource[] = [
   { id: 'committees', name: 'House Committees', url: 'https://www.ourcommons.ca/Committees/en/Search?search=all', intervalMs: 86400000, type: 'committee' },
   { id: 'gazette', name: 'Canada Gazette Part I', url: 'https://www.gazette.gc.ca/rss/p1-eng.xml', intervalMs: 86400000, type: 'gazette' },
@@ -183,9 +223,6 @@ const WATCHED_SOURCES: WatchedSource[] = [
   { id: 'ckan-canada', name: 'open.canada.ca CKAN', url: 'https://open.canada.ca/data/api/3/action/package_list', intervalMs: 43200000, type: 'ckan' },
   { id: 'procurement', name: 'CanadaBuys Tenders', url: 'https://canadabuys.canada.ca/dp/api/opportunities/search', intervalMs: 43200000, type: 'rss' },
 ];
-
-const hashStore = new Map<string, { hash: string; timestamp: number }>();
-const changeLog: ChangeEvent[] = [];
 
 export function getWatchedSources(): WatchedSource[] {
   return [...WATCHED_SOURCES];
@@ -198,7 +235,15 @@ async function computeHash(text: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function checkSource(source: WatchedSource): Promise<ChangeEvent> {
+export async function checkSource(
+  source: WatchedSource,
+  options?: {
+    store?: WatcherStore;
+    onChange?: ReIngestCallback;
+    notify?: boolean;
+  },
+): Promise<ChangeEvent> {
+  const store = options?.store ?? defaultStore;
   const now = new Date().toISOString();
   try {
     const resp = await httpGet(source.url, {
@@ -211,40 +256,58 @@ export async function checkSource(source: WatchedSource): Promise<ChangeEvent> {
 
     const body = resp.body || '';
     const currentHash = await computeHash(body);
-    const previous = hashStore.get(source.id);
-    const previousHash = previous?.hash || '';
-    const changed = previous ? currentHash !== previousHash : true;
+    const previousHash = store.getHash(source.id) || '';
+    const changed = previousHash ? currentHash !== previousHash : true;
 
     if (changed) {
-      hashStore.set(source.id, { hash: currentHash, timestamp: Date.now() });
+      store.setHash(source.id, currentHash);
     }
 
-    const event: ChangeEvent = {
+      const event: ChangeEvent = {
       sourceId: source.id, sourceName: source.name, detectedAt: now,
       previousHash, currentHash, changed,
       summary: changed ? `Content changed (length: ${body.length})` : 'No changes detected',
       recordCount: body.length,
     };
 
-    if (changed) changeLog.push(event);
+    if (changed) {
+      store.logEvent(event);
+      // Fire webhook notifications if enabled
+      if (options?.notify !== false) {
+        notifyWebhooks(event).catch(err =>
+          console.warn(`[Watcher] Webhook dispatch failed: ${(err as Error).message}`),
+        );
+      }
+      // Fire re-ingestion callback if provided
+      if (options?.onChange) {
+        await options.onChange(source, event);
+      }
+    }
     return event;
   } catch (err) {
     return { sourceId: source.id, sourceName: source.name, detectedAt: now, previousHash: '', currentHash: '', changed: false, summary: `Error: ${(err as Error).message}`, recordCount: 0 };
   }
 }
 
-export async function checkAllSources(): Promise<ChangeEvent[]> {
-  return Promise.all(WATCHED_SOURCES.map(checkSource));
+export async function checkAllSources(
+  options?: {
+    store?: WatcherStore;
+    onChange?: ReIngestCallback;
+  },
+): Promise<ChangeEvent[]> {
+  return Promise.all(WATCHED_SOURCES.map(s => checkSource(s, options)));
 }
 
-export function getChangeLog(limit = 50): ChangeEvent[] {
-  return changeLog.slice(-limit);
+export function getChangeLog(limit = 50, store?: WatcherStore): ChangeEvent[] {
+  return (store ?? defaultStore).getEvents(limit);
 }
 
-export function getWatcherStatus() {
+export function getWatcherStatus(store?: WatcherStore) {
+  const s = store ?? defaultStore;
+  const events = s.getEvents(1);
   return {
     sourcesTracked: WATCHED_SOURCES.length,
-    changesDetected: changeLog.length,
-    lastCheck: changeLog.length > 0 ? changeLog[changeLog.length - 1].detectedAt : null,
+    changesDetected: events.length > 0 ? 'stored' : 'none',
+    lastCheck: events.length > 0 ? events[0].detectedAt : null,
   };
 }

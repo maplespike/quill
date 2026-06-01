@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-06-01
 status: active
 ---
 
@@ -16,9 +16,9 @@ status: active
 
 ## Ce que c'est
 
-MapleSpike ingère, vérifie et présente des données gouvernementales canadiennes publiques. Consultez le [README anglais](README.md) pour la liste complète des 92 modules.
+MapleSpike ingère, vérifie et présente des données gouvernementales canadiennes publiques. Consultez le [README anglais](README.md) pour la liste complète des 126 modules.
 
-> **Modules :** 92 modules d'ingestion enregistrés · **Outils MCP :** 126 tous en direct · **Lignes TypeScript :** ~140 000 · **Forfaits :** 12
+> **Modules :** 126 modules d'ingestion enregistrés · **Outils MCP :** 130 tous en direct · **Lignes TypeScript :** ~159 000 · **Forfaits :** 12
 
 Chaque enregistrement comprend des hachages de citation SHA-256, une provenance des sources et des pistes d'audit pour une vérification indépendante.
 

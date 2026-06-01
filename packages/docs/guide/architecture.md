@@ -70,7 +70,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 
 | Layer | Description | Status |
 |-------|-------------|--------|
-| **Fetch** | HTTP/API fetchers for each module — CKAN, StatCan WDS, RSS, HTML | ✅ All 88+ modules fetch data |
+| **Fetch** | HTTP/API fetchers for each module — CKAN, StatCan WDS, RSS, HTML | ✅ All 126 modules fetch data |
 | **Parse** | Data parsing into typed records with normalization | ✅ All modules parse into typed records |
 | **Persist** | SQLite database storage with upsert semantics | ✅ All modules persist via shared SQLite |
 | **Search** | MCP search tools querying pipeline-core DB | ✅ All 34 tools wired to real DB queries |
@@ -99,7 +99,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 
 ### pipeline-core (`@maplespike/pipeline-core`)
 
-The core library containing all 88+ ingestion modules. Each module follows a consistent pattern:
+The core library containing all 126 ingestion modules. Each module follows a consistent pattern:
 
 ```
 Module/

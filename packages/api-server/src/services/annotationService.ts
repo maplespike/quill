@@ -51,35 +51,96 @@ class InMemoryAnnotationStore implements AnnotationStore {
 
 // ── SQLite store (persistent) ──────────────────────────────────────
 
+class D1AnnotationStore implements AnnotationStore {
+  private db: any;
+
+  constructor(db: any) {
+    this.db = db;
+  }
+
+  list(entityType: string, entityId: string): Annotation[] {
+    try {
+      const stmt = this.db.prepare(
+        'SELECT * FROM annotations WHERE entity_type = ? AND entity_id = ? ORDER BY created_at DESC',
+      );
+      const rows = stmt.all(entityType, entityId);
+      return rows.map(this.rowToAnnotation);
+    } catch { return []; }
+  }
+
+  create(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation {
+    const id = `ann_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const now = new Date().toISOString();
+    const ann: Annotation = { ...annotation, id, createdAt: now, updatedAt: now };
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO annotations (id, entity_type, entity_id, user_id, annotation_type, content, metadata, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      stmt.bind(id, ann.entityType, ann.entityId, ann.userId, ann.annotationType, ann.content,
+        ann.metadata ? JSON.stringify(ann.metadata) : null, now, now).run();
+    } catch (err) {
+      console.warn(`[AnnotationService] Failed to create annotation: ${(err as Error).message}`);
+    }
+    return ann;
+  }
+
+  update(id: string, updates: Partial<Pick<Annotation, 'content' | 'annotationType' | 'metadata'>>): Annotation | null {
+    try {
+      const stmt = this.db.prepare('SELECT * FROM annotations WHERE id = ?');
+      const existing = stmt.get(id);
+      if (!existing) return null;
+      const now = new Date().toISOString();
+      const content = updates.content ?? existing.content;
+      const annotationType = updates.annotationType ?? existing.annotation_type;
+      const metadata = updates.metadata !== undefined
+        ? (updates.metadata ? JSON.stringify(updates.metadata) : null)
+        : existing.metadata;
+      const updateStmt = this.db.prepare(
+        'UPDATE annotations SET content = ?, annotation_type = ?, metadata = ?, updated_at = ? WHERE id = ?',
+      );
+      updateStmt.bind(content, annotationType, metadata, now, id).run();
+      return this.rowToAnnotation({ ...existing, content, annotation_type: annotationType, metadata, updated_at: now });
+    } catch { return null; }
+  }
+
+  delete(id: string): boolean {
+    try {
+      const stmt = this.db.prepare('DELETE FROM annotations WHERE id = ?');
+      const result = stmt.bind(id).run();
+      return result.meta?.changes > 0 || result.changes > 0;
+    } catch { return false; }
+  }
+
+  clear(): void {
+    try {
+      const stmt = this.db.prepare('DELETE FROM annotations');
+      stmt.bind().run();
+    } catch {}
+  }
+
+  private rowToAnnotation(row: any): Annotation {
+    return {
+      id: row.id,
+      entityType: row.entity_type,
+      entityId: row.entity_id,
+      userId: row.user_id,
+      annotationType: row.annotation_type,
+      content: row.content,
+      metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+}
+
 class SqliteAnnotationStore implements AnnotationStore {
   private db: any;
 
-  constructor(dbPath?: string) {
-    const path = dbPath || process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
-    try {
-      // better-sqlite3 is already a project dependency (used in sqlite-storage.ts)
-      const mod = require('better-sqlite3');
-      this.db = new (mod.default || mod)(path);
-      this.db.pragma('journal_mode = WAL');
-      this.db.exec(`
-        CREATE TABLE IF NOT EXISTS annotations (
-          id TEXT PRIMARY KEY,
-          entity_type TEXT NOT NULL,
-          entity_id TEXT NOT NULL,
-          user_id TEXT NOT NULL,
-          annotation_type TEXT NOT NULL CHECK(annotation_type IN ('note','override','flag','context')),
-          content TEXT NOT NULL,
-          metadata TEXT,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL
-        );
-        CREATE INDEX IF NOT EXISTS idx_annotations_entity ON annotations(entity_type, entity_id);
-        CREATE INDEX IF NOT EXISTS idx_annotations_user ON annotations(user_id);
-      `);
-    } catch (err) {
-      console.warn(`[AnnotationService] SQLite unavailable, falling back to in-memory: ${(err as Error).message}`);
-      throw err;
-    }
+  constructor(dbPath: string) {
+    const path = dbPath;
+    const mod = require('better-sqlite3');
+    this.db = new (mod.default || mod)(path);
   }
 
   list(entityType: string, entityId: string): Annotation[] {
@@ -154,10 +215,35 @@ class SqliteAnnotationStore implements AnnotationStore {
 
 let activeStore: AnnotationStore = new InMemoryAnnotationStore();
 
-export function initAnnotationStore(dbPath?: string): void {
-  if (dbPath || process.env.MAPLESPIKE_DB_PATH) {
+export function initAnnotationStore(db?: any, dbPath?: string): void {
+  if (db) {
     try {
-      activeStore = new SqliteAnnotationStore(dbPath);
+      activeStore = new D1AnnotationStore(db);
+    } catch {
+      activeStore = new InMemoryAnnotationStore();
+    }
+  } else if (dbPath || process.env.MAPLESPIKE_DB_PATH) {
+    try {
+      const path = dbPath || process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
+      const mod = require('better-sqlite3');
+      const sqliteDb = new (mod.default || mod)(path);
+      sqliteDb.pragma('journal_mode = WAL');
+      sqliteDb.exec(`
+        CREATE TABLE IF NOT EXISTS annotations (
+          id TEXT PRIMARY KEY,
+          entity_type TEXT NOT NULL,
+          entity_id TEXT NOT NULL,
+          user_id TEXT NOT NULL,
+          annotation_type TEXT NOT NULL CHECK(annotation_type IN ('note','override','flag','context')),
+          content TEXT NOT NULL,
+          metadata TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_annotations_entity ON annotations(entity_type, entity_id);
+        CREATE INDEX IF NOT EXISTS idx_annotations_user ON annotations(user_id);
+      `);
+      activeStore = new SqliteAnnotationStore(path);
     } catch {
       activeStore = new InMemoryAnnotationStore();
     }

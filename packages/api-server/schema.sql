@@ -90,6 +90,26 @@ CREATE INDEX IF NOT EXISTS idx_audit_operation ON audit_log(operation);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 
 -- ═══════════════════════════════════════════════════════════════
+-- ANNOTATIONS — Journalism mode notes, flags, overrides, context
+-- ═══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS annotations (
+  id TEXT PRIMARY KEY,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  annotation_type TEXT NOT NULL CHECK(annotation_type IN ('note','override','flag','context')),
+  content TEXT NOT NULL,
+  metadata TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_annotations_entity ON annotations(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_annotations_user ON annotations(user_id);
+CREATE INDEX IF NOT EXISTS idx_annotations_type ON annotations(annotation_type);
+CREATE INDEX IF NOT EXISTS idx_annotations_created ON annotations(created_at DESC);
+
+-- ═══════════════════════════════════════════════════════════════
 -- SEED DATA — Internal tenant for MapleSpike
 -- ═══════════════════════════════════════════════════════════════
 INSERT OR IGNORE INTO tenants (id, name, tier, journalism_mode) VALUES

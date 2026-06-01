@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-01
+status: active
+---
+
 # Nix Container Images
 
 All MapleSpike container images are built via **Nix** (`flake.nix`) using `pkgs.dockerTools.buildLayeredImage`. Legacy Dockerfiles have been removed — there is no dual build system.

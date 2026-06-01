@@ -18,6 +18,7 @@ import type {
 import type { Tenant } from './types.js';
 import { TIER_LIMITS } from './types.js';
 import { normalizeFields, convertUnits } from './utils/normalize.js';
+import { randomUUID } from 'node:crypto';
 
 export type { CitationMeta, QualityMeta };
 
@@ -290,6 +291,7 @@ export function jsonResponse<T>(
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'X-MapleSpike-Version': '0.1.0',
+      'X-MapleSpike-Trace-Id': extraHeaders['X-MapleSpike-Trace-Id'] ?? randomUUID(),
       'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',

@@ -17,7 +17,7 @@ Canada's open data ecosystem is fragmented. Developers and journalists navigate 
 
 ## Data Sources
 
-MapleSpike ingests from **88+ data modules** covering every major category of Canadian government information:
+MapleSpike ingests from **126 data modules** covering every major category of Canadian government information:
 
 | Category | Modules |
 |----------|---------|
@@ -47,7 +47,7 @@ K3s Cluster (nginx)
   └── Portal (static HTML/CSS/JS — landing, dashboard, docs)
 
 K3s Cluster (nexus)
-  ├── MCP server (SSE, port 3001) ── 34 tools, all live
+  ├── MCP server (SSE, port 3001) ── 130 tools, all live
   ├── API server (REST, Bearer auth, rate limits)
   │     ├── SQLite (keys, usage, audit)
   │     ├── In-memory cache (node-cache)
@@ -59,17 +59,17 @@ K3s Cluster (nexus)
 
 | Method | Description | Best For |
 |--------|-------------|----------|
-| **MCP Server** | 34 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
+| **MCP Server** | 130 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
 | **REST API** | HTTP endpoints at `/v1/*` with Bearer auth | Scripts, apps, direct integration |
 | **TypeScript SDK** | `@maplespike/sdk` — typed client for all modules | Node.js/TypeScript projects |
 | **CLI** | Run the MCP server locally via stdio | Local development |
 
 ## Status
 
-- **92 ingestion modules** — ~140K lines of TypeScript
-- **126 MCP tools** — all live and returning real data
+- **126 ingestion modules** — ~159K lines of TypeScript
+- **130 MCP tools** — all live and returning real data
 - **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
-- **1,141+ unique external endpoints** consumed across all modules
+- **1,240+ unique external endpoints** consumed across all modules
 - **19 cities** with direct open data fetchers; **3,490+** via federation
 - **12 packages** — compile clean with full CI/CD pipeline
 
