@@ -65,6 +65,7 @@ import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
   deleteAnnotationHandler, exportAnnotationsHandler,
 } from './routes/annotations.js';
+import { initAnnotationStore } from './services/annotationService.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
 import {
   oauthLoginHandler,
@@ -83,6 +84,17 @@ import {
 import { listKeysHandler, createKeyHandler, deleteKeyHandler, rotateKeyHandler } from './routes/keys.js';
 import { onboardingHandler } from './routes/onboarding.js';
 import { contactHandler } from './routes/contact.js';
+import { energyDataHandler } from './routes/energy.js';
+import { realEstateDataHandler } from './routes/real-estate.js';
+import { finRegDataHandler, finRegCrossRefHandler } from './routes/financial-regulation.js';
+import { watcherStatusHandler, watcherEventsHandler } from './routes/watcher.js';
+import {
+  webhookListHandler, webhookGetHandler, webhookCreateHandler,
+  webhookUpdateHandler, webhookDeleteHandler, webhookTestHandler,
+  webhookDeliveriesHandler,
+} from './routes/webhooks.js';
+import { entityResolveHandler, entityConnectionsHandler } from './routes/entity.js';
+import { municipalDataHandler, municipalCityHandler } from './routes/municipal.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -154,6 +166,37 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/auth\/passkey\/login\/complete\/?$/, method: 'POST', params: [], handler: passkeyLoginCompleteHandler },
   { pattern: /^\/v1\/auth\/passkey\/credentials\/?$/, method: 'GET', params: [], handler: passkeyListHandler },
   { pattern: /^\/v1\/auth\/passkey\/credentials\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: passkeyDeleteHandler },
+
+  // Energy data
+  { pattern: /^\/v1\/energy\/?$/, method: 'GET', params: [], handler: energyDataHandler },
+
+  // Real estate data
+  { pattern: /^\/v1\/real-estate\/?$/, method: 'GET', params: [], handler: realEstateDataHandler },
+
+  // Financial regulation data
+  { pattern: /^\/v1\/financial-regulation\/?$/, method: 'GET', params: [], handler: finRegDataHandler },
+  { pattern: /^\/v1\/financial-regulation\/cross-reference\/?$/, method: 'GET', params: [], handler: finRegCrossRefHandler },
+
+  // Municipal data
+  { pattern: /^\/v1\/municipal\/?$/, method: 'GET', params: [], handler: municipalDataHandler },
+  { pattern: /^\/v1\/municipal\/([^/]+)\/?$/, method: 'GET', params: ['city'], handler: municipalCityHandler },
+
+  // Entity resolution
+  { pattern: /^\/v1\/entity\/resolve\/?$/, method: 'POST', params: [], handler: entityResolveHandler },
+  { pattern: /^\/v1\/entity\/connections\/?$/, method: 'GET', params: [], handler: entityConnectionsHandler },
+
+  // Watcher (real-time monitoring)
+  { pattern: /^\/v1\/watcher\/status\/?$/, method: 'GET', params: [], handler: watcherStatusHandler },
+  { pattern: /^\/v1\/watcher\/events\/?$/, method: 'GET', params: [], handler: watcherEventsHandler },
+
+  // Webhook notifications
+  { pattern: /^\/v1\/webhooks\/?$/, method: 'GET', params: [], handler: webhookListHandler },
+  { pattern: /^\/v1\/webhooks\/?$/, method: 'POST', params: [], handler: webhookCreateHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: webhookGetHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'PATCH', params: ['id'], handler: webhookUpdateHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: webhookDeleteHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/test\/?$/, method: 'POST', params: ['id'], handler: webhookTestHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/deliveries\/?$/, method: 'GET', params: ['id'], handler: webhookDeliveriesHandler },
 ];
 
 /**
@@ -300,12 +343,6 @@ export async function handleRequest(
   const queryOptions = parseQueryOptions(url);
   const requestOrigin = request.headers.get('Origin');
 
-  // --- Mock mode ---
-  // If _mock=true, return curated sample data for dev/testing
-  if (queryOptions._mock) {
-    return handleMockRequest(request, url, queryOptions);
-  }
-
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
     return corsPreflight(requestOrigin);
@@ -407,17 +444,19 @@ export async function handleRequest(
     cached.meta.creditsCharged = creditsCharged;
     cached.meta.authMethod = authMethod;
     cached.quality.freshness_seconds = Math.floor((Date.now() - startTime) / 1000);
-    return new Response(JSON.stringify(cached, null, 2), {
+    const cachedRes = new Response(JSON.stringify(cached, null, 2), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
         'X-MapleSpike-Version': '0.1.0',
         'X-Cache': 'hit',
+        'X-MapleSpike-Trace-Id': crypto.randomUUID(),
         'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin),
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
       },
     });
+    return cachedRes;
   }
 
   // Rate limit (skip for health and spec)
@@ -464,299 +503,7 @@ export async function handleRequest(
     }
   }
 
-  // ── Monthly quota check + usage increment ──
-  // Skip for public/infrastructure routes (health, spec, etc.)
-  const isPublicRoute = route.handler === healthHandler || route.handler === openApiHandler;
-
-  if (!isPublicRoute) {
-    const now = new Date();
-    const yearMonth = now.toISOString().slice(0, 7);
-    const monthlyUsage = await db.getMonthlyUsage(ctx.tenant.id, yearMonth);
-    const tierLimits = TIER_LIMITS[ctx.tenant.tier];
-
-    if (monthlyUsage >= tierLimits.monthly) {
-      await db.logAudit({
-        tenantId: ctx.tenant.id,
-        apiKeyId: ctx.apiKeyId,
-        operation: 'quota_exhausted',
-        endpoint: route.pattern.source,
-        outputSummary: 'Monthly quota exhausted',
-        confidence: null,
-        success: false,
-        durationMs: Date.now() - startTime,
-      });
-
-      const bc: BuildContext = {
-        tenant: ctx.tenant,
-        requestId,
-        startTime,
-        queryOptions,
-        metaOverrides: {
-          cacheStatus: 'miss',
-          creditsCharged,
-          authMethod,
-          durationMs: Date.now() - startTime,
-        },
-      };
-
-      if (ctx.tenant.tier === 'free') {
-        // Hard cap — reject
-        const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-        const retryAfter = Math.floor((resetDate.getTime() - now.getTime()) / 1000);
-        let response = jsonResponse(
-          buildError('QUOTA_EXHAUSTED',
-            'Monthly API call limit reached. Upgrade to Pro for more calls at https://maplespike.ca/pricing',
-            bc),
-          402,
-          { 'Retry-After': String(retryAfter) },
-        );
-        if (rateCheck) response = addRateLimitHeaders(response, rateCheck);
-        addAttributionHeader(response);
-        return response;
-      }
-      // Paid tiers: soft cap — warn via header but allow
-      // (overage billing via Stripe metered usage to be implemented)
-    }
-
-    await db.incrementUsage(
-      ctx.tenant.id,
-      now.toISOString().slice(0, 10),
-      yearMonth,
-    );
-  }
-
-  try {
-    const start = Date.now();
-    const response = await route.handler(request, ctx, params);
-    const durationMs = Date.now() - start;
-
-    // Update the build context with meta from this request
-    // The route handlers use buildSuccess/buildError from response.ts which
-    // will pick up queryOptions from the BuildContext if we pass it right.
-    // Since the route handlers call buildSuccess() themselves with `ctx`,
-    // and they pass the RouteContext (not BuildContext), we need to intercept
-    // and wrap responses going forward.
-
-    // For now, we parse the response body and re-wrap it with our new envelope.
-    // This is a compatibility shim — route handlers will be migrated gradually.
-    const responseBody = await response.text();
-    let parsedBody: Record<string, unknown> | null = null;
-    try {
-      parsedBody = JSON.parse(responseBody);
-    } catch {
-      // If it's not JSON, pass through as-is
-      let finalResponse = response;
-      if (rateCheck) {
-        finalResponse = addRateLimitHeaders(response, rateCheck);
-      }
-      addAttributionHeader(finalResponse);
-      return finalResponse;
-    }
-
-    // Record ingestion for freshness tracking
-    const sourceName = getSourceName(route.handler);
-    recordIngestion(sourceName);
-
-    // Build new envelope with existing data
-    const buildCtx: BuildContext = {
-      tenant: ctx.tenant,
-      requestId,
-      startTime,
-      queryOptions,
-      metaOverrides: {
-        cacheStatus,
-        creditsCharged,
-        authMethod,
-        durationMs,
-        action: url.pathname.replace('/v1/', '').replace(/\//g, '-') || 'api-call',
-      },
-    };
-
-    // Determine freshness and quality based on source
-    const freshness = getFreshness(sourceName);
-    const confidence = getConfidence(sourceName);
-    const certainty = getCertainty(sourceName);
-
-    // Extract citation if present in old response
-    const oldCitations = parsedBody?.citations as Array<Record<string, unknown>> | undefined;
-    const citation = oldCitations && oldCitations.length > 0
-      ? {
-          source_name: (oldCitations[0].source as string) || sourceName,
-          source_url: '',
-          retrieved_at: new Date().toISOString(),
-          data_hash: (oldCitations[0].hash as string) || '',
-          license: (oldCitations[0].license as string) || 'https://open.canada.ca/en/open-government-licence-canada',
-          update_frequency: 'daily',
-        }
-      : null;
-
-    const newBody: Record<string, unknown> = {
-      success: true,
-      data: parsedBody?.data ?? null,
-      text: null,
-      error: parsedBody?.error ?? null,
-      meta: {
-        requestId,
-        timestamp: new Date().toISOString(),
-        version: config.version,
-        usage: {
-          periodCalls: 0,
-          periodLimit: TIER_LIMITS[tier]?.monthly || 1000,
-          tier,
-        },
-        agent: 'maplespike',
-        action: url.pathname.replace('/v1/', '').replace(/\//g, '-') || 'api-call',
-        authMethod,
-        creditsCharged,
-        cacheStatus,
-        durationMs,
-      },
-      quality: {
-        freshness_seconds: freshness === Infinity ? Math.floor(durationMs / 1000) : freshness,
-        source_uptime_7d: 0.98,
-        confidence,
-        certainty_score: certainty,
-      },
-      citation,
-    };
-
-    // Apply token optimization to response data
-    if (queryOptions._fields && newBody.data && typeof newBody.data === 'object' && !Array.isArray(newBody.data)) {
-      const filtered: Record<string, unknown> = {};
-      for (const key of queryOptions._fields) {
-        if (key in (newBody.data as Record<string, unknown>)) {
-          filtered[key] = (newBody.data as Record<string, unknown>)[key];
-        }
-      }
-      newBody.data = filtered;
-    }
-
-    if (queryOptions._format === 'compact') {
-      newBody.data = compactObject(newBody.data);
-    }
-
-    // Cap array data if _limit
-    if (queryOptions._limit && Array.isArray(newBody.data)) {
-      newBody.data = (newBody.data as unknown[]).slice(0, queryOptions._limit);
-    }
-
-    // Cache successful responses for 60 seconds
-    if (response.status < 500) {
-      globalCache.set(cacheKey, JSON.stringify(newBody), 60);
-    }
-
-    let finalResponse = jsonResponse(newBody as unknown as ApiResponse, response.status, {}, requestOrigin);
-    if (rateCheck) {
-      finalResponse = addRateLimitHeaders(finalResponse, rateCheck);
-    }
-
-    if (tenant?.rotatedKey) {
-      finalResponse = new Response(finalResponse.body, {
-        status: finalResponse.status,
-        headers: new Headers(finalResponse.headers),
-      });
-      finalResponse.headers.set('X-Key-Rotated', 'true');
-      finalResponse.headers.set('X-New-Key-Id', tenant.rotatedKey.id);
-      finalResponse.headers.set('X-New-Key', tenant.rotatedKey.key);
-      finalResponse.headers.set('X-New-Key-Expires', tenant.rotatedKey.expiresAt);
-    }
-
-    // Log audit for mutations
-    if (request.method === 'POST') {
-      await db.logAudit({
-        tenantId: ctx.tenant.id,
-        apiKeyId: ctx.apiKeyId,
-        operation: 'api_call',
-        endpoint: new URL(request.url).pathname,
-        outputSummary: `${response.status} in ${durationMs}ms`,
-        confidence: null,
-        success: response.status < 500,
-        durationMs,
-      });
-    }
-
-    addAttributionHeader(finalResponse);
-    return finalResponse;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Internal server error';
-    const errorCode = err instanceof TypeError
-      ? 'BAD_REQUEST'
-      : err instanceof SyntaxError
-        ? 'PARSE_ERROR'
-        : (err as any)?.code === 'NOT_FOUND'
-          ? 'NOT_FOUND'
-          : 'INTERNAL_ERROR';
-    const statusCode = err instanceof TypeError
-      ? 400
-      : err instanceof SyntaxError
-        ? 400
-        : 500;
-
-    // Log full error details
-    log.error({ requestId }, `${errorCode}: ${message}`);
-    if (err instanceof Error && (err as any).stack) {
-      log.error({ requestId }, `Stack: ${(err as any).stack?.split('\n').slice(0, 6).join('\n')}`);
-    }
-
-    const bc: BuildContext = {
-      tenant: ctx.tenant,
-      requestId,
-      startTime,
-      queryOptions,
-      metaOverrides: {
-        cacheStatus: 'miss',
-        creditsCharged,
-        authMethod,
-        durationMs: Date.now() - startTime,
-      },
-    };
-    let response = jsonResponse(buildError(errorCode, message, bc), statusCode);
-    if (rateCheck) {
-      response = addRateLimitHeaders(response, rateCheck);
-    }
-    addAttributionHeader(response);
-    return response;
-  }
-}
-
-/**
- * Recursively remove null and empty fields from an object/array.
- */
-function compactObject(value: unknown): unknown {
-  if (value === null || value === undefined) return undefined;
-  if (typeof value === 'string' && value === '') return undefined;
-  if (Array.isArray(value)) {
-    const cleaned = value
-      .map(compactObject)
-      .filter((v) => v !== undefined);
-    return cleaned.length > 0 ? cleaned : undefined;
-  }
-  if (typeof value === 'object') {
-    const obj = value as Record<string, unknown>;
-    const result: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(obj)) {
-      const cleaned = compactObject(val);
-      if (cleaned !== undefined) {
-        result[key] = cleaned;
-      }
-    }
-    return Object.keys(result).length > 0 ? result : undefined;
-  }
-  return value;
-}
-
-/**
- * Handle _mock=true requests — return curated sample data for testing/demo.
- * First tries the new agent/action pattern (/v1/:agent/:action), then falls
- * back to the legacy flat-source pattern for backward compatibility.
- */
-async function handleMockRequest(
-  request: Request,
-  url: URL,
-  queryOptions: QueryOptions,
-): Promise<Response> {
-  const startTime = Date.now();
-  const requestId = 'mock-' + crypto.randomUUID().slice(0, 12);
+  // ── Route matched ──
   const pathname = url.pathname;
 
   // Try the new agent/action pattern first
@@ -812,6 +559,7 @@ async function handleMockRequest(
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const db = new D1Storage(env.DB);
+    initAnnotationStore(env.DB);
     const cache = new KVCache(env.CACHE);
     const envVars: Record<string, string | undefined> = {
       ENVIRONMENT: env.ENVIRONMENT,
