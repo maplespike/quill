@@ -5,9 +5,10 @@
  * analysis, and semantic search. Falls back to gov/search when the
  * gateway is unreachable.
  *
- * POST /v1/ai_ask       — Ask a natural language question
- * POST /v1/ai/analyze    — Analyze a document/transcript
- * POST /v1/ai/search     — Semantic search via Qdrant
+ * POST /v1/ai_ask (deprecated) — Ask a natural language question
+ * POST /v1/ai/ask           — Ask a natural language question (recommended)
+ * POST /v1/ai/analyze       — Analyze a document/transcript
+ * POST /v1/ai/search        — Semantic search via Qdrant
  */
 
 import type { RouteHandler } from '../types.js';
@@ -89,7 +90,7 @@ async function govSearch(query: string): Promise<{
 }
 
 /**
- * POST /v1/ai_ask
+ * POST /v1/ai_ask (DEPRECATED - use POST /v1/ai/ask instead)
  * Ask a natural language question. Tries AI Gateway first,
  * falls back to gov/search, then returns a structured answer.
  */
