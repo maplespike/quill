@@ -169,6 +169,9 @@ jobs:
       - name: Validate K8s Nix manifests build
         run: nix build .#k8s-manifests --no-link --print-out-paths
 
+      - name: Security, Resource, and Schema Validation
+        run: ./scripts/validate-k8s-manifests.sh
+
       - name: Verify generated manifest resource counts
         run: |
           MANIFEST=$(nix build .#k8s-manifests --no-link --print-out-paths)
