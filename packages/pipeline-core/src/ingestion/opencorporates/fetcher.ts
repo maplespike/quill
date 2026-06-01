@@ -76,3 +76,25 @@ export async function getCorporateGroupings(jurisdictionCode: string, companyNum
     ...ATTR,
   };
 }
+
+export async function getFilings(jurisdictionCode: string, companyNumber: string): Promise<{ filings: OCFiling[] } & typeof ATTR> {
+  const key = apiKey();
+  if (!key) return { filings: [], ...ATTR };
+  const data = await rateLimitedFetch(`${OC_API_BASE}/companies/${jurisdictionCode}/${companyNumber}/filings?api_token=${key}`);
+  return {
+    filings: (data?.results?.filings ?? []).map((f: any) => ({
+      title: f.filing?.title || '', date: f.filing?.date || undefined,
+      filingType: f.filing?.filing_type?.name || undefined, url: f.filing?.opencorporates_url || undefined,
+    })),
+    ...ATTR,
+  };
+}
+
+export async function getCompanyByCorporationNumber(corpNumber: string): Promise<{ company?: OCCompany } & typeof ATTR> {
+  // Try federal first, then common provinces
+  for (const jur of ['ca', 'ca_on', 'ca_bc', 'ca_ab', 'ca_qc']) {
+    const result = await getCompany(jur, corpNumber);
+    if (result.company) return result;
+  }
+  return { company: undefined, ...ATTR };
+}

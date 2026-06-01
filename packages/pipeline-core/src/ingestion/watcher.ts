@@ -263,7 +263,7 @@ export async function checkSource(
       store.setHash(source.id, currentHash);
     }
 
-      const event: ChangeEvent = {
+    const event: ChangeEvent = {
       sourceId: source.id, sourceName: source.name, detectedAt: now,
       previousHash, currentHash, changed,
       summary: changed ? `Content changed (length: ${body.length})` : 'No changes detected',
@@ -272,13 +272,11 @@ export async function checkSource(
 
     if (changed) {
       store.logEvent(event);
-      // Fire webhook notifications if enabled
       if (options?.notify !== false) {
         notifyWebhooks(event).catch(err =>
           console.warn(`[Watcher] Webhook dispatch failed: ${(err as Error).message}`),
         );
       }
-      // Fire re-ingestion callback if provided
       if (options?.onChange) {
         await options.onChange(source, event);
       }
