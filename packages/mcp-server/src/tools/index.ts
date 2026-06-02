@@ -143,8 +143,10 @@ import * as fireEmergency from './fire-emergency.js';
 import * as politicalDonations from './political-donations.js';
 import * as parliamentaryVoting from './parliamentary-voting.js';
 import * as publicAccounts from './public-accounts.js';
+import * as searchUndpHdr from './search-undp-hdr.js';
 import * as unComtrade from './un-comtrade.js';
 import * as worldbankWdi from './worldbank-wdi.js';
+// import * as wefGenderGap from './wef-gender-gap.js'; // Temporarily disabled - module not yet implemented
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 
@@ -314,6 +316,10 @@ export function getAllTools(): ToolModule[] {
     { definition: unComtrade.getComtradeByPartnerDefinition, handler: unComtrade.getComtradeByPartnerHandler },
     { definition: unComtrade.getComtradeByCommodityDefinition, handler: unComtrade.getComtradeByCommodityHandler },
     { definition: unComtrade.getComtradeTrendsDefinition, handler: unComtrade.getComtradeTrendsHandler },
+    // Phase 1 Expansion Tools - UNDP HDR
+    { definition: searchUndpHdr.searchUndpHdrDefinition, handler: searchUndpHdr.searchUndpHdrHandler },
+    { definition: searchUndpHdr.getUndpHdrIndicatorDefinition, handler: searchUndpHdr.getUndpHdrIndicatorHandler },
+    { definition: searchUndpHdr.getAllUndpHdrDefinition, handler: searchUndpHdr.getAllUndpHdrHandler },
     // Phase 1 Expansion Tools - World Bank WDI
     { definition: worldbankWdi.getWDIIndicatorDefinition, handler: worldbankWdi.getWDIIndicatorHandler },
     { definition: worldbankWdi.compareWDICountriesDefinition, handler: worldbankWdi.compareWDICountriesHandler },
@@ -321,6 +327,12 @@ export function getAllTools(): ToolModule[] {
     { definition: worldbankWdi.analyzeIndicatorTrendDefinition, handler: worldbankWdi.analyzeIndicatorTrendHandler },
     { definition: worldbankWdi.fetchTopicIndicatorsDefinition, handler: worldbankWdi.fetchTopicIndicatorsHandler },
     { definition: worldbankWdi.getIndicatorMetadataDefinition, handler: worldbankWdi.getIndicatorMetadataHandler },
+    // Phase 1 Expansion Tools - WEF Gender Gap Index
+    // Temporarily disabled until module is implemented
+    // ...(wefGenderGap.toolDefinitions ?? []).map((def: { name: string }, idx: number) => ({
+    //   definition: def,
+    //   handler: (wefGenderGap.toolHandlers ?? {})[def.name as keyof typeof wefGenderGap.toolHandlers],
+    // })),
     { definition: searchMunicipal.searchMunicipalDefinition, handler: searchMunicipal.searchMunicipalHandler },
     // Provincial Data Tools
     searchOnData,
