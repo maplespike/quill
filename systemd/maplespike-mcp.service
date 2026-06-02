@@ -1,0 +1,26 @@
+# MapleSpike MCP Server - Podman quadlet (systemd)
+# Build: nix build .#maplespike-mcp-image → podman load
+# Start: systemctl enable --now maplespike-mcp.service
+
+[Unit]
+Description=MapleSpike MCP Server (via Podman)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman run --rm \
+  --name maplespike-mcp \
+  -p 3001:3001 \
+  -e NODE_ENV=production \
+  -e PORT=3001 \
+  -e HOME=/tmp \
+  -e MAPLESPIKE_API_URL=http://127.0.0.1:8084/v1 \
+  -e MAPLESPIKE_API_KEY=maplespike-dev-key \
+  ghcr.io/reverb256/maplespike-mcp:2026-06-01
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
