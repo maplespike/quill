@@ -203,6 +203,293 @@
           echo "✓ $REGISTRY/$img:$TAG"
         done
       '';
+
+      # ── Podman Quadlet Services (systemd .container + .service) ─────
+      systemd-services = pkgs.symlinkJoin {
+        name = "maplespike-systemd-services";
+        paths = [
+          (pkgs.writeText "maplespike-mcp.container" ''
+[Container]
+Image=ghcr.io/reverb256/maplespike/maplespike-mcp:${self.shortRev or "stable"}
+ContainerName=maplespike-mcp
+Environment=PORT=3001,NODE_ENV=production
+PodmanArgs=--network=host
+'')
+          (pkgs.writeText "maplespike-mcp.service" ''
+[Unit]
+Description=Maplespike MCP Server
+After=network-online.target
+Wants=network-online.target
+Requires=maplespike-mcp.container
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start maplespike-mcp
+ExecStop=/usr/bin/podman stop -t 10 maplespike-mcp
+
+[Install]
+WantedBy=default.target
+'')
+          (pkgs.writeText "maplespike-api.container" ''
+[Container]
+Image=ghcr.io/reverb256/maplespike/maplespike-api:${self.shortRev or "stable"}
+ContainerName=maplespike-api
+Environment=PORT=8082,NODE_ENV=production,MAPLESPIKE_STORAGE=sqlite
+Volumes=maplespike-api-data:/data
+PodmanArgs=--network=host
+'')
+          (pkgs.writeText "maplespike-api.service" ''
+[Unit]
+Description=Maplespike API Server
+After=network-online.target
+Wants=network-online.target
+Requires=maplespike-api.container
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start maplespike-api
+ExecStop=/usr/bin/podman stop -t 10 maplespike-api
+
+[Install]
+WantedBy=default.target
+'')
+          (pkgs.writeText "maplespike-portal.container" ''
+[Container]
+Image=ghcr.io/reverb256/maplespike/maplespike-portal:${self.shortRev or "stable"}
+ContainerName=maplespike-portal
+Environment=PORT=8080,HOME=/tmp
+PodmanArgs=--network=host
+'')
+          (pkgs.writeText "maplespike-portal.service" ''
+[Unit]
+Description=Maplespike Portal
+After=network-online.target
+Wants=network-online.target
+Requires=maplespike-portal.container
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start maplespike-portal
+ExecStop=/usr/bin/podman stop -t 10 maplespike-portal
+
+[Install]
+WantedBy=default.target
+'')
+        ];
+      };
+
+      # ── Docker/Podman Load Scripts ─────────────────────────────
+      maplespike-load-all = pkgs.writeShellScriptBin "maplespike-load-all" ''
+        set -euo pipefail
+        RUNTIME=''${RUNTIME:-docker}
+
+        for img in maplespike-mcp maplespike-api maplespike-portal; do
+          echo "=== Loading $img ==="
+          path=$(nix build ".#$img-image" --print-out-paths --no-link -L)
+          $RUNTIME load < "$path"
+          echo "✓ $img loaded into $RUNTIME"
+        done
+      '';
+
+# Helm values.yaml ───────────────────────────────────────────────
+      helm-values = pkgs.writeText "values.yaml" ''
+# MapleSpike Helm Chart Values
+# Generated from maplespike flake (single source of truth)
+# Override per-environment: helm install -f values-prod.yaml
+
+# Image configuration
+image:
+  registry: ghcr.io/reverb256
+  tag: "${self.shortRev or "stable"}"
+  pullPolicy: IfNotPresent
+
+# API Server
+api:
+  replicas: 2
+  port: 8082
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    MAPLESPIKE_STORAGE: "sqlite"
+    NODE_ENV: "production"
+  volumeMounts:
+    - name: api-data
+      mountPath: /data
+
+# MCP Server
+mcp:
+  replicas: 1
+  port: 3001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+  env:
+    NODE_ENV: "production"
+
+# Portal
+portal:
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# ── BYOK: Bring Your Own Keys ───────────────────────────────
+# Support for user-provided API keys (no hardcoded secrets)
+# Three modes: k8s-secrets | external-manager | env-injection
+
+byok:
+  enabled: true
+  # Mode 1: Kubernetes Secrets (recommended for K8s clusters)
+  k8sSecrets:
+    enabled: true
+    canlii:
+      create: true
+      name: maplespike-api-keys
+      keys:
+        - MAPLESPIKE_CANLII_API_KEY
+    ai:
+      create: true
+      name: maplespike-ai-keys
+      keys:
+        - MAPLESPIKE_AI_ENDPOINT  # Custom AI endpoint URL
+        - MAPLESPIKE_AI_API_KEY   # API key for external provider (OpenAI, Anthropic, etc.)
+        - MAPLESPIKE_AI_MODEL      # Model name (e.g., gpt-4, claude-3-opus-20240229)
+
+  # Mode 2: External Secret Manager (AWS Secrets Manager, Azure Key Vault, etc.)
+  externalSecretManager:
+    enabled: false
+    provider: "aws-secrets-manager"  # aws-secrets-manager | azure-key-vault | hashicorp-vault
+    secretRefs:
+      canlii:
+        secretARN: "arn:aws:secretsmanager:region:account:secret:maplespike/canlii-api-key"
+      ai:
+        secretARN: "arn:aws:secretsmanager:region:account:secret:maplespike/ai-keys"
+
+  # Mode 3: Environment Variable Injection (least secure, not recommended)
+  envInjection:
+    enabled: false
+    # Keys must be provided as environment variables (not in values.yaml)
+    # MAPLESPIKE_CANLII_API_KEY (from CI/CD or user environment)
+    # MAPLESPIKE_AI_ENDPOINT (e.g., https://api.openai.com/v1, http://local-ai:8080)
+    # MAPLESPIKE_AI_API_KEY (e.g., sk-ant-..., sk-or-...)
+    # MAPLESPIKE_AI_MODEL (e.g., gpt-4, claude-3-opus-20240229)
+
+# Persistence
+persistence:
+  api:
+    enabled: true
+    storageClass: "longhorn"
+    size: "5Gi"
+    accessMode: "ReadWriteOnce"
+
+# Image pull secrets
+imagePullSecrets:
+  enabled: true
+  name: "ghcr-pull"
+
+# NetworkPolicy (restrict egress to trusted sources)
+networkPolicy:
+  enabled: true
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8084
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              k8s-app.kubernetes.io/name: ai-inference
+      ports:
+        - protocol: TCP
+          port: 8084
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              k8s-app.kubernetes.io/name: qdrant
+      ports:
+        - protocol: TCP
+          port: 6333
+
+# Ingress (for non-NixOS clusters)
+ingress:
+  enabled: false
+  ingressClassName: "nginx"
+  domain: "maplespike.lan"
+  annotations: {}
+'';
+
+      # ── Docker/Podman manifests (generated from Nix builds) ────────
+      docker-manifests = pkgs.symlinkJoin {
+        name = "maplespike-docker-manifests";
+        paths = [
+          (pkgs.writeText "docker-compose.yml" ''
+version: "3.8"
+
+services:
+  maplespike-api:
+    image: ghcr.io/reverb256/maplespike/maplespike-api:${self.shortRev or "stable"}
+    container_name: maplespike-api
+    ports:
+      - "8082:8082"
+    environment:
+      - NODE_ENV=production
+      - MAPLESPIKE_STORAGE=sqlite
+      - PORT=8082
+    volumes:
+      - maplespike-api-data:/data
+    networks:
+      - maplespike
+
+  maplespike-mcp:
+    image: ghcr.io/reverb256/maplespike/maplespike-mcp:${self.shortRev or "stable"}
+    container_name: maplespike-mcp
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    depends_on:
+      - maplespike-api
+    networks:
+      - maplespike
+
+  maplespike-portal:
+    image: ghcr.io/reverb256/maplespike/maplespike-portal:${self.shortRev or "stable"}
+    container_name: maplespike-portal
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HOME=/tmp
+    depends_on:
+      - maplespike-api
+    networks:
+      - maplespike
+
+networks:
+  maplespike:
+    driver: bridge
+
+volumes:
+  maplespike-api-data:
+'')
+        ];
+      };
     };
 
     # ── Convenience: k8sManifests as top-level flake output ──────
