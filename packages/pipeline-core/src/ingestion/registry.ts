@@ -1668,6 +1668,19 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'http://data.un.org/ws/rest/',
   },
+  {
+    name: 'undp-hdr',
+    description: 'UNDP Human Development Reports — HDI, IHDI, GDI, GII, PHDI, MPI indicators across countries',
+    category: 'international',
+    modulePath: './undp-hdr/index.js',
+    ingestFunctions: ['ingestHdrIndicator', 'ingestAllHdr', 'searchHdrRecords'],
+    sources: [
+      { name: 'UNDP Human Development Reports API', format: 'JSON' },
+    ],
+    updateFrequency: 'annual',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://hdr.undp.org/data-center',
+  },
 ];
 
 // Build lookup map

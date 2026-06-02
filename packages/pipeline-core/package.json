@@ -98,6 +98,10 @@
     "./undp-hdi": {
       "import": "./dist/ingestion/undp-hdi/index.js"
     },
+    "./undp-hdr": {
+      "import": "./dist/ingestion/undp-hdr/index.js",
+      "types": "./dist/ingestion/undp-hdr/index.d.ts"
+    },
     "./unhcr-refugees": {
       "import": "./dist/ingestion/unhcr-refugees/index.js"
     },
