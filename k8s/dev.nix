@@ -62,6 +62,26 @@ in {
       };
     };
 
+    # ── BYOK: User-Provided API Keys ───────────────────────────
+    # Users provide their own keys (CanLII, AI, etc.) - no hardcoded secrets
+    # Secret must exist before deployment:
+    #   kubectl create secret generic maplespike-api-keys \
+    #     --from-literal=MAPLESPIKE_CANLII_API_KEY=your_key_here \
+    #     --from-literal=MAPLESPIKE_AI_ENDPOINT=your_endpoint_here \
+    #     --from-literal=MAPLESPIKE_AI_API_KEY=your_ai_key_here \
+    #     --from-literal=MAPLESPIKE_AI_MODEL=your_model_here \
+    #     -n maplespike
+    maplespike.Secret.maplespike-api-keys = {
+      type = "Opaque";
+      stringData = {
+        # User must provide keys (can be empty string if not using feature)
+        MAPLESPIKE_CANLII_API_KEY = "";
+        MAPLESPIKE_AI_ENDPOINT = "";
+        MAPLESPIKE_AI_API_KEY = "";
+        MAPLESPIKE_AI_MODEL = "";
+      };
+    };
+
     # ── Portal ConfigMap ────────────────────────────────────────
     maplespike.ConfigMap.portal-config = {
       metadata.labels = {
@@ -117,9 +137,43 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   PORT = { name = "PORT"; value = "8082"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
                   STORAGE = { name = "MAPLESPIKE_STORAGE"; value = "memory"; };
-                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-dev-key"; };
-                  AI_ENDPOINT = { name = "MAPLESPIKE_AI_ENDPOINT"; value = "http://ai-inference-gateway.ai-inference:8080/v1"; };
-                  AI_MODEL = { name = "MAPLESPIKE_AI_MODEL"; value = "qwen3.5-27b"; };
+                  # BYOK: User-provided CanLII API Key (optional)
+                  CANLII_API_KEY = {
+                    name = "MAPLESPIKE_CANLII_API_KEY";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_CANLII_API_KEY";
+                      optional = true;
+                    };
+                  };
+                  # BYOK: User-provided AI config (optional, with fallbacks)
+                  AI_ENDPOINT = {
+                    name = "MAPLESPIKE_AI_ENDPOINT";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_ENDPOINT";
+                      optional = true;
+                    };
+                    default = "http://ai-inference-gateway.ai-inference:8080/v1";
+                  };
+                  AI_MODEL = {
+                    name = "MAPLESPIKE_AI_MODEL";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_MODEL";
+                      optional = true;
+                    };
+                    default = "qwen3.5-27b";
+                  };
+                  AI_API_KEY = {
+                    name = "MAPLESPIKE_AI_API_KEY";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_API_KEY";
+                      optional = true;
+                    };
+                    default = "maplespike-dev-key";
+                  };
                 };
                 resources = {
                   requests = { cpu = "50m"; memory = "64Mi"; };
@@ -196,9 +250,34 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   PORT = { name = "PORT"; value = "3001"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
                   API_URL = { name = "MAPLESPIKE_API_URL"; value = "http://maplespike-api.maplespike-dev.svc.cluster.local:8082/v1"; };
-                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-dev-key"; };
-                  AI_ENDPOINT = { name = "AI_ENDPOINT"; value = "http://ai-inference-gateway.ai-inference:8080/v1"; };
-                  AI_MODEL = { name = "AI_MODEL"; value = "qwen3.5-27b"; };
+                  # BYOK: User-provided AI config (optional, with fallbacks)
+                  AI_ENDPOINT = {
+                    name = "MAPLESPIKE_AI_ENDPOINT";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_ENDPOINT";
+                      optional = true;
+                    };
+                    default = "http://ai-inference-gateway.ai-inference:8080/v1";
+                  };
+                  AI_MODEL = {
+                    name = "MAPLESPIKE_AI_MODEL";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_MODEL";
+                      optional = true;
+                    };
+                    default = "qwen3.5-27b";
+                  };
+                  AI_API_KEY = {
+                    name = "MAPLESPIKE_AI_API_KEY";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_API_KEY";
+                      optional = true;
+                    };
+                    default = "maplespike-dev-key";
+                  };
                 };
                 resources = {
                   requests = { cpu = "50m"; memory = "64Mi"; };
