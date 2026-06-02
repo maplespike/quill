@@ -45,6 +45,8 @@ export const UN_DATABASES = {
   TRADE: 'UNSD/DF_TRADE',
   /** Trade in Services */
   TRADE_SERVICES: 'UNSD/DF_TRADE_SERVICES',
+  /** UNCTAD FDI Statistics */
+  UNCTAD_FDI: 'UNCTAD/DF_FDI',
 
   // ── Development & Economy ──
   /** National Accounts Main Aggregates */
@@ -76,6 +78,7 @@ export const UN_DATABASE_CATEGORIES: Record<string, UnDataCategory> = {
   [UN_DATABASES.POP_VITAL]: 'population',
   [UN_DATABASES.TRADE]: 'trade',
   [UN_DATABASES.TRADE_SERVICES]: 'trade',
+  [UN_DATABASES.UNCTAD_FDI]: 'trade',
   [UN_DATABASES.NATIONAL_ACCOUNTS]: 'finance',
   [UN_DATABASES.DEVELOPMENT]: 'development',
   [UN_DATABASES.ENVIRONMENT]: 'environment',
@@ -90,6 +93,7 @@ export const UN_DATABASE_NAMES: Record<string, string> = {
   [UN_DATABASES.POP_VITAL]: 'Population and Vital Statistics',
   [UN_DATABASES.TRADE]: 'International Trade (Comtrade)',
   [UN_DATABASES.TRADE_SERVICES]: 'Trade in Services',
+  [UN_DATABASES.UNCTAD_FDI]: 'UNCTAD FDI Statistics',
   [UN_DATABASES.NATIONAL_ACCOUNTS]: 'National Accounts Main Aggregates',
   [UN_DATABASES.DEVELOPMENT]: 'Development Indicators',
   [UN_DATABASES.ENVIRONMENT]: 'Environment Statistics',
@@ -101,7 +105,7 @@ export const UN_DATABASE_NAMES: Record<string, string> = {
 /** Grouped database codes by category for batch fetching */
 export const UN_DATABASES_BY_CATEGORY: Record<UnDataCategory, string[]> = {
   population: [UN_DATABASES.POP, UN_DATABASES.POP_VITAL],
-  trade: [UN_DATABASES.TRADE, UN_DATABASES.TRADE_SERVICES],
+  trade: [UN_DATABASES.TRADE, UN_DATABASES.TRADE_SERVICES, UN_DATABASES.UNCTAD_FDI],
   development: [UN_DATABASES.DEVELOPMENT],
   environment: [UN_DATABASES.ENVIRONMENT],
   health: [UN_DATABASES.HEALTH],
