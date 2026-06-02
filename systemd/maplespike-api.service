@@ -1,0 +1,26 @@
+# MapleSpike API Server - Podman quadlet (systemd)
+# Build: nix build .#maplespike-api-image → podman load
+# Start: systemctl enable --now maplespike-api.service
+
+[Unit]
+Description=MapleSpike API Server (via Podman)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman run --rm \
+  --name maplespike-api \
+  -p 8082:8082 \
+  -e NODE_ENV=production \
+  -e PORT=8082 \
+  -e MAPLESPIKE_STORAGE=sqlite \
+  -e HOME=/tmp \
+  -v maplespike-api-data:/data \
+  ghcr.io/reverb256/maplespike-api:2026-06-01
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
