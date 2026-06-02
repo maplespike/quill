@@ -1,0 +1,567 @@
+{{- if .Values.maplespike.engine.enabled -}}
+{{- $postgresHost := .Release.Name | printf "%s-postgresql" .Values.maplespike.engine.postgresql.fullnameOverride | default (printf "%s-postgresql" .Release.Name) }}
+{{- end -}}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.maplespike.namespace }}
+  labels:
+    app: maplespike
+    component: maplespike
+    tier: backend
+    {{- with .Values.maplespike.labels }}
+    {{ toYaml . }}
+    {{- end }}
+    "pod-security.kubernetes.io/enforce": {{ .Values.maplespike.podSecurity.enforce | quote }}
+    "pod-security.kubernetes.io/audit": {{ .Values.maplespike.podSecurity.audit | quote }}
+    "pod-security.kubernetes.io/warn": {{ .Values.maplespike.podSecurity.warn | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maplespike-config
+  namespace: {{ .Values.maplespike.namespace }}
+  labels:
+    app: maplespike
+data:
+  NODE_ENV: "production"
+  PORT: "{{ .Values.maplespike.mcp.port }}"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: maplespike-api-data
+  namespace: {{ .Values.maplespike.namespace }}
+  labels:
+    app: maplespike
+data access modes: {{ .Values.maplespike.storage.data.accessMode | quote }}
+spec:
+  accessModes:
+    {{- toYaml .Values.maplespike.storage.data.accessMode | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.maplespike.storage.data.size }}
+  storageClassName: {{ .Values.maplespike.storage.data.storageClassName | default "" }}
+---
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: maplespike-api
+  namespace: {{ $ns }}
+  labels:
+    app: maplespike-api
+    component: api
+    tier: backend
+spec:
+  replicas: {{ .Values.maplespike.replicas.api }}
+  selector:
+    matchLabels:
+      app: maplespike-api
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: maplespike-api
+        component: api
+        tier: backend
+    spec:
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: maplespike-api
+        image: {{ .Values.maplespike.images.api | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+          name: api
+        - containerPort: 8080
+          name: http
+        env:
+        - name: PORT
+          value: "8082"
+        - name: NODE_ENV
+          value: "production"
+        - name: MAPLESPIKE_STORAGE
+          value: {{ .Values.maplespike.api.storage | quote }}
+        - name: HOME
+          value: "/tmp"
+        resources:
+          requests:
+            cpu: {{ .Values.maplespike.resources.api.requests.cpu | quote }}
+            memory: {{ .Values.maplespike.resources.api.requests.memory | quote }}
+          limits:
+            cpu: {{ .Values.maples.resources.api.limits.cpu | quote }}
+            memory: {{ .Values.maples.resources.api.limits.memory | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - name: api-data
+          mountPath: /data
+        {{- if .Values.maplespike.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /v1/health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /v1/health
+            port: 8082
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        {{- end }}
+        {{- if .Values.maplespike.startupProbe.enabled }}
+        startupProbe:
+          httpGet:
+            path: /v1/health
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 30
+        {{- end }}
+      volumes:
+      - name: api-data
+        persistentVolumeClaim:
+          claimName: maplespike-api-data
+      {{- if .Values.maplespike.imagePullSecrets.enabled }}
+      imagePullSecrets:
+      - name: {{ .Values.maplespike.imagePullSecrets.secretName }}
+      {{- end }}
+---
+{{- end }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: maplespike-mcp
+  namespace: {{ $ns }}
+  labels:
+    app: maplespike-mcp
+    component: mcp
+    tier: backend
+spec:
+  replicas: {{ .Values.maplespike.replicas.mcp }}
+  selector:
+    matchLabels:
+      app: maplespike-mcp
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: maplespike-mcp
+        component: mcp
+        tier: backend
+    spec:
+      serviceAccountName: maplespike-mcp-{{ $ns }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: maplespike-mcp
+        image: {{ .Values.maplespike.images.mcp | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3001
+          name: mcp
+        env:
+        - name: PORT
+          value: "3001"
+        - name: NODE_ENV
+          value: "production"
+        - name: HOME
+          value: "/tmp"
+        resources:
+          requests:
+            cpu: {{ .Values.maplespike.resources.mcp.requests.cpu | quote }}
+            memory: {{ .Values.maples.resources.mcp.requests.memory | quote }}
+          limits:
+            cpu: {{ .Values.maples.resources.mcp.limits.cpu | quote }}
+            memory: {{ .Values.maples.resources.mcp.limits.memory | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        {{- if .Values.maplespike.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        {{- end }}
+        {{- if .Values.maplespike.startupProbe.enabled }}
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 30
+        {{- end }}
+      {{- if .Values.maplespike.imagePullSecrets.enabled }}
+      imagePullSecrets:
+      - name: {{ .Values.maplespike.imagePullSecrets.secretName }}
+      {{- end }}
+---
+{{- end }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: maplespike-portal
+  namespace: {{ $ns }}
+  labels:
+    app: maplespike-portal
+    component: portal
+    tier: frontend
+spec:
+  replicas: {{ .Values.maples.replicas.portal }}
+  selector:
+    matchLabels:
+      app: maplespike-portal
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: maplesportal-portal
+        component: portal
+        tier: frontend
+    spec:
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: maplespike-portal
+        image: {{ .Values.maplespike.images.portal | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: HOME
+          value: "/tmp"
+        resources:
+          requests:
+            cpu: {{ .Values.maplespike.resources.portal.requests.cpu | quote }}
+            memory: {{ .Values.maples.micro.resources.portal.requests.memory | quote }}
+          limits:
+            cpu: {{ .Values.maplespike.resources.portal.limits.cpu | quote }}
+            memory: {{ .Values.maplespike.resources.portal.limits.memory | quote }}
+        securityContext:
+          allowPrivilegeEscalation false
+          capabilities:
+            drop: ["ALL"]
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        {{- if .Values.maplespike.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        {{- end }}
+        {{- if .Values.maplespike.startupProbe.enabled }}
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 30
+        {{- end }}
+      {{- if .Values.maplespike.imagePullSecrets.enabled }}
+      imagePullSecrets:
+      - name: {{ .Values.maplespike.imagePullSecrets.secretName }}
+      {{- end }}
+---
+{{- end }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: maplespike-api
+  namespace: {{ $ns }}
+  labels:
+    app: maplespike-api
+    component: api
+    tier: backend
+spec:
+  selector:
+    app: maplespike-api
+  ports:
+  - port: 8080
+    targetPort: 8082
+    protocol: TCP
+    name: http
+  - port: 8082
+    targetPort: 8082
+    protocol: TCP
+    name: api
+  type: ClusterIP
+---
+{{- end }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: maplespike-mcp
+  namespace: {{ $ns }}
+  labels:
+    app: maplespike-mcp
+    component: mcp
+    tier: backend
+spec:
+  selector:
+    app: maplespike-mcp
+  ports:
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: mcp
+  type: ClusterIP
+---
+{{- end }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: maplespike-portal
+  namespace: {{ $ns }}
+  labels:
+    app: maplespike-portal
+    component: portal
+    tier: frontend
+spec:
+  selector:
+    app: maplespike-portal
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: HTTP
+    name: http
+  type: ClusterIP
+---
+{{- end }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: maplespike-mcp-{{ $ns }}
+  namespace: {{ $ns }}
+  annotations:
+    kubernetes.io/enforce-no-automount-token: "false"
+---
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: maplespike-mcp-audit
+  labels:
+    app: maplespike
+rules:
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["clusterroles" "clusterrolebindings" "roles" "rolebindings"]
+  verbs: ["get" "list" "watch"]
+- apiGroups: [""]
+  resources: ["namespaces" "serviceaccounts"]
+  verbs: ["get" "list"]
+- apiGroups: ["authorization.k8s.io"]
+  resources: ["selfsubjectaccessreviews" "selfsubjectrulesreviews"]
+  verbs: ["create"]
+---
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: maplespike-mcp-audit-{{ $ns }}
+  labels:
+    app: maplespike
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: maplespike-mcp-audit
+subjects:
+- kind: ServiceAccount
+  name: maplespike-mcp-{{ $ns }}
+  namespace: {{ $ns }}
+---
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: maplespike-network-policy
+  namespace: {{ .Values.maplespike.namespace }}
+  labels:
+    app: maplespike
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: maplespike-*
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    podSelector: {}
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          app.kubernetes.io/name: k3s
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          k8s-app.kubernetes.io/name: ai-inference
+  ports:
+  - protocol: TCP
+    port: 8084
+    endPort: 8084
+  - protocol: TCP
+    port: 3001
+    endPort: 3001
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          k8s-app.kubernetes.io/name: qdrant
+  ports:
+  - protocol: TCP
+    port: 6333
+    endPort: 6333
+---
+{{- if .Values.maplespike.ingress.enabled }}
+{{- range $ns := .Values.maplespike.namespaces }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maplespike-ingress-{{ $ns }}
+  namespace: {{ $ns }}
+  annotations:
+    {{- range $key, $value := .Values.maplespike.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  labels:
+    app: maplespike
+spec:
+  ingressClassName: {{ .Values.maplespike.ingress.className | quote }}
+  rules:
+  - host: {{ .Values.maplespike.ingress.host | quote }}
+    http:
+      paths:
+      - path: /api/v1
+        pathType: Prefix
+        backend:
+          service:
+            name: maplespike-api
+            namespace: {{ $ns }}
+            port:
+              number: 8082
+      - path: /sse
+        pathType: Prefix
+        backend:
+          service:
+            name: maplespike-mcp
+            namespace: {{ $ns }}
+            port:
+              number: 3001
+      - path: /messages
+        pathType: Prefix
+        backend:
+          service:
+            name: maplespike-mcp
+            namespace: {{ $ns }}
+            port:
+              number: 3001
+      - path: /health
+        pathType: Prefix
+        backend:
+          service:
+            name: maplespike-mcp
+            namespace: {{ $ns }}
+            port:
+              number: 3001
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: maplespike-portal
+            namespace: {{ $ns }}
+            port:
+              number: 80
+---
+{{- end }}
+{{- end }}
