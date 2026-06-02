@@ -103,6 +103,22 @@ export const TOPIC_INDICATORS = {
       'EG.USE.COMM.GD.PP.KD.OE',
     ],
   },
+  agricultural: {
+    code: 'agricultural',
+    name: 'Agricultural Development',
+    indicators: [
+      'AG.LND.AGRI.ZS',
+      'AG.LND.CREL.HA',
+      'AG.YLD.CREL.KG',
+      'AG.PRD.CROP.XD',
+      'AG.PRD.LVSK.XD',
+      'AG.LND.TRAC.ZS',
+      'AG.CON.FERT.ZS',
+      'AG.LND.IRIG.AG.ZS',
+      'ER.H2O.FWAG.ZS',
+      'NV.AGR.TOTL.ZS',
+    ],
+  },
   governance: {
     code: 'governance',
     name: 'Governance Indicators',
