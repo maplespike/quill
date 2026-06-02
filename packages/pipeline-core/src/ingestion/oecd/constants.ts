@@ -10,8 +10,9 @@ export const OECD_USER_AGENT = 'MapleSpike-OECD/1.0';
 
 export const TOPIC_NAAG = 'NAAG';
 export const TOPIC_HEALTH = 'HEALTH';
+export const TOPIC_EOS = 'EOS';
 
-export const DEFAULT_DATASETS = ['NAAG', 'HEALTH'];
+export const DEFAULT_DATASETS = ['NAAG', 'HEALTH', 'EOS'];
 
 export const OECD_DATASETS: OecdDataset[] = [
   {
@@ -28,6 +29,13 @@ export const OECD_DATASETS: OecdDataset[] = [
     updateFrequency: 'annual',
     csvUrlTemplate: `${OECD_CSV_EXPORT_BASE_URL}/OECD,HEALTH_STAT/1.0/.`,
   },
+  {
+    id: 'EOS',
+    name: 'Economic Outlook',
+    description: 'GDP growth, inflation, unemployment, fiscal balances',
+    updateFrequency: 'semi-annual',
+    csvUrlTemplate: `${OECD_CSV_EXPORT_BASE_URL}/OECD,EO/1.0/.`,
+  },
 ];
 
 export const OECD_TOPICS = {
@@ -42,6 +50,12 @@ export const OECD_TOPICS = {
     name: 'Health Statistics',
     datasets: ['HEALTH'],
     description: 'Health expenditure, workforce, outcomes by country',
+  },
+  [TOPIC_EOS]: {
+    code: TOPIC_EOS,
+    name: 'Economic Outlook',
+    datasets: ['EOS'],
+    description: 'GDP growth, inflation, unemployment, fiscal balances',
   },
 } as const;
 
