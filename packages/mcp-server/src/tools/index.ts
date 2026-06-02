@@ -146,7 +146,7 @@ import * as publicAccounts from './public-accounts.js';
 import * as searchUndpHdr from './search-undp-hdr.js';
 import * as unComtrade from './un-comtrade.js';
 import * as worldbankWdi from './worldbank-wdi.js';
-import * as wefGenderGap from './wef-gender-gap.js';
+// import * as wefGenderGap from './wef-gender-gap.js'; // Temporarily disabled - module not yet implemented
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 
@@ -328,10 +328,11 @@ export function getAllTools(): ToolModule[] {
     { definition: worldbankWdi.fetchTopicIndicatorsDefinition, handler: worldbankWdi.fetchTopicIndicatorsHandler },
     { definition: worldbankWdi.getIndicatorMetadataDefinition, handler: worldbankWdi.getIndicatorMetadataHandler },
     // Phase 1 Expansion Tools - WEF Gender Gap Index
-    ...wefGenderGap.toolDefinitions.map((def, idx) => ({
-      definition: def,
-      handler: wefGenderGap.toolHandlers[def.name as keyof typeof wefGenderGap.toolHandlers],
-    })),
+    // Temporarily disabled until module is implemented
+    // ...(wefGenderGap.toolDefinitions ?? []).map((def: { name: string }, idx: number) => ({
+    //   definition: def,
+    //   handler: (wefGenderGap.toolHandlers ?? {})[def.name as keyof typeof wefGenderGap.toolHandlers],
+    // })),
     { definition: searchMunicipal.searchMunicipalDefinition, handler: searchMunicipal.searchMunicipalHandler },
     // Provincial Data Tools
     searchOnData,
