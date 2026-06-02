@@ -29,6 +29,26 @@ in {
       };
     };
 
+    # ── BYOK: User-Provided API Keys ───────────────────────────
+    # Users provide their own keys (CanLII, AI, etc.) - no hardcoded secrets
+    # Secret must exist before deployment:
+    #   kubectl create secret generic maplespike-api-keys \
+    #     --from-literal=MAPLESPIKE_CANLII_API_KEY=your_key_here \
+    #     --from-literal=MAPLESPIKE_AI_ENDPOINT=your_endpoint_here \
+    #     --from-literal=MAPLESPIKE_AI_API_KEY=your_ai_key_here \
+    #     --from-literal=MAPLESPIKE_AI_MODEL=your_model_here \
+    #     -n maplespike-prod
+    maplespike-prod.Secret.maplespike-api-keys = {
+      type = "Opaque";
+      stringData = {
+        # User must provide keys (can be empty string if not using feature)
+        MAPLESPIKE_CANLII_API_KEY = "";
+        MAPLESPIKE_AI_ENDPOINT = "";
+        MAPLESPIKE_AI_API_KEY = "";
+        MAPLESPIKE_AI_MODEL = "";
+      };
+    };
+
     # ── DB Secret ───────────────────────────────────────────────
     maplespike-prod.Secret.maplespike-db-secret = {
       type = "Opaque";
@@ -159,12 +179,55 @@ in {
                   PORT = { name = "PORT"; value = "8082"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "production"; };
                   STORAGE = { name = "MAPLESPIKE_STORAGE"; value = "sqlite"; };
+                  # BYOK: User-provided CanLII API Key (optional)
+                  CANLII_API_KEY = {
+                    name = "MAPLESPIKE_CANLII_API_KEY";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_CANLII_API_KEY";
+                      optional = true;
+                    };
+                  };
+                  # BYOK: User-provided AI config (optional, with fallbacks)
+                  AI_ENDPOINT = {
+                    name = "MAPLESPIKE_AI_ENDPOINT";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_ENDPOINT";
+                      optional = true;
+                    };
+                    default = "http://ai-inference-gateway.ai-inference:8080/v1";
+                  };
+                  AI_MODEL = {
+                    name = "MAPLESPIKE_AI_MODEL";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_MODEL";
+                      optional = true;
+                    };
+                    default = "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf";
+                  };
+                  AI_API_KEY = {
+                    name = "MAPLESPIKE_AI_API_KEY";
+                    valueFrom.secretKeyRef = {
+                      name = "maplespike-api-keys";
+                      key = "MAPLESPIKE_AI_API_KEY";
+                      optional = true;
+                    };
+                    default = "maplespike-dev-key";
+                  };
+                  # Database config (can be overridden by external Postgres)
                   DB_PATH = { name = "MAPLESPIKE_DB_PATH"; value = "/data/maplespike.db"; };
-                  AI_ENDPOINT = { name = "MAPLESPIKE_AI_ENDPOINT"; value = "http://ai-inference-gateway.ai-inference:8080/v1"; };
-                  AI_MODEL = { name = "MAPLESPIKE_AI_MODEL"; value = "Carnice-Qwen3.6-MoE-35B-A3B.IQ4_XS.gguf"; };
-                  API_KEY = { name = "MAPLESPIKE_API_KEY"; value = "maplespike-dev-key"; };
-                  DB_HOST = { name = "MAPLESPIKE_DB_HOST"; value = "maplespike-db"; };
-                  DB_PORT = { name = "MAPLESPIKE_DB_PORT"; value = "5432"; };
+                  DB_HOST = {
+                    name = "MAPLESPIKE_DB_HOST";
+                    value = "";
+                    optional = true;
+                  };
+                  DB_PORT = {
+                    name = "MAPLESPIKE_DB_PORT";
+                    value = "";
+                    optional = true;
+                  };
                   DB_NAME = { name = "MAPLESPIKE_DB_NAME"; value = "maplespike"; };
                   DB_USER = {
                     name = "MAPLESPIKE_DB_USER";
