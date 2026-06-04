@@ -3,8 +3,8 @@
   "//_generated": "2026-05-31",
   "version": "2026-05-31",
   "modules": {
-    "registryCount": 126,
-    "ingestionDirs": 116,
+    "registryCount": 127,
+    "ingestionDirs": 117,
     "description": "126 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 116 ingestion/ subdirectories with standalone fetch->parse->persist pipelines."
   },
   "mcpTools": {
