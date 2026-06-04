@@ -23,7 +23,7 @@ export function parseODataRecords(
         period = String(val ?? '');
       } else if (typeof val === 'number' && value === null) {
         value = val;
-      } else {
+      } else if (val !== null && typeof val !== 'boolean') {
         dimensions[key] = val;
       }
     }
