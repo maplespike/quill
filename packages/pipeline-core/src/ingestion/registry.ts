@@ -1762,7 +1762,18 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   updateFrequency: 'monthly',
   testCallPattern: 'runModule',
   healthCheckUrl: 'https://api.ons.gov.uk/v1',
- },
+},
+{
+  name: 'fao-faostat',
+  description: 'FAO FAOSTAT — UN Food and Agriculture Organization: crops, livestock, trade, food balances, food security, emissions, fertilizers, land use, population, fisheries, forestry',
+  category: 'international',
+  modulePath: './fao-faostat/index.js',
+  ingestFunctions: ['ingestFaoDataset', 'ingestAllFao', 'searchFaoRecords'],
+  sources: [{ name: 'FAO FAOSTAT REST API', format: 'JSON' }],
+  updateFrequency: 'annual',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://www.fao.org/faostat/en/#data',
+},
 ];
 
 // Build lookup map
