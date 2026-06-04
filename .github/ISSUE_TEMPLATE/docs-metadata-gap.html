@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Docs Metadata Gap</title>
+  <style>body{font-family:system-ui,sans-serif;max-width:700px;margin:2em auto;padding:0 1em}label{display:block;margin-top:1em;font-weight:600}input,textarea,select{width:100%;padding:0.5em;margin-top:0.3em;border:1px solid #ccc;border-radius:4px;font-size:1em}button{margin-top:1.5em;padding:0.7em 2em;background:#0366d6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:1em}button:hover{background:#0257aa}</style>
+</head>
+<body>
+  <h1>Docs Metadata Gap</h1>
+  <p>Report documentation files missing or with stale <code>last-reviewed</code> metadata.</p>
+
+  <form action="https://github.com/reverb256/maplespike/issues/new" method="GET">
+    <input type="hidden" name="template" value="docs-metadata-gap.md">
+    <input type="hidden" name="labels" value="documentation,auto-created,kelos">
+
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" placeholder="docs: Add metadata to &lt;file&gt;" required>
+
+    <label for="files">Files Affected</label>
+    <textarea id="files" name="body" rows="5" placeholder="List files missing last-reviewed metadata..."></textarea>
+
+    <label for="problem">Problem Type</label>
+    <select id="problem" name="problem_type">
+      <option value="missing">File missing last-reviewed frontmatter entirely</option>
+      <option value="stale">last-reviewed date is stale (&gt; 30 days)</option>
+      <option value="syntax">YAML frontmatter syntax is invalid</option>
+    </select>
+
+    <button type="submit">Create Issue</button>
+  </form>
+</body>
+</html>
