@@ -1,184 +1,67 @@
-/**
- * UK ONS (Office for National Statistics) API Ingestion Module
- *
- * Ingests UK statistics data from ONS API.
- * No authentication required - public beta API.
- *
- * Data includes:
- * - Datasets by ID
- * - Time series data
- * - Economic indicators
- * - Demographics
- *
- * API Documentation: https://developer.ons.gov.uk/
- */
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { httpGet } from '../../utils/http.js';
+import { buildAttribution, withAttribution } from '../../shared/attribution.js';
+import { fetchTimeseries, fetchMultiTimeseries, searchDatasets } from './fetcher.js';
+import { parseTimeseries, parseMultiTimeseries } from './parser.js';
+import { DEFAULT_TIMESERIES, DEFAULT_DATASETS, TOPIC_DATASETS } from './constants.js';
+import type { OnsFactRecord, OnsIngestionResult } from './types.js';
 
-const ONS_API_BASE = 'https://api.beta.ons.gov.uk/v1';
-const ONS_TIMEOUT_MS = 15_000;
-const ONS_USER_AGENT = 'MapleSpike-ONS/1.0 (+https://github.com/reverb256/maplespike)';
-
-interface ONSLink {
-  href: string;
-  id: string;
-}
-
-interface ONSDataset {
-  id: string;
-  title: string;
-  description: string;
-  links: {
-    self: ONSLink;
-    latest_version: ONSLink;
-    dimensions: ONSLink;
-  };
-}
-
-interface ONSTimeSeriesValue {
-  date: string;
-  value: string;
-  year: string;
-  month: string;
-  quarter: string;
-}
-
-interface ONSTimeSeries {
-  id: string;
-  title: string;
-  description: string;
-  releaseDate: string;
-  nextRelease: string;
-  contact: {
-    email: string;
-    name: string;
-    telephone: string;
-  };
-  links: {
-    self: ONSLink;
-    dataset_version: ONSLink;
-    latest_changes: ONSLink;
-  };
-}
-
-interface ONSObservation {
-  date: string;
-  value: string;
-  observation: string;
-}
-
-interface ONSDatasetVersion {
-  id: string;
-  version: number;
-  links: {
-    self: ONSLink;
-    dataset: ONSLink;
-  };
-}
-
-/**
- * Get all available datasets from ONS.
- * @returns List of datasets with metadata
- */
-export async function getAllDatasets(): Promise<ONSDataset[]> {
-  const url = `${ONS_API_BASE}/datasets`;
-
-  const resp = await httpGet(url, {
-    timeoutMs: ONS_TIMEOUT_MS,
-    headers: {
-      'User-Agent': ONS_USER_AGENT,
-      'Accept': 'application/json',
-    },
+function makeAttribution() {
+  return buildAttribution('Office for National Statistics (UK)', {
+    sourceUrl: 'https://www.ons.gov.uk/',
+    license: 'OGL v3 (UK Government)',
+    attributionText: 'Data sourced from the Office for National Statistics (OGL v3)',
   });
+}
 
-  if (resp.statusCode >= 400) {
-    throw new Error(`ONS API error: HTTP ${resp.statusCode}`);
+export async function ingestSeries(cdid: string): Promise<OnsIngestionResult> {
+  const start = Date.now();
+  const data = await fetchTimeseries(cdid);
+  if (!data) {
+    return { series: cdid, records: [], observationsExtracted: 0, errors: [`Failed to fetch ${cdid}`], durationMs: Date.now() - start };
   }
-
-  const data = JSON.parse(resp.body);
-  return data.items || [];
+  const records = parseTimeseries(cdid, data);
+  return { series: cdid, records, observationsExtracted: records.length, errors: [], durationMs: Date.now() - start };
 }
 
-/**
- * Get dataset by ID.
- * @param datasetId - Dataset identifier
- * @returns Dataset metadata
- */
-export async function getDataset(datasetId: string): Promise<ONSDataset> {
-  const url = `${ONS_API_BASE}/datasets/${datasetId}`;
-
-  const resp = await httpGet(url, {
-    timeoutMs: ONS_TIMEOUT_MS,
-    headers: {
-      'User-Agent': ONS_USER_AGENT,
-      'Accept': 'application/json',
-    },
-  });
-
-  if (resp.statusCode >= 400) {
-    throw new Error(`ONS API error: HTTP ${resp.statusCode}`);
+export async function ingestAllOns(series?: string[]): Promise<Record<string, OnsFactRecord[]>> {
+  const targets = series ?? DEFAULT_TIMESERIES;
+  const rawData = await fetchMultiTimeseries(targets);
+  const results: Record<string, OnsFactRecord[]> = {};
+  for (const [cdid, data] of rawData) {
+    results[cdid] = parseTimeseries(cdid, data);
   }
-
-  return JSON.parse(resp.body);
+  return results;
 }
 
-/**
- * Get time series data by ID.
- * @param timeSeriesId - Time series identifier
- * @returns Time series data with observations
- */
-export async function getTimeSeries(timeSeriesId: string): Promise<{
-  series: ONSTimeSeries;
-  observations: ONSObservation[];
-}> {
-  const url = `${ONS_API_BASE}/timeseries/${timeSeriesId}/dataset/${timeSeriesId}`;
-
-  const resp = await httpGet(url, {
-    timeoutMs: ONS_TIMEOUT_MS,
-    headers: {
-      'User-Agent': ONS_USER_AGENT,
-      'Accept': 'application/json',
-    },
-  });
-
-  if (resp.statusCode >= 400) {
-    throw new Error(`ONS API error: HTTP ${resp.statusCode}`);
+export async function ingestByTopic(
+  topicKey: string,
+  series?: string[],
+): Promise<{ topic: string; topicName: string; results: Record<string, OnsFactRecord[]> }> {
+  const topic = TOPIC_DATASETS[topicKey];
+  if (!topic) throw new Error(`Unknown topic: ${topicKey}. Valid: ${Object.keys(TOPIC_DATASETS).join(', ')}`);
+  const targets = series ?? topic.timeseries;
+  const rawData = await fetchMultiTimeseries(targets);
+  const results: Record<string, OnsFactRecord[]> = {};
+  for (const [cdid, data] of rawData) {
+    results[cdid] = parseTimeseries(cdid, data);
   }
-
-  const data = JSON.parse(resp.body);
-
-  return {
-    series: data,
-    observations: data.observations || [],
-  };
+  return { topic: topicKey, topicName: topic.name, results };
 }
 
-/**
- * Search datasets by keyword.
- * @param query - Search query string
- * @returns Matching datasets
- */
-export async function searchDatasets(query: string): Promise<ONSDataset[]> {
-  const url = `${ONS_API_BASE}/datasets?search=${encodeURIComponent(query)}`;
-
-  const resp = await httpGet(url, {
-    timeoutMs: ONS_TIMEOUT_MS,
-    headers: {
-      'User-Agent': ONS_USER_AGENT,
-      'Accept': 'application/json',
-    },
-  });
-
-  if (resp.statusCode >= 400) {
-    throw new Error(`ONS API error: HTTP ${resp.statusCode}`);
+export async function healthCheck() {
+  const attribution = makeAttribution();
+  try {
+    const data = await fetchTimeseries('CPI');
+    return withAttribution({
+      healthy: data !== null && (data.months ?? data.quarters ?? data.years ?? []).length > 0,
+      testSeries: 'CPI',
+      observationsFound: data ? (data.months ?? data.quarters ?? data.years ?? []).length : 0,
+    }, attribution);
+  } catch {
+    return withAttribution({ healthy: false, testSeries: 'CPI', observationsFound: 0 }, attribution);
   }
-
-  const data = JSON.parse(resp.body);
-  return data.items || [];
 }
 
-export interface GetTimeSeriesResult {
-  series: ONSTimeSeries;
-  observations: ONSObservation[];
-  total: number;
-}
+export type { OnsFactRecord, OnsTimeseriesData, OnsIngestionResult } from './types.js';
+export { DEFAULT_TIMESERIES, DEFAULT_DATASETS, TOPIC_DATASETS } from './constants.js';
