@@ -276,17 +276,40 @@ export function runMigrations(db?: DbClient): void {
     );
 
     CREATE TABLE IF NOT EXISTS briefs (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      summary TEXT NOT NULL,
-      sections TEXT NOT NULL,
-      entity_ids TEXT NOT NULL,
-      confidence REAL NOT NULL,
-      generated_at TEXT NOT NULL,
-      expires_at TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    sections TEXT NOT NULL,
+    entity_ids TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    generated_at TEXT NOT NULL,
+    expires_at TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
-  `);
+
+    CREATE TABLE IF NOT EXISTS notification_subscriptions (
+    id TEXT PRIMARY KEY NOT NULL,
+    email TEXT NOT NULL,
+    source_filter TEXT NOT NULL,
+    event_types TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1,
+    label TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS notification_events (
+    id TEXT PRIMARY KEY NOT NULL,
+    subscription_id TEXT NOT NULL REFERENCES notification_subscriptions(id),
+    source_id TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    delivered_at TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    error TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    `);
 }
 
 /**
