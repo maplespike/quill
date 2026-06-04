@@ -1681,6 +1681,52 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://hdr.undp.org/data-center',
   },
+
+ // ── Five Eyes International Comparators ────────────────────
+ {
+  name: 'us-cia',
+  description: 'CIA World Factbook — country profiles with demographics, economy, defence, health, and infrastructure indicators for Five Eyes comparison',
+  category: 'international',
+  modulePath: './us-cia/index.js',
+  ingestFunctions: ['ingestCountry', 'ingestAllCia', 'compareCountries', 'ingestByTopic', 'healthCheck'],
+  sources: [{ name: 'CIA World Factbook API', format: 'JSON' }],
+  updateFrequency: 'annual',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://www.cia.gov/the-world-factbook/',
+ },
+ {
+  name: 'au-abs',
+  description: 'Australian Bureau of Statistics — CPI, GDP, labour force, population, trade via SDMX-JSON API',
+  category: 'international',
+  modulePath: './au-abs/index.js',
+  ingestFunctions: ['ingestDataflow', 'ingestAllAbs', 'ingestByTopic', 'healthCheck'],
+  sources: [{ name: 'ABS Data API (SDMX)', format: 'SDMX-JSON' }],
+  updateFrequency: 'quarterly',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://api.data.abs.gov.au',
+ },
+ {
+  name: 'nz-stats',
+  description: 'Statistics New Zealand — CPI, GDP, labour, population, trade via OData API',
+  category: 'international',
+  modulePath: './nz-stats/index.js',
+  ingestFunctions: ['ingestDataset', 'ingestAllSnz', 'ingestByTopic', 'healthCheck'],
+  sources: [{ name: 'Stats NZ OData API', format: 'OData/JSON' }],
+  updateFrequency: 'quarterly',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://api.stats.govt.nz/odata/v1',
+ },
+ {
+  name: 'uk-ons',
+  description: 'UK Office for National Statistics — CPI, GDP, labour force, population, trade, housing via time series API',
+  category: 'international',
+  modulePath: './uk-ons/index.js',
+  ingestFunctions: ['ingestSeries', 'ingestAllOns', 'ingestByTopic', 'healthCheck'],
+  sources: [{ name: 'ONS Time Series API', format: 'JSON' }],
+  updateFrequency: 'monthly',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://api.ons.gov.uk/v1',
+ },
 ];
 
 // Build lookup map
