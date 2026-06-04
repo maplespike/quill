@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import OwaspDashboard from "../components/dashboard/OwaspDashboard";
+---
+
+<BaseLayout title="OWASP Compliance | MapleSpike">
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight">OWASP Compliance Dashboard</h1>
+      <p class="text-muted-foreground mt-2">
+        Security posture mapped to OWASP Top 10 (2021) categories.
+        Data sourced from <code class="rounded bg-muted px-1 py-0.5">SECURITY.md</code>.
+      </p>
+    </div>
+    <OwaspDashboard client:load />
+  </div>
+</BaseLayout>
