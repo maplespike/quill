@@ -26,7 +26,7 @@ HEALTH_RETRIES=5
 RETRY_DELAY=10
 
 log() {
-  echo "[$(date -Iseconds)] [HEALTH] $*" | tee -a "${HEALTH_LOG}.txt"
+  echo "[$(date -Iseconds)] [HEALTH] $*" >> "${HEALTH_LOG}.txt"
 }
 
 # Check single endpoint
