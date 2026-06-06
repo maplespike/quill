@@ -42,11 +42,11 @@ check_endpoint() {
   
   for i in $(seq 1 $HEALTH_RETRIES); do
     if curl -sf --max-time $HEALTH_TIMEOUT "$url" > /dev/null 2>&1; then
-      log "✅ ${service} healthy (attempt $i)"
+      log "✅ ${service} healthy (attempt $i)" >&2
       success=true
       break
     fi
-    log "⚠️ ${service} unhealthy (attempt $i/$HEALTH_RETRIES) — retrying in ${RETRY_DELAY}s"
+    log "⚠️ ${service} unhealthy (attempt $i/$HEALTH_RETRIES) — retrying in ${RETRY_DELAY}s" >&2
     sleep $RETRY_DELAY
   done
   
@@ -61,7 +61,7 @@ check_endpoint() {
 check_pods() {
   local namespace=$1
   
-  log "Checking pod status in namespace: $namespace"
+  log "Checking pod status in namespace: $namespace" >&2
   
   local pods_status
   pods_status=$(kubectl get pods -n "$namespace" -o json 2>/dev/null || echo '{"items": []}')
@@ -78,7 +78,7 @@ check_pods() {
   local failed_pods
   failed_pods=$(echo "$pods_status" | python3 -c "import json,sys; print(sum(1 for p in json.load(sys.stdin).get('items',[]) if p.get('status',{}).get('phase')=='Failed'))")
   
-  log "Pods: $running_pods/$total_pods running, $pending_pods pending, $failed_pods failed"
+  log "Pods: $running_pods/$total_pods running, $pending_pods pending, $failed_pods failed" >&2
   
   python3 << PYEOF
 {
