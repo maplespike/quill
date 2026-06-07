@@ -1776,6 +1776,19 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   testCallPattern: 'runModule',
   healthCheckUrl: 'https://www.fao.org/faostat/en/#data',
 },
+{
+  name: 'unesco-uis',
+  description: 'UNESCO Institute for Statistics — education, science, culture, and communication indicators via SDMX-JSON API',
+  category: 'international',
+  modulePath: './unesco-uis/index.js',
+  ingestFunctions: ['ingestUnescoDataset', 'ingestByTopic', 'ingestAllUnesco', 'searchUnescoRecords'],
+  sources: [
+    { name: 'UNESCO UIS SDMX-JSON API', format: 'SDMX-JSON' },
+  ],
+  updateFrequency: 'annual',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://api.uis.unesco.org/api/public/data/UNESCO,EDULIT_DS,1.0?format=json',
+},
 ];
 
 // Build lookup map
