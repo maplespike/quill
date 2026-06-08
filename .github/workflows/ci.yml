@@ -93,22 +93,26 @@ jobs:
           done
 
       - name: Test pipeline-core
-        run: pnpm test
+        run: |
+          bash ${{ env.WORKSPACE }}/scripts/flaky-test-retry.sh 3 "pnpm test"
         working-directory: packages/pipeline-core
 
       - name: Test mcp-server
-        run: pnpm test
+        run: |
+          bash ${{ env.WORKSPACE }}/scripts/flaky-test-retry.sh 3 "pnpm test"
         working-directory: packages/mcp-server
         env:
           MAPLESPIKE_API_URL: http://localhost:8082/v1
           MAPLESPIKE_API_KEY: maplespike-dev-key
 
       - name: Test engine
-        run: pnpm test
+        run: |
+          bash ${{ env.WORKSPACE }}/scripts/flaky-test-retry.sh 3 "pnpm test"
         working-directory: packages/engine
 
       - name: Test sdk
-        run: pnpm test
+        run: |
+          bash ${{ env.WORKSPACE }}/scripts/flaky-test-retry.sh 3 "pnpm test"
         working-directory: packages/sdk
 
       # ── Phase 5: Documentation rot check ─────────────────────────

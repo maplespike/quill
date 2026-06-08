@@ -113,16 +113,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
       - name: Apply K8s manifests from repo
         run: |
-          kubectl apply -f k8s/prod/ --prune --all --prune-allowlist=apps/v1/Deployment --prune-allowlist=/v1/Service --prune-allowlist=/v1/ConfigMap --prune-allowlist=/v1/Secret --validate=false
-      - name: Rollout prod deployments
+          bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
+            "${{ env.NAMESPACE }}" \
+            "maplespike-api" \
+            "http://maplespike-api.${{ env.NAMESPACE }}.svc.cluster.local/v1/health" \
+            "k8s/prod/"
+          bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
+            "${{ env.NAMESPACE }}" \
+            "maplespike-mcp" \
+            "http://maplespike-mcp.${{ env.NAMESPACE }}.svc.cluster.local/v1/health" \
+            "k8s/prod/"
+          bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
+            "${{ env.NAMESPACE }}" \
+            "maplespike-portal" \
+            "http://maplespike-portal.${{ env.NAMESPACE }}.svc.cluster.local/health" \
+            "k8s/prod/"
+      - name: Verify cluster health
         run: |
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-api 2>&1 || echo "No api deployment to restart"
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp 2>&1 || echo "No mcp deployment to restart"
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-portal 2>&1 || echo "No portal deployment to restart"
-      - name: Wait for rollout
+          bash ${{ env.WORKSPACE }}/scripts/health-verification.sh "${{ env.NAMESPACE }}"
+      - name: Escalate on deployment failure
+        if: failure()
         run: |
-          kubectl rollout status deployment -n $NAMESPACE maplespike-api --timeout=5m 2>&1 || echo "Wait skipped (no api deployment)"
-          kubectl rollout status deployment -n $NAMESPACE maplespike-mcp --timeout=5m 2>&1 || echo "Wait skipped (no mcp deployment)"
-          kubectl rollout status deployment -n $NAMESPACE maplespike-portal --timeout=5m 2>&1 || echo "Wait skipped (no portal deployment)"
+          bash ${{ env.WORKSPACE }}/scripts/escalate-incident.sh \
+            deployment_failure \
+            "{\"namespace\": \"${{ env.NAMESPACE }}\", \"commit\": \"${{ github.sha }}\", \"workflow\": \"deploy-prod\"}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.PAGERDUTY_ROUTING_KEY }}
