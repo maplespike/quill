@@ -318,3 +318,37 @@ export const committee_witnesses = sqliteTable(
     meeting: text("meeting").notNull(),
   }
 );
+
+// ─── Notification Subscriptions ────────────────────────────────────────────────────────────────────────────────────
+
+export const notification_subscriptions = sqliteTable(
+  "notification_subscriptions",
+  {
+    id: text("id").primaryKey().notNull(),
+    email: text("email").notNull(),
+    sourceFilter: text("source_filter", { mode: "json" }).notNull().$type<string[]>(),
+    eventTypes: text("event_types", { mode: "json" }).notNull().$type<string[]>(),
+    active: integer("active", { mode: "boolean" }).notNull().default(true),
+    label: text("label"),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+// ─── Notification Events ────────────────────────────────────────────────────────────────────────────────────────────
+
+export const notification_events = sqliteTable(
+  "notification_events",
+  {
+    id: text("id").primaryKey().notNull(),
+    subscriptionId: text("subscription_id").notNull()
+      .references(() => notification_subscriptions.id),
+    sourceId: text("source_id").notNull(),
+    eventType: text("event_type").notNull(),
+    summary: text("summary").notNull(),
+    deliveredAt: text("delivered_at"),
+    status: text("status").notNull().default("pending"),
+    error: text("error"),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
