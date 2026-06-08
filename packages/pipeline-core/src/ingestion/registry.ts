@@ -1789,6 +1789,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   testCallPattern: 'runModule',
   healthCheckUrl: 'https://api.uis.unesco.org/api/public/data/UNESCO,EDULIT_DS,1.0?format=json',
 },
+{
+  name: 'ilo-labour',
+  description: 'ILO Labour Statistics — employment, unemployment, wages, labour force indicators across 187 countries via ILOSTAT API',
+  category: 'international',
+  modulePath: './ilo-labour/index.js',
+  ingestFunctions: ['ingestIloIndicator', 'ingestAllIlo', 'searchIloRecords'],
+  sources: [{ name: 'ILO ILOSTAT API', format: 'JSON' }],
+  updateFrequency: 'annual',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://www.ilo.org/ilostat-api-dev/api',
+},
 ];
 
 // Build lookup map
