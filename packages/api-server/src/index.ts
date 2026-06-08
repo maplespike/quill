@@ -57,6 +57,7 @@ import { auditQueryHandler } from './routes/audit.js';
 import { auditGetHandler } from './routes/audit-get.js';
 import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
+import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import { billingPlansHandler, billingOrderHandler, billingVerifyHandler } from './routes/billing.js';
@@ -311,6 +312,13 @@ ROUTES.push({
   params: [],
   handler: engineRunHandler,
 });
+
+// Export API — REST/JSON export for external clients
+ROUTES.push(
+  { pattern: /^\/v1\/export\/modules\/?$/, method: 'GET', params: [], handler: listModulesHandler },
+  { pattern: /^\/v1\/export\/([^/]+)\/([^/]+)\/?$/, method: 'GET', params: ['module', 'id'], handler: exportModuleHandler },
+  { pattern: /^\/v1\/export\/([^/]+)\/?$/, method: 'GET', params: ['module'], handler: exportModuleHandler },
+);
 
 function matchRoute(url: string, method: string): { route: Route; params: Record<string, string> } | null {
   const pathname = new URL(url, 'http://localhost').pathname;
