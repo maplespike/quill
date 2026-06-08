@@ -11,8 +11,9 @@ export const OECD_USER_AGENT = 'MapleSpike-OECD/1.0';
 export const TOPIC_NAAG = 'NAAG';
 export const TOPIC_HEALTH = 'HEALTH';
 export const TOPIC_EDUCATION = 'EDUCATION';
+export const TOPIC_TAX = 'TAX';
 
-export const DEFAULT_DATASETS = ['NAAG', 'HEALTH', 'EDUC'];
+export const DEFAULT_DATASETS = ['NAAG', 'HEALTH', 'EDUC', 'TAX'];
 
 export const OECD_DATASETS: OecdDataset[] = [
   {
@@ -36,6 +37,13 @@ export const OECD_DATASETS: OecdDataset[] = [
     updateFrequency: 'annual',
     csvUrlTemplate: `${OECD_CSV_EXPORT_BASE_URL}/OECD.EDU.IMEP,DSD_EAG_LSO_EA@DF_LSO_NEAC_ALL/1.0/.`,
   },
+  {
+    id: 'TAX',
+    name: 'Tax Database',
+    description: 'Tax revenue, structures, and policies by tax type',
+    updateFrequency: 'annual',
+    csvUrlTemplate: `${OECD_CSV_EXPORT_BASE_URL}/OECD.TAX,TAXBASE/1.0/.`,
+  },
 ];
 
 export const OECD_TOPICS = {
@@ -56,6 +64,12 @@ export const OECD_TOPICS = {
     name: 'Education',
     datasets: ['EDUC'],
     description: 'Educational attainment, labour market outcomes, and education indicators',
+  },
+  [TOPIC_TAX]: {
+    code: TOPIC_TAX,
+    name: 'Tax',
+    datasets: ['TAX'],
+    description: 'Tax revenue, structures, and policies by tax type',
   },
 } as const;
 

@@ -13,11 +13,29 @@ describe('oecd Module', () => {
     assert.ok(mod.OECD_TOPICS);
   });
 
-  it('has NAAG and HEALTH datasets', async () => {
+  it('has NAAG, HEALTH, and TAX datasets', async () => {
     const mod = await import('../index.js');
     const naag = mod.OECD_DATASETS.find((d) => d.id === 'NAAG');
     const health = mod.OECD_DATASETS.find((d) => d.id === 'HEALTH');
+    const tax = mod.OECD_DATASETS.find((d) => d.id === 'TAX');
     assert.ok(naag, 'NAAG dataset exists');
     assert.ok(health, 'HEALTH dataset exists');
+    assert.ok(tax, 'TAX dataset exists');
+    assert.equal(tax.name, 'Tax Database');
+    assert.equal(tax.updateFrequency, 'annual');
+  });
+
+  it('has TAX topic in OECD_TOPICS', async () => {
+    const mod = await import('../index.js');
+    const taxTopic = mod.OECD_TOPICS.TAX;
+    assert.ok(taxTopic, 'TAX topic exists');
+    assert.equal(taxTopic.code, 'TAX');
+    assert.equal(taxTopic.name, 'Tax');
+    assert.deepEqual(taxTopic.datasets, ['TAX']);
+  });
+
+  it('exports TOPIC_TAX constant', async () => {
+    const mod = await import('../index.js');
+    assert.equal(mod.TOPIC_TAX, 'TAX');
   });
 });
