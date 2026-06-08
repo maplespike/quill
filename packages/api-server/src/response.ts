@@ -19,6 +19,7 @@ import type { Tenant } from './types.js';
 import { TIER_LIMITS } from './types.js';
 import { normalizeFields, convertUnits } from './utils/normalize.js';
 import { randomUUID } from 'node:crypto';
+import { applySecurityHeaders } from './middleware/security-headers.js';
 
 export type { CitationMeta, QualityMeta };
 
@@ -260,16 +261,25 @@ export function buildError(
 /* ------------------------------------------------------------------ */
 
 const ALLOWED_ORIGINS = [
+  // Development
   'http://localhost:8082',
-  'http://127.0.0.1:8082',
   'http://localhost:4321',
+  'http://localhost:3001',
+  'http://127.0.0.1:8082',
+  'http://127.0.0.1:4321',
+  'http://127.0.0.1:3001',
   'http://10.1.1.120:4321',
   'http://10.1.1.100:4321',
+  // Production
   'https://maplespike.ca',
   'https://www.maplespike.ca',
   'https://api.maplespike.ca',
+  'https://portal.maplespike.ca',
+  'https://mcp.maplespike.ca',
+  // Internal LAN
   'https://dev.maplespike.lan',
   'https://maplespike-api.lan',
+  'https://maplespike-portal.lan',
 ];
 
 export function getAllowedOrigin(requestOrigin: string | null): string {
@@ -284,19 +294,30 @@ export function jsonResponse<T>(
   status = 200,
   extraHeaders: Record<string, string> = {},
   requestOrigin?: string | null,
+  environment?: string,
 ): Response {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'X-MapleSpike-Version': '0.1.0',
+    'X-MapleSpike-Trace-Id': extraHeaders['X-MapleSpike-Trace-Id'] ?? randomUUID(),
+    'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
+    'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
+    ...extraHeaders,
+  };
+
+  // Apply OWASP security headers
+  const head = new Headers();
+  for (const [key, value] of Object.entries(headers)) {
+    head.set(key, value);
+  }
+  applySecurityHeaders(head, environment);
+
   return new Response(JSON.stringify(body, null, 2), {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'X-MapleSpike-Version': '0.1.0',
-      'X-MapleSpike-Trace-Id': extraHeaders['X-MapleSpike-Trace-Id'] ?? randomUUID(),
-      'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
-      ...extraHeaders,
-    },
+    headers: head,
   });
 }
 
@@ -321,16 +342,15 @@ export function addRateLimitHeaders(
   });
 }
 
-export function corsPreflight(requestOrigin?: string | null): Response {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
-      'Access-Control-Max-Age': '86400',
-    },
-  });
+export function corsPreflight(requestOrigin?: string | null, environment?: string): Response {
+  const headers = new Headers();
+  headers.set('Access-Control-Allow-Origin', getAllowedOrigin(requestOrigin ?? null));
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode');
+  headers.set('Access-Control-Expose-Headers', 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice');
+  headers.set('Access-Control-Max-Age', '86400');
+  applySecurityHeaders(headers, environment);
+  return new Response(null, { status: 204, headers });
 }
 
 /* ------------------------------------------------------------------ */

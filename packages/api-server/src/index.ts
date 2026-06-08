@@ -50,6 +50,7 @@ interface Route {
 
 import { healthHandler } from './routes/health.js';
 import { addAttributionHeader } from './middleware/attribution.js';
+import { applySecurityHeaders } from './middleware/security-headers.js';
 import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
@@ -337,6 +338,7 @@ export async function handleRequest(
   cache: MapleSpikeCache,
 ): Promise<Response> {
   const config = loadConfig(env);
+  const environment = config.environment || process.env.ENVIRONMENT;
   const requestId = generateRequestId();
   const startTime = Date.now();
   const url = new URL(request.url);
@@ -345,7 +347,7 @@ export async function handleRequest(
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
-    return corsPreflight(requestOrigin);
+    return corsPreflight(requestOrigin, environment);
   }
 
   // --- TLS redirect (defense-in-depth) ---
@@ -367,7 +369,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404);
+    return jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404, {}, undefined, environment);
   }
 
   const { route, params } = matched;
@@ -411,7 +413,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401, {}, undefined, environment);
   }
 
   const ctx: RouteContext = {
@@ -452,11 +454,17 @@ export async function handleRequest(
         'X-Cache': 'hit',
         'X-MapleSpike-Trace-Id': crypto.randomUUID(),
         'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin),
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-MapleSpike-Mode',
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
+        'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
       },
     });
-    return cachedRes;
+    // Apply security headers
+    const secureCachedRes = new Response(cachedRes.body, {
+      status: cachedRes.status,
+      headers: applySecurityHeaders(new Headers(cachedRes.headers), environment),
+    });
+    return secureCachedRes;
   }
 
   // Rate limit (skip for health and spec)
@@ -467,7 +475,20 @@ export async function handleRequest(
     const tierLimits = TIER_LIMITS[ctx.tenant.tier];
     const windowMs = 60 * 1000; // 1-minute sliding window for aggressive check
     const maxPerWindow = isAuthenticated ? tierLimits.daily : 5; // unauthenticated: 5/min max
-    const check = checkRateLimit(ctx.tenant.id, maxPerWindow, windowMs);
+
+    // Rate-limit key: authenticated → tenant ID; anonymous → IP-based for granularity
+    let rateLimitKey: string;
+    if (isAuthenticated) {
+      rateLimitKey = ctx.tenant.id;
+    } else {
+      // Use client IP when available to prevent shared-throttle attacks on public endpoints
+      const clientIp = request.headers.get('CF-Connecting-IP')
+        || request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim()
+        || request.headers.get('X-Real-IP')
+        || 'anon';
+      rateLimitKey = `anon:${clientIp}`;
+    }
+    const check = checkRateLimit(rateLimitKey, maxPerWindow, windowMs);
     rateCheck = check;
     if (!check.allowed) {
       await db.logAudit({
@@ -494,7 +515,7 @@ export async function handleRequest(
         },
       };
       const retryAfter = rateCheck ? Math.ceil((rateCheck.resetTime - Date.now()) / 1000) : 60;
-      let response = jsonResponse(buildError('RATE_LIMITED', 'Rate limit exceeded. Try again later.', bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) });
+      let response = jsonResponse(buildError('RATE_LIMITED', 'Rate limit exceeded. Try again later.', bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) }, undefined, environment);
       if (rateCheck) {
         response = addRateLimitHeaders(response, rateCheck);
       }
@@ -553,7 +574,7 @@ export async function handleRequest(
     totalCount: data.length,
     sources: ALL_MOCK_CATEGORIES,
     mockData: allSources,
-  }, bc));
+  }, bc), 200, {}, undefined, environment);
 }
 
 export default {
