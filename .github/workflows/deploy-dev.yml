@@ -118,19 +118,36 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
       - name: Apply K8s manifests
         run: |
-          kubectl apply -f k8s/dev/ --prune --all --prune-allowlist=apps/v1/Deployment --prune-allowlist=/v1/Service --prune-allowlist=/v1/ConfigMap --prune-allowlist=/v1/Secret --validate=false
-      - name: Rollout dev deployments
+          bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
+            "${{ env.NAMESPACE }}" \
+            "maplespike-api" \
+            "http://maplespike-api.${{ env.NAMESPACE }}.svc.cluster.local/v1/health" \
+            "k8s/dev/"
+          bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
+            "${{ env.NAMESPACE }}" \
+            "maplespike-mcp" \
+            "http://maplespike-mcp.${{ env.NAMESPACE }}.svc.cluster.local/v1/health" \
+            "k8s/dev/"
+          bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
+            "${{ env.NAMESPACE }}" \
+            "maplespike-portal" \
+            "http://maplespike-portal.${{ env.NAMESPACE }}.svc.cluster.local/health" \
+            "k8s/dev/"
+      - name: Verify cluster health
         run: |
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-api
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-mcp
-          kubectl rollout restart deployment -n $NAMESPACE maplespike-portal
-      - name: Wait for rollout
+          bash ${{ env.WORKSPACE }}/scripts/health-verification.sh "${{ env.NAMESPACE }}"
+      - name: Escalate on deployment failure
+        if: failure()
         run: |
-          kubectl rollout status deployment -n $NAMESPACE maplespike-api --timeout=5m
-          kubectl rollout status deployment -n $NAMESPACE maplespike-mcp --timeout=5m
-          kubectl rollout status deployment -n $NAMESPACE maplespike-portal --timeout=5m
+          bash ${{ env.WORKSPACE }}/scripts/escalate-incident.sh \
+            deployment_failure \
+            "{\"namespace\": \"${{ env.NAMESPACE }}\", \"commit\": \"${{ github.sha }}\", \"workflow\": \"deploy-dev\"}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   promote:
     name: Promote to Prod
