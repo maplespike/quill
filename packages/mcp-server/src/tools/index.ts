@@ -74,6 +74,8 @@ import * as searchGlobalCanada from './search-global-canada.js';
 import * as searchGocSpending from './search-goc-spending.js';
 import * as searchHealth from './search-health.js';
 import * as searchHousingData from './search_housing_data.js';
+import * as searchIlo from './search-ilo.js';
+import * as searchUnesco from './search-unesco.js';
 import * as searchImmigration from './search-immigration.js';
 import * as searchImmigrationRefugees from './search_immigration_refugees.js';
 import * as searchImpactAssessment from './search-impact-assessment.js';
@@ -327,6 +329,19 @@ export function getAllTools(): ToolModule[] {
     { definition: worldbankWdi.analyzeIndicatorTrendDefinition, handler: worldbankWdi.analyzeIndicatorTrendHandler },
     { definition: worldbankWdi.fetchTopicIndicatorsDefinition, handler: worldbankWdi.fetchTopicIndicatorsHandler },
     { definition: worldbankWdi.getIndicatorMetadataDefinition, handler: worldbankWdi.getIndicatorMetadataHandler },
+    // Phase 1 Expansion Tools - ILO Labour Statistics
+    { definition: searchIlo.getIloIndicatorDefinition, handler: searchIlo.getIloIndicatorHandler },
+    { definition: searchIlo.getIloCategoryDefinition, handler: searchIlo.getIloCategoryHandler },
+    { definition: searchIlo.ingestAllIloDefinition, handler: searchIlo.ingestAllIloHandler },
+    { definition: searchIlo.searchIloDataflowsDefinition, handler: searchIlo.searchIloDataflowsHandler },
+    { definition: searchIlo.checkIloHealthDefinition, handler: searchIlo.checkIloHealthHandler },
+    // Phase 1 Expansion Tools - UNESCO UIS
+    { definition: searchUnesco.getUnescoIndicatorDefinition, handler: searchUnesco.getUnescoIndicatorHandler },
+    { definition: searchUnesco.getUnescoCategoryDefinition, handler: searchUnesco.getUnescoCategoryHandler },
+    { definition: searchUnesco.ingestAllUnescoDefinition, handler: searchUnesco.ingestAllUnescoHandler },
+    { definition: searchUnesco.searchUnescoIndicatorsDefinition, handler: searchUnesco.searchUnescoIndicatorsHandler },
+    { definition: searchUnesco.listUnescoIndicatorsDefinition, handler: searchUnesco.listUnescoIndicatorsHandler },
+    { definition: searchUnesco.checkUnescoHealthDefinition, handler: searchUnesco.checkUnescoHealthHandler },
     // Phase 1 Expansion Tools - WEF Gender Gap Index
     // Temporarily disabled until module is implemented
     // ...(wefGenderGap.toolDefinitions ?? []).map((def: { name: string }, idx: number) => ({

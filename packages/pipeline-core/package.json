@@ -91,6 +91,10 @@
     "./oecd-stat": {
       "import": "./dist/ingestion/oecd-stat/index.js"
     },
+    "./ilo": {
+      "import": "./dist/ingestion/ilo/index.js",
+      "types": "./dist/ingestion/ilo/index.d.ts"
+    },
     "./oecd": {
       "import": "./dist/ingestion/oecd/index.js",
       "types": "./dist/ingestion/oecd/index.d.ts"
@@ -101,6 +105,10 @@
     "./undp-hdr": {
       "import": "./dist/ingestion/undp-hdr/index.js",
       "types": "./dist/ingestion/undp-hdr/index.d.ts"
+    },
+    "./unesco": {
+      "import": "./dist/ingestion/unesco/index.js",
+      "types": "./dist/ingestion/unesco/index.d.ts"
     },
     "./unhcr-refugees": {
       "import": "./dist/ingestion/unhcr-refugees/index.js"

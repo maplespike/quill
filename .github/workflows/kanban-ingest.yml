@@ -1,0 +1,85 @@
+name: Kanban Auto-Ingest
+
+on:
+  issues:
+    types: [opened, labeled]
+  workflow_dispatch:
+    inputs:
+      force-ingest:
+        description: 'Force re-import all agent-ready issues'
+        required: false
+        default: 'false'
+
+permissions:
+  issues: read
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Import GitHub Issues to Kanban
+        env:
+          HERMES_API_KEY: ${{ secrets.HERMES_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x scripts/import-github-issues.sh
+          FORCE_INGEST="${{ github.event.inputs.force-ingest || 'false' }}"
+          
+          if [ "$FORCE_INGEST" = "true" ]; then
+            echo "🔄 Force re-importing all agent-ready issues..."
+            ./scripts/import-github-issues.sh agent-ready
+          else
+            echo "📥 Importing only new issues triggered by event..."
+            ISSUE_NUMBER="${{ github.event.issue.number }}"
+            LABEL_NAME="${{ github.event.label.name }}"
+            
+            # If triggered by label event and it's agent-ready, import that issue
+            if [ "$LABEL_NAME" = "agent-ready" ] && [ -n "$ISSUE_NUMBER" ]; then
+              echo "✅ Issue #$ISSUE_NUMBER labeled agent-ready, importing..."
+              ./scripts/import-github-issues.sh single $ISSUE_NUMBER
+            elif [ "$LABEL_NAME" != "" ]; then
+              echo "⏭️  Label '$LABEL_NAME' is not agent-ready, skipping auto-import"
+              echo "Issue will be imported when labeled 'agent-ready'"
+            else
+              # Fresh issue opened, check if it has agent-ready label
+              HAS_LABEL=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -c "agent-ready" || echo "0")
+              if [ "$HAS_LABEL" -gt 0 ]; then
+                echo "✅ New issue #$ISSUE_NUMBER has agent-ready label, importing..."
+                ./scripts/import-github-issues.sh single $ISSUE_NUMBER
+              else
+                echo "⏭️  New issue #$ISSUE_NUMBER lacks agent-ready label, skipping"
+                echo "Label it 'agent-ready' to trigger import"
+              fi
+            fi
+          fi
+        shell: bash
+
+      - name: Report Results
+        run: |
+          echo "## 📋 Kanban Ingestion Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Issues imported to Kanban board" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Board: \`maplespike\`" >> $GITHUB_STEP_SUMMARY
+          echo "Automation: Workers execute every 30 minutes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Monitor: \`hermes kanban list --status running\`" >> $GITHUB_STEP_SUMMARY
