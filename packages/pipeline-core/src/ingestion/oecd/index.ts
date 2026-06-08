@@ -2,7 +2,7 @@
 
 import { buildAttribution, withAttribution } from '../../shared/attribution.js';
 import { fetchOecdDataset, parseCsvData, validateCsvHeaders } from './fetcher.js';
-import { OECD_DATASETS, OECD_TOPICS, DEFAULT_DATASETS, TOPIC_NAAG, TOPIC_HEALTH } from './constants.js';
+import { OECD_DATASETS, OECD_TOPICS, DEFAULT_DATASETS, TOPIC_NAAG, TOPIC_HEALTH, TOPIC_TAX } from './constants.js';
 import { parseOecdRecords } from './parser.js';
 import type { OecdIngestionResult, OecdRecord } from './types.js';
 
@@ -163,5 +163,5 @@ export async function searchOecdRecords(
   return filtered;
 }
 
-export { OECD_DATASETS, OECD_TOPICS, DEFAULT_DATASETS, TOPIC_NAAG, TOPIC_HEALTH } from './constants.js';
+export { OECD_DATASETS, OECD_TOPICS, DEFAULT_DATASETS, TOPIC_NAAG, TOPIC_HEALTH, TOPIC_TAX } from './constants.js';
 export type { OecdRecord, OecdIngestionResult, OecdDataset, OecdTopic } from './types.js';
