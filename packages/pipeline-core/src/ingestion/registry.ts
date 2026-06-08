@@ -1631,15 +1631,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   // ── International Indicators ─────────────────────────────────────
   {
     name: 'oecd',
-    description: 'OECD Data Explorer — national accounts, health statistics, and comparative indicators',
+    description: 'OECD Data Explorer — national accounts, health statistics, education, tax policy, and comparative indicators',
     category: 'international',
     modulePath: './oecd/index.js',
     ingestFunctions: ['ingestOecdDataset', 'ingestByTopic', 'ingestAllOecd', 'searchOecdRecords'],
     sources: [
       { name: 'OECD National Accounts (NAAG)', format: 'CSV' },
       { name: 'OECD Health Statistics', format: 'CSV' },
+      { name: 'OECD Education at a Glance', format: 'CSV' },
+      { name: 'OECD Tax Database', format: 'CSV' },
     ],
-    updateFrequency: 'quarterly (NAAG), annual (health)',
+    updateFrequency: 'quarterly (NAAG), annual (health, education, tax)',
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://data-explorer.oecd.org',
   },
