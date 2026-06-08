@@ -118,6 +118,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - run: echo "WORKSPACE=$(pwd)" >> $GITHUB_ENV
       - name: Apply K8s manifests
         run: |
           bash ${{ env.WORKSPACE }}/scripts/auto-rollback.sh deploy \
