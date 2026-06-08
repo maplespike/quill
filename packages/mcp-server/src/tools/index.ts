@@ -29,6 +29,7 @@ import * as searchVeterans from './search-veterans.js';
 import * as searchNgoRss from './search-ngo-rss.js';
 import * as searchNarrativeTracker from './search-narrative-tracker.js';
 import * as searchHealth from './search-health.js';
+import * as searchIlo from './search-ilo.js';
 
 // ── Phase 5: New tools (#253) ─────────────────────────────────
 import * as searchProactiveDisclosure from './search-proactive-disclosure.js';
@@ -119,6 +120,8 @@ export function getAllTools(): ToolModule[] {
     aiAnalyze,
     aiSearchSemantic,
     systemHealth,
+
+    searchIlo,
 
     // Entity resolution (#302)
     resolveEntity,
