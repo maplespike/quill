@@ -1,69 +1,112 @@
 /**
- * find_connections MCP Tool — MapleSpike
+ * MapleSpike MCP Tool — find_connections
  *
- * Find relationships between entities across modules.
- * Proxies to the API server's /entity/connections endpoint.
+ * Discovers the network of relationships around a person or organization.
+ * Returns connected entities, relationship types, and confidence scores.
+ *
+ * Enables conflict-of-interest detection: "Did this lobbyist also work for
+ * government?", "Who in this committee has financial ties to the bill's
+ * stakeholders?"
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
+import { resolveEntity, findConnections } from './entity-resolver-lib.js';
 
 export const definition: ToolDefinition = {
   name: 'find_connections',
   description:
-    'Find relationships and connections between entities (people, organizations) across modules. ' +
-    'Returns a graph of directorships, lobbying relationships, employment links, and more. ' +
-    'Use after resolve_entity to explore an entity\'s network.',
+    'Discover the relationship network around a person or organization. ' +
+    'Returns connected entities (people, organizations), relationship types ' +
+    '(employs, lobbies, directs, owns), and confidence scores. Use this for ' +
+    'conflict-of-interest detection, influence mapping, and network analysis. ' +
+    'Example: find who a committee witness is connected to via lobbying or corporate roles.',
   inputSchema: {
     type: 'object',
     properties: {
-      entity_id: { type: 'string', description: 'Entity ID (from resolve_entity output)' },
-      relationship_type: {
+      name: {
         type: 'string',
-        enum: ['works_at', 'is_director_of', 'lobbied_for', 'represents', 'all'],
-        description: 'Filter by relationship type (default: all)',
+        description: 'Name to center the network on — person or organization',
       },
-      max_depth: {
+      type: {
+        type: 'string',
+        enum: ['person', 'organization', 'auto'],
+        description: 'Entity type hint (default: auto-detect)',
+      },
+      maxConnections: {
         type: 'number',
         minimum: 1,
-        maximum: 3,
-        description: 'Graph search depth (default: 2)',
+        maximum: 50,
+        description: 'Maximum connections to return (default: 20)',
       },
     },
-    required: ['entity_id'],
+    required: ['name'],
   },
 };
 
-export const handler: ToolHandler = async (params) => {
-  const { entity_id, relationship_type = 'all', max_depth = 2 } = params as Record<string, unknown>;
+export const handler: ToolHandler = async (args) => {
+  const name = (args.name as string)?.trim();
+  if (!name) {
+    return {
+      content: {
+        tool: 'find_connections',
+        query: '',
+        error: 'No name provided. Specify a person or organization to find connections for.',
+      },
+      isError: true,
+    };
+  }
+
+  const maxConnections = Math.min((args.maxConnections as number) ?? 20, 50);
 
   try {
-    const api = await import('./api-client.js');
-    const data = await api.callApi<{ nodes: Record<string, unknown>[]; edges: Record<string, unknown>[] }>(
-      '/entity/connections',
-      {
-        entity_id: entity_id as string,
-        relationship: relationship_type as string,
-        depth: max_depth as number,
-        _format: 'compact',
-      },
-    );
+    const { center, connections } = findConnections(name);
+
+    if (!center.id) {
+      return {
+        content: {
+          tool: 'find_connections',
+          query: name,
+          error: `No entity found matching "${name}". Try a different name or check the entity resolution module.`,
+        },
+        isError: true,
+      };
+    }
+
+    const limited = connections.slice(0, maxConnections);
 
     return {
       content: {
         tool: 'find_connections',
-        root_entity: entity_id,
-        depth: max_depth,
-        nodes: data.nodes ?? [],
-        edges: data.edges ?? [],
+        query: name,
+        center: {
+          canonicalName: center.canonicalName,
+          type: center.type,
+          confidence: center.confidence,
+          aliases: center.aliases,
+        },
+        connections: limited.map((c) => ({
+          relationship: c.relationshipType,
+          weight: c.weight,
+          source: c.source.canonicalName,
+          sourceType: c.source.type,
+          target: c.target.canonicalName,
+          targetType: c.target.type,
+          discoveredBy: c.sourceModule,
+        })),
+        totalConnections: connections.length,
+        summary:
+          connections.length > 0
+            ? `${center.canonicalName} has ${connections.length} connection(s) across ${new Set(connections.map((c) => c.sourceModule)).size} source module(s).`
+            : `${center.canonicalName} has no known connections in the entity graph.`,
       },
     };
-  } catch (error) {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Connection discovery failed';
     return {
       content: {
         tool: 'find_connections',
-        entity_id,
-        error: (error as Error).message,
-        note: 'Entity connections require the API server to have entity_relationships endpoints configured.',
+        query: name,
+        error: message,
       },
       isError: true,
     };
