@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Docs Metrics Drift</title>
+  <style>body{font-family:system-ui,sans-serif;max-width:700px;margin:2em auto;padding:0 1em}label{display:block;margin-top:1em;font-weight:600}input,textarea,select{width:100%;padding:0.5em;margin-top:0.3em;border:1px solid #ccc;border-radius:4px;font-size:1em}button{margin-top:1.5em;padding:0.7em 2em;background:#0366d6;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:1em}button:hover{background:#0257aa}</style>
+</head>
+<body>
+  <h1>Docs Metrics Drift</h1>
+  <p>Report documentation with stale metric references that don't match <code>docs/metrics.json</code>.</p>
+
+  <form action="https://github.com/reverb256/maplespike/issues/new" method="GET">
+    <input type="hidden" name="template" value="metrics-drift.md">
+    <input type="hidden" name="labels" value="documentation,metrics,auto-created,kelos">
+
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" placeholder="fix: Update stale metric references in docs" required>
+
+    <label for="drift">Drift Details</label>
+    <textarea id="drift" name="body" rows="6" placeholder="Metric | Current | Stale Ref&#10;---|---|---&#10;MCP tools | 130 | &quot;24 MCP tools&quot; in README.md"></textarea>
+
+    <label for="files">Files to Update</label>
+    <textarea id="files" name="files" rows="3" placeholder="README.md, AGENTS.md, packages/docs/..."></textarea>
+
+    <button type="submit">Create Issue</button>
+  </form>
+</body>
+</html>
