@@ -2,7 +2,7 @@
 /**
  * Ingestion Module Registry
  *
-* Discoverable catalog of all 76 ingestion modules.
+ * Discoverable catalog of all 142 registered entries.
  * Use this instead of importing individual modules directly.
  *
  * Usage:

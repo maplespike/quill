@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # MapleSpike — Claude Code Quickstart
 
 ## First time

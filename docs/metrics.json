@@ -4,17 +4,19 @@
   "version": "2026-06-11",
   "modules": {
     "registryCount": 142,
-    "ingestionDirs": 134,
-    "description": "142 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 134 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
+    "ingestionDirs": 135,
+    "description": "142 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 135 ingestion/ subdirectories with standalone fetch→parse→persist pipelines. Header comment outdated (says 76)."
   },
   "mcpTools": {
-    "count": 135,
-    "description": "135 tool definition files, 53 registered in tools/index.ts"
+    "count": 53,
+    "registeredInIndex": 53,
+    "toolFiles": 87,
+    "description": "53 tools registered in tools/index.ts, 87 search-*.ts tool files on disk. Previous metric of 135 was inflated — counted all .ts files in tools/ directory."
   },
   "typescript": {
     "totalLines": 178496,
     "totalFiles": 1348,
-    "packages": 13,
+    "packages": 12,
     "perPackage": {
       "api-server": {
         "files": 74,

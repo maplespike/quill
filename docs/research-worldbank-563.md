@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # World Bank Data Sources Research — Issue #563
 
 **Date**: 2026-06-02

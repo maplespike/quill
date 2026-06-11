@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # UN Data Sources Research — Issue #562
 
 **Date**: 2026-06-02

@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # OECD Data Sources Research — Issue #564
 
 **Date**: 2026-06-02
