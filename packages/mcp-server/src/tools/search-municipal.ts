@@ -3,7 +3,7 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { searchMunicipal } from '@maplespike/pipeline-core/municipal';
 
-export const searchMunicipalDefinition: ToolDefinition = {
+export const definition: ToolDefinition = {
   name: 'search_municipal',
   description: 'Search municipal open data from Canadian cities (Victoria, Edmonton, Toronto, Vancouver, Montreal, Ottawa, Calgary, etc.)',
   inputSchema: {
@@ -29,7 +29,7 @@ export const searchMunicipalDefinition: ToolDefinition = {
   },
 };
 
-export const searchMunicipalHandler: ToolHandler = async (args) => {
+export const handler: ToolHandler = async (args) => {
   const municipality = args.municipality as string | undefined;
   const province = args.province as string | undefined;
   const dataset = args.dataset as string | undefined;
