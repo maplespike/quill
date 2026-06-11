@@ -28,7 +28,7 @@ Each package contains its own `LICENSE` file. The root `LICENSE` file is AGPL-3.
 ### Why not one license for everything?
 
 - **AGPL on everything** protects the moat but hurts adoption. Enterprise legal teams often reject AGPL even when they'd never trigger the clause. Self-hosters hesitate. SDK adoption slows.
-- **MIT on everything** drives adoption but gives away the moat. A competitor could take 126 modules of Canadian data ingestion and host a competing service with no obligation to share changes.
+- **MIT on everything** drives adoption but gives away the moat. A competitor could take 142 modules of Canadian data ingestion and host a competing service with no obligation to share changes.
 - **Three-tier** threads both: the moat is protected, and the path to using MapleSpike is frictionless for 90% of users (who only ever touch the SDK and API).
 
 ### Why AGPL-3.0 for core?

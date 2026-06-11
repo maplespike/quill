@@ -5,7 +5,7 @@ status: active
 
 # MapleSpike MCP Tools Documentation
 
-This document catalogs all 130 MCP tools available in the MapleSpike server. Each tool is categorized by its primary data domain and includes its name, description, required parameters, optional parameters, and data source.
+This document catalogs all 135 MCP tools available in the MapleSpike server. Each tool is categorized by its primary data domain and includes its name, description, required parameters, optional parameters, and data source.
 
 ## Tool Categories Summary
 
