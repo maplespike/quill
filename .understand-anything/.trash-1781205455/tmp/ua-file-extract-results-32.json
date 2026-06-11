@@ -1,0 +1,1429 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 7,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/sdk-python/maplespike/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 266,
+      "nonEmptyLines": 224,
+      "classes": [
+        {
+          "name": "AgentProxy",
+          "startLine": 71,
+          "endLine": 122,
+          "methods": [
+            "__init__",
+            "agent",
+            "action"
+          ],
+          "properties": []
+        },
+        {
+          "name": "MapleSpike",
+          "startLine": 125,
+          "endLine": 266,
+          "methods": [
+            "__init__",
+            "api_key",
+            "api_key",
+            "jwt_token",
+            "jwt_token",
+            "base_url",
+            "base_url",
+            "clear_auth",
+            "is_authenticated",
+            "query",
+            "agent"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AgentProxy",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpike",
+          "line": 125,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "agent",
+          "callee": "AgentProxy",
+          "lineNumber": 80
+        },
+        {
+          "caller": "action",
+          "callee": "self._client.query",
+          "lineNumber": 122
+        },
+        {
+          "caller": "__init__",
+          "callee": "resolve_base_url",
+          "lineNumber": 142
+        },
+        {
+          "caller": "__init__",
+          "callee": "set_api_key",
+          "lineNumber": 146
+        },
+        {
+          "caller": "__init__",
+          "callee": "set_jwt_token",
+          "lineNumber": 148
+        },
+        {
+          "caller": "api_key",
+          "callee": "set_api_key",
+          "lineNumber": 159
+        },
+        {
+          "caller": "jwt_token",
+          "callee": "set_jwt_token",
+          "lineNumber": 168
+        },
+        {
+          "caller": "base_url",
+          "callee": "resolve_base_url",
+          "lineNumber": 176
+        },
+        {
+          "caller": "clear_auth",
+          "callee": "clear_auth",
+          "lineNumber": 184
+        },
+        {
+          "caller": "is_authenticated",
+          "callee": "bool",
+          "lineNumber": 188
+        },
+        {
+          "caller": "query",
+          "callee": "self.is_authenticated",
+          "lineNumber": 246
+        },
+        {
+          "caller": "query",
+          "callee": "options.get",
+          "lineNumber": 250
+        },
+        {
+          "caller": "query",
+          "callee": "get_mock_response",
+          "lineNumber": 251
+        },
+        {
+          "caller": "query",
+          "callee": "build_url",
+          "lineNumber": 253
+        },
+        {
+          "caller": "query",
+          "callee": "build_headers",
+          "lineNumber": 254
+        },
+        {
+          "caller": "query",
+          "callee": "_make_request",
+          "lineNumber": 256
+        },
+        {
+          "caller": "query",
+          "callee": "parse_response",
+          "lineNumber": 257
+        },
+        {
+          "caller": "agent",
+          "callee": "AgentProxy",
+          "lineNumber": 266
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "packages/sdk-python/maplespike/agents.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 350,
+      "nonEmptyLines": 327,
+      "functions": [
+        {
+          "name": "get_agent",
+          "startLine": 334,
+          "endLine": 340,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "list_agents",
+          "startLine": 343,
+          "endLine": 345,
+          "params": []
+        },
+        {
+          "name": "list_actions",
+          "startLine": 348,
+          "endLine": 350,
+          "params": [
+            "agent_name"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_agent",
+          "line": 334,
+          "isDefault": false
+        },
+        {
+          "name": "list_agents",
+          "line": 343,
+          "isDefault": false
+        },
+        {
+          "name": "list_actions",
+          "line": 348,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_agent",
+          "callee": "name.lower",
+          "lineNumber": 336
+        },
+        {
+          "caller": "get_agent",
+          "callee": "', '.join",
+          "lineNumber": 338
+        },
+        {
+          "caller": "get_agent",
+          "callee": "AGENTS.keys",
+          "lineNumber": 338
+        },
+        {
+          "caller": "get_agent",
+          "callee": "KeyError",
+          "lineNumber": 339
+        },
+        {
+          "caller": "list_agents",
+          "callee": "list",
+          "lineNumber": 345
+        },
+        {
+          "caller": "list_agents",
+          "callee": "AGENTS.values",
+          "lineNumber": 345
+        },
+        {
+          "caller": "list_actions",
+          "callee": "get_agent",
+          "lineNumber": 350
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk-python/maplespike/auth.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 29,
+      "functions": [
+        {
+          "name": "get_api_key",
+          "startLine": 12,
+          "endLine": 14,
+          "params": []
+        },
+        {
+          "name": "set_api_key",
+          "startLine": 17,
+          "endLine": 20,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "get_jwt_token",
+          "startLine": 23,
+          "endLine": 25,
+          "params": []
+        },
+        {
+          "name": "set_jwt_token",
+          "startLine": 28,
+          "endLine": 31,
+          "params": [
+            "token"
+          ]
+        },
+        {
+          "name": "clear_auth",
+          "startLine": 34,
+          "endLine": 38,
+          "params": []
+        },
+        {
+          "name": "is_authenticated",
+          "startLine": 41,
+          "endLine": 43,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_api_key",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "set_api_key",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "get_jwt_token",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "set_jwt_token",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "clear_auth",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "is_authenticated",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "is_authenticated",
+          "callee": "bool",
+          "lineNumber": 43
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk-python/maplespike/client.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 175,
+      "nonEmptyLines": 149,
+      "functions": [
+        {
+          "name": "resolve_base_url",
+          "startLine": 17,
+          "endLine": 21,
+          "params": [
+            "custom_base_url"
+          ]
+        },
+        {
+          "name": "build_url",
+          "startLine": 24,
+          "endLine": 64,
+          "params": [
+            "base",
+            "agent",
+            "action",
+            "params",
+            "options"
+          ]
+        },
+        {
+          "name": "build_headers",
+          "startLine": 67,
+          "endLine": 82,
+          "params": [
+            "api_key",
+            "jwt_token"
+          ]
+        },
+        {
+          "name": "_make_request",
+          "startLine": 85,
+          "endLine": 101,
+          "params": [
+            "url",
+            "headers"
+          ]
+        },
+        {
+          "name": "parse_response",
+          "startLine": 104,
+          "endLine": 175,
+          "params": [
+            "status",
+            "body",
+            "agent",
+            "action"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "resolve_base_url",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "build_url",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "build_headers",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "_make_request",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "parse_response",
+          "line": 104,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "resolve_base_url",
+          "callee": "custom_base_url.rstrip",
+          "lineNumber": 20
+        },
+        {
+          "caller": "build_url",
+          "callee": "urllib.parse.quote",
+          "lineNumber": 32
+        },
+        {
+          "caller": "build_url",
+          "callee": "urllib.parse.quote",
+          "lineNumber": 32
+        },
+        {
+          "caller": "build_url",
+          "callee": "urllib.parse.urljoin",
+          "lineNumber": 33
+        },
+        {
+          "caller": "build_url",
+          "callee": "base.rstrip",
+          "lineNumber": 33
+        },
+        {
+          "caller": "build_url",
+          "callee": "path.lstrip",
+          "lineNumber": 33
+        },
+        {
+          "caller": "build_url",
+          "callee": "urllib.parse.urlparse",
+          "lineNumber": 34
+        },
+        {
+          "caller": "build_url",
+          "callee": "params.items",
+          "lineNumber": 39
+        },
+        {
+          "caller": "build_url",
+          "callee": "str",
+          "lineNumber": 41
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 45
+        },
+        {
+          "caller": "build_url",
+          "callee": "str",
+          "lineNumber": 46
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 47
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 49
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 51
+        },
+        {
+          "caller": "build_url",
+          "callee": "str",
+          "lineNumber": 52
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 53
+        },
+        {
+          "caller": "build_url",
+          "callee": "str",
+          "lineNumber": 54
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 55
+        },
+        {
+          "caller": "build_url",
+          "callee": "str",
+          "lineNumber": 56
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 57
+        },
+        {
+          "caller": "build_url",
+          "callee": "options.get",
+          "lineNumber": 59
+        },
+        {
+          "caller": "build_url",
+          "callee": "str",
+          "lineNumber": 60
+        },
+        {
+          "caller": "build_url",
+          "callee": "urllib.parse.urlencode",
+          "lineNumber": 62
+        },
+        {
+          "caller": "build_url",
+          "callee": "parsed._replace",
+          "lineNumber": 63
+        },
+        {
+          "caller": "build_url",
+          "callee": "urllib.parse.urlunparse",
+          "lineNumber": 64
+        },
+        {
+          "caller": "build_headers",
+          "callee": "get_api_key",
+          "lineNumber": 74
+        },
+        {
+          "caller": "build_headers",
+          "callee": "get_jwt_token",
+          "lineNumber": 75
+        },
+        {
+          "caller": "_make_request",
+          "callee": "urllib.request.Request",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_make_request",
+          "callee": "urllib.request.urlopen",
+          "lineNumber": 89
+        },
+        {
+          "caller": "_make_request",
+          "callee": "json.loads",
+          "lineNumber": 90
+        },
+        {
+          "caller": "_make_request",
+          "callee": "resp.read().decode",
+          "lineNumber": 90
+        },
+        {
+          "caller": "_make_request",
+          "callee": "resp.read",
+          "lineNumber": 90
+        },
+        {
+          "caller": "_make_request",
+          "callee": "dict",
+          "lineNumber": 91
+        },
+        {
+          "caller": "_make_request",
+          "callee": "json.loads",
+          "lineNumber": 95
+        },
+        {
+          "caller": "_make_request",
+          "callee": "e.read().decode",
+          "lineNumber": 95
+        },
+        {
+          "caller": "_make_request",
+          "callee": "e.read",
+          "lineNumber": 95
+        },
+        {
+          "caller": "_make_request",
+          "callee": "dict",
+          "lineNumber": 98
+        },
+        {
+          "caller": "_make_request",
+          "callee": "str",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 113
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 113
+        },
+        {
+          "caller": "parse_response",
+          "callee": "MapleSpikeResponse",
+          "lineNumber": 114
+        },
+        {
+          "caller": "parse_response",
+          "callee": "ResponseMeta",
+          "lineNumber": 117
+        },
+        {
+          "caller": "parse_response",
+          "callee": "ResponseQuality",
+          "lineNumber": 118
+        },
+        {
+          "caller": "parse_response",
+          "callee": "Citation",
+          "lineNumber": 119
+        },
+        {
+          "caller": "parse_response",
+          "callee": "MapleSpikeApiError",
+          "lineNumber": 124
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 126
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 126
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 127
+        },
+        {
+          "caller": "parse_response",
+          "callee": "str",
+          "lineNumber": 127
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 127
+        },
+        {
+          "caller": "parse_response",
+          "callee": "str",
+          "lineNumber": 127
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 128
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 128
+        },
+        {
+          "caller": "parse_response",
+          "callee": "MapleSpikeError",
+          "lineNumber": 130
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 133
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 133
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 134
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 134
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 135
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 135
+        },
+        {
+          "caller": "parse_response",
+          "callee": "ResponseMeta",
+          "lineNumber": 137
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 138
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 139
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 140
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 141
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 142
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 143
+        },
+        {
+          "caller": "parse_response",
+          "callee": "meta_dict.get",
+          "lineNumber": 144
+        },
+        {
+          "caller": "parse_response",
+          "callee": "ResponseQuality",
+          "lineNumber": 147
+        },
+        {
+          "caller": "parse_response",
+          "callee": "quality_dict.get",
+          "lineNumber": 148
+        },
+        {
+          "caller": "parse_response",
+          "callee": "quality_dict.get",
+          "lineNumber": 149
+        },
+        {
+          "caller": "parse_response",
+          "callee": "quality_dict.get",
+          "lineNumber": 150
+        },
+        {
+          "caller": "parse_response",
+          "callee": "quality_dict.get",
+          "lineNumber": 151
+        },
+        {
+          "caller": "parse_response",
+          "callee": "quality_dict.get",
+          "lineNumber": 152
+        },
+        {
+          "caller": "parse_response",
+          "callee": "quality_dict.get",
+          "lineNumber": 153
+        },
+        {
+          "caller": "parse_response",
+          "callee": "Citation",
+          "lineNumber": 156
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 157
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 158
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 159
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 160
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 161
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 162
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 163
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parse_response",
+          "callee": "citation_dict.get",
+          "lineNumber": 165
+        },
+        {
+          "caller": "parse_response",
+          "callee": "MapleSpikeResponse",
+          "lineNumber": 168
+        },
+        {
+          "caller": "parse_response",
+          "callee": "body.get",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parse_response",
+          "callee": "json.dumps",
+          "lineNumber": 171
+        },
+        {
+          "caller": "parse_response",
+          "callee": "isinstance",
+          "lineNumber": 171
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk-python/maplespike/langchain_adapter.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 170,
+      "nonEmptyLines": 135,
+      "functions": [
+        {
+          "name": "_build_args_schema",
+          "startLine": 29,
+          "endLine": 51,
+          "params": [
+            "agent_name",
+            "action_name",
+            "required_params",
+            "optional_params"
+          ]
+        },
+        {
+          "name": "_make_tool_func",
+          "startLine": 58,
+          "endLine": 81,
+          "params": [
+            "agent_name",
+            "action_name",
+            "client"
+          ]
+        },
+        {
+          "name": "_build_tools",
+          "startLine": 88,
+          "endLine": 134,
+          "params": [
+            "api_key",
+            "base_url"
+          ]
+        },
+        {
+          "name": "get_maplespike_tools",
+          "startLine": 141,
+          "endLine": 170,
+          "params": [
+            "api_key",
+            "base_url"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_build_args_schema",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "_make_tool_func",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "_build_tools",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "get_maplespike_tools",
+          "line": 141,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_build_args_schema",
+          "callee": "Field",
+          "lineNumber": 44
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "Field",
+          "lineNumber": 46
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "(f\"{agent_name}_{action_name}\").replace(\"-\", \"_\").replace",
+          "lineNumber": 49
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "(f\"{agent_name}_{action_name}\").replace",
+          "lineNumber": 49
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "\"\".join",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "part.capitalize",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "sanitised.split",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_build_args_schema",
+          "callee": "create_model",
+          "lineNumber": 51
+        },
+        {
+          "caller": "func",
+          "callee": "kwargs.items",
+          "lineNumber": 72
+        },
+        {
+          "caller": "func",
+          "callee": "client.query",
+          "lineNumber": 73
+        },
+        {
+          "caller": "_make_tool_func",
+          "callee": "f\"{agent_name}_{action_name}\".replace",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "ImportError",
+          "lineNumber": 105
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "MapleSpike",
+          "lineNumber": 113
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "AGENTS.items",
+          "lineNumber": 116
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "_build_args_schema",
+          "lineNumber": 119
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "StructuredTool.from_function",
+          "lineNumber": 126
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "_make_tool_func",
+          "lineNumber": 127
+        },
+        {
+          "caller": "_build_tools",
+          "callee": "tools.append",
+          "lineNumber": 132
+        },
+        {
+          "caller": "get_maplespike_tools",
+          "callee": "_build_tools",
+          "lineNumber": 170
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk-python/maplespike/mock.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 249,
+      "nonEmptyLines": 202,
+      "functions": [
+        {
+          "name": "_base_meta",
+          "startLine": 12,
+          "endLine": 21,
+          "params": [
+            "agent",
+            "action"
+          ]
+        },
+        {
+          "name": "_base_citation",
+          "startLine": 32,
+          "endLine": 45,
+          "params": [
+            "source",
+            "url"
+          ]
+        },
+        {
+          "name": "_ok",
+          "startLine": 48,
+          "endLine": 62,
+          "params": [
+            "agent",
+            "action",
+            "data",
+            "source",
+            "url"
+          ]
+        },
+        {
+          "name": "get_mock_response",
+          "startLine": 236,
+          "endLine": 249,
+          "params": [
+            "agent",
+            "action"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_base_meta",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "_base_citation",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "_ok",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "get_mock_response",
+          "line": 236,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_base_meta",
+          "callee": "ResponseMeta",
+          "lineNumber": 13
+        },
+        {
+          "caller": "_base_meta",
+          "callee": "int",
+          "lineNumber": 14
+        },
+        {
+          "caller": "_base_meta",
+          "callee": "time.time",
+          "lineNumber": 14
+        },
+        {
+          "caller": "_base_meta",
+          "callee": "id",
+          "lineNumber": 14
+        },
+        {
+          "caller": "_base_citation",
+          "callee": "time.strftime",
+          "lineNumber": 33
+        },
+        {
+          "caller": "_base_citation",
+          "callee": "time.gmtime",
+          "lineNumber": 33
+        },
+        {
+          "caller": "_base_citation",
+          "callee": "retrieved.split",
+          "lineNumber": 34
+        },
+        {
+          "caller": "_base_citation",
+          "callee": "Citation",
+          "lineNumber": 35
+        },
+        {
+          "caller": "_ok",
+          "callee": "MapleSpikeResponse",
+          "lineNumber": 55
+        },
+        {
+          "caller": "_ok",
+          "callee": "json.dumps",
+          "lineNumber": 58
+        },
+        {
+          "caller": "_ok",
+          "callee": "_base_meta",
+          "lineNumber": 59
+        },
+        {
+          "caller": "_ok",
+          "callee": "_base_citation",
+          "lineNumber": 61
+        },
+        {
+          "caller": "get_mock_response",
+          "callee": "_MOCK_DATA_MAP.get",
+          "lineNumber": 238
+        },
+        {
+          "caller": "get_mock_response",
+          "callee": "agent.lower",
+          "lineNumber": 238
+        },
+        {
+          "caller": "get_mock_response",
+          "callee": "_ok",
+          "lineNumber": 240
+        },
+        {
+          "caller": "get_mock_response",
+          "callee": "_ok",
+          "lineNumber": 242
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk-python/maplespike/types.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 120,
+      "nonEmptyLines": 98,
+      "classes": [
+        {
+          "name": "ResponseMeta",
+          "startLine": 10,
+          "endLine": 18,
+          "methods": [],
+          "properties": [
+            "request_id",
+            "agent",
+            "action",
+            "auth_method",
+            "credits_charged",
+            "cache_status",
+            "duration_ms"
+          ]
+        },
+        {
+          "name": "ResponseQuality",
+          "startLine": 22,
+          "endLine": 29,
+          "methods": [],
+          "properties": [
+            "freshness_seconds",
+            "source_uptime_7d",
+            "confidence",
+            "certainty_score",
+            "last_verified",
+            "data_completeness"
+          ]
+        },
+        {
+          "name": "Citation",
+          "startLine": 33,
+          "endLine": 43,
+          "methods": [],
+          "properties": [
+            "source_name",
+            "source_url",
+            "license",
+            "data_hash",
+            "retrieved_at",
+            "update_frequency",
+            "original_format",
+            "citation_text",
+            "citation_footnote"
+          ]
+        },
+        {
+          "name": "MapleSpikeResponse",
+          "startLine": 47,
+          "endLine": 70,
+          "methods": [
+            "__post_init__",
+            "__repr__"
+          ],
+          "properties": [
+            "success",
+            "data",
+            "text",
+            "error",
+            "meta",
+            "quality",
+            "citation"
+          ]
+        },
+        {
+          "name": "QueryOptions",
+          "startLine": 74,
+          "endLine": 83,
+          "methods": [],
+          "properties": [
+            "mock",
+            "fields",
+            "format",
+            "limit",
+            "page",
+            "normalize",
+            "units",
+            "summary"
+          ]
+        },
+        {
+          "name": "MapleSpikeApiError",
+          "startLine": 87,
+          "endLine": 92,
+          "methods": [],
+          "properties": [
+            "status",
+            "code",
+            "message",
+            "request_id"
+          ]
+        },
+        {
+          "name": "MapleSpikeError",
+          "startLine": 95,
+          "endLine": 102,
+          "methods": [
+            "__init__"
+          ],
+          "properties": []
+        },
+        {
+          "name": "ActionDefinition",
+          "startLine": 106,
+          "endLine": 112,
+          "methods": [],
+          "properties": [
+            "id",
+            "description",
+            "required_params",
+            "optional_params",
+            "sample_curl"
+          ]
+        },
+        {
+          "name": "AgentDefinition",
+          "startLine": 116,
+          "endLine": 120,
+          "methods": [],
+          "properties": [
+            "name",
+            "description",
+            "actions"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ResponseMeta",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "ResponseQuality",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "Citation",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpikeResponse",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "QueryOptions",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpikeApiError",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpikeError",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "ActionDefinition",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "AgentDefinition",
+          "line": 115,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "__post_init__",
+          "callee": "ResponseMeta",
+          "lineNumber": 59
+        },
+        {
+          "caller": "__post_init__",
+          "callee": "ResponseQuality",
+          "lineNumber": 61
+        },
+        {
+          "caller": "__post_init__",
+          "callee": "Citation",
+          "lineNumber": 63
+        },
+        {
+          "caller": "__init__",
+          "callee": "super().__init__",
+          "lineNumber": 102
+        },
+        {
+          "caller": "__init__",
+          "callee": "super",
+          "lineNumber": 102
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 9,
+        "functionCount": 0,
+        "classCount": 9
+      }
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "charts/maplespike/Chart.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 23,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "apiVersion",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "type",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "appVersion",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "keywords",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "home",
+          "level": 1,
+          "line": 15
+        },
+        {
+          "heading": "sources",
+          "level": 1,
+          "line": 16
+        },
+        {
+          "heading": "maintainers",
+          "level": 1,
+          "line": 19
+        },
+        {
+          "heading": "dependencies",
+          "level": 1,
+          "line": 23
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "charts/maplespike/values-prod.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 82,
+      "nonEmptyLines": 76,
+      "sections": [
+        {
+          "heading": "image",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "api",
+          "level": 1,
+          "line": 10
+        },
+        {
+          "heading": "mcp",
+          "level": 1,
+          "line": 32
+        },
+        {
+          "heading": "database",
+          "level": 1,
+          "line": 47
+        },
+        {
+          "heading": "portal",
+          "level": 1,
+          "line": 63
+        },
+        {
+          "heading": "secrets",
+          "level": 1,
+          "line": 79
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "charts/maplespike/values.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 103,
+      "nonEmptyLines": 95,
+      "sections": [
+        {
+          "heading": "image",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "api",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "mcp",
+          "level": 1,
+          "line": 29
+        },
+        {
+          "heading": "ingestion",
+          "level": 1,
+          "line": 44
+        },
+        {
+          "heading": "engine",
+          "level": 1,
+          "line": 76
+        },
+        {
+          "heading": "monitoring",
+          "level": 1,
+          "line": 91
+        },
+        {
+          "heading": "secrets",
+          "level": 1,
+          "line": 100
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    }
+  ]
+}

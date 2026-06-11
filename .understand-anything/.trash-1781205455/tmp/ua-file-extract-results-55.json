@@ -1,0 +1,751 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/gtfs-transit/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 118,
+      "nonEmptyLines": 96,
+      "exports": [
+        {
+          "name": "GTFS_AGENCIES",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_TIMEOUT_MS",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_USER_AGENT",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_FEED_URLS",
+          "line": 67,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gtfs-transit/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 49,
+      "nonEmptyLines": 41,
+      "functions": [
+        {
+          "name": "fetchGtfsFeed",
+          "startLine": 14,
+          "endLine": 40,
+          "params": [
+            "agencyId"
+          ]
+        },
+        {
+          "name": "fetchAllGtfsFeeds",
+          "startLine": 42,
+          "endLine": 49,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchGtfsFeed",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllGtfsFeeds",
+          "line": 42,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchGtfsFeed",
+          "callee": "GTFS_AGENCIES.find",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchGtfsFeed",
+          "callee": "httpGet",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchGtfsFeed",
+          "callee": "Buffer.from",
+          "lineNumber": 35
+        },
+        {
+          "caller": "fetchGtfsFeed",
+          "callee": "String",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchAllGtfsFeeds",
+          "callee": "fetchGtfsFeed",
+          "lineNumber": 45
+        },
+        {
+          "caller": "fetchAllGtfsFeeds",
+          "callee": "results.push",
+          "lineNumber": 46
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gtfs-transit/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 65,
+      "nonEmptyLines": 57,
+      "functions": [
+        {
+          "name": "ingestGTFSAgency",
+          "startLine": 8,
+          "endLine": 51,
+          "params": [
+            "agencyId"
+          ]
+        },
+        {
+          "name": "ingestAllAgencies",
+          "startLine": 53,
+          "endLine": 60,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestGTFSAgency",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllAgencies",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_AGENCIES",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_FEED_URLS",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_TIMEOUT_MS",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "GTFS_USER_AGENT",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "fetchGtfsFeed",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsRouteCsv",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsStopCsv",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsZip",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "GTFSRoute",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "GTFSStop",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "GTFSTrip",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "GTFSCalendar",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "GtfsIngestionResult",
+          "line": 65,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "Date.now",
+          "lineNumber": 9
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "GTFS_AGENCIES.find",
+          "lineNumber": 10
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "Date.now",
+          "lineNumber": 16
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "Date.now",
+          "lineNumber": 25
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "fetchGtfsFeed",
+          "lineNumber": 30
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "Date.now",
+          "lineNumber": 35
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "parseGtfsZip",
+          "lineNumber": 39
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "Date.now",
+          "lineNumber": 42
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "String",
+          "lineNumber": 48
+        },
+        {
+          "caller": "ingestGTFSAgency",
+          "callee": "Date.now",
+          "lineNumber": 48
+        },
+        {
+          "caller": "ingestAllAgencies",
+          "callee": "ingestGTFSAgency",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllAgencies",
+          "callee": "results.push",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 15,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gtfs-transit/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 192,
+      "nonEmptyLines": 175,
+      "functions": [
+        {
+          "name": "parseCsvLine",
+          "startLine": 6,
+          "endLine": 23,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "parseCsv",
+          "startLine": 25,
+          "endLine": 38,
+          "params": [
+            "csvText",
+            "rowFn"
+          ]
+        },
+        {
+          "name": "parseGtfsRouteCsv",
+          "startLine": 40,
+          "endLine": 52,
+          "params": [
+            "csvData"
+          ]
+        },
+        {
+          "name": "parseGtfsStopCsv",
+          "startLine": 54,
+          "endLine": 65,
+          "params": [
+            "csvData"
+          ]
+        },
+        {
+          "name": "parseGtfsTripCsv",
+          "startLine": 67,
+          "endLine": 78,
+          "params": [
+            "csvData"
+          ]
+        },
+        {
+          "name": "parseGtfsCalendarCsv",
+          "startLine": 80,
+          "endLine": 94,
+          "params": [
+            "csvData"
+          ]
+        },
+        {
+          "name": "extractZipBuffer",
+          "startLine": 101,
+          "endLine": 130,
+          "params": [
+            "zipBuf"
+          ]
+        },
+        {
+          "name": "parseGtfsZip",
+          "startLine": 132,
+          "endLine": 192,
+          "params": [
+            "zipBuf",
+            "agencyName"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseGtfsRouteCsv",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsStopCsv",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsTripCsv",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsCalendarCsv",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "parseGtfsZip",
+          "line": 132,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCsvLine",
+          "callee": "cols.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 15
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "cols.push",
+          "lineNumber": 21
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 21
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "csvText.trim().split",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "csvText.trim",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 28
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "lines[i].trim",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "rowFn",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseCsv",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "parseCsv",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "parseInt",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseGtfsRouteCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 46
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "parseCsv",
+          "lineNumber": 55
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 56
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "parseFloat",
+          "lineNumber": 58
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 58
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "parseFloat",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseGtfsStopCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseGtfsTripCsv",
+          "callee": "parseCsv",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseGtfsTripCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 69
+        },
+        {
+          "caller": "parseGtfsTripCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 70
+        },
+        {
+          "caller": "parseGtfsTripCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 71
+        },
+        {
+          "caller": "parseGtfsTripCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 72
+        },
+        {
+          "caller": "parseGtfsCalendarCsv",
+          "callee": "parseCsv",
+          "lineNumber": 81
+        },
+        {
+          "caller": "parseGtfsCalendarCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 82
+        },
+        {
+          "caller": "parseGtfsCalendarCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 83
+        },
+        {
+          "caller": "parseGtfsCalendarCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 84
+        },
+        {
+          "caller": "parseGtfsCalendarCsv",
+          "callee": "headers.indexOf",
+          "lineNumber": 89
+        },
+        {
+          "caller": "parseGtfsCalendarCsv",
+          "callee": "days.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.readUInt16LE",
+          "lineNumber": 107
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.readUInt32LE",
+          "lineNumber": 108
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.readUInt32LE",
+          "lineNumber": 109
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.readUInt16LE",
+          "lineNumber": 110
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.readUInt16LE",
+          "lineNumber": 111
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.subarray(pos + 30, pos + 30 + nameLen).toString",
+          "lineNumber": 112
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.subarray",
+          "lineNumber": 112
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "Buffer.from",
+          "lineNumber": 116
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.subarray",
+          "lineNumber": 116
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "Buffer.from",
+          "lineNumber": 118
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "unzipSync",
+          "lineNumber": 118
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "zipBuf.subarray",
+          "lineNumber": 118
+        },
+        {
+          "caller": "extractZipBuffer",
+          "callee": "entries.push",
+          "lineNumber": 123
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "extractZipBuffer",
+          "lineNumber": 139
+        },
+        {
+          "caller": "findEntry",
+          "callee": "entries.find",
+          "lineNumber": 147
+        },
+        {
+          "caller": "findEntry",
+          "callee": "e.name.endsWith",
+          "lineNumber": 147
+        },
+        {
+          "caller": "findEntry",
+          "callee": "errors.push",
+          "lineNumber": 149
+        },
+        {
+          "caller": "findEntry",
+          "callee": "entry.data.toString",
+          "lineNumber": 152
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "findEntry",
+          "lineNumber": 155
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "parseGtfsRouteCsv",
+          "lineNumber": 157
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "routes.forEach",
+          "lineNumber": 158
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "findEntry",
+          "lineNumber": 161
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "parseGtfsStopCsv",
+          "lineNumber": 163
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "stops.forEach",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "findEntry",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "parseGtfsTripCsv",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "trips.forEach",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "findEntry",
+          "lineNumber": 173
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "parseGtfsCalendarCsv",
+          "lineNumber": 175
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "findEntry",
+          "lineNumber": 180
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "parseCsv",
+          "lineNumber": 182
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "headers.indexOf",
+          "lineNumber": 183
+        },
+        {
+          "caller": "parseGtfsZip",
+          "callee": "headers.indexOf",
+          "lineNumber": 184
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gtfs-transit/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 48,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

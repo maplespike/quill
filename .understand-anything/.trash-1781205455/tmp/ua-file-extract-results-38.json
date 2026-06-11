@@ -1,0 +1,902 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-time-feeds/amqps-subscriber.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 73,
+      "nonEmptyLines": 66,
+      "functions": [
+        {
+          "name": "subscribeToMscAlerts",
+          "startLine": 14,
+          "endLine": 59,
+          "params": [
+            "onAlert"
+          ]
+        },
+        {
+          "name": "getAmqpsCache",
+          "startLine": 61,
+          "endLine": 66,
+          "params": []
+        },
+        {
+          "name": "ensureAmqpsSubscription",
+          "startLine": 68,
+          "endLine": 73,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "subscribeToMscAlerts",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "getAmqpsCache",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "ensureAmqpsSubscription",
+          "line": 68,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "connect",
+          "lineNumber": 19
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "conn.createChannel",
+          "lineNumber": 20
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "ch.assertQueue",
+          "lineNumber": 21
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "ch.bindQueue",
+          "lineNumber": 22
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "ch.consume",
+          "lineNumber": 24
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "msg.content.toString",
+          "lineNumber": 26
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 27
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "entryRegex.exec",
+          "lineNumber": 31
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/)?.[1]?.trim",
+          "lineNumber": 33
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match",
+          "lineNumber": 33
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match",
+          "lineNumber": 34
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match",
+          "lineNumber": 35
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/)?.[1]?.replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 36
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/)?.[1]?.replace",
+          "lineNumber": 36
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match",
+          "lineNumber": 36
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match",
+          "lineNumber": 37
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "block.match",
+          "lineNumber": 38
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "records.push",
+          "lineNumber": 39
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "summary.substring",
+          "lineNumber": 41
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "computeHash",
+          "lineNumber": 42
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "alertCache.set",
+          "lineNumber": 46
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "Date.now",
+          "lineNumber": 47
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "onAlert",
+          "lineNumber": 48
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "ch.ack",
+          "lineNumber": 50
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "console.log",
+          "lineNumber": 53
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "ch.close",
+          "lineNumber": 54
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "conn.close",
+          "lineNumber": 54
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "console.warn",
+          "lineNumber": 56
+        },
+        {
+          "caller": "subscribeToMscAlerts",
+          "callee": "String",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getAmqpsCache",
+          "callee": "Date.now",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getAmqpsCache",
+          "callee": "alertCache.get",
+          "lineNumber": 63
+        },
+        {
+          "caller": "ensureAmqpsSubscription",
+          "callee": "subscribeToMscAlerts(() => {}).catch",
+          "lineNumber": 70
+        },
+        {
+          "caller": "ensureAmqpsSubscription",
+          "callee": "subscribeToMscAlerts",
+          "lineNumber": 70
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-time-feeds/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 88,
+      "nonEmptyLines": 84,
+      "exports": [
+        {
+          "name": "REALTIME_SOURCES",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "REALTIME_FETCH_TIMEOUT_MS",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "REALTIME_USER_AGENT",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_REALTIME_RECORDS",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "REALTIME_CACHE_TTL_MS",
+          "line": 82,
+          "isDefault": false
+        },
+        {
+          "name": "MSC_AMQPS_URL",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "MSC_AMQPS_QUEUE",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "MSC_AMQPS_TOPIC",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "MSC_AMQPS_ENABLED",
+          "line": 88,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-time-feeds/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 159,
+      "nonEmptyLines": 135,
+      "functions": [
+        {
+          "name": "getCached",
+          "startLine": 14,
+          "endLine": 19,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "setCache",
+          "startLine": 21,
+          "endLine": 24,
+          "params": [
+            "key",
+            "data"
+          ]
+        },
+        {
+          "name": "fetchText",
+          "startLine": 28,
+          "endLine": 33,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchWithCache",
+          "startLine": 36,
+          "endLine": 40,
+          "params": [
+            "key",
+            "url"
+          ]
+        },
+        {
+          "name": "fetchEcccAlerts",
+          "startLine": 44,
+          "endLine": 73,
+          "params": []
+        },
+        {
+          "name": "fetchCbsaBorders",
+          "startLine": 77,
+          "endLine": 103,
+          "params": []
+        },
+        {
+          "name": "fetchParoleDecisions",
+          "startLine": 107,
+          "endLine": 126,
+          "params": []
+        },
+        {
+          "name": "fetchAllRealtime",
+          "startLine": 130,
+          "endLine": 159,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAllRealtime",
+          "line": 130,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getCached",
+          "callee": "cache.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "getCached",
+          "callee": "Date.now",
+          "lineNumber": 17
+        },
+        {
+          "caller": "getCached",
+          "callee": "cache.delete",
+          "lineNumber": 17
+        },
+        {
+          "caller": "setCache",
+          "callee": "cache.set",
+          "lineNumber": 22
+        },
+        {
+          "caller": "setCache",
+          "callee": "Date.now",
+          "lineNumber": 22
+        },
+        {
+          "caller": "setCache",
+          "callee": "cache.keys().next",
+          "lineNumber": 23
+        },
+        {
+          "caller": "setCache",
+          "callee": "cache.keys",
+          "lineNumber": 23
+        },
+        {
+          "caller": "setCache",
+          "callee": "cache.delete",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchText",
+          "callee": "httpGet",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchWithCache",
+          "callee": "getCached",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchWithCache",
+          "callee": "JSON.stringify",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchWithCache",
+          "callee": "fetchText",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "getAmqpsCache",
+          "lineNumber": 46
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "fetchWithCache",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 51
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "entryRegex.exec",
+          "lineNumber": 57
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/)?.[1]?.trim",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match",
+          "lineNumber": 60
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match",
+          "lineNumber": 61
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/)?.[1]?.replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/)?.[1]?.replace",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match",
+          "lineNumber": 63
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "block.match",
+          "lineNumber": 64
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "records.push",
+          "lineNumber": 66
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "summary.substring",
+          "lineNumber": 68
+        },
+        {
+          "caller": "fetchEcccAlerts",
+          "callee": "computeHash",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "fetchWithCache",
+          "lineNumber": 78
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "new Date().toISOString",
+          "lineNumber": 80
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "JSON.parse",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "Array.isArray",
+          "lineNumber": 85
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "crossings.slice",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "records.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "parseInt",
+          "lineNumber": 96
+        },
+        {
+          "caller": "fetchCbsaBorders",
+          "callee": "computeHash",
+          "lineNumber": 98
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "fetchText",
+          "lineNumber": 108
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "new Date().toISOString",
+          "lineNumber": 110
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "lp.exec",
+          "lineNumber": 115
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "m[2].replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 116
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "m[2].replace",
+          "lineNumber": 116
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "/(decision|registry|hearing|appeal|parole)/i.test",
+          "lineNumber": 117
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "records.push",
+          "lineNumber": 118
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "m[1].startsWith",
+          "lineNumber": 120
+        },
+        {
+          "caller": "fetchParoleDecisions",
+          "callee": "computeHash",
+          "lineNumber": 122
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "Date.now",
+          "lineNumber": 131
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "ensureAmqpsSubscription",
+          "lineNumber": 136
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "Promise.allSettled",
+          "lineNumber": 138
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "fetchEcccAlerts().then",
+          "lineNumber": 139
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "fetchEcccAlerts",
+          "lineNumber": 139
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "fetchCbsaBorders().then",
+          "lineNumber": 140
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "fetchCbsaBorders",
+          "lineNumber": 140
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "fetchParoleDecisions().then",
+          "lineNumber": 141
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "fetchParoleDecisions",
+          "lineNumber": 141
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "allRecords.push",
+          "lineNumber": 147
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "setCache",
+          "lineNumber": 148
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "errors.push",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchAllRealtime",
+          "callee": "Date.now",
+          "lineNumber": 157
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-time-feeds/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 9,
+      "functions": [
+        {
+          "name": "ingestAllRealtime",
+          "startLine": 5,
+          "endLine": 7,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllRealtime",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "REALTIME_SOURCES",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "RealtimeRecord",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "RealtimeIngestionResult",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseRealtimeRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseRealtimeRecords",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestAllRealtime",
+          "callee": "fetchAllRealtime",
+          "lineNumber": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 8,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-time-feeds/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseRealtimeRecord",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseRealtimeRecords",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseRealtimeRecord",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseRealtimeRecords",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseRealtimeRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseRealtimeRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseRealtimeRecord",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseRealtimeRecords",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseRealtimeRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseRealtimeRecords",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseRealtimeRecords",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseRealtimeRecords",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseRealtimeRecords",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-time-feeds/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 26,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

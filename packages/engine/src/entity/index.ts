@@ -3,6 +3,8 @@
  */
 
 export { AliasManager } from "./aliases";
+export { DisambiguationEngine } from "./disambiguation";
+export { CrossModuleLinker, LINKING_RULES } from "./linker";
 export { EntityResolver } from "./resolver";
 export type {
   AliasEntry,
@@ -11,3 +13,12 @@ export type {
   ResolutionResult,
   ResolvedEntity,
 } from "./types";
+export type {
+  DisambiguationContext,
+  DisambiguationResult,
+} from "./disambiguation";
+export type {
+  LinkCandidate,
+  LinkResult,
+  LinkingRule,
+} from "./linker";

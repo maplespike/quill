@@ -1,0 +1,1046 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/un/api.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 280,
+      "nonEmptyLines": 240,
+      "functions": [
+        {
+          "name": "fetchDatasetXml",
+          "startLine": 52,
+          "endLine": 111,
+          "params": [
+            "dataflowId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchDataflows",
+          "startLine": 113,
+          "endLine": 140,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchDataStructure",
+          "startLine": 142,
+          "endLine": 166,
+          "params": [
+            "agency",
+            "structureId",
+            "options"
+          ]
+        },
+        {
+          "name": "extractSeriesFromSdmx",
+          "startLine": 168,
+          "endLine": 186,
+          "params": [
+            "message"
+          ]
+        },
+        {
+          "name": "extractObsFromSeries",
+          "startLine": 188,
+          "endLine": 192,
+          "params": [
+            "series"
+          ]
+        },
+        {
+          "name": "extractSeriesKeyValue",
+          "startLine": 194,
+          "endLine": 209,
+          "params": [
+            "series"
+          ]
+        },
+        {
+          "name": "normalizeJsonSdmx",
+          "startLine": 211,
+          "endLine": 223,
+          "params": [
+            "jsonBody"
+          ]
+        },
+        {
+          "name": "extractDataflows",
+          "startLine": 225,
+          "endLine": 249,
+          "params": [
+            "jsonBody"
+          ]
+        },
+        {
+          "name": "extractDataflowsFromXml",
+          "startLine": 251,
+          "endLine": 280,
+          "params": [
+            "parsed"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "UnApiError",
+          "startLine": 41,
+          "endLine": 50,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "UnApiError",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDatasetXml",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDataflows",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDataStructure",
+          "line": 142,
+          "isDefault": false
+        },
+        {
+          "name": "extractSeriesFromSdmx",
+          "line": 168,
+          "isDefault": false
+        },
+        {
+          "name": "extractObsFromSeries",
+          "line": 188,
+          "isDefault": false
+        },
+        {
+          "name": "extractSeriesKeyValue",
+          "line": 194,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 47
+        },
+        {
+          "caller": "fetchDatasetXml",
+          "callee": "unDataUrl",
+          "lineNumber": 64
+        },
+        {
+          "caller": "fetchDatasetXml",
+          "callee": "httpGet",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchDatasetXml",
+          "callee": "bodyText.trim",
+          "lineNumber": 85
+        },
+        {
+          "caller": "fetchDatasetXml",
+          "callee": "resp.json",
+          "lineNumber": 91
+        },
+        {
+          "caller": "fetchDatasetXml",
+          "callee": "normalizeJsonSdmx",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchDatasetXml",
+          "callee": "xmlParser.parse",
+          "lineNumber": 99
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "unDataflowUrl",
+          "lineNumber": 119
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "httpGet",
+          "lineNumber": 120
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "bodyText.trim",
+          "lineNumber": 128
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "resp.json",
+          "lineNumber": 131
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "extractDataflows",
+          "lineNumber": 132
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "xmlParser.parse",
+          "lineNumber": 134
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "extractDataflowsFromXml",
+          "lineNumber": 135
+        },
+        {
+          "caller": "fetchDataStructure",
+          "callee": "unDataStructureUrl",
+          "lineNumber": 150
+        },
+        {
+          "caller": "fetchDataStructure",
+          "callee": "httpGet",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchDataStructure",
+          "callee": "resp.json",
+          "lineNumber": 159
+        },
+        {
+          "caller": "extractSeriesFromSdmx",
+          "callee": "Array.isArray",
+          "lineNumber": 175
+        },
+        {
+          "caller": "extractSeriesFromSdmx",
+          "callee": "Array.isArray",
+          "lineNumber": 181
+        },
+        {
+          "caller": "extractSeriesFromSdmx",
+          "callee": "allSeries.push",
+          "lineNumber": 182
+        },
+        {
+          "caller": "extractObsFromSeries",
+          "callee": "Array.isArray",
+          "lineNumber": 191
+        },
+        {
+          "caller": "extractSeriesKeyValue",
+          "callee": "Array.isArray",
+          "lineNumber": 201
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "Array.isArray",
+          "lineNumber": 233
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "dataflows.map",
+          "lineNumber": 235
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "String",
+          "lineNumber": 236
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "String",
+          "lineNumber": 238
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "id.includes",
+          "lineNumber": 240
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "id.split('/').pop",
+          "lineNumber": 240
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "id.split",
+          "lineNumber": 240
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "code.replace",
+          "lineNumber": 245
+        },
+        {
+          "caller": "extractDataflows",
+          "callee": "String",
+          "lineNumber": 246
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "Array.isArray",
+          "lineNumber": 263
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "flowList.map",
+          "lineNumber": 265
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "String",
+          "lineNumber": 266
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "String",
+          "lineNumber": 269
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "id.includes",
+          "lineNumber": 271
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "id.split('/').pop",
+          "lineNumber": 271
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "id.split",
+          "lineNumber": 271
+        },
+        {
+          "caller": "extractDataflowsFromXml",
+          "callee": "code.replace",
+          "lineNumber": 276
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 7,
+        "functionCount": 9,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/un/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 234,
+      "nonEmptyLines": 205,
+      "functions": [
+        {
+          "name": "unUrl",
+          "startLine": 155,
+          "endLine": 162,
+          "params": [
+            "path",
+            "params"
+          ]
+        },
+        {
+          "name": "unDataStructureUrl",
+          "startLine": 168,
+          "endLine": 176,
+          "params": [
+            "agency",
+            "structureId"
+          ]
+        },
+        {
+          "name": "unDataUrl",
+          "startLine": 185,
+          "endLine": 212,
+          "params": [
+            "dataflowId",
+            "options"
+          ]
+        },
+        {
+          "name": "unDataflowUrl",
+          "startLine": 218,
+          "endLine": 220,
+          "params": []
+        },
+        {
+          "name": "unDataExplorerUrl",
+          "startLine": 225,
+          "endLine": 227,
+          "params": [
+            "databaseCode"
+          ]
+        },
+        {
+          "name": "unDatabaseName",
+          "startLine": 232,
+          "endLine": 234,
+          "params": [
+            "code"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "UN_API_BASE",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DEFAULT_TIMEOUT_MS",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "UN_FORMAT_JSON",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASES",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASE_CATEGORIES",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASE_NAMES",
+          "line": 91,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASES_BY_CATEGORY",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "UN_TOP_DATABASES",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "UN_COUNTRY_CODES",
+          "line": 129,
+          "isDefault": false
+        },
+        {
+          "name": "unUrl",
+          "line": 155,
+          "isDefault": false
+        },
+        {
+          "name": "unDataStructureUrl",
+          "line": 168,
+          "isDefault": false
+        },
+        {
+          "name": "unDataUrl",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "unDataflowUrl",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "unDataExplorerUrl",
+          "line": 225,
+          "isDefault": false
+        },
+        {
+          "name": "unDatabaseName",
+          "line": 232,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "unUrl",
+          "callee": "searchParams.toString",
+          "lineNumber": 160
+        },
+        {
+          "caller": "unDataStructureUrl",
+          "callee": "unUrl",
+          "lineNumber": 172
+        },
+        {
+          "caller": "unDataUrl",
+          "callee": "dataflowId.includes",
+          "lineNumber": 195
+        },
+        {
+          "caller": "unDataUrl",
+          "callee": "dataflowId.split",
+          "lineNumber": 196
+        },
+        {
+          "caller": "unDataUrl",
+          "callee": "parts.push",
+          "lineNumber": 204
+        },
+        {
+          "caller": "unDataUrl",
+          "callee": "unUrl",
+          "lineNumber": 208
+        },
+        {
+          "caller": "unDataUrl",
+          "callee": "parts.join",
+          "lineNumber": 208
+        },
+        {
+          "caller": "unDataflowUrl",
+          "callee": "unUrl",
+          "lineNumber": 219
+        },
+        {
+          "caller": "unDataExplorerUrl",
+          "callee": "encodeURIComponent",
+          "lineNumber": 226
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 15,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/un/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 220,
+      "nonEmptyLines": 196,
+      "functions": [
+        {
+          "name": "ingestUnDataset",
+          "startLine": 30,
+          "endLine": 94,
+          "params": [
+            "dataflowId",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestByDatabase",
+          "startLine": 96,
+          "endLine": 119,
+          "params": [
+            "category",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllUn",
+          "startLine": 121,
+          "endLine": 150,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parseUnObs",
+          "startLine": 152,
+          "endLine": 209,
+          "params": [
+            "obs",
+            "dimensions",
+            "databaseCode",
+            "databaseName",
+            "sourceUrl"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestUnDataset",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "ingestByDatabase",
+          "line": 96,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllUn",
+          "line": 121,
+          "isDefault": false
+        },
+        {
+          "name": "parseUnObs",
+          "line": 152,
+          "isDefault": false
+        },
+        {
+          "name": "parseUnRecord",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "parseUnRecords",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASES",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASES_BY_CATEGORY",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASE_CATEGORIES",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "UN_TOP_DATABASES",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "UN_DATABASE_NAMES",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "unDataUrl",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "unDataExplorerUrl",
+          "line": 212,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestUnDataset",
+          "callee": "Date.now",
+          "lineNumber": 39
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "unDatabaseName",
+          "lineNumber": 41
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "unDataExplorerUrl",
+          "lineNumber": 42
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "fetchDatasetXml",
+          "lineNumber": 46
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "extractSeriesFromSdmx",
+          "lineNumber": 53
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "Date.now",
+          "lineNumber": 61
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "extractSeriesKeyValue",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "extractObsFromSeries",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "parseUnObs",
+          "lineNumber": 70
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "allSeries.reduce",
+          "lineNumber": 78
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "extractObsFromSeries",
+          "lineNumber": 78
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "Date.now",
+          "lineNumber": 81
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "errors.push",
+          "lineNumber": 84
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "String",
+          "lineNumber": 84
+        },
+        {
+          "caller": "ingestUnDataset",
+          "callee": "Date.now",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestByDatabase",
+          "callee": "Date.now",
+          "lineNumber": 100
+        },
+        {
+          "caller": "ingestByDatabase",
+          "callee": "ingestUnDataset",
+          "lineNumber": 107
+        },
+        {
+          "caller": "ingestByDatabase",
+          "callee": "results.push",
+          "lineNumber": 108
+        },
+        {
+          "caller": "ingestByDatabase",
+          "callee": "Date.now",
+          "lineNumber": 117
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "Date.now",
+          "lineNumber": 124
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "UN_TOP_DATABASES.slice",
+          "lineNumber": 132
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "Promise.all",
+          "lineNumber": 133
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "batch.map",
+          "lineNumber": 134
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "ingestUnDataset",
+          "lineNumber": 134
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "results.push",
+          "lineNumber": 138
+        },
+        {
+          "caller": "ingestAllUn",
+          "callee": "Date.now",
+          "lineNumber": 148
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "String",
+          "lineNumber": 162
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "parseInt",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "String(timePeriod).substring",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "String",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "isNaN",
+          "lineNumber": 168
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "parseFloat",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "String",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "isNaN",
+          "lineNumber": 171
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "new Date().toISOString",
+          "lineNumber": 174
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "Object.entries(dimensions)\n    .filter(([k]) => k !== 'TIME_PERIOD')\n    .map(([k, v]) => `${k}=${v}`)\n    .join",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "Object.entries(dimensions)\n    .filter(([k]) => k !== 'TIME_PERIOD')\n    .map",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "Object.entries(dimensions)\n    .filter",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "Object.entries",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "JSON.stringify",
+          "lineNumber": 184
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "String",
+          "lineNumber": 191
+        },
+        {
+          "caller": "parseUnObs",
+          "callee": "computeHash",
+          "lineNumber": 191
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 15,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/un/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseUnRecord",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseUnRecords",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseUnRecord",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseUnRecords",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseUnRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseUnRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseUnRecord",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseUnRecords",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseUnRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseUnRecords",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseUnRecords",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseUnRecords",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseUnRecords",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/un/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 176,
+      "nonEmptyLines": 155,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,645 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 14,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/docs/modules/committees.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 305,
+      "nonEmptyLines": 302,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/committees.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 124,
+      "nonEmptyLines": 101,
+      "sections": [
+        {
+          "heading": "Committee Evidence Module",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Source",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Module Structure",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Key Functions",
+          "level": 2,
+          "line": 28
+        },
+        {
+          "heading": "Committee Codes",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "Data Shape",
+          "level": 2,
+          "line": 59
+        },
+        {
+          "heading": "MCP Tool",
+          "level": 2,
+          "line": 86
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 102
+        },
+        {
+          "heading": "Example Queries for AI Agents",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "Use Cases",
+          "level": 2,
+          "line": 118
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "packages/docs/modules/corporate.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 427,
+      "nonEmptyLines": 425,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/corporate.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 153,
+      "nonEmptyLines": 117,
+      "sections": [
+        {
+          "heading": "Corporate & Lobbying Module",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Module: corporate",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Sources",
+          "level": 3,
+          "line": 12
+        },
+        {
+          "heading": "Data Types",
+          "level": 3,
+          "line": 20
+        },
+        {
+          "heading": "Functions",
+          "level": 3,
+          "line": 29
+        },
+        {
+          "heading": "Module: corporate-filings (SEDAR+)",
+          "level": 2,
+          "line": 39
+        },
+        {
+          "heading": "Module: sedi (Insider Trading)",
+          "level": 2,
+          "line": 47
+        },
+        {
+          "heading": "Module: crown-corporations",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Module: cra-charity",
+          "level": 2,
+          "line": 66
+        },
+        {
+          "heading": "Module: bank-of-canada",
+          "level": 2,
+          "line": 75
+        },
+        {
+          "heading": "MCP Tool: search_corporate",
+          "level": 2,
+          "line": 82
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 95
+        },
+        {
+          "heading": "MCP Tool: search_provincial_lobbying",
+          "level": 2,
+          "line": 103
+        },
+        {
+          "heading": "Provincial Lobbying Coverage",
+          "level": 3,
+          "line": 116
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 128
+        },
+        {
+          "heading": "Use Cases",
+          "level": 2,
+          "line": 136
+        },
+        {
+          "heading": "Example Queries for AI Agents",
+          "level": 2,
+          "line": 145
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": "packages/docs/modules/health.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 299,
+      "nonEmptyLines": 297,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/health.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 104,
+      "nonEmptyLines": 78,
+      "sections": [
+        {
+          "heading": "Health Data Modules",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Module: health-canada",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Sources",
+          "level": 3,
+          "line": 14
+        },
+        {
+          "heading": "Data Types",
+          "level": 3,
+          "line": 23
+        },
+        {
+          "heading": "Functions",
+          "level": 3,
+          "line": 30
+        },
+        {
+          "heading": "Module: health-data",
+          "level": 2,
+          "line": 38
+        },
+        {
+          "heading": "Sources",
+          "level": 3,
+          "line": 42
+        },
+        {
+          "heading": "Data Types",
+          "level": 3,
+          "line": 52
+        },
+        {
+          "heading": "Functions",
+          "level": 3,
+          "line": 65
+        },
+        {
+          "heading": "Use Cases",
+          "level": 2,
+          "line": 72
+        },
+        {
+          "heading": "Example Queries for AI Agents",
+          "level": 2,
+          "line": 81
+        },
+        {
+          "heading": "MCP Tool Mapping",
+          "level": 2,
+          "line": 89
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": "packages/docs/modules/immigration.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 237,
+      "nonEmptyLines": 235,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/immigration.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 101,
+      "nonEmptyLines": 76,
+      "sections": [
+        {
+          "heading": "Immigration & Borders Module",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Source Data",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "IRCC — Permanent Residents",
+          "level": 3,
+          "line": 12
+        },
+        {
+          "heading": "IRCC — Temporary Residents / Study Permits",
+          "level": 3,
+          "line": 18
+        },
+        {
+          "heading": "IRCC — TFWP / LMIA",
+          "level": 3,
+          "line": 24
+        },
+        {
+          "heading": "IRB — Refugee Protection Division Decisions",
+          "level": 3,
+          "line": 30
+        },
+        {
+          "heading": "CBSA — Border Enforcement",
+          "level": 3,
+          "line": 36
+        },
+        {
+          "heading": "Module Structure",
+          "level": 2,
+          "line": 41
+        },
+        {
+          "heading": "Key Functions",
+          "level": 2,
+          "line": 53
+        },
+        {
+          "heading": "MCP Tool: search_immigration",
+          "level": 2,
+          "line": 62
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 76
+        },
+        {
+          "heading": "Example Data Points",
+          "level": 2,
+          "line": 85
+        },
+        {
+          "heading": "Example Queries for AI Agents",
+          "level": 2,
+          "line": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 13
+      }
+    },
+    {
+      "path": "packages/docs/modules/lode.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 329,
+      "nonEmptyLines": 327,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/lode.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 128,
+      "nonEmptyLines": 98,
+      "sections": [
+        {
+          "heading": "LODE Geospatial Module",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "What is LODE?",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "The 12 LODE Databases",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Module Structure",
+          "level": 2,
+          "line": 33
+        },
+        {
+          "heading": "MCP Tool: search_lode",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 58
+        },
+        {
+          "heading": "List Mode",
+          "level": 3,
+          "line": 69
+        },
+        {
+          "heading": "Database Details",
+          "level": 2,
+          "line": 84
+        },
+        {
+          "heading": "Open Database of Addresses (ODA)",
+          "level": 3,
+          "line": 86
+        },
+        {
+          "heading": "Open Database of Buildings (ODB)",
+          "level": 3,
+          "line": 91
+        },
+        {
+          "heading": "Open Database of Healthcare Facilities (ODHF)",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "Open Database of Infrastructure (ODI)",
+          "level": 3,
+          "line": 101
+        },
+        {
+          "heading": "Data Access Notes",
+          "level": 2,
+          "line": 105
+        },
+        {
+          "heading": "Use Cases",
+          "level": 2,
+          "line": 113
+        },
+        {
+          "heading": "Example Queries for AI Agents",
+          "level": 2,
+          "line": 122
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 15
+      }
+    },
+    {
+      "path": "packages/docs/modules/overview.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 728,
+      "nonEmptyLines": 721,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/overview.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 202,
+      "nonEmptyLines": 159,
+      "sections": [
+        {
+          "heading": "Ingestion Modules — Overview",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Architecture",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Module Registry",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Complete Module Catalog",
+          "level": 2,
+          "line": 41
+        },
+        {
+          "heading": "RSS / Core",
+          "level": 3,
+          "line": 43
+        },
+        {
+          "heading": "Government & Parliamentary",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "Immigration & Legal",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "Indigenous Relations",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "Defence & Transport",
+          "level": 3,
+          "line": 94
+        },
+        {
+          "heading": "Health",
+          "level": 3,
+          "line": 102
+        },
+        {
+          "heading": "Corporate & Financial",
+          "level": 3,
+          "line": 109
+        },
+        {
+          "heading": "Influence & Media",
+          "level": 3,
+          "line": 121
+        },
+        {
+          "heading": "Provincial",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "Environment & Geospatial",
+          "level": 3,
+          "line": 141
+        },
+        {
+          "heading": "Social, Science & Education",
+          "level": 3,
+          "line": 152
+        },
+        {
+          "heading": "Pipeline CLI",
+          "level": 2,
+          "line": 162
+        },
+        {
+          "heading": "MCP Tool to Module Mapping",
+          "level": 2,
+          "line": 182
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": "packages/docs/modules/transport.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 262,
+      "nonEmptyLines": 260,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/modules/transport.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 90,
+      "nonEmptyLines": 67,
+      "sections": [
+        {
+          "heading": "Transport & Infrastructure Module",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Module: transport-infrastructure",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Sources",
+          "level": 3,
+          "line": 12
+        },
+        {
+          "heading": "TSB Occurrence Data",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "Transport Canada Safety Data",
+          "level": 3,
+          "line": 35
+        },
+        {
+          "heading": "Canada Infrastructure Bank",
+          "level": 3,
+          "line": 42
+        },
+        {
+          "heading": "Module Structure",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Key Functions",
+          "level": 2,
+          "line": 66
+        },
+        {
+          "heading": "Use Cases",
+          "level": 2,
+          "line": 75
+        },
+        {
+          "heading": "Example Queries for AI Agents",
+          "level": 2,
+          "line": 83
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    }
+  ]
+}

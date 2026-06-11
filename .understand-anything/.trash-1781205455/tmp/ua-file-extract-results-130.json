@@ -1,0 +1,661 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 15,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/docs/guide/architecture.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 294,
+      "nonEmptyLines": 291,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/architecture.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 164,
+      "nonEmptyLines": 132,
+      "sections": [
+        {
+          "heading": "Architecture",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "System Diagram",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Data Flow",
+          "level": 2,
+          "line": 64
+        },
+        {
+          "heading": "Integration Points",
+          "level": 2,
+          "line": 79
+        },
+        {
+          "heading": "Upstream Data Sources",
+          "level": 3,
+          "line": 81
+        },
+        {
+          "heading": "Downstream Consumers",
+          "level": 3,
+          "line": 92
+        },
+        {
+          "heading": "Component Details",
+          "level": 2,
+          "line": 98
+        },
+        {
+          "heading": "pipeline-core (`@maplespike/pipeline-core`)",
+          "level": 3,
+          "line": 100
+        },
+        {
+          "heading": "API Server (`@maplespike/api-server`)",
+          "level": 3,
+          "line": 114
+        },
+        {
+          "heading": "MCP Server (`@reverb256/mcp-server`)",
+          "level": 3,
+          "line": 129
+        },
+        {
+          "heading": "AI Layer",
+          "level": 3,
+          "line": 137
+        },
+        {
+          "heading": "Infrastructure",
+          "level": 2,
+          "line": 142
+        },
+        {
+          "heading": "Scalability",
+          "level": 2,
+          "line": 149
+        },
+        {
+          "heading": "Non-Goals",
+          "level": 2,
+          "line": 159
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 14
+      }
+    },
+    {
+      "path": "packages/docs/guide/authentication.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 285,
+      "nonEmptyLines": 272,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/authentication.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 169,
+      "nonEmptyLines": 123,
+      "sections": [
+        {
+          "heading": "Authentication",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "API Keys (Recommended for Programmatic Access)",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Key Management",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "Local Development Key",
+          "level": 3,
+          "line": 56
+        },
+        {
+          "heading": "JWT Authentication",
+          "level": 2,
+          "line": 63
+        },
+        {
+          "heading": "GitHub OAuth",
+          "level": 3,
+          "line": 67
+        },
+        {
+          "heading": "Generic OAuth",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "Web3 / Wallet Authentication",
+          "level": 2,
+          "line": 99
+        },
+        {
+          "heading": "Passkey / WebAuthn Authentication",
+          "level": 2,
+          "line": 115
+        },
+        {
+          "heading": "Rate Limit Headers",
+          "level": 2,
+          "line": 144
+        },
+        {
+          "heading": "Public (Unauthenticated) Endpoints",
+          "level": 2,
+          "line": 155
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "packages/docs/guide/billing.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 303,
+      "nonEmptyLines": 301,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/billing.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 135,
+      "nonEmptyLines": 101,
+      "sections": [
+        {
+          "heading": "Billing & Rate Limits",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Pricing Tiers",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Request Credits",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "Rate Limiting",
+          "level": 2,
+          "line": 35
+        },
+        {
+          "heading": "Unauthenticated Requests",
+          "level": 3,
+          "line": 39
+        },
+        {
+          "heading": "Authenticated Requests",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "Rate Limit Headers",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "Monthly Quota",
+          "level": 2,
+          "line": 76
+        },
+        {
+          "heading": "Check Your Usage",
+          "level": 2,
+          "line": 92
+        },
+        {
+          "heading": "Billing Plans Endpoint",
+          "level": 2,
+          "line": 113
+        },
+        {
+          "heading": "Payment Methods",
+          "level": 2,
+          "line": 121
+        },
+        {
+          "heading": "Coming Soon",
+          "level": 2,
+          "line": 130
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": "packages/docs/guide/ci-cd.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 162,
+      "nonEmptyLines": 111,
+      "sections": [
+        {
+          "heading": "CI/CD & Automation",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Workflow Overview",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "CI (`ci.yml`)",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Steps",
+          "level": 3,
+          "line": 28
+        },
+        {
+          "heading": "Concurrency",
+          "level": 3,
+          "line": 48
+        },
+        {
+          "heading": "Docs Validation (`docs-validation.yml`)",
+          "level": 2,
+          "line": 54
+        },
+        {
+          "heading": "Checks",
+          "level": 3,
+          "line": 58
+        },
+        {
+          "heading": "PR Validation (`pr-validation.yml`)",
+          "level": 2,
+          "line": 71
+        },
+        {
+          "heading": "Checks (all advisory — warnings don't block)",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "Auto Create Issues (`auto-issue-creator.yml`)",
+          "level": 2,
+          "line": 87
+        },
+        {
+          "heading": "Jobs",
+          "level": 3,
+          "line": 92
+        },
+        {
+          "heading": "1. Stale docs check",
+          "level": 4,
+          "line": 94
+        },
+        {
+          "heading": "2. Metrics drift check",
+          "level": 4,
+          "line": 102
+        },
+        {
+          "heading": "Labels",
+          "level": 3,
+          "line": 106
+        },
+        {
+          "heading": "Cross-Repo Sync (`cross-repo-sync.yml`)",
+          "level": 2,
+          "line": 112
+        },
+        {
+          "heading": "Checks across repositories",
+          "level": 3,
+          "line": 117
+        },
+        {
+          "heading": "Self-Hosted Runner",
+          "level": 2,
+          "line": 128
+        },
+        {
+          "heading": "Why NixOS",
+          "level": 3,
+          "line": 132
+        },
+        {
+          "heading": "Runner Setup",
+          "level": 3,
+          "line": 139
+        },
+        {
+          "heading": "Adding a New Workflow",
+          "level": 2,
+          "line": 145
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 154
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 21
+      }
+    },
+    {
+      "path": "packages/docs/guide/getting-started.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 205,
+      "nonEmptyLines": 203,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/getting-started.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 128,
+      "nonEmptyLines": 101,
+      "sections": [
+        {
+          "heading": "Getting Started",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Prerequisites",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Get an API Key",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Response Envelope",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "Your First Query",
+          "level": 2,
+          "line": 68
+        },
+        {
+          "heading": "Check Health",
+          "level": 3,
+          "line": 70
+        },
+        {
+          "heading": "Search Government Data",
+          "level": 3,
+          "line": 90
+        },
+        {
+          "heading": "Ask a Question (AI)",
+          "level": 3,
+          "line": 97
+        },
+        {
+          "heading": "Via MCP (with Claude Desktop)",
+          "level": 3,
+          "line": 106
+        },
+        {
+          "heading": "Next Steps",
+          "level": 2,
+          "line": 122
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "packages/docs/guide/quickstart.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 215,
+      "nonEmptyLines": 213,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/quickstart.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 89,
+      "nonEmptyLines": 63,
+      "sections": [
+        {
+          "heading": "Quickstart",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "1. Check the Service is Running",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "2. Search Committee Evidence",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "3. Find Lobbying Records",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "4. Verify a Citation",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "5. Check Your Usage",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "6. Ask a Natural Language Question",
+          "level": 2,
+          "line": 51
+        },
+        {
+          "heading": "Using MCP Tools with an AI Agent",
+          "level": 2,
+          "line": 60
+        },
+        {
+          "heading": "What's Available",
+          "level": 2,
+          "line": 76
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": "packages/docs/guide/sdk.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 329,
+      "nonEmptyLines": 320,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/sdk.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 171,
+      "nonEmptyLines": 142,
+      "sections": [
+        {
+          "heading": "TypeScript SDK",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Installation",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Quick Start",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Client API",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "Construction",
+          "level": 3,
+          "line": 52
+        },
+        {
+          "heading": "Methods",
+          "level": 3,
+          "line": 64
+        },
+        {
+          "heading": "Response Types",
+          "level": 3,
+          "line": 95
+        },
+        {
+          "heading": "Module API",
+          "level": 2,
+          "line": 123
+        },
+        {
+          "heading": "Error Handling",
+          "level": 2,
+          "line": 140
+        },
+        {
+          "heading": "TypeScript Support",
+          "level": 2,
+          "line": 157
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "packages/docs/guide/what-is-maplespike.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 253,
+      "nonEmptyLines": 250,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/guide/what-is-maplespike.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 80,
+      "nonEmptyLines": 61,
+      "sections": [
+        {
+          "heading": "What Is MapleSpike?",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Mission",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Data Sources",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "Architecture",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "Access Methods",
+          "level": 2,
+          "line": 58
+        },
+        {
+          "heading": "Status",
+          "level": 2,
+          "line": 67
+        },
+        {
+          "heading": "Attribution",
+          "level": 2,
+          "line": 76
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    }
+  ]
+}

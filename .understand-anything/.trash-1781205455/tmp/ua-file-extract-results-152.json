@@ -1,0 +1,2144 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/gc-standards/__tests__/gc-standards.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gc-standards/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 168,
+      "nonEmptyLines": 163,
+      "functions": [
+        {
+          "name": "normalizeDepartment",
+          "startLine": 116,
+          "endLine": 127,
+          "params": [
+            "name"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "GC_DEPARTMENTS",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "GC_DEPARTMENT_CODES",
+          "line": 110,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDepartment",
+          "line": 116,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_DATASET_CODES",
+          "line": 133,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_COURT_IDS",
+          "line": 157,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDepartment",
+          "callee": "name.trim().toLowerCase",
+          "lineNumber": 117
+        },
+        {
+          "caller": "normalizeDepartment",
+          "callee": "name.trim",
+          "lineNumber": 117
+        },
+        {
+          "caller": "normalizeDepartment",
+          "callee": "Object.entries",
+          "lineNumber": 123
+        },
+        {
+          "caller": "normalizeDepartment",
+          "callee": "fullName.includes",
+          "lineNumber": 124
+        },
+        {
+          "caller": "normalizeDepartment",
+          "callee": "cleaned.includes",
+          "lineNumber": 124
+        },
+        {
+          "caller": "normalizeDepartment",
+          "callee": "cleaned.replace(/[^a-z0-9]/g, '-').substring",
+          "lineNumber": 126
+        },
+        {
+          "caller": "normalizeDepartment",
+          "callee": "cleaned.replace",
+          "lineNumber": 126
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/geospatial/lode/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 9,
+      "exports": [
+        {
+          "name": "ingestLodeDatabaseById",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllLode",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "searchLode",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "listLodeDatabases",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "getLodeDatabaseInfo",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "LODE_DATABASES",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "LODE_SOURCE_NAMES",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "ODHF_FACILITY_TYPES",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "ODI_INFRASTRUCTURE_TYPES",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "CAN_BICS_CLASSIFICATIONS",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "LodeDatabaseInfo",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "LodeAddress",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeBuilding",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeHealthcareFacility",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeRecreationalFacility",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeEducationalFacility",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeCulturalFacility",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeBusiness",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeInfrastructure",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeGreenhouse",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodePedestrianNetwork",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeTransitStop",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeTransitRoute",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeCyclingNetwork",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeRecord",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeIngestionResult",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeSearchParams",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LodeSearchResult",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 28,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/goc-spending/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 20,
+      "nonEmptyLines": 19,
+      "exports": [
+        {
+          "name": "fetchContracts",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "listDataFiles",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllGoCSpending",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "GOC_CONTRACTS_DDL",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "GOC_DEPT_SPENDING_DDL",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "toGoCContract",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "toGoCDeptSpending",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "toGoCVendorSpending",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "parseGoCContracts",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "parseGoCDeptSpending",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "parseGoCVendorSpending",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "GoCContract",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "GoCDeptSpending",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "GoCVendorSpending",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "GoCIngestionResult",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 15,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gtfs-transit/__tests__/gtfs-transit.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 95,
+      "nonEmptyLines": 84,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-canada/__tests__/health-canada.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-data/__tests__/health-data.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/housing-data/__tests__/housing-data.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 30,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ilo-labour/__tests__/ilo-labour.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 74,
+      "nonEmptyLines": 66,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/impact-assessment/__tests__/impact-assessment.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 347,
+      "nonEmptyLines": 310,
+      "exports": [
+        {
+          "name": "getModule",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "getModulesByCategory",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "getAllModules",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "getCategories",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "runModule",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "runAllModules",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "ModuleInfo",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "ModuleCategory",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "EntityResolutionService",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ServiceMatchResult",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "EntityResolutionServiceConfig",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "InMemoryWatcherStore",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "SqliteWatcherStore",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "setWatcherStore",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "getWatcherStore",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "checkSource",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "checkAllSources",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "getChangeLog",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "getWatcherStatus",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "getWatchedSources",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "WatchedSource",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "ChangeEvent",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "WatcherStore",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "ReIngestCallback",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "InMemoryWebhookStore",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "SqliteWebhookStore",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "setWebhookStore",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "getWebhookStore",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "notifyWebhooks",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "createWebhook",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "deleteWebhook",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "listWebhooks",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "getWebhook",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "dispatchToWebhook",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "WebhookConfig",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "WebhookDelivery",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "WebhookStore",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "DispatchResult",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "parseRSS",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "hashString",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "fetchFeed",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "deduplicateItems",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "RSS_SOURCES",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "RSSItem",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "RSSFeed",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "RSSSource",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "RawArticle",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "fetchStatCanReleases",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCKANPackages",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "fetchOpenDataPortal",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "getGovDataSourceClient",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "GOV_DATA_SOURCES",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "GovRelease",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "CKANPackage",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "StatCanRelease",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "OpenDataPortalDataset",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "OpenDataPortalConfig",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCIAL_CKAN_SOURCES",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "fetchProvincialCkan",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllProvincialCkan",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "ProvincialCkanSource",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "buildCitation",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "buildMerkleRoot",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "generateMerkleProof",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "signCitation",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "verifyCitationSignature",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "generateAttestationKey",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "ContentAddressableStore",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "getUpdateFrequency",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "UPDATE_FREQUENCIES",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "Citation",
+          "line": 123,
+          "isDefault": false
+        },
+        {
+          "name": "ingestCrtc",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "searchDecisions",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "getRecentDecisions",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "getOwnershipChangeDecisions",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "getDecisionsByApplicant",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "getNetNeutralityDecisions",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "searchOwnershipRecords",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "getOwnershipByOwner",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "CRTC_DECISIONS_DDL",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "CRTC_OWNERSHIP_DDL",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "CRTC_DDL",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "initializeCrtcTables",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "crtcTablesExist",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "CrtcDecision",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "CrtcDecisionType",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "CrtcOwnershipRecord",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "CrtcIngestionResult",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "RawCrtcDecisionItem",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "RawCrtcOwnershipItem",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "ingestPermanentResidents",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "ingestTempResidents",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "ingestRpdDecisions",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "ingestCbsaEnforcement",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllImmigration",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "generateImmigrationLobbyingLinks",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "PermanentResidentAdmission",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "StudyPermitHolder",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "WorkPermitHolder",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "RefugeeDecision",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "CbsaEnforcement",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "ImmigrationIngestionResult",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "ingestTsbOccurrences",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "ingestTcSafety",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "ingestCtaRulings",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "ingestInfrastructureProjects",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllTransport",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchTsbOccurrences",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchTcVehicleRecalls",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchTcViolationsAudits",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCiibProjects",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCtaRulings",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCtaDecisions",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchInfrastructureProjects",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchNationalTradeCorridors",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCanadaInfrastructureBank",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "TsbOccurrence",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "TcRecall",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "TcViolationAudit",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "CiibProject",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "CtaRuling",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "InfrastructureFunding",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "TransportInfrastructureIngestionResult",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "GC_DEPARTMENTS",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "GC_DEPARTMENT_CODES",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDepartment",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_DATASET_CODES",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_COURT_IDS",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "searchScience",
+          "line": 205,
+          "isDefault": false
+        },
+        {
+          "name": "ScienceIngestionResult",
+          "line": 208,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllNgoRss",
+          "line": 210,
+          "isDefault": false
+        },
+        {
+          "name": "searchNgoRss",
+          "line": 210,
+          "isDefault": false
+        },
+        {
+          "name": "NGO_RSS_SOURCES",
+          "line": 210,
+          "isDefault": false
+        },
+        {
+          "name": "NgoRssItem",
+          "line": 215,
+          "isDefault": false
+        },
+        {
+          "name": "NgoRssIngestionResult",
+          "line": 215,
+          "isDefault": false
+        },
+        {
+          "name": "ingestOecdDataset",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "ingestByTopic",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllOecd",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "searchOecdRecords",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "OecdRecord",
+          "line": 224,
+          "isDefault": false
+        },
+        {
+          "name": "OecdIngestionResult",
+          "line": 224,
+          "isDefault": false
+        },
+        {
+          "name": "OecdDataset",
+          "line": 224,
+          "isDefault": false
+        },
+        {
+          "name": "OecdTopic",
+          "line": 224,
+          "isDefault": false
+        },
+        {
+          "name": "ON_HEALTH_DDL",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "OntarioHealthError",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "fetchOntarioHealthRecords",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllOntarioHealthRecords",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "parseOntarioHealthRecord",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "parseOntarioHealthBatch",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeOntarioHealthRecordType",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "BC_HEALTH_DDL",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "BCHealthError",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPharmaCareClaims",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBCCDCPublications",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllBCHealthData",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "parsePharmaCareRecord",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "parsePharmaCareBatch",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "parseBCCDCRecord",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "parseBCCDCBatch",
+          "line": 240,
+          "isDefault": false
+        },
+        {
+          "name": "AB_HEALTH_DDL",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "ABHealthError",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAHSData",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllAHSData",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "fetchABHealthPublications",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "parseAHSRecord",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "parseAHSBatch",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "parseABHealthPublication",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "parseABHealthPublicationBatch",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "QC_HEALTH_DDL",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "QCHealthError",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "fetchQCHealthRecords",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllQCHealthRecords",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "parseRAMQRecord",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "parseRAMQBatch",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "parseQCHealthRecord",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "parseQCHealthBatch",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "ONEDUCATION_DDL",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "OnEducationError",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "fetchOnEducationRecords",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "parseOnEducationRecord",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "parseOnEducationBatch",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "ingestOnEducationData",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "searchOnEducationRecords",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "initializeOnEducationTable",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "BCEDUCATION_DDL",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "BcEducationError",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBcEducationRecords",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEducationRecord",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEducationBatch",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "ingestBcEducationData",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "searchBcEducationRecords",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "initializeBcEducationTable",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "ABEDUCATION_DDL",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "AbEducationError",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAbEducationRecords",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEducationRecord",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEducationBatch",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAbEducationData",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "searchAbEducationRecords",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "initializeAbEducationTable",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "QCEDUCATION_DDL",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "QcEducationError",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "fetchQcEducationRecords",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcEducationRecord",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcEducationBatch",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "ingestQcEducationData",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "searchQcEducationRecords",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "initializeQcEducationTable",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "OnInfrastructure_DDL",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "OnInfrastructureError",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "fetchOnInfrastructureRecords",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "parseOnInfrastructureRecord",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "parseOnInfrastructureBatch",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "ingestOnInfrastructureData",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "searchOnInfrastructureRecords",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "initializeOnInfrastructureTable",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "BcInfrastructure_DDL",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "BcInfrastructureError",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBcInfrastructureRecords",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcInfrastructureRecord",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcInfrastructureBatch",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "ingestBcInfrastructureData",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "searchBcInfrastructureRecords",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "initializeBcInfrastructureTable",
+          "line": 290,
+          "isDefault": false
+        },
+        {
+          "name": "AbInfrastructure_DDL",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "AbInfrastructureError",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAbInfrastructureRecords",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbInfrastructureRecord",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbInfrastructureBatch",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAbInfrastructureData",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "searchAbInfrastructureRecords",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "initializeAbInfrastructureTable",
+          "line": 296,
+          "isDefault": false
+        },
+        {
+          "name": "QcInfrastructure_DDL",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "QcInfrastructureError",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "fetchQcInfrastructureRecords",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcInfrastructureRecord",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcInfrastructureBatch",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "ingestQcInfrastructureData",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "searchQcInfrastructureRecords",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "initializeQcInfrastructureTable",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "OnEconomic_DDL",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "OnEconomicError",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "fetchOnEconomicRecords",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "parseOnEconomicRecord",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "parseOnEconomicBatch",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "ingestOnEconomicData",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "searchOnEconomicRecords",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "initializeOnEconomicTable",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "BcEconomic_DDL",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "BcEconomicError",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBcEconomicRecords",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEconomicRecord",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEconomicBatch",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "ingestBcEconomicData",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "searchBcEconomicRecords",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "initializeBcEconomicTable",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "AbEconomic_DDL",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "AbEconomicError",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAbEconomicRecords",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEconomicRecord",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEconomicBatch",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAbEconomicData",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "searchAbEconomicRecords",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "initializeAbEconomicTable",
+          "line": 321,
+          "isDefault": false
+        },
+        {
+          "name": "QcEconomic_DDL",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "QcEconomicError",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "fetchQcEconomicRecords",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcEconomicRecord",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcEconomicBatch",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "ingestQcEconomicData",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "searchQcEconomicRecords",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "initializeQcEconomicTable",
+          "line": 327,
+          "isDefault": false
+        },
+        {
+          "name": "ingestMunicipalDataset",
+          "line": 334,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllMunicipal",
+          "line": 334,
+          "isDefault": false
+        },
+        {
+          "name": "searchMunicipal",
+          "line": 334,
+          "isDefault": false
+        },
+        {
+          "name": "detectPortalType",
+          "line": 334,
+          "isDefault": false
+        },
+        {
+          "name": "MunicipalRecord",
+          "line": 340,
+          "isDefault": false
+        },
+        {
+          "name": "MunicipalSearchParams",
+          "line": 340,
+          "isDefault": false
+        },
+        {
+          "name": "MunicipalIngestionResult",
+          "line": 340,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 279,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-services-directory/__tests__/indigenous-services-directory.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 148,
+      "nonEmptyLines": 131,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-services-directory/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 50,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "ingestServicesDirectory",
+          "startLine": 20,
+          "endLine": 30,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "searchServicesByProvince",
+          "startLine": 35,
+          "endLine": 40,
+          "params": [
+            "province",
+            "options"
+          ]
+        },
+        {
+          "name": "searchServicesByCategory",
+          "startLine": 45,
+          "endLine": 50,
+          "params": [
+            "category",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ServiceRecord",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "ParsedServiceRecord",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "ServiceSearchOptions",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "fetchServicesDirectory",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "parseIndigenousServicesDirectory",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "filterServiceRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeProvince",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "ingestServicesDirectory",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "searchServicesByProvince",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "searchServicesByCategory",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestServicesDirectory",
+          "callee": "import",
+          "lineNumber": 23
+        },
+        {
+          "caller": "ingestServicesDirectory",
+          "callee": "fetchServicesDirectory",
+          "lineNumber": 25
+        },
+        {
+          "caller": "ingestServicesDirectory",
+          "callee": "parseIndigenousServicesDirectory",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestServicesDirectory",
+          "callee": "JSON.stringify",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestServicesDirectory",
+          "callee": "filterServiceRecords",
+          "lineNumber": 27
+        },
+        {
+          "caller": "ingestServicesDirectory",
+          "callee": "filtered.slice",
+          "lineNumber": 29
+        },
+        {
+          "caller": "searchServicesByProvince",
+          "callee": "ingestServicesDirectory",
+          "lineNumber": 39
+        },
+        {
+          "caller": "searchServicesByCategory",
+          "callee": "ingestServicesDirectory",
+          "lineNumber": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 10,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/__tests__/influence.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 27,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc-family-sponsorship/__tests__/ircc-family-sponsorship.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 132,
+      "nonEmptyLines": 115,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/citizenship/__tests__/citizenship.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/entry-exit/__tests__/entry-exit.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/express-entry/__tests__/express-entry.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/pr-admissions/__tests__/pr-admissions.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/processing-times/__tests__/processing-times.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/study-permits/__tests__/study-permits.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/work-permits/__tests__/work-permits.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc-programs/__tests__/isc-programs.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 148,
+      "nonEmptyLines": 129,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/communities/__tests__/communities.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/education/__tests__/education.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

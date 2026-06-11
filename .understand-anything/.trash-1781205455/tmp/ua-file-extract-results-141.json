@@ -1,0 +1,39 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/portal/public/assets/ascii-city.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 213,
+      "nonEmptyLines": 189,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/assets/ascii-fire.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 112,
+      "nonEmptyLines": 100,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/assets/aurora.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 282,
+      "nonEmptyLines": 248,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/assets/canadian-sunset.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 380,
+      "nonEmptyLines": 336,
+      "metrics": {}
+    }
+  ]
+}

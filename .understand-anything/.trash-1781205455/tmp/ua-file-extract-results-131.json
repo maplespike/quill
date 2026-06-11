@@ -1,0 +1,394 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/docs/mcp/setup.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 279,
+      "nonEmptyLines": 273,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/mcp/setup.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 180,
+      "nonEmptyLines": 136,
+      "sections": [
+        {
+          "heading": "MCP Setup Guide",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Prerequisites",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Claude Desktop Configuration",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Option 1: Hosted SSE (Recommended)",
+          "level": 3,
+          "line": 18
+        },
+        {
+          "heading": "Option 2: Local stdio (npm)",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "Option 3: Local stdio (from source)",
+          "level": 3,
+          "line": 53
+        },
+        {
+          "heading": "Cursor Configuration",
+          "level": 2,
+          "line": 70
+        },
+        {
+          "heading": "VS Code Extension (claude-dev / Continue)",
+          "level": 2,
+          "line": 89
+        },
+        {
+          "heading": "Running Locally",
+          "level": 2,
+          "line": 103
+        },
+        {
+          "heading": "Build and Start",
+          "level": 3,
+          "line": 105
+        },
+        {
+          "heading": "Environment Variables",
+          "level": 3,
+          "line": 123
+        },
+        {
+          "heading": "SSE Mode",
+          "level": 3,
+          "line": 131
+        },
+        {
+          "heading": "Testing Connectivity",
+          "level": 2,
+          "line": 140
+        },
+        {
+          "heading": "Test SSE Mode",
+          "level": 3,
+          "line": 142
+        },
+        {
+          "heading": "Test stdio Mode",
+          "level": 3,
+          "line": 149
+        },
+        {
+          "heading": "Available Tools",
+          "level": 2,
+          "line": 157
+        },
+        {
+          "heading": "Example Prompts to Try",
+          "level": 3,
+          "line": 161
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 172
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 18
+      }
+    },
+    {
+      "path": "packages/docs/mcp/sse.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 244,
+      "nonEmptyLines": 241,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/mcp/sse.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 147,
+      "nonEmptyLines": 108,
+      "sections": [
+        {
+          "heading": "SSE Transport Mode",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "How SSE Works",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Architecture",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "K8s Deployment",
+          "level": 2,
+          "line": 28
+        },
+        {
+          "heading": "Configuration",
+          "level": 2,
+          "line": 49
+        },
+        {
+          "heading": "Server-Side",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "Client-Side",
+          "level": 3,
+          "line": 61
+        },
+        {
+          "heading": "Claude Desktop",
+          "level": 4,
+          "line": 65
+        },
+        {
+          "heading": "Cursor",
+          "level": 4,
+          "line": 77
+        },
+        {
+          "heading": "Request Flow",
+          "level": 2,
+          "line": 83
+        },
+        {
+          "heading": "Example JSON-RPC Request",
+          "level": 3,
+          "line": 89
+        },
+        {
+          "heading": "vs stdio Transport",
+          "level": 2,
+          "line": 107
+        },
+        {
+          "heading": "Health Check",
+          "level": 2,
+          "line": 118
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 126
+        },
+        {
+          "heading": "Client Can't Connect",
+          "level": 3,
+          "line": 128
+        },
+        {
+          "heading": "Connection Drops",
+          "level": 3,
+          "line": 139
+        },
+        {
+          "heading": "SSE Stream Interrupted",
+          "level": 3,
+          "line": 145
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 17
+      }
+    },
+    {
+      "path": "packages/docs/mcp/tools.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 150,
+      "nonEmptyLines": 148,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/mcp/tools.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 390,
+      "nonEmptyLines": 318,
+      "sections": [
+        {
+          "heading": "MapleSpike MCP Tools Documentation",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Tool Categories Summary",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Parliament & Committees (6 tools)",
+          "level": 2,
+          "line": 38
+        },
+        {
+          "heading": "Government Data - Federal (33 tools)",
+          "level": 2,
+          "line": 51
+        },
+        {
+          "heading": "Government Data - Provincial (7 tools)",
+          "level": 2,
+          "line": 93
+        },
+        {
+          "heading": "Immigration & IRCC (10 tools)",
+          "level": 2,
+          "line": 108
+        },
+        {
+          "heading": "Corporate & Influence (6 tools)",
+          "level": 2,
+          "line": 125
+        },
+        {
+          "heading": "Legal & Justice (5 tools)",
+          "level": 2,
+          "line": 138
+        },
+        {
+          "heading": "Health & Social Programs (6 tools)",
+          "level": 2,
+          "line": 150
+        },
+        {
+          "heading": "Infrastructure & Public Safety (12 tools)",
+          "level": 2,
+          "line": 163
+        },
+        {
+          "heading": "Environment & Resources (10 tools)",
+          "level": 2,
+          "line": 182
+        },
+        {
+          "heading": "Statistics & Economic Data (7 tools)",
+          "level": 2,
+          "line": 199
+        },
+        {
+          "heading": "International Data (12 tools)",
+          "level": 2,
+          "line": 213
+        },
+        {
+          "heading": "AI & Smart Search (4 tools)",
+          "level": 2,
+          "line": 233
+        },
+        {
+          "heading": "System & Reference (12 tools)",
+          "level": 2,
+          "line": 244
+        },
+        {
+          "heading": "Oversight & Accountability (6 tools)",
+          "level": 2,
+          "line": 263
+        },
+        {
+          "heading": "Cultural & Education (6 tools)",
+          "level": 2,
+          "line": 276
+        },
+        {
+          "heading": "Cross-Reference & Analysis (7 tools)",
+          "level": 2,
+          "line": 289
+        },
+        {
+          "heading": "Politics & Elections (10 tools)",
+          "level": 2,
+          "line": 303
+        },
+        {
+          "heading": "Financial & Budget (6 tools)",
+          "level": 2,
+          "line": 320
+        },
+        {
+          "heading": "Municipal & Regional (5 tools)",
+          "level": 2,
+          "line": 333
+        },
+        {
+          "heading": "Catalog & Discovery (2 tools)",
+          "level": 2,
+          "line": 345
+        },
+        {
+          "heading": "Appendix: Data Sources",
+          "level": 2,
+          "line": 354
+        },
+        {
+          "heading": "Federal Sources",
+          "level": 3,
+          "line": 356
+        },
+        {
+          "heading": "Provincial Sources",
+          "level": 3,
+          "line": 367
+        },
+        {
+          "heading": "International Sources",
+          "level": 3,
+          "line": 375
+        },
+        {
+          "heading": "Real-Time & Feeds",
+          "level": 3,
+          "line": 380
+        },
+        {
+          "heading": "Specialized Databases",
+          "level": 3,
+          "line": 385
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 28
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-14
+last-reviewed: 2026-06-11
 status: active
 ---
 
@@ -28,6 +28,8 @@ pnpm add @maplespike/sdk
 # or
 bun add @maplespike/sdk
 ```
+
+---
 
 ## Quick Start
 
@@ -89,6 +91,106 @@ const data = await ms.query('regulations', 'regulatory-proposals', {
 
 ---
 
+## Features
+
+### Cross-Domain Search
+
+Search across all MapleSpike datasets with relevance scoring:
+
+```ts
+// Global search
+const results = await ms.search.search({
+  query: 'healthcare lobbying',
+  limit: 10,
+  sort: 'relevance',
+});
+
+// Domain-specific search
+const corporateResults = await ms.search.searchDomain('corporate', {
+  query: 'pharmaceutical',
+  limit: 5,
+});
+
+// Get suggestions
+const suggestions = await ms.search.suggestions('lobb', 5);
+```
+
+### Entity Resolution
+
+Resolve entities (people, companies, organizations) across all datasets:
+
+```ts
+// Resolve an entity
+const resolution = await ms.entityResolution.resolve({
+  name: 'Bell Canada',
+  type: 'company',
+  minConfidence: 'medium',
+});
+
+// Get entity details
+const entity = await ms.entityResolution.getEntity(entityId);
+
+// Get entity graph (relationships)
+const graph = await ms.entityResolution.getGraph(entityId, 2);
+
+// Find similar entities
+const similar = await ms.entityResolution.findSimilar(entityId, 5);
+
+// Search for entities
+const entities = await ms.entityResolution.searchEntities('bank', {
+  type: 'company',
+  limit: 10,
+});
+
+// Bulk resolve
+const bulk = await ms.entityResolution.bulkResolve([
+  { name: 'Rogers Communications', type: 'company' },
+  { name: 'TD Bank', type: 'company' },
+]);
+```
+
+### Data Ingestion
+
+Upload and manage data ingestion jobs:
+
+```ts
+// Validate data before ingestion
+const validation = await ms.ingestion.validate({
+  sourceType: 'url',
+  sourceUrl: 'https://example.com/data.csv',
+  domain: 'immigration',
+  validate: true,
+  deduplicate: true,
+});
+
+// Submit ingestion job
+const job = await ms.ingestion.ingest({
+  sourceType: 'url',
+  sourceUrl: 'https://example.com/data.csv',
+  domain: 'immigration',
+  validate: true,
+  deduplicate: true,
+  metadata: {
+    source: 'custom-import',
+    uploadedBy: 'user@example.com',
+  },
+});
+
+// Get job status
+const status = await ms.ingestion.getJob(job.data.jobId);
+
+// List recent jobs
+const jobs = await ms.ingestion.listJobs({
+  limit: 10,
+  status: 'completed',
+});
+
+// Get ingestion statistics
+const stats = await ms.ingestion.stats();
+```
+
+---
+
 ## API Reference
 
 ### Authentication
@@ -119,6 +221,37 @@ const data = await ms.query('regulations', 'regulatory-proposals', {
 | **regulations** | `.proposals()`, `.decisions()`, `.consultations()` |
 | **science** | `.search()` |
 | **health** | `.search()` |
+| **indigenous** | `.landClaims()`, `.iscSpending()`, `.fnTransparency()`, `.trcProgress()` |
+| **criminalJustice** | `.corrections()`, `.parole()`, `.rcmpCrimeStats()`, `.prosecutions()` |
+| **defence** | `.personnel()`, `.procurement()` |
+| **municipal** | `.meetings()`, `.budgets()`, `.openData()` |
+| **transport** | `.tsbOccurrences()`, `.tcRecalls()`, `.ctaRulings()` |
+| **realtime** | `.weatherAlerts()`, `.borderWaits()`, `.paroleRegistry()` |
+| **media** | `.crtcMarketReports()`, `.ownershipCharts()`, `.cmfData()` |
+| **education** | `.triCouncilGrants()`, `.researchChairs()`, `.studentLoans()`, `.cudoData()` |
+| **socialPrograms** | `.ccbData()`, `.cppOas()`, `.eiStatistics()`, `.povertyData()` |
+| **bankOfCanada** | `.rateDecisions()`, `.monetaryPolicy()` |
+| **sedi** | `.insiderTransactions()` |
+| **unions** | `.reports()` |
+| **universities** | `.data()` |
+| **crtc** | `.decisions()`, `.ownership()` |
+| **craCharity** | `.search()`, `.politicalSpending()` |
+| **provincialRegulators** | `.search()`, `.coverage()` |
+| **a2aj** | `.search()`, `.fetchByCitation()`, `.coverage()` |
+| **legislation** | `.federalActs()`, `.federalRegulations()`, `.provincialLegislation()` |
+| **gocSpending** | `.contracts()`, `.spendingSummary()` |
+| **financialRegulation** | `.data()`, `.crossReference()` |
+| **energy** | `.data()` |
+| **realEstate** | `.data()` |
+| **watcher** | `.status()`, `.events()` |
+
+### Advanced Clients
+
+| Client | Methods |
+|--------|---------|
+| **search** | `.search()`, `.searchDomain()`, `.suggestions()`, `.stats()` |
+| **entityResolution** | `.resolve()`, `.getEntity()`, `.searchEntities()`, `.getGraph()`, `.findSimilar()`, `.bulkResolve()`, `.stats()` |
+| **ingestion** | `.ingest()`, `.getJob()`, `.listJobs()`, `.cancelJob()`, `.deleteJob()`, `.validate()`, `.stats()` |
 
 ### Response Structure
 
@@ -142,17 +275,17 @@ try {
   await ms.immigration.permanentResidents();
 } catch (err) {
   if (err instanceof MapleSpikeError) {
-    console.error(err.status, err.code, err.message);
+    console.error(err.status, err.code, err.message, err.requestId);
   }
 }
 ```
 
 ### Query Options
 
-Pass as the second argument to any method:
+Pass as the second argument to `.query()`:
 
 ```ts
-const data = await ms.immigration.permanentResidents(
+const data = await ms.query('immigration', 'permanent-residents',
   { province: 'ON' },
   {
     _mock: false,       // Use mock data
@@ -163,6 +296,54 @@ const data = await ms.immigration.permanentResidents(
     _summary: true,     // Summary only
   },
 );
+```
+
+---
+
+## Examples
+
+See the [`examples/`](./examples) directory for complete working examples:
+
+- [`basic-usage.ts`](./examples/basic-usage.ts) - Getting started with basic queries
+- [`search.ts`](./examples/search.ts) - Cross-domain search functionality
+- [`entity-resolution.ts`](./examples/entity-resolution.ts) - Entity resolution and graphs
+- [`ingestion.ts`](./examples/ingestion.ts) - Data ingestion workflow
+- [`advanced-usage.ts`](./examples/advanced-usage.ts) - Error handling and advanced features
+
+Run examples:
+
+```bash
+pnpm build
+node --loader tsx examples/basic-usage.ts
+```
+
+---
+
+## Testing
+
+### Unit Tests
+
+```bash
+pnpm test
+```
+
+### Integration Tests
+
+Integration tests run against live/local API endpoints:
+
+```bash
+# Set environment variables
+export TEST_API_URL=http://127.0.0.1:8082
+export TEST_API_KEY=maplespike-dev-key
+
+# Run integration tests
+pnpm test:watch
+```
+
+Or run specific integration test suite:
+
+```bash
+tsx tests/integration/sdk.test.ts
 ```
 
 ---
@@ -187,6 +368,7 @@ pnpm install
 pnpm build    # CJS + ESM + types via tsup
 pnpm dev      # watch mode
 pnpm test     # run tests
+pnpm test:coverage  # coverage report
 ```
 
 ---

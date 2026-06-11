@@ -1,0 +1,636 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/political-donations/__tests__/political-donations.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 53,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-legislatures/__tests__/provincial-legislatures.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-lobbying.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 618,
+      "nonEmptyLines": 548,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-lobbying/__tests__/provincial-lobbying.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 618,
+      "nonEmptyLines": 548,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-lobbying/fetchers/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 71,
+      "nonEmptyLines": 60,
+      "exports": [
+        {
+          "name": "fetchBCLobbying",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "searchBCRegistry",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "BCLobbyingFetchError",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAlbertaLobbying",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "searchAlbertaRegistry",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "AlbertaLobbyingFetchError",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "fetchQuebecLobbying",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "searchQuebecRegistry",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "QuebecLobbyingFetchError",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "searchSKRegistry",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSKLobbying",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "SKLobbyingFetchError",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "searchMBRegistry",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMBLobbying",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "MBLobbyingFetchError",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "searchNSRegistry",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "fetchNSLobbying",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "NSLobbyingFetchError",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "searchNBRegistry",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "fetchNBLobbying",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "NBLobbyingFetchError",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "searchNLRegistry",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "fetchNLLobbying",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "NLLobbyingFetchError",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "searchPERegistry",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPELobbying",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "PELobbyingFetchError",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "searchYTRegistry",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "fetchYTLobbying",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "YTLobbyingFetchError",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "searchNTRegistry",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "fetchNTLobbying",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "NWTLobbyingFetchError",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "searchNURegistry",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "fetchNULobbying",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "NULobbyingFetchError",
+          "line": 67,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 36,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-orgs/__tests__/provincial-orgs.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-regulators/__tests__/provincial-regulators.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial/__tests__/provincial.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/public-accounts/__tests__/public-accounts.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 55,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-estate/__tests__/real-estate.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 23,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/real-estate/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 22,
+      "exports": [
+        {
+          "name": "ingestRentalMarket",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestHousingStarts",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestHousePrices",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestLandRegistry",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestRentalRegistries",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllRealEstate",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "parseRentalMarketData",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "parseHousingStarts",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "parseHousePriceIndex",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "parsePropertyAssessment",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "parseAllRealEstateRecords",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "RealEstateRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RealEstateIngestionResult",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RentalMarketData",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "HousingStart",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "HousePriceIndex",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "PropertyAssessment",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "ParserOptions",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "ParseResult",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "RawCsvData",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "ParseAllRealEstateResult",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 21,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/__tests__/science-research.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/sedi/__tests__/sedi.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/social-programs/__tests__/social-programs.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/species-at-risk/__tests__/species-at-risk.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/templates/.gitkeep",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {}
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/templates/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 11,
+      "functions": [
+        {
+          "name": "placeholderFunction",
+          "startLine": 10,
+          "endLine": 12,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "placeholderFunction",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "ingestFunctions",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/transport-infrastructure/__tests__/transport-infrastructure.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 12,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/uk-ons/__tests__/uk-ons.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/un-comtrade/__tests__/un-comtrade.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 38,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdi/__tests__/undp-hdi.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 22,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unesco-uis/__tests__/unesco-uis.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 355,
+      "nonEmptyLines": 317,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unhcr-refugees/__tests__/unhcr-refugees.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 32,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unions/__tests__/unions.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/universities/__tests__/universities.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

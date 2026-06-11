@@ -1,0 +1,516 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/work-permits/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 9,
+      "exports": [
+        {
+          "name": "CKAN_BASE",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "IRCC_PACKAGES",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/work-permits/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "fetchCkanPackage",
+          "startLine": 10,
+          "endLine": 20,
+          "params": [
+            "packageId"
+          ]
+        },
+        {
+          "name": "findCsvResource",
+          "startLine": 22,
+          "endLine": 28,
+          "params": [
+            "pkg"
+          ]
+        },
+        {
+          "name": "fetchIrccCsv",
+          "startLine": 30,
+          "endLine": 40,
+          "params": [
+            "packageId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchIrccCsv",
+          "line": 30,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCkanPackage",
+          "callee": "httpGet",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchCkanPackage",
+          "callee": "resp.json",
+          "lineNumber": 17
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "Array.isArray",
+          "lineNumber": 23
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "pkg.resources.find",
+          "lineNumber": 24
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.format?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.mimetype?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.url?.toLowerCase().endsWith",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.url?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "fetchCkanPackage",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "findCsvResource",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "httpGet",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/work-permits/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "ingestWorkPermit",
+          "startLine": 12,
+          "endLine": 39,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "searchWorkPermitsByProvince",
+          "startLine": 41,
+          "endLine": 48,
+          "params": [
+            "province",
+            "options"
+          ]
+        },
+        {
+          "name": "searchWorkPermitsByNoc",
+          "startLine": 50,
+          "endLine": 57,
+          "params": [
+            "nocCode",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestWorkPermit",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "searchWorkPermitsByProvince",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "searchWorkPermitsByNoc",
+          "line": 50,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestWorkPermit",
+          "callee": "Date.now",
+          "lineNumber": 15
+        },
+        {
+          "caller": "ingestWorkPermit",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 22
+        },
+        {
+          "caller": "ingestWorkPermit",
+          "callee": "parseWorkPermit",
+          "lineNumber": 23
+        },
+        {
+          "caller": "ingestWorkPermit",
+          "callee": "records.slice",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestWorkPermit",
+          "callee": "errors.push",
+          "lineNumber": 28
+        },
+        {
+          "caller": "ingestWorkPermit",
+          "callee": "Date.now",
+          "lineNumber": 36
+        },
+        {
+          "caller": "searchWorkPermitsByProvince",
+          "callee": "ingestWorkPermit",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchWorkPermitsByProvince",
+          "callee": "province.toLowerCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "searchWorkPermitsByProvince",
+          "callee": "result.records.filter",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchWorkPermitsByProvince",
+          "callee": "r.province.toString().toLowerCase().includes",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchWorkPermitsByProvince",
+          "callee": "r.province.toString().toLowerCase",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchWorkPermitsByProvince",
+          "callee": "r.province.toString",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchWorkPermitsByNoc",
+          "callee": "ingestWorkPermit",
+          "lineNumber": 54
+        },
+        {
+          "caller": "searchWorkPermitsByNoc",
+          "callee": "nocCode.toLowerCase",
+          "lineNumber": 55
+        },
+        {
+          "caller": "searchWorkPermitsByNoc",
+          "callee": "result.records.filter",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchWorkPermitsByNoc",
+          "callee": "r.nocCode.toString().toLowerCase().includes",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchWorkPermitsByNoc",
+          "callee": "r.nocCode.toString().toLowerCase",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchWorkPermitsByNoc",
+          "callee": "r.nocCode.toString",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/work-permits/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 57,
+      "nonEmptyLines": 48,
+      "functions": [
+        {
+          "name": "parseWorkPermit",
+          "startLine": 10,
+          "endLine": 34,
+          "params": [
+            "csv"
+          ]
+        },
+        {
+          "name": "parseCSVLine",
+          "startLine": 36,
+          "endLine": 45,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "mapField",
+          "startLine": 47,
+          "endLine": 50,
+          "params": [
+            "values",
+            "headers",
+            "name"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 52,
+          "endLine": 57,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseWorkPermit",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseWorkPermit",
+          "callee": "csv.trim().split",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "csv.trim",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "lines[0].split(',').map",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "lines[0].split",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "h.trim().replace",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "h.trim",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "parseCSVLine",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "computeHash",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "parseNumeric",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "mapField",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "new Date().toISOString",
+          "lineNumber": 28
+        },
+        {
+          "caller": "parseWorkPermit",
+          "callee": "records.push",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "result.push",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim().replace",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "result.push",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim().replace",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim",
+          "lineNumber": 44
+        },
+        {
+          "caller": "mapField",
+          "callee": "headers.indexOf",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "value.trim().replace",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "value.trim",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "Number",
+          "lineNumber": 55
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/work-permits/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 33,
+      "nonEmptyLines": 31,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

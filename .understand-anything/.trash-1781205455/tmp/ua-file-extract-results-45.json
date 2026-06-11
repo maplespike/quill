@@ -1,0 +1,497 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-immigration/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 37,
+      "classes": [
+        {
+          "name": "AbImmigrationError",
+          "startLine": 37,
+          "endLine": 42,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ABIMMIGRATION_DDL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "AbImmigrationError",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-immigration/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "fetchAbImmigrationRecords",
+          "startLine": 6,
+          "endLine": 38,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAbImmigrationRecords",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "httpGet",
+          "lineNumber": 13
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "errors.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "JSON.parse",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "records.push",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchAbImmigrationRecords",
+          "callee": "errors.push",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-immigration/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "initializeAbImmigrationTable",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertAbImmigrationRecord",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "searchAbImmigrationRecords",
+          "startLine": 39,
+          "endLine": 56,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAbImmigrationData",
+          "startLine": 58,
+          "endLine": 97,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAbImmigrationRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbImmigrationRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbImmigrationBatch",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "ABIMMIGRATION_DDL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "AbImmigrationError",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "AbImmigrationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "AbImmigrationIngestionOptions",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "AbImmigrationIngestionResult",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RawAbImmigrationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "initializeAbImmigrationTable",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "searchAbImmigrationRecords",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAbImmigrationData",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeAbImmigrationTable",
+          "callee": "db.exec",
+          "lineNumber": 27
+        },
+        {
+          "caller": "upsertAbImmigrationRecord",
+          "callee": "fields.map(() => '?').join",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertAbImmigrationRecord",
+          "callee": "fields.map",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertAbImmigrationRecord",
+          "callee": "db.prepare('INSERT OR IGNORE INTO ab_immigration_records (' + fields.join(', ') + ') VALUES (' + placeholders + ')').bind",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertAbImmigrationRecord",
+          "callee": "db.prepare",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertAbImmigrationRecord",
+          "callee": "fields.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertAbImmigrationRecord",
+          "callee": "stmt.run",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "likeCols.map(c => c + ' LIKE ?').join",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "likeCols.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "params.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "params.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "db.prepare",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchAbImmigrationRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "Date.now",
+          "lineNumber": 59
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "log",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "initializeAbImmigrationTable",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "log",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "fetchAbImmigrationRecords",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "result.errors.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "log",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "parseAbImmigrationBatch",
+          "lineNumber": 76
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "upsertAbImmigrationRecord",
+          "lineNumber": 82
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "result.errors.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "log",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "Date.now",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestAbImmigrationData",
+          "callee": "log",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 13,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-immigration/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 41,
+      "functions": [
+        {
+          "name": "parseAbImmigrationRecord",
+          "startLine": 6,
+          "endLine": 39,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseAbImmigrationBatch",
+          "startLine": 41,
+          "endLine": 48,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseAbImmigrationRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbImmigrationBatch",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseAbImmigrationRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseAbImmigrationRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseAbImmigrationRecord",
+          "callee": "computeHash",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseAbImmigrationBatch",
+          "callee": "parseAbImmigrationRecord",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseAbImmigrationBatch",
+          "callee": "results.push",
+          "lineNumber": 45
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-immigration/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 38,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 10,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/portal/public/agent-card.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 15,
+      "nonEmptyLines": 15,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "url",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "author",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "capabilities",
+          "level": 1,
+          "line": 9
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 14
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "packages/portal/public/agents.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 1010,
+      "nonEmptyLines": 1010,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "url",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "moduleCount",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "actionCount",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "tools",
+          "level": 1,
+          "line": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "packages/portal/public/blog.xml",
+      "language": "xml",
+      "fileCategory": "config",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/browserconfig.xml",
+      "language": "xml",
+      "fileCategory": "config",
+      "totalLines": 11,
+      "nonEmptyLines": 11,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/index.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 166,
+      "nonEmptyLines": 154,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/llms-full.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 123,
+      "nonEmptyLines": 93,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/llms.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 46,
+      "nonEmptyLines": 42,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/manifest.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 13,
+      "nonEmptyLines": 13,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "short_name",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "start_url",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "display",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "background_color",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "theme_color",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "icons",
+          "level": 1,
+          "line": 9
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    },
+    {
+      "path": "packages/portal/public/robots.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/public/sitemap.xml",
+      "language": "xml",
+      "fileCategory": "config",
+      "totalLines": 46,
+      "nonEmptyLines": 46,
+      "metrics": {}
+    }
+  ]
+}

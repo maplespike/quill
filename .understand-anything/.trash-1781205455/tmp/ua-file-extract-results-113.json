@@ -1,0 +1,1417 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 20,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".env.example",
+      "language": "config",
+      "fileCategory": "config",
+      "totalLines": 43,
+      "nonEmptyLines": 36,
+      "definitions": [
+        {
+          "name": "MAPLESPIKE_API_KEY",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 5,
+          "endLine": 5
+        },
+        {
+          "name": "MAPLESPIKE_DB_PATH",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 6,
+          "endLine": 6
+        },
+        {
+          "name": "PORT",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 7,
+          "endLine": 7
+        },
+        {
+          "name": "JWT_SECRET",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 8,
+          "endLine": 8
+        },
+        {
+          "name": "APP_URL",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 9,
+          "endLine": 9
+        },
+        {
+          "name": "AI_ENDPOINT",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 12,
+          "endLine": 12
+        },
+        {
+          "name": "AI_MODEL",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 13,
+          "endLine": 13
+        },
+        {
+          "name": "MAPLESPIKE_GATEWAY_URL",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 14,
+          "endLine": 14
+        },
+        {
+          "name": "MAPLESPIKE_GATEWAY_API_KEY",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 15,
+          "endLine": 15
+        },
+        {
+          "name": "OPENCORPORATES_API_KEY",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 16,
+          "endLine": 16
+        },
+        {
+          "name": "MAPLESPIKE_CHAT_MODEL",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 17,
+          "endLine": 17
+        },
+        {
+          "name": "GITHUB_CLIENT_ID",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 20,
+          "endLine": 20
+        },
+        {
+          "name": "GITHUB_CLIENT_SECRET",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 21,
+          "endLine": 21
+        },
+        {
+          "name": "GITHUB_REDIRECT_URI",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 22,
+          "endLine": 22
+        },
+        {
+          "name": "MAPLESPIKE_OAUTH_REDIRECT_BASE",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 23,
+          "endLine": 23
+        },
+        {
+          "name": "MAPLESPIKE_API_URL",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 26,
+          "endLine": 26
+        },
+        {
+          "name": "MAPLESPIKE_LOCALE",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 27,
+          "endLine": 27
+        },
+        {
+          "name": "PGHOST",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 30,
+          "endLine": 30
+        },
+        {
+          "name": "PGPORT",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 31,
+          "endLine": 31
+        },
+        {
+          "name": "PGDATABASE",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 32,
+          "endLine": 32
+        },
+        {
+          "name": "PGUSER",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 33,
+          "endLine": 33
+        },
+        {
+          "name": "PGPASSWORD",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 34,
+          "endLine": 34
+        },
+        {
+          "name": "CANLII_API_KEY",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 37,
+          "endLine": 37
+        },
+        {
+          "name": "NEXUS_HOST",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 40,
+          "endLine": 40
+        },
+        {
+          "name": "NEXUS_USER",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 41,
+          "endLine": 41
+        },
+        {
+          "name": "NEXUS_SSH_KEY",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 42,
+          "endLine": 42
+        },
+        {
+          "name": "MAPLESPIKE_ANALYTICS_DOMAIN",
+          "kind": "variable",
+          "fields": [],
+          "startLine": 43,
+          "endLine": 43
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 27
+      }
+    },
+    {
+      "path": "AGENTS.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 151,
+      "nonEmptyLines": 137,
+      "metrics": {}
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 160,
+      "nonEmptyLines": 120,
+      "sections": [
+        {
+          "heading": "AGENTS.md — MapleSpike",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Repository Identity",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "Package Quick Reference",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "Commands",
+          "level": 2,
+          "line": 49
+        },
+        {
+          "heading": "Root",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "Per-package",
+          "level": 3,
+          "line": 61
+        },
+        {
+          "heading": "Git Hooks",
+          "level": 2,
+          "line": 83
+        },
+        {
+          "heading": "Primary Workflow",
+          "level": 2,
+          "line": 94
+        },
+        {
+          "heading": "Claude Code Protocol — Updated",
+          "level": 2,
+          "line": 107
+        },
+        {
+          "heading": "Kelos Model Routing",
+          "level": 2,
+          "line": 131
+        },
+        {
+          "heading": "CI/CD Pipeline",
+          "level": 2,
+          "line": 147
+        },
+        {
+          "heading": "Data Module Architecture",
+          "level": 2,
+          "line": 152
+        },
+        {
+          "heading": "Related Repositories",
+          "level": 2,
+          "line": 157
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 13
+      }
+    },
+    {
+      "path": "CLAUDE.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 31,
+      "nonEmptyLines": 26,
+      "sections": [
+        {
+          "heading": "MapleSpike — Claude Code Quickstart",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "First time",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "Dev workflow",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "Key files",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "Patterns",
+          "level": 2,
+          "line": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "CONTRIBUTING.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 165,
+      "nonEmptyLines": 147,
+      "metrics": {}
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 72,
+      "nonEmptyLines": 61,
+      "sections": [
+        {
+          "heading": "Contributing to MapleSpike",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Workflow",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Development Environment",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "Node Selection",
+          "level": 3,
+          "line": 15
+        },
+        {
+          "heading": "SSH Workaround",
+          "level": 3,
+          "line": 23
+        },
+        {
+          "heading": "Code Standards",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "TypeScript",
+          "level": 3,
+          "line": 31
+        },
+        {
+          "heading": "Conventional Commits",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "Commit Signing",
+          "level": 2,
+          "line": 48
+        },
+        {
+          "heading": "PR Checklist",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Repository Settings (GitHub)",
+          "level": 2,
+          "line": 67
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "DESIGN.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 324,
+      "nonEmptyLines": 282,
+      "sections": [
+        {
+          "heading": "Overview",
+          "level": 2,
+          "line": 164
+        },
+        {
+          "heading": "Color System & Tokens",
+          "level": 2,
+          "line": 168
+        },
+        {
+          "heading": "Background Hierarchy",
+          "level": 3,
+          "line": 170
+        },
+        {
+          "heading": "Semantic Colors",
+          "level": 3,
+          "line": 175
+        },
+        {
+          "heading": "Text",
+          "level": 3,
+          "line": 181
+        },
+        {
+          "heading": "Contrast (WCAG AA)",
+          "level": 3,
+          "line": 186
+        },
+        {
+          "heading": "Typography",
+          "level": 2,
+          "line": 193
+        },
+        {
+          "heading": "Component Catalog",
+          "level": 2,
+          "line": 202
+        },
+        {
+          "heading": "Component State Matrix",
+          "level": 2,
+          "line": 218
+        },
+        {
+          "heading": "Layout",
+          "level": 2,
+          "line": 229
+        },
+        {
+          "heading": "Elevation",
+          "level": 2,
+          "line": 236
+        },
+        {
+          "heading": "Motion",
+          "level": 2,
+          "line": 240
+        },
+        {
+          "heading": "Do's and Don'ts",
+          "level": 2,
+          "line": 252
+        },
+        {
+          "heading": "Accessibility",
+          "level": 2,
+          "line": 265
+        },
+        {
+          "heading": "Responsive",
+          "level": 2,
+          "line": 273
+        },
+        {
+          "heading": "Code Snippets",
+          "level": 2,
+          "line": 280
+        },
+        {
+          "heading": "Pretext Setup",
+          "level": 3,
+          "line": 282
+        },
+        {
+          "heading": "CSS Variables",
+          "level": 3,
+          "line": 292
+        },
+        {
+          "heading": "Animations",
+          "level": 3,
+          "line": 311
+        },
+        {
+          "heading": "Agent Prompt Guide",
+          "level": 2,
+          "line": 318
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 20
+      }
+    },
+    {
+      "path": "INTERNATIONAL_RESEARCH_SUMMARY.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 852,
+      "nonEmptyLines": 689,
+      "sections": [
+        {
+          "heading": "International Data Sources Research Summary",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Executive Summary",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "1. UN Data Sources",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Primary APIs",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "Integration Complexity Ranking",
+          "level": 3,
+          "line": 63
+        },
+        {
+          "heading": "2. OECD Data Sources",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "Primary API",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "Priority Datasets",
+          "level": 3,
+          "line": 85
+        },
+        {
+          "heading": "Implementation Plan",
+          "level": 3,
+          "line": 118
+        },
+        {
+          "heading": "3. World Bank Data Sources",
+          "level": 2,
+          "line": 127
+        },
+        {
+          "heading": "Primary API",
+          "level": 3,
+          "line": 129
+        },
+        {
+          "heading": "Key Data Sources",
+          "level": 3,
+          "line": 138
+        },
+        {
+          "heading": "Priority Indicators for Canada",
+          "level": 3,
+          "line": 158
+        },
+        {
+          "heading": "Implementation Phases",
+          "level": 3,
+          "line": 180
+        },
+        {
+          "heading": "4. WEF Data Sources",
+          "level": 2,
+          "line": 190
+        },
+        {
+          "heading": "Primary Access Points",
+          "level": 3,
+          "line": 192
+        },
+        {
+          "heading": "Strategic Value for MapleSpike",
+          "level": 3,
+          "line": 217
+        },
+        {
+          "heading": "Implementation Strategy",
+          "level": 3,
+          "line": 231
+        },
+        {
+          "heading": "5. WHO Data Sources",
+          "level": 2,
+          "line": 255
+        },
+        {
+          "heading": "Primary APIs",
+          "level": 3,
+          "line": 257
+        },
+        {
+          "heading": "Priority Datasets for Canada",
+          "level": 3,
+          "line": 295
+        },
+        {
+          "heading": "Data Volume Estimates",
+          "level": 3,
+          "line": 314
+        },
+        {
+          "heading": "6. EU Data Sources",
+          "level": 2,
+          "line": 327
+        },
+        {
+          "heading": "Primary API",
+          "level": 3,
+          "line": 329
+        },
+        {
+          "heading": "Top Policy Areas for Canada-EU Comparison",
+          "level": 3,
+          "line": 342
+        },
+        {
+          "heading": "Implementation Complexity",
+          "level": 3,
+          "line": 362
+        },
+        {
+          "heading": "First Implementation Path",
+          "level": 3,
+          "line": 366
+        },
+        {
+          "heading": "7. Five Eyes Data Sources",
+          "level": 2,
+          "line": 374
+        },
+        {
+          "heading": "US Federal Data (US-Canada Comparison)",
+          "level": 3,
+          "line": 376
+        },
+        {
+          "heading": "UK Government Data (UK-Canada Comparison)",
+          "level": 3,
+          "line": 409
+        },
+        {
+          "heading": "Australia",
+          "level": 3,
+          "line": 440
+        },
+        {
+          "heading": "New Zealand",
+          "level": 3,
+          "line": 452
+        },
+        {
+          "heading": "License Compatibility",
+          "level": 3,
+          "line": 463
+        },
+        {
+          "heading": "8. Competitive Analysis",
+          "level": 2,
+          "line": 472
+        },
+        {
+          "heading": "Primary Competitor: Katzilla.dev",
+          "level": 3,
+          "line": 474
+        },
+        {
+          "heading": "MapleSpike's Unique Advantages",
+          "level": 3,
+          "line": 489
+        },
+        {
+          "heading": "Innovation Opportunities",
+          "level": 3,
+          "line": 502
+        },
+        {
+          "heading": "9. Implementation Architecture Patterns",
+          "level": 2,
+          "line": 524
+        },
+        {
+          "heading": "Module Structure Pattern",
+          "level": 3,
+          "line": 526
+        },
+        {
+          "heading": "Data Access Patterns",
+          "level": 3,
+          "line": 540
+        },
+        {
+          "heading": "MCP Tool Registration Pattern",
+          "level": 3,
+          "line": 578
+        },
+        {
+          "heading": "Testing Pattern",
+          "level": 3,
+          "line": 622
+        },
+        {
+          "heading": "10. Implementation Roadmap",
+          "level": 2,
+          "line": 650
+        },
+        {
+          "heading": "Phase 1: Quick Wins (Months 1-3)",
+          "level": 3,
+          "line": 652
+        },
+        {
+          "heading": "Phase 2: Core Policy Benchmarks (Months 4-6)",
+          "level": 3,
+          "line": 659
+        },
+        {
+          "heading": "Phase 3: Specialized Domains (Months 7-12)",
+          "level": 3,
+          "line": 666
+        },
+        {
+          "heading": "Phase 4: Production Hardening (Months 13-18)",
+          "level": 3,
+          "line": 675
+        },
+        {
+          "heading": "Phase 5: Innovation Layer (Months 19-24)",
+          "level": 3,
+          "line": 682
+        },
+        {
+          "heading": "11. Summary and Next Steps",
+          "level": 2,
+          "line": 691
+        },
+        {
+          "heading": "Key Findings",
+          "level": 3,
+          "line": 693
+        },
+        {
+          "heading": "Immediate Actions",
+          "level": 3,
+          "line": 702
+        },
+        {
+          "heading": "Expected Impact",
+          "level": 3,
+          "line": 724
+        },
+        {
+          "heading": "Strategic Positioning",
+          "level": 3,
+          "line": 734
+        },
+        {
+          "heading": "Appendices",
+          "level": 2,
+          "line": 747
+        },
+        {
+          "heading": "A. Issue Mapping",
+          "level": 3,
+          "line": 749
+        },
+        {
+          "heading": "B. Module Names (Proposed)",
+          "level": 3,
+          "line": 761
+        },
+        {
+          "heading": "C. MCP Tool Names (Proposed)",
+          "level": 3,
+          "line": 795
+        },
+        {
+          "heading": "D. References",
+          "level": 3,
+          "line": 833
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 58
+      }
+    },
+    {
+      "path": "KANBAN-AUTOMATION.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 31,
+      "nonEmptyLines": 22,
+      "sections": [
+        {
+          "heading": "MapleSpike Kanban System",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Reality check (2026-06-11)",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "To re-activate",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Architecture (for reference)",
+          "level": 2,
+          "line": 23
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": "KANBAN-SETUP.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 41,
+      "nonEmptyLines": 30,
+      "sections": [
+        {
+          "heading": "MapleSpike Kanban Board Setup",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Importing issues",
+          "level": 2,
+          "line": 11
+        },
+        {
+          "heading": "Profile mapping",
+          "level": 2,
+          "line": 21
+        },
+        {
+          "heading": "Commands",
+          "level": 2,
+          "line": 30
+        },
+        {
+          "heading": "Previous dependency graph (now resolved)",
+          "level": 2,
+          "line": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "LICENSE.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": "LICENSE.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 149,
+      "nonEmptyLines": 95,
+      "sections": [
+        {
+          "heading": "MapleSpike Licensing",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Three-Tier License Structure",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Why This Structure?",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "Why not one license for everything?",
+          "level": 3,
+          "line": 28
+        },
+        {
+          "heading": "Why AGPL-3.0 for core?",
+          "level": 3,
+          "line": 34
+        },
+        {
+          "heading": "Why Apache-2.0 for interface?",
+          "level": 3,
+          "line": 40
+        },
+        {
+          "heading": "Why MIT for client?",
+          "level": 3,
+          "line": 47
+        },
+        {
+          "heading": "Data vs. Code License",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Commercial License (MapleSpike Enterprise License)",
+          "level": 2,
+          "line": 67
+        },
+        {
+          "heading": "What the Enterprise License covers",
+          "level": 3,
+          "line": 71
+        },
+        {
+          "heading": "Pricing",
+          "level": 3,
+          "line": 77
+        },
+        {
+          "heading": "How to obtain",
+          "level": 3,
+          "line": 84
+        },
+        {
+          "heading": "Why offer a commercial license?",
+          "level": 3,
+          "line": 88
+        },
+        {
+          "heading": "Contributor License Agreement (CLA)",
+          "level": 2,
+          "line": 96
+        },
+        {
+          "heading": "Why a CLA?",
+          "level": 3,
+          "line": 100
+        },
+        {
+          "heading": "How it works",
+          "level": 3,
+          "line": 104
+        },
+        {
+          "heading": "What the CLA does NOT do",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "License Compliance Checklist",
+          "level": 2,
+          "line": 119
+        },
+        {
+          "heading": "SPDX Identifiers",
+          "level": 2,
+          "line": 135
+        },
+        {
+          "heading": "Changes to This Policy",
+          "level": 2,
+          "line": 147
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 20
+      }
+    },
+    {
+      "path": "README.fr.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 81,
+      "nonEmptyLines": 58,
+      "sections": [
+        {
+          "heading": "MapleSpike",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Ce que c'est",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Structure du dépôt",
+          "level": 2,
+          "line": 27
+        },
+        {
+          "heading": "Infrastructure",
+          "level": 2,
+          "line": 51
+        },
+        {
+          "heading": "Démarrage rapide",
+          "level": 2,
+          "line": 65
+        },
+        {
+          "heading": "Licence",
+          "level": 2,
+          "line": 76
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 190,
+      "nonEmptyLines": 143,
+      "sections": [
+        {
+          "heading": "MapleSpike",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "What it is",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "Repository structure",
+          "level": 2,
+          "line": 40
+        },
+        {
+          "heading": "Build Plan (7 Phases)",
+          "level": 2,
+          "line": 66
+        },
+        {
+          "heading": "Quick start",
+          "level": 2,
+          "line": 90
+        },
+        {
+          "heading": "Data sources",
+          "level": 2,
+          "line": 108
+        },
+        {
+          "heading": "Infrastructure",
+          "level": 2,
+          "line": 132
+        },
+        {
+          "heading": "CI/CD",
+          "level": 2,
+          "line": 162
+        },
+        {
+          "heading": "Related projects",
+          "level": 2,
+          "line": 176
+        },
+        {
+          "heading": "License",
+          "level": 2,
+          "line": 183
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "ROADMAP.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 62,
+      "nonEmptyLines": 51,
+      "sections": [
+        {
+          "heading": "MapleSpike Roadmap",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Phase 1: Build Integrity & CI ✅ DONE",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "Phase 2: MVP Quality Gate (Next)",
+          "level": 2,
+          "line": 36
+        },
+        {
+          "heading": "Phase 3: Deployment (This Month)",
+          "level": 2,
+          "line": 46
+        },
+        {
+          "heading": "Remaining Open Issues",
+          "level": 2,
+          "line": 55
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "SECURITY.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 91,
+      "nonEmptyLines": 65,
+      "sections": [
+        {
+          "heading": "MapleSpike Security Policy",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Reporting Vulnerabilities",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "Project Context",
+          "level": 2,
+          "line": 14
+        },
+        {
+          "heading": "Known Threat Vectors",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "1. Data Integrity (Primary Risk)",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "2. Supply Chain",
+          "level": 3,
+          "line": 33
+        },
+        {
+          "heading": "3. Cluster Infrastructure",
+          "level": 3,
+          "line": 42
+        },
+        {
+          "heading": "4. AI Agent Risks",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "5. Data Exposure",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "Security Controls Summary",
+          "level": 2,
+          "line": 68
+        },
+        {
+          "heading": "Not in Scope",
+          "level": 2,
+          "line": 81
+        },
+        {
+          "heading": "License",
+          "level": 2,
+          "line": 85
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": "devenv.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "sections": [
+        {
+          "heading": "inputs",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "opencode.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 83,
+      "nonEmptyLines": 83,
+      "sections": [
+        {
+          "heading": "$schema",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "model",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "provider",
+          "level": 1,
+          "line": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": "package.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 41,
+      "nonEmptyLines": 41,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "private",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "workspaces",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "scripts",
+          "level": 1,
+          "line": 9
+        },
+        {
+          "heading": "engines",
+          "level": 1,
+          "line": 21
+        },
+        {
+          "heading": "pnpm",
+          "level": 1,
+          "line": 24
+        },
+        {
+          "heading": "packageManager",
+          "level": 1,
+          "line": 31
+        },
+        {
+          "heading": "devDependencies",
+          "level": 1,
+          "line": 32
+        },
+        {
+          "heading": "license",
+          "level": 1,
+          "line": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "sections": [
+        {
+          "heading": "packages",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    }
+  ]
+}

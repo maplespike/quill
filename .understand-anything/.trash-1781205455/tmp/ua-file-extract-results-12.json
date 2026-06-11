@@ -1,0 +1,5610 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 29,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/engine/src/briefs/generator.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 417,
+      "nonEmptyLines": 370,
+      "functions": [
+        {
+          "name": "computeHealthScore",
+          "startLine": 62,
+          "endLine": 84,
+          "params": [
+            "threads"
+          ]
+        },
+        {
+          "name": "countBySignalType",
+          "startLine": 89,
+          "endLine": 103,
+          "params": [
+            "threads"
+          ]
+        },
+        {
+          "name": "topThreads",
+          "startLine": 108,
+          "endLine": 113,
+          "params": [
+            "threads",
+            "n"
+          ]
+        },
+        {
+          "name": "collectEntityIds",
+          "startLine": 118,
+          "endLine": 126,
+          "params": [
+            "threads"
+          ]
+        },
+        {
+          "name": "buildWhatChangedSection",
+          "startLine": 131,
+          "endLine": 152,
+          "params": [
+            "threads",
+            "counts"
+          ]
+        },
+        {
+          "name": "buildActiveSignalsSection",
+          "startLine": 157,
+          "endLine": 176,
+          "params": [
+            "threads"
+          ]
+        },
+        {
+          "name": "buildConnectionHighlightsSection",
+          "startLine": 182,
+          "endLine": 199,
+          "params": [
+            "threads"
+          ]
+        },
+        {
+          "name": "buildMandateWatchSection",
+          "startLine": 204,
+          "endLine": 221,
+          "params": [
+            "threads"
+          ]
+        },
+        {
+          "name": "computeSpendingPulse",
+          "startLine": 226,
+          "endLine": 272,
+          "params": [
+            "graph"
+          ]
+        },
+        {
+          "name": "computeLobbyingPulse",
+          "startLine": 277,
+          "endLine": 304,
+          "params": [
+            "graph"
+          ]
+        },
+        {
+          "name": "buildSpendingPulseSection",
+          "startLine": 309,
+          "endLine": 337,
+          "params": [
+            "graph"
+          ]
+        },
+        {
+          "name": "buildLobbyingPulseSection",
+          "startLine": 342,
+          "endLine": 378,
+          "params": [
+            "graph"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "BriefGenerator",
+          "startLine": 380,
+          "endLine": 417,
+          "methods": [
+            "generateDailyBrief"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "BriefGenerator",
+          "line": 380,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "computeHealthScore",
+          "callee": "classifySeverity",
+          "lineNumber": 67
+        },
+        {
+          "caller": "computeHealthScore",
+          "callee": "Math.max",
+          "lineNumber": 83
+        },
+        {
+          "caller": "topThreads",
+          "callee": "[...threads].sort((a, b) => b.confidence - a.confidence).slice",
+          "lineNumber": 112
+        },
+        {
+          "caller": "topThreads",
+          "callee": "[...threads].sort",
+          "lineNumber": 112
+        },
+        {
+          "caller": "collectEntityIds",
+          "callee": "ids.add",
+          "lineNumber": 122
+        },
+        {
+          "caller": "collectEntityIds",
+          "callee": "Array.from",
+          "lineNumber": 125
+        },
+        {
+          "caller": "buildWhatChangedSection",
+          "callee": "Object.keys",
+          "lineNumber": 135
+        },
+        {
+          "caller": "buildWhatChangedSection",
+          "callee": "signalTypes.filter",
+          "lineNumber": 136
+        },
+        {
+          "caller": "buildWhatChangedSection",
+          "callee": "activeTypes.map",
+          "lineNumber": 137
+        },
+        {
+          "caller": "buildWhatChangedSection",
+          "callee": "descriptions.join",
+          "lineNumber": 149
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "topThreads",
+          "lineNumber": 160
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "top.map",
+          "lineNumber": 161
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "getTemplate",
+          "lineNumber": 162
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "(t.confidence * 100).toFixed",
+          "lineNumber": 163
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "template",
+          "lineNumber": 163
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "items.join",
+          "lineNumber": 173
+        },
+        {
+          "caller": "buildActiveSignalsSection",
+          "callee": "top.map",
+          "lineNumber": 174
+        },
+        {
+          "caller": "buildConnectionHighlightsSection",
+          "callee": "topThreads",
+          "lineNumber": 186
+        },
+        {
+          "caller": "buildConnectionHighlightsSection",
+          "callee": "highlights.map",
+          "lineNumber": 187
+        },
+        {
+          "caller": "buildConnectionHighlightsSection",
+          "callee": "threadOneLiner",
+          "lineNumber": 187
+        },
+        {
+          "caller": "buildConnectionHighlightsSection",
+          "callee": "items.join",
+          "lineNumber": 196
+        },
+        {
+          "caller": "buildConnectionHighlightsSection",
+          "callee": "highlights.map",
+          "lineNumber": 197
+        },
+        {
+          "caller": "buildMandateWatchSection",
+          "callee": "threads.filter",
+          "lineNumber": 205
+        },
+        {
+          "caller": "buildMandateWatchSection",
+          "callee": "mandateThreads.map",
+          "lineNumber": 208
+        },
+        {
+          "caller": "buildMandateWatchSection",
+          "callee": "threadOneLiner",
+          "lineNumber": 208
+        },
+        {
+          "caller": "buildMandateWatchSection",
+          "callee": "items.join",
+          "lineNumber": 217
+        },
+        {
+          "caller": "computeSpendingPulse",
+          "callee": "graph.nodes.filter",
+          "lineNumber": 227
+        },
+        {
+          "caller": "computeLobbyingPulse",
+          "callee": "graph.nodes.filter",
+          "lineNumber": 278
+        },
+        {
+          "caller": "computeLobbyingPulse",
+          "callee": "Array.isArray",
+          "lineNumber": 287
+        },
+        {
+          "caller": "computeLobbyingPulse",
+          "callee": "departmentsTargeted.set",
+          "lineNumber": 290
+        },
+        {
+          "caller": "computeLobbyingPulse",
+          "callee": "departmentsTargeted.get",
+          "lineNumber": 292
+        },
+        {
+          "caller": "computeLobbyingPulse",
+          "callee": "mostActiveFirms.set",
+          "lineNumber": 294
+        },
+        {
+          "caller": "computeLobbyingPulse",
+          "callee": "mostActiveFirms.get",
+          "lineNumber": 294
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "computeSpendingPulse",
+          "lineNumber": 310
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 320
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 321
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "pulse.totalValue.toLocaleString",
+          "lineNumber": 322
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 325
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "pulse.biggestAward.value.toLocaleString",
+          "lineNumber": 326
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 329
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "pulse.soleSourcePercentage.toFixed",
+          "lineNumber": 330
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "pulse.soleSourceValue.toLocaleString",
+          "lineNumber": 330
+        },
+        {
+          "caller": "buildSpendingPulseSection",
+          "callee": "lines.join",
+          "lineNumber": 335
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "computeLobbyingPulse",
+          "lineNumber": 343
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 353
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 354
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "[...pulse.departmentsTargeted.entries()]\n    .sort((a, b) => b[1] - a[1])\n    .slice",
+          "lineNumber": 356
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "[...pulse.departmentsTargeted.entries()]\n    .sort",
+          "lineNumber": 356
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "pulse.departmentsTargeted.entries",
+          "lineNumber": 356
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 360
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "topDepts.map(([d, c]) => `${d} (${c})`).join",
+          "lineNumber": 361
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "topDepts.map",
+          "lineNumber": 361
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "[...pulse.mostActiveFirms.entries()]\n    .sort((a, b) => b[1] - a[1])\n    .slice",
+          "lineNumber": 365
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "[...pulse.mostActiveFirms.entries()]\n    .sort",
+          "lineNumber": 365
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "pulse.mostActiveFirms.entries",
+          "lineNumber": 365
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "lines.push",
+          "lineNumber": 369
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "topFirms.map(([f, c]) => `${f} (${c})`).join",
+          "lineNumber": 370
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "topFirms.map",
+          "lineNumber": 370
+        },
+        {
+          "caller": "buildLobbyingPulseSection",
+          "callee": "lines.join",
+          "lineNumber": 376
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "countBySignalType",
+          "lineNumber": 385
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "computeHealthScore",
+          "lineNumber": 386
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "collectEntityIds",
+          "lineNumber": 387
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "buildWhatChangedSection",
+          "lineNumber": 390
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "buildActiveSignalsSection",
+          "lineNumber": 391
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "buildConnectionHighlightsSection",
+          "lineNumber": 392
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "buildMandateWatchSection",
+          "lineNumber": 393
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "buildSpendingPulseSection",
+          "lineNumber": 394
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "buildLobbyingPulseSection",
+          "lineNumber": 395
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "topThreads",
+          "lineNumber": 399
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "(topConfidence * 100).toFixed",
+          "lineNumber": 404
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "generateId",
+          "lineNumber": 407
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "new Date().toISOString().split",
+          "lineNumber": 408
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "new Date().toISOString",
+          "lineNumber": 408
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "nowISO",
+          "lineNumber": 413
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString",
+          "lineNumber": 414
+        },
+        {
+          "caller": "generateDailyBrief",
+          "callee": "Date.now",
+          "lineNumber": 414
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 12,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/engine/src/briefs/templates.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 174,
+      "nonEmptyLines": 158,
+      "functions": [
+        {
+          "name": "classifySeverity",
+          "startLine": 28,
+          "endLine": 46,
+          "params": [
+            "signalType",
+            "confidence"
+          ]
+        },
+        {
+          "name": "procurementLobbyingTemplate",
+          "startLine": 51,
+          "endLine": 59,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "revolvingDoorTemplate",
+          "startLine": 64,
+          "endLine": 70,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "spousalInterestTemplate",
+          "startLine": 75,
+          "endLine": 81,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "soleSourceHeavyLobbyingTemplate",
+          "startLine": 86,
+          "endLine": 94,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "donationProximityTemplate",
+          "startLine": 99,
+          "endLine": 105,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "mandateDivergenceTemplate",
+          "startLine": 110,
+          "endLine": 116,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "internationalLayeringTemplate",
+          "startLine": 121,
+          "endLine": 130,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "getTemplate",
+          "startLine": 135,
+          "endLine": 149,
+          "params": [
+            "signalType"
+          ]
+        },
+        {
+          "name": "threadOneLiner",
+          "startLine": 154,
+          "endLine": 163,
+          "params": [
+            "thread"
+          ]
+        },
+        {
+          "name": "sectionTitleForSignalType",
+          "startLine": 168,
+          "endLine": 174,
+          "params": [
+            "signalType",
+            "count"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SIGNAL_DISPLAY_NAMES",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "classifySeverity",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "procurementLobbyingTemplate",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "revolvingDoorTemplate",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "spousalInterestTemplate",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "soleSourceHeavyLobbyingTemplate",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "donationProximityTemplate",
+          "line": 99,
+          "isDefault": false
+        },
+        {
+          "name": "mandateDivergenceTemplate",
+          "line": 110,
+          "isDefault": false
+        },
+        {
+          "name": "internationalLayeringTemplate",
+          "line": 121,
+          "isDefault": false
+        },
+        {
+          "name": "getTemplate",
+          "line": 135,
+          "isDefault": false
+        },
+        {
+          "name": "threadOneLiner",
+          "line": 154,
+          "isDefault": false
+        },
+        {
+          "name": "sectionTitleForSignalType",
+          "line": 168,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "threadOneLiner",
+          "callee": "getTemplate",
+          "lineNumber": 155
+        },
+        {
+          "caller": "threadOneLiner",
+          "callee": "template",
+          "lineNumber": 156
+        },
+        {
+          "caller": "threadOneLiner",
+          "callee": "text.split",
+          "lineNumber": 158
+        },
+        {
+          "caller": "threadOneLiner",
+          "callee": "firstSentence.substring",
+          "lineNumber": 160
+        },
+        {
+          "caller": "threadOneLiner",
+          "callee": "firstSentence.endsWith",
+          "lineNumber": 162
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 12,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/briefs/test.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 240,
+      "nonEmptyLines": 214,
+      "functions": [
+        {
+          "name": "makeThread",
+          "startLine": 9,
+          "endLine": 26,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeContractNode",
+          "startLine": 28,
+          "endLine": 40,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeFilingNode",
+          "startLine": 42,
+          "endLine": 53,
+          "params": [
+            "overrides"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeThread",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 15
+        },
+        {
+          "caller": "makeThread",
+          "callee": "Math.random().toString",
+          "lineNumber": 15
+        },
+        {
+          "caller": "makeThread",
+          "callee": "Math.random",
+          "lineNumber": 15
+        },
+        {
+          "caller": "makeThread",
+          "callee": "new Date().toISOString",
+          "lineNumber": 22
+        },
+        {
+          "caller": "makeThread",
+          "callee": "new Date().toISOString",
+          "lineNumber": 23
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/db/connection.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "generateId",
+          "startLine": 12,
+          "endLine": 18,
+          "params": []
+        },
+        {
+          "name": "nowISO",
+          "startLine": 20,
+          "endLine": 22,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "createDb",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "runMigrations",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "getDb",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "getRawDb",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "closeDb",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "DbClient",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "DbConfig",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "generateId",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "nowISO",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateId",
+          "callee": "\"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace",
+          "lineNumber": 13
+        },
+        {
+          "caller": "generateId",
+          "callee": "Math.random",
+          "lineNumber": 14
+        },
+        {
+          "caller": "generateId",
+          "callee": "v.toString",
+          "lineNumber": 16
+        },
+        {
+          "caller": "nowISO",
+          "callee": "new Date().toISOString",
+          "lineNumber": 21
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 9,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/entity/aliases.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 280,
+      "nonEmptyLines": 241,
+      "classes": [
+        {
+          "name": "AliasManager",
+          "startLine": 153,
+          "endLine": 280,
+          "methods": [
+            "constructor",
+            "init",
+            "seed",
+            "getCanonicalName",
+            "addAlias",
+            "getAliases",
+            "getAllEntries",
+            "isKnown"
+          ],
+          "properties": [
+            "db",
+            "initDone"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AliasManager",
+          "line": 153,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "this.init",
+          "lineNumber": 159
+        },
+        {
+          "caller": "init",
+          "callee": "this.db.exec",
+          "lineNumber": 163
+        },
+        {
+          "caller": "init",
+          "callee": "this.seed",
+          "lineNumber": 177
+        },
+        {
+          "caller": "seed",
+          "callee": "this.db.prepare",
+          "lineNumber": 184
+        },
+        {
+          "caller": "seed",
+          "callee": "this.db.transaction",
+          "lineNumber": 188
+        },
+        {
+          "caller": "seed",
+          "callee": "insert.run",
+          "lineNumber": 190
+        },
+        {
+          "caller": "seed",
+          "callee": "insert.run",
+          "lineNumber": 193
+        },
+        {
+          "caller": "seed",
+          "callee": "batch",
+          "lineNumber": 196
+        },
+        {
+          "caller": "getCanonicalName",
+          "callee": "this.db\n      .prepare(`SELECT canonical FROM aliases WHERE alias = ? AND type = ?`)\n      .get",
+          "lineNumber": 205
+        },
+        {
+          "caller": "getCanonicalName",
+          "callee": "this.db\n      .prepare",
+          "lineNumber": 205
+        },
+        {
+          "caller": "getCanonicalName",
+          "callee": "this.db\n      .prepare(`SELECT canonical FROM aliases WHERE canonical = ? AND type = ?`)\n      .get",
+          "lineNumber": 212
+        },
+        {
+          "caller": "getCanonicalName",
+          "callee": "this.db\n      .prepare",
+          "lineNumber": 212
+        },
+        {
+          "caller": "addAlias",
+          "callee": "this.db\n      .prepare(\n        `INSERT OR IGNORE INTO aliases (canonical, alias, type, source) VALUES (?, ?, ?, ?)`,\n      )\n      .run",
+          "lineNumber": 228
+        },
+        {
+          "caller": "addAlias",
+          "callee": "this.db\n      .prepare",
+          "lineNumber": 228
+        },
+        {
+          "caller": "getAliases",
+          "callee": "this.db\n        .prepare(`SELECT alias FROM aliases WHERE canonical = ? AND type = ?`)\n        .all",
+          "lineNumber": 240
+        },
+        {
+          "caller": "getAliases",
+          "callee": "this.db\n        .prepare",
+          "lineNumber": 240
+        },
+        {
+          "caller": "getAliases",
+          "callee": "rows.map",
+          "lineNumber": 243
+        },
+        {
+          "caller": "getAliases",
+          "callee": "this.db\n      .prepare(`SELECT alias FROM aliases WHERE canonical = ?`)\n      .all",
+          "lineNumber": 245
+        },
+        {
+          "caller": "getAliases",
+          "callee": "this.db\n      .prepare",
+          "lineNumber": 245
+        },
+        {
+          "caller": "getAliases",
+          "callee": "rows.map",
+          "lineNumber": 248
+        },
+        {
+          "caller": "getAllEntries",
+          "callee": "this.db\n        .prepare(\n          `SELECT canonical, alias, type, source, created_at as createdAt FROM aliases WHERE type = ?`,\n        )\n        .all",
+          "lineNumber": 256
+        },
+        {
+          "caller": "getAllEntries",
+          "callee": "this.db\n        .prepare",
+          "lineNumber": 256
+        },
+        {
+          "caller": "getAllEntries",
+          "callee": "this.db\n      .prepare(\n        `SELECT canonical, alias, type, source, created_at as createdAt FROM aliases`,\n      )\n      .all",
+          "lineNumber": 262
+        },
+        {
+          "caller": "getAllEntries",
+          "callee": "this.db\n      .prepare",
+          "lineNumber": 262
+        },
+        {
+          "caller": "isKnown",
+          "callee": "this.db\n      .prepare(\n        `SELECT 1 FROM aliases WHERE (canonical = ? OR alias = ?) AND type = ? LIMIT 1`,\n      )\n      .get",
+          "lineNumber": 273
+        },
+        {
+          "caller": "isKnown",
+          "callee": "this.db\n      .prepare",
+          "lineNumber": 273
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/engine/src/entity/resolver.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 373,
+      "nonEmptyLines": 332,
+      "functions": [
+        {
+          "name": "classifyConfidence",
+          "startLine": 19,
+          "endLine": 25,
+          "params": [
+            "score"
+          ]
+        },
+        {
+          "name": "normalize",
+          "startLine": 28,
+          "endLine": 36,
+          "params": [
+            "str"
+          ]
+        },
+        {
+          "name": "getInitials",
+          "startLine": 41,
+          "endLine": 49,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "isInitialMatch",
+          "startLine": 55,
+          "endLine": 71,
+          "params": [
+            "short",
+            "long"
+          ]
+        },
+        {
+          "name": "isHyphenatedOrMaidenName",
+          "startLine": 76,
+          "endLine": 94,
+          "params": [
+            "name1",
+            "name2"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "EntityResolver",
+          "startLine": 96,
+          "endLine": 373,
+          "methods": [
+            "constructor",
+            "resolvePersonNames",
+            "resolveOrgNames",
+            "resolveEntities",
+            "makeResult"
+          ],
+          "properties": [
+            "aliasManager"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "EntityResolver",
+          "line": 96,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalize",
+          "callee": "str\n    .toLowerCase()\n    .normalize(\"NFD\")\n    .replace(/[\\u0300-\\u036f]/g, \"\")\n    .trim()\n    .replace",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalize",
+          "callee": "str\n    .toLowerCase()\n    .normalize(\"NFD\")\n    .replace(/[\\u0300-\\u036f]/g, \"\")\n    .trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalize",
+          "callee": "str\n    .toLowerCase()\n    .normalize(\"NFD\")\n    .replace",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalize",
+          "callee": "str\n    .toLowerCase()\n    .normalize",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalize",
+          "callee": "str\n    .toLowerCase",
+          "lineNumber": 30
+        },
+        {
+          "caller": "getInitials",
+          "callee": "name.split",
+          "lineNumber": 42
+        },
+        {
+          "caller": "getInitials",
+          "callee": "parts\n    .map((p) => {\n      const cleaned = p.replace(/\\.$/, \"\");\n      return cleaned.charAt(0).toUpperCase();\n    })\n    .join",
+          "lineNumber": 43
+        },
+        {
+          "caller": "getInitials",
+          "callee": "parts\n    .map",
+          "lineNumber": 43
+        },
+        {
+          "caller": "getInitials",
+          "callee": "p.replace",
+          "lineNumber": 45
+        },
+        {
+          "caller": "getInitials",
+          "callee": "cleaned.charAt(0).toUpperCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "getInitials",
+          "callee": "cleaned.charAt",
+          "lineNumber": 46
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "short.split",
+          "lineNumber": 56
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "long.split",
+          "lineNumber": 57
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "shortParts[i].replace",
+          "lineNumber": 61
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "lp.charAt(0).toUpperCase",
+          "lineNumber": 65
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "lp.charAt",
+          "lineNumber": 65
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "sp.toUpperCase",
+          "lineNumber": 65
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "normalize",
+          "lineNumber": 67
+        },
+        {
+          "caller": "isInitialMatch",
+          "callee": "normalize",
+          "lineNumber": 67
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "name1.split",
+          "lineNumber": 77
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "name2.split",
+          "lineNumber": 78
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "last1.split",
+          "lineNumber": 83
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "last2.split",
+          "lineNumber": 84
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "last1Comps.some",
+          "lineNumber": 85
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "last2Comps.includes",
+          "lineNumber": 85
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "parts1[0].charAt(0).toUpperCase",
+          "lineNumber": 88
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "parts1[0].charAt",
+          "lineNumber": 88
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "parts2[0].charAt(0).toUpperCase",
+          "lineNumber": 88
+        },
+        {
+          "caller": "isHyphenatedOrMaidenName",
+          "callee": "parts2[0].charAt",
+          "lineNumber": 88
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "normalize",
+          "lineNumber": 110
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "normalize",
+          "lineNumber": 111
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "this.aliasManager.getCanonicalName",
+          "lineNumber": 117
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "this.aliasManager.getCanonicalName",
+          "lineNumber": 118
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "normalize",
+          "lineNumber": 123
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "normalize",
+          "lineNumber": 123
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "isInitialMatch",
+          "lineNumber": 126
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "isInitialMatch",
+          "lineNumber": 126
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "isHyphenatedOrMaidenName",
+          "lineNumber": 131
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "fuse.search",
+          "lineNumber": 142
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "n1.split",
+          "lineNumber": 150
+        },
+        {
+          "caller": "resolvePersonNames",
+          "callee": "n2.split",
+          "lineNumber": 151
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "normalize",
+          "lineNumber": 168
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "normalize",
+          "lineNumber": 169
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "this.aliasManager.getCanonicalName",
+          "lineNumber": 175
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "this.aliasManager.getCanonicalName",
+          "lineNumber": 176
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "normalize",
+          "lineNumber": 177
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "normalize",
+          "lineNumber": 177
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "this.aliasManager.getAliases",
+          "lineNumber": 180
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "normalize",
+          "lineNumber": 182
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "this.aliasManager.getAliases",
+          "lineNumber": 184
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "normalize",
+          "lineNumber": 186
+        },
+        {
+          "caller": "stripSuffixes",
+          "callee": "s\n        .replace(\n          /\\b(inc|corp|ltd|llc|co|limited|corporation|company)\\b\\.?/gi,\n          \"\",\n        )\n        .replace(/\\bcanada\\b/gi, \"\")\n        .trim",
+          "lineNumber": 191
+        },
+        {
+          "caller": "stripSuffixes",
+          "callee": "s\n        .replace(\n          /\\b(inc|corp|ltd|llc|co|limited|corporation|company)\\b\\.?/gi,\n          \"\",\n        )\n        .replace",
+          "lineNumber": 191
+        },
+        {
+          "caller": "stripSuffixes",
+          "callee": "s\n        .replace",
+          "lineNumber": 191
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "stripSuffixes",
+          "lineNumber": 199
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "stripSuffixes",
+          "lineNumber": 200
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "n1.split",
+          "lineNumber": 205
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "n2.split",
+          "lineNumber": 206
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "shorter.every",
+          "lineNumber": 211
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "longer.some",
+          "lineNumber": 212
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "lw.startsWith",
+          "lineNumber": 212
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "w.startsWith",
+          "lineNumber": 212
+        },
+        {
+          "caller": "resolveOrgNames",
+          "callee": "fuse.search",
+          "lineNumber": 226
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "this.resolvePersonNames",
+          "lineNumber": 254
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "group.members.push",
+          "lineNumber": 256
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "personGroups.push",
+          "lineNumber": 268
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "group.members.flatMap",
+          "lineNumber": 276
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "this.aliasManager.getCanonicalName",
+          "lineNumber": 277
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "canonicalName.toLowerCase().replace",
+          "lineNumber": 281
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "canonicalName.toLowerCase",
+          "lineNumber": 281
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "entities.set",
+          "lineNumber": 282
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "normalize",
+          "lineNumber": 292
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "normalize",
+          "lineNumber": 292
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "this.aliasManager.addAlias",
+          "lineNumber": 293
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "group.members.flatMap",
+          "lineNumber": 310
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "this.resolveOrgNames",
+          "lineNumber": 311
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "group.members.push",
+          "lineNumber": 313
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "orgGroups.push",
+          "lineNumber": 323
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "group.members.flatMap",
+          "lineNumber": 331
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "this.aliasManager.getCanonicalName",
+          "lineNumber": 332
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "canonicalName.toLowerCase().replace",
+          "lineNumber": 336
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "canonicalName.toLowerCase",
+          "lineNumber": 336
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "entities.set",
+          "lineNumber": 337
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "normalize",
+          "lineNumber": 346
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "normalize",
+          "lineNumber": 346
+        },
+        {
+          "caller": "resolveEntities",
+          "callee": "this.aliasManager.addAlias",
+          "lineNumber": 347
+        },
+        {
+          "caller": "makeResult",
+          "callee": "classifyConfidence",
+          "lineNumber": 368
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/engine/src/entity/test.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 258,
+      "nonEmptyLines": 227,
+      "functions": [
+        {
+          "name": "makeAliasManager",
+          "startLine": 11,
+          "endLine": 14,
+          "params": []
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/entity/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 54,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/etl/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 333,
+      "nonEmptyLines": 298,
+      "functions": [
+        {
+          "name": "uid",
+          "startLine": 6,
+          "endLine": 8,
+          "params": [
+            "prefix"
+          ]
+        },
+        {
+          "name": "runPrepared",
+          "startLine": 10,
+          "endLine": 12,
+          "params": [
+            "db",
+            "sql",
+            "params"
+          ]
+        },
+        {
+          "name": "transformLobbying",
+          "startLine": 16,
+          "endLine": 48,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "transformContracts",
+          "startLine": 52,
+          "endLine": 88,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "transformPersons",
+          "startLine": 92,
+          "endLine": 141,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "transformOrganizations",
+          "startLine": 145,
+          "endLine": 191,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "transformDonations",
+          "startLine": 195,
+          "endLine": 235,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "transformDisclosures",
+          "startLine": 239,
+          "endLine": 266,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "transformGacProjects",
+          "startLine": 270,
+          "endLine": 308,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "runAllTransforms",
+          "startLine": 322,
+          "endLine": 333,
+          "params": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "transformLobbying",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "transformContracts",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "transformPersons",
+          "line": 92,
+          "isDefault": false
+        },
+        {
+          "name": "transformOrganizations",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "transformDonations",
+          "line": 195,
+          "isDefault": false
+        },
+        {
+          "name": "transformDisclosures",
+          "line": 239,
+          "isDefault": false
+        },
+        {
+          "name": "transformGacProjects",
+          "line": 270,
+          "isDefault": false
+        },
+        {
+          "name": "runAllTransforms",
+          "line": 322,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "uid",
+          "callee": "generateId",
+          "lineNumber": 7
+        },
+        {
+          "caller": "runPrepared",
+          "callee": "db.prepare(sql).run",
+          "lineNumber": 11
+        },
+        {
+          "caller": "runPrepared",
+          "callee": "db.prepare",
+          "lineNumber": 11
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "db.prepare(\"SELECT * FROM lobbying_records\").all",
+          "lineNumber": 17
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "db.prepare",
+          "lineNumber": 17
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "db.prepare",
+          "lineNumber": 18
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "db.prepare",
+          "lineNumber": 25
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "del.run",
+          "lineNumber": 26
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "insert.run",
+          "lineNumber": 29
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "uid",
+          "lineNumber": 30
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "JSON.stringify",
+          "lineNumber": 36
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "nowISO().substring",
+          "lineNumber": 37
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "nowISO",
+          "lineNumber": 37
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "nowISO().substring",
+          "lineNumber": 38
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "nowISO",
+          "lineNumber": 38
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "JSON.stringify",
+          "lineNumber": 39
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "JSON.stringify",
+          "lineNumber": 42
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "nowISO",
+          "lineNumber": 43
+        },
+        {
+          "caller": "transformLobbying",
+          "callee": "nowISO",
+          "lineNumber": 44
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "db.prepare(\"SELECT * FROM contract_awards\").all",
+          "lineNumber": 55
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "db.prepare",
+          "lineNumber": 55
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "db.prepare",
+          "lineNumber": 57
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "del.run",
+          "lineNumber": 58
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "db.prepare",
+          "lineNumber": 59
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "insert.run",
+          "lineNumber": 67
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "uid",
+          "lineNumber": 68
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "r.description?.substring",
+          "lineNumber": 70
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "nowISO().substring",
+          "lineNumber": 76
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "nowISO",
+          "lineNumber": 76
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "JSON.stringify",
+          "lineNumber": 82
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "nowISO",
+          "lineNumber": 83
+        },
+        {
+          "caller": "transformContracts",
+          "callee": "nowISO",
+          "lineNumber": 84
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare",
+          "lineNumber": 93
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "del.run",
+          "lineNumber": 94
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare",
+          "lineNumber": 95
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare(\"SELECT DISTINCT registrant_name as name FROM lobbying_records WHERE registrant_name IS NOT NULL AND registrant_name != ''\").all",
+          "lineNumber": 104
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare",
+          "lineNumber": 104
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "seen.has",
+          "lineNumber": 106
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "seen.add",
+          "lineNumber": 107
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "r.name.split",
+          "lineNumber": 108
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "insert.run",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "uid",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "JSON.stringify",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "parts.slice(1).join",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "parts.slice",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "JSON.stringify",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "nowISO",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "nowISO",
+          "lineNumber": 109
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare(\"SELECT DISTINCT speaker_name as name FROM committee_speakers WHERE speaker_name IS NOT NULL AND speaker_name != ''\").all",
+          "lineNumber": 116
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare",
+          "lineNumber": 116
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "seen.has",
+          "lineNumber": 118
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "seen.add",
+          "lineNumber": 119
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "r.name.split",
+          "lineNumber": 120
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "insert.run",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "uid",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "JSON.stringify",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "parts.slice(1).join",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "parts.slice",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "JSON.stringify",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "nowISO",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "nowISO",
+          "lineNumber": 121
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare(\"SELECT DISTINCT appointee_name as name FROM gic_appointments WHERE appointee_name IS NOT NULL AND appointee_name != ''\").all",
+          "lineNumber": 129
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "db.prepare",
+          "lineNumber": 129
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "seen.has",
+          "lineNumber": 131
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "seen.add",
+          "lineNumber": 132
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "r.name.split",
+          "lineNumber": 133
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "insert.run",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "uid",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "JSON.stringify",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "parts.slice(1).join",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "parts.slice",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "JSON.stringify",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "nowISO",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformPersons",
+          "callee": "nowISO",
+          "lineNumber": 134
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare",
+          "lineNumber": 146
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "del.run",
+          "lineNumber": 147
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare",
+          "lineNumber": 148
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare(\"SELECT DISTINCT client_name as name FROM lobbying_records WHERE client_name IS NOT NULL AND client_name != ''\").all",
+          "lineNumber": 157
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare",
+          "lineNumber": 157
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "seen.has",
+          "lineNumber": 159
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "seen.add",
+          "lineNumber": 160
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "insert.run",
+          "lineNumber": 161
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "uid",
+          "lineNumber": 161
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "JSON.stringify",
+          "lineNumber": 161
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "JSON.stringify",
+          "lineNumber": 161
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "nowISO",
+          "lineNumber": 161
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "nowISO",
+          "lineNumber": 161
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare(\"SELECT DISTINCT vendor_name as name FROM contract_awards WHERE vendor_name IS NOT NULL AND vendor_name != ''\").all",
+          "lineNumber": 168
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare",
+          "lineNumber": 168
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "seen.has",
+          "lineNumber": 170
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "seen.add",
+          "lineNumber": 171
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "insert.run",
+          "lineNumber": 172
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "uid",
+          "lineNumber": 172
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "JSON.stringify",
+          "lineNumber": 172
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "JSON.stringify",
+          "lineNumber": 172
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "nowISO",
+          "lineNumber": 172
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "nowISO",
+          "lineNumber": 172
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare(\"SELECT DISTINCT corporation_name as name, corporation_type as type, province FROM corporate_entities WHERE corporation_name IS NOT NULL AND corporation_name != ''\").all",
+          "lineNumber": 180
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "db.prepare",
+          "lineNumber": 180
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "seen.has",
+          "lineNumber": 182
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "seen.add",
+          "lineNumber": 183
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "insert.run",
+          "lineNumber": 184
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "uid",
+          "lineNumber": 184
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "JSON.stringify",
+          "lineNumber": 184
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "JSON.stringify",
+          "lineNumber": 184
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "nowISO",
+          "lineNumber": 184
+        },
+        {
+          "caller": "transformOrganizations",
+          "callee": "nowISO",
+          "lineNumber": 184
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "db.prepare",
+          "lineNumber": 196
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "del.run",
+          "lineNumber": 197
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "db.prepare",
+          "lineNumber": 198
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "db.prepare(\"SELECT * FROM third_party_ads\").all",
+          "lineNumber": 208
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "db.prepare",
+          "lineNumber": 208
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "insert.run",
+          "lineNumber": 210
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "uid",
+          "lineNumber": 211
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO().substring",
+          "lineNumber": 213
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO",
+          "lineNumber": 213
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "JSON.stringify",
+          "lineNumber": 214
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO",
+          "lineNumber": 214
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO",
+          "lineNumber": 214
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "db.prepare(\"SELECT * FROM third_party_spending\").all",
+          "lineNumber": 222
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "db.prepare",
+          "lineNumber": 222
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "insert.run",
+          "lineNumber": 224
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "uid",
+          "lineNumber": 225
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO().substring",
+          "lineNumber": 227
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO",
+          "lineNumber": 227
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "JSON.stringify",
+          "lineNumber": 228
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO",
+          "lineNumber": 228
+        },
+        {
+          "caller": "transformDonations",
+          "callee": "nowISO",
+          "lineNumber": 228
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "db.prepare",
+          "lineNumber": 240
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "del.run",
+          "lineNumber": 241
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "db.prepare",
+          "lineNumber": 242
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "db.prepare(\"SELECT * FROM proactive_disclosure\").all",
+          "lineNumber": 251
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "db.prepare",
+          "lineNumber": 251
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "parseInt",
+          "lineNumber": 253
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "String",
+          "lineNumber": 253
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 253
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "insert.run",
+          "lineNumber": 254
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "uid",
+          "lineNumber": 255
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "JSON.stringify",
+          "lineNumber": 257
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "nowISO().substring",
+          "lineNumber": 258
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "nowISO",
+          "lineNumber": 258
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "JSON.stringify",
+          "lineNumber": 259
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "nowISO",
+          "lineNumber": 259
+        },
+        {
+          "caller": "transformDisclosures",
+          "callee": "nowISO",
+          "lineNumber": 259
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "db.prepare",
+          "lineNumber": 271
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "del.run",
+          "lineNumber": 272
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "db.prepare",
+          "lineNumber": 273
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "db.prepare(\"SELECT * FROM global_canada_records\").all",
+          "lineNumber": 283
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "db.prepare",
+          "lineNumber": 283
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "(r.partner_names as string[]).map",
+          "lineNumber": 288
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "insert.run",
+          "lineNumber": 290
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "uid",
+          "lineNumber": 291
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "uid",
+          "lineNumber": 291
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "nowISO().substring",
+          "lineNumber": 298
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "nowISO",
+          "lineNumber": 298
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "JSON.stringify",
+          "lineNumber": 300
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "JSON.stringify",
+          "lineNumber": 301
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "nowISO",
+          "lineNumber": 301
+        },
+        {
+          "caller": "transformGacProjects",
+          "callee": "nowISO",
+          "lineNumber": 301
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "getRawDb",
+          "lineNumber": 323
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformLobbying",
+          "lineNumber": 325
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformContracts",
+          "lineNumber": 326
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformPersons",
+          "lineNumber": 327
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformOrganizations",
+          "lineNumber": 328
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformDonations",
+          "lineNumber": 329
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformDisclosures",
+          "lineNumber": 330
+        },
+        {
+          "caller": "runAllTransforms",
+          "callee": "transformGacProjects",
+          "lineNumber": 331
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 8,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/builder.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 495,
+      "nonEmptyLines": 449,
+      "functions": [
+        {
+          "name": "nextEdgeId",
+          "startLine": 28,
+          "endLine": 30,
+          "params": []
+        },
+        {
+          "name": "resetEdgeCounter",
+          "startLine": 32,
+          "endLine": 34,
+          "params": []
+        },
+        {
+          "name": "makeNodeId",
+          "startLine": 37,
+          "endLine": 39,
+          "params": [
+            "type",
+            "key"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "GraphBuilder",
+          "startLine": 41,
+          "endLine": 495,
+          "methods": [
+            "constructor",
+            "addNode",
+            "addEdge",
+            "getNode",
+            "getEdges",
+            "getNeighbors",
+            "getPaths",
+            "getEdgesBetween",
+            "buildGraph",
+            "findOrgByName",
+            "getGraphData",
+            "getAllNodes",
+            "getAllEdges",
+            "setThreads"
+          ],
+          "properties": [
+            "nodes",
+            "edges",
+            "adjacency",
+            "threads",
+            "resolver"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "makeNodeId",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "GraphBuilder",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "addNode",
+          "callee": "this.nodes.set",
+          "lineNumber": 54
+        },
+        {
+          "caller": "addNode",
+          "callee": "this.adjacency.has",
+          "lineNumber": 55
+        },
+        {
+          "caller": "addNode",
+          "callee": "this.adjacency.set",
+          "lineNumber": 56
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.edges.set",
+          "lineNumber": 62
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.has",
+          "lineNumber": 64
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.set",
+          "lineNumber": 65
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.has",
+          "lineNumber": 67
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.set",
+          "lineNumber": 68
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.get(edge.source)!.add",
+          "lineNumber": 70
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.get",
+          "lineNumber": 70
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.get(edge.target)!.add",
+          "lineNumber": 71
+        },
+        {
+          "caller": "addEdge",
+          "callee": "this.adjacency.get",
+          "lineNumber": 71
+        },
+        {
+          "caller": "getNode",
+          "callee": "this.nodes.get",
+          "lineNumber": 76
+        },
+        {
+          "caller": "getEdges",
+          "callee": "this.edges.values",
+          "lineNumber": 82
+        },
+        {
+          "caller": "getEdges",
+          "callee": "result.push",
+          "lineNumber": 84
+        },
+        {
+          "caller": "getNeighbors",
+          "callee": "this.adjacency.get",
+          "lineNumber": 92
+        },
+        {
+          "caller": "getNeighbors",
+          "callee": "this.nodes.get",
+          "lineNumber": 96
+        },
+        {
+          "caller": "getNeighbors",
+          "callee": "result.push",
+          "lineNumber": 97
+        },
+        {
+          "caller": "getPaths",
+          "callee": "queue.shift",
+          "lineNumber": 116
+        },
+        {
+          "caller": "getPaths",
+          "callee": "this.adjacency.get",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getPaths",
+          "callee": "visited.has",
+          "lineNumber": 123
+        },
+        {
+          "caller": "getPaths",
+          "callee": "this.getEdgesBetween",
+          "lineNumber": 126
+        },
+        {
+          "caller": "getPaths",
+          "callee": "paths.push",
+          "lineNumber": 131
+        },
+        {
+          "caller": "getPaths",
+          "callee": "newVisited.add",
+          "lineNumber": 134
+        },
+        {
+          "caller": "getPaths",
+          "callee": "queue.push",
+          "lineNumber": 135
+        },
+        {
+          "caller": "getEdgesBetween",
+          "callee": "this.edges.values",
+          "lineNumber": 147
+        },
+        {
+          "caller": "getEdgesBetween",
+          "callee": "result.push",
+          "lineNumber": 152
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "resetEdgeCounter",
+          "lineNumber": 171
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 175
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 189
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 204
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.findOrgByName",
+          "lineNumber": 219
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 221
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 222
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "makeNodeId",
+          "lineNumber": 233
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.nodes.has",
+          "lineNumber": 234
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 235
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 242
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 243
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 255
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.findOrgByName",
+          "lineNumber": 270
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 272
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 273
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 285
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 286
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "makeNodeId",
+          "lineNumber": 297
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.nodes.has",
+          "lineNumber": 298
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 299
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 306
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 307
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 319
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 334
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 335
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 345
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 346
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 359
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 373
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 374
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addNode",
+          "lineNumber": 387
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.findOrgByName",
+          "lineNumber": 402
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 404
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 405
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.findOrgByName",
+          "lineNumber": 420
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.addEdge",
+          "lineNumber": 422
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "nextEdgeId",
+          "lineNumber": 423
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "Array.from",
+          "lineNumber": 442
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.nodes.values",
+          "lineNumber": 442
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "Array.from",
+          "lineNumber": 443
+        },
+        {
+          "caller": "buildGraph",
+          "callee": "this.edges.values",
+          "lineNumber": 443
+        },
+        {
+          "caller": "findOrgByName",
+          "callee": "organizations.find",
+          "lineNumber": 456
+        },
+        {
+          "caller": "findOrgByName",
+          "callee": "org.names.some",
+          "lineNumber": 457
+        },
+        {
+          "caller": "findOrgByName",
+          "callee": "n.toLowerCase",
+          "lineNumber": 457
+        },
+        {
+          "caller": "findOrgByName",
+          "callee": "name.toLowerCase",
+          "lineNumber": 457
+        },
+        {
+          "caller": "findOrgByName",
+          "callee": "this.resolver.resolveOrgNames",
+          "lineNumber": 464
+        },
+        {
+          "caller": "getGraphData",
+          "callee": "Array.from",
+          "lineNumber": 475
+        },
+        {
+          "caller": "getGraphData",
+          "callee": "this.nodes.values",
+          "lineNumber": 475
+        },
+        {
+          "caller": "getGraphData",
+          "callee": "Array.from",
+          "lineNumber": 476
+        },
+        {
+          "caller": "getGraphData",
+          "callee": "this.edges.values",
+          "lineNumber": 476
+        },
+        {
+          "caller": "getAllNodes",
+          "callee": "Array.from",
+          "lineNumber": 483
+        },
+        {
+          "caller": "getAllNodes",
+          "callee": "this.nodes.values",
+          "lineNumber": 483
+        },
+        {
+          "caller": "getAllEdges",
+          "callee": "Array.from",
+          "lineNumber": 488
+        },
+        {
+          "caller": "getAllEdges",
+          "callee": "this.edges.values",
+          "lineNumber": 488
+        }
+      ],
+      "metrics": {
+        "importCount": 10,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/cycles.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 46,
+      "functions": [
+        {
+          "name": "detectCycles",
+          "startLine": 15,
+          "endLine": 54,
+          "params": [
+            "nodes",
+            "edges"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "detectCycles",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "detectCycles",
+          "callee": "adj.set",
+          "lineNumber": 17
+        },
+        {
+          "caller": "detectCycles",
+          "callee": "adj.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "detectCycles",
+          "callee": "list.push",
+          "lineNumber": 20
+        },
+        {
+          "caller": "dfs",
+          "callee": "visited.add",
+          "lineNumber": 29
+        },
+        {
+          "caller": "dfs",
+          "callee": "stack.add",
+          "lineNumber": 30
+        },
+        {
+          "caller": "dfs",
+          "callee": "path.push",
+          "lineNumber": 31
+        },
+        {
+          "caller": "dfs",
+          "callee": "adj.get",
+          "lineNumber": 33
+        },
+        {
+          "caller": "dfs",
+          "callee": "visited.has",
+          "lineNumber": 34
+        },
+        {
+          "caller": "dfs",
+          "callee": "dfs",
+          "lineNumber": 34
+        },
+        {
+          "caller": "dfs",
+          "callee": "stack.has",
+          "lineNumber": 35
+        },
+        {
+          "caller": "dfs",
+          "callee": "path.indexOf",
+          "lineNumber": 36
+        },
+        {
+          "caller": "dfs",
+          "callee": "path.slice",
+          "lineNumber": 37
+        },
+        {
+          "caller": "dfs",
+          "callee": "edges\n          .filter(e => cycleNodes.includes(e.source) && cycleNodes.includes(e.target))\n          .map",
+          "lineNumber": 38
+        },
+        {
+          "caller": "dfs",
+          "callee": "edges\n          .filter",
+          "lineNumber": 38
+        },
+        {
+          "caller": "dfs",
+          "callee": "cycleNodes.includes",
+          "lineNumber": 39
+        },
+        {
+          "caller": "dfs",
+          "callee": "cycleNodes.includes",
+          "lineNumber": 39
+        },
+        {
+          "caller": "dfs",
+          "callee": "cycles.push",
+          "lineNumber": 41
+        },
+        {
+          "caller": "dfs",
+          "callee": "path.pop",
+          "lineNumber": 45
+        },
+        {
+          "caller": "dfs",
+          "callee": "stack.delete",
+          "lineNumber": 46
+        },
+        {
+          "caller": "detectCycles",
+          "callee": "visited.has",
+          "lineNumber": 50
+        },
+        {
+          "caller": "detectCycles",
+          "callee": "dfs",
+          "lineNumber": 50
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 27,
+      "exports": [
+        {
+          "name": "GraphBuilder",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "makeNodeId",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "findEntitiesByName",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "getSubgraph",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "getThreadsForEntity",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "getTopSignals",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "detectCycles",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "Cycle",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "computeMetrics",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "GraphMetrics",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "validateGraphData",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "validateNode",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "validateEdge",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "ValidatedNode",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "ValidatedEdge",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "ValidatedGraphData",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "detectDonationProximityCorrelation",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "detectInternationalLayering",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "detectMandateDivergence",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "detectProcurementLobbyingOverlap",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "detectRevolvingDoor",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "detectSoleSourceHeavyLobbying",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "detectSpousalInterestProximity",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "runAllDetectors",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "isoNow",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 25,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/metrics.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 43,
+      "functions": [
+        {
+          "name": "computeMetrics",
+          "startLine": 15,
+          "endLine": 48,
+          "params": [
+            "nodes",
+            "edges",
+            "signalCount"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "computeMetrics",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "computeMetrics",
+          "callee": "nodes.map",
+          "lineNumber": 16
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.set",
+          "lineNumber": 18
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.get(e.source)?.add",
+          "lineNumber": 20
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.get(e.target)?.add",
+          "lineNumber": 21
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.get",
+          "lineNumber": 21
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "Array.from(adj.values()).reduce",
+          "lineNumber": 24
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "Array.from",
+          "lineNumber": 24
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.values",
+          "lineNumber": 24
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "visited.has",
+          "lineNumber": 32
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "queue.pop",
+          "lineNumber": 36
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "visited.has",
+          "lineNumber": 37
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "visited.add",
+          "lineNumber": 38
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "adj.get",
+          "lineNumber": 40
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "visited.has",
+          "lineNumber": 41
+        },
+        {
+          "caller": "computeMetrics",
+          "callee": "queue.push",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/queries.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 102,
+      "nonEmptyLines": 91,
+      "functions": [
+        {
+          "name": "findEntitiesByName",
+          "startLine": 12,
+          "endLine": 22,
+          "params": [
+            "graph",
+            "name"
+          ]
+        },
+        {
+          "name": "getSubgraph",
+          "startLine": 27,
+          "endLine": 80,
+          "params": [
+            "graph",
+            "centerId",
+            "depth"
+          ]
+        },
+        {
+          "name": "getThreadsForEntity",
+          "startLine": 85,
+          "endLine": 90,
+          "params": [
+            "graph",
+            "entityId"
+          ]
+        },
+        {
+          "name": "getTopSignals",
+          "startLine": 95,
+          "endLine": 102,
+          "params": [
+            "graph",
+            "limit"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "findEntitiesByName",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "getSubgraph",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "getThreadsForEntity",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "getTopSignals",
+          "line": 95,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "findEntitiesByName",
+          "callee": "name.toLowerCase",
+          "lineNumber": 13
+        },
+        {
+          "caller": "findEntitiesByName",
+          "callee": "graph.nodes.filter",
+          "lineNumber": 14
+        },
+        {
+          "caller": "findEntitiesByName",
+          "callee": "node.label.toLowerCase().includes",
+          "lineNumber": 15
+        },
+        {
+          "caller": "findEntitiesByName",
+          "callee": "node.label.toLowerCase",
+          "lineNumber": 15
+        },
+        {
+          "caller": "findEntitiesByName",
+          "callee": "names.some",
+          "lineNumber": 18
+        },
+        {
+          "caller": "findEntitiesByName",
+          "callee": "n.toLowerCase().includes",
+          "lineNumber": 18
+        },
+        {
+          "caller": "findEntitiesByName",
+          "callee": "n.toLowerCase",
+          "lineNumber": 18
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.has",
+          "lineNumber": 41
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.set",
+          "lineNumber": 42
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.has",
+          "lineNumber": 44
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.set",
+          "lineNumber": 45
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.get(edge.source)!.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.get",
+          "lineNumber": 47
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.get(edge.target)!.push",
+          "lineNumber": 48
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.get",
+          "lineNumber": 48
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "queue.shift",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "visited.has",
+          "lineNumber": 57
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "visited.add",
+          "lineNumber": 58
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "graph.nodes.find",
+          "lineNumber": 60
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "nodes.set",
+          "lineNumber": 61
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "adjacency.get",
+          "lineNumber": 64
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "edges.set",
+          "lineNumber": 66
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "visited.has",
+          "lineNumber": 67
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "queue.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "Array.from",
+          "lineNumber": 74
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "nodes.values",
+          "lineNumber": 74
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "Array.from",
+          "lineNumber": 75
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "edges.values",
+          "lineNumber": 75
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "graph.threads.filter",
+          "lineNumber": 76
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "t.nodes.some",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getSubgraph",
+          "callee": "visited.has",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getThreadsForEntity",
+          "callee": "graph.threads.filter",
+          "lineNumber": 89
+        },
+        {
+          "caller": "getThreadsForEntity",
+          "callee": "thread.nodes.includes",
+          "lineNumber": 89
+        },
+        {
+          "caller": "getTopSignals",
+          "callee": "[...graph.threads]\n    .sort((a, b) => b.confidence - a.confidence)\n    .slice",
+          "lineNumber": 99
+        },
+        {
+          "caller": "getTopSignals",
+          "callee": "[...graph.threads]\n    .sort",
+          "lineNumber": 99
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/signals.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 626,
+      "nonEmptyLines": 567,
+      "functions": [
+        {
+          "name": "nextThreadId",
+          "startLine": 21,
+          "endLine": 23,
+          "params": []
+        },
+        {
+          "name": "resetThreadCounter",
+          "startLine": 25,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "isoNow",
+          "startLine": 29,
+          "endLine": 31,
+          "params": []
+        },
+        {
+          "name": "findOrg",
+          "startLine": 36,
+          "endLine": 51,
+          "params": [
+            "organizations",
+            "name",
+            "resolver"
+          ]
+        },
+        {
+          "name": "findPerson",
+          "startLine": 56,
+          "endLine": 69,
+          "params": [
+            "persons",
+            "name",
+            "resolver"
+          ]
+        },
+        {
+          "name": "detectProcurementLobbyingOverlap",
+          "startLine": 77,
+          "endLine": 125,
+          "params": [
+            "contracts",
+            "filings",
+            "organizations",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "detectRevolvingDoor",
+          "startLine": 133,
+          "endLine": 193,
+          "params": [
+            "persons",
+            "filings",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "detectSpousalInterestProximity",
+          "startLine": 201,
+          "endLine": 265,
+          "params": [
+            "disclosures",
+            "contracts",
+            "persons",
+            "organizations",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "detectSoleSourceHeavyLobbying",
+          "startLine": 273,
+          "endLine": 331,
+          "params": [
+            "contracts",
+            "filings",
+            "organizations",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "detectDonationProximityCorrelation",
+          "startLine": 338,
+          "endLine": 396,
+          "params": [
+            "donations",
+            "contracts",
+            "filings",
+            "persons",
+            "organizations",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "detectMandateDivergence",
+          "startLine": 413,
+          "endLine": 480,
+          "params": [
+            "contracts",
+            "promises",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "detectInternationalLayering",
+          "startLine": 490,
+          "endLine": 563,
+          "params": [
+            "contracts",
+            "gacProjects",
+            "filings",
+            "organizations",
+            "_resolver",
+            "_aliasManager"
+          ]
+        },
+        {
+          "name": "runAllDetectors",
+          "startLine": 568,
+          "endLine": 624,
+          "params": [
+            "contracts",
+            "filings",
+            "donations",
+            "disclosures",
+            "gacProjects",
+            "persons",
+            "organizations",
+            "promises",
+            "aliasManager"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "detectProcurementLobbyingOverlap",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "detectRevolvingDoor",
+          "line": 133,
+          "isDefault": false
+        },
+        {
+          "name": "detectSpousalInterestProximity",
+          "line": 201,
+          "isDefault": false
+        },
+        {
+          "name": "detectSoleSourceHeavyLobbying",
+          "line": 273,
+          "isDefault": false
+        },
+        {
+          "name": "detectDonationProximityCorrelation",
+          "line": 338,
+          "isDefault": false
+        },
+        {
+          "name": "detectMandateDivergence",
+          "line": 413,
+          "isDefault": false
+        },
+        {
+          "name": "detectInternationalLayering",
+          "line": 490,
+          "isDefault": false
+        },
+        {
+          "name": "runAllDetectors",
+          "line": 568,
+          "isDefault": false
+        },
+        {
+          "name": "isoNow",
+          "line": 626,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isoNow",
+          "callee": "new Date().toISOString",
+          "lineNumber": 30
+        },
+        {
+          "caller": "findOrg",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 45
+        },
+        {
+          "caller": "findPerson",
+          "callee": "resolver.resolvePersonNames",
+          "lineNumber": 63
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "resetThreadCounter",
+          "lineNumber": 87
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 93
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 100
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "Math.min",
+          "lineNumber": 106
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "findOrg",
+          "lineNumber": 107
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "threads.push",
+          "lineNumber": 109
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "nextThreadId",
+          "lineNumber": 110
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "contract.value.toLocaleString",
+          "lineNumber": 112
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "isoNow",
+          "lineNumber": 118
+        },
+        {
+          "caller": "detectProcurementLobbyingOverlap",
+          "callee": "isoNow",
+          "lineNumber": 119
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "resetThreadCounter",
+          "lineNumber": 142
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "person.roles.filter",
+          "lineNumber": 147
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "resolver.resolvePersonNames",
+          "lineNumber": 161
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 170
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "threads.push",
+          "lineNumber": 175
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "nextThreadId",
+          "lineNumber": 176
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "isoNow",
+          "lineNumber": 184
+        },
+        {
+          "caller": "detectRevolvingDoor",
+          "callee": "isoNow",
+          "lineNumber": 185
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "resetThreadCounter",
+          "lineNumber": 212
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "person.relationships.filter",
+          "lineNumber": 217
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "disclosures.filter",
+          "lineNumber": 223
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "resolver.resolvePersonNames",
+          "lineNumber": 226
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 237
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 241
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "threads.push",
+          "lineNumber": 246
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "nextThreadId",
+          "lineNumber": 247
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "contract.value.toLocaleString",
+          "lineNumber": 249
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "isoNow",
+          "lineNumber": 255
+        },
+        {
+          "caller": "detectSpousalInterestProximity",
+          "callee": "isoNow",
+          "lineNumber": 256
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "resetThreadCounter",
+          "lineNumber": 283
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "filings.filter",
+          "lineNumber": 290
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 291
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 295
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "relatedFilings.reduce",
+          "lineNumber": 303
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "findOrg",
+          "lineNumber": 309
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "Math.min",
+          "lineNumber": 310
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "threads.push",
+          "lineNumber": 312
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "nextThreadId",
+          "lineNumber": 313
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "contract.value.toLocaleString",
+          "lineNumber": 315
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "relatedFilings.map",
+          "lineNumber": 320
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "relatedFilings.map",
+          "lineNumber": 324
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "isoNow",
+          "lineNumber": 325
+        },
+        {
+          "caller": "detectSoleSourceHeavyLobbying",
+          "callee": "isoNow",
+          "lineNumber": 326
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "resetThreadCounter",
+          "lineNumber": 350
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 357
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "filings.some",
+          "lineNumber": 361
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 363
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "Math.abs",
+          "lineNumber": 372
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "donationDate.getTime",
+          "lineNumber": 372
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "contractDate.getTime",
+          "lineNumber": 372
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "findOrg",
+          "lineNumber": 377
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "threads.push",
+          "lineNumber": 380
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "nextThreadId",
+          "lineNumber": 381
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "donation.amount.toLocaleString",
+          "lineNumber": 383
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "contract.value.toLocaleString",
+          "lineNumber": 383
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "Math.round",
+          "lineNumber": 383
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "isoNow",
+          "lineNumber": 389
+        },
+        {
+          "caller": "detectDonationProximityCorrelation",
+          "callee": "isoNow",
+          "lineNumber": 390
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "resetThreadCounter",
+          "lineNumber": 422
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptContracts.has",
+          "lineNumber": 429
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptContracts.set",
+          "lineNumber": 429
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptContracts.get(key)!.push",
+          "lineNumber": 430
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptContracts.get",
+          "lineNumber": 430
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 436
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptCons.reduce",
+          "lineNumber": 439
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "threads.push",
+          "lineNumber": 445
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "nextThreadId",
+          "lineNumber": 446
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "(promise.amount ?? 0).toLocaleString",
+          "lineNumber": 448
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "totalSpending.toLocaleString",
+          "lineNumber": 448
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptCons.map",
+          "lineNumber": 451
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptCons.map",
+          "lineNumber": 453
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "isoNow",
+          "lineNumber": 454
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "isoNow",
+          "lineNumber": 455
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "threads.push",
+          "lineNumber": 463
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "nextThreadId",
+          "lineNumber": 464
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "(promise.amount ?? 0).toLocaleString",
+          "lineNumber": 466
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "totalSpending.toLocaleString",
+          "lineNumber": 466
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptCons.map",
+          "lineNumber": 469
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "deptCons.map",
+          "lineNumber": 471
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "isoNow",
+          "lineNumber": 472
+        },
+        {
+          "caller": "detectMandateDivergence",
+          "callee": "isoNow",
+          "lineNumber": 473
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "resetThreadCounter",
+          "lineNumber": 501
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "contracts.filter",
+          "lineNumber": 509
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 510
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "gacProjects.filter",
+          "lineNumber": 515
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "p.implementingPartners.some",
+          "lineNumber": 516
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 517
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "filings.filter",
+          "lineNumber": 523
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "resolver.resolveOrgNames",
+          "lineNumber": 524
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingContracts.reduce",
+          "lineNumber": 530
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingGacProjects.reduce",
+          "lineNumber": 534
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "threads.push",
+          "lineNumber": 539
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "nextThreadId",
+          "lineNumber": 540
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "totalDomestic.toLocaleString",
+          "lineNumber": 542
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "totalInternational.toLocaleString",
+          "lineNumber": 542
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingContracts.map",
+          "lineNumber": 547
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingGacProjects.map",
+          "lineNumber": 548
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingFilings.map",
+          "lineNumber": 549
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingContracts.map",
+          "lineNumber": 553
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingGacProjects.map",
+          "lineNumber": 554
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "matchingFilings.map",
+          "lineNumber": 555
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "isoNow",
+          "lineNumber": 557
+        },
+        {
+          "caller": "detectInternationalLayering",
+          "callee": "isoNow",
+          "lineNumber": 558
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectProcurementLobbyingOverlap",
+          "lineNumber": 582
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectRevolvingDoor",
+          "lineNumber": 589
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectSpousalInterestProximity",
+          "lineNumber": 590
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectSoleSourceHeavyLobbying",
+          "lineNumber": 598
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectDonationProximityCorrelation",
+          "lineNumber": 605
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectMandateDivergence",
+          "lineNumber": 614
+        },
+        {
+          "caller": "runAllDetectors",
+          "callee": "detectInternationalLayering",
+          "lineNumber": 615
+        }
+      ],
+      "metrics": {
+        "importCount": 10,
+        "exportCount": 9,
+        "functionCount": 13,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/graph/test.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1139,
+      "nonEmptyLines": 1070,
+      "functions": [
+        {
+          "name": "makeAliasManager",
+          "startLine": 41,
+          "endLine": 43,
+          "params": []
+        },
+        {
+          "name": "uid",
+          "startLine": 46,
+          "endLine": 48,
+          "params": [
+            "prefix"
+          ]
+        },
+        {
+          "name": "isoNow",
+          "startLine": 50,
+          "endLine": 52,
+          "params": []
+        },
+        {
+          "name": "makePerson",
+          "startLine": 54,
+          "endLine": 65,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeOrg",
+          "startLine": 67,
+          "endLine": 80,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeContract",
+          "startLine": 82,
+          "endLine": 108,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeFiling",
+          "startLine": 110,
+          "endLine": 142,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeDonation",
+          "startLine": 144,
+          "endLine": 167,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeDisclosure",
+          "startLine": 169,
+          "endLine": 189,
+          "params": [
+            "overrides"
+          ]
+        },
+        {
+          "name": "makeGacProject",
+          "startLine": 191,
+          "endLine": 217,
+          "params": [
+            "overrides"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isoNow",
+          "callee": "new Date().toISOString",
+          "lineNumber": 51
+        },
+        {
+          "caller": "makePerson",
+          "callee": "uid",
+          "lineNumber": 56
+        },
+        {
+          "caller": "makePerson",
+          "callee": "isoNow",
+          "lineNumber": 62
+        },
+        {
+          "caller": "makePerson",
+          "callee": "isoNow",
+          "lineNumber": 63
+        },
+        {
+          "caller": "makeOrg",
+          "callee": "uid",
+          "lineNumber": 71
+        },
+        {
+          "caller": "makeOrg",
+          "callee": "isoNow",
+          "lineNumber": 77
+        },
+        {
+          "caller": "makeOrg",
+          "callee": "isoNow",
+          "lineNumber": 78
+        },
+        {
+          "caller": "makeContract",
+          "callee": "uid",
+          "lineNumber": 90
+        },
+        {
+          "caller": "makeContract",
+          "callee": "uid",
+          "lineNumber": 92
+        },
+        {
+          "caller": "makeContract",
+          "callee": "isoNow",
+          "lineNumber": 105
+        },
+        {
+          "caller": "makeContract",
+          "callee": "isoNow",
+          "lineNumber": 106
+        },
+        {
+          "caller": "makeFiling",
+          "callee": "uid",
+          "lineNumber": 117
+        },
+        {
+          "caller": "makeFiling",
+          "callee": "uid",
+          "lineNumber": 119
+        },
+        {
+          "caller": "makeFiling",
+          "callee": "isoNow",
+          "lineNumber": 139
+        },
+        {
+          "caller": "makeFiling",
+          "callee": "isoNow",
+          "lineNumber": 140
+        },
+        {
+          "caller": "makeDonation",
+          "callee": "uid",
+          "lineNumber": 152
+        },
+        {
+          "caller": "makeDonation",
+          "callee": "isoNow",
+          "lineNumber": 164
+        },
+        {
+          "caller": "makeDonation",
+          "callee": "isoNow",
+          "lineNumber": 165
+        },
+        {
+          "caller": "makeDisclosure",
+          "callee": "uid",
+          "lineNumber": 176
+        },
+        {
+          "caller": "makeDisclosure",
+          "callee": "isoNow",
+          "lineNumber": 186
+        },
+        {
+          "caller": "makeDisclosure",
+          "callee": "isoNow",
+          "lineNumber": 187
+        },
+        {
+          "caller": "makeGacProject",
+          "callee": "uid",
+          "lineNumber": 198
+        },
+        {
+          "caller": "makeGacProject",
+          "callee": "uid",
+          "lineNumber": 200
+        },
+        {
+          "caller": "makeGacProject",
+          "callee": "isoNow",
+          "lineNumber": 214
+        },
+        {
+          "caller": "makeGacProject",
+          "callee": "isoNow",
+          "lineNumber": 215
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makeAliasManager",
+          "lineNumber": 858
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makeOrg",
+          "lineNumber": 861
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makeOrg",
+          "lineNumber": 865
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makePerson",
+          "lineNumber": 868
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makePerson",
+          "lineNumber": 869
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makeContract",
+          "lineNumber": 873
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makeContract",
+          "lineNumber": 879
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "makeFiling",
+          "lineNumber": 888
+        },
+        {
+          "caller": "buildTestGraph",
+          "callee": "builder.buildGraph",
+          "lineNumber": 895
+        }
+      ],
+      "metrics": {
+        "importCount": 13,
+        "exportCount": 0,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/orchestrator.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 88,
+      "nonEmptyLines": 79,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/orchestrator.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 578,
+      "nonEmptyLines": 532,
+      "functions": [
+        {
+          "name": "generateMandatePromises",
+          "startLine": 87,
+          "endLine": 108,
+          "params": [
+            "contracts"
+          ]
+        },
+        {
+          "name": "runEnginePipeline",
+          "startLine": 571,
+          "endLine": 578,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "EngineOrchestrator",
+          "startLine": 131,
+          "endLine": 564,
+          "methods": [
+            "constructor",
+            "loadFromDb",
+            "run",
+            "close",
+            "getSignals",
+            "getBrief",
+            "persistResults"
+          ],
+          "properties": [
+            "aliasManager",
+            "entityResolver",
+            "graphBuilder",
+            "briefGenerator"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "EngineOrchestrator",
+          "line": 131,
+          "isDefault": false
+        },
+        {
+          "name": "runEnginePipeline",
+          "line": 571,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateMandatePromises",
+          "callee": "contracts.map",
+          "lineNumber": 90
+        },
+        {
+          "caller": "generateMandatePromises",
+          "callee": "contracts.filter",
+          "lineNumber": 94
+        },
+        {
+          "caller": "generateMandatePromises",
+          "callee": "deptContracts.reduce",
+          "lineNumber": 95
+        },
+        {
+          "caller": "generateMandatePromises",
+          "callee": "promises.push",
+          "lineNumber": 96
+        },
+        {
+          "caller": "generateMandatePromises",
+          "callee": "dept.toLowerCase().replace",
+          "lineNumber": 97
+        },
+        {
+          "caller": "generateMandatePromises",
+          "callee": "dept.toLowerCase",
+          "lineNumber": 97
+        },
+        {
+          "caller": "generateMandatePromises",
+          "callee": "Math.round",
+          "lineNumber": 102
+        },
+        {
+          "caller": "constructor",
+          "callee": "getRawDb",
+          "lineNumber": 138
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "getRawDb",
+          "lineNumber": 150
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "isoNow",
+          "lineNumber": 151
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM persons').all",
+          "lineNumber": 168
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 168
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "personRows.map",
+          "lineNumber": 169
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 171
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 178
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM organizations').all",
+          "lineNumber": 186
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 186
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "orgRows.map",
+          "lineNumber": 187
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 189
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 197
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM contracts').all",
+          "lineNumber": 204
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 204
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "contractRows.map",
+          "lineNumber": 205
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "Boolean",
+          "lineNumber": 218
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 222
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM lobbying_filings').all",
+          "lineNumber": 228
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 228
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "filingRows.map",
+          "lineNumber": 229
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 238
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 241
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 245
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM donations').all",
+          "lineNumber": 256
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 256
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "donRows.map",
+          "lineNumber": 257
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "Boolean",
+          "lineNumber": 269
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 271
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM disclosures').all",
+          "lineNumber": 277
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 277
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "discRows.map",
+          "lineNumber": 278
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 285
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 289
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare('SELECT * FROM gac_projects').all",
+          "lineNumber": 295
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "db.prepare",
+          "lineNumber": 295
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "gacRows.map",
+          "lineNumber": 296
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 309
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "JSON.parse",
+          "lineNumber": 312
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "persons.map",
+          "lineNumber": 318
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "organizations.map",
+          "lineNumber": 319
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "contracts.map",
+          "lineNumber": 320
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "filings.map",
+          "lineNumber": 321
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "donations.map",
+          "lineNumber": 322
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "disclosures.map",
+          "lineNumber": 323
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "gacProjects.map",
+          "lineNumber": 324
+        },
+        {
+          "caller": "loadFromDb",
+          "callee": "emptyResult",
+          "lineNumber": 341
+        },
+        {
+          "caller": "run",
+          "callee": "runAllTransforms",
+          "lineNumber": 355
+        },
+        {
+          "caller": "run",
+          "callee": "this.loadFromDb",
+          "lineNumber": 358
+        },
+        {
+          "caller": "run",
+          "callee": "this.entityResolver.resolveEntities",
+          "lineNumber": 361
+        },
+        {
+          "caller": "run",
+          "callee": "Array.from",
+          "lineNumber": 365
+        },
+        {
+          "caller": "run",
+          "callee": "resolutionMap.entities.keys",
+          "lineNumber": 365
+        },
+        {
+          "caller": "run",
+          "callee": "this.graphBuilder.buildGraph",
+          "lineNumber": 368
+        },
+        {
+          "caller": "run",
+          "callee": "generateMandatePromises",
+          "lineNumber": 379
+        },
+        {
+          "caller": "run",
+          "callee": "runAllDetectors",
+          "lineNumber": 380
+        },
+        {
+          "caller": "run",
+          "callee": "this.graphBuilder.setThreads",
+          "lineNumber": 393
+        },
+        {
+          "caller": "run",
+          "callee": "this.briefGenerator.generateDailyBrief",
+          "lineNumber": 397
+        },
+        {
+          "caller": "run",
+          "callee": "this.persistResults",
+          "lineNumber": 401
+        },
+        {
+          "caller": "run",
+          "callee": "Math.max",
+          "lineNumber": 437
+        },
+        {
+          "caller": "run",
+          "callee": "signals.map",
+          "lineNumber": 437
+        },
+        {
+          "caller": "run",
+          "callee": "this.persistResults",
+          "lineNumber": 451
+        },
+        {
+          "caller": "getSignals",
+          "callee": "this.graphBuilder.getGraphData",
+          "lineNumber": 482
+        },
+        {
+          "caller": "getBrief",
+          "callee": "this.graphBuilder.getGraphData",
+          "lineNumber": 489
+        },
+        {
+          "caller": "getBrief",
+          "callee": "this.briefGenerator.generateDailyBrief",
+          "lineNumber": 492
+        },
+        {
+          "caller": "persistResults",
+          "callee": "getRawDb",
+          "lineNumber": 505
+        },
+        {
+          "caller": "persistResults",
+          "callee": "isoNow",
+          "lineNumber": 506
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.exec",
+          "lineNumber": 509
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.exec",
+          "lineNumber": 510
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.exec",
+          "lineNumber": 511
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.exec",
+          "lineNumber": 512
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.prepare",
+          "lineNumber": 515
+        },
+        {
+          "caller": "persistResults",
+          "callee": "nodeInsert.run",
+          "lineNumber": 519
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 519
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.prepare",
+          "lineNumber": 523
+        },
+        {
+          "caller": "persistResults",
+          "callee": "edgeInsert.run",
+          "lineNumber": 527
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 530
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.prepare",
+          "lineNumber": 535
+        },
+        {
+          "caller": "persistResults",
+          "callee": "threadInsert.run",
+          "lineNumber": 539
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 542
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 543
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 544
+        },
+        {
+          "caller": "persistResults",
+          "callee": "db.prepare",
+          "lineNumber": 551
+        },
+        {
+          "caller": "persistResults",
+          "callee": "briefInsert.run",
+          "lineNumber": 554
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 556
+        },
+        {
+          "caller": "persistResults",
+          "callee": "JSON.stringify",
+          "lineNumber": 557
+        },
+        {
+          "caller": "runEnginePipeline",
+          "callee": "engine.run",
+          "lineNumber": 574
+        },
+        {
+          "caller": "runEnginePipeline",
+          "callee": "engine.close",
+          "lineNumber": 576
+        }
+      ],
+      "metrics": {
+        "importCount": 17,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/engine/src/types/base.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 18,
+      "nonEmptyLines": 17,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/brief.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 20,
+      "nonEmptyLines": 18,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/contract.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 44,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/disclosure.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 25,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/donation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 24,
+      "nonEmptyLines": 22,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/gac.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/graph.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 65,
+      "nonEmptyLines": 59,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 39,
+      "exports": [
+        {
+          "name": "BaseEntity",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "GovernmentSource",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "Brief",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "BriefSection",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "Contract",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "ContractStatus",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "Tender",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "TenderStatus",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "Disclosure",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "Interest",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "InterestCategory",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "Donation",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DonationRecipientType",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "GACProject",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "GACProjectStatus",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "ImplementingPartner",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "Edge",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "EdgeType",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "GraphData",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "IntelligenceThread",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "Node",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "NodeType",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "SignalType",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "CommunicationType",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "LobbyingCommunication",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "LobbyingFiling",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "Lobbyist",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "Organization",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "OrganizationType",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "Registration",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "Person",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "Relationship",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "RelationshipType",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "Role",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "RoleCategory",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 35,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/lobbying.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 35,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/organization.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/types/person.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 49,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

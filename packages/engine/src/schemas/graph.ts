@@ -18,6 +18,8 @@ export const NodeTypeSchema = z.enum([
   "donation",
   "disclosure",
   "gac_project",
+  "committee",
+  "charity",
 ]);
 
 export const EdgeTypeSchema = z.enum([
@@ -31,6 +33,14 @@ export const EdgeTypeSchema = z.enum([
   "communicated_with",
   "filed_by",
   "implements",
+  "member_of",
+  "testified_before",
+  "chairs",
+  "funds",
+  "board_member_of",
+  "executive_director_of",
+  "affiliated_with",
+  "advisor_to",
 ]);
 
 export const NodeSchema = z.object({

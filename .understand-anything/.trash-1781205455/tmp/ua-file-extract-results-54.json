@@ -1,0 +1,1395 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/global-canada/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 226,
+      "nonEmptyLines": 203,
+      "classes": [
+        {
+          "name": "GlobalCanadaError",
+          "startLine": 215,
+          "endLine": 226,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "GLOBAL_CANADA_SOURCES",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_SOURCE_CONFIG",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_GLOBAL_CANADA_SOURCES",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_RECORD_TYPE_MAP",
+          "line": 107,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_DDL",
+          "line": 149,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 202,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 203,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 204,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 206,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaError",
+          "line": 215,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 223
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 10,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/global-canada/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 484,
+      "nonEmptyLines": 427,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 48,
+          "endLine": 66,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchHtml",
+          "startLine": 71,
+          "endLine": 89,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchGacTradeAgreements",
+          "startLine": 100,
+          "endLine": 130,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchGacDevelopmentProjects",
+          "startLine": 137,
+          "endLine": 165,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEcccClimateData",
+          "startLine": 177,
+          "endLine": 209,
+          "params": [
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEcccWeatherWarnings",
+          "startLine": 216,
+          "endLine": 242,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEcccEnvironmentalIndicators",
+          "startLine": 249,
+          "endLine": 275,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEcccGhgInventory",
+          "startLine": 282,
+          "endLine": 308,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCsisReports",
+          "startLine": 319,
+          "endLine": 347,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCsisPublicBriefings",
+          "startLine": 354,
+          "endLine": 380,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllGacRecords",
+          "startLine": 389,
+          "endLine": 404,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllEcccRecords",
+          "startLine": 409,
+          "endLine": 426,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllCsisRecords",
+          "startLine": 431,
+          "endLine": 446,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchGlobalCanadaBySource",
+          "startLine": 455,
+          "endLine": 469,
+          "params": [
+            "source",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllGlobalCanadaRecords",
+          "startLine": 474,
+          "endLine": 484,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "GlobalCanadaFetchError",
+          "startLine": 29,
+          "endLine": 39,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "GlobalCanadaFetchError",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "fetchGacTradeAgreements",
+          "line": 100,
+          "isDefault": false
+        },
+        {
+          "name": "fetchGacDevelopmentProjects",
+          "line": 137,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEcccClimateData",
+          "line": 177,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEcccWeatherWarnings",
+          "line": 216,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEcccEnvironmentalIndicators",
+          "line": 249,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEcccGhgInventory",
+          "line": 282,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCsisReports",
+          "line": 319,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCsisPublicBriefings",
+          "line": 354,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllGacRecords",
+          "line": 389,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllEcccRecords",
+          "line": 409,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCsisRecords",
+          "line": 431,
+          "isDefault": false
+        },
+        {
+          "name": "fetchGlobalCanadaBySource",
+          "line": 455,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllGlobalCanadaRecords",
+          "line": 474,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 65
+        },
+        {
+          "caller": "fetchHtml",
+          "callee": "httpGet",
+          "lineNumber": 75
+        },
+        {
+          "caller": "fetchGacTradeAgreements",
+          "callee": "fetchHtml",
+          "lineNumber": 107
+        },
+        {
+          "caller": "fetchGacTradeAgreements",
+          "callee": "errors.push",
+          "lineNumber": 127
+        },
+        {
+          "caller": "fetchGacDevelopmentProjects",
+          "callee": "fetchHtml",
+          "lineNumber": 143
+        },
+        {
+          "caller": "fetchGacDevelopmentProjects",
+          "callee": "errors.push",
+          "lineNumber": 162
+        },
+        {
+          "caller": "fetchEcccClimateData",
+          "callee": "errors.push",
+          "lineNumber": 206
+        },
+        {
+          "caller": "fetchEcccWeatherWarnings",
+          "callee": "errors.push",
+          "lineNumber": 239
+        },
+        {
+          "caller": "fetchEcccEnvironmentalIndicators",
+          "callee": "errors.push",
+          "lineNumber": 272
+        },
+        {
+          "caller": "fetchEcccGhgInventory",
+          "callee": "errors.push",
+          "lineNumber": 305
+        },
+        {
+          "caller": "fetchCsisReports",
+          "callee": "fetchHtml",
+          "lineNumber": 325
+        },
+        {
+          "caller": "fetchCsisReports",
+          "callee": "errors.push",
+          "lineNumber": 344
+        },
+        {
+          "caller": "fetchCsisPublicBriefings",
+          "callee": "errors.push",
+          "lineNumber": 377
+        },
+        {
+          "caller": "fetchAllGacRecords",
+          "callee": "Promise.all",
+          "lineNumber": 395
+        },
+        {
+          "caller": "fetchAllGacRecords",
+          "callee": "fetchGacTradeAgreements",
+          "lineNumber": 396
+        },
+        {
+          "caller": "fetchAllGacRecords",
+          "callee": "fetchGacDevelopmentProjects",
+          "lineNumber": 397
+        },
+        {
+          "caller": "fetchAllGacRecords",
+          "callee": "allRecords.push",
+          "lineNumber": 400
+        },
+        {
+          "caller": "fetchAllGacRecords",
+          "callee": "errors.push",
+          "lineNumber": 401
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "Promise.all",
+          "lineNumber": 415
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "fetchEcccClimateData",
+          "lineNumber": 416
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "fetchEcccWeatherWarnings",
+          "lineNumber": 417
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "fetchEcccEnvironmentalIndicators",
+          "lineNumber": 418
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "fetchEcccGhgInventory",
+          "lineNumber": 419
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "allRecords.push",
+          "lineNumber": 422
+        },
+        {
+          "caller": "fetchAllEcccRecords",
+          "callee": "errors.push",
+          "lineNumber": 423
+        },
+        {
+          "caller": "fetchAllCsisRecords",
+          "callee": "Promise.all",
+          "lineNumber": 437
+        },
+        {
+          "caller": "fetchAllCsisRecords",
+          "callee": "fetchCsisReports",
+          "lineNumber": 438
+        },
+        {
+          "caller": "fetchAllCsisRecords",
+          "callee": "fetchCsisPublicBriefings",
+          "lineNumber": 439
+        },
+        {
+          "caller": "fetchAllCsisRecords",
+          "callee": "allRecords.push",
+          "lineNumber": 442
+        },
+        {
+          "caller": "fetchAllCsisRecords",
+          "callee": "errors.push",
+          "lineNumber": 443
+        },
+        {
+          "caller": "fetchGlobalCanadaBySource",
+          "callee": "fetchAllGacRecords",
+          "lineNumber": 461
+        },
+        {
+          "caller": "fetchGlobalCanadaBySource",
+          "callee": "fetchAllEcccRecords",
+          "lineNumber": 463
+        },
+        {
+          "caller": "fetchGlobalCanadaBySource",
+          "callee": "fetchAllCsisRecords",
+          "lineNumber": 465
+        },
+        {
+          "caller": "fetchAllGlobalCanadaRecords",
+          "callee": "Promise.all",
+          "lineNumber": 477
+        },
+        {
+          "caller": "fetchAllGlobalCanadaRecords",
+          "callee": "fetchAllGacRecords",
+          "lineNumber": 478
+        },
+        {
+          "caller": "fetchAllGlobalCanadaRecords",
+          "callee": "fetchAllEcccRecords",
+          "lineNumber": 479
+        },
+        {
+          "caller": "fetchAllGlobalCanadaRecords",
+          "callee": "fetchAllCsisRecords",
+          "lineNumber": 480
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 14,
+        "functionCount": 15,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/global-canada/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 425,
+      "nonEmptyLines": 381,
+      "functions": [
+        {
+          "name": "initializeGlobalCanadaTable",
+          "startLine": 122,
+          "endLine": 124,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertGlobalCanadaRecord",
+          "startLine": 131,
+          "endLine": 159,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "globalCanadaRecordExists",
+          "startLine": 164,
+          "endLine": 173,
+          "params": [
+            "db",
+            "id"
+          ]
+        },
+        {
+          "name": "globalCanadaTableExists",
+          "startLine": 178,
+          "endLine": 187,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "getLatestGlobalCanadaIngestionDate",
+          "startLine": 192,
+          "endLine": 197,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "searchGlobalCanadaRecords",
+          "startLine": 206,
+          "endLine": 258,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getGlobalCanadaBySource",
+          "startLine": 263,
+          "endLine": 276,
+          "params": [
+            "db",
+            "sourceSystem",
+            "options"
+          ]
+        },
+        {
+          "name": "getGlobalCanadaByTopic",
+          "startLine": 281,
+          "endLine": 294,
+          "params": [
+            "db",
+            "topicArea",
+            "options"
+          ]
+        },
+        {
+          "name": "getRecentGlobalCanadaRecords",
+          "startLine": 299,
+          "endLine": 311,
+          "params": [
+            "db",
+            "limit"
+          ]
+        },
+        {
+          "name": "searchGlobalCanadaBySource",
+          "startLine": 316,
+          "endLine": 328,
+          "params": [
+            "db",
+            "query",
+            "sourceSystem",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestGlobalCanada",
+          "startLine": 347,
+          "endLine": 425,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchGlobalCanadaBySource",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllGlobalCanadaRecords",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "fetchGacTradeAgreements",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEcccClimateData",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCsisReports",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "parseGlobalCanadaRecord",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "parseGlobalCanadaBatch",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "parseGacRecord",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "parseEcccRecord",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "parseCsisHtml",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeSource",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeRecordType",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_DDL",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_SOURCES",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_SOURCE_CONFIG",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "GLOBAL_CANADA_RECORD_TYPE_MAP",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_GLOBAL_CANADA_SOURCES",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaError",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaRecord",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaSource",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaRecordType",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaIngestionOptions",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "GlobalCanadaIngestionResult",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "RawGlobalCanadaRecord",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "initializeGlobalCanadaTable",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "globalCanadaRecordExists",
+          "line": 164,
+          "isDefault": false
+        },
+        {
+          "name": "globalCanadaTableExists",
+          "line": 178,
+          "isDefault": false
+        },
+        {
+          "name": "getLatestGlobalCanadaIngestionDate",
+          "line": 192,
+          "isDefault": false
+        },
+        {
+          "name": "searchGlobalCanadaRecords",
+          "line": 206,
+          "isDefault": false
+        },
+        {
+          "name": "getGlobalCanadaBySource",
+          "line": 263,
+          "isDefault": false
+        },
+        {
+          "name": "getGlobalCanadaByTopic",
+          "line": 281,
+          "isDefault": false
+        },
+        {
+          "name": "getRecentGlobalCanadaRecords",
+          "line": 299,
+          "isDefault": false
+        },
+        {
+          "name": "searchGlobalCanadaBySource",
+          "line": 316,
+          "isDefault": false
+        },
+        {
+          "name": "ingestGlobalCanada",
+          "line": 347,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeGlobalCanadaTable",
+          "callee": "db.exec",
+          "lineNumber": 123
+        },
+        {
+          "caller": "upsertGlobalCanadaRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO global_canada_records\n      (id, source_system, record_type, title, description,\n       date, url, department, topic_area, geographic_focus,\n       reference_number, format, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 135
+        },
+        {
+          "caller": "upsertGlobalCanadaRecord",
+          "callee": "db.prepare",
+          "lineNumber": 135
+        },
+        {
+          "caller": "upsertGlobalCanadaRecord",
+          "callee": "stmt.run",
+          "lineNumber": 157
+        },
+        {
+          "caller": "globalCanadaRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM global_canada_records WHERE id = ? LIMIT 1`,\n  ).bind(id).first",
+          "lineNumber": 168
+        },
+        {
+          "caller": "globalCanadaRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM global_canada_records WHERE id = ? LIMIT 1`,\n  ).bind",
+          "lineNumber": 168
+        },
+        {
+          "caller": "globalCanadaRecordExists",
+          "callee": "db.prepare",
+          "lineNumber": 168
+        },
+        {
+          "caller": "globalCanadaTableExists",
+          "callee": "db.prepare(\n      `SELECT name FROM sqlite_master WHERE type='table' AND name='global_canada_records'`,\n    ).first",
+          "lineNumber": 180
+        },
+        {
+          "caller": "globalCanadaTableExists",
+          "callee": "db.prepare",
+          "lineNumber": 180
+        },
+        {
+          "caller": "getLatestGlobalCanadaIngestionDate",
+          "callee": "await db.prepare(\n    'SELECT ingested_at FROM global_canada_records ORDER BY ingested_at DESC LIMIT 1',\n  ).first",
+          "lineNumber": 193
+        },
+        {
+          "caller": "getLatestGlobalCanadaIngestionDate",
+          "callee": "db.prepare",
+          "lineNumber": 193
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 229
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 234
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 239
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 244
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 249
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 253
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 255
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "db.prepare",
+          "lineNumber": 255
+        },
+        {
+          "caller": "searchGlobalCanadaRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 256
+        },
+        {
+          "caller": "getGlobalCanadaBySource",
+          "callee": "searchGlobalCanadaRecords",
+          "lineNumber": 271
+        },
+        {
+          "caller": "getGlobalCanadaByTopic",
+          "callee": "searchGlobalCanadaRecords",
+          "lineNumber": 289
+        },
+        {
+          "caller": "getRecentGlobalCanadaRecords",
+          "callee": "db.prepare(\n    `SELECT * FROM global_canada_records\n     ORDER BY date DESC NULLS LAST, ingested_at DESC\n     LIMIT ?`,\n  ).bind",
+          "lineNumber": 303
+        },
+        {
+          "caller": "getRecentGlobalCanadaRecords",
+          "callee": "db.prepare",
+          "lineNumber": 303
+        },
+        {
+          "caller": "getRecentGlobalCanadaRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 309
+        },
+        {
+          "caller": "searchGlobalCanadaBySource",
+          "callee": "searchGlobalCanadaRecords",
+          "lineNumber": 324
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "Date.now",
+          "lineNumber": 351
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "log",
+          "lineNumber": 373
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "initializeGlobalCanadaTable",
+          "lineNumber": 374
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "log",
+          "lineNumber": 379
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "fetchGlobalCanadaBySource",
+          "lineNumber": 382
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "result.errors.push",
+          "lineNumber": 387
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "log",
+          "lineNumber": 388
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "parseGlobalCanadaBatch",
+          "lineNumber": 391
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "upsertGlobalCanadaRecord",
+          "lineNumber": 401
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "result.errors.push",
+          "lineNumber": 411
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "log",
+          "lineNumber": 412
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "result.errors.push",
+          "lineNumber": 417
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "log",
+          "lineNumber": 418
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "Date.now",
+          "lineNumber": 421
+        },
+        {
+          "caller": "ingestGlobalCanada",
+          "callee": "log",
+          "lineNumber": 422
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 35,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/global-canada/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 329,
+      "nonEmptyLines": 296,
+      "functions": [
+        {
+          "name": "normalizeSource",
+          "startLine": 30,
+          "endLine": 53,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "normalizeRecordType",
+          "startLine": 58,
+          "endLine": 86,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "getDepartment",
+          "startLine": 91,
+          "endLine": 93,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "parseGacRecord",
+          "startLine": 102,
+          "endLine": 153,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseEcccRecord",
+          "startLine": 158,
+          "endLine": 209,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseCsisHtml",
+          "startLine": 214,
+          "endLine": 266,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseGlobalCanadaRecord",
+          "startLine": 279,
+          "endLine": 299,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseGlobalCanadaBatch",
+          "startLine": 312,
+          "endLine": 329,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeSource",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeRecordType",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "parseGacRecord",
+          "line": 102,
+          "isDefault": false
+        },
+        {
+          "name": "parseEcccRecord",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "parseCsisHtml",
+          "line": 214,
+          "isDefault": false
+        },
+        {
+          "name": "parseGlobalCanadaRecord",
+          "line": 279,
+          "isDefault": false
+        },
+        {
+          "name": "parseGlobalCanadaBatch",
+          "line": 312,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeSource",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 35
+        },
+        {
+          "caller": "normalizeSource",
+          "callee": "raw.trim",
+          "lineNumber": 35
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 63
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "raw.trim",
+          "lineNumber": 63
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 69
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 69
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 70
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 70
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 71
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 71
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 72
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 72
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 73
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 74
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 75
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 75
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 76
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 76
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 77
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 77
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 78
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 78
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 78
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 79
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 79
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 80
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 81
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 81
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 82
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 83
+        },
+        {
+          "caller": "normalizeRecordType",
+          "callee": "trimmed.includes",
+          "lineNumber": 83
+        },
+        {
+          "caller": "parseGacRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 111
+        },
+        {
+          "caller": "parseGacRecord",
+          "callee": "normalizeRecordType",
+          "lineNumber": 112
+        },
+        {
+          "caller": "parseGacRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 122
+        },
+        {
+          "caller": "parseGacRecord",
+          "callee": "computeHash",
+          "lineNumber": 136
+        },
+        {
+          "caller": "parseEcccRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseEcccRecord",
+          "callee": "normalizeRecordType",
+          "lineNumber": 168
+        },
+        {
+          "caller": "parseEcccRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 178
+        },
+        {
+          "caller": "parseEcccRecord",
+          "callee": "computeHash",
+          "lineNumber": 192
+        },
+        {
+          "caller": "parseCsisHtml",
+          "callee": "new Date().toISOString",
+          "lineNumber": 224
+        },
+        {
+          "caller": "parseCsisHtml",
+          "callee": "normalizeRecordType",
+          "lineNumber": 225
+        },
+        {
+          "caller": "parseCsisHtml",
+          "callee": "JSON.stringify",
+          "lineNumber": 235
+        },
+        {
+          "caller": "parseCsisHtml",
+          "callee": "computeHash",
+          "lineNumber": 249
+        },
+        {
+          "caller": "parseGlobalCanadaRecord",
+          "callee": "normalizeSource",
+          "lineNumber": 287
+        },
+        {
+          "caller": "parseGlobalCanadaRecord",
+          "callee": "parseGacRecord",
+          "lineNumber": 291
+        },
+        {
+          "caller": "parseGlobalCanadaRecord",
+          "callee": "parseEcccRecord",
+          "lineNumber": 293
+        },
+        {
+          "caller": "parseGlobalCanadaRecord",
+          "callee": "parseCsisHtml",
+          "lineNumber": 295
+        },
+        {
+          "caller": "parseGlobalCanadaRecord",
+          "callee": "parseGacRecord",
+          "lineNumber": 297
+        },
+        {
+          "caller": "parseGlobalCanadaBatch",
+          "callee": "parseGlobalCanadaRecord",
+          "lineNumber": 322
+        },
+        {
+          "caller": "parseGlobalCanadaBatch",
+          "callee": "results.push",
+          "lineNumber": 324
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 7,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/global-canada/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 205,
+      "nonEmptyLines": 173,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}
