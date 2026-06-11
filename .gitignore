@@ -38,5 +38,5 @@ state.json
 .sisyphus/state.json
 .sisyphus/run-continuation/
 
-# Legacy Dockerfiles — all images built via Nix (flake.nix)
-Dockerfile*
+# Nix build artifacts
+result
