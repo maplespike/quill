@@ -32,8 +32,8 @@ RUN apt-get update -qq && apt-get install -y -qq python3 make g++ && \
 # Copy source code
 COPY . .
 
-# Build all packages
-RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database
+# Build packages needed for all targets
+RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database --filter=@maplespike/mcp-server --filter=@maplespike/engine
 
 # =============================================================================
 # Runtime: API Server
