@@ -3,6 +3,7 @@
 import { fetchFaoDataset, fetchFaoDomainList } from './fetcher.js';
 import { parseFaoResponse } from './parser.js';
 import { FAO_DOMAINS, KEY_DOMAINS, COMMON_COUNTRIES, FAO_API_BASE } from './constants.js';
+import { buildAttribution, withAttribution } from '../../shared/attribution.js';
 import type { FaoRecord, FaoIngestionResult } from './types.js';
 
 /**

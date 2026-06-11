@@ -1431,7 +1431,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'un-comtrade',
     description: 'UN Comtrade — international trade statistics by commodity and partner country',
-    category: 'government',
+    category: 'international',
     modulePath: './un-comtrade/index.js',
     ingestFunctions: ['ingestComtrade', 'getTradeByCommodity'],
     sources: [{ name: 'UN Comtrade API', format: 'JSON' }],
@@ -1576,7 +1576,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'oecd-stat',
     description: 'OECD Statistics — economic, social, and environmental indicators from OECD.Stat API',
-    category: 'government',
+    category: 'international',
     modulePath: './oecd-stat/index.js',
     ingestFunctions: ['fetchAllOECDData', 'fetchAllOECDData', 'searchOECDDatasets', 'healthCheck'],
     sources: [
@@ -1593,7 +1593,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'undp-hdi',
     description: 'UNDP Human Development Index — HDI rankings and component indicators from UNDP Human Development Reports',
-    category: 'government',
+    category: 'international',
     modulePath: './undp-hdi/index.js',
     ingestFunctions: ['fetchAllHDIData', 'fetchHDIByCountry'],
     sources: [{ name: 'UNDP Human Development Reports', format: 'HTML/XLSX' }],
@@ -1604,7 +1604,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'unhcr-refugees',
     description: 'UNHCR Refugee Statistics — refugee, asylum-seeker, and forcibly displaced data from UNHCR',
-    category: 'government',
+    category: 'international',
     modulePath: './unhcr-refugees/index.js',
     ingestFunctions: ['fetchRefugeeDataByCountry', 'fetchRefugeeDataMultiCountry', 'healthCheck'],
     sources: [{ name: 'UNHCR Population Data', format: 'JSON' }],
@@ -1648,7 +1648,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   {
     name: 'worldbank-wdi',
     description: 'World Bank WDI — development indicators (GDP, population, health, education, etc.)',
-    category: 'government',
+    category: 'international',
     modulePath: './worldbank-wdi/index.js',
     ingestFunctions: ['ingestWDIIndicator', 'getCountryProfile', 'compareCountries'],
     sources: [{ name: 'World Bank Open Data', format: 'JSON' }],
@@ -1775,6 +1775,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   updateFrequency: 'annual',
   testCallPattern: 'runModule',
   healthCheckUrl: 'https://www.fao.org/faostat/en/#data',
+},
+{
+  name: 'who-gho',
+  description: 'WHO Global Health Observatory — life expectancy, mortality, health expenditure, disease prevalence, and risk factor indicators from the World Health Organization',
+  category: 'international',
+  modulePath: './who-gho/index.js',
+  ingestFunctions: ['ingestGhoIndicator', 'ingestAllGho', 'searchGhoRecords', 'healthCheck'],
+  sources: [{ name: 'WHO GHO OData API', format: 'JSON' }],
+  updateFrequency: 'annual',
+  testCallPattern: 'runModule',
+  healthCheckUrl: 'https://ghoapi.azureedge.net/api/Indicator',
 },
 {
   name: 'unesco-uis',
