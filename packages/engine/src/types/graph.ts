@@ -14,7 +14,9 @@ export type NodeType =
   | "lobbying_filing"
   | "donation"
   | "disclosure"
-  | "gac_project";
+  | "gac_project"
+  | "committee"
+  | "charity";
 
 export type EdgeType =
   | "awarded_to"
@@ -26,7 +28,15 @@ export type EdgeType =
   | "related_to"
   | "communicated_with"
   | "filed_by"
-  | "implements";
+  | "implements"
+  | "member_of"
+  | "testified_before"
+  | "chairs"
+  | "funds"
+  | "board_member_of"
+  | "executive_director_of"
+  | "affiliated_with"
+  | "advisor_to";
 
 export interface Node {
   id: string;

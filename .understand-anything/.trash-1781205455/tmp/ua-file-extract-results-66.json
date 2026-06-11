@@ -1,0 +1,526 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/communities/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 9,
+      "exports": [
+        {
+          "name": "CKAN_BASE",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "ISC_PACKAGES",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/communities/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "fetchCkanPackage",
+          "startLine": 10,
+          "endLine": 20,
+          "params": [
+            "packageId"
+          ]
+        },
+        {
+          "name": "findCsvResource",
+          "startLine": 22,
+          "endLine": 28,
+          "params": [
+            "pkg"
+          ]
+        },
+        {
+          "name": "fetchIscCsv",
+          "startLine": 30,
+          "endLine": 40,
+          "params": [
+            "packageId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchIscCsv",
+          "line": 30,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCkanPackage",
+          "callee": "httpGet",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchCkanPackage",
+          "callee": "resp.json",
+          "lineNumber": 17
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "Array.isArray",
+          "lineNumber": 23
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "pkg.resources.find",
+          "lineNumber": 24
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.format?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.mimetype?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.url?.toLowerCase().endsWith",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.url?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchIscCsv",
+          "callee": "fetchCkanPackage",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchIscCsv",
+          "callee": "findCsvResource",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchIscCsv",
+          "callee": "httpGet",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/communities/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "ingestFirstNationCommunity",
+          "startLine": 12,
+          "endLine": 39,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "searchCommunitiesByProvince",
+          "startLine": 41,
+          "endLine": 48,
+          "params": [
+            "province",
+            "options"
+          ]
+        },
+        {
+          "name": "searchCommunitiesByName",
+          "startLine": 50,
+          "endLine": 57,
+          "params": [
+            "name",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestFirstNationCommunity",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "searchCommunitiesByProvince",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "searchCommunitiesByName",
+          "line": 50,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestFirstNationCommunity",
+          "callee": "Date.now",
+          "lineNumber": 15
+        },
+        {
+          "caller": "ingestFirstNationCommunity",
+          "callee": "fetchIscCsv",
+          "lineNumber": 22
+        },
+        {
+          "caller": "ingestFirstNationCommunity",
+          "callee": "parseFirstNationCommunity",
+          "lineNumber": 23
+        },
+        {
+          "caller": "ingestFirstNationCommunity",
+          "callee": "records.slice",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestFirstNationCommunity",
+          "callee": "errors.push",
+          "lineNumber": 28
+        },
+        {
+          "caller": "ingestFirstNationCommunity",
+          "callee": "Date.now",
+          "lineNumber": 36
+        },
+        {
+          "caller": "searchCommunitiesByProvince",
+          "callee": "ingestFirstNationCommunity",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchCommunitiesByProvince",
+          "callee": "province.toLowerCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "searchCommunitiesByProvince",
+          "callee": "result.records.filter",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCommunitiesByProvince",
+          "callee": "r.province.toString().toLowerCase().includes",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCommunitiesByProvince",
+          "callee": "r.province.toString().toLowerCase",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCommunitiesByProvince",
+          "callee": "r.province.toString",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCommunitiesByName",
+          "callee": "ingestFirstNationCommunity",
+          "lineNumber": 54
+        },
+        {
+          "caller": "searchCommunitiesByName",
+          "callee": "name.toLowerCase",
+          "lineNumber": 55
+        },
+        {
+          "caller": "searchCommunitiesByName",
+          "callee": "result.records.filter",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCommunitiesByName",
+          "callee": "r.name.toString().toLowerCase().includes",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCommunitiesByName",
+          "callee": "r.name.toString().toLowerCase",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCommunitiesByName",
+          "callee": "r.name.toString",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/communities/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "parseFirstNationCommunity",
+          "startLine": 10,
+          "endLine": 35,
+          "params": [
+            "csv"
+          ]
+        },
+        {
+          "name": "parseCSVLine",
+          "startLine": 37,
+          "endLine": 46,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "mapField",
+          "startLine": 48,
+          "endLine": 51,
+          "params": [
+            "values",
+            "headers",
+            "name"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 53,
+          "endLine": 58,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseFirstNationCommunity",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "csv.trim().split",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "csv.trim",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "lines[0].split(',').map",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "lines[0].split",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "h.trim().replace",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "h.trim",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "parseCSVLine",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "computeHash",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "parseNumeric",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 28
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "mapField",
+          "lineNumber": 28
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "new Date().toISOString",
+          "lineNumber": 29
+        },
+        {
+          "caller": "parseFirstNationCommunity",
+          "callee": "records.push",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "result.push",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim().replace",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "result.push",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim().replace",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim",
+          "lineNumber": 45
+        },
+        {
+          "caller": "mapField",
+          "callee": "headers.indexOf",
+          "lineNumber": 49
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "value.trim().replace",
+          "lineNumber": 55
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "value.trim",
+          "lineNumber": 55
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "Number",
+          "lineNumber": 56
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/communities/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 33,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

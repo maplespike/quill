@@ -1,0 +1,517 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/qc-immigration/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 166,
+      "nonEmptyLines": 143,
+      "classes": [
+        {
+          "name": "QCImmigrationError",
+          "startLine": 155,
+          "endLine": 166,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "QC_IMMIGRATION_SOURCES",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "QC_IMMIGRATION_STREAM_CONFIG",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_QC_IMMIGRATION_STREAMS",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "QC_IMMIGRATION_DDL",
+          "line": 96,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 142,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 146,
+          "isDefault": false
+        },
+        {
+          "name": "QCImmigrationError",
+          "line": 155,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 163
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/qc-immigration/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "fetchQcImmigrationRecords",
+          "startLine": 6,
+          "endLine": 38,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchQcImmigrationRecords",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "httpGet",
+          "lineNumber": 13
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "errors.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "JSON.parse",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "records.push",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchQcImmigrationRecords",
+          "callee": "errors.push",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/qc-immigration/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "initializeQcImmigrationTable",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertQcImmigrationRecord",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "searchQcImmigrationRecords",
+          "startLine": 39,
+          "endLine": 56,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestQcImmigrationData",
+          "startLine": 58,
+          "endLine": 97,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchQcImmigrationRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcImmigrationRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcImmigrationBatch",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "QC_IMMIGRATION_DDL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "QCImmigrationError",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "QcImmigrationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "QcImmigrationIngestionOptions",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "QcImmigrationIngestionResult",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RawQcImmigrationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "initializeQcImmigrationTable",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "searchQcImmigrationRecords",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "ingestQcImmigrationData",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeQcImmigrationTable",
+          "callee": "db.exec",
+          "lineNumber": 27
+        },
+        {
+          "caller": "upsertQcImmigrationRecord",
+          "callee": "fields.map(() => '?').join",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertQcImmigrationRecord",
+          "callee": "fields.map",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertQcImmigrationRecord",
+          "callee": "db.prepare('INSERT OR IGNORE INTO qc_immigration_records (' + fields.join(', ') + ') VALUES (' + placeholders + ')').bind",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertQcImmigrationRecord",
+          "callee": "db.prepare",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertQcImmigrationRecord",
+          "callee": "fields.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertQcImmigrationRecord",
+          "callee": "stmt.run",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "likeCols.map(c => c + ' LIKE ?').join",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "likeCols.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "params.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "params.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "db.prepare",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchQcImmigrationRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "Date.now",
+          "lineNumber": 59
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "log",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "initializeQcImmigrationTable",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "log",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "fetchQcImmigrationRecords",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "result.errors.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "log",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "parseQcImmigrationBatch",
+          "lineNumber": 76
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "upsertQcImmigrationRecord",
+          "lineNumber": 82
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "result.errors.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "log",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "Date.now",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestQcImmigrationData",
+          "callee": "log",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 13,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/qc-immigration/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 41,
+      "functions": [
+        {
+          "name": "parseQcImmigrationRecord",
+          "startLine": 6,
+          "endLine": 39,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseQcImmigrationBatch",
+          "startLine": 41,
+          "endLine": 48,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseQcImmigrationRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseQcImmigrationBatch",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseQcImmigrationRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseQcImmigrationRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseQcImmigrationRecord",
+          "callee": "computeHash",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseQcImmigrationBatch",
+          "callee": "parseQcImmigrationRecord",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseQcImmigrationBatch",
+          "callee": "results.push",
+          "lineNumber": 45
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/qc-immigration/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 44,
+      "nonEmptyLines": 39,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,506 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/citizenship/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 9,
+      "exports": [
+        {
+          "name": "CKAN_BASE",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "IRCC_PACKAGES",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/citizenship/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "fetchCkanPackage",
+          "startLine": 10,
+          "endLine": 20,
+          "params": [
+            "packageId"
+          ]
+        },
+        {
+          "name": "findCsvResource",
+          "startLine": 22,
+          "endLine": 28,
+          "params": [
+            "pkg"
+          ]
+        },
+        {
+          "name": "fetchIrccCsv",
+          "startLine": 30,
+          "endLine": 40,
+          "params": [
+            "packageId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchIrccCsv",
+          "line": 30,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCkanPackage",
+          "callee": "httpGet",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchCkanPackage",
+          "callee": "resp.json",
+          "lineNumber": 17
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "Array.isArray",
+          "lineNumber": 23
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "pkg.resources.find",
+          "lineNumber": 24
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.format?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.mimetype?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.url?.toLowerCase().endsWith",
+          "lineNumber": 25
+        },
+        {
+          "caller": "findCsvResource",
+          "callee": "r.url?.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "fetchCkanPackage",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "findCsvResource",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "httpGet",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/citizenship/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "ingestCitizenshipGrant",
+          "startLine": 12,
+          "endLine": 39,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "searchCitizenshipByProvince",
+          "startLine": 41,
+          "endLine": 48,
+          "params": [
+            "province",
+            "options"
+          ]
+        },
+        {
+          "name": "searchCitizenshipByYear",
+          "startLine": 50,
+          "endLine": 57,
+          "params": [
+            "year",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestCitizenshipGrant",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "searchCitizenshipByProvince",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "searchCitizenshipByYear",
+          "line": 50,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestCitizenshipGrant",
+          "callee": "Date.now",
+          "lineNumber": 15
+        },
+        {
+          "caller": "ingestCitizenshipGrant",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 22
+        },
+        {
+          "caller": "ingestCitizenshipGrant",
+          "callee": "parseCitizenshipGrant",
+          "lineNumber": 23
+        },
+        {
+          "caller": "ingestCitizenshipGrant",
+          "callee": "records.slice",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestCitizenshipGrant",
+          "callee": "errors.push",
+          "lineNumber": 28
+        },
+        {
+          "caller": "ingestCitizenshipGrant",
+          "callee": "Date.now",
+          "lineNumber": 36
+        },
+        {
+          "caller": "searchCitizenshipByProvince",
+          "callee": "ingestCitizenshipGrant",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchCitizenshipByProvince",
+          "callee": "province.toLowerCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "searchCitizenshipByProvince",
+          "callee": "result.records.filter",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCitizenshipByProvince",
+          "callee": "r.province.toString().toLowerCase().includes",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCitizenshipByProvince",
+          "callee": "r.province.toString().toLowerCase",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCitizenshipByProvince",
+          "callee": "r.province.toString",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchCitizenshipByYear",
+          "callee": "ingestCitizenshipGrant",
+          "lineNumber": 54
+        },
+        {
+          "caller": "searchCitizenshipByYear",
+          "callee": "year.toLowerCase",
+          "lineNumber": 55
+        },
+        {
+          "caller": "searchCitizenshipByYear",
+          "callee": "result.records.filter",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCitizenshipByYear",
+          "callee": "r.year.toString().toLowerCase().includes",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCitizenshipByYear",
+          "callee": "r.year.toString().toLowerCase",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCitizenshipByYear",
+          "callee": "r.year.toString",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/citizenship/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 56,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "parseCitizenshipGrant",
+          "startLine": 10,
+          "endLine": 33,
+          "params": [
+            "csv"
+          ]
+        },
+        {
+          "name": "parseCSVLine",
+          "startLine": 35,
+          "endLine": 44,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "mapField",
+          "startLine": 46,
+          "endLine": 49,
+          "params": [
+            "values",
+            "headers",
+            "name"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 51,
+          "endLine": 56,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseCitizenshipGrant",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "csv.trim().split",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "csv.trim",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "lines[0].split(',').map",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "lines[0].split",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "h.trim().replace",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "h.trim",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "parseCSVLine",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "computeHash",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "parseNumeric",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "mapField",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "new Date().toISOString",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseCitizenshipGrant",
+          "callee": "records.push",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "result.push",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim().replace",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "result.push",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim().replace",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseCSVLine",
+          "callee": "current.trim",
+          "lineNumber": 43
+        },
+        {
+          "caller": "mapField",
+          "callee": "headers.indexOf",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "value.trim().replace",
+          "lineNumber": 53
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "value.trim",
+          "lineNumber": 53
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "Number",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 55
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/citizenship/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 29,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

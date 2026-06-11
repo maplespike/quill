@@ -1,0 +1,173 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "k8s/cron.nix",
+      "language": "nix",
+      "fileCategory": "infra",
+      "totalLines": 159,
+      "nonEmptyLines": 153,
+      "metrics": {}
+    },
+    {
+      "path": "k8s/default.nix",
+      "language": "nix",
+      "fileCategory": "infra",
+      "totalLines": 16,
+      "nonEmptyLines": 16,
+      "metrics": {}
+    },
+    {
+      "path": "k8s/dev.nix",
+      "language": "nix",
+      "fileCategory": "infra",
+      "totalLines": 493,
+      "nonEmptyLines": 477,
+      "metrics": {}
+    },
+    {
+      "path": "k8s/grafana-dashboard.json",
+      "language": "json",
+      "fileCategory": "infra",
+      "totalLines": 139,
+      "nonEmptyLines": 139,
+      "sections": [
+        {
+          "heading": "__inputs",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "__requires",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "annotations",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "editable",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "fiscalYearStartMonth",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "graphTooltip",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "id",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "links",
+          "level": 1,
+          "line": 9
+        },
+        {
+          "heading": "liveNow",
+          "level": 1,
+          "line": 10
+        },
+        {
+          "heading": "panels",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "refresh",
+          "level": 1,
+          "line": 127
+        },
+        {
+          "heading": "schemaVersion",
+          "level": 1,
+          "line": 128
+        },
+        {
+          "heading": "style",
+          "level": 1,
+          "line": 129
+        },
+        {
+          "heading": "tags",
+          "level": 1,
+          "line": 130
+        },
+        {
+          "heading": "templating",
+          "level": 1,
+          "line": 131
+        },
+        {
+          "heading": "time",
+          "level": 1,
+          "line": 132
+        },
+        {
+          "heading": "timepicker",
+          "level": 1,
+          "line": 133
+        },
+        {
+          "heading": "timezone",
+          "level": 1,
+          "line": 134
+        },
+        {
+          "heading": "title",
+          "level": 1,
+          "line": 17
+        },
+        {
+          "heading": "uid",
+          "level": 1,
+          "line": 21
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 137
+        },
+        {
+          "heading": "weekStart",
+          "level": 1,
+          "line": 138
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 22
+      }
+    },
+    {
+      "path": "k8s/infra.nix",
+      "language": "nix",
+      "fileCategory": "infra",
+      "totalLines": 523,
+      "nonEmptyLines": 499,
+      "metrics": {}
+    },
+    {
+      "path": "k8s/prod.nix",
+      "language": "nix",
+      "fileCategory": "infra",
+      "totalLines": 551,
+      "nonEmptyLines": 532,
+      "metrics": {}
+    }
+  ]
+}

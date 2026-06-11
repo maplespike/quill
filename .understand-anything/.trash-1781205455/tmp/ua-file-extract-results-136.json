@@ -1,0 +1,55 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/portal/docs/api/ai-ask.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 483,
+      "nonEmptyLines": 475,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/docs/api/endpoints.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 693,
+      "nonEmptyLines": 686,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/docs/api/gov-search.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 405,
+      "nonEmptyLines": 396,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/docs/api/health.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 408,
+      "nonEmptyLines": 401,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/docs/api/mock.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 397,
+      "nonEmptyLines": 388,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/docs/api/usage.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 431,
+      "nonEmptyLines": 424,
+      "metrics": {}
+    }
+  ]
+}

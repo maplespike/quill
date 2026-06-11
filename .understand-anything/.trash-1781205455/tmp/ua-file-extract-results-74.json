@@ -1,0 +1,435 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/library/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 123,
+      "nonEmptyLines": 119,
+      "exports": [
+        {
+          "name": "LIBRARY_PORTALS",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "LIBRARY_TIMEOUT_MS",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "LIBRARY_USER_AGENT",
+          "line": 123,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/library/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 56,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "fetchLibraryData",
+          "startLine": 14,
+          "endLine": 43,
+          "params": [
+            "cityId"
+          ]
+        },
+        {
+          "name": "fetchAllLibraries",
+          "startLine": 45,
+          "endLine": 51,
+          "params": []
+        },
+        {
+          "name": "detectLibraryPortalType",
+          "startLine": 53,
+          "endLine": 56,
+          "params": [
+            "portalType"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchLibraryData",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllLibraries",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "detectLibraryPortalType",
+          "line": 53,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchLibraryData",
+          "callee": "httpGet",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchLibraryData",
+          "callee": "JSON.parse",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchLibraryData",
+          "callee": "String",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchAllLibraries",
+          "callee": "Object.keys",
+          "lineNumber": 47
+        },
+        {
+          "caller": "fetchAllLibraries",
+          "callee": "results.push",
+          "lineNumber": 48
+        },
+        {
+          "caller": "fetchAllLibraries",
+          "callee": "fetchLibraryData",
+          "lineNumber": 48
+        },
+        {
+          "caller": "detectLibraryPortalType",
+          "callee": "valid.includes",
+          "lineNumber": 55
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/library/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 68,
+      "nonEmptyLines": 62,
+      "functions": [
+        {
+          "name": "ingestLibrary",
+          "startLine": 8,
+          "endLine": 34,
+          "params": [
+            "cityId"
+          ]
+        },
+        {
+          "name": "ingestAllLibraries",
+          "startLine": 36,
+          "endLine": 42,
+          "params": []
+        },
+        {
+          "name": "searchLibraries",
+          "startLine": 44,
+          "endLine": 64,
+          "params": [
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestLibrary",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllLibraries",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "searchLibraries",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "LIBRARY_PORTALS",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLibraryData",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllLibraries",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "LibraryRecord",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "LibraryIngestionResult",
+          "line": 68,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestLibrary",
+          "callee": "Date.now",
+          "lineNumber": 9
+        },
+        {
+          "caller": "ingestLibrary",
+          "callee": "fetchLibraryData",
+          "lineNumber": 13
+        },
+        {
+          "caller": "ingestLibrary",
+          "callee": "Date.now",
+          "lineNumber": 18
+        },
+        {
+          "caller": "ingestLibrary",
+          "callee": "parseLibraryData",
+          "lineNumber": 21
+        },
+        {
+          "caller": "ingestLibrary",
+          "callee": "Date.now",
+          "lineNumber": 25
+        },
+        {
+          "caller": "ingestLibrary",
+          "callee": "String",
+          "lineNumber": 31
+        },
+        {
+          "caller": "ingestLibrary",
+          "callee": "Date.now",
+          "lineNumber": 31
+        },
+        {
+          "caller": "ingestAllLibraries",
+          "callee": "Object.keys",
+          "lineNumber": 38
+        },
+        {
+          "caller": "ingestAllLibraries",
+          "callee": "results.push",
+          "lineNumber": 39
+        },
+        {
+          "caller": "ingestAllLibraries",
+          "callee": "ingestLibrary",
+          "lineNumber": 39
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "Object.entries",
+          "lineNumber": 46
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "records.push",
+          "lineNumber": 49
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "params.query.toLowerCase",
+          "lineNumber": 60
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "records.filter",
+          "lineNumber": 61
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "r.library.toLowerCase().includes",
+          "lineNumber": 61
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "r.library.toLowerCase",
+          "lineNumber": 61
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "r.city.toLowerCase().includes",
+          "lineNumber": 61
+        },
+        {
+          "caller": "searchLibraries",
+          "callee": "r.city.toLowerCase",
+          "lineNumber": 61
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 8,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/library/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 53,
+      "functions": [
+        {
+          "name": "parseCkanLibraryResponse",
+          "startLine": 5,
+          "endLine": 23,
+          "params": [
+            "raw",
+            "city",
+            "library",
+            "province"
+          ]
+        },
+        {
+          "name": "parseSocrataLibraryResponse",
+          "startLine": 25,
+          "endLine": 43,
+          "params": [
+            "raw",
+            "city",
+            "library",
+            "province"
+          ]
+        },
+        {
+          "name": "parseLibraryData",
+          "startLine": 45,
+          "endLine": 59,
+          "params": [
+            "raw",
+            "city",
+            "library",
+            "province",
+            "portalType"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseCkanLibraryResponse",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseSocrataLibraryResponse",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "parseLibraryData",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCkanLibraryResponse",
+          "callee": "Array.isArray",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseCkanLibraryResponse",
+          "callee": "pkg.resources.map",
+          "lineNumber": 9
+        },
+        {
+          "caller": "parseSocrataLibraryResponse",
+          "callee": "Array.isArray",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseSocrataLibraryResponse",
+          "callee": "rows.map",
+          "lineNumber": 29
+        },
+        {
+          "caller": "parseSocrataLibraryResponse",
+          "callee": "Array.isArray",
+          "lineNumber": 38
+        },
+        {
+          "caller": "parseSocrataLibraryResponse",
+          "callee": "parseFloat",
+          "lineNumber": 39
+        },
+        {
+          "caller": "parseSocrataLibraryResponse",
+          "callee": "parseFloat",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseLibraryData",
+          "callee": "parseCkanLibraryResponse",
+          "lineNumber": 46
+        },
+        {
+          "caller": "parseLibraryData",
+          "callee": "parseSocrataLibraryResponse",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseLibraryData",
+          "callee": "Array.isArray",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseLibraryData",
+          "callee": "features.map",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/library/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 23,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

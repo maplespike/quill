@@ -1,0 +1,497 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-immigration/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 37,
+      "classes": [
+        {
+          "name": "BcImmigrationError",
+          "startLine": 37,
+          "endLine": 42,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "BCIMMIGRATION_DDL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "BcImmigrationError",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-immigration/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "fetchBcImmigrationRecords",
+          "startLine": 6,
+          "endLine": 38,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchBcImmigrationRecords",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "httpGet",
+          "lineNumber": 13
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "errors.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "JSON.parse",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "records.push",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchBcImmigrationRecords",
+          "callee": "errors.push",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-immigration/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "initializeBcImmigrationTable",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertBcImmigrationRecord",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "searchBcImmigrationRecords",
+          "startLine": 39,
+          "endLine": 56,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestBcImmigrationData",
+          "startLine": 58,
+          "endLine": 97,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchBcImmigrationRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcImmigrationRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcImmigrationBatch",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "BCIMMIGRATION_DDL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "BcImmigrationError",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "BcImmigrationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "BcImmigrationIngestionOptions",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "BcImmigrationIngestionResult",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RawBcImmigrationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "initializeBcImmigrationTable",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "searchBcImmigrationRecords",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "ingestBcImmigrationData",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeBcImmigrationTable",
+          "callee": "db.exec",
+          "lineNumber": 27
+        },
+        {
+          "caller": "upsertBcImmigrationRecord",
+          "callee": "fields.map(() => '?').join",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertBcImmigrationRecord",
+          "callee": "fields.map",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertBcImmigrationRecord",
+          "callee": "db.prepare('INSERT OR IGNORE INTO bc_immigration_records (' + fields.join(', ') + ') VALUES (' + placeholders + ')').bind",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertBcImmigrationRecord",
+          "callee": "db.prepare",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertBcImmigrationRecord",
+          "callee": "fields.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertBcImmigrationRecord",
+          "callee": "stmt.run",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "likeCols.map(c => c + ' LIKE ?').join",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "likeCols.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "params.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "params.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "db.prepare",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchBcImmigrationRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "Date.now",
+          "lineNumber": 59
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "log",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "initializeBcImmigrationTable",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "log",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "fetchBcImmigrationRecords",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "result.errors.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "log",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "parseBcImmigrationBatch",
+          "lineNumber": 76
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "upsertBcImmigrationRecord",
+          "lineNumber": 82
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "result.errors.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "log",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "Date.now",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestBcImmigrationData",
+          "callee": "log",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 13,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-immigration/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 41,
+      "functions": [
+        {
+          "name": "parseBcImmigrationRecord",
+          "startLine": 6,
+          "endLine": 39,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseBcImmigrationBatch",
+          "startLine": 41,
+          "endLine": 48,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseBcImmigrationRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcImmigrationBatch",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseBcImmigrationRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseBcImmigrationRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseBcImmigrationRecord",
+          "callee": "computeHash",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseBcImmigrationBatch",
+          "callee": "parseBcImmigrationRecord",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseBcImmigrationBatch",
+          "callee": "results.push",
+          "lineNumber": 45
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-immigration/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 38,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

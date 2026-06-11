@@ -1,0 +1,600 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/media-broadcasting/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 55,
+      "exports": [
+        {
+          "name": "MEDIA_SOURCES",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "MEDIA_FETCH_TIMEOUT_MS",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "MEDIA_USER_AGENT",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_MEDIA_RECORDS",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/media-broadcasting/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "fetchText",
+          "startLine": 6,
+          "endLine": 11,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchAndParseCrtcReports",
+          "startLine": 13,
+          "endLine": 17,
+          "params": []
+        },
+        {
+          "name": "fetchAndParseCrtcOwnership",
+          "startLine": 19,
+          "endLine": 23,
+          "params": []
+        },
+        {
+          "name": "fetchAndParseCmfData",
+          "startLine": 25,
+          "endLine": 29,
+          "params": []
+        },
+        {
+          "name": "fetchAndParseTelefilm",
+          "startLine": 31,
+          "endLine": 35,
+          "params": []
+        },
+        {
+          "name": "fetchAllMedia",
+          "startLine": 37,
+          "endLine": 60,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAllMedia",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchText",
+          "callee": "httpGet",
+          "lineNumber": 8
+        },
+        {
+          "caller": "fetchAndParseCrtcReports",
+          "callee": "fetchText",
+          "lineNumber": 14
+        },
+        {
+          "caller": "fetchAndParseCrtcReports",
+          "callee": "parseCrtcReports",
+          "lineNumber": 16
+        },
+        {
+          "caller": "fetchAndParseCrtcOwnership",
+          "callee": "fetchText",
+          "lineNumber": 20
+        },
+        {
+          "caller": "fetchAndParseCrtcOwnership",
+          "callee": "parseCrtcOwnership",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchAndParseCmfData",
+          "callee": "fetchText",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchAndParseCmfData",
+          "callee": "parseCmfData",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchAndParseTelefilm",
+          "callee": "fetchText",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchAndParseTelefilm",
+          "callee": "parseTelefilm",
+          "lineNumber": 34
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "Date.now",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "Promise.allSettled",
+          "lineNumber": 42
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseCrtcReports().then",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseCrtcReports",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseCrtcOwnership().then",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseCrtcOwnership",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseCmfData().then",
+          "lineNumber": 45
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseCmfData",
+          "lineNumber": 45
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseTelefilm().then",
+          "lineNumber": 46
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "fetchAndParseTelefilm",
+          "lineNumber": 46
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "allRecords.push",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "errors.push",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchAllMedia",
+          "callee": "Date.now",
+          "lineNumber": 59
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/media-broadcasting/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 10,
+      "functions": [
+        {
+          "name": "ingestAllMedia",
+          "startLine": 6,
+          "endLine": 8,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllMedia",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "MEDIA_SOURCES",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "toMediaRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseCrtcReports",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseCrtcOwnership",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseCmfData",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseTelefilm",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "MediaRecord",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "MediaIngestionResult",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestAllMedia",
+          "callee": "fetchAllMedia",
+          "lineNumber": 7
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 9,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/media-broadcasting/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 124,
+      "nonEmptyLines": 105,
+      "functions": [
+        {
+          "name": "toMediaRecord",
+          "startLine": 6,
+          "endLine": 33,
+          "params": [
+            "source",
+            "title",
+            "url",
+            "year",
+            "description",
+            "additionalData"
+          ]
+        },
+        {
+          "name": "parseCrtcReports",
+          "startLine": 35,
+          "endLine": 56,
+          "params": [
+            "html",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseCrtcOwnership",
+          "startLine": 58,
+          "endLine": 78,
+          "params": [
+            "html",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseCmfData",
+          "startLine": 80,
+          "endLine": 101,
+          "params": [
+            "html",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseTelefilm",
+          "startLine": 103,
+          "endLine": 124,
+          "params": [
+            "html",
+            "maxRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "toMediaRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseCrtcReports",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "parseCrtcOwnership",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "parseCmfData",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "parseTelefilm",
+          "line": 103,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toMediaRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 18
+        },
+        {
+          "caller": "toMediaRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "toMediaRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "lp.exec",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "m[2].replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "m[2].replace",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "/(communication|broadcasting|telecom|media|internet|wireless|revenue|audience)/i.test",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "t.match",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "records.push",
+          "lineNumber": 46
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "toMediaRecord",
+          "lineNumber": 46
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "m[1].startsWith",
+          "lineNumber": 49
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "parseInt",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseCrtcReports",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "lp.exec",
+          "lineNumber": 63
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "m[2].replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 64
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "m[2].replace",
+          "lineNumber": 64
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "/(ownership|group|radio|tv|cable|satellite|broadcaster|publisher)/i.test",
+          "lineNumber": 65
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "records.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "toMediaRecord",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "m[1].startsWith",
+          "lineNumber": 71
+        },
+        {
+          "caller": "parseCrtcOwnership",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 72
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "lp.exec",
+          "lineNumber": 85
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "m[2].replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 86
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "m[2].replace",
+          "lineNumber": 86
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "/(csv|data|investment|production|funding|report)/i.test",
+          "lineNumber": 87
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "t.match",
+          "lineNumber": 90
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "records.push",
+          "lineNumber": 91
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "toMediaRecord",
+          "lineNumber": 91
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "m[1].startsWith",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "parseInt",
+          "lineNumber": 95
+        },
+        {
+          "caller": "parseCmfData",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 95
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "lp.exec",
+          "lineNumber": 108
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "m[2].replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "m[2].replace",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "/(report|study|funding|production|data)/i.test",
+          "lineNumber": 110
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "t.match",
+          "lineNumber": 113
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "records.push",
+          "lineNumber": 114
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "toMediaRecord",
+          "lineNumber": 114
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "m[1].startsWith",
+          "lineNumber": 117
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "parseInt",
+          "lineNumber": 118
+        },
+        {
+          "caller": "parseTelefilm",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 118
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/media-broadcasting/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 26,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

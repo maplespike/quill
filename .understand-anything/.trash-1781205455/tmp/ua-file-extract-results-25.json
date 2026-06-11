@@ -1,0 +1,2613 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 18,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/cli/ingest.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 160,
+      "nonEmptyLines": 144,
+      "functions": [
+        {
+          "name": "main",
+          "startLine": 88,
+          "endLine": 155,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "main",
+          "callee": "process.env.MAPLESPIKE_PIPELINE?.trim().toLowerCase",
+          "lineNumber": 89
+        },
+        {
+          "caller": "main",
+          "callee": "process.env.MAPLESPIKE_PIPELINE?.trim",
+          "lineNumber": 89
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 92
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 93
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 94
+        },
+        {
+          "caller": "main",
+          "callee": "Object.entries(PIPELINE_CONFIG).sort",
+          "lineNumber": 95
+        },
+        {
+          "caller": "main",
+          "callee": "Object.entries",
+          "lineNumber": 95
+        },
+        {
+          "caller": "main",
+          "callee": "getModule",
+          "lineNumber": 96
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 97
+        },
+        {
+          "caller": "main",
+          "callee": "alias.padEnd",
+          "lineNumber": 97
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 99
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 100
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 104
+        },
+        {
+          "caller": "main",
+          "callee": "runAllModules",
+          "lineNumber": 105
+        },
+        {
+          "caller": "main",
+          "callee": "Object.entries",
+          "lineNumber": 107
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 109
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify(result).substring",
+          "lineNumber": 109
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify",
+          "lineNumber": 109
+        },
+        {
+          "caller": "main",
+          "callee": "runEntityResolution",
+          "lineNumber": 114
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 116
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 120
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 121
+        },
+        {
+          "caller": "main",
+          "callee": "console.error",
+          "lineNumber": 126
+        },
+        {
+          "caller": "main",
+          "callee": "console.error",
+          "lineNumber": 127
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 128
+        },
+        {
+          "caller": "main",
+          "callee": "getModule",
+          "lineNumber": 131
+        },
+        {
+          "caller": "main",
+          "callee": "console.error",
+          "lineNumber": 133
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 134
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 137
+        },
+        {
+          "caller": "main",
+          "callee": "runModule",
+          "lineNumber": 139
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 140
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify(result).substring",
+          "lineNumber": 140
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify",
+          "lineNumber": 140
+        },
+        {
+          "caller": "main",
+          "callee": "runEntityResolution",
+          "lineNumber": 144
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 146
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 150
+        },
+        {
+          "caller": "main",
+          "callee": "console.error",
+          "lineNumber": 152
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 153
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/db/database.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 24,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/entity/__tests__/extractor.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 116,
+      "nonEmptyLines": 104,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/entity/extractor.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 72,
+      "nonEmptyLines": 62,
+      "functions": [
+        {
+          "name": "extractEntities",
+          "startLine": 42,
+          "endLine": 68,
+          "params": [
+            "config"
+          ]
+        },
+        {
+          "name": "generateEntityId",
+          "startLine": 70,
+          "endLine": 72,
+          "params": [
+            "normalized",
+            "type"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "extractEntities",
+          "line": 42,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "extractEntities",
+          "callee": "value.trim",
+          "lineNumber": 47
+        },
+        {
+          "caller": "extractEntities",
+          "callee": "rule.normalize",
+          "lineNumber": 49
+        },
+        {
+          "caller": "extractEntities",
+          "callee": "rule.confidence",
+          "lineNumber": 50
+        },
+        {
+          "caller": "extractEntities",
+          "callee": "generateEntityId",
+          "lineNumber": 51
+        },
+        {
+          "caller": "extractEntities",
+          "callee": "mentions.push",
+          "lineNumber": 53
+        },
+        {
+          "caller": "extractEntities",
+          "callee": "value.trim",
+          "lineNumber": 56
+        },
+        {
+          "caller": "generateEntityId",
+          "callee": "crypto.createHash('sha256').update(`${normalized}:${type}`).digest('hex').substring",
+          "lineNumber": 71
+        },
+        {
+          "caller": "generateEntityId",
+          "callee": "crypto.createHash('sha256').update(`${normalized}:${type}`).digest",
+          "lineNumber": 71
+        },
+        {
+          "caller": "generateEntityId",
+          "callee": "crypto.createHash('sha256').update",
+          "lineNumber": 71
+        },
+        {
+          "caller": "generateEntityId",
+          "callee": "crypto.createHash",
+          "lineNumber": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/entity/ingestion.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 141,
+      "nonEmptyLines": 130,
+      "functions": [
+        {
+          "name": "ingestEntityMentions",
+          "startLine": 22,
+          "endLine": 77,
+          "params": [
+            "db",
+            "module",
+            "records"
+          ]
+        },
+        {
+          "name": "getExtractionConfig",
+          "startLine": 79,
+          "endLine": 139,
+          "params": [
+            "module",
+            "recordId",
+            "data"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestEntityMentions",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "getExtractionConfig",
+          "line": 141,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "Date.now",
+          "lineNumber": 27
+        },
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "String",
+          "lineNumber": 34
+        },
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "getExtractionConfig",
+          "lineNumber": 37
+        },
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "extractEntities",
+          "lineNumber": 38
+        },
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "db.run",
+          "lineNumber": 41
+        },
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "errors.push",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ingestEntityMentions",
+          "callee": "Date.now",
+          "lineNumber": 75
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 89
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 90
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 90
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 91
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 91
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 92
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 92
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 96
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 97
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 97
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 98
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 98
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 99
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 99
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 103
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 104
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 104
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 105
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 105
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 106
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 106
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 110
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 111
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 111
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 112
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 112
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 113
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 113
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 120
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 120
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "Object.entries",
+          "lineNumber": 125
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "val.trim",
+          "lineNumber": 126
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "key.endsWith",
+          "lineNumber": 127
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "key.includes",
+          "lineNumber": 127
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 128
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 128
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 128
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "key.endsWith",
+          "lineNumber": 129
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "key.includes",
+          "lineNumber": 129
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 130
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 130
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 130
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "key.endsWith",
+          "lineNumber": 131
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "key.includes",
+          "lineNumber": 131
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "rules.push",
+          "lineNumber": 132
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase().trim",
+          "lineNumber": 132
+        },
+        {
+          "caller": "getExtractionConfig",
+          "callee": "v.toLowerCase",
+          "lineNumber": 132
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/entity/integration.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 102,
+      "nonEmptyLines": 90,
+      "functions": [
+        {
+          "name": "runEntityResolution",
+          "startLine": 35,
+          "endLine": 53,
+          "params": [
+            "db",
+            "moduleName",
+            "records",
+            "config"
+          ]
+        },
+        {
+          "name": "buildEntityGraph",
+          "startLine": 55,
+          "endLine": 89,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "getEntityStats",
+          "startLine": 91,
+          "endLine": 102,
+          "params": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "runEntityResolution",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "buildEntityGraph",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "getEntityStats",
+          "line": 91,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "runEntityResolution",
+          "callee": "fullConfig.modules.includes",
+          "lineNumber": 47
+        },
+        {
+          "caller": "runEntityResolution",
+          "callee": "service.ingestModuleRecords",
+          "lineNumber": 52
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "service.buildEntityGraph",
+          "lineNumber": 64
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "Array.from(graph.entities.entries()).map",
+          "lineNumber": 67
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "Array.from",
+          "lineNumber": 67
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "graph.entities.entries",
+          "lineNumber": 67
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "graph.relationships.map",
+          "lineNumber": 73
+        },
+        {
+          "caller": "getEntityStats",
+          "callee": "service.getStatistics",
+          "lineNumber": 101
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/entity/normalize.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeName",
+          "startLine": 12,
+          "endLine": 19,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "generateCanonicalId",
+          "startLine": 21,
+          "endLine": 24,
+          "params": [
+            "name",
+            "type"
+          ]
+        },
+        {
+          "name": "createEntityMention",
+          "startLine": 26,
+          "endLine": 42,
+          "params": [
+            "input"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeName",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "generateCanonicalId",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "createEntityMention",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeName",
+          "callee": "name\n    .trim()\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeName",
+          "callee": "name\n    .trim()\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeName",
+          "callee": "name\n    .trim()\n    .toLowerCase()\n    .replace",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeName",
+          "callee": "name\n    .trim()\n    .toLowerCase",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeName",
+          "callee": "name\n    .trim",
+          "lineNumber": 13
+        },
+        {
+          "caller": "generateCanonicalId",
+          "callee": "normalizeName",
+          "lineNumber": 22
+        },
+        {
+          "caller": "generateCanonicalId",
+          "callee": "normalized.replace",
+          "lineNumber": 23
+        },
+        {
+          "caller": "createEntityMention",
+          "callee": "normalizeName",
+          "lineNumber": 27
+        },
+        {
+          "caller": "createEntityMention",
+          "callee": "generateCanonicalId",
+          "lineNumber": 28
+        },
+        {
+          "caller": "createEntityMention",
+          "callee": "JSON.stringify",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/entity/service.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 329,
+      "nonEmptyLines": 289,
+      "classes": [
+        {
+          "name": "EntityResolutionService",
+          "startLine": 54,
+          "endLine": 329,
+          "methods": [
+            "constructor",
+            "resolveEntity",
+            "getRelatedEntities",
+            "buildEntityGraph",
+            "ingestModuleRecords",
+            "getStatistics",
+            "deriveRelationshipType"
+          ],
+          "properties": [
+            "db",
+            "config"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "EntityResolutionService",
+          "line": 54,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "resolveEntity",
+          "callee": "normalizeName",
+          "lineNumber": 64
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "this.db.prepare",
+          "lineNumber": 67
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "options.entityTypes.map(() => '?').join",
+          "lineNumber": 72
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "options.entityTypes.map",
+          "lineNumber": 72
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "stmt.all",
+          "lineNumber": 85
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "rows.map",
+          "lineNumber": 86
+        },
+        {
+          "caller": "getRelatedEntities",
+          "callee": "this.db.prepare",
+          "lineNumber": 99
+        },
+        {
+          "caller": "getRelatedEntities",
+          "callee": "stmt.all",
+          "lineNumber": 111
+        },
+        {
+          "caller": "getRelatedEntities",
+          "callee": "byModule.has",
+          "lineNumber": 116
+        },
+        {
+          "caller": "getRelatedEntities",
+          "callee": "byModule.set",
+          "lineNumber": 116
+        },
+        {
+          "caller": "getRelatedEntities",
+          "callee": "byModule.get(mod)!.push",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getRelatedEntities",
+          "callee": "byModule.get",
+          "lineNumber": 117
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "this.db.prepare",
+          "lineNumber": 136
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "options.entityTypes.map(() => '?').join",
+          "lineNumber": 142
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "options.entityTypes.map",
+          "lineNumber": 142
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "entityStmt.all",
+          "lineNumber": 149
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "modulesSet.add",
+          "lineNumber": 153
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "modules.push",
+          "lineNumber": 155
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "entities.set",
+          "lineNumber": 159
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "this.db.prepare",
+          "lineNumber": 171
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "relStmt.all",
+          "lineNumber": 186
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "relationRows.map",
+          "lineNumber": 187
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "this.deriveRelationshipType",
+          "lineNumber": 192
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "this.db.prepare('SELECT COUNT(*) as count FROM entity_mentions').get",
+          "lineNumber": 198
+        },
+        {
+          "caller": "buildEntityGraph",
+          "callee": "this.db.prepare",
+          "lineNumber": 198
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "String",
+          "lineNumber": 218
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "getExtractionConfig",
+          "lineNumber": 223
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "extractEntities",
+          "lineNumber": 224
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "String",
+          "lineNumber": 227
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "this.db.run",
+          "lineNumber": 230
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "computeHash",
+          "lineNumber": 244
+        },
+        {
+          "caller": "ingestModuleRecords",
+          "callee": "errors.push",
+          "lineNumber": 253
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare('SELECT COUNT(*) as count FROM entity_mentions').get",
+          "lineNumber": 270
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare",
+          "lineNumber": 270
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare('SELECT COUNT(DISTINCT entity_id) as count FROM entity_mentions').get",
+          "lineNumber": 272
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare",
+          "lineNumber": 272
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare('SELECT COUNT(DISTINCT module_id) as count FROM entity_mentions').get",
+          "lineNumber": 274
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare",
+          "lineNumber": 274
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare",
+          "lineNumber": 276
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "topStmt.all",
+          "lineNumber": 284
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "this.db.prepare",
+          "lineNumber": 286
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "typesStmt.all",
+          "lineNumber": 292
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "top.map",
+          "lineNumber": 298
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "Object.fromEntries",
+          "lineNumber": 304
+        },
+        {
+          "caller": "getStatistics",
+          "callee": "types.map",
+          "lineNumber": 304
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/health-monitoring/alerting.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 107,
+      "nonEmptyLines": 99,
+      "functions": [
+        {
+          "name": "evaluateAlerts",
+          "startLine": 10,
+          "endLine": 100,
+          "params": [
+            "health",
+            "config"
+          ]
+        },
+        {
+          "name": "evaluateSystemAlerts",
+          "startLine": 102,
+          "endLine": 107,
+          "params": [
+            "modules",
+            "config"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "evaluateAlerts",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "evaluateSystemAlerts",
+          "line": 102,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "evaluateAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 16
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "alerts.push",
+          "lineNumber": 19
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "alerts.push",
+          "lineNumber": 34
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "(health.successRate * 100).toFixed",
+          "lineNumber": 38
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "(cfg.successRateCriticalThreshold * 100).toFixed",
+          "lineNumber": 38
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "alerts.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "(health.successRate * 100).toFixed",
+          "lineNumber": 51
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "(cfg.successRateWarningThreshold * 100).toFixed",
+          "lineNumber": 51
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "alerts.push",
+          "lineNumber": 62
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "Date.now",
+          "lineNumber": 73
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "new Date(health.lastSuccessAt).getTime",
+          "lineNumber": 73
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "alerts.push",
+          "lineNumber": 75
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "hoursSinceSuccess.toFixed",
+          "lineNumber": 79
+        },
+        {
+          "caller": "evaluateAlerts",
+          "callee": "alerts.push",
+          "lineNumber": 89
+        },
+        {
+          "caller": "evaluateSystemAlerts",
+          "callee": "modules.flatMap",
+          "lineNumber": 106
+        },
+        {
+          "caller": "evaluateSystemAlerts",
+          "callee": "evaluateAlerts",
+          "lineNumber": 106
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/health-monitoring/monitor.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 258,
+      "nonEmptyLines": 221,
+      "functions": [
+        {
+          "name": "getHealthMonitor",
+          "startLine": 244,
+          "endLine": 249,
+          "params": [
+            "config"
+          ]
+        },
+        {
+          "name": "resetHealthMonitor",
+          "startLine": 251,
+          "endLine": 256,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "HealthMonitor",
+          "startLine": 33,
+          "endLine": 239,
+          "methods": [
+            "constructor",
+            "recordIngestion",
+            "getModuleHealth",
+            "getModuleHealthWithUpstream",
+            "getSystemHealth",
+            "getSystemHealthSync",
+            "computeStatus",
+            "reset"
+          ],
+          "properties": [
+            "config",
+            "events",
+            "upstreamCache",
+            "MAX_EVENTS_PER_MODULE"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "DEFAULT_CONFIG",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "getHealthMonitor",
+          "line": 244,
+          "isDefault": false
+        },
+        {
+          "name": "resetHealthMonitor",
+          "line": 251,
+          "isDefault": false
+        },
+        {
+          "name": "HealthMonitor",
+          "line": 258,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "recordIngestion",
+          "callee": "new Date().toISOString",
+          "lineNumber": 54
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "this.events.get",
+          "lineNumber": 57
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "events.push",
+          "lineNumber": 58
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "events.shift",
+          "lineNumber": 60
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "this.events.set",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "this.events.get",
+          "lineNumber": 66
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "getAllModules().find",
+          "lineNumber": 67
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "getAllModules",
+          "lineNumber": 67
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "events.filter",
+          "lineNumber": 69
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "events.filter",
+          "lineNumber": 70
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "successes.reduce",
+          "lineNumber": 76
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "this.upstreamCache.get",
+          "lineNumber": 90
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "this.computeStatus",
+          "lineNumber": 93
+        },
+        {
+          "caller": "getModuleHealth",
+          "callee": "new Date().toISOString",
+          "lineNumber": 115
+        },
+        {
+          "caller": "getModuleHealthWithUpstream",
+          "callee": "getAllModules().find",
+          "lineNumber": 120
+        },
+        {
+          "caller": "getModuleHealthWithUpstream",
+          "callee": "getAllModules",
+          "lineNumber": 120
+        },
+        {
+          "caller": "getModuleHealthWithUpstream",
+          "callee": "healthCheckModule",
+          "lineNumber": 122
+        },
+        {
+          "caller": "getModuleHealthWithUpstream",
+          "callee": "this.upstreamCache.set",
+          "lineNumber": 123
+        },
+        {
+          "caller": "getModuleHealthWithUpstream",
+          "callee": "new Date().toISOString",
+          "lineNumber": 125
+        },
+        {
+          "caller": "getModuleHealthWithUpstream",
+          "callee": "this.getModuleHealth",
+          "lineNumber": 128
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "getAllModules",
+          "lineNumber": 132
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "healthCheckModule",
+          "lineNumber": 139
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "this.upstreamCache.set",
+          "lineNumber": 144
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "new Date().toISOString",
+          "lineNumber": 146
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "records.push",
+          "lineNumber": 148
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "this.getModuleHealth",
+          "lineNumber": 148
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "records.filter",
+          "lineNumber": 151
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "records.filter",
+          "lineNumber": 152
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "records.filter",
+          "lineNumber": 153
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "records.filter",
+          "lineNumber": 154
+        },
+        {
+          "caller": "getSystemHealth",
+          "callee": "new Date().toISOString",
+          "lineNumber": 171
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "getAllModules",
+          "lineNumber": 176
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "modules.map",
+          "lineNumber": 177
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "this.getModuleHealth",
+          "lineNumber": 177
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "records.filter",
+          "lineNumber": 179
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "records.filter",
+          "lineNumber": 180
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "records.filter",
+          "lineNumber": 181
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "records.filter",
+          "lineNumber": 182
+        },
+        {
+          "caller": "getSystemHealthSync",
+          "callee": "new Date().toISOString",
+          "lineNumber": 199
+        },
+        {
+          "caller": "computeStatus",
+          "callee": "Date.now",
+          "lineNumber": 223
+        },
+        {
+          "caller": "computeStatus",
+          "callee": "new Date(lastSuccess).getTime",
+          "lineNumber": 223
+        },
+        {
+          "caller": "reset",
+          "callee": "this.events.delete",
+          "lineNumber": 232
+        },
+        {
+          "caller": "reset",
+          "callee": "this.upstreamCache.delete",
+          "lineNumber": 233
+        },
+        {
+          "caller": "reset",
+          "callee": "this.events.clear",
+          "lineNumber": 235
+        },
+        {
+          "caller": "reset",
+          "callee": "this.upstreamCache.clear",
+          "lineNumber": 236
+        },
+        {
+          "caller": "resetHealthMonitor",
+          "callee": "globalMonitor.reset",
+          "lineNumber": 253
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 2,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/health-monitoring/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 47,
+      "nonEmptyLines": 42,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/__tests__/entity-resolution-service.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 464,
+      "nonEmptyLines": 366,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/__tests__/module-coverage.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 107,
+      "nonEmptyLines": 94,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/entity-resolution-service.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 251,
+      "nonEmptyLines": 235,
+      "classes": [
+        {
+          "name": "EntityResolutionService",
+          "startLine": 54,
+          "endLine": 251,
+          "methods": [
+            "constructor",
+            "resolve",
+            "resolveBatch",
+            "registerEntity",
+            "upsertEntity"
+          ],
+          "properties": [
+            "db",
+            "defaultThreshold"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "EntityResolutionService",
+          "line": 54,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "resolve",
+          "callee": "resolveEntityImpl",
+          "lineNumber": 89
+        },
+        {
+          "caller": "resolveBatch",
+          "callee": "resolveBatchImpl",
+          "lineNumber": 130
+        },
+        {
+          "caller": "resolveBatch",
+          "callee": "resultMap.set",
+          "lineNumber": 135
+        },
+        {
+          "caller": "resolveBatch",
+          "callee": "resultMap.set",
+          "lineNumber": 143
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "registerEntityImpl",
+          "lineNumber": 176
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "this.registerEntity",
+          "lineNumber": 207
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "import",
+          "lineNumber": 213
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "entity.name.split",
+          "lineNumber": 215
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "nameParts.slice(1).join",
+          "lineNumber": 217
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "nameParts.slice",
+          "lineNumber": 217
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "upsertPerson",
+          "lineNumber": 219
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "import",
+          "lineNumber": 230
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "upsertOrganization",
+          "lineNumber": 231
+        },
+        {
+          "caller": "upsertEntity",
+          "callee": "String",
+          "lineNumber": 244
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/entity-resolver.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 106,
+      "nonEmptyLines": 92,
+      "functions": [
+        {
+          "name": "normalize",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "tokenize",
+          "startLine": 30,
+          "endLine": 32,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "diceSimilarity",
+          "startLine": 34,
+          "endLine": 41,
+          "params": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "registerEntity",
+          "startLine": 43,
+          "endLine": 53,
+          "params": [
+            "entity"
+          ]
+        },
+        {
+          "name": "seedKnownEntities",
+          "startLine": 55,
+          "endLine": 68,
+          "params": []
+        },
+        {
+          "name": "resolveEntity",
+          "startLine": 73,
+          "endLine": 102,
+          "params": [
+            "input",
+            "threshold"
+          ]
+        },
+        {
+          "name": "resolveBatch",
+          "startLine": 104,
+          "endLine": 106,
+          "params": [
+            "inputs",
+            "threshold"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "registerEntity",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "seedKnownEntities",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "resolveEntity",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "resolveBatch",
+          "line": 104,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalize",
+          "callee": "name.toLowerCase().replace(/[^a-z0-9\\s-]/g, '').trim",
+          "lineNumber": 27
+        },
+        {
+          "caller": "normalize",
+          "callee": "name.toLowerCase().replace",
+          "lineNumber": 27
+        },
+        {
+          "caller": "normalize",
+          "callee": "name.toLowerCase",
+          "lineNumber": 27
+        },
+        {
+          "caller": "tokenize",
+          "callee": "normalize(name).split(/\\s+/).filter",
+          "lineNumber": 31
+        },
+        {
+          "caller": "tokenize",
+          "callee": "normalize(name).split",
+          "lineNumber": 31
+        },
+        {
+          "caller": "tokenize",
+          "callee": "normalize",
+          "lineNumber": 31
+        },
+        {
+          "caller": "diceSimilarity",
+          "callee": "tokenize",
+          "lineNumber": 35
+        },
+        {
+          "caller": "diceSimilarity",
+          "callee": "tokenize",
+          "lineNumber": 36
+        },
+        {
+          "caller": "diceSimilarity",
+          "callee": "aTokens.has",
+          "lineNumber": 39
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "KNOWN_ENTITIES.push",
+          "lineNumber": 44
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "normalize",
+          "lineNumber": 45
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.has",
+          "lineNumber": 46
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.set",
+          "lineNumber": 46
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.get(key)!.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.get",
+          "lineNumber": 47
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "normalize",
+          "lineNumber": 49
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.has",
+          "lineNumber": 50
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.set",
+          "lineNumber": 50
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.get(aliasKey)!.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "registerEntity",
+          "callee": "entityIndex.get",
+          "lineNumber": 51
+        },
+        {
+          "caller": "seedKnownEntities",
+          "callee": "registerEntity",
+          "lineNumber": 67
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "normalize",
+          "lineNumber": 74
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "entityIndex.get",
+          "lineNumber": 78
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.push",
+          "lineNumber": 80
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.some",
+          "lineNumber": 85
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "diceSimilarity",
+          "lineNumber": 86
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.push",
+          "lineNumber": 87
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "diceSimilarity",
+          "lineNumber": 89
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.some",
+          "lineNumber": 90
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.push",
+          "lineNumber": 91
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.sort",
+          "lineNumber": 96
+        },
+        {
+          "caller": "resolveEntity",
+          "callee": "candidates.slice",
+          "lineNumber": 100
+        },
+        {
+          "caller": "resolveBatch",
+          "callee": "inputs.map",
+          "lineNumber": 105
+        },
+        {
+          "caller": "resolveBatch",
+          "callee": "resolveEntity",
+          "lineNumber": 105
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/registry.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1994,
+      "nonEmptyLines": 1940,
+      "functions": [
+        {
+          "name": "getModule",
+          "startLine": 1878,
+          "endLine": 1880,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "getModulesByCategory",
+          "startLine": 1885,
+          "endLine": 1887,
+          "params": [
+            "category"
+          ]
+        },
+        {
+          "name": "getAllModules",
+          "startLine": 1892,
+          "endLine": 1894,
+          "params": []
+        },
+        {
+          "name": "getCategories",
+          "startLine": 1899,
+          "endLine": 1901,
+          "params": []
+        },
+        {
+          "name": "healthCheckModule",
+          "startLine": 1909,
+          "endLine": 1926,
+          "params": [
+            "info"
+          ]
+        },
+        {
+          "name": "runModule",
+          "startLine": 1932,
+          "endLine": 1971,
+          "params": [
+            "name",
+            "...args"
+          ]
+        },
+        {
+          "name": "runAllModules",
+          "startLine": 1977,
+          "endLine": 1994,
+          "params": [
+            "interModuleDelayMs",
+            "...args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getModule",
+          "line": 1878,
+          "isDefault": false
+        },
+        {
+          "name": "getModulesByCategory",
+          "line": 1885,
+          "isDefault": false
+        },
+        {
+          "name": "getAllModules",
+          "line": 1892,
+          "isDefault": false
+        },
+        {
+          "name": "getCategories",
+          "line": 1899,
+          "isDefault": false
+        },
+        {
+          "name": "healthCheckModule",
+          "line": 1909,
+          "isDefault": false
+        },
+        {
+          "name": "runModule",
+          "line": 1932,
+          "isDefault": false
+        },
+        {
+          "name": "runAllModules",
+          "line": 1977,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getModule",
+          "callee": "moduleMap.get",
+          "lineNumber": 1879
+        },
+        {
+          "caller": "getModulesByCategory",
+          "callee": "categoryMap.get",
+          "lineNumber": 1886
+        },
+        {
+          "caller": "getCategories",
+          "callee": "Array.from",
+          "lineNumber": 1900
+        },
+        {
+          "caller": "getCategories",
+          "callee": "categoryMap.keys",
+          "lineNumber": 1900
+        },
+        {
+          "caller": "healthCheckModule",
+          "callee": "httpGet",
+          "lineNumber": 1913
+        },
+        {
+          "caller": "healthCheckModule",
+          "callee": "console.warn",
+          "lineNumber": 1920
+        },
+        {
+          "caller": "healthCheckModule",
+          "callee": "console.warn",
+          "lineNumber": 1923
+        },
+        {
+          "caller": "healthCheckModule",
+          "callee": "String",
+          "lineNumber": 1923
+        },
+        {
+          "caller": "runModule",
+          "callee": "moduleMap.get",
+          "lineNumber": 1936
+        },
+        {
+          "caller": "runModule",
+          "callee": "healthCheckModule",
+          "lineNumber": 1941
+        },
+        {
+          "caller": "runModule",
+          "callee": "console.warn",
+          "lineNumber": 1943
+        },
+        {
+          "caller": "runModule",
+          "callee": "import",
+          "lineNumber": 1950
+        },
+        {
+          "caller": "runModule",
+          "callee": "info.ingestFunctions.find",
+          "lineNumber": 1956
+        },
+        {
+          "caller": "runModule",
+          "callee": "f.startsWith",
+          "lineNumber": 1957
+        },
+        {
+          "caller": "runModule",
+          "callee": "f.startsWith",
+          "lineNumber": 1957
+        },
+        {
+          "caller": "runModule",
+          "callee": "mod[mainFn]",
+          "lineNumber": 1960
+        },
+        {
+          "caller": "runModule",
+          "callee": "mod[fn]",
+          "lineNumber": 1966
+        },
+        {
+          "caller": "delay",
+          "callee": "setTimeout",
+          "lineNumber": 1982
+        },
+        {
+          "caller": "runAllModules",
+          "callee": "runModule",
+          "lineNumber": 1985
+        },
+        {
+          "caller": "runAllModules",
+          "callee": "delay",
+          "lineNumber": 1987
+        },
+        {
+          "caller": "runAllModules",
+          "callee": "String",
+          "lineNumber": 1990
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/validation/schema-validator.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 323,
+      "nonEmptyLines": 290,
+      "functions": [
+        {
+          "name": "checkField",
+          "startLine": 31,
+          "endLine": 143,
+          "params": [
+            "value",
+            "field",
+            "config"
+          ]
+        },
+        {
+          "name": "validateRecord",
+          "startLine": 145,
+          "endLine": 179,
+          "params": [
+            "record",
+            "schema",
+            "config"
+          ]
+        },
+        {
+          "name": "validateParserOutput",
+          "startLine": 181,
+          "endLine": 215,
+          "params": [
+            "moduleName",
+            "records",
+            "schema",
+            "config"
+          ]
+        },
+        {
+          "name": "inferSchema",
+          "startLine": 217,
+          "endLine": 260,
+          "params": [
+            "moduleName",
+            "records"
+          ]
+        },
+        {
+          "name": "validateModule",
+          "startLine": 271,
+          "endLine": 310,
+          "params": [
+            "moduleName",
+            "sampleRecords",
+            "schema",
+            "config"
+          ]
+        },
+        {
+          "name": "validateAllModules",
+          "startLine": 312,
+          "endLine": 323,
+          "params": [
+            "moduleRecords",
+            "schemas",
+            "config"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "validateRecord",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "validateParserOutput",
+          "line": 181,
+          "isDefault": false
+        },
+        {
+          "name": "inferSchema",
+          "line": 217,
+          "isDefault": false
+        },
+        {
+          "name": "validateModule",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "validateAllModules",
+          "line": 312,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 40
+        },
+        {
+          "caller": "checkField",
+          "callee": "String",
+          "lineNumber": 47
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 53
+        },
+        {
+          "caller": "checkField",
+          "callee": "typeCheck",
+          "lineNumber": 64
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 65
+        },
+        {
+          "caller": "checkField",
+          "callee": "re.test",
+          "lineNumber": 80
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 81
+        },
+        {
+          "caller": "checkField",
+          "callee": "value.substring",
+          "lineNumber": 88
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 97
+        },
+        {
+          "caller": "checkField",
+          "callee": "String",
+          "lineNumber": 104
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 109
+        },
+        {
+          "caller": "checkField",
+          "callee": "String",
+          "lineNumber": 116
+        },
+        {
+          "caller": "checkField",
+          "callee": "field.enum.includes",
+          "lineNumber": 120
+        },
+        {
+          "caller": "checkField",
+          "callee": "String",
+          "lineNumber": 120
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 121
+        },
+        {
+          "caller": "checkField",
+          "callee": "field.enum.join",
+          "lineNumber": 127
+        },
+        {
+          "caller": "checkField",
+          "callee": "String",
+          "lineNumber": 128
+        },
+        {
+          "caller": "checkField",
+          "callee": "findings.push",
+          "lineNumber": 133
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "customValidator",
+          "lineNumber": 156
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "findings.push",
+          "lineNumber": 157
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "findings.push",
+          "lineNumber": 159
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "checkField",
+          "lineNumber": 159
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "schema.fields.map",
+          "lineNumber": 164
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "Object.keys",
+          "lineNumber": 165
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "schemaFieldNames.has",
+          "lineNumber": 166
+        },
+        {
+          "caller": "validateRecord",
+          "callee": "findings.push",
+          "lineNumber": 167
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "Date.now",
+          "lineNumber": 187
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "allFindings.push",
+          "lineNumber": 191
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "validateRecord",
+          "lineNumber": 191
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "allFindings.filter",
+          "lineNumber": 196
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "allFindings.filter",
+          "lineNumber": 197
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "allFindings.filter",
+          "lineNumber": 198
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "allFindings.filter",
+          "lineNumber": 199
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "new Date().toISOString",
+          "lineNumber": 211
+        },
+        {
+          "caller": "validateParserOutput",
+          "callee": "Date.now",
+          "lineNumber": 212
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "Object.entries",
+          "lineNumber": 224
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "fieldMap.has",
+          "lineNumber": 225
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "fieldMap.set",
+          "lineNumber": 226
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "fieldMap.get",
+          "lineNumber": 228
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "entry.types.add",
+          "lineNumber": 229
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "entry.samples.push",
+          "lineNumber": 234
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "entry.types.values().next",
+          "lineNumber": 246
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "entry.types.values",
+          "lineNumber": 246
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "fields.push",
+          "lineNumber": 247
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "entry.samples.some",
+          "lineNumber": 250
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "Array.isArray",
+          "lineNumber": 250
+        },
+        {
+          "caller": "inferSchema",
+          "callee": "new Date().toISOString",
+          "lineNumber": 258
+        },
+        {
+          "caller": "validateModule",
+          "callee": "getAllModules().find",
+          "lineNumber": 277
+        },
+        {
+          "caller": "validateModule",
+          "callee": "getAllModules",
+          "lineNumber": 277
+        },
+        {
+          "caller": "validateModule",
+          "callee": "healthCheckModule",
+          "lineNumber": 288
+        },
+        {
+          "caller": "validateModule",
+          "callee": "inferSchema",
+          "lineNumber": 300
+        },
+        {
+          "caller": "validateModule",
+          "callee": "validateParserOutput",
+          "lineNumber": 301
+        },
+        {
+          "caller": "validateAllModules",
+          "callee": "Object.entries",
+          "lineNumber": 318
+        },
+        {
+          "caller": "validateAllModules",
+          "callee": "results.push",
+          "lineNumber": 320
+        },
+        {
+          "caller": "validateAllModules",
+          "callee": "validateModule",
+          "lineNumber": 320
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 5,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/validation/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 103,
+      "nonEmptyLines": 95,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

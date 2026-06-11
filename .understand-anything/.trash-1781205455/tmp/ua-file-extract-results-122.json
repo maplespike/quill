@@ -1,0 +1,162 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".sisyphus/run-continuation/ses_1d8893202ffeDaYDSZ0M00kym8.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 11,
+      "nonEmptyLines": 11,
+      "sections": [
+        {
+          "heading": "sessionID",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "sources",
+          "level": 1,
+          "line": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": ".sisyphus/run-continuation/ses_1d8897113ffe4Jb60rmGwhCZVx.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 10,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "sessionID",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "sources",
+          "level": 1,
+          "line": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": ".sisyphus/run-continuation/ses_1dd9411fcffeqtWjoidhO0GN0W.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 10,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "sessionID",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "sources",
+          "level": 1,
+          "line": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": ".sisyphus/run-continuation/ses_1e1966b4affeWyXleo8ZyDOxxE.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 10,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "sessionID",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "sources",
+          "level": 1,
+          "line": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    },
+    {
+      "path": ".sisyphus/run-continuation/ses_1e1975bddffeilglKadcf4iuF4.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 10,
+      "nonEmptyLines": 10,
+      "sections": [
+        {
+          "heading": "sessionID",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "sources",
+          "level": 1,
+          "line": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    }
+  ]
+}

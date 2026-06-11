@@ -1,0 +1,3203 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 10,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 374,
+      "nonEmptyLines": 317,
+      "functions": [
+        {
+          "name": "wdsUrl",
+          "startLine": 118,
+          "endLine": 120,
+          "params": [
+            "endpointPath"
+          ]
+        },
+        {
+          "name": "statcanTableViewUrl",
+          "startLine": 123,
+          "endLine": 125,
+          "params": [
+            "productId"
+          ]
+        },
+        {
+          "name": "statcanCsvDownloadUrl",
+          "startLine": 128,
+          "endLine": 130,
+          "params": [
+            "productId"
+          ]
+        },
+        {
+          "name": "parseStatCanDate",
+          "startLine": 247,
+          "endLine": 288,
+          "params": [
+            "period"
+          ]
+        },
+        {
+          "name": "extractProvinceCode",
+          "startLine": 294,
+          "endLine": 313,
+          "params": [
+            "geography"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "STATCAN_WDS_BASE",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "WDS_ENDPOINTS",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "STATCAN_PRODUCTS",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "PRODUCTS_BY_CATEGORY",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "wdsUrl",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "statcanTableViewUrl",
+          "line": 123,
+          "isDefault": false
+        },
+        {
+          "name": "statcanCsvDownloadUrl",
+          "line": 128,
+          "isDefault": false
+        },
+        {
+          "name": "CPI_DIMENSION_MAP",
+          "line": 137,
+          "isDefault": false
+        },
+        {
+          "name": "GDP_DIMENSION_MAP",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "LABOUR_DIMENSION_MAP",
+          "line": 164,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCE_GEO_CODES",
+          "line": 184,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCE_CODES",
+          "line": 201,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCE_SHORT_TO_GEO",
+          "line": 219,
+          "isDefault": false
+        },
+        {
+          "name": "parseStatCanDate",
+          "line": 247,
+          "isDefault": false
+        },
+        {
+          "name": "extractProvinceCode",
+          "line": 294,
+          "isDefault": false
+        },
+        {
+          "name": "STATCAN_DDL",
+          "line": 319,
+          "isDefault": false
+        },
+        {
+          "name": "WDS_DEFAULT_TIMEOUT_MS",
+          "line": 374,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseStatCanDate",
+          "callee": "period.match",
+          "lineNumber": 251
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "period.match",
+          "lineNumber": 257
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "period.match",
+          "lineNumber": 263
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "String((parseInt(quarterMatch[2], 10) - 1) * 3 + 1).padStart",
+          "lineNumber": 265
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "String",
+          "lineNumber": 265
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "parseInt",
+          "lineNumber": 265
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "period.match",
+          "lineNumber": 270
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "period.match",
+          "lineNumber": 276
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "isNaN",
+          "lineNumber": 283
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "d.getTime",
+          "lineNumber": 283
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "d.toISOString().split",
+          "lineNumber": 284
+        },
+        {
+          "caller": "parseStatCanDate",
+          "callee": "d.toISOString",
+          "lineNumber": 284
+        },
+        {
+          "caller": "extractProvinceCode",
+          "callee": "geography.match",
+          "lineNumber": 304
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 17,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/cpi.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 315,
+      "nonEmptyLines": 276,
+      "functions": [
+        {
+          "name": "fetchCpiMonthly",
+          "startLine": 32,
+          "endLine": 46,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCpiByProvince",
+          "startLine": 57,
+          "endLine": 71,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllCpi",
+          "startLine": 80,
+          "endLine": 106,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parseCpiJsonStat",
+          "startLine": 115,
+          "endLine": 219,
+          "params": [
+            "data",
+            "productId",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "resolveDimLabel",
+          "startLine": 228,
+          "endLine": 240,
+          "params": [
+            "dimensions",
+            "dimId",
+            "index"
+          ]
+        },
+        {
+          "name": "extractGeoCode",
+          "startLine": 245,
+          "endLine": 261,
+          "params": [
+            "dimensions",
+            "ids",
+            "geoIdx"
+          ]
+        },
+        {
+          "name": "detectCity",
+          "startLine": 266,
+          "endLine": 283,
+          "params": [
+            "geography"
+          ]
+        },
+        {
+          "name": "fetchWithResult",
+          "startLine": 288,
+          "endLine": 315,
+          "params": [
+            "indicatorType",
+            "productId",
+            "fetchFn"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCpiMonthly",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCpiByProvince",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCpi",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "parseCpiJsonStat",
+          "line": 115,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCpiMonthly",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchCpiMonthly",
+          "callee": "getData",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchCpiMonthly",
+          "callee": "parseCpiJsonStat",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchCpiMonthly",
+          "callee": "console.error",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchCpiByProvince",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchCpiByProvince",
+          "callee": "getData",
+          "lineNumber": 65
+        },
+        {
+          "caller": "fetchCpiByProvince",
+          "callee": "parseCpiJsonStat",
+          "lineNumber": 66
+        },
+        {
+          "caller": "fetchCpiByProvince",
+          "callee": "console.error",
+          "lineNumber": 68
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "fetchWithResult",
+          "lineNumber": 88
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "fetchCpiMonthly",
+          "lineNumber": 91
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "allRecords.push",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "results.push",
+          "lineNumber": 94
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "fetchWithResult",
+          "lineNumber": 97
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "fetchCpiByProvince",
+          "lineNumber": 100
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "allRecords.push",
+          "lineNumber": 102
+        },
+        {
+          "caller": "fetchAllCpi",
+          "callee": "results.push",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "console.warn",
+          "lineNumber": 121
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "new Date().toISOString",
+          "lineNumber": 130
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "ids.indexOf",
+          "lineNumber": 133
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 139
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 140
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 140
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 142
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 143
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 143
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 143
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 143
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 145
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 146
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 146
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 148
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 149
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 149
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "Math.floor",
+          "lineNumber": 165
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "resolveDimLabel",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "dimValues.push",
+          "lineNumber": 168
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "parseStatCanDate",
+          "lineNumber": 174
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "extractGeoCode",
+          "lineNumber": 178
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "extractProvinceCode",
+          "lineNumber": 186
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "detectCity",
+          "lineNumber": 189
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "JSON.stringify",
+          "lineNumber": 192
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "computeHash",
+          "lineNumber": 195
+        },
+        {
+          "caller": "parseCpiJsonStat",
+          "callee": "records.push",
+          "lineNumber": 197
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 234
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "Object.keys",
+          "lineNumber": 237
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 238
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 239
+        },
+        {
+          "caller": "extractGeoCode",
+          "callee": "Object.keys",
+          "lineNumber": 258
+        },
+        {
+          "caller": "detectCity",
+          "callee": "geography.match",
+          "lineNumber": 270
+        },
+        {
+          "caller": "detectCity",
+          "callee": "cmaMatch[1].trim",
+          "lineNumber": 272
+        },
+        {
+          "caller": "detectCity",
+          "callee": "nonCities.has",
+          "lineNumber": 279
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 293
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "fetchFn",
+          "lineNumber": 304
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 307
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "String",
+          "lineNumber": 310
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "result.errors.push",
+          "lineNumber": 311
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 312
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 4,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/gdp.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 263,
+      "nonEmptyLines": 232,
+      "functions": [
+        {
+          "name": "fetchGdpByIndustry",
+          "startLine": 31,
+          "endLine": 45,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllGdp",
+          "startLine": 54,
+          "endLine": 70,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parseGdpJsonStat",
+          "startLine": 79,
+          "endLine": 188,
+          "params": [
+            "data",
+            "productId",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "resolveDimLabel",
+          "startLine": 194,
+          "endLine": 204,
+          "params": [
+            "dimensions",
+            "dimId",
+            "index"
+          ]
+        },
+        {
+          "name": "extractGeoCode",
+          "startLine": 206,
+          "endLine": 220,
+          "params": [
+            "dimensions",
+            "ids",
+            "geoIdx"
+          ]
+        },
+        {
+          "name": "extractNaicsCode",
+          "startLine": 226,
+          "endLine": 234,
+          "params": [
+            "industryLabel"
+          ]
+        },
+        {
+          "name": "fetchWithResult",
+          "startLine": 236,
+          "endLine": 263,
+          "params": [
+            "indicatorType",
+            "productId",
+            "fetchFn"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchGdpByIndustry",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllGdp",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "parseGdpJsonStat",
+          "line": 79,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchGdpByIndustry",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchGdpByIndustry",
+          "callee": "getData",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchGdpByIndustry",
+          "callee": "parseGdpJsonStat",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchGdpByIndustry",
+          "callee": "console.error",
+          "lineNumber": 42
+        },
+        {
+          "caller": "fetchAllGdp",
+          "callee": "fetchWithResult",
+          "lineNumber": 61
+        },
+        {
+          "caller": "fetchAllGdp",
+          "callee": "fetchGdpByIndustry",
+          "lineNumber": 64
+        },
+        {
+          "caller": "fetchAllGdp",
+          "callee": "allRecords.push",
+          "lineNumber": 66
+        },
+        {
+          "caller": "fetchAllGdp",
+          "callee": "results.push",
+          "lineNumber": 67
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "console.warn",
+          "lineNumber": 85
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "new Date().toISOString",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "ids.indexOf",
+          "lineNumber": 97
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 102
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 105
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 106
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 106
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 108
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 111
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 112
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 112
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "Math.floor",
+          "lineNumber": 128
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "resolveDimLabel",
+          "lineNumber": 130
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "dimValues.push",
+          "lineNumber": 131
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "parseStatCanDate",
+          "lineNumber": 137
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "extractGeoCode",
+          "lineNumber": 141
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "extractNaicsCode",
+          "lineNumber": 145
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "gdpTypeLabel.toLowerCase().includes",
+          "lineNumber": 151
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "gdpTypeLabel.toLowerCase",
+          "lineNumber": 151
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "gdpTypeLabel.toLowerCase().includes",
+          "lineNumber": 152
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "gdpTypeLabel.toLowerCase",
+          "lineNumber": 152
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "gdpTypeLabel.toLowerCase().includes",
+          "lineNumber": 153
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "gdpTypeLabel.toLowerCase",
+          "lineNumber": 153
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "extractProvinceCode",
+          "lineNumber": 158
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "JSON.stringify",
+          "lineNumber": 161
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "computeHash",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parseGdpJsonStat",
+          "callee": "records.push",
+          "lineNumber": 166
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 200
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "Object.keys",
+          "lineNumber": 201
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 202
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 203
+        },
+        {
+          "caller": "extractGeoCode",
+          "callee": "Object.keys",
+          "lineNumber": 217
+        },
+        {
+          "caller": "extractNaicsCode",
+          "callee": "industryLabel.match",
+          "lineNumber": 228
+        },
+        {
+          "caller": "extractNaicsCode",
+          "callee": "industryLabel.match",
+          "lineNumber": 231
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 241
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "fetchFn",
+          "lineNumber": 252
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "String",
+          "lineNumber": 258
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "result.errors.push",
+          "lineNumber": 259
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 260
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 118,
+      "nonEmptyLines": 109,
+      "functions": [
+        {
+          "name": "resultFor",
+          "startLine": 18,
+          "endLine": 33,
+          "params": [
+            "indicatorType",
+            "productId",
+            "records",
+            "errors",
+            "startMs"
+          ]
+        },
+        {
+          "name": "ingestCpi",
+          "startLine": 35,
+          "endLine": 46,
+          "params": []
+        },
+        {
+          "name": "ingestGdp",
+          "startLine": 48,
+          "endLine": 59,
+          "params": []
+        },
+        {
+          "name": "ingestLabour",
+          "startLine": 61,
+          "endLine": 76,
+          "params": []
+        },
+        {
+          "name": "ingestPopulation",
+          "startLine": 78,
+          "endLine": 92,
+          "params": []
+        },
+        {
+          "name": "ingestTrade",
+          "startLine": 94,
+          "endLine": 105,
+          "params": []
+        },
+        {
+          "name": "ingestAllStatCan",
+          "startLine": 109,
+          "endLine": 118,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestCpi",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "ingestGdp",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "ingestLabour",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "ingestPopulation",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "ingestTrade",
+          "line": 94,
+          "isDefault": false
+        },
+        {
+          "name": "STATCAN_PRODUCTS",
+          "line": 107,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllStatCan",
+          "line": 109,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "resultFor",
+          "callee": "Date.now",
+          "lineNumber": 31
+        },
+        {
+          "caller": "ingestCpi",
+          "callee": "Date.now",
+          "lineNumber": 36
+        },
+        {
+          "caller": "ingestCpi",
+          "callee": "fetchAllCpi",
+          "lineNumber": 40
+        },
+        {
+          "caller": "ingestCpi",
+          "callee": "errors.push",
+          "lineNumber": 43
+        },
+        {
+          "caller": "ingestCpi",
+          "callee": "String",
+          "lineNumber": 43
+        },
+        {
+          "caller": "ingestCpi",
+          "callee": "resultFor",
+          "lineNumber": 45
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "Date.now",
+          "lineNumber": 49
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "fetchGdpByIndustry().catch",
+          "lineNumber": 53
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "fetchGdpByIndustry",
+          "lineNumber": 53
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "errors.push",
+          "lineNumber": 53
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "allRecords.push",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "errors.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "String",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestGdp",
+          "callee": "resultFor",
+          "lineNumber": 58
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "Date.now",
+          "lineNumber": 62
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "Promise.all",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "fetchLabourForceCharacteristics().catch",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "fetchLabourForceCharacteristics",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "errors.push",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "fetchEmploymentByIndustry().catch",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "fetchEmploymentByIndustry",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "errors.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "fetchLabourMarketIndicators().catch",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "fetchLabourMarketIndicators",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "errors.push",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "allRecords.push",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "errors.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "String",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestLabour",
+          "callee": "resultFor",
+          "lineNumber": 75
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "Date.now",
+          "lineNumber": 79
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "Promise.all",
+          "lineNumber": 83
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "fetchPopulationEstimates().catch",
+          "lineNumber": 84
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "fetchPopulationEstimates",
+          "lineNumber": 84
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "errors.push",
+          "lineNumber": 84
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "fetchPopulationByAgeGender().catch",
+          "lineNumber": 85
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "fetchPopulationByAgeGender",
+          "lineNumber": 85
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "errors.push",
+          "lineNumber": 85
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "allRecords.push",
+          "lineNumber": 87
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "errors.push",
+          "lineNumber": 89
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "String",
+          "lineNumber": 89
+        },
+        {
+          "caller": "ingestPopulation",
+          "callee": "resultFor",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "Date.now",
+          "lineNumber": 95
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "fetchInternationalTrade().catch",
+          "lineNumber": 99
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "fetchInternationalTrade",
+          "lineNumber": 99
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "errors.push",
+          "lineNumber": 99
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "allRecords.push",
+          "lineNumber": 100
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "errors.push",
+          "lineNumber": 102
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "String",
+          "lineNumber": 102
+        },
+        {
+          "caller": "ingestTrade",
+          "callee": "resultFor",
+          "lineNumber": 104
+        },
+        {
+          "caller": "ingestAllStatCan",
+          "callee": "Promise.all",
+          "lineNumber": 110
+        },
+        {
+          "caller": "ingestAllStatCan",
+          "callee": "ingestCpi",
+          "lineNumber": 111
+        },
+        {
+          "caller": "ingestAllStatCan",
+          "callee": "ingestGdp",
+          "lineNumber": 112
+        },
+        {
+          "caller": "ingestAllStatCan",
+          "callee": "ingestLabour",
+          "lineNumber": 113
+        },
+        {
+          "caller": "ingestAllStatCan",
+          "callee": "ingestPopulation",
+          "lineNumber": 114
+        },
+        {
+          "caller": "ingestAllStatCan",
+          "callee": "ingestTrade",
+          "lineNumber": 115
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/labour.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 354,
+      "nonEmptyLines": 316,
+      "functions": [
+        {
+          "name": "fetchLabourForceCharacteristics",
+          "startLine": 33,
+          "endLine": 47,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEmploymentByIndustry",
+          "startLine": 53,
+          "endLine": 67,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchLabourMarketIndicators",
+          "startLine": 73,
+          "endLine": 87,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEmploymentInsurance",
+          "startLine": 93,
+          "endLine": 107,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchMultipleJobholders",
+          "startLine": 112,
+          "endLine": 126,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllLabour",
+          "startLine": 135,
+          "endLine": 164,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parseLabourJsonStat",
+          "startLine": 173,
+          "endLine": 293,
+          "params": [
+            "data",
+            "productId",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "resolveDimLabel",
+          "startLine": 299,
+          "endLine": 309,
+          "params": [
+            "dimensions",
+            "dimId",
+            "index"
+          ]
+        },
+        {
+          "name": "extractGeoCode",
+          "startLine": 311,
+          "endLine": 325,
+          "params": [
+            "dimensions",
+            "ids",
+            "geoIdx"
+          ]
+        },
+        {
+          "name": "fetchWithResult",
+          "startLine": 327,
+          "endLine": 354,
+          "params": [
+            "indicatorType",
+            "productId",
+            "fetchFn"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchLabourForceCharacteristics",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEmploymentByIndustry",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLabourMarketIndicators",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEmploymentInsurance",
+          "line": 93,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMultipleJobholders",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllLabour",
+          "line": 135,
+          "isDefault": false
+        },
+        {
+          "name": "parseLabourJsonStat",
+          "line": 173,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchLabourForceCharacteristics",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchLabourForceCharacteristics",
+          "callee": "getData",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchLabourForceCharacteristics",
+          "callee": "parseLabourJsonStat",
+          "lineNumber": 42
+        },
+        {
+          "caller": "fetchLabourForceCharacteristics",
+          "callee": "console.error",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchEmploymentByIndustry",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 58
+        },
+        {
+          "caller": "fetchEmploymentByIndustry",
+          "callee": "getData",
+          "lineNumber": 61
+        },
+        {
+          "caller": "fetchEmploymentByIndustry",
+          "callee": "parseLabourJsonStat",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchEmploymentByIndustry",
+          "callee": "console.error",
+          "lineNumber": 64
+        },
+        {
+          "caller": "fetchLabourMarketIndicators",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 78
+        },
+        {
+          "caller": "fetchLabourMarketIndicators",
+          "callee": "getData",
+          "lineNumber": 81
+        },
+        {
+          "caller": "fetchLabourMarketIndicators",
+          "callee": "parseLabourJsonStat",
+          "lineNumber": 82
+        },
+        {
+          "caller": "fetchLabourMarketIndicators",
+          "callee": "console.error",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fetchEmploymentInsurance",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 98
+        },
+        {
+          "caller": "fetchEmploymentInsurance",
+          "callee": "getData",
+          "lineNumber": 101
+        },
+        {
+          "caller": "fetchEmploymentInsurance",
+          "callee": "parseLabourJsonStat",
+          "lineNumber": 102
+        },
+        {
+          "caller": "fetchEmploymentInsurance",
+          "callee": "console.error",
+          "lineNumber": 104
+        },
+        {
+          "caller": "fetchMultipleJobholders",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 117
+        },
+        {
+          "caller": "fetchMultipleJobholders",
+          "callee": "getData",
+          "lineNumber": 120
+        },
+        {
+          "caller": "fetchMultipleJobholders",
+          "callee": "parseLabourJsonStat",
+          "lineNumber": 121
+        },
+        {
+          "caller": "fetchMultipleJobholders",
+          "callee": "console.error",
+          "lineNumber": 123
+        },
+        {
+          "caller": "fetchAllLabour",
+          "callee": "fetchWithResult",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchAllLabour",
+          "callee": "fetcher.fn",
+          "lineNumber": 157
+        },
+        {
+          "caller": "fetchAllLabour",
+          "callee": "allRecords.push",
+          "lineNumber": 159
+        },
+        {
+          "caller": "fetchAllLabour",
+          "callee": "results.push",
+          "lineNumber": 160
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "console.warn",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "new Date().toISOString",
+          "lineNumber": 188
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.indexOf",
+          "lineNumber": 191
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 192
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 193
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 193
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 195
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 196
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 196
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 197
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 197
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 199
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 200
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 200
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 200
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 200
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 202
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 203
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 203
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 205
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 206
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 206
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 206
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 206
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 208
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 209
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 209
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 211
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 212
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 212
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 214
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 215
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 215
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "Math.floor",
+          "lineNumber": 231
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "resolveDimLabel",
+          "lineNumber": 233
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "dimValues.push",
+          "lineNumber": 234
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "parseStatCanDate",
+          "lineNumber": 240
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "extractGeoCode",
+          "lineNumber": 244
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "extractProvinceCode",
+          "lineNumber": 260
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "JSON.stringify",
+          "lineNumber": 263
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "computeHash",
+          "lineNumber": 266
+        },
+        {
+          "caller": "parseLabourJsonStat",
+          "callee": "records.push",
+          "lineNumber": 268
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 305
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "Object.keys",
+          "lineNumber": 306
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 307
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 308
+        },
+        {
+          "caller": "extractGeoCode",
+          "callee": "Object.keys",
+          "lineNumber": 322
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 332
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "fetchFn",
+          "lineNumber": 343
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 346
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "String",
+          "lineNumber": 349
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "result.errors.push",
+          "lineNumber": 350
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 351
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 7,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseStatCanRecord",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseStatCanRecords",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseStatCanRecord",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseStatCanRecords",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseStatCanRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseStatCanRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseStatCanRecord",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseStatCanRecords",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseStatCanRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseStatCanRecords",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseStatCanRecords",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseStatCanRecords",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseStatCanRecords",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/population.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 268,
+      "nonEmptyLines": 236,
+      "functions": [
+        {
+          "name": "fetchPopulationEstimates",
+          "startLine": 30,
+          "endLine": 44,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchPopulationByAgeGender",
+          "startLine": 50,
+          "endLine": 64,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllPopulation",
+          "startLine": 73,
+          "endLine": 97,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parsePopulationJsonStat",
+          "startLine": 106,
+          "endLine": 207,
+          "params": [
+            "data",
+            "productId",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "resolveDimLabel",
+          "startLine": 213,
+          "endLine": 223,
+          "params": [
+            "dimensions",
+            "dimId",
+            "index"
+          ]
+        },
+        {
+          "name": "extractGeoCode",
+          "startLine": 225,
+          "endLine": 239,
+          "params": [
+            "dimensions",
+            "ids",
+            "geoIdx"
+          ]
+        },
+        {
+          "name": "fetchWithResult",
+          "startLine": 241,
+          "endLine": 268,
+          "params": [
+            "indicatorType",
+            "productId",
+            "fetchFn"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchPopulationEstimates",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPopulationByAgeGender",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllPopulation",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "parsePopulationJsonStat",
+          "line": 106,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchPopulationEstimates",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 35
+        },
+        {
+          "caller": "fetchPopulationEstimates",
+          "callee": "getData",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchPopulationEstimates",
+          "callee": "parsePopulationJsonStat",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchPopulationEstimates",
+          "callee": "console.error",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchPopulationByAgeGender",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchPopulationByAgeGender",
+          "callee": "getData",
+          "lineNumber": 58
+        },
+        {
+          "caller": "fetchPopulationByAgeGender",
+          "callee": "parsePopulationJsonStat",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchPopulationByAgeGender",
+          "callee": "console.error",
+          "lineNumber": 61
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "fetchWithResult",
+          "lineNumber": 80
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "fetchPopulationEstimates",
+          "lineNumber": 83
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "allRecords.push",
+          "lineNumber": 85
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "results.push",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "fetchWithResult",
+          "lineNumber": 88
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "fetchPopulationByAgeGender",
+          "lineNumber": 91
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "allRecords.push",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchAllPopulation",
+          "callee": "results.push",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "console.warn",
+          "lineNumber": 112
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "new Date().toISOString",
+          "lineNumber": 121
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "ids.indexOf",
+          "lineNumber": 124
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 125
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 126
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 126
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 128
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 129
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 129
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 131
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 132
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 132
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 134
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 135
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 135
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "Math.floor",
+          "lineNumber": 151
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "resolveDimLabel",
+          "lineNumber": 153
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "dimValues.push",
+          "lineNumber": 154
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "parseStatCanDate",
+          "lineNumber": 160
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "extractGeoCode",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "extractProvinceCode",
+          "lineNumber": 172
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "JSON.stringify",
+          "lineNumber": 180
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "computeHash",
+          "lineNumber": 183
+        },
+        {
+          "caller": "parsePopulationJsonStat",
+          "callee": "records.push",
+          "lineNumber": 185
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 219
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "Object.keys",
+          "lineNumber": 220
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 221
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 222
+        },
+        {
+          "caller": "extractGeoCode",
+          "callee": "Object.keys",
+          "lineNumber": 236
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 246
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "fetchFn",
+          "lineNumber": 257
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 260
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "String",
+          "lineNumber": 263
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "result.errors.push",
+          "lineNumber": 264
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 265
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 4,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/trade.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 274,
+      "nonEmptyLines": 242,
+      "functions": [
+        {
+          "name": "fetchInternationalTrade",
+          "startLine": 29,
+          "endLine": 43,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllTrade",
+          "startLine": 52,
+          "endLine": 68,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parseTradeJsonStat",
+          "startLine": 77,
+          "endLine": 196,
+          "params": [
+            "data",
+            "productId",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "resolveDimLabel",
+          "startLine": 202,
+          "endLine": 212,
+          "params": [
+            "dimensions",
+            "dimId",
+            "index"
+          ]
+        },
+        {
+          "name": "extractGeoCode",
+          "startLine": 214,
+          "endLine": 228,
+          "params": [
+            "dimensions",
+            "ids",
+            "geoIdx"
+          ]
+        },
+        {
+          "name": "extractPartnerCode",
+          "startLine": 230,
+          "endLine": 245,
+          "params": [
+            "dimensions",
+            "ids",
+            "partnerIdx"
+          ]
+        },
+        {
+          "name": "fetchWithResult",
+          "startLine": 247,
+          "endLine": 274,
+          "params": [
+            "indicatorType",
+            "productId",
+            "fetchFn"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchInternationalTrade",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllTrade",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "parseTradeJsonStat",
+          "line": 77,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchInternationalTrade",
+          "callee": "statcanTableViewUrl",
+          "lineNumber": 34
+        },
+        {
+          "caller": "fetchInternationalTrade",
+          "callee": "getData",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchInternationalTrade",
+          "callee": "parseTradeJsonStat",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchInternationalTrade",
+          "callee": "console.error",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchAllTrade",
+          "callee": "fetchWithResult",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchAllTrade",
+          "callee": "fetchInternationalTrade",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchAllTrade",
+          "callee": "allRecords.push",
+          "lineNumber": 64
+        },
+        {
+          "caller": "fetchAllTrade",
+          "callee": "results.push",
+          "lineNumber": 65
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "console.warn",
+          "lineNumber": 83
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "new Date().toISOString",
+          "lineNumber": 92
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.indexOf",
+          "lineNumber": 95
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 96
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 97
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 97
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 106
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 107
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 107
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 107
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 107
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 110
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 110
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "ids.findIndex",
+          "lineNumber": 112
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase().includes",
+          "lineNumber": 113
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "id.toLowerCase",
+          "lineNumber": 113
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "Math.floor",
+          "lineNumber": 129
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "resolveDimLabel",
+          "lineNumber": 131
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "dimValues.push",
+          "lineNumber": 132
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "parseStatCanDate",
+          "lineNumber": 138
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "extractGeoCode",
+          "lineNumber": 142
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "dimValues[tradeDirIdx].toLowerCase",
+          "lineNumber": 145
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "tradeDirLabel.includes",
+          "lineNumber": 147
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "tradeDirLabel.includes",
+          "lineNumber": 148
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "tradeDirLabel.includes",
+          "lineNumber": 148
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "extractPartnerCode",
+          "lineNumber": 153
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "extractProvinceCode",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "JSON.stringify",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "computeHash",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parseTradeJsonStat",
+          "callee": "records.push",
+          "lineNumber": 172
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 208
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "Object.keys",
+          "lineNumber": 209
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 210
+        },
+        {
+          "caller": "resolveDimLabel",
+          "callee": "String",
+          "lineNumber": 211
+        },
+        {
+          "caller": "extractGeoCode",
+          "callee": "Object.keys",
+          "lineNumber": 225
+        },
+        {
+          "caller": "extractPartnerCode",
+          "callee": "Object.keys",
+          "lineNumber": 241
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 252
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "fetchFn",
+          "lineNumber": 263
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 266
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "String",
+          "lineNumber": 269
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "result.errors.push",
+          "lineNumber": 270
+        },
+        {
+          "caller": "fetchWithResult",
+          "callee": "Date.now",
+          "lineNumber": 271
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 291,
+      "nonEmptyLines": 263,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/statcan/wds.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 465,
+      "nonEmptyLines": 420,
+      "functions": [
+        {
+          "name": "getAllCubesListLite",
+          "startLine": 57,
+          "endLine": 86,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "getData",
+          "startLine": 99,
+          "endLine": 197,
+          "params": [
+            "productId",
+            "options"
+          ]
+        },
+        {
+          "name": "getFullTableDownloadCSV",
+          "startLine": 206,
+          "endLine": 238,
+          "params": [
+            "productId",
+            "options"
+          ]
+        },
+        {
+          "name": "getCubeMetadata",
+          "startLine": 247,
+          "endLine": 307,
+          "params": [
+            "productId",
+            "options"
+          ]
+        },
+        {
+          "name": "getChangedCubeList",
+          "startLine": 316,
+          "endLine": 349,
+          "params": [
+            "changedSinceDate",
+            "options"
+          ]
+        },
+        {
+          "name": "parseCsvResponse",
+          "startLine": 362,
+          "endLine": 383,
+          "params": [
+            "csvText"
+          ]
+        },
+        {
+          "name": "resolveJsonStatDimensions",
+          "startLine": 398,
+          "endLine": 429,
+          "params": [
+            "data",
+            "index"
+          ]
+        },
+        {
+          "name": "extractTimeDimension",
+          "startLine": 435,
+          "endLine": 452,
+          "params": [
+            "data"
+          ]
+        },
+        {
+          "name": "parseJsonStatDate",
+          "startLine": 457,
+          "endLine": 465,
+          "params": [
+            "label"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "WdsApiError",
+          "startLine": 38,
+          "endLine": 47,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "WdsApiError",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "getAllCubesListLite",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "getData",
+          "line": 99,
+          "isDefault": false
+        },
+        {
+          "name": "getFullTableDownloadCSV",
+          "line": 206,
+          "isDefault": false
+        },
+        {
+          "name": "getCubeMetadata",
+          "line": 247,
+          "isDefault": false
+        },
+        {
+          "name": "getChangedCubeList",
+          "line": 316,
+          "isDefault": false
+        },
+        {
+          "name": "parseCsvResponse",
+          "line": 362,
+          "isDefault": false
+        },
+        {
+          "name": "resolveJsonStatDimensions",
+          "line": 398,
+          "isDefault": false
+        },
+        {
+          "name": "extractTimeDimension",
+          "line": 435,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 44
+        },
+        {
+          "caller": "getAllCubesListLite",
+          "callee": "wdsUrl",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getAllCubesListLite",
+          "callee": "httpGet",
+          "lineNumber": 63
+        },
+        {
+          "caller": "getAllCubesListLite",
+          "callee": "resp.json",
+          "lineNumber": 76
+        },
+        {
+          "caller": "getAllCubesListLite",
+          "callee": "Array.isArray",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getData",
+          "callee": "wdsUrl",
+          "lineNumber": 106
+        },
+        {
+          "caller": "getData",
+          "callee": "httpGet",
+          "lineNumber": 107
+        },
+        {
+          "caller": "getData",
+          "callee": "resp.body.substring",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getData",
+          "callee": "resp.json",
+          "lineNumber": 126
+        },
+        {
+          "caller": "getData",
+          "callee": "Array.isArray",
+          "lineNumber": 127
+        },
+        {
+          "caller": "getData",
+          "callee": "JSON.stringify",
+          "lineNumber": 138
+        },
+        {
+          "caller": "getData",
+          "callee": "Array.isArray",
+          "lineNumber": 147
+        },
+        {
+          "caller": "getData",
+          "callee": "Array.isArray",
+          "lineNumber": 157
+        },
+        {
+          "caller": "getFullTableDownloadCSV",
+          "callee": "wdsUrl",
+          "lineNumber": 212
+        },
+        {
+          "caller": "getFullTableDownloadCSV",
+          "callee": "httpGet",
+          "lineNumber": 213
+        },
+        {
+          "caller": "getCubeMetadata",
+          "callee": "wdsUrl",
+          "lineNumber": 253
+        },
+        {
+          "caller": "getCubeMetadata",
+          "callee": "httpGet",
+          "lineNumber": 254
+        },
+        {
+          "caller": "getCubeMetadata",
+          "callee": "resp.json",
+          "lineNumber": 270
+        },
+        {
+          "caller": "getCubeMetadata",
+          "callee": "Array.isArray",
+          "lineNumber": 273
+        },
+        {
+          "caller": "getCubeMetadata",
+          "callee": "JSON.stringify",
+          "lineNumber": 284
+        },
+        {
+          "caller": "getChangedCubeList",
+          "callee": "wdsUrl",
+          "lineNumber": 322
+        },
+        {
+          "caller": "getChangedCubeList",
+          "callee": "httpGet",
+          "lineNumber": 323
+        },
+        {
+          "caller": "getChangedCubeList",
+          "callee": "resp.json",
+          "lineNumber": 339
+        },
+        {
+          "caller": "getChangedCubeList",
+          "callee": "Array.isArray",
+          "lineNumber": 340
+        },
+        {
+          "caller": "parseCsvResponse",
+          "callee": "csvText.split('\\n').filter",
+          "lineNumber": 365
+        },
+        {
+          "caller": "parseCsvResponse",
+          "callee": "csvText.split",
+          "lineNumber": 365
+        },
+        {
+          "caller": "parseCsvResponse",
+          "callee": "line.trim",
+          "lineNumber": 365
+        },
+        {
+          "caller": "parseCsvResponse",
+          "callee": "parseCsvLine",
+          "lineNumber": 371
+        },
+        {
+          "caller": "parseCsvResponse",
+          "callee": "parseCsvLine",
+          "lineNumber": 376
+        },
+        {
+          "caller": "parseCsvResponse",
+          "callee": "rows.push",
+          "lineNumber": 378
+        },
+        {
+          "caller": "resolveJsonStatDimensions",
+          "callee": "Math.floor",
+          "lineNumber": 418
+        },
+        {
+          "caller": "resolveJsonStatDimensions",
+          "callee": "String",
+          "lineNumber": 423
+        },
+        {
+          "caller": "resolveJsonStatDimensions",
+          "callee": "Object.keys",
+          "lineNumber": 423
+        },
+        {
+          "caller": "resolveJsonStatDimensions",
+          "callee": "String",
+          "lineNumber": 424
+        },
+        {
+          "caller": "extractTimeDimension",
+          "callee": "Object.entries",
+          "lineNumber": 443
+        },
+        {
+          "caller": "extractTimeDimension",
+          "callee": "parseJsonStatDate",
+          "lineNumber": 444
+        },
+        {
+          "caller": "extractTimeDimension",
+          "callee": "timeEntries.push",
+          "lineNumber": 445
+        },
+        {
+          "caller": "extractTimeDimension",
+          "callee": "parseJsonStatDate",
+          "lineNumber": 447
+        },
+        {
+          "caller": "parseJsonStatDate",
+          "callee": "label.match",
+          "lineNumber": 461
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 9,
+        "functionCount": 9,
+        "classCount": 1
+      }
+    }
+  ]
+}

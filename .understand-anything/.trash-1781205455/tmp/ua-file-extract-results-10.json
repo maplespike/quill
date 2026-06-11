@@ -1,0 +1,5003 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 33,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-data/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 328,
+      "nonEmptyLines": 296,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/cbsa.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 148,
+      "nonEmptyLines": 128,
+      "functions": [
+        {
+          "name": "fetchAmpsStats",
+          "startLine": 31,
+          "endLine": 70,
+          "params": [
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseCbsaCsvLine",
+          "startLine": 76,
+          "endLine": 94,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "fetchCbsaCkanMetadata",
+          "startLine": 103,
+          "endLine": 130,
+          "params": []
+        },
+        {
+          "name": "searchCbsaData",
+          "startLine": 139,
+          "endLine": 148,
+          "params": [
+            "query",
+            "maxResults"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAmpsStats",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCbsaCkanMetadata",
+          "line": 103,
+          "isDefault": false
+        },
+        {
+          "name": "searchCbsaData",
+          "line": 139,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "httpGet",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "resp.body.split('\\n').filter",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "resp.body.split",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "l.trim",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "lines.slice",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "parseCbsaCsvLine",
+          "lineNumber": 48
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "records.push",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "computeHash",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "fields.join",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "parseInt",
+          "lineNumber": 54
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "parseFloat",
+          "lineNumber": 56
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "parseInt",
+          "lineNumber": 57
+        },
+        {
+          "caller": "fetchAmpsStats",
+          "callee": "new Date().toISOString",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseCbsaCsvLine",
+          "callee": "fields.push",
+          "lineNumber": 86
+        },
+        {
+          "caller": "parseCbsaCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 86
+        },
+        {
+          "caller": "parseCbsaCsvLine",
+          "callee": "fields.push",
+          "lineNumber": 92
+        },
+        {
+          "caller": "parseCbsaCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 92
+        },
+        {
+          "caller": "fetchCbsaCkanMetadata",
+          "callee": "Object.entries",
+          "lineNumber": 108
+        },
+        {
+          "caller": "fetchCbsaCkanMetadata",
+          "callee": "httpGet",
+          "lineNumber": 110
+        },
+        {
+          "caller": "fetchCbsaCkanMetadata",
+          "callee": "await resp.json",
+          "lineNumber": 116
+        },
+        {
+          "caller": "fetchCbsaCkanMetadata",
+          "callee": "datasets.push",
+          "lineNumber": 119
+        },
+        {
+          "caller": "searchCbsaData",
+          "callee": "query.toLowerCase",
+          "lineNumber": 143
+        },
+        {
+          "caller": "searchCbsaData",
+          "callee": "fetchAmpsStats",
+          "lineNumber": 144
+        },
+        {
+          "caller": "searchCbsaData",
+          "callee": "amps.filter(p =>\n    p.violationType.toLowerCase().includes(q),\n  ).slice",
+          "lineNumber": 145
+        },
+        {
+          "caller": "searchCbsaData",
+          "callee": "amps.filter",
+          "lineNumber": 145
+        },
+        {
+          "caller": "searchCbsaData",
+          "callee": "p.violationType.toLowerCase().includes",
+          "lineNumber": 146
+        },
+        {
+          "caller": "searchCbsaData",
+          "callee": "p.violationType.toLowerCase",
+          "lineNumber": 146
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 222,
+      "nonEmptyLines": 203,
+      "functions": [
+        {
+          "name": "rpdDecisionsUrl",
+          "startLine": 189,
+          "endLine": 192,
+          "params": [
+            "year",
+            "quarter"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ImmigrationFetchError",
+          "startLine": 213,
+          "endLine": 222,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "IMMIGRATION_SOURCES",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "IRCC_DATASETS",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "IRB_DATASETS",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "CBSA_DATASETS",
+          "line": 135,
+          "isDefault": false
+        },
+        {
+          "name": "IRCC_CSV_FILES",
+          "line": 156,
+          "isDefault": false
+        },
+        {
+          "name": "rpdDecisionsUrl",
+          "line": 189,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 198,
+          "isDefault": false
+        },
+        {
+          "name": "IMMIGRATION_SOURCE_NAMES",
+          "line": 200,
+          "isDefault": false
+        },
+        {
+          "name": "ImmigrationFetchError",
+          "line": 213,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 219
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 303,
+      "nonEmptyLines": 267,
+      "functions": [
+        {
+          "name": "ingestPermanentResidents",
+          "startLine": 32,
+          "endLine": 75,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "ingestTempResidents",
+          "startLine": 81,
+          "endLine": 122,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "ingestRpdDecisions",
+          "startLine": 128,
+          "endLine": 177,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "ingestCbsaEnforcement",
+          "startLine": 183,
+          "endLine": 219,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllImmigration",
+          "startLine": 229,
+          "endLine": 255,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "generateImmigrationLobbyingLinks",
+          "startLine": 265,
+          "endLine": 303,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestPermanentResidents",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "ingestTempResidents",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "ingestRpdDecisions",
+          "line": 128,
+          "isDefault": false
+        },
+        {
+          "name": "ingestCbsaEnforcement",
+          "line": 183,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllImmigration",
+          "line": 229,
+          "isDefault": false
+        },
+        {
+          "name": "generateImmigrationLobbyingLinks",
+          "line": 265,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "Date.now",
+          "lineNumber": 38
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "Promise.all",
+          "lineNumber": 49
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "fetchPermanentResidentsByProvince",
+          "lineNumber": 50
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "fetchPermanentResidentsByCitizenship",
+          "lineNumber": 51
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "byCategory.set",
+          "lineNumber": 60
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "byCategory.get",
+          "lineNumber": 60
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "log",
+          "lineNumber": 63
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "Array.from",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "byCategory.entries",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "log",
+          "lineNumber": 65
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "count.toLocaleString",
+          "lineNumber": 65
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "String",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "result.errors.push",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "log",
+          "lineNumber": 70
+        },
+        {
+          "caller": "ingestPermanentResidents",
+          "callee": "Date.now",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "Date.now",
+          "lineNumber": 87
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "Promise.all",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "fetchStudyPermitHolders",
+          "lineNumber": 99
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "fetchWorkPermitImp",
+          "lineNumber": 100
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "fetchWorkPermitTfwp",
+          "lineNumber": 101
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "study.reduce",
+          "lineNumber": 107
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "[...workImp, ...workTfwp].reduce",
+          "lineNumber": 108
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "log",
+          "lineNumber": 110
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "totalStudy.toLocaleString",
+          "lineNumber": 110
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "log",
+          "lineNumber": 111
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "log",
+          "lineNumber": 112
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "log",
+          "lineNumber": 113
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "totalWork.toLocaleString",
+          "lineNumber": 113
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "String",
+          "lineNumber": 115
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "result.errors.push",
+          "lineNumber": 116
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "log",
+          "lineNumber": 117
+        },
+        {
+          "caller": "ingestTempResidents",
+          "callee": "Date.now",
+          "lineNumber": 120
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "Date.now",
+          "lineNumber": 134
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "fetchRecentRpdDecisions",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "Math.ceil",
+          "lineNumber": 147
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "new Date().getMonth",
+          "lineNumber": 147
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "computeRpdStats",
+          "lineNumber": 154
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 155
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 156
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "(stats.acceptanceRate * 100).toFixed",
+          "lineNumber": 156
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 157
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 158
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 159
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "Object.entries(stats.byCountry)\n      .sort((a, b) => b[1].total - a[1].total)\n      .slice",
+          "lineNumber": 162
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "Object.entries(stats.byCountry)\n      .sort",
+          "lineNumber": 162
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "Object.entries",
+          "lineNumber": 162
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "((data.accepted / data.total) * 100).toFixed",
+          "lineNumber": 166
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 167
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "String",
+          "lineNumber": 170
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "result.errors.push",
+          "lineNumber": 171
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "log",
+          "lineNumber": 172
+        },
+        {
+          "caller": "ingestRpdDecisions",
+          "callee": "Date.now",
+          "lineNumber": 175
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "Date.now",
+          "lineNumber": 189
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "fetchAmpsStats",
+          "lineNumber": 200
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "amps.reduce",
+          "lineNumber": 205
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "amps.reduce",
+          "lineNumber": 206
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "log",
+          "lineNumber": 208
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "log",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "totalPenalties.toLocaleString",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "log",
+          "lineNumber": 210
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "totalAmount.toLocaleString",
+          "lineNumber": 210
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "String",
+          "lineNumber": 212
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "result.errors.push",
+          "lineNumber": 213
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "log",
+          "lineNumber": 214
+        },
+        {
+          "caller": "ingestCbsaEnforcement",
+          "callee": "Date.now",
+          "lineNumber": 217
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "log",
+          "lineNumber": 236
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "Promise.all",
+          "lineNumber": 238
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "ingestPermanentResidents",
+          "lineNumber": 239
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "ingestTempResidents",
+          "lineNumber": 240
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "ingestRpdDecisions",
+          "lineNumber": 241
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "ingestCbsaEnforcement",
+          "lineNumber": 242
+        },
+        {
+          "caller": "ingestAllImmigration",
+          "callee": "log",
+          "lineNumber": 247
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/irb.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 236,
+      "nonEmptyLines": 210,
+      "functions": [
+        {
+          "name": "parseRpdLine",
+          "startLine": 32,
+          "endLine": 56,
+          "params": [
+            "fields"
+          ]
+        },
+        {
+          "name": "fetchRpdDecisionsQuarter",
+          "startLine": 62,
+          "endLine": 108,
+          "params": [
+            "year",
+            "quarter",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseRpdCsvLine",
+          "startLine": 114,
+          "endLine": 138,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "fetchRecentRpdDecisions",
+          "startLine": 148,
+          "endLine": 170,
+          "params": [
+            "endYear",
+            "endQuarter",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "searchRpdDecisions",
+          "startLine": 179,
+          "endLine": 192,
+          "params": [
+            "query",
+            "maxResults"
+          ]
+        },
+        {
+          "name": "computeRpdStats",
+          "startLine": 201,
+          "endLine": 236,
+          "params": [
+            "decisions"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchRpdDecisionsQuarter",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "fetchRecentRpdDecisions",
+          "line": 148,
+          "isDefault": false
+        },
+        {
+          "name": "searchRpdDecisions",
+          "line": 179,
+          "isDefault": false
+        },
+        {
+          "name": "computeRpdStats",
+          "line": 201,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseRpdLine",
+          "callee": "parseInt",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "fields[4]?.toLowerCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "outcomeStr.includes",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "outcomeStr.includes",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "outcomeStr.includes",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "outcomeStr.includes",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "outcomeStr.includes",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "outcomeStr.includes",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "parseInt",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseRpdLine",
+          "callee": "fields[5].toLowerCase",
+          "lineNumber": 51
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "rpdDecisionsUrl",
+          "lineNumber": 67
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "httpGet",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "resp.body.split('\\n').filter",
+          "lineNumber": 74
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "resp.body.split",
+          "lineNumber": 74
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "l.trim",
+          "lineNumber": 74
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "lines.slice",
+          "lineNumber": 76
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "parseRpdCsvLine",
+          "lineNumber": 82
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "parseRpdLine",
+          "lineNumber": 83
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "records.push",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "computeHash",
+          "lineNumber": 87
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "fields.join",
+          "lineNumber": 87
+        },
+        {
+          "caller": "fetchRpdDecisionsQuarter",
+          "callee": "new Date().toISOString",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseRpdCsvLine",
+          "callee": "fields.push",
+          "lineNumber": 130
+        },
+        {
+          "caller": "parseRpdCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 130
+        },
+        {
+          "caller": "parseRpdCsvLine",
+          "callee": "fields.push",
+          "lineNumber": 136
+        },
+        {
+          "caller": "parseRpdCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 136
+        },
+        {
+          "caller": "fetchRecentRpdDecisions",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 149
+        },
+        {
+          "caller": "fetchRecentRpdDecisions",
+          "callee": "Math.ceil",
+          "lineNumber": 150
+        },
+        {
+          "caller": "fetchRecentRpdDecisions",
+          "callee": "new Date().getMonth",
+          "lineNumber": 150
+        },
+        {
+          "caller": "fetchRecentRpdDecisions",
+          "callee": "fetchRpdDecisionsQuarter",
+          "lineNumber": 163
+        },
+        {
+          "caller": "fetchRecentRpdDecisions",
+          "callee": "allRecords.push",
+          "lineNumber": 164
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "query.toLowerCase",
+          "lineNumber": 183
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "fetchRecentRpdDecisions",
+          "lineNumber": 184
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "decisions.filter(d =>\n    d.countryOfOrigin?.toLowerCase().includes(q) ||\n    d.outcome?.toLowerCase().includes(q) ||\n    d.language?.toLowerCase().includes(q) ||\n    d.gender?.toLowerCase().includes(q) ||\n    d.hearingType?.toLowerCase().includes(q),\n  ).slice",
+          "lineNumber": 185
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "decisions.filter",
+          "lineNumber": 185
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.countryOfOrigin?.toLowerCase().includes",
+          "lineNumber": 186
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.countryOfOrigin?.toLowerCase",
+          "lineNumber": 186
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.outcome?.toLowerCase().includes",
+          "lineNumber": 187
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.outcome?.toLowerCase",
+          "lineNumber": 187
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.language?.toLowerCase().includes",
+          "lineNumber": 188
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.language?.toLowerCase",
+          "lineNumber": 188
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.gender?.toLowerCase().includes",
+          "lineNumber": 189
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.gender?.toLowerCase",
+          "lineNumber": 189
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.hearingType?.toLowerCase().includes",
+          "lineNumber": 190
+        },
+        {
+          "caller": "searchRpdDecisions",
+          "callee": "d.hearingType?.toLowerCase",
+          "lineNumber": 190
+        },
+        {
+          "caller": "computeRpdStats",
+          "callee": "decisions.filter",
+          "lineNumber": 213
+        },
+        {
+          "caller": "computeRpdStats",
+          "callee": "decisions.filter",
+          "lineNumber": 214
+        },
+        {
+          "caller": "computeRpdStats",
+          "callee": "decisions.filter",
+          "lineNumber": 215
+        },
+        {
+          "caller": "computeRpdStats",
+          "callee": "decisions.filter",
+          "lineNumber": 216
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 4,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/ircc.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 349,
+      "nonEmptyLines": 309,
+      "functions": [
+        {
+          "name": "fetchCkanDataset",
+          "startLine": 41,
+          "endLine": 71,
+          "params": [
+            "datasetId"
+          ]
+        },
+        {
+          "name": "parseIrccCsv",
+          "startLine": 83,
+          "endLine": 87,
+          "params": [
+            "content",
+            "hasHeader"
+          ]
+        },
+        {
+          "name": "fetchIrccCsv",
+          "startLine": 97,
+          "endLine": 116,
+          "params": [
+            "csvName"
+          ]
+        },
+        {
+          "name": "fetchPermanentResidentsByProvince",
+          "startLine": 126,
+          "endLine": 158,
+          "params": [
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "fetchPermanentResidentsByCitizenship",
+          "startLine": 163,
+          "endLine": 195,
+          "params": [
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "fetchStudyPermitHolders",
+          "startLine": 205,
+          "endLine": 234,
+          "params": [
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "fetchWorkPermitImp",
+          "startLine": 244,
+          "endLine": 273,
+          "params": [
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "fetchWorkPermitTfwp",
+          "startLine": 279,
+          "endLine": 308,
+          "params": [
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "searchIrccData",
+          "startLine": 318,
+          "endLine": 349,
+          "params": [
+            "query",
+            "maxResults"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCkanDataset",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPermanentResidentsByProvince",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPermanentResidentsByCitizenship",
+          "line": 163,
+          "isDefault": false
+        },
+        {
+          "name": "fetchStudyPermitHolders",
+          "line": 205,
+          "isDefault": false
+        },
+        {
+          "name": "fetchWorkPermitImp",
+          "line": 244,
+          "isDefault": false
+        },
+        {
+          "name": "fetchWorkPermitTfwp",
+          "line": 279,
+          "isDefault": false
+        },
+        {
+          "name": "searchIrccData",
+          "line": 318,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCkanDataset",
+          "callee": "httpGet",
+          "lineNumber": 48
+        },
+        {
+          "caller": "fetchCkanDataset",
+          "callee": "await resp.json",
+          "lineNumber": 51
+        },
+        {
+          "caller": "fetchCkanDataset",
+          "callee": "parsed.result.resources.map",
+          "lineNumber": 57
+        },
+        {
+          "caller": "fetchCkanDataset",
+          "callee": "String",
+          "lineNumber": 66
+        },
+        {
+          "caller": "parseIrccCsv",
+          "callee": "content.split('\\n').filter",
+          "lineNumber": 84
+        },
+        {
+          "caller": "parseIrccCsv",
+          "callee": "content.split",
+          "lineNumber": 84
+        },
+        {
+          "caller": "parseIrccCsv",
+          "callee": "l.trim",
+          "lineNumber": 84
+        },
+        {
+          "caller": "parseIrccCsv",
+          "callee": "lines.slice(startIdx).map",
+          "lineNumber": 86
+        },
+        {
+          "caller": "parseIrccCsv",
+          "callee": "lines.slice",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "IMMIGRATION_SOURCES.IRCC_OPENDATA.CSV",
+          "lineNumber": 101
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "httpGet",
+          "lineNumber": 104
+        },
+        {
+          "caller": "fetchIrccCsv",
+          "callee": "parseIrccCsv",
+          "lineNumber": 111
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 129
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "records.push",
+          "lineNumber": 137
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "computeHash",
+          "lineNumber": 138
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "row.join",
+          "lineNumber": 138
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "parseInt",
+          "lineNumber": 143
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "parseInt",
+          "lineNumber": 145
+        },
+        {
+          "caller": "fetchPermanentResidentsByProvince",
+          "callee": "new Date().toISOString",
+          "lineNumber": 150
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 166
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "records.push",
+          "lineNumber": 174
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "computeHash",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "row.join",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "parseInt",
+          "lineNumber": 180
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "parseInt",
+          "lineNumber": 182
+        },
+        {
+          "caller": "fetchPermanentResidentsByCitizenship",
+          "callee": "new Date().toISOString",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 208
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "records.push",
+          "lineNumber": 216
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "computeHash",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "row.join",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "parseInt",
+          "lineNumber": 218
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "parseInt",
+          "lineNumber": 224
+        },
+        {
+          "caller": "fetchStudyPermitHolders",
+          "callee": "new Date().toISOString",
+          "lineNumber": 226
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 247
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "records.push",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "computeHash",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "row.join",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "parseInt",
+          "lineNumber": 257
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "parseInt",
+          "lineNumber": 263
+        },
+        {
+          "caller": "fetchWorkPermitImp",
+          "callee": "new Date().toISOString",
+          "lineNumber": 265
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "fetchIrccCsv",
+          "lineNumber": 282
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "records.push",
+          "lineNumber": 290
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "computeHash",
+          "lineNumber": 291
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "row.join",
+          "lineNumber": 291
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "parseInt",
+          "lineNumber": 292
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "parseInt",
+          "lineNumber": 298
+        },
+        {
+          "caller": "fetchWorkPermitTfwp",
+          "callee": "new Date().toISOString",
+          "lineNumber": 300
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "query.toLowerCase",
+          "lineNumber": 326
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "Promise.all",
+          "lineNumber": 327
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "fetchPermanentResidentsByProvince",
+          "lineNumber": 328
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "fetchStudyPermitHolders",
+          "lineNumber": 329
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "fetchWorkPermitImp",
+          "lineNumber": 330
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "fetchWorkPermitTfwp",
+          "lineNumber": 331
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "pr.filter(r =>\n      r.provinceTerritory?.toLowerCase().includes(q) ||\n      r.immigrationCategory?.toLowerCase().includes(q),\n    ).slice",
+          "lineNumber": 335
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "pr.filter",
+          "lineNumber": 335
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.provinceTerritory?.toLowerCase().includes",
+          "lineNumber": 336
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.provinceTerritory?.toLowerCase",
+          "lineNumber": 336
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.immigrationCategory?.toLowerCase().includes",
+          "lineNumber": 337
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.immigrationCategory?.toLowerCase",
+          "lineNumber": 337
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "study.filter(r =>\n      r.provinceTerritory?.toLowerCase().includes(q) ||\n      r.countryOfCitizenship?.toLowerCase().includes(q),\n    ).slice",
+          "lineNumber": 339
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "study.filter",
+          "lineNumber": 339
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.provinceTerritory?.toLowerCase().includes",
+          "lineNumber": 340
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.provinceTerritory?.toLowerCase",
+          "lineNumber": 340
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.countryOfCitizenship?.toLowerCase().includes",
+          "lineNumber": 341
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.countryOfCitizenship?.toLowerCase",
+          "lineNumber": 341
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "[...workImp, ...workTfwp].filter(r =>\n      r.provinceTerritory?.toLowerCase().includes(q) ||\n      r.countryOfCitizenship?.toLowerCase().includes(q) ||\n      r.nocLevel?.toLowerCase().includes(q),\n    ).slice",
+          "lineNumber": 343
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "[...workImp, ...workTfwp].filter",
+          "lineNumber": 343
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.provinceTerritory?.toLowerCase().includes",
+          "lineNumber": 344
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.provinceTerritory?.toLowerCase",
+          "lineNumber": 344
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.countryOfCitizenship?.toLowerCase().includes",
+          "lineNumber": 345
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.countryOfCitizenship?.toLowerCase",
+          "lineNumber": 345
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.nocLevel?.toLowerCase().includes",
+          "lineNumber": 346
+        },
+        {
+          "caller": "searchIrccData",
+          "callee": "r.nocLevel?.toLowerCase",
+          "lineNumber": 346
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 7,
+        "functionCount": 9,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parsePermanentResidentAdmission",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parsePermanentResidentAdmissions",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parsePermanentResidentAdmission",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parsePermanentResidentAdmissions",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parsePermanentResidentAdmission",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parsePermanentResidentAdmission",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parsePermanentResidentAdmission",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parsePermanentResidentAdmissions",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parsePermanentResidentAdmissions",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parsePermanentResidentAdmissions",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parsePermanentResidentAdmissions",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parsePermanentResidentAdmissions",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parsePermanentResidentAdmissions",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/immigration/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 228,
+      "nonEmptyLines": 199,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/cirnac.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 279,
+      "nonEmptyLines": 250,
+      "functions": [
+        {
+          "name": "fetchCirnacCkanDataset",
+          "startLine": 36,
+          "endLine": 66,
+          "params": [
+            "datasetId"
+          ]
+        },
+        {
+          "name": "searchCirnacPackages",
+          "startLine": 75,
+          "endLine": 109,
+          "params": [
+            "query",
+            "limit"
+          ]
+        },
+        {
+          "name": "parseLandClaim",
+          "startLine": 118,
+          "endLine": 153,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "computeLandClaimId",
+          "startLine": 158,
+          "endLine": 162,
+          "params": [
+            "claim"
+          ]
+        },
+        {
+          "name": "fetchLandClaims",
+          "startLine": 170,
+          "endLine": 213,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "fetchSelfGovernmentAgreements",
+          "startLine": 225,
+          "endLine": 259,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "fetchAllCirnacData",
+          "startLine": 268,
+          "endLine": 279,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCirnacCkanDataset",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "searchCirnacPackages",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "parseLandClaim",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "computeLandClaimId",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLandClaims",
+          "line": 170,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSelfGovernmentAgreements",
+          "line": 225,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCirnacData",
+          "line": 268,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCirnacCkanDataset",
+          "callee": "httpGet",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchCirnacCkanDataset",
+          "callee": "await resp.json",
+          "lineNumber": 46
+        },
+        {
+          "caller": "fetchCirnacCkanDataset",
+          "callee": "parsed.result.resources.map",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchCirnacCkanDataset",
+          "callee": "String",
+          "lineNumber": 61
+        },
+        {
+          "caller": "searchCirnacPackages",
+          "callee": "encodeURIComponent",
+          "lineNumber": 82
+        },
+        {
+          "caller": "searchCirnacPackages",
+          "callee": "Math.min",
+          "lineNumber": 82
+        },
+        {
+          "caller": "searchCirnacPackages",
+          "callee": "httpGet",
+          "lineNumber": 84
+        },
+        {
+          "caller": "searchCirnacPackages",
+          "callee": "await resp.json",
+          "lineNumber": 87
+        },
+        {
+          "caller": "searchCirnacPackages",
+          "callee": "parsed.result.results.map",
+          "lineNumber": 95
+        },
+        {
+          "caller": "searchCirnacPackages",
+          "callee": "String",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseLandClaim",
+          "callee": "new Date().toISOString",
+          "lineNumber": 132
+        },
+        {
+          "caller": "parseLandClaim",
+          "callee": "new Date(raw.settlementDate).getFullYear",
+          "lineNumber": 146
+        },
+        {
+          "caller": "parseLandClaim",
+          "callee": "new Date(raw.submissionDate).getFullYear",
+          "lineNumber": 146
+        },
+        {
+          "caller": "fetchLandClaims",
+          "callee": "new Date().toISOString",
+          "lineNumber": 173
+        },
+        {
+          "caller": "fetchLandClaims",
+          "callee": "fetchCirnacCkanDataset",
+          "lineNumber": 178
+        },
+        {
+          "caller": "fetchLandClaims",
+          "callee": "computeHash",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchLandClaims",
+          "callee": "claims.push",
+          "lineNumber": 189
+        },
+        {
+          "caller": "fetchLandClaims",
+          "callee": "claims.slice",
+          "lineNumber": 206
+        },
+        {
+          "caller": "fetchLandClaims",
+          "callee": "String",
+          "lineNumber": 209
+        },
+        {
+          "caller": "fetchSelfGovernmentAgreements",
+          "callee": "new Date().toISOString",
+          "lineNumber": 228
+        },
+        {
+          "caller": "fetchSelfGovernmentAgreements",
+          "callee": "fetchCirnacCkanDataset",
+          "lineNumber": 232
+        },
+        {
+          "caller": "fetchSelfGovernmentAgreements",
+          "callee": "computeHash",
+          "lineNumber": 235
+        },
+        {
+          "caller": "fetchSelfGovernmentAgreements",
+          "callee": "agreements.push",
+          "lineNumber": 237
+        },
+        {
+          "caller": "fetchSelfGovernmentAgreements",
+          "callee": "agreements.slice",
+          "lineNumber": 252
+        },
+        {
+          "caller": "fetchSelfGovernmentAgreements",
+          "callee": "String",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchAllCirnacData",
+          "callee": "Promise.all",
+          "lineNumber": 273
+        },
+        {
+          "caller": "fetchAllCirnacData",
+          "callee": "fetchLandClaims",
+          "lineNumber": 274
+        },
+        {
+          "caller": "fetchAllCirnacData",
+          "callee": "fetchSelfGovernmentAgreements",
+          "lineNumber": 275
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 330,
+      "nonEmptyLines": 294,
+      "functions": [
+        {
+          "name": "buildFullTrcCatalog",
+          "startLine": 192,
+          "endLine": 194,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "IndigenousFetchError",
+          "startLine": 216,
+          "endLine": 225,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "INDIGENOUS_SOURCES",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "CIRNAC_DATASETS",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "CIRNAC_CKAN_QUERY",
+          "line": 119,
+          "isDefault": false
+        },
+        {
+          "name": "ISC_CKAN_QUERY",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "FN_TRANSPARENCY_CKAN_QUERY",
+          "line": 125,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_COMMUNITIES",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "TRC_CALLS_TO_ACTION",
+          "line": 177,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 200,
+          "isDefault": false
+        },
+        {
+          "name": "INDIGENOUS_SOURCE_NAMES",
+          "line": 202,
+          "isDefault": false
+        },
+        {
+          "name": "IndigenousFetchError",
+          "line": 216,
+          "isDefault": false
+        },
+        {
+          "name": "INDIGENOUS_DDL",
+          "line": 228,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 222
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 11,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/fn-transparency.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 213,
+      "nonEmptyLines": 193,
+      "functions": [
+        {
+          "name": "fetchFnCkanDataset",
+          "startLine": 33,
+          "endLine": 63,
+          "params": [
+            "datasetId"
+          ]
+        },
+        {
+          "name": "searchFnTransparencyPackages",
+          "startLine": 72,
+          "endLine": 106,
+          "params": [
+            "query",
+            "limit"
+          ]
+        },
+        {
+          "name": "parseFnTransparencyRecord",
+          "startLine": 115,
+          "endLine": 140,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "computeFnTransparencyId",
+          "startLine": 145,
+          "endLine": 148,
+          "params": [
+            "record"
+          ]
+        },
+        {
+          "name": "fetchFnTransparencyRecords",
+          "startLine": 163,
+          "endLine": 197,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "buildFnPortalUrl",
+          "startLine": 207,
+          "endLine": 213,
+          "params": [
+            "fnpId",
+            "fiscalYear"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchFnCkanDataset",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "searchFnTransparencyPackages",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "parseFnTransparencyRecord",
+          "line": 115,
+          "isDefault": false
+        },
+        {
+          "name": "computeFnTransparencyId",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "fetchFnTransparencyRecords",
+          "line": 163,
+          "isDefault": false
+        },
+        {
+          "name": "buildFnPortalUrl",
+          "line": 207,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchFnCkanDataset",
+          "callee": "httpGet",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchFnCkanDataset",
+          "callee": "await resp.json",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchFnCkanDataset",
+          "callee": "parsed.result.resources.map",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchFnCkanDataset",
+          "callee": "String",
+          "lineNumber": 58
+        },
+        {
+          "caller": "searchFnTransparencyPackages",
+          "callee": "encodeURIComponent",
+          "lineNumber": 79
+        },
+        {
+          "caller": "searchFnTransparencyPackages",
+          "callee": "Math.min",
+          "lineNumber": 79
+        },
+        {
+          "caller": "searchFnTransparencyPackages",
+          "callee": "httpGet",
+          "lineNumber": 81
+        },
+        {
+          "caller": "searchFnTransparencyPackages",
+          "callee": "await resp.json",
+          "lineNumber": 84
+        },
+        {
+          "caller": "searchFnTransparencyPackages",
+          "callee": "parsed.result.results.map",
+          "lineNumber": 92
+        },
+        {
+          "caller": "searchFnTransparencyPackages",
+          "callee": "String",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseFnTransparencyRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 126
+        },
+        {
+          "caller": "computeFnTransparencyId",
+          "callee": "computeHash",
+          "lineNumber": 147
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "fetchFnCkanDataset",
+          "lineNumber": 169
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "new Date().toISOString",
+          "lineNumber": 171
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "computeHash",
+          "lineNumber": 173
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "records.push",
+          "lineNumber": 176
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "new Date().getFullYear().toString",
+          "lineNumber": 179
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 179
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "records.slice",
+          "lineNumber": 190
+        },
+        {
+          "caller": "fetchFnTransparencyRecords",
+          "callee": "String",
+          "lineNumber": 193
+        },
+        {
+          "caller": "buildFnPortalUrl",
+          "callee": "params.set",
+          "lineNumber": 210
+        },
+        {
+          "caller": "buildFnPortalUrl",
+          "callee": "params.set",
+          "lineNumber": 211
+        },
+        {
+          "caller": "buildFnPortalUrl",
+          "callee": "params.toString",
+          "lineNumber": 212
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 415,
+      "nonEmptyLines": 381,
+      "functions": [
+        {
+          "name": "runPipeline",
+          "startLine": 50,
+          "endLine": 86,
+          "params": [
+            "sourceName",
+            "fetcher",
+            "persistFn"
+          ]
+        },
+        {
+          "name": "persistLandClaims",
+          "startLine": 92,
+          "endLine": 116,
+          "params": [
+            "db",
+            "claims"
+          ]
+        },
+        {
+          "name": "persistIscPrograms",
+          "startLine": 118,
+          "endLine": 141,
+          "params": [
+            "db",
+            "records"
+          ]
+        },
+        {
+          "name": "persistFnTransparency",
+          "startLine": 143,
+          "endLine": 166,
+          "params": [
+            "db",
+            "records"
+          ]
+        },
+        {
+          "name": "persistTrcTracker",
+          "startLine": 168,
+          "endLine": 191,
+          "params": [
+            "db",
+            "records"
+          ]
+        },
+        {
+          "name": "ingestLandClaims",
+          "startLine": 201,
+          "endLine": 211,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestIscPrograms",
+          "startLine": 217,
+          "endLine": 259,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestFnTransparency",
+          "startLine": 265,
+          "endLine": 275,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestTrcCalls",
+          "startLine": 281,
+          "endLine": 291,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllIndigenous",
+          "startLine": 302,
+          "endLine": 338,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "generateIndigenousCrossReferences",
+          "startLine": 352,
+          "endLine": 402,
+          "params": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestLandClaims",
+          "line": 201,
+          "isDefault": false
+        },
+        {
+          "name": "ingestIscPrograms",
+          "line": 217,
+          "isDefault": false
+        },
+        {
+          "name": "ingestFnTransparency",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "ingestTrcCalls",
+          "line": 281,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllIndigenous",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "generateIndigenousCrossReferences",
+          "line": 352,
+          "isDefault": false
+        },
+        {
+          "name": "LandClaim",
+          "line": 408,
+          "isDefault": false
+        },
+        {
+          "name": "IscCommunitySpending",
+          "line": 408,
+          "isDefault": false
+        },
+        {
+          "name": "FnTransparencyRecord",
+          "line": 408,
+          "isDefault": false
+        },
+        {
+          "name": "TrcCallToAction",
+          "line": 408,
+          "isDefault": false
+        },
+        {
+          "name": "SelfGovernmentAgreement",
+          "line": 408,
+          "isDefault": false
+        },
+        {
+          "name": "IndigenousIngestionResult",
+          "line": 408,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "runPipeline",
+          "callee": "Date.now",
+          "lineNumber": 55
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "fetcher",
+          "lineNumber": 61
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "persistFn",
+          "lineNumber": 66
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "String",
+          "lineNumber": 68
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "errors.push",
+          "lineNumber": 69
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "String",
+          "lineNumber": 75
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "errors.push",
+          "lineNumber": 76
+        },
+        {
+          "caller": "runPipeline",
+          "callee": "Date.now",
+          "lineNumber": 84
+        },
+        {
+          "caller": "persistLandClaims",
+          "callee": "db\n      .prepare(\n        `INSERT OR REPLACE INTO indigenous_land_claims\n         (id, claim_type, claimant, province_territory, description, status,\n          submission_date, settlement_date, settlement_amount_cad, duration_years,\n          negotiation_stage, ckan_dataset_id, source_url, ingested_at)\n         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n      )\n      .bind",
+          "lineNumber": 98
+        },
+        {
+          "caller": "persistLandClaims",
+          "callee": "db\n      .prepare",
+          "lineNumber": 98
+        },
+        {
+          "caller": "persistLandClaims",
+          "callee": "stmt.run",
+          "lineNumber": 112
+        },
+        {
+          "caller": "persistIscPrograms",
+          "callee": "db\n      .prepare(\n        `INSERT OR REPLACE INTO indigenous_isc_programs\n         (id, fiscal_year, community_name, province_territory, spending_category,\n          program_name, allocated_amount, spent_amount, beneficiaries,\n          source_url, ingested_at)\n         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n      )\n      .bind",
+          "lineNumber": 124
+        },
+        {
+          "caller": "persistIscPrograms",
+          "callee": "db\n      .prepare",
+          "lineNumber": 124
+        },
+        {
+          "caller": "persistIscPrograms",
+          "callee": "stmt.run",
+          "lineNumber": 137
+        },
+        {
+          "caller": "persistFnTransparency",
+          "callee": "db\n      .prepare(\n        `INSERT OR REPLACE INTO indigenous_fn_transparency\n         (id, community_name, fiscal_year, position_title, individual_name,\n          total_compensation, base_salary, taxable_benefits, is_elected,\n          source_url, ingested_at)\n         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n      )\n      .bind",
+          "lineNumber": 149
+        },
+        {
+          "caller": "persistFnTransparency",
+          "callee": "db\n      .prepare",
+          "lineNumber": 149
+        },
+        {
+          "caller": "persistFnTransparency",
+          "callee": "stmt.run",
+          "lineNumber": 162
+        },
+        {
+          "caller": "persistTrcTracker",
+          "callee": "db\n      .prepare(\n        `INSERT OR REPLACE INTO indigenous_trc_tracker\n         (id, call_number, category, sub_category, title, call_text,\n          status, assessment_date, responsible_entity, isc_involvement,\n          progress_notes, source_url, ingested_at)\n         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n      )\n      .bind",
+          "lineNumber": 174
+        },
+        {
+          "caller": "persistTrcTracker",
+          "callee": "db\n      .prepare",
+          "lineNumber": 174
+        },
+        {
+          "caller": "persistTrcTracker",
+          "callee": "stmt.run",
+          "lineNumber": 187
+        },
+        {
+          "caller": "ingestLandClaims",
+          "callee": "runPipeline",
+          "lineNumber": 206
+        },
+        {
+          "caller": "ingestLandClaims",
+          "callee": "fetchLandClaims",
+          "lineNumber": 208
+        },
+        {
+          "caller": "ingestLandClaims",
+          "callee": "persistLandClaims",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "Date.now",
+          "lineNumber": 222
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "Promise.all",
+          "lineNumber": 228
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "fetchIscHealthSpending",
+          "lineNumber": 229
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "fetchIscEducationSpending",
+          "lineNumber": 230
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "fetchIscInfrastructureSpending",
+          "lineNumber": 231
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "persistIscPrograms",
+          "lineNumber": 239
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "String",
+          "lineNumber": 241
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "errors.push",
+          "lineNumber": 242
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "String",
+          "lineNumber": 248
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "errors.push",
+          "lineNumber": 249
+        },
+        {
+          "caller": "ingestIscPrograms",
+          "callee": "Date.now",
+          "lineNumber": 257
+        },
+        {
+          "caller": "ingestFnTransparency",
+          "callee": "runPipeline",
+          "lineNumber": 270
+        },
+        {
+          "caller": "ingestFnTransparency",
+          "callee": "fetchFnTransparencyRecords",
+          "lineNumber": 272
+        },
+        {
+          "caller": "ingestFnTransparency",
+          "callee": "persistFnTransparency",
+          "lineNumber": 273
+        },
+        {
+          "caller": "ingestTrcCalls",
+          "callee": "runPipeline",
+          "lineNumber": 286
+        },
+        {
+          "caller": "ingestTrcCalls",
+          "callee": "fetchAllTrcCalls",
+          "lineNumber": 288
+        },
+        {
+          "caller": "ingestTrcCalls",
+          "callee": "persistTrcTracker",
+          "lineNumber": 289
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "log",
+          "lineNumber": 310
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "Promise.all",
+          "lineNumber": 312
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestLandClaims(db, options).then",
+          "lineNumber": 313
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestLandClaims",
+          "lineNumber": 313
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "log",
+          "lineNumber": 314
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestIscPrograms(db, options).then",
+          "lineNumber": 317
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestIscPrograms",
+          "lineNumber": 317
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "log",
+          "lineNumber": 318
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestFnTransparency(db, options).then",
+          "lineNumber": 321
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestFnTransparency",
+          "lineNumber": 321
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "log",
+          "lineNumber": 322
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestTrcCalls(db, options).then",
+          "lineNumber": 325
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "ingestTrcCalls",
+          "lineNumber": 325
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "log",
+          "lineNumber": 326
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "results.reduce",
+          "lineNumber": 331
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "results.reduce",
+          "lineNumber": 332
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "Math.max",
+          "lineNumber": 333
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "results.map",
+          "lineNumber": 333
+        },
+        {
+          "caller": "ingestAllIndigenous",
+          "callee": "log",
+          "lineNumber": 335
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "Date.now",
+          "lineNumber": 361
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "await db\n            .prepare(\n              `SELECT COUNT(*) as cnt FROM lobbying_registrations\n               WHERE registrant_name LIKE ? OR subject_matter LIKE ?`,\n            )\n            .bind(`%${community.name}%`, `%${community.name}%`)\n            .first",
+          "lineNumber": 371
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "db\n            .prepare(\n              `SELECT COUNT(*) as cnt FROM lobbying_registrations\n               WHERE registrant_name LIKE ? OR subject_matter LIKE ?`,\n            )\n            .bind",
+          "lineNumber": 371
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "db\n            .prepare",
+          "lineNumber": 371
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "details.push",
+          "lineNumber": 384
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "details.reduce",
+          "lineNumber": 393
+        },
+        {
+          "caller": "generateIndigenousCrossReferences",
+          "callee": "Date.now",
+          "lineNumber": 400
+        }
+      ],
+      "metrics": {
+        "importCount": 8,
+        "exportCount": 12,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/isc.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 304,
+      "nonEmptyLines": 269,
+      "functions": [
+        {
+          "name": "fetchIscCkanDataset",
+          "startLine": 33,
+          "endLine": 63,
+          "params": [
+            "datasetId"
+          ]
+        },
+        {
+          "name": "searchIscPackages",
+          "startLine": 72,
+          "endLine": 106,
+          "params": [
+            "query",
+            "limit"
+          ]
+        },
+        {
+          "name": "parseIscSpendingRecord",
+          "startLine": 115,
+          "endLine": 142,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "computeIscSpendingId",
+          "startLine": 147,
+          "endLine": 150,
+          "params": [
+            "record"
+          ]
+        },
+        {
+          "name": "fetchIscHealthSpending",
+          "startLine": 160,
+          "endLine": 195,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "fetchIscEducationSpending",
+          "startLine": 204,
+          "endLine": 237,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "fetchIscInfrastructureSpending",
+          "startLine": 246,
+          "endLine": 279,
+          "params": [
+            "limit"
+          ]
+        },
+        {
+          "name": "fetchAllIscSpending",
+          "startLine": 288,
+          "endLine": 304,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchIscCkanDataset",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "searchIscPackages",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "parseIscSpendingRecord",
+          "line": 115,
+          "isDefault": false
+        },
+        {
+          "name": "computeIscSpendingId",
+          "line": 147,
+          "isDefault": false
+        },
+        {
+          "name": "fetchIscHealthSpending",
+          "line": 160,
+          "isDefault": false
+        },
+        {
+          "name": "fetchIscEducationSpending",
+          "line": 204,
+          "isDefault": false
+        },
+        {
+          "name": "fetchIscInfrastructureSpending",
+          "line": 246,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllIscSpending",
+          "line": 288,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchIscCkanDataset",
+          "callee": "httpGet",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchIscCkanDataset",
+          "callee": "await resp.json",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchIscCkanDataset",
+          "callee": "parsed.result.resources.map",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchIscCkanDataset",
+          "callee": "String",
+          "lineNumber": 58
+        },
+        {
+          "caller": "searchIscPackages",
+          "callee": "encodeURIComponent",
+          "lineNumber": 79
+        },
+        {
+          "caller": "searchIscPackages",
+          "callee": "Math.min",
+          "lineNumber": 79
+        },
+        {
+          "caller": "searchIscPackages",
+          "callee": "httpGet",
+          "lineNumber": 81
+        },
+        {
+          "caller": "searchIscPackages",
+          "callee": "await resp.json",
+          "lineNumber": 84
+        },
+        {
+          "caller": "searchIscPackages",
+          "callee": "parsed.result.results.map",
+          "lineNumber": 92
+        },
+        {
+          "caller": "searchIscPackages",
+          "callee": "String",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseIscSpendingRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 126
+        },
+        {
+          "caller": "computeIscSpendingId",
+          "callee": "computeHash",
+          "lineNumber": 149
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "fetchIscCkanDataset",
+          "lineNumber": 166
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "new Date().toISOString",
+          "lineNumber": 169
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "computeHash",
+          "lineNumber": 174
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "new Date().getFullYear().toString",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "records.push",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "records.slice",
+          "lineNumber": 188
+        },
+        {
+          "caller": "fetchIscHealthSpending",
+          "callee": "String",
+          "lineNumber": 191
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "fetchIscCkanDataset",
+          "lineNumber": 210
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "new Date().toISOString",
+          "lineNumber": 212
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "computeHash",
+          "lineNumber": 216
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "new Date().getFullYear().toString",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "records.push",
+          "lineNumber": 229
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "records.slice",
+          "lineNumber": 230
+        },
+        {
+          "caller": "fetchIscEducationSpending",
+          "callee": "String",
+          "lineNumber": 233
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "fetchIscCkanDataset",
+          "lineNumber": 252
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "new Date().toISOString",
+          "lineNumber": 254
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "computeHash",
+          "lineNumber": 258
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "new Date().getFullYear().toString",
+          "lineNumber": 259
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 259
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "records.push",
+          "lineNumber": 271
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "records.slice",
+          "lineNumber": 272
+        },
+        {
+          "caller": "fetchIscInfrastructureSpending",
+          "callee": "String",
+          "lineNumber": 275
+        },
+        {
+          "caller": "fetchAllIscSpending",
+          "callee": "Promise.all",
+          "lineNumber": 297
+        },
+        {
+          "caller": "fetchAllIscSpending",
+          "callee": "fetchIscHealthSpending",
+          "lineNumber": 298
+        },
+        {
+          "caller": "fetchAllIscSpending",
+          "callee": "fetchIscEducationSpending",
+          "lineNumber": 299
+        },
+        {
+          "caller": "fetchAllIscSpending",
+          "callee": "fetchIscInfrastructureSpending",
+          "lineNumber": 300
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 8,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseLandClaim",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseLandClaims",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseLandClaim",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseLandClaims",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseLandClaim",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseLandClaim",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseLandClaim",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseLandClaims",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseLandClaims",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseLandClaims",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseLandClaims",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseLandClaims",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseLandClaims",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/trc.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 133,
+      "functions": [
+        {
+          "name": "fetchTrcStatusFromCirnac",
+          "startLine": 34,
+          "endLine": 53,
+          "params": []
+        },
+        {
+          "name": "fetchBeyond94Data",
+          "startLine": 63,
+          "endLine": 69,
+          "params": []
+        },
+        {
+          "name": "buildTrcCallRecords",
+          "startLine": 79,
+          "endLine": 113,
+          "params": [
+            "statusOverrides"
+          ]
+        },
+        {
+          "name": "fetchAllTrcCalls",
+          "startLine": 123,
+          "endLine": 150,
+          "params": [
+            "limit"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchTrcStatusFromCirnac",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBeyond94Data",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "buildTrcCallRecords",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllTrcCalls",
+          "line": 123,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchTrcStatusFromCirnac",
+          "callee": "httpGet",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchTrcStatusFromCirnac",
+          "callee": "String",
+          "lineNumber": 48
+        },
+        {
+          "caller": "buildTrcCallRecords",
+          "callee": "new Date().toISOString",
+          "lineNumber": 82
+        },
+        {
+          "caller": "buildTrcCallRecords",
+          "callee": "statusOverrides?.get",
+          "lineNumber": 87
+        },
+        {
+          "caller": "buildTrcCallRecords",
+          "callee": "computeHash",
+          "lineNumber": 92
+        },
+        {
+          "caller": "buildTrcCallRecords",
+          "callee": "String(template.callNumber).padStart",
+          "lineNumber": 93
+        },
+        {
+          "caller": "buildTrcCallRecords",
+          "callee": "String",
+          "lineNumber": 93
+        },
+        {
+          "caller": "buildTrcCallRecords",
+          "callee": "records.push",
+          "lineNumber": 95
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "fetchTrcStatusFromCirnac",
+          "lineNumber": 128
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "overrides.set",
+          "lineNumber": 133
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "fetchBeyond94Data",
+          "lineNumber": 137
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "overrides.set",
+          "lineNumber": 140
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "buildTrcCallRecords",
+          "lineNumber": 143
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "records.slice",
+          "lineNumber": 144
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "buildTrcCallRecords",
+          "lineNumber": 147
+        },
+        {
+          "caller": "fetchAllTrcCalls",
+          "callee": "records.slice",
+          "lineNumber": 148
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-relations/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 244,
+      "nonEmptyLines": 178,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-services-directory/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 98,
+      "nonEmptyLines": 82,
+      "functions": [
+        {
+          "name": "normalizeProvince",
+          "startLine": 5,
+          "endLine": 27,
+          "params": [
+            "province"
+          ]
+        },
+        {
+          "name": "parseIndigenousServicesDirectory",
+          "startLine": 29,
+          "endLine": 83,
+          "params": [
+            "data"
+          ]
+        },
+        {
+          "name": "filterServiceRecords",
+          "startLine": 85,
+          "endLine": 98,
+          "params": [
+            "records",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeProvince",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseIndigenousServicesDirectory",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "filterServiceRecords",
+          "line": 85,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeProvince",
+          "callee": "province.toUpperCase().trim",
+          "lineNumber": 8
+        },
+        {
+          "caller": "normalizeProvince",
+          "callee": "province.toUpperCase",
+          "lineNumber": 8
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "data.trim",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "JSON.parse",
+          "lineNumber": 39
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "Array.isArray",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String(rec.name).trim",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String(rec.organization).trim",
+          "lineNumber": 62
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String",
+          "lineNumber": 62
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "normalizeProvince",
+          "lineNumber": 63
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String",
+          "lineNumber": 63
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String(rec.url).trim",
+          "lineNumber": 64
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String",
+          "lineNumber": 64
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String(rec.category).trim",
+          "lineNumber": 65
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "String",
+          "lineNumber": 65
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "computeHash",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseIndigenousServicesDirectory",
+          "callee": "parsed.push",
+          "lineNumber": 70
+        },
+        {
+          "caller": "filterServiceRecords",
+          "callee": "records.filter",
+          "lineNumber": 89
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/indigenous-services-directory/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 20,
+      "nonEmptyLines": 18,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ircc/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 27,
+      "nonEmptyLines": 25,
+      "functions": [
+        {
+          "name": "parseIrccRecord",
+          "startLine": 3,
+          "endLine": 11,
+          "params": [
+            "raw",
+            "programType"
+          ]
+        },
+        {
+          "name": "parseIrccRecords",
+          "startLine": 13,
+          "endLine": 27,
+          "params": [
+            "rawRecords",
+            "programType"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseIrccRecord",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "parseIrccRecords",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseIrccRecord",
+          "callee": "computeHash",
+          "lineNumber": 5
+        },
+        {
+          "caller": "parseIrccRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 5
+        },
+        {
+          "caller": "parseIrccRecord",
+          "callee": "console.warn",
+          "lineNumber": 8
+        },
+        {
+          "caller": "parseIrccRecords",
+          "callee": "computeHash",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseIrccRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseIrccRecords",
+          "callee": "seen.has",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseIrccRecords",
+          "callee": "seen.add",
+          "lineNumber": 20
+        },
+        {
+          "caller": "parseIrccRecords",
+          "callee": "results.push",
+          "lineNumber": 21
+        },
+        {
+          "caller": "parseIrccRecords",
+          "callee": "console.warn",
+          "lineNumber": 23
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/isc/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 27,
+      "nonEmptyLines": 25,
+      "functions": [
+        {
+          "name": "parseIscRecord",
+          "startLine": 3,
+          "endLine": 11,
+          "params": [
+            "raw",
+            "recordType"
+          ]
+        },
+        {
+          "name": "parseIscRecords",
+          "startLine": 13,
+          "endLine": 27,
+          "params": [
+            "rawRecords",
+            "recordType"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseIscRecord",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "parseIscRecords",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseIscRecord",
+          "callee": "computeHash",
+          "lineNumber": 5
+        },
+        {
+          "caller": "parseIscRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 5
+        },
+        {
+          "caller": "parseIscRecord",
+          "callee": "console.warn",
+          "lineNumber": 8
+        },
+        {
+          "caller": "parseIscRecords",
+          "callee": "computeHash",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseIscRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseIscRecords",
+          "callee": "seen.has",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseIscRecords",
+          "callee": "seen.add",
+          "lineNumber": 20
+        },
+        {
+          "caller": "parseIscRecords",
+          "callee": "results.push",
+          "lineNumber": 21
+        },
+        {
+          "caller": "parseIscRecords",
+          "callee": "console.warn",
+          "lineNumber": 23
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/municipal-long-tail/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 13,
+      "exports": [
+        {
+          "name": "CRAWLER_USER_AGENT",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "CRAWLER_TIMEOUT_MS",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "MUNICIPAL_KEYWORDS",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCIAL_CKAN_PATHS",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_DATASETS_PER_PORTAL",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/municipal-long-tail/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 40,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 6,
+          "endLine": 11,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "crawlProvincialPortal",
+          "startLine": 13,
+          "endLine": 32,
+          "params": [
+            "province",
+            "baseUrl"
+          ]
+        },
+        {
+          "name": "fetchAllMunicipalLongTail",
+          "startLine": 34,
+          "endLine": 43,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAllMunicipalLongTail",
+          "line": 34,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 8
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 9
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "new Date().toISOString",
+          "lineNumber": 14
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "fetchJson",
+          "lineNumber": 17
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "results.push",
+          "lineNumber": 24
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "computeHash",
+          "lineNumber": 25
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "title.split('—')[0]?.trim",
+          "lineNumber": 25
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "title.split",
+          "lineNumber": 25
+        },
+        {
+          "caller": "crawlProvincialPortal",
+          "callee": "computeHash",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "Date.now",
+          "lineNumber": 35
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "Object.entries",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "Promise.allSettled",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "entries.map",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "crawlProvincialPortal",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "allDatasets.push",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "errors.push",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchAllMunicipalLongTail",
+          "callee": "Date.now",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/municipal-long-tail/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 5,
+      "nonEmptyLines": 5,
+      "functions": [
+        {
+          "name": "ingestMunicipalLongTail",
+          "startLine": 3,
+          "endLine": 3,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestMunicipalLongTail",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "MunicipalDataset",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "MunicipalLongTailIngestionResult",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseMunicipalDataset",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseMunicipalDatasets",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestMunicipalLongTail",
+          "callee": "fetchAllMunicipalLongTail",
+          "lineNumber": 3
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 7,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/municipal-long-tail/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseMunicipalDataset",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseMunicipalDatasets",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseMunicipalDataset",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseMunicipalDatasets",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseMunicipalDataset",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseMunicipalDataset",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseMunicipalDataset",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseMunicipalDatasets",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseMunicipalDatasets",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseMunicipalDatasets",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseMunicipalDatasets",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseMunicipalDatasets",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseMunicipalDatasets",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/municipal-long-tail/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 18,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ontario-provincial/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 82,
+      "nonEmptyLines": 74,
+      "functions": [
+        {
+          "name": "parseOntarioProvincialRecords",
+          "startLine": 10,
+          "endLine": 65,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        },
+        {
+          "name": "normalizeResourceSize",
+          "startLine": 67,
+          "endLine": 72,
+          "params": [
+            "size"
+          ]
+        },
+        {
+          "name": "normalizeDate",
+          "startLine": 74,
+          "endLine": 82,
+          "params": [
+            "dateStr"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseOntarioProvincialRecords",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "new Date().toISOString",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "seenHashes.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "seenHashes.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "records.push",
+          "lineNumber": 36
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "normalizeResourceSize",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "normalizeDate",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "normalizeDate",
+          "lineNumber": 49
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "console.warn",
+          "lineNumber": 56
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "String",
+          "lineNumber": 56
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "console.warn",
+          "lineNumber": 60
+        },
+        {
+          "caller": "parseOntarioProvincialRecords",
+          "callee": "String",
+          "lineNumber": 60
+        },
+        {
+          "caller": "normalizeResourceSize",
+          "callee": "parseInt",
+          "lineNumber": 70
+        },
+        {
+          "caller": "normalizeResourceSize",
+          "callee": "String",
+          "lineNumber": 70
+        },
+        {
+          "caller": "normalizeResourceSize",
+          "callee": "isNaN",
+          "lineNumber": 71
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 78
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "date.getTime",
+          "lineNumber": 78
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "date.toISOString",
+          "lineNumber": 78
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ontario-provincial/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 63,
+      "nonEmptyLines": 60,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-regulators/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 188,
+      "nonEmptyLines": 180,
+      "exports": [
+        {
+          "name": "REGULATOR_UA",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "REGULATOR_TIMEOUT_MS",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_REGULATOR_RECORDS",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_SCRAPE_TARGETS",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCIAL_CKAN",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "REGULATORY_KEYWORDS",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "REGULATOR_CATEGORIES",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "KNOWN_REGULATORS",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_REGULATOR_PROVINCES",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "TOTAL_KNOWN_REGULATORS",
+          "line": 188,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 10,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-regulators/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 215,
+      "nonEmptyLines": 195,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 27,
+          "endLine": 38,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchText",
+          "startLine": 41,
+          "endLine": 51,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "searchProvincialCkan",
+          "startLine": 62,
+          "endLine": 90,
+          "params": [
+            "province",
+            "ckanBase",
+            "keyword"
+          ]
+        },
+        {
+          "name": "scrapeRegulatorSite",
+          "startLine": 101,
+          "endLine": 140,
+          "params": [
+            "province",
+            "regulatorName",
+            "baseUrl",
+            "category"
+          ]
+        },
+        {
+          "name": "ingestAllRegulators",
+          "startLine": 158,
+          "endLine": 203,
+          "params": []
+        },
+        {
+          "name": "getRegulatorCoverage",
+          "startLine": 208,
+          "endLine": 215,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllRegulators",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "getRegulatorCoverage",
+          "line": 208,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 34
+        },
+        {
+          "caller": "fetchText",
+          "callee": "httpGet",
+          "lineNumber": 43
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "new Date().toISOString",
+          "lineNumber": 68
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "encodeURIComponent",
+          "lineNumber": 72
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "fetchJson",
+          "lineNumber": 73
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "computeHash",
+          "lineNumber": 77
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "records.push",
+          "lineNumber": 78
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "pkg.notes.substring",
+          "lineNumber": 84
+        },
+        {
+          "caller": "searchProvincialCkan",
+          "callee": "ckanBase.replace",
+          "lineNumber": 85
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "new Date().toISOString",
+          "lineNumber": 108
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "baseUrl.replace",
+          "lineNumber": 114
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "fetchText",
+          "lineNumber": 115
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "[...html.matchAll(datePattern)].slice",
+          "lineNumber": 120
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "html.matchAll",
+          "lineNumber": 120
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "linkPattern.exec",
+          "lineNumber": 124
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "linkMatch[1].startsWith",
+          "lineNumber": 125
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "baseUrl.replace",
+          "lineNumber": 125
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "linkMatch[1].replace",
+          "lineNumber": 125
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "linkMatch[2]?.trim",
+          "lineNumber": 126
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "now.substring",
+          "lineNumber": 129
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "computeHash",
+          "lineNumber": 130
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "records.push",
+          "lineNumber": 132
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "path.replace('/', '').replace",
+          "lineNumber": 134
+        },
+        {
+          "caller": "scrapeRegulatorSite",
+          "callee": "path.replace",
+          "lineNumber": 134
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "Date.now",
+          "lineNumber": 159
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "Object.entries",
+          "lineNumber": 164
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "REGULATORY_KEYWORDS.slice",
+          "lineNumber": 166
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "searchProvincialCkan",
+          "lineNumber": 169
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "records.push",
+          "lineNumber": 170
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "errors.push",
+          "lineNumber": 173
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "scrapeRegulatorSite",
+          "lineNumber": 186
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "records.push",
+          "lineNumber": 187
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "errors.push",
+          "lineNumber": 191
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "Date.now",
+          "lineNumber": 200
+        },
+        {
+          "caller": "ingestAllRegulators",
+          "callee": "Object.keys",
+          "lineNumber": 201
+        },
+        {
+          "caller": "getRegulatorCoverage",
+          "callee": "REGULATOR_CATEGORIES.map",
+          "lineNumber": 212
+        },
+        {
+          "caller": "getRegulatorCoverage",
+          "callee": "Object.keys",
+          "lineNumber": 213
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-regulators/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 5,
+      "exports": [
+        {
+          "name": "ingestAllRegulators",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "getRegulatorCoverage",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "ProvincialRegulatorRecord",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "ProvincialRegulatorsIngestionResult",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialRegulatorRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialRegulatorRecords",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 8,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-regulators/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseProvincialRegulatorRecord",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseProvincialRegulatorRecords",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialRegulatorRecord",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialRegulatorRecords",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseProvincialRegulatorRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseProvincialRegulatorRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseProvincialRegulatorRecord",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseProvincialRegulatorRecords",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseProvincialRegulatorRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseProvincialRegulatorRecords",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseProvincialRegulatorRecords",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseProvincialRegulatorRecords",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseProvincialRegulatorRecords",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial-regulators/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 16,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/provincial/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 12,
+      "exports": [
+        {
+          "name": "PD_USER_AGENT",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "PD_TIMEOUT_MS",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_DATASETS_PER_SECTOR",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "SMALLER_PROVINCES",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "SECTOR_KEYWORDS",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "PROVINCIAL_CKAN",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

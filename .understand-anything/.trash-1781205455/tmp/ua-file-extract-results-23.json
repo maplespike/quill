@@ -1,0 +1,7303 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 24,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/gic/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 612,
+      "nonEmptyLines": 542,
+      "functions": [
+        {
+          "name": "ingestGIC",
+          "startLine": 34,
+          "endLine": 220,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "searchGIC",
+          "startLine": 227,
+          "endLine": 275,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getRecentAppointments",
+          "startLine": 281,
+          "endLine": 310,
+          "params": [
+            "db",
+            "days",
+            "options"
+          ]
+        },
+        {
+          "name": "getHighValueAppointments",
+          "startLine": 316,
+          "endLine": 348,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "findLobbyistsTurnedAppointees",
+          "startLine": 362,
+          "endLine": 456,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "mapLobbyistAppointeeResults",
+          "startLine": 461,
+          "endLine": 493,
+          "params": [
+            "rows"
+          ]
+        },
+        {
+          "name": "findMatchesInMemory",
+          "startLine": 498,
+          "endLine": 544,
+          "params": [
+            "appointments",
+            "lobbyingRecords",
+            "limit"
+          ]
+        },
+        {
+          "name": "searchGicAppointments",
+          "startLine": 551,
+          "endLine": 581,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestGIC",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "searchGIC",
+          "line": 227,
+          "isDefault": false
+        },
+        {
+          "name": "getRecentAppointments",
+          "line": 281,
+          "isDefault": false
+        },
+        {
+          "name": "getHighValueAppointments",
+          "line": 316,
+          "isDefault": false
+        },
+        {
+          "name": "findLobbyistsTurnedAppointees",
+          "line": 362,
+          "isDefault": false
+        },
+        {
+          "name": "searchGicAppointments",
+          "line": 551,
+          "isDefault": false
+        },
+        {
+          "name": "GICAppointment",
+          "line": 583,
+          "isDefault": false
+        },
+        {
+          "name": "GICCategory",
+          "line": 583,
+          "isDefault": false
+        },
+        {
+          "name": "GICIngestionResult",
+          "line": 583,
+          "isDefault": false
+        },
+        {
+          "name": "RawGICRecord",
+          "line": 583,
+          "isDefault": false
+        },
+        {
+          "name": "GIC_SOURCE_CONFIGS",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "GIC_SOURCES",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "GIC_CKAN_PACKAGE_IDS",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "ckanPackageUrl",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "ckanSearchUrl",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "infobaseApiUrl",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "fetchGICAppointments",
+          "line": 599,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAppointmentDetail",
+          "line": 599,
+          "isDefault": false
+        },
+        {
+          "name": "searchGicPackages",
+          "line": 599,
+          "isDefault": false
+        },
+        {
+          "name": "parseGICAppointment",
+          "line": 605,
+          "isDefault": false
+        },
+        {
+          "name": "parseGICAppointments",
+          "line": 605,
+          "isDefault": false
+        },
+        {
+          "name": "categorizeByDepartment",
+          "line": 605,
+          "isDefault": false
+        },
+        {
+          "name": "categorizeByBody",
+          "line": 605,
+          "isDefault": false
+        },
+        {
+          "name": "extractSalaryRange",
+          "line": 605,
+          "isDefault": false
+        },
+        {
+          "name": "extractDepartmentCategory",
+          "line": 605,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestGIC",
+          "callee": "Date.now",
+          "lineNumber": 47
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 65
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "fetchGICAppointments",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "result.errors.push",
+          "lineNumber": 75
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 79
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "Date.now",
+          "lineNumber": 80
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 85
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "parseGICAppointments",
+          "lineNumber": 86
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 89
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 93
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "db.prepare(\n              'SELECT 1 FROM gic_appointments WHERE id = ? LIMIT 1',\n            ).bind(appt.id).first",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "db.prepare(\n              'SELECT 1 FROM gic_appointments WHERE id = ? LIMIT 1',\n            ).bind",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "db.prepare",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "db.prepare(`\n            INSERT OR REPLACE INTO gic_appointments\n              (id, appointee_name, position_title, organization, organization_acronym,\n               category, department, appointment_date, expiry_date, is_retroactive,\n               salary_range, salary_min, salary_max, location, predecessor_name,\n               order_in_council_number, source_url, source_system,\n               ckan_package_id, ckan_resource_id, ingested_at)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n          `).bind(\n            appt.id,\n            appt.appointeeName,\n            appt.positionTitle,\n            appt.organization,\n            appt.organizationAcronym,\n            appt.category,\n            appt.department,\n            appt.appointmentDate,\n            appt.expiryDate,\n            appt.isRetroactive ? 1 : 0,\n            appt.salaryRange,\n            appt.salaryMin,\n            appt.salaryMax,\n            appt.location,\n            appt.predecessorName,\n            appt.orderInCouncilNumber,\n            appt.sourceUrl,\n            appt.sourceSystem,\n            appt.ckanPackageId,\n            appt.ckanResourceId,\n            appt.ingestedAt,\n          ).run",
+          "lineNumber": 108
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "db.prepare(`\n            INSERT OR REPLACE INTO gic_appointments\n              (id, appointee_name, position_title, organization, organization_acronym,\n               category, department, appointment_date, expiry_date, is_retroactive,\n               salary_range, salary_min, salary_max, location, predecessor_name,\n               order_in_council_number, source_url, source_system,\n               ckan_package_id, ckan_resource_id, ingested_at)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n          `).bind",
+          "lineNumber": 108
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "db.prepare",
+          "lineNumber": 108
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "upsertPerson",
+          "lineNumber": 144
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "appt.appointeeName.split",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "appt.appointeeName.split(\" \").slice(1).join",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "appt.appointeeName.split(\" \").slice",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "appt.appointeeName.split",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "upsertOrganization",
+          "lineNumber": 158
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "['CRTC', 'CRTC-B', 'CER', 'CER-B', 'CT', 'CITT', 'FCA', 'FC', 'SCC', 'IRB'].includes",
+          "lineNumber": 176
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "String",
+          "lineNumber": 184
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "result.errors.push",
+          "lineNumber": 185
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 189
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "String",
+          "lineNumber": 202
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "result.errors.push",
+          "lineNumber": 203
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 204
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "Date.now",
+          "lineNumber": 207
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "Object.entries(result.categoriesFound)\n    .filter(([_, v]) => v > 0)\n    .map(([k, v]) => `${k}:${v}`)\n    .join",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "Object.entries(result.categoriesFound)\n    .filter(([_, v]) => v > 0)\n    .map",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "Object.entries(result.categoriesFound)\n    .filter",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "Object.entries",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestGIC",
+          "callee": "log",
+          "lineNumber": 214
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "params.push",
+          "lineNumber": 251
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "params.push",
+          "lineNumber": 256
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "params.push",
+          "lineNumber": 261
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "params.push",
+          "lineNumber": 266
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "params.push",
+          "lineNumber": 270
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 272
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "db.prepare",
+          "lineNumber": 272
+        },
+        {
+          "caller": "searchGIC",
+          "callee": "await stmt.all",
+          "lineNumber": 273
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "sinceDate.setDate",
+          "lineNumber": 290
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "sinceDate.getDate",
+          "lineNumber": 290
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "sinceDate.toISOString().split",
+          "lineNumber": 291
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "sinceDate.toISOString",
+          "lineNumber": 291
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "params.push",
+          "lineNumber": 301
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "params.push",
+          "lineNumber": 305
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 307
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "db.prepare",
+          "lineNumber": 307
+        },
+        {
+          "caller": "getRecentAppointments",
+          "callee": "await stmt.all",
+          "lineNumber": 308
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "sinceDate.setDate",
+          "lineNumber": 325
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "sinceDate.getDate",
+          "lineNumber": 325
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "sinceDate.toISOString().split",
+          "lineNumber": 326
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "sinceDate.toISOString",
+          "lineNumber": 326
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "highValueAcronyms.map(() => '?').join",
+          "lineNumber": 333
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "highValueAcronyms.map",
+          "lineNumber": 333
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 345
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "db.prepare",
+          "lineNumber": 345
+        },
+        {
+          "caller": "getHighValueAppointments",
+          "callee": "await stmt.all",
+          "lineNumber": 346
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 406
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "db.prepare",
+          "lineNumber": 406
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "await stmt.all",
+          "lineNumber": 411
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "mapLobbyistAppointeeResults",
+          "lineNumber": 412
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "options.name.toLowerCase",
+          "lineNumber": 417
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "options.appointments.filter",
+          "lineNumber": 418
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "a.appointeeName.toLowerCase().includes",
+          "lineNumber": 419
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "a.appointeeName.toLowerCase",
+          "lineNumber": 419
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "a.positionTitle.toLowerCase().includes",
+          "lineNumber": 420
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "a.positionTitle.toLowerCase",
+          "lineNumber": 420
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "findMatchesInMemory",
+          "lineNumber": 422
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "findMatchesInMemory",
+          "lineNumber": 432
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 453
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "db.prepare",
+          "lineNumber": 453
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "await stmt.all",
+          "lineNumber": 454
+        },
+        {
+          "caller": "findLobbyistsTurnedAppointees",
+          "callee": "mapLobbyistAppointeeResults",
+          "lineNumber": 455
+        },
+        {
+          "caller": "mapLobbyistAppointeeResults",
+          "callee": "rows.map",
+          "lineNumber": 466
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "appt.appointeeName.toLowerCase",
+          "lineNumber": 518
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "lobbyingRecords.filter",
+          "lineNumber": 519
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "lr.registrantName.toLowerCase().includes",
+          "lineNumber": 520
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "lr.registrantName.toLowerCase",
+          "lineNumber": 520
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "lr.clientName.toLowerCase().includes",
+          "lineNumber": 521
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "lr.clientName.toLowerCase",
+          "lineNumber": 521
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "matches\n        .map(m => m.communicationDate)\n        .filter((d): d is string => d !== null && d !== undefined)\n        .sort()\n        .reverse",
+          "lineNumber": 525
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "matches\n        .map(m => m.communicationDate)\n        .filter((d): d is string => d !== null && d !== undefined)\n        .sort",
+          "lineNumber": 525
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "matches\n        .map(m => m.communicationDate)\n        .filter",
+          "lineNumber": 525
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "matches\n        .map",
+          "lineNumber": 525
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "results.push",
+          "lineNumber": 531
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "results.sort",
+          "lineNumber": 540
+        },
+        {
+          "caller": "findMatchesInMemory",
+          "callee": "results.slice",
+          "lineNumber": 543
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "fetchGICAppointments",
+          "lineNumber": 558
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "parseGICAppointments",
+          "lineNumber": 559
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "filtered.filter",
+          "lineNumber": 566
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "options.query.toLowerCase",
+          "lineNumber": 570
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "filtered.filter",
+          "lineNumber": 571
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.appointeeName.toLowerCase().includes",
+          "lineNumber": 572
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.appointeeName.toLowerCase",
+          "lineNumber": 572
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.positionTitle.toLowerCase().includes",
+          "lineNumber": 573
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.positionTitle.toLowerCase",
+          "lineNumber": 573
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.organization.toLowerCase().includes",
+          "lineNumber": 574
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.organization.toLowerCase",
+          "lineNumber": 574
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.department.toLowerCase().includes",
+          "lineNumber": 575
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "a.department.toLowerCase",
+          "lineNumber": 575
+        },
+        {
+          "caller": "searchGicAppointments",
+          "callee": "filtered.slice",
+          "lineNumber": 580
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 25,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gic/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 346,
+      "nonEmptyLines": 302,
+      "functions": [
+        {
+          "name": "categorizeByBody",
+          "startLine": 62,
+          "endLine": 95,
+          "params": [
+            "organization",
+            "acronym"
+          ]
+        },
+        {
+          "name": "categorizeByDepartment",
+          "startLine": 101,
+          "endLine": 124,
+          "params": [
+            "appointment"
+          ]
+        },
+        {
+          "name": "extractSalaryRange",
+          "startLine": 138,
+          "endLine": 174,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "parseSalaryNumber",
+          "startLine": 180,
+          "endLine": 184,
+          "params": [
+            "str"
+          ]
+        },
+        {
+          "name": "str",
+          "startLine": 194,
+          "endLine": 200,
+          "params": [
+            "raw",
+            "...keys"
+          ]
+        },
+        {
+          "name": "parseGICAppointment",
+          "startLine": 202,
+          "endLine": 292,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseGICAppointments",
+          "startLine": 298,
+          "endLine": 314,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        },
+        {
+          "name": "extractDepartmentCategory",
+          "startLine": 320,
+          "endLine": 346,
+          "params": [
+            "department"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "categorizeByBody",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "categorizeByDepartment",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "extractSalaryRange",
+          "line": 138,
+          "isDefault": false
+        },
+        {
+          "name": "parseGICAppointment",
+          "line": 202,
+          "isDefault": false
+        },
+        {
+          "name": "parseGICAppointments",
+          "line": 298,
+          "isDefault": false
+        },
+        {
+          "name": "extractDepartmentCategory",
+          "line": 320,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "categorizeByBody",
+          "callee": "(organization + ' ' + (acronym ?? '')).toLowerCase().trim",
+          "lineNumber": 66
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "(organization + ' ' + (acronym ?? '')).toLowerCase",
+          "lineNumber": 66
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "Object.entries",
+          "lineNumber": 69
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "search.includes",
+          "lineNumber": 70
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "search.includes",
+          "lineNumber": 78
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "body.name.toLowerCase",
+          "lineNumber": 78
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "search.includes",
+          "lineNumber": 79
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "body.acronym.toLowerCase",
+          "lineNumber": 79
+        },
+        {
+          "caller": "categorizeByBody",
+          "callee": "search.includes",
+          "lineNumber": 88
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "(appointment.department ?? '').toLowerCase",
+          "lineNumber": 104
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 106
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 106
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 107
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 107
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 108
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 108
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 108
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 109
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 110
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 111
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 112
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 112
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 113
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 113
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 113
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 114
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 114
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 115
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 115
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 115
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 116
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 116
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 116
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 117
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 117
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 118
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 118
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 119
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 119
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 119
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 120
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 120
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 121
+        },
+        {
+          "caller": "categorizeByDepartment",
+          "callee": "dept.includes",
+          "lineNumber": 121
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "text.trim",
+          "lineNumber": 141
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "text.trim",
+          "lineNumber": 145
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "trimmed.match",
+          "lineNumber": 148
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "parseSalaryNumber",
+          "lineNumber": 153
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "parseSalaryNumber",
+          "lineNumber": 154
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "trimmed.match",
+          "lineNumber": 159
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "parseSalaryNumber",
+          "lineNumber": 161
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "trimmed.match",
+          "lineNumber": 166
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "parseInt",
+          "lineNumber": 168
+        },
+        {
+          "caller": "extractSalaryRange",
+          "callee": "parseInt",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseSalaryNumber",
+          "callee": "str.replace",
+          "lineNumber": 181
+        },
+        {
+          "caller": "parseSalaryNumber",
+          "callee": "parseFloat",
+          "lineNumber": 182
+        },
+        {
+          "caller": "parseSalaryNumber",
+          "callee": "isNaN",
+          "lineNumber": 183
+        },
+        {
+          "caller": "parseSalaryNumber",
+          "callee": "Math.round",
+          "lineNumber": 183
+        },
+        {
+          "caller": "str",
+          "callee": "v.trim",
+          "lineNumber": 197
+        },
+        {
+          "caller": "str",
+          "callee": "v.trim",
+          "lineNumber": 197
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 214
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 215
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 216
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 217
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 218
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 219
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 220
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "extractSalaryRange",
+          "lineNumber": 228
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 231
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 232
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "categorizeByBody",
+          "lineNumber": 235
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 238
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 242
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "JSON.stringify",
+          "lineNumber": 243
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 253
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 254
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 255
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 256
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 257
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "str",
+          "lineNumber": 258
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "computeHash",
+          "lineNumber": 261
+        },
+        {
+          "caller": "parseGICAppointment",
+          "callee": "new Date().toISOString",
+          "lineNumber": 288
+        },
+        {
+          "caller": "parseGICAppointments",
+          "callee": "parseGICAppointment",
+          "lineNumber": 307
+        },
+        {
+          "caller": "parseGICAppointments",
+          "callee": "results.push",
+          "lineNumber": 309
+        },
+        {
+          "caller": "extractDepartmentCategory",
+          "callee": "categorizeByDepartment",
+          "lineNumber": 323
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 6,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/gic/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 193,
+      "nonEmptyLines": 152,
+      "exports": [
+        {
+          "name": "HIGH_VALUE_GIC_BODIES",
+          "line": 99,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/actors.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 135,
+      "nonEmptyLines": 116,
+      "functions": [
+        {
+          "name": "searchCraCharity",
+          "startLine": 26,
+          "endLine": 71,
+          "params": [
+            "query"
+          ]
+        },
+        {
+          "name": "resolveCraBn",
+          "startLine": 77,
+          "endLine": 99,
+          "params": [
+            "actor"
+          ]
+        },
+        {
+          "name": "buildCommitteeAppearanceSearch",
+          "startLine": 106,
+          "endLine": 111,
+          "params": [
+            "actorName"
+          ]
+        },
+        {
+          "name": "getActorInvestigationUrls",
+          "startLine": 117,
+          "endLine": 135,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "searchCraCharity",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "resolveCraBn",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "buildCommitteeAppearanceSearch",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "getActorInvestigationUrls",
+          "line": 117,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "searchCraCharity",
+          "callee": "encodeURIComponent",
+          "lineNumber": 29
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "httpGet",
+          "lineNumber": 32
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "rowPattern.exec",
+          "lineNumber": 43
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "row.match",
+          "lineNumber": 45
+        },
+        {
+          "caller": "extract",
+          "callee": "cell.replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 48
+        },
+        {
+          "caller": "extract",
+          "callee": "cell.replace",
+          "lineNumber": 48
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "row.match",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "row.match",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "results.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "extract",
+          "lineNumber": 58
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "extract",
+          "lineNumber": 59
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "extract",
+          "lineNumber": 60
+        },
+        {
+          "caller": "searchCraCharity",
+          "callee": "new Date().toISOString",
+          "lineNumber": 62
+        },
+        {
+          "caller": "resolveCraBn",
+          "callee": "searchCraCharity",
+          "lineNumber": 84
+        },
+        {
+          "caller": "resolveCraBn",
+          "callee": "searchCraCharity",
+          "lineNumber": 92
+        },
+        {
+          "caller": "buildCommitteeAppearanceSearch",
+          "callee": "encodeURIComponent",
+          "lineNumber": 108
+        },
+        {
+          "caller": "buildCommitteeAppearanceSearch",
+          "callee": "encodeURIComponent",
+          "lineNumber": 109
+        },
+        {
+          "caller": "getActorInvestigationUrls",
+          "callee": "TRACKED_INFLUENCE_ACTORS.map",
+          "lineNumber": 125
+        },
+        {
+          "caller": "getActorInvestigationUrls",
+          "callee": "buildCommitteeAppearanceSearch",
+          "lineNumber": 129
+        },
+        {
+          "caller": "getActorInvestigationUrls",
+          "callee": "encodeURIComponent",
+          "lineNumber": 130
+        },
+        {
+          "caller": "getActorInvestigationUrls",
+          "callee": "encodeURIComponent",
+          "lineNumber": 132
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/connections.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 191,
+      "nonEmptyLines": 166,
+      "functions": [
+        {
+          "name": "generateHypotheticalConnections",
+          "startLine": 27,
+          "endLine": 89,
+          "params": []
+        },
+        {
+          "name": "generateVerificationStatuses",
+          "startLine": 113,
+          "endLine": 135,
+          "params": []
+        },
+        {
+          "name": "hypotheticalCountForActor",
+          "startLine": 137,
+          "endLine": 143,
+          "params": [
+            "actor"
+          ]
+        },
+        {
+          "name": "generateActorInvestigation",
+          "startLine": 153,
+          "endLine": 191,
+          "params": [
+            "actorName"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "generateHypotheticalConnections",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "generateVerificationStatuses",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "generateActorInvestigation",
+          "line": 153,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateHypotheticalConnections",
+          "callee": "new Date().toISOString",
+          "lineNumber": 31
+        },
+        {
+          "caller": "generateHypotheticalConnections",
+          "callee": "connections.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "generateHypotheticalConnections",
+          "callee": "connections.push",
+          "lineNumber": 53
+        },
+        {
+          "caller": "generateHypotheticalConnections",
+          "callee": "encodeURIComponent",
+          "lineNumber": 62
+        },
+        {
+          "caller": "generateHypotheticalConnections",
+          "callee": "connections.push",
+          "lineNumber": 71
+        },
+        {
+          "caller": "generateHypotheticalConnections",
+          "callee": "encodeURIComponent",
+          "lineNumber": 80
+        },
+        {
+          "caller": "generateVerificationStatuses",
+          "callee": "TRACKED_INFLUENCE_ACTORS.map",
+          "lineNumber": 114
+        },
+        {
+          "caller": "generateVerificationStatuses",
+          "callee": "applicableSources.push",
+          "lineNumber": 117
+        },
+        {
+          "caller": "generateVerificationStatuses",
+          "callee": "applicableSources.push",
+          "lineNumber": 118
+        },
+        {
+          "caller": "generateVerificationStatuses",
+          "callee": "applicableSources.push",
+          "lineNumber": 120
+        },
+        {
+          "caller": "generateVerificationStatuses",
+          "callee": "applicableSources.push",
+          "lineNumber": 122
+        },
+        {
+          "caller": "generateVerificationStatuses",
+          "callee": "hypotheticalCountForActor",
+          "lineNumber": 130
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "findInfluenceActor",
+          "lineNumber": 160
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 167
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 167
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 168
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 172
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 172
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 173
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 173
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 176
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 176
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 179
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 179
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 182
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 182
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 185
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 185
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "checklist.push",
+          "lineNumber": 188
+        },
+        {
+          "caller": "generateActorInvestigation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 188
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 780,
+      "nonEmptyLines": 759,
+      "functions": [
+        {
+          "name": "getActorsByCategory",
+          "startLine": 760,
+          "endLine": 762,
+          "params": [
+            "category"
+          ]
+        },
+        {
+          "name": "getActorsByPriority",
+          "startLine": 767,
+          "endLine": 769,
+          "params": [
+            "priority"
+          ]
+        },
+        {
+          "name": "findInfluenceActor",
+          "startLine": 774,
+          "endLine": 780,
+          "params": [
+            "query"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "INFLUENCE_SOURCES",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_INFLUENCE_ACTORS",
+          "line": 96,
+          "isDefault": false
+        },
+        {
+          "name": "POLICY_AREAS",
+          "line": 735,
+          "isDefault": false
+        },
+        {
+          "name": "getActorsByCategory",
+          "line": 760,
+          "isDefault": false
+        },
+        {
+          "name": "getActorsByPriority",
+          "line": 767,
+          "isDefault": false
+        },
+        {
+          "name": "findInfluenceActor",
+          "line": 774,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getActorsByCategory",
+          "callee": "TRACKED_INFLUENCE_ACTORS.filter",
+          "lineNumber": 761
+        },
+        {
+          "caller": "getActorsByPriority",
+          "callee": "TRACKED_INFLUENCE_ACTORS.filter",
+          "lineNumber": 768
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "query.toLowerCase",
+          "lineNumber": 775
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "TRACKED_INFLUENCE_ACTORS.find",
+          "lineNumber": 776
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "a.name.toLowerCase().includes",
+          "lineNumber": 777
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "a.name.toLowerCase",
+          "lineNumber": 777
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "a.aliases.some",
+          "lineNumber": 778
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "alias.toLowerCase().includes",
+          "lineNumber": 778
+        },
+        {
+          "caller": "findInfluenceActor",
+          "callee": "alias.toLowerCase",
+          "lineNumber": 778
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 6,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/db.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 281,
+      "nonEmptyLines": 251,
+      "functions": [
+        {
+          "name": "upsertInfluenceActor",
+          "startLine": 112,
+          "endLine": 143,
+          "params": [
+            "db",
+            "actor"
+          ]
+        },
+        {
+          "name": "upsertInfluenceConnection",
+          "startLine": 150,
+          "endLine": 176,
+          "params": [
+            "db",
+            "conn"
+          ]
+        },
+        {
+          "name": "upsertGovernmentFunding",
+          "startLine": 183,
+          "endLine": 213,
+          "params": [
+            "db",
+            "funding"
+          ]
+        },
+        {
+          "name": "searchCommitteeMentions",
+          "startLine": 227,
+          "endLine": 281,
+          "params": [
+            "db",
+            "actorName",
+            "actorAliases"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "INFLUENCE_DDL",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "upsertInfluenceActor",
+          "line": 112,
+          "isDefault": false
+        },
+        {
+          "name": "upsertInfluenceConnection",
+          "line": 150,
+          "isDefault": false
+        },
+        {
+          "name": "upsertGovernmentFunding",
+          "line": 183,
+          "isDefault": false
+        },
+        {
+          "name": "searchCommitteeMentions",
+          "line": 227,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "upsertInfluenceActor",
+          "callee": "db.prepare(`\n    INSERT OR REPLACE INTO influence_actors\n      (id, name, aliases, category, priority, headquarters, founded_year,\n       annual_budget_cad, website, wikipedia_url, is_cra_charity, cra_bn,\n       key_people_json, policy_areas, notes, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 116
+        },
+        {
+          "caller": "upsertInfluenceActor",
+          "callee": "db.prepare",
+          "lineNumber": 116
+        },
+        {
+          "caller": "upsertInfluenceActor",
+          "callee": "JSON.stringify",
+          "lineNumber": 125
+        },
+        {
+          "caller": "upsertInfluenceActor",
+          "callee": "JSON.stringify",
+          "lineNumber": 135
+        },
+        {
+          "caller": "upsertInfluenceActor",
+          "callee": "JSON.stringify",
+          "lineNumber": 136
+        },
+        {
+          "caller": "upsertInfluenceActor",
+          "callee": "stmt.run",
+          "lineNumber": 141
+        },
+        {
+          "caller": "upsertInfluenceConnection",
+          "callee": "db.prepare(`\n    INSERT OR REPLACE INTO influence_connections\n      (id, actor_id, actor_name, government_entity, connection_type, description,\n       date, value_cad, source_url, source_system, source_record_id, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 154
+        },
+        {
+          "caller": "upsertInfluenceConnection",
+          "callee": "db.prepare",
+          "lineNumber": 154
+        },
+        {
+          "caller": "upsertInfluenceConnection",
+          "callee": "stmt.run",
+          "lineNumber": 174
+        },
+        {
+          "caller": "upsertGovernmentFunding",
+          "callee": "db.prepare(`\n    INSERT OR REPLACE INTO government_funding\n      (id, recipient_name, recipient_type, department, department_acronym,\n       program_name, agreement_type, amount, currency, fiscal_year,\n       start_date, end_date, description, source_url, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 187
+        },
+        {
+          "caller": "upsertGovernmentFunding",
+          "callee": "db.prepare",
+          "lineNumber": 187
+        },
+        {
+          "caller": "upsertGovernmentFunding",
+          "callee": "stmt.run",
+          "lineNumber": 211
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "actorAliases.filter",
+          "lineNumber": 238
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "db.prepare(`\n      SELECT DISTINCT cm.id as meeting_id, cm.committee_name, cm.date,\n             ci.speaker_name, cm.evidence_url\n      FROM committee_interventions ci\n      JOIN committee_meetings cm ON ci.meeting_id = cm.id\n      WHERE LOWER(ci.speaker_affiliation) LIKE LOWER(?)\n      LIMIT 20\n    `).bind",
+          "lineNumber": 249
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "db.prepare",
+          "lineNumber": 249
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "await stmt.all",
+          "lineNumber": 258
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "seen.has",
+          "lineNumber": 268
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "seen.add",
+          "lineNumber": 269
+        },
+        {
+          "caller": "searchCommitteeMentions",
+          "callee": "results.push",
+          "lineNumber": 270
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 5,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/funding.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 325,
+      "nonEmptyLines": 300,
+      "functions": [
+        {
+          "name": "fetchGrantsCkanMetadata",
+          "startLine": 27,
+          "endLine": 50,
+          "params": []
+        },
+        {
+          "name": "matchTrackedActor",
+          "startLine": 64,
+          "endLine": 73,
+          "params": [
+            "recipientName"
+          ]
+        },
+        {
+          "name": "buildGrantSearchUrl",
+          "startLine": 78,
+          "endLine": 81,
+          "params": [
+            "organizationName"
+          ]
+        },
+        {
+          "name": "queryGrantsForActor",
+          "startLine": 125,
+          "endLine": 139,
+          "params": [
+            "actorName"
+          ]
+        },
+        {
+          "name": "parseCkanGrantDoc",
+          "startLine": 145,
+          "endLine": 192,
+          "params": [
+            "doc",
+            "matchedActorId",
+            "matchedActorName"
+          ]
+        },
+        {
+          "name": "getOversightCommittee",
+          "startLine": 299,
+          "endLine": 325,
+          "params": [
+            "connection"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchGrantsCkanMetadata",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "matchTrackedActor",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "buildGrantSearchUrl",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "queryGrantsForActor",
+          "line": 125,
+          "isDefault": false
+        },
+        {
+          "name": "parseCkanGrantDoc",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "CANADA_INTL_ORG_CONTRIBUTIONS",
+          "line": 202,
+          "isDefault": false
+        },
+        {
+          "name": "KNOWN_CONTROVERSIAL_CONTRACTS",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "getOversightCommittee",
+          "line": 299,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchGrantsCkanMetadata",
+          "callee": "httpGet",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchGrantsCkanMetadata",
+          "callee": "JSON.parse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchGrantsCkanMetadata",
+          "callee": "docs.map",
+          "lineNumber": 41
+        },
+        {
+          "caller": "matchTrackedActor",
+          "callee": "recipientName.toLowerCase",
+          "lineNumber": 65
+        },
+        {
+          "caller": "matchTrackedActor",
+          "callee": "nameLower.includes",
+          "lineNumber": 67
+        },
+        {
+          "caller": "matchTrackedActor",
+          "callee": "actor.name.toLowerCase",
+          "lineNumber": 67
+        },
+        {
+          "caller": "matchTrackedActor",
+          "callee": "nameLower.includes",
+          "lineNumber": 69
+        },
+        {
+          "caller": "matchTrackedActor",
+          "callee": "alias.toLowerCase",
+          "lineNumber": 69
+        },
+        {
+          "caller": "buildGrantSearchUrl",
+          "callee": "encodeURIComponent",
+          "lineNumber": 79
+        },
+        {
+          "caller": "queryGrantsForActor",
+          "callee": "buildGrantSearchUrl",
+          "lineNumber": 128
+        },
+        {
+          "caller": "queryGrantsForActor",
+          "callee": "httpGet",
+          "lineNumber": 130
+        },
+        {
+          "caller": "queryGrantsForActor",
+          "callee": "JSON.parse",
+          "lineNumber": 134
+        },
+        {
+          "caller": "parseCkanGrantDoc",
+          "callee": "new Date().toISOString",
+          "lineNumber": 166
+        },
+        {
+          "caller": "parseCkanGrantDoc",
+          "callee": "buildGrantSearchUrl",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parseCkanGrantDoc",
+          "callee": "hashString",
+          "lineNumber": 173
+        },
+        {
+          "caller": "parseCkanGrantDoc",
+          "callee": "title.substring",
+          "lineNumber": 181
+        },
+        {
+          "caller": "getOversightCommittee",
+          "callee": "Object.entries",
+          "lineNumber": 318
+        },
+        {
+          "caller": "getOversightCommittee",
+          "callee": "connection.governmentEntity.includes",
+          "lineNumber": 319
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 8,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 462,
+      "nonEmptyLines": 403,
+      "functions": [
+        {
+          "name": "ingestActors",
+          "startLine": 56,
+          "endLine": 210,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "detectFundingFlows",
+          "startLine": 227,
+          "endLine": 336,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "buildRealConnections",
+          "startLine": 347,
+          "endLine": 411,
+          "params": [
+            "template",
+            "enriched",
+            "craRecords",
+            "craBn"
+          ]
+        },
+        {
+          "name": "investigateActor",
+          "startLine": 421,
+          "endLine": 423,
+          "params": [
+            "actorName"
+          ]
+        },
+        {
+          "name": "ingestAllInfluence",
+          "startLine": 435,
+          "endLine": 462,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseInfluenceActor",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "parseInfluenceActors",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "ingestActors",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "detectFundingFlows",
+          "line": 227,
+          "isDefault": false
+        },
+        {
+          "name": "investigateActor",
+          "line": 421,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllInfluence",
+          "line": 435,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestActors",
+          "callee": "Date.now",
+          "lineNumber": 60
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "db.exec",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 75
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 83
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "byCategory.set",
+          "lineNumber": 88
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "byCategory.get",
+          "lineNumber": 88
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "Array.from",
+          "lineNumber": 90
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "new Date().toISOString",
+          "lineNumber": 97
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "import",
+          "lineNumber": 107
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "resolveCraBn",
+          "lineNumber": 112
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "searchCraCharity",
+          "lineNumber": 115
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 117
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 119
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "String",
+          "lineNumber": 123
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "result.errors.push",
+          "lineNumber": 124
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 125
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "buildRealConnections",
+          "lineNumber": 130
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "searchCommitteeMentions",
+          "lineNumber": 135
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 137
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "connections.push",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "hashString",
+          "lineNumber": 140
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "String",
+          "lineNumber": 156
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "result.errors.push",
+          "lineNumber": 157
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "upsertInfluenceActor",
+          "lineNumber": 163
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "result.errors.push",
+          "lineNumber": 165
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "upsertOrganization",
+          "lineNumber": 169
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "upsertInfluenceConnection",
+          "lineNumber": 174
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "result.errors.push",
+          "lineNumber": 176
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "enrichedActors.push",
+          "lineNumber": 182
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "realConnections.push",
+          "lineNumber": 183
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "generateHypotheticalConnections",
+          "lineNumber": 187
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 189
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "generateVerificationStatuses",
+          "lineNumber": 192
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "statuses.filter",
+          "lineNumber": 193
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 194
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "String",
+          "lineNumber": 203
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "result.errors.push",
+          "lineNumber": 204
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "log",
+          "lineNumber": 205
+        },
+        {
+          "caller": "ingestActors",
+          "callee": "Date.now",
+          "lineNumber": 208
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "Date.now",
+          "lineNumber": 231
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "db.exec",
+          "lineNumber": 244
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "import",
+          "lineNumber": 250
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "fetchGrantsCkanMetadata",
+          "lineNumber": 251
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 252
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 254
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 259
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "queryGrantsForActor",
+          "lineNumber": 262
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 264
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 266
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "parseCkanGrantDoc",
+          "lineNumber": 270
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "buildGrantSearchUrl",
+          "lineNumber": 274
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "upsertGovernmentFunding",
+          "lineNumber": 278
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "result.errors.push",
+          "lineNumber": 280
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "upsertGacProject",
+          "lineNumber": 286
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "allFundingRecords.push",
+          "lineNumber": 311
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "String",
+          "lineNumber": 314
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "result.errors.push",
+          "lineNumber": 315
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 316
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 321
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "String",
+          "lineNumber": 329
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "result.errors.push",
+          "lineNumber": 330
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "log",
+          "lineNumber": 331
+        },
+        {
+          "caller": "detectFundingFlows",
+          "callee": "Date.now",
+          "lineNumber": 334
+        },
+        {
+          "caller": "buildRealConnections",
+          "callee": "import",
+          "lineNumber": 350
+        },
+        {
+          "caller": "buildRealConnections",
+          "callee": "connections.push",
+          "lineNumber": 358
+        },
+        {
+          "caller": "buildRealConnections",
+          "callee": "connections.push",
+          "lineNumber": 376
+        },
+        {
+          "caller": "buildRealConnections",
+          "callee": "connections.push",
+          "lineNumber": 394
+        },
+        {
+          "caller": "buildRealConnections",
+          "callee": "buildCommitteeAppearanceSearch",
+          "lineNumber": 403
+        },
+        {
+          "caller": "investigateActor",
+          "callee": "generateActorInvestigation",
+          "lineNumber": 422
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "log",
+          "lineNumber": 444
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "Promise.all",
+          "lineNumber": 446
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "ingestActors",
+          "lineNumber": 447
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "detectFundingFlows",
+          "lineNumber": 448
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "log",
+          "lineNumber": 451
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "log",
+          "lineNumber": 452
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "log",
+          "lineNumber": 453
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "log",
+          "lineNumber": 454
+        },
+        {
+          "caller": "ingestAllInfluence",
+          "callee": "log",
+          "lineNumber": 458
+        }
+      ],
+      "metrics": {
+        "importCount": 9,
+        "exportCount": 6,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseInfluenceActor",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseInfluenceActors",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseInfluenceActor",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseInfluenceActors",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseInfluenceActor",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseInfluenceActor",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseInfluenceActor",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseInfluenceActors",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseInfluenceActors",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseInfluenceActors",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseInfluenceActors",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseInfluenceActors",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseInfluenceActors",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/influence/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 204,
+      "nonEmptyLines": 190,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/lmia/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 120,
+      "nonEmptyLines": 106,
+      "functions": [
+        {
+          "name": "lmiaCkanPackageUrl",
+          "startLine": 65,
+          "endLine": 68,
+          "params": [
+            "outcome"
+          ]
+        },
+        {
+          "name": "lmiaDownloadUrl",
+          "startLine": 75,
+          "endLine": 82,
+          "params": [
+            "outcome",
+            "resourceId",
+            "filename"
+          ]
+        },
+        {
+          "name": "lmiaSearchUrl",
+          "startLine": 87,
+          "endLine": 89,
+          "params": [
+            "query",
+            "rows"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "LMIA_CKAN_PACKAGE_IDS",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "LMIA_KNOWN_RESOURCES",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "LMIA_SOURCES",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "lmiaCkanPackageUrl",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "lmiaDownloadUrl",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "lmiaSearchUrl",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "LMIA_DDL",
+          "line": 92,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 7,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/lmia/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 316,
+      "nonEmptyLines": 283,
+      "functions": [
+        {
+          "name": "fetchUrl",
+          "startLine": 45,
+          "endLine": 63,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchLmiaCkanMetadata",
+          "startLine": 98,
+          "endLine": 123,
+          "params": [
+            "outcome",
+            "options"
+          ]
+        },
+        {
+          "name": "discoverLatestResource",
+          "startLine": 135,
+          "endLine": 210,
+          "params": [
+            "outcome",
+            "quarter",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchLmiaByQuarter",
+          "startLine": 219,
+          "endLine": 245,
+          "params": [
+            "outcome",
+            "quarter",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchLatestLmiaRecords",
+          "startLine": 252,
+          "endLine": 258,
+          "params": [
+            "outcome",
+            "options"
+          ]
+        },
+        {
+          "name": "discoverLatestQuarter",
+          "startLine": 267,
+          "endLine": 294,
+          "params": [
+            "outcome",
+            "options"
+          ]
+        },
+        {
+          "name": "listAvailableQuarters",
+          "startLine": 299,
+          "endLine": 316,
+          "params": [
+            "outcome",
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "LmiaFetchError",
+          "startLine": 25,
+          "endLine": 34,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "LmiaFetchError",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "fetchUrl",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLmiaCkanMetadata",
+          "line": 98,
+          "isDefault": false
+        },
+        {
+          "name": "discoverLatestResource",
+          "line": 135,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLmiaByQuarter",
+          "line": 219,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLatestLmiaRecords",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "discoverLatestQuarter",
+          "line": 267,
+          "isDefault": false
+        },
+        {
+          "name": "listAvailableQuarters",
+          "line": 299,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchUrl",
+          "callee": "httpGet",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchLmiaCkanMetadata",
+          "callee": "lmiaCkanPackageUrl",
+          "lineNumber": 102
+        },
+        {
+          "caller": "fetchLmiaCkanMetadata",
+          "callee": "fetchUrl",
+          "lineNumber": 103
+        },
+        {
+          "caller": "fetchLmiaCkanMetadata",
+          "callee": "JSON.parse",
+          "lineNumber": 106
+        },
+        {
+          "caller": "fetchLmiaCkanMetadata",
+          "callee": "String",
+          "lineNumber": 118
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "fetchLmiaCkanMetadata",
+          "lineNumber": 141
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "quarter.toUpperCase",
+          "lineNumber": 144
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "metadata.resources.filter",
+          "lineNumber": 145
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "(r.name || '').toUpperCase",
+          "lineNumber": 146
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "(r.description || '').toUpperCase",
+          "lineNumber": 147
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "r.format?.toUpperCase",
+          "lineNumber": 149
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.includes",
+          "lineNumber": 150
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "desc.includes",
+          "lineNumber": 150
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.includes",
+          "lineNumber": 151
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.includes",
+          "lineNumber": 151
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "desc.includes",
+          "lineNumber": 151
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.endsWith",
+          "lineNumber": 152
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.includes",
+          "lineNumber": 152
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "matching.sort",
+          "lineNumber": 158
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "new Date(b.last_modified).getTime",
+          "lineNumber": 158
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "new Date(a.last_modified).getTime",
+          "lineNumber": 158
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "metadata.resources.filter",
+          "lineNumber": 167
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "(r.name || '').toUpperCase",
+          "lineNumber": 168
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "r.format?.toUpperCase",
+          "lineNumber": 169
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.includes",
+          "lineNumber": 170
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.includes",
+          "lineNumber": 170
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "name.endsWith",
+          "lineNumber": 170
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "csvEnResources.sort",
+          "lineNumber": 174
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "new Date(b.last_modified).getTime",
+          "lineNumber": 174
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "new Date(a.last_modified).getTime",
+          "lineNumber": 174
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "metadata.resources.filter",
+          "lineNumber": 183
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "r.format?.toUpperCase",
+          "lineNumber": 183
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "anyCsv.sort",
+          "lineNumber": 185
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "new Date(b.last_modified).getTime",
+          "lineNumber": 185
+        },
+        {
+          "caller": "discoverLatestResource",
+          "callee": "new Date(a.last_modified).getTime",
+          "lineNumber": 185
+        },
+        {
+          "caller": "fetchLmiaByQuarter",
+          "callee": "discoverLatestResource",
+          "lineNumber": 224
+        },
+        {
+          "caller": "fetchLmiaByQuarter",
+          "callee": "lmiaDownloadUrl",
+          "lineNumber": 225
+        },
+        {
+          "caller": "fetchLmiaByQuarter",
+          "callee": "fetchUrl",
+          "lineNumber": 229
+        },
+        {
+          "caller": "fetchLmiaByQuarter",
+          "callee": "fetchLmiaCkanMetadata",
+          "lineNumber": 233
+        },
+        {
+          "caller": "fetchLmiaByQuarter",
+          "callee": "metadata.resources.find",
+          "lineNumber": 234
+        },
+        {
+          "caller": "fetchLmiaByQuarter",
+          "callee": "fetchUrl",
+          "lineNumber": 236
+        },
+        {
+          "caller": "fetchLatestLmiaRecords",
+          "callee": "discoverLatestQuarter",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchLatestLmiaRecords",
+          "callee": "fetchLmiaByQuarter",
+          "lineNumber": 257
+        },
+        {
+          "caller": "discoverLatestQuarter",
+          "callee": "fetchLmiaCkanMetadata",
+          "lineNumber": 272
+        },
+        {
+          "caller": "discoverLatestQuarter",
+          "callee": "name.match",
+          "lineNumber": 278
+        },
+        {
+          "caller": "discoverLatestQuarter",
+          "callee": "quarters.push",
+          "lineNumber": 280
+        },
+        {
+          "caller": "discoverLatestQuarter",
+          "callee": "quarters.sort().reverse",
+          "lineNumber": 286
+        },
+        {
+          "caller": "discoverLatestQuarter",
+          "callee": "quarters.sort",
+          "lineNumber": 286
+        },
+        {
+          "caller": "listAvailableQuarters",
+          "callee": "fetchLmiaCkanMetadata",
+          "lineNumber": 303
+        },
+        {
+          "caller": "listAvailableQuarters",
+          "callee": "name.match",
+          "lineNumber": 309
+        },
+        {
+          "caller": "listAvailableQuarters",
+          "callee": "quarterSet.add",
+          "lineNumber": 311
+        },
+        {
+          "caller": "listAvailableQuarters",
+          "callee": "Array.from(quarterSet).sort",
+          "lineNumber": 315
+        },
+        {
+          "caller": "listAvailableQuarters",
+          "callee": "Array.from",
+          "lineNumber": 315
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 8,
+        "functionCount": 7,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/lmia/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 428,
+      "nonEmptyLines": 384,
+      "functions": [
+        {
+          "name": "ingestLmia",
+          "startLine": 38,
+          "endLine": 127,
+          "params": [
+            "db",
+            "outcome",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllLmia",
+          "startLine": 133,
+          "endLine": 157,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "upsertLmiaRecord",
+          "startLine": 163,
+          "endLine": 193,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "initializeLmiaTable",
+          "startLine": 198,
+          "endLine": 200,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "getTopEmployers",
+          "startLine": 211,
+          "endLine": 273,
+          "params": [
+            "db",
+            "limit",
+            "year",
+            "outcome"
+          ]
+        },
+        {
+          "name": "searchByEmployer",
+          "startLine": 282,
+          "endLine": 296,
+          "params": [
+            "db",
+            "name",
+            "limit"
+          ]
+        },
+        {
+          "name": "searchByOccupation",
+          "startLine": 305,
+          "endLine": 319,
+          "params": [
+            "db",
+            "noc",
+            "limit"
+          ]
+        },
+        {
+          "name": "getByProvince",
+          "startLine": 328,
+          "endLine": 342,
+          "params": [
+            "db",
+            "province",
+            "limit"
+          ]
+        },
+        {
+          "name": "getLmiaStats",
+          "startLine": 350,
+          "endLine": 419,
+          "params": [
+            "db",
+            "year"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestLmia",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllLmia",
+          "line": 133,
+          "isDefault": false
+        },
+        {
+          "name": "initializeLmiaTable",
+          "line": 198,
+          "isDefault": false
+        },
+        {
+          "name": "getTopEmployers",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "searchByEmployer",
+          "line": 282,
+          "isDefault": false
+        },
+        {
+          "name": "searchByOccupation",
+          "line": 305,
+          "isDefault": false
+        },
+        {
+          "name": "getByProvince",
+          "line": 328,
+          "isDefault": false
+        },
+        {
+          "name": "getLmiaStats",
+          "line": 350,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLatestLmiaRecords",
+          "line": 421,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLmiaByQuarter",
+          "line": 421,
+          "isDefault": false
+        },
+        {
+          "name": "fetchLmiaCkanMetadata",
+          "line": 421,
+          "isDefault": false
+        },
+        {
+          "name": "discoverLatestQuarter",
+          "line": 421,
+          "isDefault": false
+        },
+        {
+          "name": "listAvailableQuarters",
+          "line": 421,
+          "isDefault": false
+        },
+        {
+          "name": "LmiaFetchError",
+          "line": 421,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestLmia",
+          "callee": "Date.now",
+          "lineNumber": 50
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "discoverLatestQuarter",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "fetchLmiaByQuarter",
+          "lineNumber": 70
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "(csvText.length / 1024).toFixed",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "parseLmiaCsv",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 76
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "Date.now",
+          "lineNumber": 79
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 85
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "upsertLmiaRecord",
+          "lineNumber": 89
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "employerSeen.has",
+          "lineNumber": 93
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "employerSeen.add",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "upsertOrganization",
+          "lineNumber": 96
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "String",
+          "lineNumber": 105
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "result.errors.push",
+          "lineNumber": 106
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 109
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "String",
+          "lineNumber": 115
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "result.errors.push",
+          "lineNumber": 116
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 117
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "Date.now",
+          "lineNumber": 120
+        },
+        {
+          "caller": "ingestLmia",
+          "callee": "log",
+          "lineNumber": 121
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "log",
+          "lineNumber": 142
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "ingestLmia",
+          "lineNumber": 147
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 151
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "Object.values",
+          "lineNumber": 151
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 152
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "Object.values",
+          "lineNumber": 152
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 153
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "Object.values",
+          "lineNumber": 153
+        },
+        {
+          "caller": "ingestAllLmia",
+          "callee": "log",
+          "lineNumber": 154
+        },
+        {
+          "caller": "upsertLmiaRecord",
+          "callee": "db.prepare(`\n    INSERT OR REPLACE INTO lmia_records\n      (id, employer, city, province, outcome, stream, stream_raw,\n       noc, noc_title, positions, wage_min, wage_max, wage_rate,\n       quarter, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 167
+        },
+        {
+          "caller": "upsertLmiaRecord",
+          "callee": "db.prepare",
+          "lineNumber": 167
+        },
+        {
+          "caller": "upsertLmiaRecord",
+          "callee": "stmt.run",
+          "lineNumber": 191
+        },
+        {
+          "caller": "initializeLmiaTable",
+          "callee": "db.exec",
+          "lineNumber": 199
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "conditions.push",
+          "lineNumber": 228
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "params.push",
+          "lineNumber": 229
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "conditions.push",
+          "lineNumber": 233
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "params.push",
+          "lineNumber": 234
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "conditions.join",
+          "lineNumber": 237
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "params.push",
+          "lineNumber": 253
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 255
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "db.prepare",
+          "lineNumber": 255
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "await stmt.all",
+          "lineNumber": 256
+        },
+        {
+          "caller": "getTopEmployers",
+          "callee": "(result.results ?? []).map",
+          "lineNumber": 265
+        },
+        {
+          "caller": "searchByEmployer",
+          "callee": "db.prepare(`\n    SELECT * FROM lmia_records\n    WHERE LOWER(employer) LIKE ?\n    ORDER BY quarter DESC, employer ASC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 287
+        },
+        {
+          "caller": "searchByEmployer",
+          "callee": "db.prepare",
+          "lineNumber": 287
+        },
+        {
+          "caller": "searchByEmployer",
+          "callee": "name.toLowerCase",
+          "lineNumber": 292
+        },
+        {
+          "caller": "searchByEmployer",
+          "callee": "await stmt.all",
+          "lineNumber": 294
+        },
+        {
+          "caller": "searchByOccupation",
+          "callee": "db.prepare(`\n    SELECT * FROM lmia_records\n    WHERE noc LIKE ? OR noc LIKE ?\n    ORDER BY quarter DESC, employer ASC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 310
+        },
+        {
+          "caller": "searchByOccupation",
+          "callee": "db.prepare",
+          "lineNumber": 310
+        },
+        {
+          "caller": "searchByOccupation",
+          "callee": "await stmt.all",
+          "lineNumber": 317
+        },
+        {
+          "caller": "getByProvince",
+          "callee": "db.prepare(`\n    SELECT * FROM lmia_records\n    WHERE province = ?\n    ORDER BY quarter DESC, employer ASC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 333
+        },
+        {
+          "caller": "getByProvince",
+          "callee": "db.prepare",
+          "lineNumber": 333
+        },
+        {
+          "caller": "getByProvince",
+          "callee": "province.toUpperCase",
+          "lineNumber": 338
+        },
+        {
+          "caller": "getByProvince",
+          "callee": "await stmt.all",
+          "lineNumber": 340
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "conditions.push",
+          "lineNumber": 363
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "params.push",
+          "lineNumber": 364
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "conditions.join",
+          "lineNumber": 367
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "await db.prepare(streamSql).bind(...params).all",
+          "lineNumber": 376
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "db.prepare(streamSql).bind",
+          "lineNumber": 376
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "db.prepare",
+          "lineNumber": 376
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "await db.prepare(provinceSql).bind(...params).all",
+          "lineNumber": 389
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "db.prepare(provinceSql).bind",
+          "lineNumber": 389
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "db.prepare",
+          "lineNumber": 389
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "await db.prepare(totalSql).bind(...params).first",
+          "lineNumber": 400
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "db.prepare(totalSql).bind",
+          "lineNumber": 400
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "db.prepare",
+          "lineNumber": 400
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "(streamResult.results ?? []).map",
+          "lineNumber": 406
+        },
+        {
+          "caller": "getLmiaStats",
+          "callee": "(provinceResult.results ?? []).map",
+          "lineNumber": 411
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 14,
+        "functionCount": 9,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/lmia/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 493,
+      "nonEmptyLines": 424,
+      "functions": [
+        {
+          "name": "parseLmiaCsv",
+          "startLine": 87,
+          "endLine": 127,
+          "params": [
+            "csvText",
+            "outcome",
+            "quarter"
+          ]
+        },
+        {
+          "name": "detectColumns",
+          "startLine": 146,
+          "endLine": 209,
+          "params": [
+            "header"
+          ]
+        },
+        {
+          "name": "normalizeHeader",
+          "startLine": 212,
+          "endLine": 219,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isEmployerCol",
+          "startLine": 221,
+          "endLine": 225,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isCityCol",
+          "startLine": 227,
+          "endLine": 229,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isProvinceCol",
+          "startLine": 231,
+          "endLine": 233,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isStreamCol",
+          "startLine": 235,
+          "endLine": 239,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isNocCol",
+          "startLine": 241,
+          "endLine": 245,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isNocTitleCol",
+          "startLine": 247,
+          "endLine": 251,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isPositionsCol",
+          "startLine": 253,
+          "endLine": 257,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isWageMinCol",
+          "startLine": 259,
+          "endLine": 263,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isWageMaxCol",
+          "startLine": 265,
+          "endLine": 269,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "isWageRateCol",
+          "startLine": 271,
+          "endLine": 275,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "parseLmiaRow",
+          "startLine": 281,
+          "endLine": 337,
+          "params": [
+            "row",
+            "cols",
+            "outcome",
+            "quarter",
+            "ingestedAt"
+          ]
+        },
+        {
+          "name": "extractStream",
+          "startLine": 343,
+          "endLine": 361,
+          "params": [
+            "descriptionText"
+          ]
+        },
+        {
+          "name": "classifyOccupation",
+          "startLine": 383,
+          "endLine": 420,
+          "params": [
+            "noc"
+          ]
+        },
+        {
+          "name": "safeTrim",
+          "startLine": 425,
+          "endLine": 427,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseNumber",
+          "startLine": 429,
+          "endLine": 434,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "normalizeProvince",
+          "startLine": 439,
+          "endLine": 493,
+          "params": [
+            "input"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseLmiaCsv",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "extractStream",
+          "line": 343,
+          "isDefault": false
+        },
+        {
+          "name": "classifyOccupation",
+          "line": 383,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "new Date().toISOString",
+          "lineNumber": 93
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "csvText.replace(/^\\uFEFF/, '').split",
+          "lineNumber": 96
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "csvText.replace",
+          "lineNumber": 96
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 100
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "detectColumns",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "lines[i].trim",
+          "lineNumber": 110
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 114
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "parseLmiaRow",
+          "lineNumber": 117
+        },
+        {
+          "caller": "parseLmiaCsv",
+          "callee": "records.push",
+          "lineNumber": 119
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "header.map",
+          "lineNumber": 160
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "normalizeHeader",
+          "lineNumber": 160
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isEmployerCol",
+          "lineNumber": 166
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isCityCol",
+          "lineNumber": 171
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isProvinceCol",
+          "lineNumber": 174
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isStreamCol",
+          "lineNumber": 179
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isNocCol",
+          "lineNumber": 184
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isNocTitleCol",
+          "lineNumber": 187
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isPositionsCol",
+          "lineNumber": 192
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isWageMinCol",
+          "lineNumber": 197
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isWageMaxCol",
+          "lineNumber": 200
+        },
+        {
+          "caller": "detectColumns",
+          "callee": "isWageRateCol",
+          "lineNumber": 203
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace(/['\"]/g, '')\n    .replace(/[-_./]/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim",
+          "lineNumber": 213
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace(/['\"]/g, '')\n    .replace(/[-_./]/g, ' ')\n    .replace",
+          "lineNumber": 213
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace(/['\"]/g, '')\n    .replace",
+          "lineNumber": 213
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace",
+          "lineNumber": 213
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase",
+          "lineNumber": 213
+        },
+        {
+          "caller": "isEmployerCol",
+          "callee": "h.match",
+          "lineNumber": 222
+        },
+        {
+          "caller": "isCityCol",
+          "callee": "h.match",
+          "lineNumber": 228
+        },
+        {
+          "caller": "isProvinceCol",
+          "callee": "h.match",
+          "lineNumber": 232
+        },
+        {
+          "caller": "isStreamCol",
+          "callee": "h.match",
+          "lineNumber": 236
+        },
+        {
+          "caller": "isNocCol",
+          "callee": "h.match",
+          "lineNumber": 242
+        },
+        {
+          "caller": "isNocTitleCol",
+          "callee": "h.match",
+          "lineNumber": 248
+        },
+        {
+          "caller": "isPositionsCol",
+          "callee": "h.match",
+          "lineNumber": 254
+        },
+        {
+          "caller": "isWageMinCol",
+          "callee": "h.match",
+          "lineNumber": 260
+        },
+        {
+          "caller": "isWageMaxCol",
+          "callee": "h.match",
+          "lineNumber": 266
+        },
+        {
+          "caller": "isWageRateCol",
+          "callee": "h.match",
+          "lineNumber": 272
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 288
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 291
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 292
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 293
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 294
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 295
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "parseNumber",
+          "lineNumber": 296
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "parseNumber",
+          "lineNumber": 297
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "parseNumber",
+          "lineNumber": 298
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "safeTrim",
+          "lineNumber": 299
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "extractStream",
+          "lineNumber": 302
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "[\n    employer,\n    city,\n    province,\n    outcome,\n    stream,\n    noc,\n    positions,\n    wageMin,\n    wageMax,\n    quarter,\n  ].join",
+          "lineNumber": 305
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "computeHash",
+          "lineNumber": 318
+        },
+        {
+          "caller": "parseLmiaRow",
+          "callee": "normalizeProvince",
+          "lineNumber": 324
+        },
+        {
+          "caller": "extractStream",
+          "callee": "descriptionText.toLowerCase().trim",
+          "lineNumber": 346
+        },
+        {
+          "caller": "extractStream",
+          "callee": "descriptionText.toLowerCase",
+          "lineNumber": 346
+        },
+        {
+          "caller": "extractStream",
+          "callee": "Object.entries",
+          "lineNumber": 354
+        },
+        {
+          "caller": "extractStream",
+          "callee": "normalized.includes",
+          "lineNumber": 355
+        },
+        {
+          "caller": "classifyOccupation",
+          "callee": "noc.match",
+          "lineNumber": 393
+        },
+        {
+          "caller": "classifyOccupation",
+          "callee": "noc.match",
+          "lineNumber": 399
+        },
+        {
+          "caller": "safeTrim",
+          "callee": "(val || '').replace(/^[\"'\\s]+|[\"'\\s]+$/g, '').trim",
+          "lineNumber": 426
+        },
+        {
+          "caller": "safeTrim",
+          "callee": "(val || '').replace",
+          "lineNumber": 426
+        },
+        {
+          "caller": "parseNumber",
+          "callee": "val.replace(/[$,€£\\s]/g, '').replace",
+          "lineNumber": 431
+        },
+        {
+          "caller": "parseNumber",
+          "callee": "val.replace",
+          "lineNumber": 431
+        },
+        {
+          "caller": "parseNumber",
+          "callee": "Number",
+          "lineNumber": 432
+        },
+        {
+          "caller": "parseNumber",
+          "callee": "isNaN",
+          "lineNumber": 433
+        },
+        {
+          "caller": "normalizeProvince",
+          "callee": "input.trim().toUpperCase",
+          "lineNumber": 440
+        },
+        {
+          "caller": "normalizeProvince",
+          "callee": "input.trim",
+          "lineNumber": 440
+        },
+        {
+          "caller": "normalizeProvince",
+          "callee": "/^[A-Z]{2}$/.test",
+          "lineNumber": 443
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 19,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/lmia/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 105,
+      "nonEmptyLines": 83,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/proactive-disclosure/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 194,
+      "nonEmptyLines": 173,
+      "classes": [
+        {
+          "name": "PDError",
+          "startLine": 184,
+          "endLine": 194,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CKAN_SOLR_SEARCH_URL",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "CKAN_API_BASE",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_SEARCH_QUERY",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_PAGE_SIZE",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_PAGE_SIZE",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "CKAN_HEADERS",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "MAJOR_DEPARTMENTS",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "DEPARTMENT_ACRONYM_MAP",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "OWNER_ORG_ACRONYM_MAP",
+          "line": 114,
+          "isDefault": false
+        },
+        {
+          "name": "PROACTIVE_DISCLOSURE_TYPE_KEYWORDS",
+          "line": 137,
+          "isDefault": false
+        },
+        {
+          "name": "PROACTIVE_DISCLOSURE_FQ",
+          "line": 149,
+          "isDefault": false
+        },
+        {
+          "name": "DATE_FORMAT_PATTERNS",
+          "line": 162,
+          "isDefault": false
+        },
+        {
+          "name": "CURRENCY_VALUE_PATTERN",
+          "line": 178,
+          "isDefault": false
+        },
+        {
+          "name": "PDError",
+          "line": 184,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 191
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 14,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/proactive-disclosure/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 322,
+      "nonEmptyLines": 277,
+      "functions": [
+        {
+          "name": "fetchProactiveDisclosure",
+          "startLine": 39,
+          "endLine": 140,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllProactiveDisclosure",
+          "startLine": 151,
+          "endLine": 201,
+          "params": [
+            "options",
+            "maxResults"
+          ]
+        },
+        {
+          "name": "fetchCKANPackageDetail",
+          "startLine": 208,
+          "endLine": 226,
+          "params": [
+            "packageId"
+          ]
+        },
+        {
+          "name": "fetchDepartmentProactiveDisclosurePackages",
+          "startLine": 236,
+          "endLine": 259,
+          "params": [
+            "departmentOwnerOrg"
+          ]
+        },
+        {
+          "name": "fetchByDepartment",
+          "startLine": 270,
+          "endLine": 285,
+          "params": [
+            "departmentAcronym",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchResourceData",
+          "startLine": 295,
+          "endLine": 322,
+          "params": [
+            "resourceUrl"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchProactiveDisclosure",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllProactiveDisclosure",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCKANPackageDetail",
+          "line": 208,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDepartmentProactiveDisclosurePackages",
+          "line": 236,
+          "isDefault": false
+        },
+        {
+          "name": "fetchByDepartment",
+          "line": 270,
+          "isDefault": false
+        },
+        {
+          "name": "fetchResourceData",
+          "line": 295,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "Math.min",
+          "lineNumber": 47
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.set",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.set",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "String",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.set",
+          "lineNumber": 54
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "String",
+          "lineNumber": 54
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.set",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 61
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "options.departments.map((d) =>\n      `owner_org:\"${d}\"`,\n    ).join",
+          "lineNumber": 65
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "options.departments.map",
+          "lineNumber": 65
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 78
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 81
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "fqParams.push",
+          "lineNumber": 91
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.append",
+          "lineNumber": 96
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.set",
+          "lineNumber": 101
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "params.toString",
+          "lineNumber": 104
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "httpGet",
+          "lineNumber": 107
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "JSON.parse",
+          "lineNumber": 121
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "Array.isArray",
+          "lineNumber": 123
+        },
+        {
+          "caller": "fetchProactiveDisclosure",
+          "callee": "String",
+          "lineNumber": 135
+        },
+        {
+          "caller": "fetchAllProactiveDisclosure",
+          "callee": "Math.min",
+          "lineNumber": 166
+        },
+        {
+          "caller": "fetchAllProactiveDisclosure",
+          "callee": "fetchProactiveDisclosure",
+          "lineNumber": 169
+        },
+        {
+          "caller": "fetchAllProactiveDisclosure",
+          "callee": "allRecords.push",
+          "lineNumber": 179
+        },
+        {
+          "caller": "fetchAllProactiveDisclosure",
+          "callee": "sourceUrls.push",
+          "lineNumber": 180
+        },
+        {
+          "caller": "fetchAllProactiveDisclosure",
+          "callee": "allRecords.splice",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchCKANPackageDetail",
+          "callee": "encodeURIComponent",
+          "lineNumber": 211
+        },
+        {
+          "caller": "fetchCKANPackageDetail",
+          "callee": "httpGet",
+          "lineNumber": 214
+        },
+        {
+          "caller": "fetchCKANPackageDetail",
+          "callee": "JSON.parse",
+          "lineNumber": 221
+        },
+        {
+          "caller": "fetchDepartmentProactiveDisclosurePackages",
+          "callee": "encodeURIComponent",
+          "lineNumber": 239
+        },
+        {
+          "caller": "fetchDepartmentProactiveDisclosurePackages",
+          "callee": "httpGet",
+          "lineNumber": 242
+        },
+        {
+          "caller": "fetchDepartmentProactiveDisclosurePackages",
+          "callee": "JSON.parse",
+          "lineNumber": 249
+        },
+        {
+          "caller": "fetchDepartmentProactiveDisclosurePackages",
+          "callee": "results.map",
+          "lineNumber": 251
+        },
+        {
+          "caller": "fetchDepartmentProactiveDisclosurePackages",
+          "callee": "String",
+          "lineNumber": 252
+        },
+        {
+          "caller": "fetchDepartmentProactiveDisclosurePackages",
+          "callee": "String",
+          "lineNumber": 253
+        },
+        {
+          "caller": "fetchByDepartment",
+          "callee": "fetchProactiveDisclosure",
+          "lineNumber": 281
+        },
+        {
+          "caller": "fetchResourceData",
+          "callee": "httpGet",
+          "lineNumber": 299
+        },
+        {
+          "caller": "fetchResourceData",
+          "callee": "String",
+          "lineNumber": 317
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/proactive-disclosure/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 601,
+      "nonEmptyLines": 523,
+      "functions": [
+        {
+          "name": "initializePDTable",
+          "startLine": 154,
+          "endLine": 156,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertRecord",
+          "startLine": 164,
+          "endLine": 198,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "recordExists",
+          "startLine": 204,
+          "endLine": 220,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "getLatestAwardDate",
+          "startLine": 226,
+          "endLine": 232,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "ingestProactiveDisclosure",
+          "startLine": 252,
+          "endLine": 418,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "searchProactiveDisclosure",
+          "startLine": 432,
+          "endLine": 451,
+          "params": [
+            "db",
+            "query",
+            "limit"
+          ]
+        },
+        {
+          "name": "getContractsByVendor",
+          "startLine": 461,
+          "endLine": 475,
+          "params": [
+            "db",
+            "vendorName",
+            "limit"
+          ]
+        },
+        {
+          "name": "getContractsByDepartment",
+          "startLine": 485,
+          "endLine": 502,
+          "params": [
+            "db",
+            "departmentName",
+            "limit"
+          ]
+        },
+        {
+          "name": "getTopContracts",
+          "startLine": 512,
+          "endLine": 536,
+          "params": [
+            "db",
+            "limit",
+            "departmentAcronym"
+          ]
+        },
+        {
+          "name": "getDepartmentStats",
+          "startLine": 545,
+          "endLine": 601,
+          "params": [
+            "db",
+            "fiscalYear"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchProactiveDisclosure",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllProactiveDisclosure",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "fetchByDepartment",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "parseCKAResult",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "parseCKAResults",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "extractFiscalYear",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "inferGoodsOrServices",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "MAJOR_DEPARTMENTS",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "CKAN_SOLR_SEARCH_URL",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "CKAN_API_BASE",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_SEARCH_QUERY",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "DEPARTMENT_ACRONYM_MAP",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "OWNER_ORG_ACRONYM_MAP",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "PDError",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "ProactiveDisclosureRecord",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "ProactiveDisclosureSearchOptions",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "ProactiveDisclosureIngestionResult",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "RawCKANProactiveDisclosureDoc",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "DepartmentInfo",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "CKANSearchResponse",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "PROACTIVE_DISCLOSURE_DDL",
+          "line": 90,
+          "isDefault": false
+        },
+        {
+          "name": "initializePDTable",
+          "line": 154,
+          "isDefault": false
+        },
+        {
+          "name": "ingestProactiveDisclosure",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "searchProactiveDisclosure",
+          "line": 432,
+          "isDefault": false
+        },
+        {
+          "name": "getContractsByVendor",
+          "line": 461,
+          "isDefault": false
+        },
+        {
+          "name": "getContractsByDepartment",
+          "line": 485,
+          "isDefault": false
+        },
+        {
+          "name": "getTopContracts",
+          "line": 512,
+          "isDefault": false
+        },
+        {
+          "name": "getDepartmentStats",
+          "line": 545,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializePDTable",
+          "callee": "db.exec",
+          "lineNumber": 155
+        },
+        {
+          "caller": "upsertRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO proactive_disclosure\n      (id, department, department_acronym, vendor_name, contract_value,\n       currency, award_date, contract_period_start, contract_period_end,\n       goods_or_services, procurement_method, description, comments,\n       source_url, ckan_package_id, ckan_resource_id, fiscal_year, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 168
+        },
+        {
+          "caller": "upsertRecord",
+          "callee": "db.prepare",
+          "lineNumber": 168
+        },
+        {
+          "caller": "upsertRecord",
+          "callee": "stmt.run",
+          "lineNumber": 196
+        },
+        {
+          "caller": "recordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM proactive_disclosure\n     WHERE vendor_name = ? AND department = ? AND award_date = ? AND contract_value = ?\n     LIMIT 1`,\n  ).bind(\n    record.vendorName,\n    record.department,\n    record.awardDate,\n    record.contractValue,\n  ).first",
+          "lineNumber": 208
+        },
+        {
+          "caller": "recordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM proactive_disclosure\n     WHERE vendor_name = ? AND department = ? AND award_date = ? AND contract_value = ?\n     LIMIT 1`,\n  ).bind",
+          "lineNumber": 208
+        },
+        {
+          "caller": "recordExists",
+          "callee": "db.prepare",
+          "lineNumber": 208
+        },
+        {
+          "caller": "getLatestAwardDate",
+          "callee": "await db.prepare(\n    'SELECT award_date FROM proactive_disclosure ORDER BY award_date DESC LIMIT 1',\n  ).first",
+          "lineNumber": 227
+        },
+        {
+          "caller": "getLatestAwardDate",
+          "callee": "db.prepare",
+          "lineNumber": 227
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "Date.now",
+          "lineNumber": 267
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 282
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "initializePDTable",
+          "lineNumber": 283
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 287
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 295
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "fetchByDepartment",
+          "lineNumber": 297
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "fetchAllProactiveDisclosure",
+          "lineNumber": 311
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 330
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "Date.now",
+          "lineNumber": 333
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 338
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "parseCKAResults",
+          "lineNumber": 339
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 340
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 344
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "recordExists",
+          "lineNumber": 350
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "upsertRecord",
+          "lineNumber": 354
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "upsertOrganization",
+          "lineNumber": 362
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "upsertOrganization",
+          "lineNumber": 369
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "upsertContract",
+          "lineNumber": 377
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "String",
+          "lineNumber": 393
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "result.errors.push",
+          "lineNumber": 394
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "record.id?.substring",
+          "lineNumber": 394
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 398
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "String",
+          "lineNumber": 405
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "result.errors.push",
+          "lineNumber": 406
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 407
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "Date.now",
+          "lineNumber": 410
+        },
+        {
+          "caller": "ingestProactiveDisclosure",
+          "callee": "log",
+          "lineNumber": 411
+        },
+        {
+          "caller": "searchProactiveDisclosure",
+          "callee": "query.toLowerCase",
+          "lineNumber": 437
+        },
+        {
+          "caller": "searchProactiveDisclosure",
+          "callee": "db.prepare(`\n    SELECT * FROM proactive_disclosure\n    WHERE LOWER(vendor_name) LIKE ?\n       OR LOWER(description) LIKE ?\n       OR LOWER(department) LIKE ?\n       OR LOWER(comments) LIKE ?\n    ORDER BY contract_value DESC, award_date DESC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 439
+        },
+        {
+          "caller": "searchProactiveDisclosure",
+          "callee": "db.prepare",
+          "lineNumber": 439
+        },
+        {
+          "caller": "searchProactiveDisclosure",
+          "callee": "await stmt.all",
+          "lineNumber": 449
+        },
+        {
+          "caller": "getContractsByVendor",
+          "callee": "db.prepare(`\n    SELECT * FROM proactive_disclosure\n    WHERE LOWER(vendor_name) LIKE ?\n    ORDER BY award_date DESC, contract_value DESC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 466
+        },
+        {
+          "caller": "getContractsByVendor",
+          "callee": "db.prepare",
+          "lineNumber": 466
+        },
+        {
+          "caller": "getContractsByVendor",
+          "callee": "vendorName.toLowerCase",
+          "lineNumber": 471
+        },
+        {
+          "caller": "getContractsByVendor",
+          "callee": "await stmt.all",
+          "lineNumber": 473
+        },
+        {
+          "caller": "getContractsByDepartment",
+          "callee": "departmentName.toLowerCase",
+          "lineNumber": 490
+        },
+        {
+          "caller": "getContractsByDepartment",
+          "callee": "db.prepare(`\n    SELECT * FROM proactive_disclosure\n    WHERE LOWER(department) LIKE ?\n       OR LOWER(department_acronym) LIKE ?\n    ORDER BY award_date DESC, contract_value DESC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 492
+        },
+        {
+          "caller": "getContractsByDepartment",
+          "callee": "db.prepare",
+          "lineNumber": 492
+        },
+        {
+          "caller": "getContractsByDepartment",
+          "callee": "await stmt.all",
+          "lineNumber": 500
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "conditions.push",
+          "lineNumber": 521
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "params.push",
+          "lineNumber": 522
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "departmentAcronym.toLowerCase",
+          "lineNumber": 522
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "conditions.join",
+          "lineNumber": 525
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "db.prepare(`\n    SELECT * FROM proactive_disclosure\n    ${where}\n    ORDER BY contract_value DESC NULLS LAST\n    LIMIT ?\n  `).bind",
+          "lineNumber": 527
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "db.prepare",
+          "lineNumber": 527
+        },
+        {
+          "caller": "getTopContracts",
+          "callee": "await stmt.all",
+          "lineNumber": 534
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "conditions.push",
+          "lineNumber": 561
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "params.push",
+          "lineNumber": 562
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "conditions.join",
+          "lineNumber": 565
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "db.prepare(`\n    SELECT\n      department,\n      department_acronym,\n      COUNT(*) as total_contracts,\n      SUM(COALESCE(contract_value, 0)) as total_value,\n      AVG(COALESCE(contract_value, 0)) as avg_value,\n      MAX(COALESCE(contract_value, 0)) as max_value,\n      SUM(CASE WHEN LOWER(procurement_method) LIKE '%non-competitive%' OR LOWER(procurement_method) LIKE '%sole%' THEN 1 ELSE 0 END) as sole_source_count\n    FROM proactive_disclosure\n    ${where}\n    GROUP BY department\n    ORDER BY total_value DESC\n  `).bind",
+          "lineNumber": 567
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "db.prepare",
+          "lineNumber": 567
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "await stmt.all",
+          "lineNumber": 582
+        },
+        {
+          "caller": "getDepartmentStats",
+          "callee": "(result.results ?? []).map",
+          "lineNumber": 592
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 29,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/proactive-disclosure/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 443,
+      "nonEmptyLines": 384,
+      "functions": [
+        {
+          "name": "detectDepartment",
+          "startLine": 38,
+          "endLine": 86,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "extractString",
+          "startLine": 97,
+          "endLine": 108,
+          "params": [
+            "raw",
+            "fieldNames"
+          ]
+        },
+        {
+          "name": "extractNumber",
+          "startLine": 114,
+          "endLine": 135,
+          "params": [
+            "raw",
+            "fieldNames"
+          ]
+        },
+        {
+          "name": "extractDate",
+          "startLine": 140,
+          "endLine": 148,
+          "params": [
+            "raw",
+            "fieldNames"
+          ]
+        },
+        {
+          "name": "normalizeDate",
+          "startLine": 154,
+          "endLine": 198,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseCKAResult",
+          "startLine": 218,
+          "endLine": 347,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseCKAResults",
+          "startLine": 357,
+          "endLine": 380,
+          "params": [
+            "rawDocs"
+          ]
+        },
+        {
+          "name": "extractFiscalYear",
+          "startLine": 391,
+          "endLine": 405,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "inferGoodsOrServices",
+          "startLine": 415,
+          "endLine": 443,
+          "params": [
+            "description"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "detectDepartment",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 154,
+          "isDefault": false
+        },
+        {
+          "name": "parseCKAResult",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "parseCKAResults",
+          "line": 357,
+          "isDefault": false
+        },
+        {
+          "name": "extractFiscalYear",
+          "line": 391,
+          "isDefault": false
+        },
+        {
+          "name": "inferGoodsOrServices",
+          "line": 415,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "detectDepartment",
+          "callee": "MAJOR_DEPARTMENTS.find",
+          "lineNumber": 62
+        },
+        {
+          "caller": "detectDepartment",
+          "callee": "MAJOR_DEPARTMENTS.find",
+          "lineNumber": 72
+        },
+        {
+          "caller": "extractString",
+          "callee": "String(val).trim",
+          "lineNumber": 104
+        },
+        {
+          "caller": "extractString",
+          "callee": "String",
+          "lineNumber": 104
+        },
+        {
+          "caller": "extractNumber",
+          "callee": "isNaN",
+          "lineNumber": 122
+        },
+        {
+          "caller": "extractNumber",
+          "callee": "String(val).trim",
+          "lineNumber": 126
+        },
+        {
+          "caller": "extractNumber",
+          "callee": "String",
+          "lineNumber": 126
+        },
+        {
+          "caller": "extractNumber",
+          "callee": "strVal.replace",
+          "lineNumber": 127
+        },
+        {
+          "caller": "extractNumber",
+          "callee": "parseFloat",
+          "lineNumber": 128
+        },
+        {
+          "caller": "extractNumber",
+          "callee": "isNaN",
+          "lineNumber": 129
+        },
+        {
+          "caller": "extractDate",
+          "callee": "extractString",
+          "lineNumber": 144
+        },
+        {
+          "caller": "extractDate",
+          "callee": "normalizeDate",
+          "lineNumber": 147
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.match",
+          "lineNumber": 158
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.match",
+          "lineNumber": 164
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.match",
+          "lineNumber": 170
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "parseInt",
+          "lineNumber": 172
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "parseInt",
+          "lineNumber": 173
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String(p2).padStart",
+          "lineNumber": 176
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String",
+          "lineNumber": 176
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String(p1).padStart",
+          "lineNumber": 176
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String",
+          "lineNumber": 176
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String(p1).padStart",
+          "lineNumber": 179
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String",
+          "lineNumber": 179
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String(p2).padStart",
+          "lineNumber": 179
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "String",
+          "lineNumber": 179
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.match",
+          "lineNumber": 183
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 186
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 186
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 186
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 186
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.match",
+          "lineNumber": 190
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 193
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 193
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 193
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 193
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "new Date().toISOString",
+          "lineNumber": 221
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "detectDepartment",
+          "lineNumber": 224
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 227
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractNumber",
+          "lineNumber": 236
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractDate",
+          "lineNumber": 245
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 253
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 262
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 269
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractDate",
+          "lineNumber": 276
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractDate",
+          "lineNumber": 282
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 290
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 298
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "extractString",
+          "lineNumber": 305
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "[\n    dept.name,\n    vendorName,\n    contractValue?.toString() ?? '',\n    awardDate ?? '',\n    description ?? '',\n    sourceUrl,\n  ].join",
+          "lineNumber": 314
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "contractValue?.toString",
+          "lineNumber": 317
+        },
+        {
+          "caller": "parseCKAResult",
+          "callee": "computeHash",
+          "lineNumber": 323
+        },
+        {
+          "caller": "parseCKAResults",
+          "callee": "parseCKAResult",
+          "lineNumber": 365
+        },
+        {
+          "caller": "parseCKAResults",
+          "callee": "seenHashes.has",
+          "lineNumber": 368
+        },
+        {
+          "caller": "parseCKAResults",
+          "callee": "seenHashes.add",
+          "lineNumber": 369
+        },
+        {
+          "caller": "parseCKAResults",
+          "callee": "records.push",
+          "lineNumber": 370
+        },
+        {
+          "caller": "parseCKAResults",
+          "callee": "String",
+          "lineNumber": 374
+        },
+        {
+          "caller": "parseCKAResults",
+          "callee": "console.warn",
+          "lineNumber": 375
+        },
+        {
+          "caller": "extractFiscalYear",
+          "callee": "dateStr.match",
+          "lineNumber": 394
+        },
+        {
+          "caller": "extractFiscalYear",
+          "callee": "parseInt",
+          "lineNumber": 397
+        },
+        {
+          "caller": "extractFiscalYear",
+          "callee": "parseInt",
+          "lineNumber": 398
+        },
+        {
+          "caller": "inferGoodsOrServices",
+          "callee": "description.toLowerCase",
+          "lineNumber": 420
+        },
+        {
+          "caller": "inferGoodsOrServices",
+          "callee": "constructionKeywords.some",
+          "lineNumber": 427
+        },
+        {
+          "caller": "inferGoodsOrServices",
+          "callee": "lower.includes",
+          "lineNumber": 427
+        },
+        {
+          "caller": "inferGoodsOrServices",
+          "callee": "goodsKeywords.some",
+          "lineNumber": 437
+        },
+        {
+          "caller": "inferGoodsOrServices",
+          "callee": "lower.includes",
+          "lineNumber": 437
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 9,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/proactive-disclosure/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 228,
+      "nonEmptyLines": 204,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/rss.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 291,
+      "nonEmptyLines": 241,
+      "functions": [
+        {
+          "name": "parseRSS",
+          "startLine": 143,
+          "endLine": 184,
+          "params": [
+            "xmlText"
+          ]
+        },
+        {
+          "name": "hashString",
+          "startLine": 196,
+          "endLine": 204,
+          "params": [
+            "str"
+          ]
+        },
+        {
+          "name": "fetchFeed",
+          "startLine": 233,
+          "endLine": 276,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "deduplicateItems",
+          "startLine": 282,
+          "endLine": 291,
+          "params": [
+            "items",
+            "existingHashes"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "RSS_SOURCES",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "parseRSS",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "hashString",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "fetchFeed",
+          "line": 233,
+          "isDefault": false
+        },
+        {
+          "name": "deduplicateItems",
+          "line": 282,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseRSS",
+          "callee": "xmlText.match",
+          "lineNumber": 150
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "itemBlock.match",
+          "lineNumber": 155
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "titleMatch[1].trim",
+          "lineNumber": 156
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "itemBlock.match",
+          "lineNumber": 158
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "linkMatch[1].trim",
+          "lineNumber": 159
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "itemBlock.match",
+          "lineNumber": 161
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "guidMatch[1].trim",
+          "lineNumber": 162
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "itemBlock.match",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "pubDateMatch[1].trim",
+          "lineNumber": 165
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "itemBlock.match",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "descMatch[1].replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "descMatch[1].replace(/<[^>]+>/g, ' ').replace",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "descMatch[1].replace",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "itemBlock.match",
+          "lineNumber": 173
+        },
+        {
+          "caller": "parseRSS",
+          "callee": "items.push",
+          "lineNumber": 179
+        },
+        {
+          "caller": "hashString",
+          "callee": "str.charCodeAt",
+          "lineNumber": 199
+        },
+        {
+          "caller": "hashString",
+          "callee": "Math.abs(hash).toString",
+          "lineNumber": 203
+        },
+        {
+          "caller": "hashString",
+          "callee": "Math.abs",
+          "lineNumber": 203
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "feedCache.get",
+          "lineNumber": 239
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "Date.now",
+          "lineNumber": 242
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "httpGet",
+          "lineNumber": 247
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "console.warn",
+          "lineNumber": 253
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "parseRSS",
+          "lineNumber": 254
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "feedCache.set",
+          "lineNumber": 261
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "Date.now",
+          "lineNumber": 265
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "Date.now",
+          "lineNumber": 269
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "feedCache.delete",
+          "lineNumber": 271
+        },
+        {
+          "caller": "fetchFeed",
+          "callee": "parseRSS",
+          "lineNumber": 275
+        },
+        {
+          "caller": "deduplicateItems",
+          "callee": "items.filter",
+          "lineNumber": 286
+        },
+        {
+          "caller": "deduplicateItems",
+          "callee": "existingHashes.has",
+          "lineNumber": 289
+        },
+        {
+          "caller": "deduplicateItems",
+          "callee": "hashString",
+          "lineNumber": 289
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/shared-db.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 354,
+      "nonEmptyLines": 332,
+      "functions": [
+        {
+          "name": "now",
+          "startLine": 11,
+          "endLine": 11,
+          "params": []
+        },
+        {
+          "name": "upsertPerson",
+          "startLine": 17,
+          "endLine": 53,
+          "params": [
+            "name",
+            "opts"
+          ]
+        },
+        {
+          "name": "upsertOrganization",
+          "startLine": 58,
+          "endLine": 96,
+          "params": [
+            "name",
+            "opts"
+          ]
+        },
+        {
+          "name": "upsertContract",
+          "startLine": 101,
+          "endLine": 152,
+          "params": [
+            "contractNumber",
+            "title",
+            "description",
+            "vendorName",
+            "department",
+            "value",
+            "opts"
+          ]
+        },
+        {
+          "name": "upsertLobbyingFiling",
+          "startLine": 157,
+          "endLine": 206,
+          "params": [
+            "filingNumber",
+            "registrantName",
+            "clientName",
+            "subjectMatter",
+            "opts"
+          ]
+        },
+        {
+          "name": "upsertDonation",
+          "startLine": 211,
+          "endLine": 256,
+          "params": [
+            "donorName",
+            "recipientName",
+            "recipientType",
+            "amount",
+            "date",
+            "opts"
+          ]
+        },
+        {
+          "name": "upsertDisclosure",
+          "startLine": 261,
+          "endLine": 300,
+          "params": [
+            "personName",
+            "position",
+            "department",
+            "year",
+            "opts"
+          ]
+        },
+        {
+          "name": "upsertGacProject",
+          "startLine": 305,
+          "endLine": 354,
+          "params": [
+            "projectId",
+            "title",
+            "description",
+            "department",
+            "country",
+            "region",
+            "budget",
+            "opts"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "upsertPerson",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "upsertOrganization",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "upsertContract",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "upsertLobbyingFiling",
+          "line": 157,
+          "isDefault": false
+        },
+        {
+          "name": "upsertDonation",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "upsertDisclosure",
+          "line": 261,
+          "isDefault": false
+        },
+        {
+          "name": "upsertGacProject",
+          "line": 305,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "now",
+          "callee": "new Date().toISOString",
+          "lineNumber": 11
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "getRawDb",
+          "lineNumber": 29
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "Buffer.from(name).toString(\"hex\").slice",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "Buffer.from(name).toString",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "Buffer.from",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO persons (id, names, first_name, last_name, email, province, city, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 35
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "db.prepare",
+          "lineNumber": 35
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "JSON.stringify",
+          "lineNumber": 40
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "JSON.stringify",
+          "lineNumber": 47
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "now",
+          "lineNumber": 48
+        },
+        {
+          "caller": "upsertPerson",
+          "callee": "now",
+          "lineNumber": 49
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "getRawDb",
+          "lineNumber": 71
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "Buffer.from(name).toString(\"hex\").slice",
+          "lineNumber": 75
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "Buffer.from(name).toString",
+          "lineNumber": 75
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "Buffer.from",
+          "lineNumber": 75
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO organizations (id, names, type, industry, province, city, website, parent_organization_id, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 77
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "db.prepare",
+          "lineNumber": 77
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "JSON.stringify",
+          "lineNumber": 82
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "JSON.stringify",
+          "lineNumber": 90
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "now",
+          "lineNumber": 91
+        },
+        {
+          "caller": "upsertOrganization",
+          "callee": "now",
+          "lineNumber": 92
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "getRawDb",
+          "lineNumber": 121
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "Buffer.from(contractNumber).toString(\"hex\").slice",
+          "lineNumber": 124
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "Buffer.from(contractNumber).toString",
+          "lineNumber": 124
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "Buffer.from",
+          "lineNumber": 124
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO contracts (id, contract_number, title, description, vendor_name, vendor_id, department, value, currency, start_date, end_date, status, is_sole_source, province, commodity_type, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 126
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "db.prepare",
+          "lineNumber": 126
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "now().substring",
+          "lineNumber": 139
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "now",
+          "lineNumber": 139
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "JSON.stringify",
+          "lineNumber": 146
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "now",
+          "lineNumber": 147
+        },
+        {
+          "caller": "upsertContract",
+          "callee": "now",
+          "lineNumber": 148
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "getRawDb",
+          "lineNumber": 176
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "Buffer.from(filingNumber).toString",
+          "lineNumber": 179
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "Buffer.from",
+          "lineNumber": 179
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO lobbying_filings (id, filing_number, registrant_name, registrant_firm, registrant_person_id, client_name, client_organization_id, subject_matter, communications, start_date, end_date, activities, institution, province, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 181
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "db.prepare",
+          "lineNumber": 181
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "JSON.stringify",
+          "lineNumber": 193
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "now().substring",
+          "lineNumber": 194
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "now",
+          "lineNumber": 194
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "now().substring",
+          "lineNumber": 195
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "now",
+          "lineNumber": 195
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "JSON.stringify",
+          "lineNumber": 196
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "JSON.stringify",
+          "lineNumber": 200
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "now",
+          "lineNumber": 201
+        },
+        {
+          "caller": "upsertLobbyingFiling",
+          "callee": "now",
+          "lineNumber": 202
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "getRawDb",
+          "lineNumber": 228
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "Buffer.from(donorName + recipientName + date).toString",
+          "lineNumber": 231
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "Buffer.from",
+          "lineNumber": 231
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO donations (id, donor_name, donor_person_id, donor_organization_id, recipient_name, recipient_type, amount, currency, date, province, riding, is_corporate, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 233
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "db.prepare",
+          "lineNumber": 233
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "JSON.stringify",
+          "lineNumber": 250
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "now",
+          "lineNumber": 251
+        },
+        {
+          "caller": "upsertDonation",
+          "callee": "now",
+          "lineNumber": 252
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "getRawDb",
+          "lineNumber": 275
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "Buffer.from(personName + department + year).toString",
+          "lineNumber": 278
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "Buffer.from",
+          "lineNumber": 278
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO disclosures (id, person_name, person_id, position, department, year, interests, province, filing_date, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 280
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "db.prepare",
+          "lineNumber": 280
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "JSON.stringify",
+          "lineNumber": 290
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "now().substring",
+          "lineNumber": 292
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "now",
+          "lineNumber": 292
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "JSON.stringify",
+          "lineNumber": 294
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "now",
+          "lineNumber": 295
+        },
+        {
+          "caller": "upsertDisclosure",
+          "callee": "now",
+          "lineNumber": 296
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "getRawDb",
+          "lineNumber": 324
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "Buffer.from(projectId).toString",
+          "lineNumber": 327
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "Buffer.from",
+          "lineNumber": 327
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "db.prepare(\n    `INSERT OR IGNORE INTO gac_projects (id, project_id, title, description, department, country, region, budget, currency, start_date, end_date, status, implementing_partners, sector, source, raw_data, created_at, updated_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n  ).run",
+          "lineNumber": 329
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "db.prepare",
+          "lineNumber": 329
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "now().substring",
+          "lineNumber": 342
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "now",
+          "lineNumber": 342
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "JSON.stringify",
+          "lineNumber": 345
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "JSON.stringify",
+          "lineNumber": 348
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "now",
+          "lineNumber": 349
+        },
+        {
+          "caller": "upsertGacProject",
+          "callee": "now",
+          "lineNumber": 350
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/verification/fifth-gen-warfare.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 844,
+      "nonEmptyLines": 749,
+      "functions": [
+        {
+          "name": "defaultFiveGWResult",
+          "startLine": 109,
+          "endLine": 120,
+          "params": []
+        },
+        {
+          "name": "scoreToThreatLevel",
+          "startLine": 227,
+          "endLine": 233,
+          "params": [
+            "score"
+          ]
+        },
+        {
+          "name": "threatLevelToAction",
+          "startLine": 236,
+          "endLine": 249,
+          "params": [
+            "level"
+          ]
+        },
+        {
+          "name": "checkAdversarialSources",
+          "startLine": 255,
+          "endLine": 266,
+          "params": [
+            "source",
+            "adversarialDomains"
+          ]
+        },
+        {
+          "name": "matchTrackedActors",
+          "startLine": 272,
+          "endLine": 338,
+          "params": [
+            "text",
+            "source"
+          ]
+        },
+        {
+          "name": "heuristicAnalysis",
+          "startLine": 350,
+          "endLine": 462,
+          "params": [
+            "content",
+            "source",
+            "title",
+            "adversarialDomains"
+          ]
+        },
+        {
+          "name": "chatComplete",
+          "startLine": 474,
+          "endLine": 511,
+          "params": [
+            "config",
+            "prompt",
+            "options"
+          ]
+        },
+        {
+          "name": "aiAnalysis",
+          "startLine": 544,
+          "endLine": 610,
+          "params": [
+            "config",
+            "content",
+            "source",
+            "title"
+          ]
+        },
+        {
+          "name": "analyzeContent",
+          "startLine": 747,
+          "endLine": 787,
+          "params": [
+            "text",
+            "_source"
+          ]
+        },
+        {
+          "name": "assessSource",
+          "startLine": 793,
+          "endLine": 809,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "buildSummary",
+          "startLine": 815,
+          "endLine": 844,
+          "params": [
+            "patterns",
+            "score",
+            "level",
+            "actorMatches"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "FifthGenerationWarfareDefense",
+          "startLine": 616,
+          "endLine": 696,
+          "methods": [
+            "constructor",
+            "analyze",
+            "quickCheck",
+            "getConfig"
+          ],
+          "properties": [
+            "config"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "defaultFiveGWResult",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "FifthGenerationWarfareDefense",
+          "line": 616,
+          "isDefault": false
+        },
+        {
+          "name": "THREAT_KEYWORDS",
+          "line": 706,
+          "isDefault": false
+        },
+        {
+          "name": "analyzeContent",
+          "line": 747,
+          "isDefault": false
+        },
+        {
+          "name": "assessSource",
+          "line": 793,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "checkAdversarialSources",
+          "callee": "source.toLowerCase().replace(/^https?:\\/\\//, '').replace",
+          "lineNumber": 259
+        },
+        {
+          "caller": "checkAdversarialSources",
+          "callee": "source.toLowerCase().replace",
+          "lineNumber": 259
+        },
+        {
+          "caller": "checkAdversarialSources",
+          "callee": "source.toLowerCase",
+          "lineNumber": 259
+        },
+        {
+          "caller": "checkAdversarialSources",
+          "callee": "src.includes",
+          "lineNumber": 261
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "text.toLowerCase",
+          "lineNumber": 277
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "source.toLowerCase",
+          "lineNumber": 278
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "srcLower.includes",
+          "lineNumber": 282
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "actor.name.toLowerCase",
+          "lineNumber": 282
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "matches.push",
+          "lineNumber": 283
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "srcLower.includes",
+          "lineNumber": 294
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "alias.toLowerCase",
+          "lineNumber": 294
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "matches.push",
+          "lineNumber": 295
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "lower.includes",
+          "lineNumber": 306
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "actor.name.toLowerCase",
+          "lineNumber": 306
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "matches.push",
+          "lineNumber": 307
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "lower.includes",
+          "lineNumber": 315
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "alias.toLowerCase",
+          "lineNumber": 315
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "matches.push",
+          "lineNumber": 316
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "seen.get",
+          "lineNumber": 331
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "seen.set",
+          "lineNumber": 333
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "Array.from",
+          "lineNumber": 337
+        },
+        {
+          "caller": "matchTrackedActors",
+          "callee": "seen.values",
+          "lineNumber": 337
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "`${title}\\n${content}`.toLowerCase",
+          "lineNumber": 358
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "checkAdversarialSources",
+          "lineNumber": 361
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "patterns.push",
+          "lineNumber": 363
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Object.entries",
+          "lineNumber": 374
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "textBlock.includes",
+          "lineNumber": 375
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "narrativeHits.push",
+          "lineNumber": 376
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.round",
+          "lineNumber": 380
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "narrativeHits.reduce",
+          "lineNumber": 381
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "patterns.push",
+          "lineNumber": 383
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.min",
+          "lineNumber": 386
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "narrativeHits.map",
+          "lineNumber": 387
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Object.entries",
+          "lineNumber": 394
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "textBlock.includes",
+          "lineNumber": 395
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "wedgeHits.push",
+          "lineNumber": 396
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.round",
+          "lineNumber": 400
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "wedgeHits.reduce",
+          "lineNumber": 401
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "patterns.push",
+          "lineNumber": 403
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.min",
+          "lineNumber": 406
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "wedgeHits.map",
+          "lineNumber": 407
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "textBlock.match",
+          "lineNumber": 415
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "obfuscationHits.push",
+          "lineNumber": 417
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "match[0].trim",
+          "lineNumber": 417
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.min",
+          "lineNumber": 421
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "patterns.push",
+          "lineNumber": 422
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "textBlock.match",
+          "lineNumber": 434
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "ampHits.push",
+          "lineNumber": 436
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "match[0].trim",
+          "lineNumber": 436
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.min",
+          "lineNumber": 440
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "patterns.push",
+          "lineNumber": 441
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.min",
+          "lineNumber": 453
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.round",
+          "lineNumber": 453
+        },
+        {
+          "caller": "heuristicAnalysis",
+          "callee": "Math.min",
+          "lineNumber": 458
+        },
+        {
+          "caller": "chatComplete",
+          "callee": "config.endpoint.replace",
+          "lineNumber": 480
+        },
+        {
+          "caller": "chatComplete",
+          "callee": "fetch",
+          "lineNumber": 498
+        },
+        {
+          "caller": "chatComplete",
+          "callee": "JSON.stringify",
+          "lineNumber": 501
+        },
+        {
+          "caller": "chatComplete",
+          "callee": "response.text",
+          "lineNumber": 505
+        },
+        {
+          "caller": "chatComplete",
+          "callee": "response.json",
+          "lineNumber": 509
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "content.slice",
+          "lineNumber": 555
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "chatComplete",
+          "lineNumber": 561
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "raw.match",
+          "lineNumber": 565
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "JSON.parse",
+          "lineNumber": 568
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "Array.isArray",
+          "lineNumber": 572
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "TRACKED_INFLUENCE_ACTORS.find",
+          "lineNumber": 574
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "actorMatches.push",
+          "lineNumber": 576
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "scoreToThreatLevel",
+          "lineNumber": 586
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "Array.isArray",
+          "lineNumber": 591
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "threatLevelToAction",
+          "lineNumber": 593
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "console.error",
+          "lineNumber": 600
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "lastError.message.includes",
+          "lineNumber": 601
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "Math.pow",
+          "lineNumber": 602
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "setTimeout",
+          "lineNumber": 603
+        },
+        {
+          "caller": "aiAnalysis",
+          "callee": "console.error",
+          "lineNumber": 608
+        },
+        {
+          "caller": "analyze",
+          "callee": "aiAnalysis",
+          "lineNumber": 640
+        },
+        {
+          "caller": "analyze",
+          "callee": "heuristicAnalysis",
+          "lineNumber": 648
+        },
+        {
+          "caller": "analyze",
+          "callee": "matchTrackedActors",
+          "lineNumber": 649
+        },
+        {
+          "caller": "analyze",
+          "callee": "scoreToThreatLevel",
+          "lineNumber": 651
+        },
+        {
+          "caller": "analyze",
+          "callee": "actorMatches.some",
+          "lineNumber": 655
+        },
+        {
+          "caller": "analyze",
+          "callee": "Math.min",
+          "lineNumber": 656
+        },
+        {
+          "caller": "analyze",
+          "callee": "threatLevelToAction",
+          "lineNumber": 664
+        },
+        {
+          "caller": "analyze",
+          "callee": "buildSummary",
+          "lineNumber": 666
+        },
+        {
+          "caller": "quickCheck",
+          "callee": "heuristicAnalysis",
+          "lineNumber": 681
+        },
+        {
+          "caller": "quickCheck",
+          "callee": "scoreToThreatLevel",
+          "lineNumber": 684
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "text.toLowerCase",
+          "lineNumber": 748
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "Object.entries",
+          "lineNumber": 755
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "lowerText.includes",
+          "lineNumber": 759
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "keyword.toLowerCase",
+          "lineNumber": 759
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "matches.push",
+          "lineNumber": 760
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "Math.min",
+          "lineNumber": 767
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "details.push",
+          "lineNumber": 771
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "flags.push",
+          "lineNumber": 772
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "Math.min",
+          "lineNumber": 778
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "Math.round",
+          "lineNumber": 778
+        },
+        {
+          "caller": "analyzeContent",
+          "callee": "Math.min",
+          "lineNumber": 783
+        },
+        {
+          "caller": "assessSource",
+          "callee": "source.toLowerCase().replace(/^https?:\\/\\//, '').replace",
+          "lineNumber": 794
+        },
+        {
+          "caller": "assessSource",
+          "callee": "source.toLowerCase().replace",
+          "lineNumber": 794
+        },
+        {
+          "caller": "assessSource",
+          "callee": "source.toLowerCase",
+          "lineNumber": 794
+        },
+        {
+          "caller": "assessSource",
+          "callee": "Object.entries",
+          "lineNumber": 796
+        },
+        {
+          "caller": "assessSource",
+          "callee": "lowerSrc.includes",
+          "lineNumber": 798
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "parts.push",
+          "lineNumber": 827
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "patterns\n    .slice()\n    .sort((a, b) => b.severity - a.severity)\n    .slice",
+          "lineNumber": 829
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "patterns\n    .slice()\n    .sort",
+          "lineNumber": 829
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "patterns\n    .slice",
+          "lineNumber": 829
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "parts.push",
+          "lineNumber": 835
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "p.type.replace",
+          "lineNumber": 835
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "actorMatches.map(m => m.actorName).join",
+          "lineNumber": 839
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "actorMatches.map",
+          "lineNumber": 839
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "parts.push",
+          "lineNumber": 840
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "parts.join",
+          "lineNumber": 843
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 5,
+        "functionCount": 11,
+        "classCount": 1
+      }
+    }
+  ]
+}

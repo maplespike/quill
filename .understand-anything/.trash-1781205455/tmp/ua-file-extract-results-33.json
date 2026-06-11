@@ -1,0 +1,502 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/a2aj/__tests__/a2aj.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 91,
+      "nonEmptyLines": 79,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/a2aj/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 20,
+      "exports": [
+        {
+          "name": "A2AJ_BASE",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_TIMEOUT_MS",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_USER_AGENT",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_MAX_SEARCH_RESULTS",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_RATE_LIMIT_PER_HOUR",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_ENDPOINTS",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_DATASETS",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/a2aj/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 71,
+      "nonEmptyLines": 64,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 6,
+          "endLine": 11,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchCoverage",
+          "startLine": 13,
+          "endLine": 24,
+          "params": [
+            "docType"
+          ]
+        },
+        {
+          "name": "fetchByCitation",
+          "startLine": 26,
+          "endLine": 31,
+          "params": [
+            "citation",
+            "docType"
+          ]
+        },
+        {
+          "name": "searchA2aj",
+          "startLine": 33,
+          "endLine": 50,
+          "params": [
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllA2aj",
+          "startLine": 53,
+          "endLine": 71,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCoverage",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "fetchByCitation",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "searchA2aj",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllA2aj",
+          "line": 53,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 8
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 9
+        },
+        {
+          "caller": "fetchCoverage",
+          "callee": "await fetchJson",
+          "lineNumber": 14
+        },
+        {
+          "caller": "fetchCoverage",
+          "callee": "data.results.map",
+          "lineNumber": 16
+        },
+        {
+          "caller": "fetchByCitation",
+          "callee": "await fetchJson",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchByCitation",
+          "callee": "encodeURIComponent",
+          "lineNumber": 27
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "String",
+          "lineNumber": 37
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "params.set",
+          "lineNumber": 38
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "params.set",
+          "lineNumber": 39
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "params.set",
+          "lineNumber": 40
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "await fetchJson",
+          "lineNumber": 41
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "data.results.map",
+          "lineNumber": 43
+        },
+        {
+          "caller": "searchA2aj",
+          "callee": "r.text?.substring",
+          "lineNumber": 46
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "Date.now",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "Promise.all",
+          "lineNumber": 55
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "fetchCoverage('cases').catch",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "fetchCoverage",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "errors.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "fetchCoverage('laws').catch",
+          "lineNumber": 57
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "fetchCoverage",
+          "lineNumber": 57
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "errors.push",
+          "lineNumber": 57
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "TRACKED_DATASETS.slice(0, 10).map",
+          "lineNumber": 63
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "TRACKED_DATASETS.slice",
+          "lineNumber": 63
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "searchA2aj('judicial review OR charter OR constitutional', { dataset: ds, size: 5 })\n      .then(r => { searchResults.push(...r); })\n      .catch",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "searchA2aj('judicial review OR charter OR constitutional', { dataset: ds, size: 5 })\n      .then",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "searchA2aj",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "searchResults.push",
+          "lineNumber": 65
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "errors.push",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "Promise.all",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestAllA2aj",
+          "callee": "Date.now",
+          "lineNumber": 70
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 4,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/a2aj/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 8,
+      "exports": [
+        {
+          "name": "fetchCoverage",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "fetchByCitation",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "searchA2aj",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllA2aj",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_BASE",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "A2AJ_ENDPOINTS",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_DATASETS",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "A2ajCoverageItem",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "A2ajDocument",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "A2ajSearchResult",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "A2ajIngestionResult",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 11,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/a2aj/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 71,
+      "nonEmptyLines": 61,
+      "functions": [
+        {
+          "name": "toCoverageItem",
+          "startLine": 14,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseCoverageItems",
+          "startLine": 30,
+          "endLine": 33,
+          "params": [
+            "results"
+          ]
+        },
+        {
+          "name": "toDocument",
+          "startLine": 38,
+          "endLine": 48,
+          "params": [
+            "raw",
+            "citation"
+          ]
+        },
+        {
+          "name": "toSearchResult",
+          "startLine": 53,
+          "endLine": 63,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseSearchResults",
+          "startLine": 68,
+          "endLine": 71,
+          "params": [
+            "results"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "toCoverageItem",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "parseCoverageItems",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "toDocument",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "toSearchResult",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "parseSearchResults",
+          "line": 68,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCoverageItems",
+          "callee": "Array.isArray",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseCoverageItems",
+          "callee": "results.map(toCoverageItem).filter",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseCoverageItems",
+          "callee": "results.map",
+          "lineNumber": 32
+        },
+        {
+          "caller": "toSearchResult",
+          "callee": "raw.text?.substring",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseSearchResults",
+          "callee": "Array.isArray",
+          "lineNumber": 69
+        },
+        {
+          "caller": "parseSearchResults",
+          "callee": "results.map(toSearchResult).filter",
+          "lineNumber": 70
+        },
+        {
+          "caller": "parseSearchResults",
+          "callee": "results.map",
+          "lineNumber": 70
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/a2aj/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

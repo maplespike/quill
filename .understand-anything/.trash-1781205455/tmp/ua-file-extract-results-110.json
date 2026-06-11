@@ -1,0 +1,252 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/db/migrations/20260522_add_entity_mentions.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "definitions": [
+        {
+          "name": "entity_mentions",
+          "kind": "table",
+          "fields": [
+            "id",
+            "entity_id",
+            "source_id",
+            "raw_name",
+            "normalized_name",
+            "mention_type",
+            "context_json",
+            "confidence",
+            "match_method",
+            "source_hash",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 5,
+          "endLine": 19
+        },
+        {
+          "name": "idx_entity_mentions_entity_id",
+          "kind": "index",
+          "fields": [],
+          "startLine": 22,
+          "endLine": 22
+        },
+        {
+          "name": "idx_entity_mentions_normalized_name",
+          "kind": "index",
+          "fields": [],
+          "startLine": 23,
+          "endLine": 23
+        },
+        {
+          "name": "idx_entity_mentions_source",
+          "kind": "index",
+          "fields": [],
+          "startLine": 24,
+          "endLine": 24
+        },
+        {
+          "name": "idx_entity_mentions_confidence",
+          "kind": "index",
+          "fields": [],
+          "startLine": 25,
+          "endLine": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 5
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/db/migrations/20260523_add_entity_relationships.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 25,
+      "nonEmptyLines": 23,
+      "definitions": [
+        {
+          "name": "entity_relationships",
+          "kind": "table",
+          "fields": [
+            "id",
+            "source_entity_id",
+            "target_entity_id",
+            "relationship_type",
+            "source_table",
+            "source_id",
+            "confidence_score",
+            "citation_sha256",
+            "trust_score",
+            "created_at"
+          ],
+          "startLine": 5,
+          "endLine": 21
+        },
+        {
+          "name": "idx_entity_relationships_source",
+          "kind": "index",
+          "fields": [],
+          "startLine": 23,
+          "endLine": 23
+        },
+        {
+          "name": "idx_entity_relationships_target",
+          "kind": "index",
+          "fields": [],
+          "startLine": 24,
+          "endLine": 24
+        },
+        {
+          "name": "idx_entity_relationships_type",
+          "kind": "index",
+          "fields": [],
+          "startLine": 25,
+          "endLine": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 4
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/db/migrations/20260531_add_annotations.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 20,
+      "nonEmptyLines": 18,
+      "definitions": [
+        {
+          "name": "annotations",
+          "kind": "table",
+          "fields": [
+            "id",
+            "entity_type",
+            "entity_id",
+            "user_id",
+            "annotation_type",
+            "content",
+            "metadata",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 5,
+          "endLine": 15
+        },
+        {
+          "name": "idx_annotations_entity",
+          "kind": "index",
+          "fields": [],
+          "startLine": 17,
+          "endLine": 17
+        },
+        {
+          "name": "idx_annotations_user",
+          "kind": "index",
+          "fields": [],
+          "startLine": 18,
+          "endLine": 18
+        },
+        {
+          "name": "idx_annotations_type",
+          "kind": "index",
+          "fields": [],
+          "startLine": 19,
+          "endLine": 19
+        },
+        {
+          "name": "idx_annotations_created",
+          "kind": "index",
+          "fields": [],
+          "startLine": 20,
+          "endLine": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 5
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/db/migrations/20260608_add_quality_scores.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 33,
+      "nonEmptyLines": 30,
+      "definitions": [
+        {
+          "name": "quality_scores",
+          "kind": "table",
+          "fields": [
+            "id",
+            "source",
+            "composite_score",
+            "composite_level",
+            "freshness_score",
+            "freshness_level",
+            "completeness_score",
+            "completeness_level",
+            "provenance_score",
+            "provenance_level",
+            "record_count",
+            "details",
+            "updated_at"
+          ],
+          "startLine": 11,
+          "endLine": 26
+        },
+        {
+          "name": "idx_quality_scores_source",
+          "kind": "index",
+          "fields": [],
+          "startLine": 28,
+          "endLine": 28
+        },
+        {
+          "name": "idx_quality_scores_composite",
+          "kind": "index",
+          "fields": [],
+          "startLine": 29,
+          "endLine": 29
+        },
+        {
+          "name": "idx_quality_scores_updated",
+          "kind": "index",
+          "fields": [],
+          "startLine": 30,
+          "endLine": 30
+        },
+        {
+          "name": "idx_quality_scores_source_unique",
+          "kind": "index",
+          "fields": [],
+          "startLine": 33,
+          "endLine": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 5
+      }
+    }
+  ]
+}

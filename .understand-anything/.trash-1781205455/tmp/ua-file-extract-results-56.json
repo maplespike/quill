@@ -1,0 +1,1433 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-canada/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 214,
+      "nonEmptyLines": 187,
+      "classes": [
+        {
+          "name": "HealthCanadaError",
+          "startLine": 203,
+          "endLine": 214,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "HC_SOURCES",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "HC_PRODUCT_TYPE_CONFIG",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_HC_PRODUCT_TYPES",
+          "line": 89,
+          "isDefault": false
+        },
+        {
+          "name": "HC_LICENSE_STATUS_MAP",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "HEALTH_CANADA_DDL",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 190,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 191,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 192,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 194,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaError",
+          "line": 203,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 211
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 10,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-canada/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 478,
+      "nonEmptyLines": 425,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 53,
+          "endLine": 71,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchText",
+          "startLine": 76,
+          "endLine": 94,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchDrugProducts",
+          "startLine": 111,
+          "endLine": 148,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchDeviceProducts",
+          "startLine": 159,
+          "endLine": 190,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchNaturalProducts",
+          "startLine": 201,
+          "endLine": 236,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "parseRecallRssItems",
+          "startLine": 245,
+          "endLine": 280,
+          "params": [
+            "xmlText"
+          ]
+        },
+        {
+          "name": "fetchRecallProducts",
+          "startLine": 288,
+          "endLine": 364,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchHealthCanadaProducts",
+          "startLine": 377,
+          "endLine": 444,
+          "params": [
+            "type",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllHealthCanadaProducts",
+          "startLine": 451,
+          "endLine": 478,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "HealthCanadaFetchError",
+          "startLine": 34,
+          "endLine": 44,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "HealthCanadaFetchError",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "fetchHealthCanadaProducts",
+          "line": 377,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllHealthCanadaProducts",
+          "line": 451,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 57
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 70
+        },
+        {
+          "caller": "fetchText",
+          "callee": "httpGet",
+          "lineNumber": 80
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 121
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 122
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 123
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 124
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "String",
+          "lineNumber": 124
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "await fetchJson",
+          "lineNumber": 126
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "url.toString",
+          "lineNumber": 126
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "Array.isArray",
+          "lineNumber": 127
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "records.map",
+          "lineNumber": 129
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "item.active_ingredient_list.map((a) => a.active_ingredient_name).filter(Boolean).join",
+          "lineNumber": 137
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "item.active_ingredient_list.map((a) => a.active_ingredient_name).filter",
+          "lineNumber": 137
+        },
+        {
+          "caller": "fetchDrugProducts",
+          "callee": "item.active_ingredient_list.map",
+          "lineNumber": 137
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 169
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 170
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 171
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 172
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "String",
+          "lineNumber": 172
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "await fetchJson",
+          "lineNumber": 174
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "url.toString",
+          "lineNumber": 174
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "Array.isArray",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchDeviceProducts",
+          "callee": "records.map",
+          "lineNumber": 177
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 211
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 212
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 213
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 214
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "String",
+          "lineNumber": 214
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "await fetchJson",
+          "lineNumber": 216
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "url.toString",
+          "lineNumber": 216
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "Array.isArray",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchNaturalProducts",
+          "callee": "records.map",
+          "lineNumber": 219
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "itemRegex.exec",
+          "lineNumber": 252
+        },
+        {
+          "caller": "extract",
+          "callee": "new RegExp(`<${tag}[^>]*>([\\\\s\\\\S]*?)<\\\\/${tag}>`, 'i').exec",
+          "lineNumber": 255
+        },
+        {
+          "caller": "extract",
+          "callee": "m[1].trim",
+          "lineNumber": 256
+        },
+        {
+          "caller": "extractNs",
+          "callee": "new RegExp(`<[^:]*:${tag}[^>]*>([\\\\s\\\\S]*?)<\\\\/[^:]*:${tag}>`, 'i').exec",
+          "lineNumber": 261
+        },
+        {
+          "caller": "extractNs",
+          "callee": "m[1].trim",
+          "lineNumber": 262
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extract",
+          "lineNumber": 265
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "items.push",
+          "lineNumber": 266
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extract",
+          "lineNumber": 267
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extract('description')?.replace",
+          "lineNumber": 268
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extract",
+          "lineNumber": 268
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extract",
+          "lineNumber": 270
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extract",
+          "lineNumber": 271
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extractNs",
+          "lineNumber": 272
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extractNs",
+          "lineNumber": 273
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extractNs",
+          "lineNumber": 274
+        },
+        {
+          "caller": "parseRecallRssItems",
+          "callee": "extractNs",
+          "lineNumber": 275
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 301
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 302
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 303
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 303
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "url.searchParams.set",
+          "lineNumber": 304
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "await fetchJson",
+          "lineNumber": 306
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "url.toString",
+          "lineNumber": 306
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "Array.isArray",
+          "lineNumber": 312
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "records.push",
+          "lineNumber": 315
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 316
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 319
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 320
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 321
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 322
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 323
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "String",
+          "lineNumber": 324
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "fetchText",
+          "lineNumber": 336
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "parseRecallRssItems",
+          "lineNumber": 337
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "rssItems.slice",
+          "lineNumber": 339
+        },
+        {
+          "caller": "fetchRecallProducts",
+          "callee": "records.push",
+          "lineNumber": 340
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "fetchDrugProducts",
+          "lineNumber": 398
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "fetchDeviceProducts",
+          "lineNumber": 406
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "fetchNaturalProducts",
+          "lineNumber": 414
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "fetchRecallProducts",
+          "lineNumber": 422
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "options.searchTerm.toLowerCase",
+          "lineNumber": 431
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "records.filter",
+          "lineNumber": 432
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "r.productName?.toLowerCase().includes",
+          "lineNumber": 434
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "r.productName?.toLowerCase",
+          "lineNumber": 434
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "r.manufacturer?.toLowerCase().includes",
+          "lineNumber": 435
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "r.manufacturer?.toLowerCase",
+          "lineNumber": 435
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "r.activeIngredient?.toLowerCase().includes",
+          "lineNumber": 436
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "r.activeIngredient?.toLowerCase",
+          "lineNumber": 436
+        },
+        {
+          "caller": "fetchHealthCanadaProducts",
+          "callee": "errors.push",
+          "lineNumber": 440
+        },
+        {
+          "caller": "fetchAllHealthCanadaProducts",
+          "callee": "fetchHealthCanadaProducts",
+          "lineNumber": 467
+        },
+        {
+          "caller": "fetchAllHealthCanadaProducts",
+          "callee": "allRecords.push",
+          "lineNumber": 469
+        },
+        {
+          "caller": "fetchAllHealthCanadaProducts",
+          "callee": "allErrors.push",
+          "lineNumber": 470
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 9,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-canada/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 451,
+      "nonEmptyLines": 404,
+      "functions": [
+        {
+          "name": "initializeHealthCanadaTable",
+          "startLine": 111,
+          "endLine": 113,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertHealthCanadaRecord",
+          "startLine": 120,
+          "endLine": 158,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "healthCanadaRecordExists",
+          "startLine": 163,
+          "endLine": 172,
+          "params": [
+            "db",
+            "id"
+          ]
+        },
+        {
+          "name": "healthCanadaTableExists",
+          "startLine": 177,
+          "endLine": 186,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "getLatestHealthCanadaIngestionDate",
+          "startLine": 191,
+          "endLine": 196,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "searchHealthCanadaRecords",
+          "startLine": 205,
+          "endLine": 251,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getHealthCanadaByType",
+          "startLine": 256,
+          "endLine": 269,
+          "params": [
+            "db",
+            "productType",
+            "options"
+          ]
+        },
+        {
+          "name": "getHealthCanadaByManufacturer",
+          "startLine": 274,
+          "endLine": 286,
+          "params": [
+            "db",
+            "manufacturer",
+            "options"
+          ]
+        },
+        {
+          "name": "getHealthCanadaRecallsBySeverity",
+          "startLine": 291,
+          "endLine": 304,
+          "params": [
+            "db",
+            "severity",
+            "options"
+          ]
+        },
+        {
+          "name": "getActiveHealthCanadaProducts",
+          "startLine": 309,
+          "endLine": 321,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "getExpiringHealthCanadaProducts",
+          "startLine": 326,
+          "endLine": 350,
+          "params": [
+            "db",
+            "daysAhead",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestHealthCanada",
+          "startLine": 369,
+          "endLine": 451,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchHealthCanadaProducts",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllHealthCanadaProducts",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "parseProductRecord",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "parseProductBatch",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeLicenseStatus",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeProductType",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "HEALTH_CANADA_DDL",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "HC_SOURCES",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "HC_PRODUCT_TYPE_CONFIG",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "HC_LICENSE_STATUS_MAP",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_HC_PRODUCT_TYPES",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaError",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaRecord",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaProductType",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaLicenseStatus",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaIngestionOptions",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "HealthCanadaIngestionResult",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "RawHealthCanadaRecord",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "initializeHealthCanadaTable",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "healthCanadaRecordExists",
+          "line": 163,
+          "isDefault": false
+        },
+        {
+          "name": "healthCanadaTableExists",
+          "line": 177,
+          "isDefault": false
+        },
+        {
+          "name": "getLatestHealthCanadaIngestionDate",
+          "line": 191,
+          "isDefault": false
+        },
+        {
+          "name": "searchHealthCanadaRecords",
+          "line": 205,
+          "isDefault": false
+        },
+        {
+          "name": "getHealthCanadaByType",
+          "line": 256,
+          "isDefault": false
+        },
+        {
+          "name": "getHealthCanadaByManufacturer",
+          "line": 274,
+          "isDefault": false
+        },
+        {
+          "name": "getHealthCanadaRecallsBySeverity",
+          "line": 291,
+          "isDefault": false
+        },
+        {
+          "name": "getActiveHealthCanadaProducts",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "getExpiringHealthCanadaProducts",
+          "line": 326,
+          "isDefault": false
+        },
+        {
+          "name": "ingestHealthCanada",
+          "line": 369,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeHealthCanadaTable",
+          "callee": "db.exec",
+          "lineNumber": 112
+        },
+        {
+          "caller": "upsertHealthCanadaRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO health_canada_records\n      (id, product_name, product_type, license_number, license_status,\n       manufacturer, therapeutic_area, active_ingredient, din, npn,\n       license_date, expiry_date, recall_severity, recall_reason,\n       recall_classification, dosage_form, route_of_administration,\n       company_status, source_url, source_system, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 124
+        },
+        {
+          "caller": "upsertHealthCanadaRecord",
+          "callee": "db.prepare",
+          "lineNumber": 124
+        },
+        {
+          "caller": "upsertHealthCanadaRecord",
+          "callee": "stmt.run",
+          "lineNumber": 156
+        },
+        {
+          "caller": "healthCanadaRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM health_canada_records WHERE id = ? LIMIT 1`,\n  ).bind(id).first",
+          "lineNumber": 167
+        },
+        {
+          "caller": "healthCanadaRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM health_canada_records WHERE id = ? LIMIT 1`,\n  ).bind",
+          "lineNumber": 167
+        },
+        {
+          "caller": "healthCanadaRecordExists",
+          "callee": "db.prepare",
+          "lineNumber": 167
+        },
+        {
+          "caller": "healthCanadaTableExists",
+          "callee": "db.prepare(\n      `SELECT name FROM sqlite_master WHERE type='table' AND name='health_canada_records'`,\n    ).first",
+          "lineNumber": 179
+        },
+        {
+          "caller": "healthCanadaTableExists",
+          "callee": "db.prepare",
+          "lineNumber": 179
+        },
+        {
+          "caller": "getLatestHealthCanadaIngestionDate",
+          "callee": "await db.prepare(\n    'SELECT ingested_at FROM health_canada_records ORDER BY ingested_at DESC LIMIT 1',\n  ).first",
+          "lineNumber": 192
+        },
+        {
+          "caller": "getLatestHealthCanadaIngestionDate",
+          "callee": "db.prepare",
+          "lineNumber": 192
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 227
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 232
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 237
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 242
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "params.push",
+          "lineNumber": 246
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 248
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "db.prepare",
+          "lineNumber": 248
+        },
+        {
+          "caller": "searchHealthCanadaRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 249
+        },
+        {
+          "caller": "getHealthCanadaByType",
+          "callee": "searchHealthCanadaRecords",
+          "lineNumber": 264
+        },
+        {
+          "caller": "getHealthCanadaByManufacturer",
+          "callee": "searchHealthCanadaRecords",
+          "lineNumber": 282
+        },
+        {
+          "caller": "getHealthCanadaRecallsBySeverity",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 301
+        },
+        {
+          "caller": "getHealthCanadaRecallsBySeverity",
+          "callee": "db.prepare",
+          "lineNumber": 301
+        },
+        {
+          "caller": "getHealthCanadaRecallsBySeverity",
+          "callee": "await stmt.all",
+          "lineNumber": 302
+        },
+        {
+          "caller": "getActiveHealthCanadaProducts",
+          "callee": "searchHealthCanadaRecords",
+          "lineNumber": 316
+        },
+        {
+          "caller": "getExpiringHealthCanadaProducts",
+          "callee": "params.push",
+          "lineNumber": 341
+        },
+        {
+          "caller": "getExpiringHealthCanadaProducts",
+          "callee": "params.push",
+          "lineNumber": 345
+        },
+        {
+          "caller": "getExpiringHealthCanadaProducts",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 347
+        },
+        {
+          "caller": "getExpiringHealthCanadaProducts",
+          "callee": "db.prepare",
+          "lineNumber": 347
+        },
+        {
+          "caller": "getExpiringHealthCanadaProducts",
+          "callee": "await stmt.all",
+          "lineNumber": 348
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "Date.now",
+          "lineNumber": 373
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "log",
+          "lineNumber": 395
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "initializeHealthCanadaTable",
+          "lineNumber": 396
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "log",
+          "lineNumber": 401
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "fetchHealthCanadaProducts",
+          "lineNumber": 404
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "result.errors.push",
+          "lineNumber": 409
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "log",
+          "lineNumber": 410
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "parseProductBatch",
+          "lineNumber": 416
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "upsertHealthCanadaRecord",
+          "lineNumber": 427
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "result.errors.push",
+          "lineNumber": 437
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "log",
+          "lineNumber": 438
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "result.errors.push",
+          "lineNumber": 443
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "log",
+          "lineNumber": 444
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "Date.now",
+          "lineNumber": 447
+        },
+        {
+          "caller": "ingestHealthCanada",
+          "callee": "log",
+          "lineNumber": 448
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 30,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-canada/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 264,
+      "nonEmptyLines": 235,
+      "functions": [
+        {
+          "name": "normalizeLicenseStatus",
+          "startLine": 27,
+          "endLine": 48,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "normalizeProductType",
+          "startLine": 53,
+          "endLine": 81,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "normalizeDate",
+          "startLine": 90,
+          "endLine": 145,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseProductRecord",
+          "startLine": 158,
+          "endLine": 233,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseProductBatch",
+          "startLine": 246,
+          "endLine": 264,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeLicenseStatus",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeProductType",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "parseProductRecord",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "parseProductBatch",
+          "line": 246,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 32
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "raw.trim",
+          "lineNumber": 32
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 39
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 40
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 41
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 42
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 44
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "normalizeLicenseStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "normalizeProductType",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 58
+        },
+        {
+          "caller": "normalizeProductType",
+          "callee": "raw.trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "raw.trim",
+          "lineNumber": 93
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "/^\\d{4}-\\d{2}-\\d{2}/.test",
+          "lineNumber": 96
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "trimmed.substring",
+          "lineNumber": 97
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "trimmed.match",
+          "lineNumber": 101
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "rfcMatch[1].padStart",
+          "lineNumber": 109
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "rfcMatch[2].toLowerCase",
+          "lineNumber": 110
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "trimmed.match",
+          "lineNumber": 116
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "slashMatch[2].padStart",
+          "lineNumber": 118
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "slashMatch[3].padStart",
+          "lineNumber": 118
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "trimmed.match",
+          "lineNumber": 122
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dayMonthMatch[2].padStart",
+          "lineNumber": 124
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dayMonthMatch[1].padStart",
+          "lineNumber": 124
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "trimmed.match",
+          "lineNumber": 128
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "textDateMatch[1].toLowerCase",
+          "lineNumber": 138
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "textDateMatch[2].padStart",
+          "lineNumber": 139
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "trimmed.substring",
+          "lineNumber": 144
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "normalizeProductType",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "normalizeLicenseStatus",
+          "lineNumber": 171
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "normalizeDate",
+          "lineNumber": 177
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "normalizeDate",
+          "lineNumber": 178
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 187
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 190
+        },
+        {
+          "caller": "parseProductRecord",
+          "callee": "computeHash",
+          "lineNumber": 208
+        },
+        {
+          "caller": "parseProductBatch",
+          "callee": "parseProductRecord",
+          "lineNumber": 257
+        },
+        {
+          "caller": "parseProductBatch",
+          "callee": "results.push",
+          "lineNumber": 259
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/health-canada/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 243,
+      "nonEmptyLines": 203,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -35,6 +35,10 @@ COPY . .
 # Build packages needed for all targets
 RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database --filter=@maplespike/mcp-server --filter=@maplespike/engine
 
+# Fix package.json exports to point to dist/ for production
+COPY scripts/fix-package-exports.js /tmp/
+RUN node /tmp/fix-package-exports.js
+
 # =============================================================================
 # Runtime: API Server
 # =============================================================================

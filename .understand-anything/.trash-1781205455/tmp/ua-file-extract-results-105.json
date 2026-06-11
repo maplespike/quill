@@ -1,0 +1,521 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/opencorporates/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 21,
+      "exports": [
+        {
+          "name": "OC_API_BASE",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "OC_TIMEOUT_MS",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "OC_UA",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "OC_JURISDICTIONS",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "OC_REQ_INTERVAL_MS",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "OC_MAX_RETRIES",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/opencorporates/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 100,
+      "nonEmptyLines": 91,
+      "functions": [
+        {
+          "name": "rateLimitedFetch",
+          "startLine": 8,
+          "endLine": 18,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "apiKey",
+          "startLine": 20,
+          "endLine": 22,
+          "params": []
+        },
+        {
+          "name": "searchCompanies",
+          "startLine": 24,
+          "endLine": 42,
+          "params": [
+            "query",
+            "jurisdiction"
+          ]
+        },
+        {
+          "name": "getCompany",
+          "startLine": 44,
+          "endLine": 51,
+          "params": [
+            "jurisdictionCode",
+            "companyNumber"
+          ]
+        },
+        {
+          "name": "getOfficers",
+          "startLine": 53,
+          "endLine": 64,
+          "params": [
+            "jurisdictionCode",
+            "companyNumber"
+          ]
+        },
+        {
+          "name": "getCorporateGroupings",
+          "startLine": 66,
+          "endLine": 78,
+          "params": [
+            "jurisdictionCode",
+            "companyNumber"
+          ]
+        },
+        {
+          "name": "getFilings",
+          "startLine": 80,
+          "endLine": 91,
+          "params": [
+            "jurisdictionCode",
+            "companyNumber"
+          ]
+        },
+        {
+          "name": "getCompanyByCorporationNumber",
+          "startLine": 93,
+          "endLine": 100,
+          "params": [
+            "corpNumber"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "searchCompanies",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "getCompany",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "getOfficers",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "getCorporateGroupings",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "getFilings",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "getCompanyByCorporationNumber",
+          "line": 93,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "rateLimitedFetch",
+          "callee": "Date.now",
+          "lineNumber": 9
+        },
+        {
+          "caller": "rateLimitedFetch",
+          "callee": "Math.max",
+          "lineNumber": 10
+        },
+        {
+          "caller": "rateLimitedFetch",
+          "callee": "setTimeout",
+          "lineNumber": 11
+        },
+        {
+          "caller": "rateLimitedFetch",
+          "callee": "Date.now",
+          "lineNumber": 12
+        },
+        {
+          "caller": "rateLimitedFetch",
+          "callee": "httpGet",
+          "lineNumber": 14
+        },
+        {
+          "caller": "rateLimitedFetch",
+          "callee": "JSON.parse",
+          "lineNumber": 16
+        },
+        {
+          "caller": "searchCompanies",
+          "callee": "apiKey",
+          "lineNumber": 25
+        },
+        {
+          "caller": "searchCompanies",
+          "callee": "rateLimitedFetch",
+          "lineNumber": 28
+        },
+        {
+          "caller": "searchCompanies",
+          "callee": "encodeURIComponent",
+          "lineNumber": 28
+        },
+        {
+          "caller": "searchCompanies",
+          "callee": "companies.map",
+          "lineNumber": 31
+        },
+        {
+          "caller": "getCompany",
+          "callee": "apiKey",
+          "lineNumber": 45
+        },
+        {
+          "caller": "getCompany",
+          "callee": "rateLimitedFetch",
+          "lineNumber": 47
+        },
+        {
+          "caller": "getOfficers",
+          "callee": "apiKey",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getOfficers",
+          "callee": "rateLimitedFetch",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getOfficers",
+          "callee": "(data?.results?.officers ?? []).map",
+          "lineNumber": 58
+        },
+        {
+          "caller": "getCorporateGroupings",
+          "callee": "apiKey",
+          "lineNumber": 67
+        },
+        {
+          "caller": "getCorporateGroupings",
+          "callee": "rateLimitedFetch",
+          "lineNumber": 69
+        },
+        {
+          "caller": "getCorporateGroupings",
+          "callee": "(data?.results?.relationships ?? []).map",
+          "lineNumber": 71
+        },
+        {
+          "caller": "getFilings",
+          "callee": "apiKey",
+          "lineNumber": 81
+        },
+        {
+          "caller": "getFilings",
+          "callee": "rateLimitedFetch",
+          "lineNumber": 83
+        },
+        {
+          "caller": "getFilings",
+          "callee": "(data?.results?.filings ?? []).map",
+          "lineNumber": 85
+        },
+        {
+          "caller": "getCompanyByCorporationNumber",
+          "callee": "getCompany",
+          "lineNumber": 96
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/opencorporates/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 83,
+      "nonEmptyLines": 78,
+      "functions": [
+        {
+          "name": "normalizeJurisdiction",
+          "startLine": 5,
+          "endLine": 7,
+          "params": [
+            "code"
+          ]
+        },
+        {
+          "name": "parseCompanyRecord",
+          "startLine": 9,
+          "endLine": 28,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseOfficerRecord",
+          "startLine": 30,
+          "endLine": 44,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseFilingRecord",
+          "startLine": 46,
+          "endLine": 60,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseOpenCorporatesRecords",
+          "startLine": 62,
+          "endLine": 83,
+          "params": [
+            "rawRecords",
+            "recordType"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeJurisdiction",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseCompanyRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "parseOfficerRecord",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "parseFilingRecord",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "parseOpenCorporatesRecords",
+          "line": 62,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "computeHash",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 20
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 21
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "String",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseCompanyRecord",
+          "callee": "console.warn",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseOfficerRecord",
+          "callee": "String",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseOfficerRecord",
+          "callee": "String",
+          "lineNumber": 36
+        },
+        {
+          "caller": "parseOfficerRecord",
+          "callee": "String",
+          "lineNumber": 37
+        },
+        {
+          "caller": "parseOfficerRecord",
+          "callee": "String",
+          "lineNumber": 38
+        },
+        {
+          "caller": "parseOfficerRecord",
+          "callee": "console.warn",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseFilingRecord",
+          "callee": "String",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseFilingRecord",
+          "callee": "String",
+          "lineNumber": 52
+        },
+        {
+          "caller": "parseFilingRecord",
+          "callee": "String",
+          "lineNumber": 53
+        },
+        {
+          "caller": "parseFilingRecord",
+          "callee": "String",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseFilingRecord",
+          "callee": "console.warn",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "parseCompanyRecord",
+          "lineNumber": 70
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "parseOfficerRecord",
+          "lineNumber": 71
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "parseFilingRecord",
+          "lineNumber": 72
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 74
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "computeHash",
+          "lineNumber": 75
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "seenHashes.has",
+          "lineNumber": 76
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "seenHashes.add",
+          "lineNumber": 77
+        },
+        {
+          "caller": "parseOpenCorporatesRecords",
+          "callee": "results.push",
+          "lineNumber": 78
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/opencorporates/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 44,
+      "nonEmptyLines": 40,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}
