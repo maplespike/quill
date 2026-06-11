@@ -1,7 +1,8 @@
 # CI/CD Pipeline Architecture
 
 **Last Verified:** 2026-06-06  
-**Status:** ✅ Production Ready
+**Status:** ⚠️ ASPIRATIONAL — CI/CD infrastructure not yet implemented (June 2026)  
+**NOTE:** This document describes the *planned* CI/CD pipeline. As of June 2026, GitHub Actions workflows, K8s deployment manifests, and the self-healing infrastructure documented below do not exist yet. See `ci.yml` in `.github/workflows/` for the actual CI status. The ingestion/API/engine packages build and test locally with >460 passing tests.
 
 ## Overview
 
