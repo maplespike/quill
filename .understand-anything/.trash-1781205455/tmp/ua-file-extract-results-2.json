@@ -1,0 +1,6824 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 34,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/api-server/src/routes/auth-passkey.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 142,
+      "nonEmptyLines": 129,
+      "functions": [
+        {
+          "name": "passkeyRegisterBeginHandler",
+          "startLine": 24,
+          "endLine": 49,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "passkeyRegisterCompleteHandler",
+          "startLine": 51,
+          "endLine": 76,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "passkeyLoginBeginHandler",
+          "startLine": 78,
+          "endLine": 99,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "passkeyLoginCompleteHandler",
+          "startLine": 101,
+          "endLine": 124,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "passkeyListHandler",
+          "startLine": 126,
+          "endLine": 131,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "passkeyDeleteHandler",
+          "startLine": 133,
+          "endLine": 142,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "passkeyRegisterBeginHandler",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "passkeyRegisterCompleteHandler",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "passkeyLoginBeginHandler",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "passkeyLoginCompleteHandler",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "passkeyListHandler",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "passkeyDeleteHandler",
+          "line": 133,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "request.json",
+          "lineNumber": 26
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "validateBody",
+          "lineNumber": 27
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 34
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "buildError",
+          "lineNumber": 34
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "errs.map",
+          "lineNumber": 34
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "beginRegistration",
+          "lineNumber": 36
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 43
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 43
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 47
+        },
+        {
+          "caller": "passkeyRegisterBeginHandler",
+          "callee": "buildError",
+          "lineNumber": 47
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "request.json",
+          "lineNumber": 53
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "validateBody",
+          "lineNumber": 54
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 61
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "buildError",
+          "lineNumber": 61
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 61
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "errs.map",
+          "lineNumber": 61
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "completeRegistration",
+          "lineNumber": 63
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 70
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 70
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 74
+        },
+        {
+          "caller": "passkeyRegisterCompleteHandler",
+          "callee": "buildError",
+          "lineNumber": 74
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "request.json",
+          "lineNumber": 80
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "validateBody",
+          "lineNumber": 81
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 86
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "buildError",
+          "lineNumber": 86
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 86
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "errs.map",
+          "lineNumber": 86
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "beginLogin",
+          "lineNumber": 88
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 93
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 93
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 97
+        },
+        {
+          "caller": "passkeyLoginBeginHandler",
+          "callee": "buildError",
+          "lineNumber": 97
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "request.json",
+          "lineNumber": 103
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "validateBody",
+          "lineNumber": 104
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 110
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "buildError",
+          "lineNumber": 110
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 110
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "errs.map",
+          "lineNumber": 110
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "completeLogin",
+          "lineNumber": 112
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 118
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 118
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 122
+        },
+        {
+          "caller": "passkeyLoginCompleteHandler",
+          "callee": "buildError",
+          "lineNumber": 122
+        },
+        {
+          "caller": "passkeyListHandler",
+          "callee": "listCredentials",
+          "lineNumber": 127
+        },
+        {
+          "caller": "passkeyListHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 130
+        },
+        {
+          "caller": "passkeyListHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 130
+        },
+        {
+          "caller": "passkeyDeleteHandler",
+          "callee": "deleteCredential",
+          "lineNumber": 134
+        },
+        {
+          "caller": "passkeyDeleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 137
+        },
+        {
+          "caller": "passkeyDeleteHandler",
+          "callee": "buildError",
+          "lineNumber": 137
+        },
+        {
+          "caller": "passkeyDeleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 141
+        },
+        {
+          "caller": "passkeyDeleteHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 141
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/auth-web3.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 63,
+      "nonEmptyLines": 58,
+      "functions": [
+        {
+          "name": "web3ChallengeHandler",
+          "startLine": 13,
+          "endLine": 36,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "web3LoginHandler",
+          "startLine": 38,
+          "endLine": 63,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "web3ChallengeHandler",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "web3LoginHandler",
+          "line": 38,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "request.json",
+          "lineNumber": 15
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "validateBody",
+          "lineNumber": 16
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 22
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "buildError",
+          "lineNumber": 22
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 22
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "errs.map",
+          "lineNumber": 22
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "createChallenge",
+          "lineNumber": 24
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 30
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 30
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 34
+        },
+        {
+          "caller": "web3ChallengeHandler",
+          "callee": "buildError",
+          "lineNumber": 34
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "request.json",
+          "lineNumber": 40
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "validateBody",
+          "lineNumber": 41
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 48
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "buildError",
+          "lineNumber": 48
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 48
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "errs.map",
+          "lineNumber": 48
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "verifyAndLogin",
+          "lineNumber": 50
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 57
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 57
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 61
+        },
+        {
+          "caller": "web3LoginHandler",
+          "callee": "buildError",
+          "lineNumber": 61
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/billing.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 114,
+      "nonEmptyLines": 99,
+      "functions": [
+        {
+          "name": "getWallet",
+          "startLine": 64,
+          "endLine": 66,
+          "params": [
+            "chainId"
+          ]
+        },
+        {
+          "name": "billingPlansHandler",
+          "startLine": 68,
+          "endLine": 74,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "billingOrderHandler",
+          "startLine": 76,
+          "endLine": 97,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "billingVerifyHandler",
+          "startLine": 99,
+          "endLine": 113,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "billingPlansHandler",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "billingOrderHandler",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "billingVerifyHandler",
+          "line": 99,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getWallet",
+          "callee": "chainId.split",
+          "lineNumber": 65
+        },
+        {
+          "caller": "billingPlansHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 70
+        },
+        {
+          "caller": "billingPlansHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 70
+        },
+        {
+          "caller": "billingPlansHandler",
+          "callee": "CHAINS.map",
+          "lineNumber": 72
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "request.json",
+          "lineNumber": 79
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "validateBody",
+          "lineNumber": 80
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 81
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "buildError",
+          "lineNumber": 81
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "errs.map((e: any) => e.message).join",
+          "lineNumber": 81
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "errs.map",
+          "lineNumber": 81
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "PLANS.find",
+          "lineNumber": 83
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 84
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "buildError",
+          "lineNumber": 84
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "CHAINS.find",
+          "lineNumber": 85
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 86
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "buildError",
+          "lineNumber": 86
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "getWallet",
+          "lineNumber": 88
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 89
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "buildError",
+          "lineNumber": 89
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "Date.now",
+          "lineNumber": 91
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 91
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "Math.random().toString",
+          "lineNumber": 91
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "Math.random",
+          "lineNumber": 91
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "ctx.tenant.id.slice",
+          "lineNumber": 92
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "Date.now().toString",
+          "lineNumber": 92
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "Date.now",
+          "lineNumber": 92
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "orders.set",
+          "lineNumber": 93
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 93
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 95
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 95
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 96
+        },
+        {
+          "caller": "billingOrderHandler",
+          "callee": "buildError",
+          "lineNumber": 96
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "request.json",
+          "lineNumber": 102
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "validateBody",
+          "lineNumber": 103
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 104
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "buildError",
+          "lineNumber": 104
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "errs.join",
+          "lineNumber": 104
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "orders.get",
+          "lineNumber": 106
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 107
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "buildError",
+          "lineNumber": 107
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 108
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 108
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 111
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 111
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 112
+        },
+        {
+          "caller": "billingVerifyHandler",
+          "callee": "buildError",
+          "lineNumber": 112
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/citation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 155,
+      "nonEmptyLines": 131,
+      "functions": [
+        {
+          "name": "loadPipelineData",
+          "startLine": 37,
+          "endLine": 59,
+          "params": []
+        },
+        {
+          "name": "findRecordByHash",
+          "startLine": 71,
+          "endLine": 75,
+          "params": [
+            "targetHash"
+          ]
+        },
+        {
+          "name": "getCitationHandler",
+          "startLine": 81,
+          "endLine": 130,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "getSourceConfig",
+          "startLine": 141,
+          "endLine": 155,
+          "params": [
+            "sourceKey"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getCitationHandler",
+          "line": 81,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "loadPipelineData",
+          "callee": "resolve",
+          "lineNumber": 41
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "resolve",
+          "lineNumber": 42
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "existsSync",
+          "lineNumber": 46
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "readFileSync",
+          "lineNumber": 48
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "JSON.parse",
+          "lineNumber": 49
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "log.info",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "log.error",
+          "lineNumber": 53
+        },
+        {
+          "caller": "loadPipelineData",
+          "callee": "log.error",
+          "lineNumber": 57
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "targetHash.startsWith",
+          "lineNumber": 86
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "targetHash.slice",
+          "lineNumber": 87
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "targetHash.startsWith",
+          "lineNumber": 88
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "targetHash.slice",
+          "lineNumber": 89
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "/^[a-f0-9]{64}$/i.test",
+          "lineNumber": 93
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 94
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "buildError",
+          "lineNumber": 95
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "targetHash.toLowerCase",
+          "lineNumber": 100
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "findRecordByHash",
+          "lineNumber": 103
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 106
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "buildError",
+          "lineNumber": 107
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "getSourceConfig",
+          "lineNumber": 112
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 114
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 114
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 121
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "JSON.stringify(result.record).replace",
+          "lineNumber": 124
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "JSON.stringify",
+          "lineNumber": 124
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 128
+        },
+        {
+          "caller": "getCitationHandler",
+          "callee": "buildError",
+          "lineNumber": 128
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/compliance.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 26,
+      "functions": [
+        {
+          "name": "complianceHandler",
+          "startLine": 4,
+          "endLine": 30,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "complianceHandler",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "complianceHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 7
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "import('@maplespike/pipeline-core').catch",
+          "lineNumber": 10
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "import",
+          "lineNumber": 10
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 12
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "buildError",
+          "lineNumber": 13
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "(mod as any).getFullComplianceReport",
+          "lineNumber": 19
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "(mod as any).getComplianceCheck",
+          "lineNumber": 19
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 21
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 21
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "Array.isArray",
+          "lineNumber": 23
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "Array.isArray",
+          "lineNumber": 24
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 28
+        },
+        {
+          "caller": "complianceHandler",
+          "callee": "buildError",
+          "lineNumber": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/contact.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 94,
+      "nonEmptyLines": 79,
+      "functions": [
+        {
+          "name": "pruneOldEntries",
+          "startLine": 23,
+          "endLine": 31,
+          "params": []
+        },
+        {
+          "name": "checkContactRate",
+          "startLine": 38,
+          "endLine": 51,
+          "params": [
+            "ip"
+          ]
+        },
+        {
+          "name": "contactHandler",
+          "startLine": 53,
+          "endLine": 92,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "contactHandler",
+          "line": 53,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "pruneOldEntries",
+          "callee": "Date.now",
+          "lineNumber": 24
+        },
+        {
+          "caller": "pruneOldEntries",
+          "callee": "entry.timestamps.filter",
+          "lineNumber": 26
+        },
+        {
+          "caller": "pruneOldEntries",
+          "callee": "ipRateMap.delete",
+          "lineNumber": 28
+        },
+        {
+          "caller": "checkContactRate",
+          "callee": "Date.now",
+          "lineNumber": 39
+        },
+        {
+          "caller": "checkContactRate",
+          "callee": "ipRateMap.get",
+          "lineNumber": 40
+        },
+        {
+          "caller": "checkContactRate",
+          "callee": "ipRateMap.set",
+          "lineNumber": 43
+        },
+        {
+          "caller": "checkContactRate",
+          "callee": "entry.timestamps.filter",
+          "lineNumber": 45
+        },
+        {
+          "caller": "checkContactRate",
+          "callee": "entry.timestamps.push",
+          "lineNumber": 49
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "request.headers.get",
+          "lineNumber": 55
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "request.headers.get('x-forwarded-for')?.split(',')[0]?.trim",
+          "lineNumber": 56
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "request.headers.get('x-forwarded-for')?.split",
+          "lineNumber": 56
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "request.headers.get",
+          "lineNumber": 56
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "checkContactRate",
+          "lineNumber": 59
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 60
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "buildError",
+          "lineNumber": 60
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "request.json",
+          "lineNumber": 65
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 67
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "buildError",
+          "lineNumber": 67
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "validateBody",
+          "lineNumber": 70
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "validationError",
+          "lineNumber": 72
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "sendContactEmail({ to: contactTo, name, email, subject, message }).catch",
+          "lineNumber": 80
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "sendContactEmail",
+          "lineNumber": 80
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "log.error",
+          "lineNumber": 81
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 84
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 84
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "log.error",
+          "lineNumber": 89
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 90
+        },
+        {
+          "caller": "contactHandler",
+          "callee": "buildError",
+          "lineNumber": 90
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/energy.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 17,
+      "functions": [
+        {
+          "name": "energyDataHandler",
+          "startLine": 11,
+          "endLine": 19,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "energyDataHandler",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "energyDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 13
+        },
+        {
+          "caller": "energyDataHandler",
+          "callee": "parseInt",
+          "lineNumber": 14
+        },
+        {
+          "caller": "energyDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 14
+        },
+        {
+          "caller": "energyDataHandler",
+          "callee": "data.filter",
+          "lineNumber": 16
+        },
+        {
+          "caller": "energyDataHandler",
+          "callee": "data.slice",
+          "lineNumber": 17
+        },
+        {
+          "caller": "energyDataHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 18
+        },
+        {
+          "caller": "energyDataHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/engine-run.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 49,
+      "nonEmptyLines": 42,
+      "functions": [
+        {
+          "name": "engineRunHandler",
+          "startLine": 6,
+          "endLine": 49,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "engineRunHandler",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "engineRunHandler",
+          "callee": "import",
+          "lineNumber": 11
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 13
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "buildError",
+          "lineNumber": 14
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "Date.now",
+          "lineNumber": 22
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "orchestrator.run",
+          "lineNumber": 27
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "engine.runEnginePipeline",
+          "lineNumber": 29
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 31
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "buildError",
+          "lineNumber": 32
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "Date.now",
+          "lineNumber": 37
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 39
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 39
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 43
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 47
+        },
+        {
+          "caller": "engineRunHandler",
+          "callee": "buildError",
+          "lineNumber": 47
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/engine-status.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 36,
+      "nonEmptyLines": 31,
+      "functions": [
+        {
+          "name": "engineStatusHandler",
+          "startLine": 7,
+          "endLine": 36,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "engineStatusHandler",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "engineStatusHandler",
+          "callee": "memoryStore.getSignals",
+          "lineNumber": 9
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "memoryStore.getBriefs",
+          "lineNumber": 10
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "memoryStore.getEntities",
+          "lineNumber": 11
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "memoryStore.getGraphNodes",
+          "lineNumber": 12
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "memoryStore.getGraphEdges",
+          "lineNumber": 13
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "entities.filter",
+          "lineNumber": 18
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "entities.filter",
+          "lineNumber": 19
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "Object.values(tableCounts).reduce",
+          "lineNumber": 25
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "Object.values",
+          "lineNumber": 25
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 27
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 27
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 34
+        },
+        {
+          "caller": "engineStatusHandler",
+          "callee": "buildError",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/entity.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 149,
+      "nonEmptyLines": 128,
+      "functions": [
+        {
+          "name": "entityResolveHandler",
+          "startLine": 26,
+          "endLine": 75,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "entityConnectionsHandler",
+          "startLine": 91,
+          "endLine": 149,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "entityResolveHandler",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "entityConnectionsHandler",
+          "line": 91,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "entityResolveHandler",
+          "callee": "request.json",
+          "lineNumber": 28
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 32
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "buildError",
+          "lineNumber": 32
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "buildError",
+          "lineNumber": 36
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 40
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "buildError",
+          "lineNumber": 40
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "memoryStore.getEntities",
+          "lineNumber": 43
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "query.toLowerCase",
+          "lineNumber": 44
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "allEntities.filter",
+          "lineNumber": 46
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "entity.canonicalName.toLowerCase().includes",
+          "lineNumber": 50
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "entity.canonicalName.toLowerCase",
+          "lineNumber": 50
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "entity.aliases.some",
+          "lineNumber": 51
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "a.name.toLowerCase().includes",
+          "lineNumber": 51
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "a.name.toLowerCase",
+          "lineNumber": 51
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "filtered.map",
+          "lineNumber": 56
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 65
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 65
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 73
+        },
+        {
+          "caller": "entityResolveHandler",
+          "callee": "buildError",
+          "lineNumber": 73
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 95
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "parseInt",
+          "lineNumber": 96
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 96
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 99
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "buildError",
+          "lineNumber": 99
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "isNaN",
+          "lineNumber": 102
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 103
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "buildError",
+          "lineNumber": 103
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "memoryStore.getEntities",
+          "lineNumber": 106
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "entities.map",
+          "lineNumber": 107
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "nodes.map",
+          "lineNumber": 114
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "edges.some",
+          "lineNumber": 118
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "entities.filter",
+          "lineNumber": 119
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "relatedEntities.forEach",
+          "lineNumber": 120
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "edges.push",
+          "lineNumber": 125
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "Math.min",
+          "lineNumber": 129
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 138
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 138
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 147
+        },
+        {
+          "caller": "entityConnectionsHandler",
+          "callee": "buildError",
+          "lineNumber": 147
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/export.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 138,
+      "nonEmptyLines": 128,
+      "functions": [
+        {
+          "name": "listModulesHandler",
+          "startLine": 75,
+          "endLine": 88,
+          "params": [
+            "_req",
+            "ctx"
+          ]
+        },
+        {
+          "name": "exportModuleHandler",
+          "startLine": 91,
+          "endLine": 138,
+          "params": [
+            "_req",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "listModulesHandler",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "exportModuleHandler",
+          "line": 91,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "listModulesHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 76
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 77
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "MODULE_LIST.map",
+          "lineNumber": 79
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "MODULE_LIST.find",
+          "lineNumber": 95
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 97
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "buildError",
+          "lineNumber": 98
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "getMockData",
+          "lineNumber": 104
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "records.find",
+          "lineNumber": 107
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 109
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "buildError",
+          "lineNumber": 110
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 114
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 114
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 119
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "parseInt",
+          "lineNumber": 126
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "new URL(_req.url).searchParams.get",
+          "lineNumber": 126
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "parseInt",
+          "lineNumber": 127
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "new URL(_req.url).searchParams.get",
+          "lineNumber": 127
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "records.slice",
+          "lineNumber": 128
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 130
+        },
+        {
+          "caller": "exportModuleHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 130
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/financial-regulation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 28,
+      "functions": [
+        {
+          "name": "finRegDataHandler",
+          "startLine": 12,
+          "endLine": 20,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "finRegCrossRefHandler",
+          "startLine": 22,
+          "endLine": 31,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "finRegDataHandler",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "finRegCrossRefHandler",
+          "line": 22,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "finRegDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 14
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "parseInt",
+          "lineNumber": 15
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "data.filter",
+          "lineNumber": 17
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "d.regulator?.toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "regulator.toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "data.slice",
+          "lineNumber": 18
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 19
+        },
+        {
+          "caller": "finRegDataHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 19
+        },
+        {
+          "caller": "finRegCrossRefHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 24
+        },
+        {
+          "caller": "finRegCrossRefHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 25
+        },
+        {
+          "caller": "finRegCrossRefHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/gov.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 146,
+      "nonEmptyLines": 130,
+      "functions": [
+        {
+          "name": "listReleasesHandler",
+          "startLine": 68,
+          "endLine": 106,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "searchGovHandler",
+          "startLine": 108,
+          "endLine": 144,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "listReleasesHandler",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "searchGovHandler",
+          "line": 108,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "listReleasesHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 70
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 71
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "parseInt",
+          "lineNumber": 72
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 72
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "fetchStatCanReleases",
+          "lineNumber": 77
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "releases.filter",
+          "lineNumber": 92
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "releases.filter",
+          "lineNumber": 95
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "releases.slice",
+          "lineNumber": 98
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 100
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 100
+        },
+        {
+          "caller": "listReleasesHandler",
+          "callee": "GOV_DATA_SOURCES.map",
+          "lineNumber": 103
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 110
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 111
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "parseInt",
+          "lineNumber": 112
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 112
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 115
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "buildError",
+          "lineNumber": 115
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "GOV_DATA_SOURCES.find",
+          "lineNumber": 122
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "fetchCKANPackages",
+          "lineNumber": 125
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "ckanResults.slice(0, limit).map",
+          "lineNumber": 133
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "ckanResults.slice",
+          "lineNumber": 133
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 143
+        },
+        {
+          "caller": "searchGovHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 143
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/health.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 84,
+      "nonEmptyLines": 77,
+      "functions": [
+        {
+          "name": "checkDependency",
+          "startLine": 16,
+          "endLine": 35,
+          "params": [
+            "name",
+            "checkFn",
+            "timeoutMs"
+          ]
+        },
+        {
+          "name": "healthHandler",
+          "startLine": 37,
+          "endLine": 84,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "healthHandler",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "checkDependency",
+          "callee": "Date.now",
+          "lineNumber": 21
+        },
+        {
+          "caller": "checkDependency",
+          "callee": "Promise.race",
+          "lineNumber": 23
+        },
+        {
+          "caller": "checkDependency",
+          "callee": "checkFn",
+          "lineNumber": 24
+        },
+        {
+          "caller": "checkDependency",
+          "callee": "setTimeout",
+          "lineNumber": 26
+        },
+        {
+          "caller": "checkDependency",
+          "callee": "reject",
+          "lineNumber": 26
+        },
+        {
+          "caller": "checkDependency",
+          "callee": "Date.now",
+          "lineNumber": 29
+        },
+        {
+          "caller": "checkDependency",
+          "callee": "Date.now",
+          "lineNumber": 31
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "loadConfig",
+          "lineNumber": 39
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "Promise.all",
+          "lineNumber": 40
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "ctx.db.getDailyUsage",
+          "lineNumber": 41
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "new Date().toISOString().slice",
+          "lineNumber": 41
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 41
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "ctx.db.getMonthlyUsage",
+          "lineNumber": 42
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "new Date().toISOString().slice",
+          "lineNumber": 42
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 42
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "Promise.all",
+          "lineNumber": 43
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "checkDependency",
+          "lineNumber": 44
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "checkDependency",
+          "lineNumber": 45
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "ctx.db.getDailyUsage",
+          "lineNumber": 46
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "checkDependency",
+          "lineNumber": 48
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "ctx.cache.get",
+          "lineNumber": 49
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "ctx.cache.put",
+          "lineNumber": 50
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 70
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 76
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 79
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 79
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 82
+        },
+        {
+          "caller": "healthHandler",
+          "callee": "buildError",
+          "lineNumber": 82
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/keys.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 110,
+      "nonEmptyLines": 97,
+      "functions": [
+        {
+          "name": "listKeysHandler",
+          "startLine": 13,
+          "endLine": 19,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "createKeyHandler",
+          "startLine": 21,
+          "endLine": 46,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "deleteKeyHandler",
+          "startLine": 48,
+          "endLine": 69,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "rotateKeyHandler",
+          "startLine": 75,
+          "endLine": 110,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "listKeysHandler",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "createKeyHandler",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "deleteKeyHandler",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "rotateKeyHandler",
+          "line": 75,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "listKeysHandler",
+          "callee": "ctx.db.listApiKeys",
+          "lineNumber": 14
+        },
+        {
+          "caller": "listKeysHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 15
+        },
+        {
+          "caller": "listKeysHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 15
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "generateApiKey",
+          "lineNumber": 23
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Array.from(new Uint8Array(16))\n      .map(() => Math.random().toString(16).slice(2, 4)).join",
+          "lineNumber": 24
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Array.from(new Uint8Array(16))\n      .map",
+          "lineNumber": 24
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Array.from",
+          "lineNumber": 24
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Math.random().toString(16).slice",
+          "lineNumber": 25
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Math.random().toString",
+          "lineNumber": 25
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Math.random",
+          "lineNumber": 25
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "(ctx.db as any).createApiKey",
+          "lineNumber": 29
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "(ctx.db as any).registerTenant",
+          "lineNumber": 31
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 33
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 33
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 36
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 40
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 44
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 44
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 51
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 51
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "(ctx.db as any).revokeApiKey",
+          "lineNumber": 56
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 58
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 58
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 61
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 61
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 67
+        },
+        {
+          "caller": "deleteKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 67
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 78
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 78
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "generateApiKey",
+          "lineNumber": 82
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "Array.from(new Uint8Array(16))\n      .map(() => Math.random().toString(16).slice(2, 4)).join",
+          "lineNumber": 83
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "Array.from(new Uint8Array(16))\n      .map",
+          "lineNumber": 83
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "Array.from",
+          "lineNumber": 83
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "Math.random().toString(16).slice",
+          "lineNumber": 84
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "Math.random().toString",
+          "lineNumber": 84
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "Math.random",
+          "lineNumber": 84
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "expiresAt.setDate",
+          "lineNumber": 87
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "expiresAt.getDate",
+          "lineNumber": 87
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "(ctx.db as any).revokeApiKey",
+          "lineNumber": 91
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "(ctx.db as any).createApiKey",
+          "lineNumber": 92
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "expiresAt.toISOString",
+          "lineNumber": 92
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 94
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 94
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 97
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 97
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "expiresAt.toISOString",
+          "lineNumber": 102
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 108
+        },
+        {
+          "caller": "rotateKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 108
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/llms.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 321,
+      "nonEmptyLines": 308,
+      "functions": [
+        {
+          "name": "generateLlmTxt",
+          "startLine": 104,
+          "endLine": 126,
+          "params": [
+            "config"
+          ]
+        },
+        {
+          "name": "llmsTxtHandler",
+          "startLine": 128,
+          "endLine": 134,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "generateLlmFullTxt",
+          "startLine": 140,
+          "endLine": 313,
+          "params": [
+            "config"
+          ]
+        },
+        {
+          "name": "llmsFullTxtHandler",
+          "startLine": 315,
+          "endLine": 321,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "llmsTxtHandler",
+          "line": 128,
+          "isDefault": false
+        },
+        {
+          "name": "llmsFullTxtHandler",
+          "line": 315,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateLlmTxt",
+          "callee": "ENDPOINTS.map",
+          "lineNumber": 120
+        },
+        {
+          "caller": "generateLlmTxt",
+          "callee": "MCP_TOOLS.map",
+          "lineNumber": 123
+        },
+        {
+          "caller": "generateLlmTxt",
+          "callee": "lines.join",
+          "lineNumber": 125
+        },
+        {
+          "caller": "llmsTxtHandler",
+          "callee": "loadConfig",
+          "lineNumber": 129
+        },
+        {
+          "caller": "llmsTxtHandler",
+          "callee": "generateLlmTxt",
+          "lineNumber": 130
+        },
+        {
+          "caller": "generateLlmFullTxt",
+          "callee": "MCP_TOOLS.flatMap",
+          "lineNumber": 216
+        },
+        {
+          "caller": "generateLlmFullTxt",
+          "callee": "ENDPOINTS.map",
+          "lineNumber": 233
+        },
+        {
+          "caller": "generateLlmFullTxt",
+          "callee": "sections.join",
+          "lineNumber": 312
+        },
+        {
+          "caller": "llmsFullTxtHandler",
+          "callee": "loadConfig",
+          "lineNumber": 316
+        },
+        {
+          "caller": "llmsFullTxtHandler",
+          "callee": "generateLlmFullTxt",
+          "lineNumber": 317
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/mock.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 120,
+      "nonEmptyLines": 107,
+      "functions": [
+        {
+          "name": "mockHandler",
+          "startLine": 28,
+          "endLine": 106,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "parseAgentAction",
+          "startLine": 116,
+          "endLine": 120,
+          "params": [
+            "pathname"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "mockHandler",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "parseAgentAction",
+          "line": 116,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "mockHandler",
+          "callee": "Date.now",
+          "lineNumber": 29
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "enrichCitation",
+          "lineNumber": 51
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 54
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "buildQualityMeta",
+          "lineNumber": 61
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 64
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 71
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "Date.now",
+          "lineNumber": 79
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 86
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 93
+        },
+        {
+          "caller": "mockHandler",
+          "callee": "Date.now",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseAgentAction",
+          "callee": "pathname.match",
+          "lineNumber": 117
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/modules.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 212,
+      "nonEmptyLines": 196,
+      "functions": [
+        {
+          "name": "listModulesHandler",
+          "startLine": 152,
+          "endLine": 167,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "getModuleHandler",
+          "startLine": 169,
+          "endLine": 183,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "statsHandler",
+          "startLine": 185,
+          "endLine": 202,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "toolsHandler",
+          "startLine": 204,
+          "endLine": 212,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "listModulesHandler",
+          "line": 152,
+          "isDefault": false
+        },
+        {
+          "name": "getModuleHandler",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "statsHandler",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "toolsHandler",
+          "line": 204,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "listModulesHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 154
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "getModulesByCategory",
+          "lineNumber": 157
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "category.toUpperCase",
+          "lineNumber": 157
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "getAllModules",
+          "lineNumber": 158
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 166
+        },
+        {
+          "caller": "listModulesHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 166
+        },
+        {
+          "caller": "getModuleHandler",
+          "callee": "getModule",
+          "lineNumber": 170
+        },
+        {
+          "caller": "getModuleHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 179
+        },
+        {
+          "caller": "getModuleHandler",
+          "callee": "buildError",
+          "lineNumber": 179
+        },
+        {
+          "caller": "getModuleHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 182
+        },
+        {
+          "caller": "getModuleHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 182
+        },
+        {
+          "caller": "statsHandler",
+          "callee": "getAllModules",
+          "lineNumber": 186
+        },
+        {
+          "caller": "statsHandler",
+          "callee": "getCategories",
+          "lineNumber": 187
+        },
+        {
+          "caller": "statsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 195
+        },
+        {
+          "caller": "statsHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 195
+        },
+        {
+          "caller": "toolsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 211
+        },
+        {
+          "caller": "toolsHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 211
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/municipal.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "municipalDataHandler",
+          "startLine": 27,
+          "endLine": 37,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "municipalCityHandler",
+          "startLine": 39,
+          "endLine": 48,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "municipalDataHandler",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "municipalCityHandler",
+          "line": 39,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "municipalDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 29
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 30
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "parseInt",
+          "lineNumber": 31
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 31
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "data.filter",
+          "lineNumber": 33
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "city.toLowerCase",
+          "lineNumber": 33
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "data.filter",
+          "lineNumber": 34
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "dataset.toLowerCase",
+          "lineNumber": 34
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "data.slice",
+          "lineNumber": 35
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "municipalDataHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 36
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "url.pathname.split",
+          "lineNumber": 41
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 43
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "buildError",
+          "lineNumber": 43
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 44
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "parseInt",
+          "lineNumber": 45
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 45
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "MUNICIPAL_DATA.filter(d => d.city === city.toLowerCase() && (!dataset || d.dataset === dataset.toLowerCase())).slice",
+          "lineNumber": 46
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "MUNICIPAL_DATA.filter",
+          "lineNumber": 46
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "city.toLowerCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "dataset.toLowerCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 47
+        },
+        {
+          "caller": "municipalCityHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 47
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/onboarding.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 99,
+      "nonEmptyLines": 92,
+      "functions": [
+        {
+          "name": "onboardingHandler",
+          "startLine": 20,
+          "endLine": 99,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onboardingHandler",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onboardingHandler",
+          "callee": "now.toISOString().slice",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "now.toISOString",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "now.toISOString().slice",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "now.toISOString",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "Promise.all",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "db.getDailyUsage",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "db.getMonthlyUsage",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "TIER_LIMITS.free.monthly.toLocaleString",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "items.filter",
+          "lineNumber": 86
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "Math.round",
+          "lineNumber": 88
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 90
+        },
+        {
+          "caller": "onboardingHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 90
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/openapi.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 483,
+      "nonEmptyLines": 461,
+      "functions": [
+        {
+          "name": "openApiHandler",
+          "startLine": 11,
+          "endLine": 483,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "openApiHandler",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "openApiHandler",
+          "callee": "loadConfig",
+          "lineNumber": 13
+        },
+        {
+          "caller": "openApiHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 478
+        },
+        {
+          "caller": "openApiHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 478
+        },
+        {
+          "caller": "openApiHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 481
+        },
+        {
+          "caller": "openApiHandler",
+          "callee": "buildError",
+          "lineNumber": 481
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/real-estate.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 21,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "realEstateDataHandler",
+          "startLine": 13,
+          "endLine": 21,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "realEstateDataHandler",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "parseInt",
+          "lineNumber": 16
+        },
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 16
+        },
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "data.filter",
+          "lineNumber": 18
+        },
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "data.slice",
+          "lineNumber": 19
+        },
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 20
+        },
+        {
+          "caller": "realEstateDataHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/register.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 233,
+      "nonEmptyLines": 201,
+      "functions": [
+        {
+          "name": "generateToken",
+          "startLine": 32,
+          "endLine": 36,
+          "params": []
+        },
+        {
+          "name": "registerHandler",
+          "startLine": 38,
+          "endLine": 119,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "verifyHandler",
+          "startLine": 122,
+          "endLine": 158,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "meHandler",
+          "startLine": 161,
+          "endLine": 203,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "generateId",
+          "startLine": 206,
+          "endLine": 211,
+          "params": [
+            "prefix"
+          ]
+        },
+        {
+          "name": "persistRegistration",
+          "startLine": 213,
+          "endLine": 233,
+          "params": [
+            "db",
+            "tenant",
+            "keyHash",
+            "keyId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "registerHandler",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "verifyHandler",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "meHandler",
+          "line": 161,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateToken",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 34
+        },
+        {
+          "caller": "generateToken",
+          "callee": "Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 35
+        },
+        {
+          "caller": "generateToken",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 35
+        },
+        {
+          "caller": "generateToken",
+          "callee": "Array.from",
+          "lineNumber": 35
+        },
+        {
+          "caller": "generateToken",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 35
+        },
+        {
+          "caller": "generateToken",
+          "callee": "b.toString",
+          "lineNumber": 35
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "request.headers.get",
+          "lineNumber": 41
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "request.headers.get",
+          "lineNumber": 41
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "parseInt",
+          "lineNumber": 43
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "ctx.cache.get",
+          "lineNumber": 43
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 45
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "buildError",
+          "lineNumber": 45
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "ctx.cache.put",
+          "lineNumber": 47
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "String",
+          "lineNumber": 47
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "request.json",
+          "lineNumber": 52
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 54
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "buildError",
+          "lineNumber": 54
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "validateBody",
+          "lineNumber": 57
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "validationError",
+          "lineNumber": 59
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "parsed.data.name.trim",
+          "lineNumber": 62
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "parsed.data.email.trim",
+          "lineNumber": 64
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 66
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "buildError",
+          "lineNumber": 66
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "EMAIL_RE.test",
+          "lineNumber": 68
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 69
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "buildError",
+          "lineNumber": 69
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "generateId",
+          "lineNumber": 73
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "generateId",
+          "lineNumber": 74
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "generateApiKey",
+          "lineNumber": 77
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "generateToken",
+          "lineNumber": 78
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "persistRegistration",
+          "lineNumber": 91
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "sendVerificationEmail({ to: email, name, token: verificationToken }).catch",
+          "lineNumber": 94
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "sendVerificationEmail",
+          "lineNumber": 94
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "log.error",
+          "lineNumber": 95
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 98
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 98
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "log.error",
+          "lineNumber": 116
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 117
+        },
+        {
+          "caller": "registerHandler",
+          "callee": "buildError",
+          "lineNumber": 117
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "buildError",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "db.verifyEmail",
+          "lineNumber": 136
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 138
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "buildError",
+          "lineNumber": 138
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "sendWelcomeEmail({\n          to: tenant.email,\n          name: tenant.name,\n          apiKey: ctx.apiKeyId || 'your-api-key'\n        }).catch",
+          "lineNumber": 143
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "sendWelcomeEmail",
+          "lineNumber": 143
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "log.error",
+          "lineNumber": 147
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 149
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 149
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 152
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "buildError",
+          "lineNumber": 152
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "log.error",
+          "lineNumber": 155
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 156
+        },
+        {
+          "caller": "verifyHandler",
+          "callee": "buildError",
+          "lineNumber": 156
+        },
+        {
+          "caller": "meHandler",
+          "callee": "now.toISOString().slice",
+          "lineNumber": 164
+        },
+        {
+          "caller": "meHandler",
+          "callee": "now.toISOString",
+          "lineNumber": 164
+        },
+        {
+          "caller": "meHandler",
+          "callee": "now.toISOString().slice",
+          "lineNumber": 165
+        },
+        {
+          "caller": "meHandler",
+          "callee": "now.toISOString",
+          "lineNumber": 165
+        },
+        {
+          "caller": "meHandler",
+          "callee": "Promise.all",
+          "lineNumber": 167
+        },
+        {
+          "caller": "meHandler",
+          "callee": "ctx.db.getDailyUsage",
+          "lineNumber": 168
+        },
+        {
+          "caller": "meHandler",
+          "callee": "ctx.db.getMonthlyUsage",
+          "lineNumber": 169
+        },
+        {
+          "caller": "meHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 174
+        },
+        {
+          "caller": "meHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 174
+        },
+        {
+          "caller": "meHandler",
+          "callee": "Math.max",
+          "lineNumber": 187
+        },
+        {
+          "caller": "meHandler",
+          "callee": "Math.round",
+          "lineNumber": 188
+        },
+        {
+          "caller": "meHandler",
+          "callee": "Math.max",
+          "lineNumber": 193
+        },
+        {
+          "caller": "meHandler",
+          "callee": "Math.round",
+          "lineNumber": 194
+        },
+        {
+          "caller": "meHandler",
+          "callee": "new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString",
+          "lineNumber": 197
+        },
+        {
+          "caller": "meHandler",
+          "callee": "now.getFullYear",
+          "lineNumber": 197
+        },
+        {
+          "caller": "meHandler",
+          "callee": "now.getMonth",
+          "lineNumber": 197
+        },
+        {
+          "caller": "meHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 201
+        },
+        {
+          "caller": "meHandler",
+          "callee": "buildError",
+          "lineNumber": 201
+        },
+        {
+          "caller": "generateId",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 208
+        },
+        {
+          "caller": "generateId",
+          "callee": "Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 209
+        },
+        {
+          "caller": "generateId",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 209
+        },
+        {
+          "caller": "generateId",
+          "callee": "Array.from",
+          "lineNumber": 209
+        },
+        {
+          "caller": "generateId",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 209
+        },
+        {
+          "caller": "generateId",
+          "callee": "b.toString",
+          "lineNumber": 209
+        },
+        {
+          "caller": "persistRegistration",
+          "callee": "(db as any).createTenant",
+          "lineNumber": 221
+        },
+        {
+          "caller": "persistRegistration",
+          "callee": "(db as any).createApiKey",
+          "lineNumber": 222
+        },
+        {
+          "caller": "persistRegistration",
+          "callee": "(db as any).registerTenant",
+          "lineNumber": 228
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 3,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/usage.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "usageHandler",
+          "startLine": 11,
+          "endLine": 54,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "usageHandler",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "usageHandler",
+          "callee": "now.toISOString().slice",
+          "lineNumber": 14
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "now.toISOString",
+          "lineNumber": 14
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "now.toISOString().slice",
+          "lineNumber": 15
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "now.toISOString",
+          "lineNumber": 15
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "Promise.all",
+          "lineNumber": 17
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "ctx.db.getDailyUsage",
+          "lineNumber": 18
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "ctx.db.getMonthlyUsage",
+          "lineNumber": 19
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 24
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 24
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "Math.max",
+          "lineNumber": 38
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "Math.round",
+          "lineNumber": 39
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "Math.max",
+          "lineNumber": 44
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "Math.round",
+          "lineNumber": 45
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString",
+          "lineNumber": 48
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "now.getFullYear",
+          "lineNumber": 48
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "now.getMonth",
+          "lineNumber": 48
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 52
+        },
+        {
+          "caller": "usageHandler",
+          "callee": "buildError",
+          "lineNumber": 52
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/watcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 28,
+      "functions": [
+        {
+          "name": "watcherStatusHandler",
+          "startLine": 4,
+          "endLine": 17,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "watcherEventsHandler",
+          "startLine": 19,
+          "endLine": 31,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "watcherStatusHandler",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "watcherEventsHandler",
+          "line": 19,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "watcherStatusHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 5
+        },
+        {
+          "caller": "watcherStatusHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 5
+        },
+        {
+          "caller": "watcherEventsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 21
+        },
+        {
+          "caller": "watcherEventsHandler",
+          "callee": "parseInt",
+          "lineNumber": 22
+        },
+        {
+          "caller": "watcherEventsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 22
+        },
+        {
+          "caller": "watcherEventsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 24
+        },
+        {
+          "caller": "watcherEventsHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 24
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/webhooks.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 121,
+      "nonEmptyLines": 110,
+      "functions": [
+        {
+          "name": "webhookListHandler",
+          "startLine": 22,
+          "endLine": 26,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "webhookGetHandler",
+          "startLine": 28,
+          "endLine": 35,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "webhookCreateHandler",
+          "startLine": 37,
+          "endLine": 57,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "webhookUpdateHandler",
+          "startLine": 59,
+          "endLine": 81,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "webhookDeleteHandler",
+          "startLine": 83,
+          "endLine": 89,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "webhookTestHandler",
+          "startLine": 91,
+          "endLine": 111,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "webhookDeliveriesHandler",
+          "startLine": 114,
+          "endLine": 121,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "webhookListHandler",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "webhookGetHandler",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "webhookCreateHandler",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "webhookUpdateHandler",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "webhookDeleteHandler",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "webhookTestHandler",
+          "line": 91,
+          "isDefault": false
+        },
+        {
+          "name": "webhookDeliveriesHandler",
+          "line": 114,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "webhookListHandler",
+          "callee": "listWebhooks",
+          "lineNumber": 24
+        },
+        {
+          "caller": "webhookListHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 25
+        },
+        {
+          "caller": "webhookListHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 25
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 31
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "buildError",
+          "lineNumber": 31
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "getWebhook",
+          "lineNumber": 32
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 33
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "buildError",
+          "lineNumber": 33
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 34
+        },
+        {
+          "caller": "webhookGetHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 34
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "request.json",
+          "lineNumber": 40
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 42
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "buildError",
+          "lineNumber": 42
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "createWebhook",
+          "lineNumber": 44
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "Array.isArray",
+          "lineNumber": 47
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 53
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 53
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 55
+        },
+        {
+          "caller": "webhookCreateHandler",
+          "callee": "buildError",
+          "lineNumber": 55
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 62
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "buildError",
+          "lineNumber": 62
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "request.json",
+          "lineNumber": 64
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "getWebhookStore",
+          "lineNumber": 65
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "store.get",
+          "lineNumber": 66
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 67
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "buildError",
+          "lineNumber": 67
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "store.update",
+          "lineNumber": 76
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 77
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 77
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 79
+        },
+        {
+          "caller": "webhookUpdateHandler",
+          "callee": "buildError",
+          "lineNumber": 79
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 86
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "buildError",
+          "lineNumber": 86
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "deleteWebhook",
+          "lineNumber": 87
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 87
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 87
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 88
+        },
+        {
+          "caller": "webhookDeleteHandler",
+          "callee": "buildError",
+          "lineNumber": 88
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 94
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "buildError",
+          "lineNumber": 94
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "getWebhook",
+          "lineNumber": 95
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 96
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "buildError",
+          "lineNumber": 96
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 101
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "notifyWebhooks",
+          "lineNumber": 109
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 110
+        },
+        {
+          "caller": "webhookTestHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 110
+        },
+        {
+          "caller": "webhookDeliveriesHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 117
+        },
+        {
+          "caller": "webhookDeliveriesHandler",
+          "callee": "buildError",
+          "lineNumber": 117
+        },
+        {
+          "caller": "webhookDeliveriesHandler",
+          "callee": "getWebhookStore",
+          "lineNumber": 118
+        },
+        {
+          "caller": "webhookDeliveriesHandler",
+          "callee": "store.getDeliveries",
+          "lineNumber": 119
+        },
+        {
+          "caller": "webhookDeliveriesHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 120
+        },
+        {
+          "caller": "webhookDeliveriesHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 120
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/services/annotationService.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 282,
+      "nonEmptyLines": 248,
+      "functions": [
+        {
+          "name": "initAnnotationStore",
+          "startLine": 218,
+          "endLine": 253,
+          "params": [
+            "db",
+            "dbPath"
+          ]
+        },
+        {
+          "name": "listAnnotations",
+          "startLine": 255,
+          "endLine": 257,
+          "params": [
+            "entityType",
+            "entityId"
+          ]
+        },
+        {
+          "name": "createAnnotation",
+          "startLine": 259,
+          "endLine": 261,
+          "params": [
+            "annotation"
+          ]
+        },
+        {
+          "name": "updateAnnotation",
+          "startLine": 263,
+          "endLine": 265,
+          "params": [
+            "id",
+            "updates"
+          ]
+        },
+        {
+          "name": "deleteAnnotation",
+          "startLine": 267,
+          "endLine": 269,
+          "params": [
+            "id"
+          ]
+        },
+        {
+          "name": "exportAnnotations",
+          "startLine": 271,
+          "endLine": 278,
+          "params": [
+            "entityType",
+            "entityId",
+            "format"
+          ]
+        },
+        {
+          "name": "resetStore",
+          "startLine": 280,
+          "endLine": 282,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "InMemoryAnnotationStore",
+          "startLine": 23,
+          "endLine": 50,
+          "methods": [
+            "list",
+            "create",
+            "update",
+            "delete",
+            "clear"
+          ],
+          "properties": [
+            "store"
+          ]
+        },
+        {
+          "name": "D1AnnotationStore",
+          "startLine": 54,
+          "endLine": 135,
+          "methods": [
+            "constructor",
+            "list",
+            "create",
+            "update",
+            "delete",
+            "clear",
+            "rowToAnnotation"
+          ],
+          "properties": [
+            "db"
+          ]
+        },
+        {
+          "name": "SqliteAnnotationStore",
+          "startLine": 137,
+          "endLine": 212,
+          "methods": [
+            "constructor",
+            "list",
+            "create",
+            "update",
+            "delete",
+            "clear",
+            "rowToAnnotation"
+          ],
+          "properties": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "initAnnotationStore",
+          "line": 218,
+          "isDefault": false
+        },
+        {
+          "name": "listAnnotations",
+          "line": 255,
+          "isDefault": false
+        },
+        {
+          "name": "createAnnotation",
+          "line": 259,
+          "isDefault": false
+        },
+        {
+          "name": "updateAnnotation",
+          "line": 263,
+          "isDefault": false
+        },
+        {
+          "name": "deleteAnnotation",
+          "line": 267,
+          "isDefault": false
+        },
+        {
+          "name": "exportAnnotations",
+          "line": 271,
+          "isDefault": false
+        },
+        {
+          "name": "resetStore",
+          "line": 280,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "list",
+          "callee": "Array.from(this.store.values()).filter",
+          "lineNumber": 27
+        },
+        {
+          "caller": "list",
+          "callee": "Array.from",
+          "lineNumber": 27
+        },
+        {
+          "caller": "list",
+          "callee": "this.store.values",
+          "lineNumber": 27
+        },
+        {
+          "caller": "create",
+          "callee": "Date.now",
+          "lineNumber": 31
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 31
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random().toString",
+          "lineNumber": 31
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random",
+          "lineNumber": 31
+        },
+        {
+          "caller": "create",
+          "callee": "new Date().toISOString",
+          "lineNumber": 32
+        },
+        {
+          "caller": "create",
+          "callee": "this.store.set",
+          "lineNumber": 34
+        },
+        {
+          "caller": "update",
+          "callee": "this.store.get",
+          "lineNumber": 39
+        },
+        {
+          "caller": "update",
+          "callee": "Object.assign",
+          "lineNumber": 41
+        },
+        {
+          "caller": "update",
+          "callee": "new Date().toISOString",
+          "lineNumber": 41
+        },
+        {
+          "caller": "delete",
+          "callee": "this.store.delete",
+          "lineNumber": 46
+        },
+        {
+          "caller": "clear",
+          "callee": "this.store.clear",
+          "lineNumber": 49
+        },
+        {
+          "caller": "list",
+          "callee": "this.db.prepare",
+          "lineNumber": 63
+        },
+        {
+          "caller": "list",
+          "callee": "stmt.all",
+          "lineNumber": 66
+        },
+        {
+          "caller": "list",
+          "callee": "rows.map",
+          "lineNumber": 67
+        },
+        {
+          "caller": "create",
+          "callee": "Date.now",
+          "lineNumber": 72
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 72
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random().toString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random",
+          "lineNumber": 72
+        },
+        {
+          "caller": "create",
+          "callee": "new Date().toISOString",
+          "lineNumber": 73
+        },
+        {
+          "caller": "create",
+          "callee": "this.db.prepare",
+          "lineNumber": 76
+        },
+        {
+          "caller": "create",
+          "callee": "stmt.bind(id, ann.entityType, ann.entityId, ann.userId, ann.annotationType, ann.content,\n        ann.metadata ? JSON.stringify(ann.metadata) : null, now, now).run",
+          "lineNumber": 80
+        },
+        {
+          "caller": "create",
+          "callee": "stmt.bind",
+          "lineNumber": 80
+        },
+        {
+          "caller": "create",
+          "callee": "JSON.stringify",
+          "lineNumber": 81
+        },
+        {
+          "caller": "create",
+          "callee": "console.warn",
+          "lineNumber": 83
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare",
+          "lineNumber": 90
+        },
+        {
+          "caller": "update",
+          "callee": "stmt.get",
+          "lineNumber": 91
+        },
+        {
+          "caller": "update",
+          "callee": "new Date().toISOString",
+          "lineNumber": 93
+        },
+        {
+          "caller": "update",
+          "callee": "JSON.stringify",
+          "lineNumber": 97
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare",
+          "lineNumber": 99
+        },
+        {
+          "caller": "update",
+          "callee": "updateStmt.bind(content, annotationType, metadata, now, id).run",
+          "lineNumber": 102
+        },
+        {
+          "caller": "update",
+          "callee": "updateStmt.bind",
+          "lineNumber": 102
+        },
+        {
+          "caller": "update",
+          "callee": "this.rowToAnnotation",
+          "lineNumber": 103
+        },
+        {
+          "caller": "delete",
+          "callee": "this.db.prepare",
+          "lineNumber": 109
+        },
+        {
+          "caller": "delete",
+          "callee": "stmt.bind(id).run",
+          "lineNumber": 110
+        },
+        {
+          "caller": "delete",
+          "callee": "stmt.bind",
+          "lineNumber": 110
+        },
+        {
+          "caller": "clear",
+          "callee": "this.db.prepare",
+          "lineNumber": 117
+        },
+        {
+          "caller": "clear",
+          "callee": "stmt.bind().run",
+          "lineNumber": 118
+        },
+        {
+          "caller": "clear",
+          "callee": "stmt.bind",
+          "lineNumber": 118
+        },
+        {
+          "caller": "rowToAnnotation",
+          "callee": "JSON.parse",
+          "lineNumber": 130
+        },
+        {
+          "caller": "constructor",
+          "callee": "require",
+          "lineNumber": 142
+        },
+        {
+          "caller": "list",
+          "callee": "this.db.prepare(\n        'SELECT * FROM annotations WHERE entity_type = ? AND entity_id = ? ORDER BY created_at DESC',\n      ).all",
+          "lineNumber": 148
+        },
+        {
+          "caller": "list",
+          "callee": "this.db.prepare",
+          "lineNumber": 148
+        },
+        {
+          "caller": "list",
+          "callee": "rows.map",
+          "lineNumber": 151
+        },
+        {
+          "caller": "create",
+          "callee": "Date.now",
+          "lineNumber": 156
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 156
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random().toString",
+          "lineNumber": 156
+        },
+        {
+          "caller": "create",
+          "callee": "Math.random",
+          "lineNumber": 156
+        },
+        {
+          "caller": "create",
+          "callee": "new Date().toISOString",
+          "lineNumber": 157
+        },
+        {
+          "caller": "create",
+          "callee": "this.db.prepare(`\n        INSERT INTO annotations (id, entity_type, entity_id, user_id, annotation_type, content, metadata, created_at, updated_at)\n        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)\n      `).run",
+          "lineNumber": 160
+        },
+        {
+          "caller": "create",
+          "callee": "this.db.prepare",
+          "lineNumber": 160
+        },
+        {
+          "caller": "create",
+          "callee": "JSON.stringify",
+          "lineNumber": 164
+        },
+        {
+          "caller": "create",
+          "callee": "console.warn",
+          "lineNumber": 166
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare('SELECT * FROM annotations WHERE id = ?').get",
+          "lineNumber": 173
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare",
+          "lineNumber": 173
+        },
+        {
+          "caller": "update",
+          "callee": "new Date().toISOString",
+          "lineNumber": 175
+        },
+        {
+          "caller": "update",
+          "callee": "JSON.stringify",
+          "lineNumber": 179
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare(\n        'UPDATE annotations SET content = ?, annotation_type = ?, metadata = ?, updated_at = ? WHERE id = ?',\n      ).run",
+          "lineNumber": 181
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare",
+          "lineNumber": 181
+        },
+        {
+          "caller": "update",
+          "callee": "this.rowToAnnotation",
+          "lineNumber": 184
+        },
+        {
+          "caller": "delete",
+          "callee": "this.db.prepare('DELETE FROM annotations WHERE id = ?').run",
+          "lineNumber": 190
+        },
+        {
+          "caller": "delete",
+          "callee": "this.db.prepare",
+          "lineNumber": 190
+        },
+        {
+          "caller": "clear",
+          "callee": "this.db.exec",
+          "lineNumber": 196
+        },
+        {
+          "caller": "rowToAnnotation",
+          "callee": "JSON.parse",
+          "lineNumber": 207
+        },
+        {
+          "caller": "initAnnotationStore",
+          "callee": "require",
+          "lineNumber": 228
+        },
+        {
+          "caller": "initAnnotationStore",
+          "callee": "sqliteDb.pragma",
+          "lineNumber": 230
+        },
+        {
+          "caller": "initAnnotationStore",
+          "callee": "sqliteDb.exec",
+          "lineNumber": 231
+        },
+        {
+          "caller": "listAnnotations",
+          "callee": "activeStore.list",
+          "lineNumber": 256
+        },
+        {
+          "caller": "createAnnotation",
+          "callee": "activeStore.create",
+          "lineNumber": 260
+        },
+        {
+          "caller": "updateAnnotation",
+          "callee": "activeStore.update",
+          "lineNumber": 264
+        },
+        {
+          "caller": "deleteAnnotation",
+          "callee": "activeStore.delete",
+          "lineNumber": 268
+        },
+        {
+          "caller": "exportAnnotations",
+          "callee": "listAnnotations",
+          "lineNumber": 272
+        },
+        {
+          "caller": "exportAnnotations",
+          "callee": "annotations.map(a => `<div class=\"annotation annotation-${a.annotationType}\"><strong>${a.annotationType}</strong><p>${a.content}</p><small>${a.createdAt}</small></div>`).join",
+          "lineNumber": 275
+        },
+        {
+          "caller": "exportAnnotations",
+          "callee": "annotations.map",
+          "lineNumber": 275
+        },
+        {
+          "caller": "exportAnnotations",
+          "callee": "annotations.map(a => `## ${a.annotationType}\\n\\n${a.content}\\n\\n— ${a.createdAt}\\n`).join",
+          "lineNumber": 277
+        },
+        {
+          "caller": "exportAnnotations",
+          "callee": "annotations.map",
+          "lineNumber": 277
+        },
+        {
+          "caller": "resetStore",
+          "callee": "activeStore.clear",
+          "lineNumber": 281
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 3
+      }
+    },
+    {
+      "path": "packages/api-server/src/sqlite-storage.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 366,
+      "nonEmptyLines": 315,
+      "classes": [
+        {
+          "name": "SqliteStorage",
+          "startLine": 13,
+          "endLine": 346,
+          "methods": [
+            "constructor",
+            "rawDb",
+            "close",
+            "migrate",
+            "seed",
+            "authenticate",
+            "getDailyUsage",
+            "getMonthlyUsage",
+            "incrementUsage",
+            "logAudit",
+            "queryAudit",
+            "listApiKeys",
+            "createTenant",
+            "verifyEmail",
+            "createApiKey",
+            "revokeApiKey",
+            "getTenant"
+          ],
+          "properties": [
+            "db"
+          ]
+        },
+        {
+          "name": "SqliteStorageCache",
+          "startLine": 349,
+          "endLine": 366,
+          "methods": [
+            "get",
+            "put"
+          ],
+          "properties": [
+            "store"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SqliteStorage",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "SqliteStorageCache",
+          "line": 349,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "this.db.pragma",
+          "lineNumber": 21
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.db.pragma",
+          "lineNumber": 22
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.migrate",
+          "lineNumber": 24
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.seed",
+          "lineNumber": 25
+        },
+        {
+          "caller": "close",
+          "callee": "this.db.close",
+          "lineNumber": 33
+        },
+        {
+          "caller": "migrate",
+          "callee": "this.db.exec",
+          "lineNumber": 39
+        },
+        {
+          "caller": "seed",
+          "callee": "this.db.prepare",
+          "lineNumber": 120
+        },
+        {
+          "caller": "seed",
+          "callee": "insertTenant.run",
+          "lineNumber": 124
+        },
+        {
+          "caller": "seed",
+          "callee": "insertTenant.run",
+          "lineNumber": 125
+        },
+        {
+          "caller": "seed",
+          "callee": "insertTenant.run",
+          "lineNumber": 127
+        },
+        {
+          "caller": "seed",
+          "callee": "this.db.prepare",
+          "lineNumber": 130
+        },
+        {
+          "caller": "seed",
+          "callee": "insertKey.run",
+          "lineNumber": 135
+        },
+        {
+          "caller": "authenticate",
+          "callee": "hashApiKey",
+          "lineNumber": 146
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare(`\n      SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,\n             k.id AS key_id, k.is_active AS key_active, k.expires_at\n      FROM api_keys k\n      JOIN tenants t ON t.id = k.tenant_id\n      WHERE k.key_hash = ?\n    `).get",
+          "lineNumber": 148
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare",
+          "lineNumber": 148
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare(\"UPDATE api_keys SET last_used_at = datetime('now') WHERE id = ?\")\n      .run",
+          "lineNumber": 165
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare",
+          "lineNumber": 165
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.floor",
+          "lineNumber": 171
+        },
+        {
+          "caller": "authenticate",
+          "callee": "expiryDate.getTime",
+          "lineNumber": 171
+        },
+        {
+          "caller": "authenticate",
+          "callee": "now.getTime",
+          "lineNumber": 171
+        },
+        {
+          "caller": "authenticate",
+          "callee": "generateApiKey",
+          "lineNumber": 173
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Array.from(new Uint8Array(16))\n          .map(() => Math.random().toString(16).slice(2, 4)).join",
+          "lineNumber": 174
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Array.from(new Uint8Array(16))\n          .map",
+          "lineNumber": 174
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Array.from",
+          "lineNumber": 174
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.random().toString(16).slice",
+          "lineNumber": 175
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.random().toString",
+          "lineNumber": 175
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.random",
+          "lineNumber": 175
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.setDate",
+          "lineNumber": 177
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.getDate",
+          "lineNumber": 177
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.createApiKey",
+          "lineNumber": 178
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.toISOString",
+          "lineNumber": 178
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.revokeApiKey",
+          "lineNumber": 179
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.toISOString",
+          "lineNumber": 180
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 189
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 191
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 192
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "this.db.prepare(\n      'SELECT call_count FROM daily_usage WHERE tenant_id = ? AND date = ?',\n    ).get",
+          "lineNumber": 200
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 200
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "this.db.prepare(\n      'SELECT call_count FROM monthly_usage WHERE tenant_id = ? AND year_month = ?',\n    ).get",
+          "lineNumber": 208
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 208
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare(`\n      INSERT INTO daily_usage (tenant_id, date, call_count)\n      VALUES (?, ?, 1)\n      ON CONFLICT(tenant_id, date) DO UPDATE SET call_count = call_count + 1\n    `).run",
+          "lineNumber": 216
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 216
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare(`\n      INSERT INTO monthly_usage (tenant_id, year_month, call_count)\n      VALUES (?, ?, 1)\n      ON CONFLICT(tenant_id, year_month) DO UPDATE SET call_count = call_count + 1\n    `).run",
+          "lineNumber": 222
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 222
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.db.prepare(`\n      INSERT INTO audit_log (tenant_id, api_key_id, operation, model, endpoint, input_preview, output_summary, confidence, success, error_message, duration_ms)\n      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n    `).run",
+          "lineNumber": 230
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.db.prepare",
+          "lineNumber": 230
+        },
+        {
+          "caller": "logAudit",
+          "callee": "(entry.inputPreview || '').slice",
+          "lineNumber": 239
+        },
+        {
+          "caller": "logAudit",
+          "callee": "(entry.outputSummary || '').slice",
+          "lineNumber": 240
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 254
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 258
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 262
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 266
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 270
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "this.db.prepare(sql).all",
+          "lineNumber": 272
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "this.db.prepare",
+          "lineNumber": 272
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "this.db.prepare(\n      'SELECT id, name, is_active, created_at, last_used_at, expires_at FROM api_keys WHERE tenant_id = ? ORDER BY created_at DESC',\n    ).all",
+          "lineNumber": 277
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "this.db.prepare",
+          "lineNumber": 277
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "rows.map",
+          "lineNumber": 280
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "Boolean",
+          "lineNumber": 283
+        },
+        {
+          "caller": "createTenant",
+          "callee": "this.db.prepare(`\n      INSERT INTO tenants (id, name, email, email_verified, verification_token, tier, is_active, journalism_mode)\n      VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n    `).run",
+          "lineNumber": 294
+        },
+        {
+          "caller": "createTenant",
+          "callee": "this.db.prepare",
+          "lineNumber": 294
+        },
+        {
+          "caller": "verifyEmail",
+          "callee": "this.db.prepare(\n      'SELECT id FROM tenants WHERE verification_token = ? AND email_verified = 0',\n    ).get",
+          "lineNumber": 306
+        },
+        {
+          "caller": "verifyEmail",
+          "callee": "this.db.prepare",
+          "lineNumber": 306
+        },
+        {
+          "caller": "verifyEmail",
+          "callee": "this.db.prepare(\n      'UPDATE tenants SET email_verified = 1, verification_token = NULL, updated_at = datetime(\\'now\\') WHERE id = ?',\n    ).run",
+          "lineNumber": 310
+        },
+        {
+          "caller": "verifyEmail",
+          "callee": "this.db.prepare",
+          "lineNumber": 310
+        },
+        {
+          "caller": "createApiKey",
+          "callee": "this.db.prepare(`\n      INSERT INTO api_keys (id, tenant_id, key_hash, name, expires_at)\n      VALUES (?, ?, ?, ?, ?)\n    `).run",
+          "lineNumber": 318
+        },
+        {
+          "caller": "createApiKey",
+          "callee": "this.db.prepare",
+          "lineNumber": 318
+        },
+        {
+          "caller": "revokeApiKey",
+          "callee": "this.db.prepare(\n      'UPDATE api_keys SET is_active = 0 WHERE id = ? AND tenant_id = ?',\n    ).run",
+          "lineNumber": 326
+        },
+        {
+          "caller": "revokeApiKey",
+          "callee": "this.db.prepare",
+          "lineNumber": 326
+        },
+        {
+          "caller": "getTenant",
+          "callee": "this.db.prepare('SELECT * FROM tenants WHERE id = ?').get",
+          "lineNumber": 333
+        },
+        {
+          "caller": "getTenant",
+          "callee": "this.db.prepare",
+          "lineNumber": 333
+        },
+        {
+          "caller": "getTenant",
+          "callee": "Boolean",
+          "lineNumber": 339
+        },
+        {
+          "caller": "getTenant",
+          "callee": "Boolean",
+          "lineNumber": 342
+        },
+        {
+          "caller": "getTenant",
+          "callee": "Boolean",
+          "lineNumber": 343
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.get",
+          "lineNumber": 353
+        },
+        {
+          "caller": "get",
+          "callee": "Date.now",
+          "lineNumber": 355
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.delete",
+          "lineNumber": 356
+        },
+        {
+          "caller": "put",
+          "callee": "Date.now",
+          "lineNumber": 363
+        },
+        {
+          "caller": "put",
+          "callee": "this.store.set",
+          "lineNumber": 364
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "packages/api-server/src/storage.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 287,
+      "nonEmptyLines": 246,
+      "classes": [
+        {
+          "name": "D1Storage",
+          "startLine": 16,
+          "endLine": 149,
+          "methods": [
+            "constructor",
+            "authenticate",
+            "getDailyUsage",
+            "getMonthlyUsage",
+            "incrementUsage",
+            "logAudit",
+            "queryAudit",
+            "listApiKeys"
+          ],
+          "properties": [
+            "db"
+          ]
+        },
+        {
+          "name": "KVCache",
+          "startLine": 155,
+          "endLine": 173,
+          "methods": [
+            "constructor",
+            "get",
+            "put"
+          ],
+          "properties": [
+            "kv"
+          ]
+        },
+        {
+          "name": "MemoryStorage",
+          "startLine": 179,
+          "endLine": 268,
+          "methods": [
+            "constructor",
+            "registerTenant",
+            "authenticate",
+            "getDailyUsage",
+            "getMonthlyUsage",
+            "incrementUsage",
+            "logAudit",
+            "queryAudit",
+            "listApiKeys"
+          ],
+          "properties": [
+            "tenants",
+            "keyToTenant",
+            "dailyUsage",
+            "monthlyUsage",
+            "auditLog"
+          ]
+        },
+        {
+          "name": "MemoryCache",
+          "startLine": 270,
+          "endLine": 287,
+          "methods": [
+            "get",
+            "put"
+          ],
+          "properties": [
+            "store"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "D1Storage",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "KVCache",
+          "line": 155,
+          "isDefault": false
+        },
+        {
+          "name": "MemoryStorage",
+          "line": 179,
+          "isDefault": false
+        },
+        {
+          "name": "MemoryCache",
+          "line": 270,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "authenticate",
+          "callee": "hashApiKey",
+          "lineNumber": 24
+        },
+        {
+          "caller": "authenticate",
+          "callee": "await this.db.prepare(`\n      SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,\n             k.id AS key_id, k.is_active AS key_active, k.expires_at\n      FROM api_keys k\n      JOIN tenants t ON t.id = k.tenant_id\n      WHERE k.key_hash = ?1\n    `).bind(keyHash).first",
+          "lineNumber": 26
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare(`\n      SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,\n             k.id AS key_id, k.is_active AS key_active, k.expires_at\n      FROM api_keys k\n      JOIN tenants t ON t.id = k.tenant_id\n      WHERE k.key_hash = ?1\n    `).bind",
+          "lineNumber": 26
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare",
+          "lineNumber": 26
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare('UPDATE api_keys SET last_used_at = datetime(\\'now\\') WHERE id = ?1')\n      .bind(row.key_id).run",
+          "lineNumber": 43
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare('UPDATE api_keys SET last_used_at = datetime(\\'now\\') WHERE id = ?1')\n      .bind",
+          "lineNumber": 43
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.db.prepare",
+          "lineNumber": 43
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 51
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 53
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "await this.db.prepare(\n      'SELECT call_count FROM daily_usage WHERE tenant_id = ?1 AND date = ?2',\n    ).bind(tenantId, date).first",
+          "lineNumber": 61
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "this.db.prepare(\n      'SELECT call_count FROM daily_usage WHERE tenant_id = ?1 AND date = ?2',\n    ).bind",
+          "lineNumber": 61
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 61
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "await this.db.prepare(\n      'SELECT call_count FROM monthly_usage WHERE tenant_id = ?1 AND year_month = ?2',\n    ).bind(tenantId, yearMonth).first",
+          "lineNumber": 69
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "this.db.prepare(\n      'SELECT call_count FROM monthly_usage WHERE tenant_id = ?1 AND year_month = ?2',\n    ).bind",
+          "lineNumber": 69
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 69
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare(`\n      INSERT INTO daily_usage (tenant_id, date, call_count)\n      VALUES (?1, ?2, 1)\n      ON CONFLICT(tenant_id, date) DO UPDATE SET call_count = call_count + 1\n    `).bind(tenantId, date).run",
+          "lineNumber": 77
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare(`\n      INSERT INTO daily_usage (tenant_id, date, call_count)\n      VALUES (?1, ?2, 1)\n      ON CONFLICT(tenant_id, date) DO UPDATE SET call_count = call_count + 1\n    `).bind",
+          "lineNumber": 77
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 77
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare(`\n      INSERT INTO monthly_usage (tenant_id, year_month, call_count)\n      VALUES (?1, ?2, 1)\n      ON CONFLICT(tenant_id, year_month) DO UPDATE SET call_count = call_count + 1\n    `).bind(tenantId, yearMonth).run",
+          "lineNumber": 83
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare(`\n      INSERT INTO monthly_usage (tenant_id, year_month, call_count)\n      VALUES (?1, ?2, 1)\n      ON CONFLICT(tenant_id, year_month) DO UPDATE SET call_count = call_count + 1\n    `).bind",
+          "lineNumber": 83
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.db.prepare",
+          "lineNumber": 83
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.db.prepare(`\n      INSERT INTO audit_log (tenant_id, api_key_id, operation, model, endpoint, input_preview, output_summary, confidence, success, error_message, duration_ms)\n      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)\n    `).bind(\n      entry.tenantId,\n      entry.apiKeyId || null,\n      entry.operation,\n      entry.model || null,\n      entry.endpoint,\n      (entry.inputPreview || '').slice(0, 500),\n      (entry.outputSummary || '').slice(0, 500),\n      entry.confidence ?? null,\n      entry.success ? 1 : 0,\n      entry.errorMessage || null,\n      entry.durationMs,\n    ).run",
+          "lineNumber": 91
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.db.prepare(`\n      INSERT INTO audit_log (tenant_id, api_key_id, operation, model, endpoint, input_preview, output_summary, confidence, success, error_message, duration_ms)\n      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)\n    `).bind",
+          "lineNumber": 91
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.db.prepare",
+          "lineNumber": 91
+        },
+        {
+          "caller": "logAudit",
+          "callee": "(entry.inputPreview || '').slice",
+          "lineNumber": 100
+        },
+        {
+          "caller": "logAudit",
+          "callee": "(entry.outputSummary || '').slice",
+          "lineNumber": 101
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 115
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 119
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 123
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 127
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 131
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "await this.db.prepare(sql).bind(...params).all",
+          "lineNumber": 133
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "this.db.prepare(sql).bind",
+          "lineNumber": 133
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "this.db.prepare",
+          "lineNumber": 133
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "await this.db.prepare(\n      'SELECT id, name, is_active, created_at, last_used_at FROM api_keys WHERE tenant_id = ?1 ORDER BY created_at DESC',\n    ).bind(tenantId).all",
+          "lineNumber": 138
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "this.db.prepare(\n      'SELECT id, name, is_active, created_at, last_used_at FROM api_keys WHERE tenant_id = ?1 ORDER BY created_at DESC',\n    ).bind",
+          "lineNumber": 138
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "this.db.prepare",
+          "lineNumber": 138
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "(result.results || []).map",
+          "lineNumber": 141
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "Boolean",
+          "lineNumber": 144
+        },
+        {
+          "caller": "get",
+          "callee": "this.kv.get",
+          "lineNumber": 163
+        },
+        {
+          "caller": "put",
+          "callee": "this.kv.put",
+          "lineNumber": 168
+        },
+        {
+          "caller": "put",
+          "callee": "this.kv.put",
+          "lineNumber": 170
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.tenants.set",
+          "lineNumber": 196
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.keyToTenant.set",
+          "lineNumber": 199
+        },
+        {
+          "caller": "registerTenant",
+          "callee": "this.tenants.set",
+          "lineNumber": 207
+        },
+        {
+          "caller": "registerTenant",
+          "callee": "this.keyToTenant.set",
+          "lineNumber": 208
+        },
+        {
+          "caller": "authenticate",
+          "callee": "hashApiKey",
+          "lineNumber": 212
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.keyToTenant.get",
+          "lineNumber": 213
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.tenants.get",
+          "lineNumber": 215
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "this.dailyUsage.get",
+          "lineNumber": 221
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "this.monthlyUsage.get",
+          "lineNumber": 225
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.dailyUsage.set",
+          "lineNumber": 230
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.dailyUsage.get",
+          "lineNumber": 230
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.monthlyUsage.set",
+          "lineNumber": 232
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.monthlyUsage.get",
+          "lineNumber": 232
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.auditLog.push",
+          "lineNumber": 236
+        },
+        {
+          "caller": "logAudit",
+          "callee": "new Date().toISOString",
+          "lineNumber": 238
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "[...this.auditLog].filter",
+          "lineNumber": 243
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "results.filter",
+          "lineNumber": 244
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "results.filter",
+          "lineNumber": 245
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "results.filter",
+          "lineNumber": 246
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "results.filter",
+          "lineNumber": 247
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "results.slice",
+          "lineNumber": 250
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "keys.push",
+          "lineNumber": 257
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "new Date().toISOString",
+          "lineNumber": 261
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.get",
+          "lineNumber": 274
+        },
+        {
+          "caller": "get",
+          "callee": "Date.now",
+          "lineNumber": 276
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.delete",
+          "lineNumber": 277
+        },
+        {
+          "caller": "put",
+          "callee": "Date.now",
+          "lineNumber": 284
+        },
+        {
+          "caller": "put",
+          "callee": "this.store.set",
+          "lineNumber": 285
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 4
+      }
+    },
+    {
+      "path": "packages/api-server/src/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 299,
+      "nonEmptyLines": 260,
+      "functions": [
+        {
+          "name": "parseQueryOptions",
+          "startLine": 94,
+          "endLine": 132,
+          "params": [
+            "url"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "TIER_LIMITS",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "parseQueryOptions",
+          "line": 94,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "fields.split(',').map((f) => f.trim()).filter",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "fields.split(',').map",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "fields.split",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "f.trim",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 102
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 107
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "parseInt",
+          "lineNumber": 109
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "isNaN",
+          "lineNumber": 110
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 113
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "parseInt",
+          "lineNumber": 115
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "isNaN",
+          "lineNumber": 116
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 119
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 125
+        },
+        {
+          "caller": "parseQueryOptions",
+          "callee": "url.searchParams.get",
+          "lineNumber": 128
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/usage.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 62,
+      "nonEmptyLines": 52,
+      "functions": [
+        {
+          "name": "currentMonth",
+          "startLine": 19,
+          "endLine": 22,
+          "params": []
+        },
+        {
+          "name": "checkQuota",
+          "startLine": 24,
+          "endLine": 56,
+          "params": [
+            "tenant"
+          ]
+        },
+        {
+          "name": "getUsage",
+          "startLine": 58,
+          "endLine": 62,
+          "params": [
+            "tenantId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "checkQuota",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "getUsage",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "currentMonth",
+          "callee": "d.getFullYear",
+          "lineNumber": 21
+        },
+        {
+          "caller": "currentMonth",
+          "callee": "String(d.getMonth() + 1).padStart",
+          "lineNumber": 21
+        },
+        {
+          "caller": "currentMonth",
+          "callee": "String",
+          "lineNumber": 21
+        },
+        {
+          "caller": "currentMonth",
+          "callee": "d.getMonth",
+          "lineNumber": 21
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "currentMonth",
+          "lineNumber": 26
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "monthCounters.get",
+          "lineNumber": 30
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "monthCounters.set",
+          "lineNumber": 33
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "Date.now",
+          "lineNumber": 38
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "secCounters.get",
+          "lineNumber": 39
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "secCounters.set",
+          "lineNumber": 42
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "Math.max",
+          "lineNumber": 45
+        },
+        {
+          "caller": "checkQuota",
+          "callee": "new Date(now + 86400000).toISOString",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getUsage",
+          "callee": "monthCounters.get",
+          "lineNumber": 60
+        },
+        {
+          "caller": "getUsage",
+          "callee": "currentMonth",
+          "lineNumber": 61
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/utils/normalize.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 218,
+      "nonEmptyLines": 185,
+      "functions": [
+        {
+          "name": "normalizeFieldName",
+          "startLine": 16,
+          "endLine": 27,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "normalizeFields",
+          "startLine": 80,
+          "endLine": 102,
+          "params": [
+            "data"
+          ]
+        },
+        {
+          "name": "detectUnit",
+          "startLine": 114,
+          "endLine": 131,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "convertUnit",
+          "startLine": 143,
+          "endLine": 172,
+          "params": [
+            "value",
+            "unitType",
+            "target",
+            "currentSystem"
+          ]
+        },
+        {
+          "name": "detectCurrentSystem",
+          "startLine": 175,
+          "endLine": 180,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "convertUnits",
+          "startLine": 186,
+          "endLine": 218,
+          "params": [
+            "data",
+            "target"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeFieldName",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeFields",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "convertUnit",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "convertUnits",
+          "line": 186,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeFieldName",
+          "callee": "/^[a-z][a-zA-Z0-9]*$/.test",
+          "lineNumber": 18
+        },
+        {
+          "caller": "normalizeFieldName",
+          "callee": "key.includes",
+          "lineNumber": 18
+        },
+        {
+          "caller": "normalizeFieldName",
+          "callee": "key.charAt(0).toLowerCase",
+          "lineNumber": 21
+        },
+        {
+          "caller": "normalizeFieldName",
+          "callee": "key.charAt",
+          "lineNumber": 21
+        },
+        {
+          "caller": "normalizeFieldName",
+          "callee": "key.slice",
+          "lineNumber": 21
+        },
+        {
+          "caller": "normalizeFieldName",
+          "callee": "decapitalized.replace",
+          "lineNumber": 24
+        },
+        {
+          "caller": "normalizeFieldName",
+          "callee": "c.toUpperCase",
+          "lineNumber": 24
+        },
+        {
+          "caller": "normalizeFields",
+          "callee": "Array.isArray",
+          "lineNumber": 84
+        },
+        {
+          "caller": "normalizeFields",
+          "callee": "data.map",
+          "lineNumber": 85
+        },
+        {
+          "caller": "normalizeFields",
+          "callee": "Object.entries",
+          "lineNumber": 91
+        },
+        {
+          "caller": "normalizeFields",
+          "callee": "normalizeFieldName",
+          "lineNumber": 92
+        },
+        {
+          "caller": "normalizeFields",
+          "callee": "normalizeFields",
+          "lineNumber": 95
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "key.toLowerCase",
+          "lineNumber": 115
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/_cad\\b/.test",
+          "lineNumber": 117
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/_usd\\b/.test",
+          "lineNumber": 117
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/\\b(cost|amount|price|fee|budget|spending|salary|grant)\\b/.test",
+          "lineNumber": 118
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/\\b(distance|km|mile|mi_|_km|_mi)\\b/.test",
+          "lineNumber": 121
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/\\b(length|width|height|depth|altitude)\\b/.test",
+          "lineNumber": 122
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/\\b(weight|mass|kg|_kg|_lb|pound)\\b/.test",
+          "lineNumber": 125
+        },
+        {
+          "caller": "detectUnit",
+          "callee": "/\\b(temp|celsius|c|fahrenheit|_c\\b|_f\\b)\\b/.test",
+          "lineNumber": 128
+        },
+        {
+          "caller": "convertUnit",
+          "callee": "Math.round",
+          "lineNumber": 151
+        },
+        {
+          "caller": "convertUnit",
+          "callee": "Math.round",
+          "lineNumber": 152
+        },
+        {
+          "caller": "convertUnit",
+          "callee": "(value * conv.metricToImperial).toFixed",
+          "lineNumber": 158
+        },
+        {
+          "caller": "convertUnit",
+          "callee": "(value * conv.imperialToMetric).toFixed",
+          "lineNumber": 159
+        },
+        {
+          "caller": "convertUnit",
+          "callee": "(value * 9 / 5 + 32).toFixed",
+          "lineNumber": 166
+        },
+        {
+          "caller": "convertUnit",
+          "callee": "((value - 32) * 5 / 9).toFixed",
+          "lineNumber": 167
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "key.toLowerCase",
+          "lineNumber": 176
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.endsWith",
+          "lineNumber": 177
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.endsWith",
+          "lineNumber": 177
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.endsWith",
+          "lineNumber": 177
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.includes",
+          "lineNumber": 177
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.endsWith",
+          "lineNumber": 178
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.endsWith",
+          "lineNumber": 178
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.endsWith",
+          "lineNumber": 178
+        },
+        {
+          "caller": "detectCurrentSystem",
+          "callee": "lower.includes",
+          "lineNumber": 178
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "Array.isArray",
+          "lineNumber": 190
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "data.map",
+          "lineNumber": 191
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "convertUnits",
+          "lineNumber": 191
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "Object.entries",
+          "lineNumber": 197
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "convertUnits",
+          "lineNumber": 200
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "detectUnit",
+          "lineNumber": 206
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "detectCurrentSystem",
+          "lineNumber": 207
+        },
+        {
+          "caller": "convertUnits",
+          "callee": "convertUnit",
+          "lineNumber": 209
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/validate.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 62,
+      "nonEmptyLines": 58,
+      "functions": [
+        {
+          "name": "validateBody",
+          "startLine": 21,
+          "endLine": 62,
+          "params": [
+            "body",
+            "schema"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "validateBody",
+          "line": 21,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "validateBody",
+          "callee": "Object.entries",
+          "lineNumber": 27
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 30
+        },
+        {
+          "caller": "validateBody",
+          "callee": "Array.isArray",
+          "lineNumber": 34
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 39
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 45
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 48
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 54
+        },
+        {
+          "caller": "validateBody",
+          "callee": "errors.push",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/validation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 142,
+      "nonEmptyLines": 112,
+      "functions": [
+        {
+          "name": "validateBody",
+          "startLine": 105,
+          "endLine": 127,
+          "params": [
+            "schema",
+            "body"
+          ]
+        },
+        {
+          "name": "validationError",
+          "startLine": 132,
+          "endLine": 142,
+          "params": [
+            "message",
+            "ctx",
+            "issues"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "z",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "registerSchema",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "billingCheckoutSchema",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "aiAskSchema",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "aiAnalyzeSchema",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "web3ChallengeSchema",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "web3LoginSchema",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "createKeySchema",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "contactSchema",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "validateBody",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "validationError",
+          "line": 132,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "validateBody",
+          "callee": "schema.safeParse",
+          "lineNumber": 112
+        },
+        {
+          "caller": "validateBody",
+          "callee": "result.error.issues.map",
+          "lineNumber": 117
+        },
+        {
+          "caller": "validateBody",
+          "callee": "issue.path.join",
+          "lineNumber": 118
+        },
+        {
+          "caller": "validateBody",
+          "callee": "issues.map((i) => `${i.field}: ${i.message}`).join",
+          "lineNumber": 124
+        },
+        {
+          "caller": "validateBody",
+          "callee": "issues.map",
+          "lineNumber": 124
+        },
+        {
+          "caller": "validationError",
+          "callee": "buildError",
+          "lineNumber": 137
+        },
+        {
+          "caller": "validationError",
+          "callee": "jsonResponse",
+          "lineNumber": 138
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 11,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    }
+  ]
+}

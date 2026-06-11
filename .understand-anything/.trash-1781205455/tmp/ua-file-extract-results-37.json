@@ -1,0 +1,582 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/policing-security/__tests__/policing-security.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 47,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/policing-security/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 44,
+      "nonEmptyLines": 39,
+      "classes": [
+        {
+          "name": "PolicingSecurityError",
+          "startLine": 34,
+          "endLine": 44,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "POLICING_SECURITY_SOURCES",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "POLICING_SECURITY_DDL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "PolicingSecurityError",
+          "line": 34,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/policing-security/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 62,
+      "nonEmptyLines": 53,
+      "functions": [
+        {
+          "name": "fetchPolicingSecurityRecords",
+          "startLine": 28,
+          "endLine": 62,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "PolicingSecurityFetchError",
+          "startLine": 11,
+          "endLine": 20,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "PolicingSecurityFetchError",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPolicingSecurityRecords",
+          "line": 28,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 17
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "SOURCE_CONFIGS.filter",
+          "lineNumber": 35
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "httpGet",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "errors.push",
+          "lineNumber": 46
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "records.push",
+          "lineNumber": 50
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "src.name.toLowerCase",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "new Date().toISOString",
+          "lineNumber": 54
+        },
+        {
+          "caller": "fetchPolicingSecurityRecords",
+          "callee": "errors.push",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/policing-security/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 160,
+      "nonEmptyLines": 143,
+      "functions": [
+        {
+          "name": "initializePolicingSecurityTable",
+          "startLine": 50,
+          "endLine": 52,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertPolicingSecurityRecord",
+          "startLine": 54,
+          "endLine": 74,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "policingSecurityRecordExists",
+          "startLine": 76,
+          "endLine": 84,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "searchPolicingSecurityRecords",
+          "startLine": 86,
+          "endLine": 109,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestPolicingSecurityRecords",
+          "startLine": 111,
+          "endLine": 160,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchPolicingSecurityRecords",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "POLICING_SECURITY_DDL",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "POLICING_SECURITY_SOURCES",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "PolicingSecurityError",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "PolicingSecurityRecord",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "PolicingSecurityIngestionOptions",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "PolicingSecurityIngestionResult",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "RawPolicingSecurityRecord",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "initializePolicingSecurityTable",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "policingSecurityRecordExists",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "searchPolicingSecurityRecords",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "ingestPolicingSecurityRecords",
+          "line": 111,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializePolicingSecurityTable",
+          "callee": "db.exec",
+          "lineNumber": 51
+        },
+        {
+          "caller": "upsertPolicingSecurityRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO policing_records\n      (id, source_system, record_type, title, description, url, published_at, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 58
+        },
+        {
+          "caller": "upsertPolicingSecurityRecord",
+          "callee": "db.prepare",
+          "lineNumber": 58
+        },
+        {
+          "caller": "upsertPolicingSecurityRecord",
+          "callee": "stmt.run",
+          "lineNumber": 72
+        },
+        {
+          "caller": "policingSecurityRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM policing_records WHERE url = ? AND source_system = ? LIMIT 1`,\n  ).bind(record.url, record.sourceSystem).first",
+          "lineNumber": 80
+        },
+        {
+          "caller": "policingSecurityRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM policing_records WHERE url = ? AND source_system = ? LIMIT 1`,\n  ).bind",
+          "lineNumber": 80
+        },
+        {
+          "caller": "policingSecurityRecordExists",
+          "callee": "db.prepare",
+          "lineNumber": 80
+        },
+        {
+          "caller": "searchPolicingSecurityRecords",
+          "callee": "params.push",
+          "lineNumber": 97
+        },
+        {
+          "caller": "searchPolicingSecurityRecords",
+          "callee": "params.push",
+          "lineNumber": 101
+        },
+        {
+          "caller": "searchPolicingSecurityRecords",
+          "callee": "params.push",
+          "lineNumber": 104
+        },
+        {
+          "caller": "searchPolicingSecurityRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 106
+        },
+        {
+          "caller": "searchPolicingSecurityRecords",
+          "callee": "db.prepare",
+          "lineNumber": 106
+        },
+        {
+          "caller": "searchPolicingSecurityRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 107
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "Date.now",
+          "lineNumber": 115
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "log",
+          "lineNumber": 128
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "initializePolicingSecurityTable",
+          "lineNumber": 129
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "log",
+          "lineNumber": 132
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "fetchPolicingSecurityRecords",
+          "lineNumber": 133
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "result.errors.push",
+          "lineNumber": 134
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "Buffer.from(raw.url).toString('hex').slice",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "Buffer.from(raw.url).toString",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "Buffer.from",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "new Date().toISOString",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "upsertPolicingSecurityRecord",
+          "lineNumber": 149
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "result.errors.push",
+          "lineNumber": 155
+        },
+        {
+          "caller": "ingestPolicingSecurityRecords",
+          "callee": "Date.now",
+          "lineNumber": 158
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 13,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/policing-security/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 96,
+      "nonEmptyLines": 84,
+      "functions": [
+        {
+          "name": "parseRcmpCrimeCsv",
+          "startLine": 14,
+          "endLine": 39,
+          "params": [
+            "csvText"
+          ]
+        },
+        {
+          "name": "parseCsvLine",
+          "startLine": 41,
+          "endLine": 64,
+          "params": [
+            "line"
+          ]
+        },
+        {
+          "name": "rcmpCrimeToRecord",
+          "startLine": 66,
+          "endLine": 96,
+          "params": [
+            "row",
+            "sourceSystem"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseRcmpCrimeCsv",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "rcmpCrimeToRecord",
+          "line": 66,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "csvText.split('\\n').map(l => l.trim()).filter",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "csvText.split('\\n').map",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "csvText.split",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "l.trim",
+          "lineNumber": 16
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "rows.push",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "parseFloat",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parseRcmpCrimeCsv",
+          "callee": "parseInt",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "result.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 56
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "result.push",
+          "lineNumber": 62
+        },
+        {
+          "caller": "parseCsvLine",
+          "callee": "current.trim",
+          "lineNumber": 62
+        },
+        {
+          "caller": "rcmpCrimeToRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 72
+        },
+        {
+          "caller": "rcmpCrimeToRecord",
+          "callee": "computeHash",
+          "lineNumber": 82
+        },
+        {
+          "caller": "rcmpCrimeToRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 89
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/policing-security/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 47,
+      "nonEmptyLines": 43,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

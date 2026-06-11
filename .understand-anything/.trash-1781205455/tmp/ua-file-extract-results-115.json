@@ -1,0 +1,366 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 12,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 39,
+      "nonEmptyLines": 32,
+      "sections": [
+        {
+          "heading": "Describe the Bug",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "To Reproduce",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Expected vs Actual",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "Environment",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "Logs / Screenshots",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "Workflow Check",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "Additional Context",
+          "level": 2,
+          "line": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/docs-metadata-gap.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 32,
+      "nonEmptyLines": 27,
+      "metrics": {}
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/docs-metadata-gap.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 42,
+      "nonEmptyLines": 35,
+      "sections": [
+        {
+          "heading": "Task",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Files Affected",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Problem",
+          "level": 2,
+          "line": 15
+        },
+        {
+          "heading": "Required Fix",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Acceptance Criteria",
+          "level": 2,
+          "line": 28
+        },
+        {
+          "heading": "Workflow",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "Reference",
+          "level": 2,
+          "line": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 53,
+      "nonEmptyLines": 44,
+      "sections": [
+        {
+          "heading": "Context",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Problem / Opportunity",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "Proposed Solution",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Acceptance Criteria",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "Workflow",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "Node Assignment",
+          "level": 2,
+          "line": 38
+        },
+        {
+          "heading": "Priority",
+          "level": 2,
+          "line": 45
+        },
+        {
+          "heading": "Estimate",
+          "level": 2,
+          "line": 48
+        },
+        {
+          "heading": "Reference",
+          "level": 2,
+          "line": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/metrics-drift.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 28,
+      "nonEmptyLines": 23,
+      "metrics": {}
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/metrics-drift.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 49,
+      "nonEmptyLines": 42,
+      "sections": [
+        {
+          "heading": "Task",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Drift Details",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Files to Update",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "Fix",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "Acceptance Criteria",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "Workflow",
+          "level": 2,
+          "line": 40
+        },
+        {
+          "heading": "Reference",
+          "level": 2,
+          "line": 46
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/task.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/task.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 30,
+      "nonEmptyLines": 25,
+      "sections": [
+        {
+          "heading": "Task",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Steps",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Context",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Workflow",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Reference",
+          "level": 2,
+          "line": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/todo-rot.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 31,
+      "nonEmptyLines": 26,
+      "metrics": {}
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/todo-rot.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 45,
+      "nonEmptyLines": 37,
+      "sections": [
+        {
+          "heading": "Task",
+          "level": 2,
+          "line": 9
+        },
+        {
+          "heading": "Problem",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Files Affected",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Current State",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Required Action",
+          "level": 2,
+          "line": 25
+        },
+        {
+          "heading": "Acceptance Criteria",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "Workflow",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "Reference",
+          "level": 2,
+          "line": 43
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    }
+  ]
+}

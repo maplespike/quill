@@ -1,6 +1,21 @@
 export type { BaseEntity, GovernmentSource } from "./base";
 export type { Brief, BriefSection } from "./brief";
 export type {
+  Charity,
+  CharityActivity,
+  CharityStatus,
+  CharityType,
+  BoardMember,
+  FinancialSummary,
+} from "./charity";
+export type {
+  Committee,
+  CommitteeMeeting,
+  CommitteeMember,
+  CommitteeScope,
+  CommitteeType,
+} from "./committee";
+export type {
   Contract,
   ContractStatus,
   Tender,

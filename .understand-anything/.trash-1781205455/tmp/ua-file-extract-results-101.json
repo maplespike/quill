@@ -1,0 +1,899 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/quality/completeness.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 254,
+      "nonEmptyLines": 224,
+      "functions": [
+        {
+          "name": "isFieldPresent",
+          "startLine": 26,
+          "endLine": 32,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "inferExpectedFields",
+          "startLine": 71,
+          "endLine": 82,
+          "params": [
+            "moduleName"
+          ]
+        },
+        {
+          "name": "analyzeRecord",
+          "startLine": 99,
+          "endLine": 119,
+          "params": [
+            "record",
+            "expectedFields"
+          ]
+        },
+        {
+          "name": "analyzeBatchCompleteness",
+          "startLine": 131,
+          "endLine": 184,
+          "params": [
+            "records",
+            "expectedFields"
+          ]
+        },
+        {
+          "name": "scoreCompleteness",
+          "startLine": 198,
+          "endLine": 243,
+          "params": [
+            "records",
+            "source",
+            "expectedFields"
+          ]
+        },
+        {
+          "name": "scoreRecordCompleteness",
+          "startLine": 248,
+          "endLine": 254,
+          "params": [
+            "record",
+            "source",
+            "expectedFields"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "isFieldPresent",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "MODULE_EXPECTED_FIELDS",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "inferExpectedFields",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "analyzeRecord",
+          "line": 99,
+          "isDefault": false
+        },
+        {
+          "name": "analyzeBatchCompleteness",
+          "line": 131,
+          "isDefault": false
+        },
+        {
+          "name": "scoreCompleteness",
+          "line": 198,
+          "isDefault": false
+        },
+        {
+          "name": "scoreRecordCompleteness",
+          "line": 248,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isFieldPresent",
+          "callee": "value.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "isFieldPresent",
+          "callee": "Array.isArray",
+          "lineNumber": 29
+        },
+        {
+          "caller": "isFieldPresent",
+          "callee": "Number.isNaN",
+          "lineNumber": 30
+        },
+        {
+          "caller": "inferExpectedFields",
+          "callee": "moduleName.toLowerCase().replace",
+          "lineNumber": 72
+        },
+        {
+          "caller": "inferExpectedFields",
+          "callee": "moduleName.toLowerCase",
+          "lineNumber": 72
+        },
+        {
+          "caller": "inferExpectedFields",
+          "callee": "Object.entries",
+          "lineNumber": 76
+        },
+        {
+          "caller": "inferExpectedFields",
+          "callee": "key.includes",
+          "lineNumber": 77
+        },
+        {
+          "caller": "analyzeRecord",
+          "callee": "Object.keys",
+          "lineNumber": 103
+        },
+        {
+          "caller": "analyzeRecord",
+          "callee": "isFieldPresent",
+          "lineNumber": 108
+        },
+        {
+          "caller": "analyzeRecord",
+          "callee": "missing.push",
+          "lineNumber": 109
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "Object.fromEntries",
+          "lineNumber": 144
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "fields.map",
+          "lineNumber": 144
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "records.flatMap",
+          "lineNumber": 154
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "Object.keys",
+          "lineNumber": 154
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "isFieldPresent",
+          "lineNumber": 162
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "Math.round",
+          "lineNumber": 169
+        },
+        {
+          "caller": "analyzeBatchCompleteness",
+          "callee": "allFields.filter",
+          "lineNumber": 173
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "analyzeBatchCompleteness",
+          "lineNumber": 216
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "records.map",
+          "lineNumber": 219
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "analyzeRecord",
+          "lineNumber": 220
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "Object.keys",
+          "lineNumber": 220
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "recordDensities.reduce",
+          "lineNumber": 224
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "Math.round",
+          "lineNumber": 229
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "Math.min",
+          "lineNumber": 230
+        },
+        {
+          "caller": "scoreCompleteness",
+          "callee": "scoreToLevel",
+          "lineNumber": 235
+        },
+        {
+          "caller": "scoreRecordCompleteness",
+          "callee": "scoreCompleteness",
+          "lineNumber": 253
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 7,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/quality/freshness.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 180,
+      "nonEmptyLines": 160,
+      "functions": [
+        {
+          "name": "recordIngestion",
+          "startLine": 42,
+          "endLine": 47,
+          "params": [
+            "source",
+            "timestamp"
+          ]
+        },
+        {
+          "name": "getLastIngested",
+          "startLine": 52,
+          "endLine": 54,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "hasIngestion",
+          "startLine": 59,
+          "endLine": 61,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "getIngestionStore",
+          "startLine": 66,
+          "endLine": 68,
+          "params": []
+        },
+        {
+          "name": "clearIngestionStore",
+          "startLine": 73,
+          "endLine": 75,
+          "params": []
+        },
+        {
+          "name": "seedIngestionRecords",
+          "startLine": 80,
+          "endLine": 90,
+          "params": [
+            "records"
+          ]
+        },
+        {
+          "name": "computeAgeSeconds",
+          "startLine": 100,
+          "endLine": 104,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "parseCadence",
+          "startLine": 109,
+          "endLine": 113,
+          "params": [
+            "cadence"
+          ]
+        },
+        {
+          "name": "scoreFreshness",
+          "startLine": 127,
+          "endLine": 167,
+          "params": [
+            "source",
+            "cadence",
+            "lastIngestedAt"
+          ]
+        },
+        {
+          "name": "scoreFreshnessBatch",
+          "startLine": 176,
+          "endLine": 180,
+          "params": [
+            "sources"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "recordIngestion",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "getLastIngested",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "hasIngestion",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "getIngestionStore",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "clearIngestionStore",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "seedIngestionRecords",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "computeAgeSeconds",
+          "line": 100,
+          "isDefault": false
+        },
+        {
+          "name": "parseCadence",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "scoreFreshness",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "scoreFreshnessBatch",
+          "line": 176,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "recordIngestion",
+          "callee": "ingestionStore.set",
+          "lineNumber": 43
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "Date.now",
+          "lineNumber": 45
+        },
+        {
+          "caller": "getLastIngested",
+          "callee": "ingestionStore.get",
+          "lineNumber": 53
+        },
+        {
+          "caller": "hasIngestion",
+          "callee": "ingestionStore.has",
+          "lineNumber": 60
+        },
+        {
+          "caller": "clearIngestionStore",
+          "callee": "ingestionStore.clear",
+          "lineNumber": 74
+        },
+        {
+          "caller": "seedIngestionRecords",
+          "callee": "Date.now",
+          "lineNumber": 83
+        },
+        {
+          "caller": "seedIngestionRecords",
+          "callee": "ingestionStore.set",
+          "lineNumber": 85
+        },
+        {
+          "caller": "computeAgeSeconds",
+          "callee": "ingestionStore.get",
+          "lineNumber": 101
+        },
+        {
+          "caller": "computeAgeSeconds",
+          "callee": "Math.floor",
+          "lineNumber": 103
+        },
+        {
+          "caller": "computeAgeSeconds",
+          "callee": "Date.now",
+          "lineNumber": 103
+        },
+        {
+          "caller": "parseCadence",
+          "callee": "cadence.toLowerCase().replace",
+          "lineNumber": 110
+        },
+        {
+          "caller": "parseCadence",
+          "callee": "cadence.toLowerCase",
+          "lineNumber": 110
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "Math.floor",
+          "lineNumber": 133
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "Date.now",
+          "lineNumber": 133
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "computeAgeSeconds",
+          "lineNumber": 134
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "parseCadence",
+          "lineNumber": 136
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "Math.max",
+          "lineNumber": 145
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "Math.max",
+          "lineNumber": 148
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "Math.min",
+          "lineNumber": 148
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "Math.round",
+          "lineNumber": 152
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "scoreToLevel",
+          "lineNumber": 156
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "new Date(lastIngestedAt).toISOString",
+          "lineNumber": 162
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "ingestionStore.get",
+          "lineNumber": 163
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "new Date(ingestionStore.get(source)!.lastIngestedAt).toISOString",
+          "lineNumber": 164
+        },
+        {
+          "caller": "scoreFreshness",
+          "callee": "ingestionStore.get",
+          "lineNumber": 164
+        },
+        {
+          "caller": "scoreFreshnessBatch",
+          "callee": "sources.map",
+          "lineNumber": 179
+        },
+        {
+          "caller": "scoreFreshnessBatch",
+          "callee": "scoreFreshness",
+          "lineNumber": 179
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 10,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/quality/provenance.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 259,
+      "nonEmptyLines": 232,
+      "functions": [
+        {
+          "name": "computeSourceTrust",
+          "startLine": 90,
+          "endLine": 103,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "analyzeCitation",
+          "startLine": 131,
+          "endLine": 156,
+          "params": [
+            "citation"
+          ]
+        },
+        {
+          "name": "scoreCitationChain",
+          "startLine": 171,
+          "endLine": 184,
+          "params": [
+            "citation"
+          ]
+        },
+        {
+          "name": "scoreProvenance",
+          "startLine": 219,
+          "endLine": 252,
+          "params": [
+            "input"
+          ]
+        },
+        {
+          "name": "scoreSourceProvenance",
+          "startLine": 257,
+          "endLine": 259,
+          "params": [
+            "source"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "PROVENANCE_SOURCE_SCORES",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_SOURCE_TRUST",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "computeSourceTrust",
+          "line": 90,
+          "isDefault": false
+        },
+        {
+          "name": "analyzeCitation",
+          "line": 131,
+          "isDefault": false
+        },
+        {
+          "name": "scoreCitationChain",
+          "line": 171,
+          "isDefault": false
+        },
+        {
+          "name": "scoreProvenance",
+          "line": 219,
+          "isDefault": false
+        },
+        {
+          "name": "scoreSourceProvenance",
+          "line": 257,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "computeSourceTrust",
+          "callee": "source\n    .toLowerCase()\n    .replace(/^https?:\\/\\//, '')\n    .replace(/\\/.*$/, '')\n    .replace",
+          "lineNumber": 91
+        },
+        {
+          "caller": "computeSourceTrust",
+          "callee": "source\n    .toLowerCase()\n    .replace(/^https?:\\/\\//, '')\n    .replace",
+          "lineNumber": 91
+        },
+        {
+          "caller": "computeSourceTrust",
+          "callee": "source\n    .toLowerCase()\n    .replace",
+          "lineNumber": 91
+        },
+        {
+          "caller": "computeSourceTrust",
+          "callee": "source\n    .toLowerCase",
+          "lineNumber": 91
+        },
+        {
+          "caller": "computeSourceTrust",
+          "callee": "Object.entries",
+          "lineNumber": 97
+        },
+        {
+          "caller": "computeSourceTrust",
+          "callee": "domain.endsWith",
+          "lineNumber": 98
+        },
+        {
+          "caller": "computeSourceTrust",
+          "callee": "domain.includes",
+          "lineNumber": 98
+        },
+        {
+          "caller": "analyzeCitation",
+          "callee": "c.sourceUrl.startsWith",
+          "lineNumber": 149
+        },
+        {
+          "caller": "scoreCitationChain",
+          "callee": "analyzeCitation",
+          "lineNumber": 172
+        },
+        {
+          "caller": "scoreCitationChain",
+          "callee": "Math.round",
+          "lineNumber": 183
+        },
+        {
+          "caller": "scoreProvenance",
+          "callee": "computeSourceTrust",
+          "lineNumber": 222
+        },
+        {
+          "caller": "scoreProvenance",
+          "callee": "scoreCitationChain",
+          "lineNumber": 226
+        },
+        {
+          "caller": "scoreProvenance",
+          "callee": "Math.round",
+          "lineNumber": 240
+        },
+        {
+          "caller": "scoreProvenance",
+          "callee": "Math.min",
+          "lineNumber": 240
+        },
+        {
+          "caller": "scoreProvenance",
+          "callee": "Math.max",
+          "lineNumber": 240
+        },
+        {
+          "caller": "scoreProvenance",
+          "callee": "scoreToLevel",
+          "lineNumber": 244
+        },
+        {
+          "caller": "scoreSourceProvenance",
+          "callee": "scoreProvenance",
+          "lineNumber": 258
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 7,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/quality/scorer.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 136,
+      "nonEmptyLines": 124,
+      "functions": [
+        {
+          "name": "scoreDataQuality",
+          "startLine": 51,
+          "endLine": 87,
+          "params": [
+            "input"
+          ]
+        },
+        {
+          "name": "scoreToDbRecord",
+          "startLine": 96,
+          "endLine": 116,
+          "params": [
+            "score",
+            "id"
+          ]
+        },
+        {
+          "name": "formatQualitySummary",
+          "startLine": 121,
+          "endLine": 128,
+          "params": [
+            "score"
+          ]
+        },
+        {
+          "name": "formatAge",
+          "startLine": 130,
+          "endLine": 136,
+          "params": [
+            "seconds"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "scoreDataQuality",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "scoreToDbRecord",
+          "line": 96,
+          "isDefault": false
+        },
+        {
+          "name": "formatQualitySummary",
+          "line": 121,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "scoreDataQuality",
+          "callee": "scoreFreshness",
+          "lineNumber": 64
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "scoreCompleteness",
+          "lineNumber": 65
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "scoreProvenance",
+          "lineNumber": 67
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "scoreProvenance",
+          "lineNumber": 68
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "Math.round",
+          "lineNumber": 70
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "Math.min",
+          "lineNumber": 71
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "Math.max",
+          "lineNumber": 71
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "scoreToLevel",
+          "lineNumber": 80
+        },
+        {
+          "caller": "scoreDataQuality",
+          "callee": "new Date().toISOString",
+          "lineNumber": 85
+        },
+        {
+          "caller": "scoreToDbRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 112
+        },
+        {
+          "caller": "formatQualitySummary",
+          "callee": "[\n    `Data Quality for \"${score.source}\": ${score.level.toUpperCase()} (${score.composite})`,\n    `  Freshness:    ${score.freshness.level} (${score.freshness.score}) — ${formatAge(score.freshness.ageSeconds)} old, cadence: ${score.freshness.expectedCadence}`,\n    `  Completeness: ${score.completeness.level} (${score.completeness.score}) — ${score.completeness.presentFields}/${score.completeness.totalFields} fields, ${score.completeness.recordCount} records`,\n    `  Provenance:   ${score.provenance.level} (${score.provenance.score}) — trust: ${score.provenance.sourceTrustScore}, citations: ${score.provenance.citationVerified}, hash: ${score.provenance.hashChainVerified}`,\n  ].join",
+          "lineNumber": 122
+        },
+        {
+          "caller": "formatQualitySummary",
+          "callee": "score.level.toUpperCase",
+          "lineNumber": 123
+        },
+        {
+          "caller": "formatQualitySummary",
+          "callee": "formatAge",
+          "lineNumber": 124
+        },
+        {
+          "caller": "formatAge",
+          "callee": "Math.floor",
+          "lineNumber": 133
+        },
+        {
+          "caller": "formatAge",
+          "callee": "Math.floor",
+          "lineNumber": 134
+        },
+        {
+          "caller": "formatAge",
+          "callee": "Math.floor",
+          "lineNumber": 135
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/quality/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 182,
+      "nonEmptyLines": 163,
+      "functions": [
+        {
+          "name": "scoreToLevel",
+          "startLine": 20,
+          "endLine": 26,
+          "params": [
+            "score"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "scoreToLevel",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "UPDATE_CADENCE_MAP",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "CADENCE_STALE_SECONDS",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_QUALITY_WEIGHTS",
+          "line": 178,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

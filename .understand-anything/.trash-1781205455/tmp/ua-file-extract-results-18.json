@@ -1,0 +1,6951 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 26,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/__tests__/cra-charity.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 267,
+      "nonEmptyLines": 221,
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/__tests__/live/endpoint-smoke.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 75,
+      "nonEmptyLines": 62,
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/__tests__/rss.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 216,
+      "nonEmptyLines": 191,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/canlii/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 340,
+      "nonEmptyLines": 291,
+      "functions": [
+        {
+          "name": "caseBrowseUrl",
+          "startLine": 284,
+          "endLine": 303,
+          "params": [
+            "databaseId",
+            "options"
+          ]
+        },
+        {
+          "name": "caseDetailUrl",
+          "startLine": 308,
+          "endLine": 310,
+          "params": [
+            "databaseId",
+            "caseId"
+          ]
+        },
+        {
+          "name": "caseCitatorUrl",
+          "startLine": 315,
+          "endLine": 321,
+          "params": [
+            "databaseId",
+            "caseId",
+            "metadataType"
+          ]
+        },
+        {
+          "name": "caseSearchUrl",
+          "startLine": 326,
+          "endLine": 340,
+          "params": [
+            "query",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "CANLII_API_BASE",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_API_KEY_ENV",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_DEFAULT_LANG",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_MAX_RESULTS",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_DEFAULT_OFFSET",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_API_MAX_PER_CALL",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_COURTS",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_COURT_LIST",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "DATABASE_ID_TO_COURT",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_LEGISLATION_KEYWORDS",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "TRACKED_GOV_DEPARTMENTS",
+          "line": 140,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_DECISIONS_DDL",
+          "line": 192,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_CITATIONS_DDL",
+          "line": 249,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_DDL",
+          "line": 278,
+          "isDefault": false
+        },
+        {
+          "name": "caseBrowseUrl",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "caseDetailUrl",
+          "line": 308,
+          "isDefault": false
+        },
+        {
+          "name": "caseCitatorUrl",
+          "line": 315,
+          "isDefault": false
+        },
+        {
+          "name": "caseSearchUrl",
+          "line": 326,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "params.set",
+          "lineNumber": 295
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "String",
+          "lineNumber": 295
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "params.set",
+          "lineNumber": 296
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "String",
+          "lineNumber": 296
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "params.set",
+          "lineNumber": 298
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "params.set",
+          "lineNumber": 299
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "params.set",
+          "lineNumber": 300
+        },
+        {
+          "caller": "caseBrowseUrl",
+          "callee": "params.toString",
+          "lineNumber": 302
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "params.set",
+          "lineNumber": 335
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "params.set",
+          "lineNumber": 336
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "params.set",
+          "lineNumber": 337
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "String",
+          "lineNumber": 337
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "params.set",
+          "lineNumber": 338
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "String",
+          "lineNumber": 338
+        },
+        {
+          "caller": "caseSearchUrl",
+          "callee": "params.toString",
+          "lineNumber": 339
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 18,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/canlii/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 421,
+      "nonEmptyLines": 373,
+      "functions": [
+        {
+          "name": "rateLimitedCall",
+          "startLine": 60,
+          "endLine": 89,
+          "params": [
+            "fn"
+          ]
+        },
+        {
+          "name": "getApiKey",
+          "startLine": 95,
+          "endLine": 109,
+          "params": []
+        },
+        {
+          "name": "apiGet",
+          "startLine": 121,
+          "endLine": 167,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "searchCanlii",
+          "startLine": 184,
+          "endLine": 244,
+          "params": [
+            "query",
+            "court",
+            "options"
+          ]
+        },
+        {
+          "name": "searchViaCaseBrowse",
+          "startLine": 250,
+          "endLine": 274,
+          "params": [
+            "query",
+            "databaseId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCaseList",
+          "startLine": 284,
+          "endLine": 306,
+          "params": [
+            "databaseId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchDecisionDetail",
+          "startLine": 317,
+          "endLine": 325,
+          "params": [
+            "databaseId",
+            "caseId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCitedCases",
+          "startLine": 336,
+          "endLine": 344,
+          "params": [
+            "databaseId",
+            "caseId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCitingCases",
+          "startLine": 354,
+          "endLine": 362,
+          "params": [
+            "databaseId",
+            "caseId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCitedLegislation",
+          "startLine": 372,
+          "endLine": 380,
+          "params": [
+            "databaseId",
+            "caseId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchDatabaseList",
+          "startLine": 389,
+          "endLine": 396,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "searchByLegislation",
+          "startLine": 410,
+          "endLine": 421,
+          "params": [
+            "actName",
+            "court",
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CanliiFetchError",
+          "startLine": 35,
+          "endLine": 44,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CanliiFetchError",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "searchCanlii",
+          "line": 184,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCaseList",
+          "line": 284,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDecisionDetail",
+          "line": 317,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCitedCases",
+          "line": 336,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCitingCases",
+          "line": 354,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCitedLegislation",
+          "line": 372,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDatabaseList",
+          "line": 389,
+          "isDefault": false
+        },
+        {
+          "name": "searchByLegislation",
+          "line": 410,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 41
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "Date.now",
+          "lineNumber": 61
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "console.warn",
+          "lineNumber": 68
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "prevQueue.then",
+          "lineNumber": 74
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "Date.now",
+          "lineNumber": 75
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "console.warn",
+          "lineNumber": 78
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "setTimeout",
+          "lineNumber": 79
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "Date.now",
+          "lineNumber": 81
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "fn",
+          "lineNumber": 83
+        },
+        {
+          "caller": "rateLimitedCall",
+          "callee": "thisCall.catch",
+          "lineNumber": 86
+        },
+        {
+          "caller": "getApiKey",
+          "callee": "console.warn",
+          "lineNumber": 99
+        },
+        {
+          "caller": "apiGet",
+          "callee": "getApiKey",
+          "lineNumber": 125
+        },
+        {
+          "caller": "apiGet",
+          "callee": "url.includes",
+          "lineNumber": 131
+        },
+        {
+          "caller": "apiGet",
+          "callee": "encodeURIComponent",
+          "lineNumber": 132
+        },
+        {
+          "caller": "apiGet",
+          "callee": "rateLimitedCall",
+          "lineNumber": 135
+        },
+        {
+          "caller": "apiGet",
+          "callee": "httpGet",
+          "lineNumber": 135
+        },
+        {
+          "caller": "apiGet",
+          "callee": "console.warn",
+          "lineNumber": 142
+        },
+        {
+          "caller": "apiGet",
+          "callee": "resp.json",
+          "lineNumber": 154
+        },
+        {
+          "caller": "apiGet",
+          "callee": "err.message.includes",
+          "lineNumber": 157
+        },
+        {
+          "caller": "apiGet",
+          "callee": "String",
+          "lineNumber": 162
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "getApiKey",
+          "lineNumber": 193
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchParams.set",
+          "lineNumber": 198
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchParams.set",
+          "lineNumber": 199
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchParams.set",
+          "lineNumber": 200
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "String",
+          "lineNumber": 200
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchParams.set",
+          "lineNumber": 201
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "String",
+          "lineNumber": 201
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchParams.set",
+          "lineNumber": 202
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchParams.toString",
+          "lineNumber": 204
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "rateLimitedCall",
+          "lineNumber": 207
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "httpGet",
+          "lineNumber": 207
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "console.warn",
+          "lineNumber": 214
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "resp.json",
+          "lineNumber": 226
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "err.message.includes",
+          "lineNumber": 229
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "searchViaCaseBrowse",
+          "lineNumber": 235
+        },
+        {
+          "caller": "searchCanlii",
+          "callee": "String",
+          "lineNumber": 239
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "fetchCaseList",
+          "lineNumber": 255
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "query.toLowerCase",
+          "lineNumber": 266
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "(result.cases ?? []).filter",
+          "lineNumber": 267
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "c.title?.toLowerCase",
+          "lineNumber": 268
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "c.citation?.toLowerCase",
+          "lineNumber": 269
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "title.includes",
+          "lineNumber": 270
+        },
+        {
+          "caller": "searchViaCaseBrowse",
+          "callee": "citation.includes",
+          "lineNumber": 270
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "params.set",
+          "lineNumber": 296
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "String",
+          "lineNumber": 296
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "params.set",
+          "lineNumber": 297
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "String",
+          "lineNumber": 297
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "params.set",
+          "lineNumber": 299
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "params.set",
+          "lineNumber": 300
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "params.set",
+          "lineNumber": 301
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "params.toString",
+          "lineNumber": 303
+        },
+        {
+          "caller": "fetchCaseList",
+          "callee": "await apiGet",
+          "lineNumber": 304
+        },
+        {
+          "caller": "fetchDecisionDetail",
+          "callee": "await apiGet",
+          "lineNumber": 323
+        },
+        {
+          "caller": "fetchCitedCases",
+          "callee": "await apiGet",
+          "lineNumber": 342
+        },
+        {
+          "caller": "fetchCitingCases",
+          "callee": "await apiGet",
+          "lineNumber": 360
+        },
+        {
+          "caller": "fetchCitedLegislation",
+          "callee": "await apiGet",
+          "lineNumber": 378
+        },
+        {
+          "caller": "fetchDatabaseList",
+          "callee": "await apiGet",
+          "lineNumber": 394
+        },
+        {
+          "caller": "searchByLegislation",
+          "callee": "searchCanlii",
+          "lineNumber": 420
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 9,
+        "functionCount": 12,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/canlii/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 441,
+      "nonEmptyLines": 396,
+      "functions": [
+        {
+          "name": "ingestDecisions",
+          "startLine": 73,
+          "endLine": 127,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestSingleCourt",
+          "startLine": 130,
+          "endLine": 225,
+          "params": [
+            "db",
+            "court",
+            "options",
+            "result",
+            "log"
+          ]
+        },
+        {
+          "name": "searchDecisions",
+          "startLine": 234,
+          "endLine": 297,
+          "params": [
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getRecentByCourt",
+          "startLine": 303,
+          "endLine": 323,
+          "params": [
+            "db",
+            "courtId",
+            "options"
+          ]
+        },
+        {
+          "name": "upsertDecision",
+          "startLine": 329,
+          "endLine": 366,
+          "params": [
+            "db",
+            "decision"
+          ]
+        },
+        {
+          "name": "upsertCitation",
+          "startLine": 371,
+          "endLine": 394,
+          "params": [
+            "db",
+            "decisionId",
+            "citation"
+          ]
+        },
+        {
+          "name": "initializeCanliiTables",
+          "startLine": 400,
+          "endLine": 402,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "canliiTablesExist",
+          "startLine": 407,
+          "endLine": 416,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "computeDecisionId",
+          "startLine": 423,
+          "endLine": 439,
+          "params": [
+            "decision",
+            "ingestedAt"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestDecisions",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "searchDecisions",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "getRecentByCourt",
+          "line": 303,
+          "isDefault": false
+        },
+        {
+          "name": "initializeCanliiTables",
+          "line": 400,
+          "isDefault": false
+        },
+        {
+          "name": "canliiTablesExist",
+          "line": 407,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_DECISIONS_DDL",
+          "line": 441,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_CITATIONS_DDL",
+          "line": 441,
+          "isDefault": false
+        },
+        {
+          "name": "CANLII_DDL",
+          "line": 441,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestDecisions",
+          "callee": "Date.now",
+          "lineNumber": 92
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "TRACKED_COURT_LIST.map",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "TRACKED_COURT_LIST.map",
+          "lineNumber": 103
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "result.errors.push",
+          "lineNumber": 109
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "ingestSingleCourt",
+          "lineNumber": 114
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "String",
+          "lineNumber": 116
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "result.errors.push",
+          "lineNumber": 117
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "log",
+          "lineNumber": 118
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "Date.now",
+          "lineNumber": 122
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "log",
+          "lineNumber": 123
+        },
+        {
+          "caller": "ingestDecisions",
+          "callee": "log",
+          "lineNumber": 124
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 143
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "fetchCaseList",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 152
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 157
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "caseList.cases.slice",
+          "lineNumber": 160
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "items.slice",
+          "lineNumber": 164
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "Promise.all",
+          "lineNumber": 165
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "batch.map",
+          "lineNumber": 166
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 171
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "fetchDecisionDetail",
+          "lineNumber": 172
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "new Date().toISOString",
+          "lineNumber": 175
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "parseDecisionDetail",
+          "lineNumber": 176
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "Promise.all",
+          "lineNumber": 183
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "fetchCitedCases",
+          "lineNumber": 184
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "fetchCitingCases",
+          "lineNumber": 185
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "fetchCitedLegislation",
+          "lineNumber": 186
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "enrichWithCitations",
+          "lineNumber": 194
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "computeDecisionId",
+          "lineNumber": 198
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 200
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "String",
+          "lineNumber": 200
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "upsertDecision",
+          "lineNumber": 206
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "hashCitation",
+          "lineNumber": 208
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "upsertCitation",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 214
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "decision.caseName.substring",
+          "lineNumber": 214
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "String",
+          "lineNumber": 218
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "result.errors.push",
+          "lineNumber": 219
+        },
+        {
+          "caller": "ingestSingleCourt",
+          "callee": "log",
+          "lineNumber": 220
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "searchCanlii",
+          "lineNumber": 246
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "new Date().toISOString",
+          "lineNumber": 252
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "fetchDecisionDetail",
+          "lineNumber": 262
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "parseDecisionDetail",
+          "lineNumber": 264
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "fetchCitedCases",
+          "lineNumber": 268
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "fetchCitingCases",
+          "lineNumber": 269
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "fetchCitedLegislation",
+          "lineNumber": 270
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "enrichWithCitations",
+          "lineNumber": 275
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "decisions.push",
+          "lineNumber": 280
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "parseCaseListItem",
+          "lineNumber": 290
+        },
+        {
+          "caller": "searchDecisions",
+          "callee": "decisions.push",
+          "lineNumber": 292
+        },
+        {
+          "caller": "getRecentByCourt",
+          "callee": "ingestDecisions",
+          "lineNumber": 316
+        },
+        {
+          "caller": "upsertDecision",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO canlii_decisions\n      (id, database_id, case_id, case_name, court, decision_date,\n       docket_number, citation, all_citations, url, language, keywords,\n       concatenated_id, summary, parties_json, cited_cases_json,\n       citing_cases_json, cited_legislation_json,\n       reviews_government_action, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 333
+        },
+        {
+          "caller": "upsertDecision",
+          "callee": "db.prepare",
+          "lineNumber": 333
+        },
+        {
+          "caller": "upsertDecision",
+          "callee": "JSON.stringify",
+          "lineNumber": 356
+        },
+        {
+          "caller": "upsertDecision",
+          "callee": "stmt.run",
+          "lineNumber": 364
+        },
+        {
+          "caller": "upsertCitation",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO canlii_citations\n      (id, decision_id, cited_database_id, cited_case_id, cited_title,\n       cited_citation, citation_type, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 376
+        },
+        {
+          "caller": "upsertCitation",
+          "callee": "db.prepare",
+          "lineNumber": 376
+        },
+        {
+          "caller": "upsertCitation",
+          "callee": "new Date().toISOString",
+          "lineNumber": 389
+        },
+        {
+          "caller": "upsertCitation",
+          "callee": "stmt.run",
+          "lineNumber": 392
+        },
+        {
+          "caller": "initializeCanliiTables",
+          "callee": "db.exec",
+          "lineNumber": 401
+        },
+        {
+          "caller": "canliiTablesExist",
+          "callee": "await db.prepare(\n      \"SELECT name FROM sqlite_master WHERE type='table' AND name='canlii_decisions'\",\n    ).first",
+          "lineNumber": 409
+        },
+        {
+          "caller": "canliiTablesExist",
+          "callee": "db.prepare",
+          "lineNumber": 409
+        },
+        {
+          "caller": "computeDecisionId",
+          "callee": "import",
+          "lineNumber": 427
+        },
+        {
+          "caller": "computeDecisionId",
+          "callee": "[\n    decision.databaseId,\n    decision.caseId,\n    decision.caseName,\n    decision.citation,\n    decision.citedCasesJson,\n    decision.citingCasesJson,\n    decision.citedLegislationJson,\n    ingestedAt,\n  ].join",
+          "lineNumber": 428
+        },
+        {
+          "caller": "computeDecisionId",
+          "callee": "computeHash",
+          "lineNumber": 438
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 8,
+        "functionCount": 9,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/canlii/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 399,
+      "nonEmptyLines": 345,
+      "functions": [
+        {
+          "name": "parseCaseListItem",
+          "startLine": 39,
+          "endLine": 72,
+          "params": [
+            "item",
+            "ingestedAt"
+          ]
+        },
+        {
+          "name": "parseDecisionDetail",
+          "startLine": 79,
+          "endLine": 118,
+          "params": [
+            "detail",
+            "ingestedAt"
+          ]
+        },
+        {
+          "name": "enrichWithCitations",
+          "startLine": 124,
+          "endLine": 161,
+          "params": [
+            "decision",
+            "citatorResponse"
+          ]
+        },
+        {
+          "name": "parseCitatorItem",
+          "startLine": 167,
+          "endLine": 181,
+          "params": [
+            "item",
+            "type"
+          ]
+        },
+        {
+          "name": "hashCitation",
+          "startLine": 186,
+          "endLine": 192,
+          "params": [
+            "decisionId",
+            "citation",
+            "type"
+          ]
+        },
+        {
+          "name": "extractCitations",
+          "startLine": 199,
+          "endLine": 224,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "extractParties",
+          "startLine": 238,
+          "endLine": 271,
+          "params": [
+            "caseName"
+          ]
+        },
+        {
+          "name": "extractInterveners",
+          "startLine": 279,
+          "endLine": 296,
+          "params": [
+            "caseName"
+          ]
+        },
+        {
+          "name": "assessGovernmentRelevance",
+          "startLine": 309,
+          "endLine": 350,
+          "params": [
+            "caseName",
+            "court",
+            "keywords"
+          ]
+        },
+        {
+          "name": "checkTextForRelevance",
+          "startLine": 355,
+          "endLine": 372,
+          "params": [
+            "caseName",
+            "keywords"
+          ]
+        },
+        {
+          "name": "extractCaseId",
+          "startLine": 382,
+          "endLine": 391,
+          "params": [
+            "caseId"
+          ]
+        },
+        {
+          "name": "mapDatabaseIdToCourt",
+          "startLine": 397,
+          "endLine": 399,
+          "params": [
+            "databaseId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseCaseListItem",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "parseDecisionDetail",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "enrichWithCitations",
+          "line": 124,
+          "isDefault": false
+        },
+        {
+          "name": "parseCitatorItem",
+          "line": 167,
+          "isDefault": false
+        },
+        {
+          "name": "hashCitation",
+          "line": 186,
+          "isDefault": false
+        },
+        {
+          "name": "extractCitations",
+          "line": 199,
+          "isDefault": false
+        },
+        {
+          "name": "extractParties",
+          "line": 238,
+          "isDefault": false
+        },
+        {
+          "name": "assessGovernmentRelevance",
+          "line": 309,
+          "isDefault": false
+        },
+        {
+          "name": "extractCaseId",
+          "line": 382,
+          "isDefault": false
+        },
+        {
+          "name": "mapDatabaseIdToCourt",
+          "line": 397,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCaseListItem",
+          "callee": "extractCaseId",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseCaseListItem",
+          "callee": "mapDatabaseIdToCourt",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseCaseListItem",
+          "callee": "computeHash",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseCaseListItem",
+          "callee": "extractParties",
+          "lineNumber": 65
+        },
+        {
+          "caller": "parseCaseListItem",
+          "callee": "assessGovernmentRelevance",
+          "lineNumber": 69
+        },
+        {
+          "caller": "parseDecisionDetail",
+          "callee": "mapDatabaseIdToCourt",
+          "lineNumber": 83
+        },
+        {
+          "caller": "parseDecisionDetail",
+          "callee": "detail.caseId?.trim",
+          "lineNumber": 87
+        },
+        {
+          "caller": "parseDecisionDetail",
+          "callee": "computeHash",
+          "lineNumber": 90
+        },
+        {
+          "caller": "parseDecisionDetail",
+          "callee": "extractParties",
+          "lineNumber": 107
+        },
+        {
+          "caller": "parseDecisionDetail",
+          "callee": "assessGovernmentRelevance",
+          "lineNumber": 111
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "parseCitatorItem",
+          "lineNumber": 134
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "citations.push",
+          "lineNumber": 135
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "parseCitatorItem",
+          "lineNumber": 140
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "citations.push",
+          "lineNumber": 141
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "parseCitatorItem",
+          "lineNumber": 146
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "citations.push",
+          "lineNumber": 147
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "JSON.stringify",
+          "lineNumber": 151
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "JSON.stringify",
+          "lineNumber": 154
+        },
+        {
+          "caller": "enrichWithCitations",
+          "callee": "JSON.stringify",
+          "lineNumber": 157
+        },
+        {
+          "caller": "parseCitatorItem",
+          "callee": "extractCaseId",
+          "lineNumber": 171
+        },
+        {
+          "caller": "hashCitation",
+          "callee": "computeHash",
+          "lineNumber": 191
+        },
+        {
+          "caller": "extractCitations",
+          "callee": "text.match",
+          "lineNumber": 217
+        },
+        {
+          "caller": "extractCitations",
+          "callee": "citations.push",
+          "lineNumber": 219
+        },
+        {
+          "caller": "extractParties",
+          "callee": "caseName.replace(/\\u00A0/g, ' ').trim",
+          "lineNumber": 242
+        },
+        {
+          "caller": "extractParties",
+          "callee": "caseName.replace",
+          "lineNumber": 242
+        },
+        {
+          "caller": "extractParties",
+          "callee": "normalized.match",
+          "lineNumber": 247
+        },
+        {
+          "caller": "extractParties",
+          "callee": "vsMatch[1].trim",
+          "lineNumber": 250
+        },
+        {
+          "caller": "extractParties",
+          "callee": "vsMatch[2].trim",
+          "lineNumber": 251
+        },
+        {
+          "caller": "extractParties",
+          "callee": "plaintiff.replace(/\\s*\\([^)]*\\)\\s*$/, '').trim",
+          "lineNumber": 254
+        },
+        {
+          "caller": "extractParties",
+          "callee": "plaintiff.replace",
+          "lineNumber": 254
+        },
+        {
+          "caller": "extractParties",
+          "callee": "defendant.replace(/\\s*\\([^)]*\\)\\s*$/, '').trim",
+          "lineNumber": 255
+        },
+        {
+          "caller": "extractParties",
+          "callee": "defendant.replace",
+          "lineNumber": 255
+        },
+        {
+          "caller": "extractParties",
+          "callee": "cleanPlaintiff.toLowerCase().startsWith",
+          "lineNumber": 258
+        },
+        {
+          "caller": "extractParties",
+          "callee": "cleanPlaintiff.toLowerCase",
+          "lineNumber": 258
+        },
+        {
+          "caller": "extractParties",
+          "callee": "extractInterveners",
+          "lineNumber": 265
+        },
+        {
+          "caller": "extractInterveners",
+          "callee": "intervenerPattern.exec",
+          "lineNumber": 285
+        },
+        {
+          "caller": "extractInterveners",
+          "callee": "interveners.push",
+          "lineNumber": 286
+        },
+        {
+          "caller": "extractInterveners",
+          "callee": "match[1].trim",
+          "lineNumber": 286
+        },
+        {
+          "caller": "extractInterveners",
+          "callee": "othersPattern.test",
+          "lineNumber": 291
+        },
+        {
+          "caller": "extractInterveners",
+          "callee": "interveners.push",
+          "lineNumber": 292
+        },
+        {
+          "caller": "assessGovernmentRelevance",
+          "callee": "`${caseName ?? ''} ${keywords ?? ''}`.toLowerCase",
+          "lineNumber": 325
+        },
+        {
+          "caller": "assessGovernmentRelevance",
+          "callee": "sccGovernmentIndicators.some",
+          "lineNumber": 345
+        },
+        {
+          "caller": "assessGovernmentRelevance",
+          "callee": "text.includes",
+          "lineNumber": 345
+        },
+        {
+          "caller": "assessGovernmentRelevance",
+          "callee": "checkTextForRelevance",
+          "lineNumber": 349
+        },
+        {
+          "caller": "checkTextForRelevance",
+          "callee": "`${caseName ?? ''} ${keywords ?? ''}`.toLowerCase",
+          "lineNumber": 359
+        },
+        {
+          "caller": "checkTextForRelevance",
+          "callee": "text.includes",
+          "lineNumber": 363
+        },
+        {
+          "caller": "checkTextForRelevance",
+          "callee": "keyword.toLowerCase",
+          "lineNumber": 363
+        },
+        {
+          "caller": "checkTextForRelevance",
+          "callee": "text.includes",
+          "lineNumber": 368
+        },
+        {
+          "caller": "checkTextForRelevance",
+          "callee": "dept.toLowerCase",
+          "lineNumber": 368
+        },
+        {
+          "caller": "extractCaseId",
+          "callee": "caseId.trim",
+          "lineNumber": 385
+        },
+        {
+          "caller": "extractCaseId",
+          "callee": "caseId.en.trim",
+          "lineNumber": 388
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 10,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/canlii/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 249,
+      "nonEmptyLines": 209,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/alerts.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 96,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "detectInCameraMeetings",
+          "startLine": 14,
+          "endLine": 96,
+          "params": [
+            "xml"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "detectInCameraMeetings",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "PARSER.parse",
+          "lineNumber": 15
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "Array.isArray",
+          "lineNumber": 25
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.set",
+          "lineNumber": 29
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 33
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "inCameraNote.trim",
+          "lineNumber": 34
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 37
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 38
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 39
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 40
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "meta.get",
+          "lineNumber": 41
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "parseInt",
+          "lineNumber": 43
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "numberRaw.replace(/^NUMBER\\s*/i, '').replace",
+          "lineNumber": 44
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "numberRaw.replace",
+          "lineNumber": 44
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "parseInt",
+          "lineNumber": 46
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "parliamentStr.match",
+          "lineNumber": 46
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "parseInt",
+          "lineNumber": 47
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "sessionStr.match",
+          "lineNumber": 47
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "SENATE_COMMITTEE_MAP.has",
+          "lineNumber": 49
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "computeHash",
+          "lineNumber": 51
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "Array.isArray",
+          "lineNumber": 58
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "Array.isArray",
+          "lineNumber": 67
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "ts['@_Hr']?.padStart",
+          "lineNumber": 71
+        },
+        {
+          "caller": "detectInCameraMeetings",
+          "callee": "ts['@_Mn']?.padStart",
+          "lineNumber": 72
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 148,
+      "nonEmptyLines": 130,
+      "functions": [
+        {
+          "name": "getBaseUrl",
+          "startLine": 93,
+          "endLine": 95,
+          "params": [
+            "chamber"
+          ]
+        },
+        {
+          "name": "meetingListUrl",
+          "startLine": 100,
+          "endLine": 102,
+          "params": [
+            "acronym",
+            "baseUrl"
+          ]
+        },
+        {
+          "name": "evidenceUrl",
+          "startLine": 107,
+          "endLine": 115,
+          "params": [
+            "parliament",
+            "session",
+            "acronym",
+            "meetingNumber",
+            "baseUrl"
+          ]
+        },
+        {
+          "name": "evidenceHtmlUrl",
+          "startLine": 122,
+          "endLine": 130,
+          "params": [
+            "parliament",
+            "session",
+            "acronym",
+            "meetingNumber",
+            "baseUrl"
+          ]
+        },
+        {
+          "name": "minutesXmlUrl",
+          "startLine": 135,
+          "endLine": 143,
+          "params": [
+            "parliament",
+            "session",
+            "acronym",
+            "meetingNumber",
+            "baseUrl"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "COMMITTEES",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "COMMITTEE_MAP",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "SENATE_COMMITTEES",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "SENATE_COMMITTEE_MAP",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "OURCOMMONS_BASE",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "SENATE_BASE_URL",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "getBaseUrl",
+          "line": 93,
+          "isDefault": false
+        },
+        {
+          "name": "meetingListUrl",
+          "line": 100,
+          "isDefault": false
+        },
+        {
+          "name": "evidenceUrl",
+          "line": 107,
+          "isDefault": false
+        },
+        {
+          "name": "evidenceHtmlUrl",
+          "line": 122,
+          "isDefault": false
+        },
+        {
+          "name": "minutesXmlUrl",
+          "line": 135,
+          "isDefault": false
+        },
+        {
+          "name": "CURRENT_PARLIAMENT",
+          "line": 147,
+          "isDefault": false
+        },
+        {
+          "name": "CURRENT_SESSION",
+          "line": 148,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "evidenceHtmlUrl",
+          "callee": "evidenceUrl",
+          "lineNumber": 129
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 13,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/db.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 254,
+      "nonEmptyLines": 227,
+      "functions": [
+        {
+          "name": "upsertMeeting",
+          "startLine": 84,
+          "endLine": 112,
+          "params": [
+            "db",
+            "meeting"
+          ]
+        },
+        {
+          "name": "insertIntervention",
+          "startLine": 114,
+          "endLine": 138,
+          "params": [
+            "db",
+            "intervention"
+          ]
+        },
+        {
+          "name": "upsertSpeaker",
+          "startLine": 140,
+          "endLine": 171,
+          "params": [
+            "db",
+            "speakerName",
+            "affiliation",
+            "party",
+            "meetingDate"
+          ]
+        },
+        {
+          "name": "meetingExists",
+          "startLine": 173,
+          "endLine": 183,
+          "params": [
+            "db",
+            "acronym",
+            "meetingNumber",
+            "chamber"
+          ]
+        },
+        {
+          "name": "getLatestMeetingNumber",
+          "startLine": 185,
+          "endLine": 193,
+          "params": [
+            "db",
+            "acronym"
+          ]
+        },
+        {
+          "name": "searchTranscripts",
+          "startLine": 195,
+          "endLine": 240,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getInCameraCount",
+          "startLine": 242,
+          "endLine": 247,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "resetCommitteeTables",
+          "startLine": 249,
+          "endLine": 254,
+          "params": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "COMMITTEE_DDL",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "upsertMeeting",
+          "line": 84,
+          "isDefault": false
+        },
+        {
+          "name": "insertIntervention",
+          "line": 114,
+          "isDefault": false
+        },
+        {
+          "name": "upsertSpeaker",
+          "line": 140,
+          "isDefault": false
+        },
+        {
+          "name": "meetingExists",
+          "line": 173,
+          "isDefault": false
+        },
+        {
+          "name": "getLatestMeetingNumber",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "searchTranscripts",
+          "line": 195,
+          "isDefault": false
+        },
+        {
+          "name": "getInCameraCount",
+          "line": 242,
+          "isDefault": false
+        },
+        {
+          "name": "resetCommitteeTables",
+          "line": 249,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "upsertMeeting",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO committee_meetings\n      (id, committee_acronym, committee_name, chamber, parliament, session, meeting_number,\n       date, start_time, end_time, in_camera, in_camera_note,\n       evidence_url, xml_url, subject, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 85
+        },
+        {
+          "caller": "upsertMeeting",
+          "callee": "db.prepare",
+          "lineNumber": 85
+        },
+        {
+          "caller": "upsertMeeting",
+          "callee": "stmt.run",
+          "lineNumber": 110
+        },
+        {
+          "caller": "insertIntervention",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO committee_interventions\n      (meeting_id, sequence, speaker_name, speaker_affiliation, speaker_party,\n       speaker_role, intervention_type, language, text, timestamp)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 118
+        },
+        {
+          "caller": "insertIntervention",
+          "callee": "db.prepare",
+          "lineNumber": 118
+        },
+        {
+          "caller": "insertIntervention",
+          "callee": "stmt.run",
+          "lineNumber": 136
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "await db.prepare(\n    'SELECT * FROM committee_speakers WHERE name = ?',\n  ).bind(speakerName).first",
+          "lineNumber": 147
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "db.prepare(\n    'SELECT * FROM committee_speakers WHERE name = ?',\n  ).bind",
+          "lineNumber": 147
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "db.prepare",
+          "lineNumber": 147
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "db.prepare(`\n      UPDATE committee_speakers\n      SET latest_affiliation = COALESCE(?, latest_affiliation),\n          latest_party = COALESCE(?, latest_party),\n          total_appearances = total_appearances + 1,\n          last_seen = MAX(last_seen, ?)\n      WHERE name = ?\n    `).bind",
+          "lineNumber": 152
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "db.prepare",
+          "lineNumber": 152
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "stmt.run",
+          "lineNumber": 160
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "db.prepare(`\n      INSERT INTO committee_speakers\n        (name, latest_affiliation, latest_party, total_appearances, first_seen, last_seen)\n      VALUES (?, ?, ?, 1, ?, ?)\n    `).bind",
+          "lineNumber": 162
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "db.prepare",
+          "lineNumber": 162
+        },
+        {
+          "caller": "upsertSpeaker",
+          "callee": "stmt.run",
+          "lineNumber": 167
+        },
+        {
+          "caller": "meetingExists",
+          "callee": "db.prepare(\n    'SELECT 1 FROM committee_meetings WHERE committee_acronym = ? AND meeting_number = ? AND chamber = ? LIMIT 1',\n  ).bind(acronym, meetingNumber, chamber).first",
+          "lineNumber": 179
+        },
+        {
+          "caller": "meetingExists",
+          "callee": "db.prepare(\n    'SELECT 1 FROM committee_meetings WHERE committee_acronym = ? AND meeting_number = ? AND chamber = ? LIMIT 1',\n  ).bind",
+          "lineNumber": 179
+        },
+        {
+          "caller": "meetingExists",
+          "callee": "db.prepare",
+          "lineNumber": 179
+        },
+        {
+          "caller": "getLatestMeetingNumber",
+          "callee": "await db.prepare(\n    'SELECT meeting_number FROM committee_meetings WHERE committee_acronym = ? ORDER BY meeting_number DESC LIMIT 1',\n  ).bind(acronym).first",
+          "lineNumber": 189
+        },
+        {
+          "caller": "getLatestMeetingNumber",
+          "callee": "db.prepare(\n    'SELECT meeting_number FROM committee_meetings WHERE committee_acronym = ? ORDER BY meeting_number DESC LIMIT 1',\n  ).bind",
+          "lineNumber": 189
+        },
+        {
+          "caller": "getLatestMeetingNumber",
+          "callee": "db.prepare",
+          "lineNumber": 189
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "params.push",
+          "lineNumber": 216
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "params.push",
+          "lineNumber": 220
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "params.push",
+          "lineNumber": 224
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "params.push",
+          "lineNumber": 228
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "params.push",
+          "lineNumber": 235
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 237
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "db.prepare",
+          "lineNumber": 237
+        },
+        {
+          "caller": "searchTranscripts",
+          "callee": "await stmt.all",
+          "lineNumber": 238
+        },
+        {
+          "caller": "getInCameraCount",
+          "callee": "await db.prepare(\n    'SELECT COUNT(*) as cnt FROM committee_meetings WHERE in_camera = 1',\n  ).first",
+          "lineNumber": 243
+        },
+        {
+          "caller": "getInCameraCount",
+          "callee": "db.prepare",
+          "lineNumber": 243
+        },
+        {
+          "caller": "resetCommitteeTables",
+          "callee": "db.exec",
+          "lineNumber": 250
+        },
+        {
+          "caller": "resetCommitteeTables",
+          "callee": "db.exec",
+          "lineNumber": 251
+        },
+        {
+          "caller": "resetCommitteeTables",
+          "callee": "db.exec",
+          "lineNumber": 252
+        },
+        {
+          "caller": "resetCommitteeTables",
+          "callee": "db.exec",
+          "lineNumber": 253
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 172,
+      "nonEmptyLines": 151,
+      "functions": [
+        {
+          "name": "fetchUrl",
+          "startLine": 37,
+          "endLine": 55,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "extractXmlUrlFromHtml",
+          "startLine": 59,
+          "endLine": 75,
+          "params": [
+            "html",
+            "baseUrl"
+          ]
+        },
+        {
+          "name": "extractDocumentId",
+          "startLine": 81,
+          "endLine": 84,
+          "params": [
+            "html"
+          ]
+        },
+        {
+          "name": "extractMetaFromHtml",
+          "startLine": 89,
+          "endLine": 97,
+          "params": [
+            "html"
+          ]
+        },
+        {
+          "name": "fetchEvidenceXml",
+          "startLine": 106,
+          "endLine": 143,
+          "params": [
+            "htmlUrl",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchMeetingList",
+          "startLine": 148,
+          "endLine": 156,
+          "params": [
+            "acronym",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEvidenceHtml",
+          "startLine": 162,
+          "endLine": 172,
+          "params": [
+            "parliament",
+            "session",
+            "acronym",
+            "meetingNumber",
+            "baseUrl"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CommitteeFetchError",
+          "startLine": 19,
+          "endLine": 28,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CommitteeFetchError",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "fetchUrl",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "extractXmlUrlFromHtml",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "extractDocumentId",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "extractMetaFromHtml",
+          "line": 89,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEvidenceXml",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMeetingList",
+          "line": 148,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEvidenceHtml",
+          "line": 162,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchUrl",
+          "callee": "httpGet",
+          "lineNumber": 41
+        },
+        {
+          "caller": "extractXmlUrlFromHtml",
+          "callee": "html.match",
+          "lineNumber": 61
+        },
+        {
+          "caller": "extractXmlUrlFromHtml",
+          "callee": "href.startsWith",
+          "lineNumber": 65
+        },
+        {
+          "caller": "extractXmlUrlFromHtml",
+          "callee": "href.startsWith",
+          "lineNumber": 69
+        },
+        {
+          "caller": "extractDocumentId",
+          "callee": "html.match",
+          "lineNumber": 82
+        },
+        {
+          "caller": "extractMetaFromHtml",
+          "callee": "regex.exec",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchEvidenceXml",
+          "callee": "fetchUrl",
+          "lineNumber": 111
+        },
+        {
+          "caller": "fetchEvidenceXml",
+          "callee": "extractXmlUrlFromHtml",
+          "lineNumber": 114
+        },
+        {
+          "caller": "fetchEvidenceXml",
+          "callee": "httpGet",
+          "lineNumber": 124
+        },
+        {
+          "caller": "fetchMeetingList",
+          "callee": "fetchUrl",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchEvidenceHtml",
+          "callee": "fetchUrl",
+          "lineNumber": 170
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 8,
+        "functionCount": 7,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 390,
+      "nonEmptyLines": 341,
+      "functions": [
+        {
+          "name": "scrapeMeetingList",
+          "startLine": 55,
+          "endLine": 90,
+          "params": [
+            "html",
+            "acronym"
+          ]
+        },
+        {
+          "name": "ingestCommittee",
+          "startLine": 102,
+          "endLine": 255,
+          "params": [
+            "db",
+            "acronym",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestChamberCommittees",
+          "startLine": 262,
+          "endLine": 310,
+          "params": [
+            "db",
+            "chamber",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllCommittees",
+          "startLine": 312,
+          "endLine": 354,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestSenateCommittees",
+          "startLine": 356,
+          "endLine": 373,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestInCameraMeetings",
+          "startLine": 379,
+          "endLine": 386,
+          "params": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestCommittee",
+          "line": 102,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllCommittees",
+          "line": 312,
+          "isDefault": false
+        },
+        {
+          "name": "ingestSenateCommittees",
+          "line": 356,
+          "isDefault": false
+        },
+        {
+          "name": "ingestInCameraMeetings",
+          "line": 379,
+          "isDefault": false
+        },
+        {
+          "name": "detectInCameraMeetings",
+          "line": 388,
+          "isDefault": false
+        },
+        {
+          "name": "InCameraAlert",
+          "line": 389,
+          "isDefault": false
+        },
+        {
+          "name": "EvidenceStory",
+          "line": 390,
+          "isDefault": false
+        },
+        {
+          "name": "buildEvidenceStories",
+          "line": 390,
+          "isDefault": false
+        },
+        {
+          "name": "searchCommitteeEvidence",
+          "line": 390,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "meetingPattern.exec",
+          "lineNumber": 67
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "numbers.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "parseInt",
+          "lineNumber": 68
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "datePattern.exec",
+          "lineNumber": 73
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "dates.push",
+          "lineNumber": 74
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "Array.from(new Set(numbers)).sort",
+          "lineNumber": 78
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "Array.from",
+          "lineNumber": 78
+        },
+        {
+          "caller": "scrapeMeetingList",
+          "callee": "meetings.push",
+          "lineNumber": 81
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "Date.now",
+          "lineNumber": 124
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "getBaseUrl",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 144
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "fetchMeetingList",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "scrapeMeetingList(html, acronym)\n      .filter",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "scrapeMeetingList",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "allMeetings.sort",
+          "lineNumber": 150
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 152
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "getLatestMeetingNumber",
+          "lineNumber": 157
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "sorted.filter",
+          "lineNumber": 159
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 160
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "toIngest.slice",
+          "lineNumber": 165
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 169
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "Date.now",
+          "lineNumber": 170
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "evidenceHtmlUrl",
+          "lineNumber": 177
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 178
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "fetchEvidenceXml",
+          "lineNumber": 180
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "parseEvidenceXml",
+          "lineNumber": 181
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 187
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "meetingExists",
+          "lineNumber": 197
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 199
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "upsertMeeting",
+          "lineNumber": 204
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "insertIntervention",
+          "lineNumber": 209
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "seenSpeakers.has",
+          "lineNumber": 213
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "seenSpeakers.add",
+          "lineNumber": 214
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "upsertSpeaker",
+          "lineNumber": 215
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "upsertPerson",
+          "lineNumber": 218
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "inv.speakerName.split",
+          "lineNumber": 219
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "inv.speakerName.split(\" \").slice(1).join",
+          "lineNumber": 220
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "inv.speakerName.split(\" \").slice",
+          "lineNumber": 220
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "inv.speakerName.split",
+          "lineNumber": 220
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 232
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "String",
+          "lineNumber": 237
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "result.errors.push",
+          "lineNumber": 238
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 239
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "String",
+          "lineNumber": 244
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "result.errors.push",
+          "lineNumber": 245
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 246
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "Date.now",
+          "lineNumber": 249
+        },
+        {
+          "caller": "ingestCommittee",
+          "callee": "log",
+          "lineNumber": 250
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "committeeList.filter",
+          "lineNumber": 281
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "options.committees!.includes",
+          "lineNumber": 281
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "log",
+          "lineNumber": 288
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "targets.slice",
+          "lineNumber": 292
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Promise.all",
+          "lineNumber": 293
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "batch.map",
+          "lineNumber": 294
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "ingestCommittee",
+          "lineNumber": 294
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 303
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values",
+          "lineNumber": 303
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 304
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values",
+          "lineNumber": 304
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 305
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values",
+          "lineNumber": 305
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 306
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "Object.values",
+          "lineNumber": 306
+        },
+        {
+          "caller": "ingestChamberCommittees",
+          "callee": "log",
+          "lineNumber": 307
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "ingestChamberCommittees",
+          "lineNumber": 335
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.assign",
+          "lineNumber": 336
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "ingestChamberCommittees",
+          "lineNumber": 340
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.assign",
+          "lineNumber": 341
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 345
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values",
+          "lineNumber": 345
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 346
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values",
+          "lineNumber": 346
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 347
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values",
+          "lineNumber": 347
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 348
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.values",
+          "lineNumber": 348
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "log",
+          "lineNumber": 350
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "log",
+          "lineNumber": 351
+        },
+        {
+          "caller": "ingestAllCommittees",
+          "callee": "Object.keys",
+          "lineNumber": 351
+        },
+        {
+          "caller": "ingestSenateCommittees",
+          "callee": "ingestChamberCommittees",
+          "lineNumber": 372
+        },
+        {
+          "caller": "ingestInCameraMeetings",
+          "callee": "ingestAllCommittees",
+          "lineNumber": 382
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 9,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 336,
+      "nonEmptyLines": 287,
+      "functions": [
+        {
+          "name": "extractMetadata",
+          "startLine": 76,
+          "endLine": 130,
+          "params": [
+            "xml"
+          ]
+        },
+        {
+          "name": "parseSpeakerAffiliation",
+          "startLine": 142,
+          "endLine": 188,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "extractInterventions",
+          "startLine": 190,
+          "endLine": 286,
+          "params": [
+            "xml"
+          ]
+        },
+        {
+          "name": "parseEvidenceXml",
+          "startLine": 295,
+          "endLine": 336,
+          "params": [
+            "xml",
+            "parliament",
+            "session",
+            "chamber"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseEvidenceXml",
+          "line": 295,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "extractMetadata",
+          "callee": "Array.isArray",
+          "lineNumber": 84
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.set",
+          "lineNumber": 89
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 93
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 95
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 96
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 98
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 99
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "map.get",
+          "lineNumber": 100
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "parseInt",
+          "lineNumber": 103
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "numberStr.replace(/^NUMBER\\s*/i, '').replace",
+          "lineNumber": 103
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "numberStr.replace",
+          "lineNumber": 103
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "parseInt",
+          "lineNumber": 106
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "parliamentStr.match",
+          "lineNumber": 106
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "parseInt",
+          "lineNumber": 109
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "sessionStr.match",
+          "lineNumber": 109
+        },
+        {
+          "caller": "extractMetadata",
+          "callee": "inCameraNote.trim",
+          "lineNumber": 112
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "raw.match",
+          "lineNumber": 153
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "mpMatch[1].trim",
+          "lineNumber": 155
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "mpMatch[2].trim",
+          "lineNumber": 156
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "mpMatch[3].trim",
+          "lineNumber": 157
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "raw.match",
+          "lineNumber": 162
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "chairMatch[1].trim().toLowerCase",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "chairMatch[1].trim",
+          "lineNumber": 164
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "chairMatch[2].trim",
+          "lineNumber": 165
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "inner.match",
+          "lineNumber": 167
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "innerMatch[1].trim",
+          "lineNumber": 169
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "innerMatch[2].trim",
+          "lineNumber": 170
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "innerMatch[3].trim",
+          "lineNumber": 171
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "raw.match",
+          "lineNumber": 180
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "officialMatch[1].trim",
+          "lineNumber": 182
+        },
+        {
+          "caller": "parseSpeakerAffiliation",
+          "callee": "officialMatch[2].trim",
+          "lineNumber": 183
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "Array.isArray",
+          "lineNumber": 202
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "Array.isArray",
+          "lineNumber": 212
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "ts['@_Hr']?.padStart",
+          "lineNumber": 214
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "ts['@_Mn']?.padStart",
+          "lineNumber": 214
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "Array.isArray",
+          "lineNumber": 219
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "Array.isArray",
+          "lineNumber": 231
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "getText",
+          "lineNumber": 238
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "parseSpeakerAffiliation",
+          "lineNumber": 239
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "Array.isArray",
+          "lineNumber": 242
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "getText",
+          "lineNumber": 248
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "pText.trim",
+          "lineNumber": 249
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "textParas.push",
+          "lineNumber": 250
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "textParas.join",
+          "lineNumber": 253
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "text.trim",
+          "lineNumber": 255
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "Array.isArray",
+          "lineNumber": 259
+        },
+        {
+          "caller": "extractInterventions",
+          "callee": "interventions.push",
+          "lineNumber": 269
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "XML_PARSER.parse",
+          "lineNumber": 301
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "extractMetadata",
+          "lineNumber": 302
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "computeHash",
+          "lineNumber": 312
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "evidenceUrl",
+          "lineNumber": 324
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "evidenceHtmlUrl",
+          "lineNumber": 325
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "new Date().toISOString",
+          "lineNumber": 327
+        },
+        {
+          "caller": "parseEvidenceXml",
+          "callee": "extractInterventions",
+          "lineNumber": 330
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/pipeline.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 98,
+      "nonEmptyLines": 86,
+      "functions": [
+        {
+          "name": "buildEvidenceStories",
+          "startLine": 28,
+          "endLine": 80,
+          "params": [
+            "interventions"
+          ]
+        },
+        {
+          "name": "searchCommitteeEvidence",
+          "startLine": 82,
+          "endLine": 98,
+          "params": [
+            "db",
+            "query",
+            "limit"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "buildEvidenceStories",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "searchCommitteeEvidence",
+          "line": 82,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "grouped.get",
+          "lineNumber": 34
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "group.push",
+          "lineNumber": 36
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "grouped.set",
+          "lineNumber": 38
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "row.text.trim",
+          "lineNumber": 50
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "text.slice",
+          "lineNumber": 53
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "seen.has",
+          "lineNumber": 54
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "seen.add",
+          "lineNumber": 55
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "keySpeakers.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "RECOMMENDATION_RE.test",
+          "lineNumber": 63
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "recommendations.push",
+          "lineNumber": 64
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "stories.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "stories.sort",
+          "lineNumber": 78
+        },
+        {
+          "caller": "buildEvidenceStories",
+          "callee": "b.date.localeCompare",
+          "lineNumber": 78
+        },
+        {
+          "caller": "searchCommitteeEvidence",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 95
+        },
+        {
+          "caller": "searchCommitteeEvidence",
+          "callee": "db.prepare",
+          "lineNumber": 95
+        },
+        {
+          "caller": "searchCommitteeEvidence",
+          "callee": "await stmt.all",
+          "lineNumber": 96
+        },
+        {
+          "caller": "searchCommitteeEvidence",
+          "callee": "buildEvidenceStories",
+          "lineNumber": 97
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/committees/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 178,
+      "nonEmptyLines": 151,
+      "exports": [
+        {
+          "name": "COMMITTEE_CATEGORIES",
+          "line": 33,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cra-charity/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 321,
+      "nonEmptyLines": 280,
+      "functions": [
+        {
+          "name": "ckanPackageUrl",
+          "startLine": 292,
+          "endLine": 298,
+          "params": [
+            "year"
+          ]
+        },
+        {
+          "name": "ckanDownloadUrl",
+          "startLine": 305,
+          "endLine": 307,
+          "params": [
+            "packageId",
+            "resourceId",
+            "filename"
+          ]
+        },
+        {
+          "name": "ckanSearchUrl",
+          "startLine": 312,
+          "endLine": 314,
+          "params": [
+            "rows"
+          ]
+        },
+        {
+          "name": "craSearchUrl",
+          "startLine": 319,
+          "endLine": 321,
+          "params": [
+            "query"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "CRA_CKAN",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CHARITY_SEARCH_URL",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CSV_DOWNLOAD_URL",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CHARITY_PACKAGE_IDS",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_LATEST_YEAR",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_DEFAULT_YEAR",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_RESOURCE_PATTERNS",
+          "line": 84,
+          "isDefault": false
+        },
+        {
+          "name": "IDENT_COLUMN_ALIASES",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "FINANCIAL_COLUMN_ALIASES",
+          "line": 147,
+          "isDefault": false
+        },
+        {
+          "name": "GENERAL_COLUMN_ALIASES",
+          "line": 200,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_STATUS_MAP",
+          "line": 225,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CHARITY_T3010_DDL",
+          "line": 250,
+          "isDefault": false
+        },
+        {
+          "name": "ckanPackageUrl",
+          "line": 292,
+          "isDefault": false
+        },
+        {
+          "name": "ckanDownloadUrl",
+          "line": 305,
+          "isDefault": false
+        },
+        {
+          "name": "ckanSearchUrl",
+          "line": 312,
+          "isDefault": false
+        },
+        {
+          "name": "craSearchUrl",
+          "line": 319,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "craSearchUrl",
+          "callee": "encodeURIComponent",
+          "lineNumber": 320
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 16,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cra-charity/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 422,
+      "nonEmptyLines": 356,
+      "functions": [
+        {
+          "name": "fetchUrl",
+          "startLine": 93,
+          "endLine": 111,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCraCkanMetadata",
+          "startLine": 124,
+          "endLine": 149,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "discoverCraResources",
+          "startLine": 160,
+          "endLine": 194,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCraIdentCsv",
+          "startLine": 205,
+          "endLine": 227,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCraFinancialCsv",
+          "startLine": 234,
+          "endLine": 253,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCraGeneralCsv",
+          "startLine": 260,
+          "endLine": 279,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCraProgramsCsv",
+          "startLine": 285,
+          "endLine": 304,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCraAllCsvs",
+          "startLine": 310,
+          "endLine": 327,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fallbackFetch",
+          "startLine": 340,
+          "endLine": 377,
+          "params": [
+            "year",
+            "type",
+            "options"
+          ]
+        },
+        {
+          "name": "resolveUrl",
+          "startLine": 387,
+          "endLine": 394,
+          "params": [
+            "url",
+            "packageId",
+            "resourceId"
+          ]
+        },
+        {
+          "name": "listAvailableYears",
+          "startLine": 400,
+          "endLine": 422,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CraCharityFetchError",
+          "startLine": 29,
+          "endLine": 38,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CraCharityFetchError",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "fetchUrl",
+          "line": 93,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraCkanMetadata",
+          "line": 124,
+          "isDefault": false
+        },
+        {
+          "name": "discoverCraResources",
+          "line": 160,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraIdentCsv",
+          "line": 205,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraFinancialCsv",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraGeneralCsv",
+          "line": 260,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraProgramsCsv",
+          "line": 285,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraAllCsvs",
+          "line": 310,
+          "isDefault": false
+        },
+        {
+          "name": "listAvailableYears",
+          "line": 400,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 35
+        },
+        {
+          "caller": "fetchUrl",
+          "callee": "httpGet",
+          "lineNumber": 97
+        },
+        {
+          "caller": "fetchCraCkanMetadata",
+          "callee": "ckanPackageUrl",
+          "lineNumber": 128
+        },
+        {
+          "caller": "fetchCraCkanMetadata",
+          "callee": "fetchUrl",
+          "lineNumber": 129
+        },
+        {
+          "caller": "fetchCraCkanMetadata",
+          "callee": "JSON.parse",
+          "lineNumber": 132
+        },
+        {
+          "caller": "fetchCraCkanMetadata",
+          "callee": "String",
+          "lineNumber": 144
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "fetchCraCkanMetadata",
+          "lineNumber": 164
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "(r.name || '').trim",
+          "lineNumber": 177
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "(r.format || '').toUpperCase",
+          "lineNumber": 178
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "CRA_RESOURCE_PATTERNS.IDENTIFICATION.test",
+          "lineNumber": 182
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "CRA_RESOURCE_PATTERNS.FINANCIAL.test",
+          "lineNumber": 184
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "CRA_RESOURCE_PATTERNS.GENERAL_INFO.test",
+          "lineNumber": 186
+        },
+        {
+          "caller": "discoverCraResources",
+          "callee": "CRA_RESOURCE_PATTERNS.PROGRAMS.test",
+          "lineNumber": 188
+        },
+        {
+          "caller": "fetchCraIdentCsv",
+          "callee": "discoverCraResources",
+          "lineNumber": 212
+        },
+        {
+          "caller": "fetchCraIdentCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 215
+        },
+        {
+          "caller": "fetchCraIdentCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 220
+        },
+        {
+          "caller": "fetchCraIdentCsv",
+          "callee": "resolveUrl",
+          "lineNumber": 224
+        },
+        {
+          "caller": "fetchCraIdentCsv",
+          "callee": "fetchUrl",
+          "lineNumber": 225
+        },
+        {
+          "caller": "fetchCraFinancialCsv",
+          "callee": "discoverCraResources",
+          "lineNumber": 241
+        },
+        {
+          "caller": "fetchCraFinancialCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 243
+        },
+        {
+          "caller": "fetchCraFinancialCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 247
+        },
+        {
+          "caller": "fetchCraFinancialCsv",
+          "callee": "resolveUrl",
+          "lineNumber": 250
+        },
+        {
+          "caller": "fetchCraFinancialCsv",
+          "callee": "fetchUrl",
+          "lineNumber": 251
+        },
+        {
+          "caller": "fetchCraGeneralCsv",
+          "callee": "discoverCraResources",
+          "lineNumber": 267
+        },
+        {
+          "caller": "fetchCraGeneralCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 269
+        },
+        {
+          "caller": "fetchCraGeneralCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 273
+        },
+        {
+          "caller": "fetchCraGeneralCsv",
+          "callee": "resolveUrl",
+          "lineNumber": 276
+        },
+        {
+          "caller": "fetchCraGeneralCsv",
+          "callee": "fetchUrl",
+          "lineNumber": 277
+        },
+        {
+          "caller": "fetchCraProgramsCsv",
+          "callee": "discoverCraResources",
+          "lineNumber": 292
+        },
+        {
+          "caller": "fetchCraProgramsCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 294
+        },
+        {
+          "caller": "fetchCraProgramsCsv",
+          "callee": "fallbackFetch",
+          "lineNumber": 298
+        },
+        {
+          "caller": "fetchCraProgramsCsv",
+          "callee": "resolveUrl",
+          "lineNumber": 301
+        },
+        {
+          "caller": "fetchCraProgramsCsv",
+          "callee": "fetchUrl",
+          "lineNumber": 302
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "Promise.all",
+          "lineNumber": 319
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraIdentCsv(year, options).catch",
+          "lineNumber": 320
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraIdentCsv",
+          "lineNumber": 320
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraFinancialCsv(year, options).catch",
+          "lineNumber": 321
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraFinancialCsv",
+          "lineNumber": 321
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraGeneralCsv(year, options).catch",
+          "lineNumber": 322
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraGeneralCsv",
+          "lineNumber": 322
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraProgramsCsv(year, options).catch",
+          "lineNumber": 323
+        },
+        {
+          "caller": "fetchCraAllCsvs",
+          "callee": "fetchCraProgramsCsv",
+          "lineNumber": 323
+        },
+        {
+          "caller": "fallbackFetch",
+          "callee": "fetchCraCkanMetadata",
+          "lineNumber": 353
+        },
+        {
+          "caller": "fallbackFetch",
+          "callee": "(r.name || '').trim",
+          "lineNumber": 365
+        },
+        {
+          "caller": "fallbackFetch",
+          "callee": "(r.format || '').toUpperCase",
+          "lineNumber": 366
+        },
+        {
+          "caller": "fallbackFetch",
+          "callee": "pattern.test",
+          "lineNumber": 367
+        },
+        {
+          "caller": "fallbackFetch",
+          "callee": "resolveUrl",
+          "lineNumber": 368
+        },
+        {
+          "caller": "fallbackFetch",
+          "callee": "fetchUrl",
+          "lineNumber": 369
+        },
+        {
+          "caller": "resolveUrl",
+          "callee": "url.startsWith",
+          "lineNumber": 388
+        },
+        {
+          "caller": "resolveUrl",
+          "callee": "url.startsWith",
+          "lineNumber": 388
+        },
+        {
+          "caller": "resolveUrl",
+          "callee": "url.split('/').pop",
+          "lineNumber": 393
+        },
+        {
+          "caller": "resolveUrl",
+          "callee": "url.split",
+          "lineNumber": 393
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "fetchUrl",
+          "lineNumber": 406
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "JSON.parse",
+          "lineNumber": 407
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "Object.keys",
+          "lineNumber": 408
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "title.match",
+          "lineNumber": 413
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "years.push",
+          "lineNumber": 415
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "years.sort().reverse",
+          "lineNumber": 418
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "years.sort",
+          "lineNumber": 418
+        },
+        {
+          "caller": "listAvailableYears",
+          "callee": "Object.keys",
+          "lineNumber": 420
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 10,
+        "functionCount": 11,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cra-charity/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 487,
+      "nonEmptyLines": 423,
+      "functions": [
+        {
+          "name": "ingestCraCharities",
+          "startLine": 63,
+          "endLine": 182,
+          "params": [
+            "db",
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllCraCharityYears",
+          "startLine": 193,
+          "endLine": 221,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "upsertCraCharityRecord",
+          "startLine": 231,
+          "endLine": 269,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "initializeCraCharityTable",
+          "startLine": 275,
+          "endLine": 277,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "searchCraCharities",
+          "startLine": 287,
+          "endLine": 326,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getTopPoliticalSpenders",
+          "startLine": 332,
+          "endLine": 352,
+          "params": [
+            "db",
+            "year",
+            "limit"
+          ]
+        },
+        {
+          "name": "getTopCharitiesByRevenue",
+          "startLine": 358,
+          "endLine": 378,
+          "params": [
+            "db",
+            "year",
+            "limit"
+          ]
+        },
+        {
+          "name": "getCraCharityStats",
+          "startLine": 384,
+          "endLine": 439,
+          "params": [
+            "db",
+            "year"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestCraCharities",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllCraCharityYears",
+          "line": 193,
+          "isDefault": false
+        },
+        {
+          "name": "initializeCraCharityTable",
+          "line": 275,
+          "isDefault": false
+        },
+        {
+          "name": "searchCraCharities",
+          "line": 287,
+          "isDefault": false
+        },
+        {
+          "name": "getTopPoliticalSpenders",
+          "line": 332,
+          "isDefault": false
+        },
+        {
+          "name": "getTopCharitiesByRevenue",
+          "line": 358,
+          "isDefault": false
+        },
+        {
+          "name": "getCraCharityStats",
+          "line": 384,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraIdentCsv",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraFinancialCsv",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraGeneralCsv",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraProgramsCsv",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraAllCsvs",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCraCkanMetadata",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "discoverCraResources",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "listAvailableYears",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "CraCharityFetchError",
+          "line": 446,
+          "isDefault": false
+        },
+        {
+          "name": "parseCraCsvs",
+          "line": 458,
+          "isDefault": false
+        },
+        {
+          "name": "parseCraIdentCsv",
+          "line": 458,
+          "isDefault": false
+        },
+        {
+          "name": "parseCsvLine",
+          "line": 458,
+          "isDefault": false
+        },
+        {
+          "name": "parseCurrency",
+          "line": 458,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeHeader",
+          "line": 458,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CHARITY_T3010_DDL",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CHARITY_PACKAGE_IDS",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_DEFAULT_YEAR",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CKAN",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CHARITY_SEARCH_URL",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "CRA_CSV_DOWNLOAD_URL",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "craCkanPackageUrl",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "craCkanDownloadUrl",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "craSearchUrl",
+          "line": 466,
+          "isDefault": false
+        },
+        {
+          "name": "CraCharityT3010",
+          "line": 478,
+          "isDefault": false
+        },
+        {
+          "name": "CraCharityIngestionResult",
+          "line": 478,
+          "isDefault": false
+        },
+        {
+          "name": "CharityCategory",
+          "line": 483,
+          "isDefault": false
+        },
+        {
+          "name": "CharityDesignation",
+          "line": 483,
+          "isDefault": false
+        },
+        {
+          "name": "CharityStatus",
+          "line": 483,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestCraCharities",
+          "callee": "Date.now",
+          "lineNumber": 77
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "ckanPackageUrl",
+          "lineNumber": 92
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 96
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "fetchCraIdentCsv",
+          "lineNumber": 97
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "(identCsv.length / 1024).toFixed",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 100
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "fetchCraFinancialCsv",
+          "lineNumber": 101
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 102
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "(financialCsv.length / 1024).toFixed",
+          "lineNumber": 102
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 107
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "fetchCraGeneralCsv",
+          "lineNumber": 108
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 109
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "(generalCsv.length / 1024).toFixed",
+          "lineNumber": 109
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 111
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 118
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "fetchCraProgramsCsv",
+          "lineNumber": 119
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 120
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "(programsCsv.length / 1024).toFixed",
+          "lineNumber": 120
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 122
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 127
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "parseCraCsvs",
+          "lineNumber": 128
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 135
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "Date.now",
+          "lineNumber": 138
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "allRecords.filter",
+          "lineNumber": 144
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "r.legalName.toLowerCase().includes",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "r.legalName.toLowerCase",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "options.keyword!.toLowerCase",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "r.bn.includes",
+          "lineNumber": 146
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 150
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 154
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "upsertCraCharityRecord",
+          "lineNumber": 157
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "String",
+          "lineNumber": 160
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "result.errors.push",
+          "lineNumber": 161
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 164
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "String",
+          "lineNumber": 170
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "result.errors.push",
+          "lineNumber": 171
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 172
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "Date.now",
+          "lineNumber": 175
+        },
+        {
+          "caller": "ingestCraCharities",
+          "callee": "log",
+          "lineNumber": 176
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "log",
+          "lineNumber": 206
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "years.join",
+          "lineNumber": 206
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "ingestCraCharities",
+          "lineNumber": 211
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 215
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "Object.values",
+          "lineNumber": 215
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 216
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "Object.values",
+          "lineNumber": 216
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "Object.values(results).reduce",
+          "lineNumber": 217
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "Object.values",
+          "lineNumber": 217
+        },
+        {
+          "caller": "ingestAllCraCharityYears",
+          "callee": "log",
+          "lineNumber": 218
+        },
+        {
+          "caller": "upsertCraCharityRecord",
+          "callee": "db.prepare(`\n    INSERT OR REPLACE INTO cra_charity_t3010\n      (id, bn, legal_name, operating_name, category, designation,\n       status, fiscal_year_start, fiscal_year_end,\n       total_revenue, total_expenses, total_assets, total_liabilities,\n       compensation_key_employees, charitable_programs_description,\n       political_activities_amount, grants_amount,\n       dataset_year, source_url, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 235
+        },
+        {
+          "caller": "upsertCraCharityRecord",
+          "callee": "db.prepare",
+          "lineNumber": 235
+        },
+        {
+          "caller": "upsertCraCharityRecord",
+          "callee": "stmt.run",
+          "lineNumber": 267
+        },
+        {
+          "caller": "initializeCraCharityTable",
+          "callee": "db.exec",
+          "lineNumber": 276
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "conditions.push",
+          "lineNumber": 300
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "params.push",
+          "lineNumber": 302
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "conditions.push",
+          "lineNumber": 305
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "params.push",
+          "lineNumber": 306
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "conditions.push",
+          "lineNumber": 310
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "params.push",
+          "lineNumber": 311
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "conditions.push",
+          "lineNumber": 315
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "params.push",
+          "lineNumber": 316
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "conditions.join",
+          "lineNumber": 319
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "params.push",
+          "lineNumber": 321
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 323
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "db.prepare",
+          "lineNumber": 323
+        },
+        {
+          "caller": "searchCraCharities",
+          "callee": "await stmt.all",
+          "lineNumber": 324
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "conditions.push",
+          "lineNumber": 341
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "params.push",
+          "lineNumber": 342
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "conditions.join",
+          "lineNumber": 345
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "params.push",
+          "lineNumber": 347
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 349
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "db.prepare",
+          "lineNumber": 349
+        },
+        {
+          "caller": "getTopPoliticalSpenders",
+          "callee": "await stmt.all",
+          "lineNumber": 350
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "conditions.push",
+          "lineNumber": 367
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "params.push",
+          "lineNumber": 368
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "conditions.join",
+          "lineNumber": 371
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "params.push",
+          "lineNumber": 373
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 375
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "db.prepare",
+          "lineNumber": 375
+        },
+        {
+          "caller": "getTopCharitiesByRevenue",
+          "callee": "await stmt.all",
+          "lineNumber": 376
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "await db.prepare(totalSql).bind(...params).first",
+          "lineNumber": 397
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare(totalSql).bind",
+          "lineNumber": 397
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare",
+          "lineNumber": 397
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "await db.prepare(categorySql).bind(...params).all",
+          "lineNumber": 404
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare(categorySql).bind",
+          "lineNumber": 404
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare",
+          "lineNumber": 404
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "await db.prepare(statusSql).bind(...params).all",
+          "lineNumber": 415
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare(statusSql).bind",
+          "lineNumber": 415
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare",
+          "lineNumber": 415
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "await db.prepare(politicalSql).bind(...params).first",
+          "lineNumber": 424
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare(politicalSql).bind",
+          "lineNumber": 424
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "db.prepare",
+          "lineNumber": 424
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "(categoryResult.results ?? []).map",
+          "lineNumber": 428
+        },
+        {
+          "caller": "getCraCharityStats",
+          "callee": "(statusResult.results ?? []).map",
+          "lineNumber": 433
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 35,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cra-charity/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 444,
+      "nonEmptyLines": 369,
+      "functions": [
+        {
+          "name": "parseCraCsvs",
+          "startLine": 59,
+          "endLine": 107,
+          "params": [
+            "csvData",
+            "year",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "parseCraIdentCsv",
+          "startLine": 114,
+          "endLine": 157,
+          "params": [
+            "csvText",
+            "year",
+            "sourceUrl"
+          ]
+        },
+        {
+          "name": "joinRecord",
+          "startLine": 164,
+          "endLine": 220,
+          "params": [
+            "bn",
+            "ident",
+            "financial",
+            "general",
+            "programs",
+            "year",
+            "sourceUrl",
+            "now"
+          ]
+        },
+        {
+          "name": "parseProgramsCsv",
+          "startLine": 235,
+          "endLine": 275,
+          "params": [
+            "csvText"
+          ]
+        },
+        {
+          "name": "joinProgramDescriptions",
+          "startLine": 281,
+          "endLine": 288,
+          "params": [
+            "programs"
+          ]
+        },
+        {
+          "name": "parseCsvToRows",
+          "startLine": 294,
+          "endLine": 348,
+          "params": [
+            "csvText",
+            "columnAliases"
+          ]
+        },
+        {
+          "name": "indexByBn",
+          "startLine": 354,
+          "endLine": 364,
+          "params": [
+            "rows"
+          ]
+        },
+        {
+          "name": "findColumnIndex",
+          "startLine": 371,
+          "endLine": 382,
+          "params": [
+            "headers",
+            "candidates"
+          ]
+        },
+        {
+          "name": "normalizeHeader",
+          "startLine": 385,
+          "endLine": 392,
+          "params": [
+            "h"
+          ]
+        },
+        {
+          "name": "safeTrim",
+          "startLine": 406,
+          "endLine": 409,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseCurrency",
+          "startLine": 411,
+          "endLine": 419,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseCategory",
+          "startLine": 421,
+          "endLine": 431,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseStatus",
+          "startLine": 433,
+          "endLine": 437,
+          "params": [
+            "val"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseCraCsvs",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "parseCraIdentCsv",
+          "line": 114,
+          "isDefault": false
+        },
+        {
+          "name": "parseCsvLine",
+          "line": 440,
+          "isDefault": false
+        },
+        {
+          "name": "parseCurrency",
+          "line": 440,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeHeader",
+          "line": 440,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseCraCsvs",
+          "callee": "new Date().toISOString",
+          "lineNumber": 64
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "parseCsvToRows",
+          "lineNumber": 67
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "parseCsvToRows",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "parseCsvToRows",
+          "lineNumber": 69
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "parseProgramsCsv",
+          "lineNumber": 70
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "indexByBn",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "indexByBn",
+          "lineNumber": 74
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "indexByBn",
+          "lineNumber": 75
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "seenBns.has",
+          "lineNumber": 84
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "seenBns.add",
+          "lineNumber": 85
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "joinRecord",
+          "lineNumber": 88
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "financialByBn.get",
+          "lineNumber": 91
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "generalByBn.get",
+          "lineNumber": 92
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "programsByBn.get",
+          "lineNumber": 93
+        },
+        {
+          "caller": "parseCraCsvs",
+          "callee": "records.push",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseCraIdentCsv",
+          "callee": "new Date().toISOString",
+          "lineNumber": 119
+        },
+        {
+          "caller": "parseCraIdentCsv",
+          "callee": "parseCsvToRows",
+          "lineNumber": 120
+        },
+        {
+          "caller": "parseCraIdentCsv",
+          "callee": "computeHash",
+          "lineNumber": 128
+        },
+        {
+          "caller": "parseCraIdentCsv",
+          "callee": "records.push",
+          "lineNumber": 129
+        },
+        {
+          "caller": "parseCraIdentCsv",
+          "callee": "parseCategory",
+          "lineNumber": 134
+        },
+        {
+          "caller": "parseCraIdentCsv",
+          "callee": "parseStatus",
+          "lineNumber": 136
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "computeHash",
+          "lineNumber": 178
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 181
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 182
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 183
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 184
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 185
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 186
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCurrency",
+          "lineNumber": 193
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "joinProgramDescriptions",
+          "lineNumber": 196
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseCategory",
+          "lineNumber": 203
+        },
+        {
+          "caller": "joinRecord",
+          "callee": "parseStatus",
+          "lineNumber": 205
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "csvText.trim",
+          "lineNumber": 237
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "csvText.replace(/^\\uFEFF/, '').split",
+          "lineNumber": 239
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "csvText.replace",
+          "lineNumber": 239
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 242
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "header.map",
+          "lineNumber": 243
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "normalizeHeader",
+          "lineNumber": 243
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "findColumnIndex",
+          "lineNumber": 246
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "findColumnIndex",
+          "lineNumber": 247
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "lines[i].trim",
+          "lineNumber": 253
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "parseCsvLine",
+          "lineNumber": 257
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "safeTrim",
+          "lineNumber": 258
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "safeTrim",
+          "lineNumber": 261
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "programsByBn.has",
+          "lineNumber": 263
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "programsByBn.set",
+          "lineNumber": 264
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "programsByBn.get(bn)!.push",
+          "lineNumber": 267
+        },
+        {
+          "caller": "parseProgramsCsv",
+          "callee": "programsByBn.get",
+          "lineNumber": 267
+        },
+        {
+          "caller": "joinProgramDescriptions",
+          "callee": "programs\n    .map(p => p.description.trim())\n    .filter(Boolean)\n    .join('\\n---\\n')\n    .substring",
+          "lineNumber": 283
+        },
+        {
+          "caller": "joinProgramDescriptions",
+          "callee": "programs\n    .map(p => p.description.trim())\n    .filter(Boolean)\n    .join",
+          "lineNumber": 283
+        },
+        {
+          "caller": "joinProgramDescriptions",
+          "callee": "programs\n    .map(p => p.description.trim())\n    .filter",
+          "lineNumber": 283
+        },
+        {
+          "caller": "joinProgramDescriptions",
+          "callee": "programs\n    .map",
+          "lineNumber": 283
+        },
+        {
+          "caller": "joinProgramDescriptions",
+          "callee": "p.description.trim",
+          "lineNumber": 284
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "csvText.trim",
+          "lineNumber": 298
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "csvText.replace(/^\\uFEFF/, '').split",
+          "lineNumber": 300
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "csvText.replace",
+          "lineNumber": 300
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "parseCsvLine",
+          "lineNumber": 303
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "header.map",
+          "lineNumber": 304
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "normalizeHeader",
+          "lineNumber": 304
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "headerLower.map",
+          "lineNumber": 307
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "Object.entries",
+          "lineNumber": 312
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "h.includes",
+          "lineNumber": 313
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "lines[i].trim",
+          "lineNumber": 322
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "parseCsvLine",
+          "lineNumber": 326
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "safeTrim",
+          "lineNumber": 332
+        },
+        {
+          "caller": "parseCsvToRows",
+          "callee": "rows.push",
+          "lineNumber": 340
+        },
+        {
+          "caller": "indexByBn",
+          "callee": "row['bn']?.trim",
+          "lineNumber": 357
+        },
+        {
+          "caller": "indexByBn",
+          "callee": "map.set",
+          "lineNumber": 360
+        },
+        {
+          "caller": "findColumnIndex",
+          "callee": "headers.indexOf",
+          "lineNumber": 373
+        },
+        {
+          "caller": "findColumnIndex",
+          "callee": "headers[i].includes",
+          "lineNumber": 378
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace(/['\"]/g, '')\n    .replace(/[-_./]/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim",
+          "lineNumber": 386
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace(/['\"]/g, '')\n    .replace(/[-_./]/g, ' ')\n    .replace",
+          "lineNumber": 386
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace(/['\"]/g, '')\n    .replace",
+          "lineNumber": 386
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase()\n    .replace",
+          "lineNumber": 386
+        },
+        {
+          "caller": "normalizeHeader",
+          "callee": "h\n    .toLowerCase",
+          "lineNumber": 386
+        },
+        {
+          "caller": "safeTrim",
+          "callee": "val.replace(/^[\\\"'\\s]+|[\\\"'\\s]+$/g, '').trim",
+          "lineNumber": 408
+        },
+        {
+          "caller": "safeTrim",
+          "callee": "val.replace",
+          "lineNumber": 408
+        },
+        {
+          "caller": "parseCurrency",
+          "callee": "val\n    .replace(/[$,€£\\s]/g, '')\n    .replace",
+          "lineNumber": 413
+        },
+        {
+          "caller": "parseCurrency",
+          "callee": "val\n    .replace",
+          "lineNumber": 413
+        },
+        {
+          "caller": "parseCurrency",
+          "callee": "Number",
+          "lineNumber": 417
+        },
+        {
+          "caller": "parseCurrency",
+          "callee": "isNaN",
+          "lineNumber": 418
+        },
+        {
+          "caller": "parseCategory",
+          "callee": "val.toLowerCase().trim",
+          "lineNumber": 423
+        },
+        {
+          "caller": "parseCategory",
+          "callee": "val.toLowerCase",
+          "lineNumber": 423
+        },
+        {
+          "caller": "parseCategory",
+          "callee": "normalized.includes",
+          "lineNumber": 425
+        },
+        {
+          "caller": "parseCategory",
+          "callee": "normalized.includes",
+          "lineNumber": 426
+        },
+        {
+          "caller": "parseCategory",
+          "callee": "normalized.includes",
+          "lineNumber": 427
+        },
+        {
+          "caller": "parseCategory",
+          "callee": "normalized.includes",
+          "lineNumber": 428
+        },
+        {
+          "caller": "parseStatus",
+          "callee": "val.trim",
+          "lineNumber": 435
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 5,
+        "functionCount": 13,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cra-charity/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 147,
+      "nonEmptyLines": 120,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/crown-corporations/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 419,
+      "nonEmptyLines": 391,
+      "classes": [
+        {
+          "name": "CrownCorporationError",
+          "startLine": 408,
+          "endLine": 419,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CBC_CONFIG",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "CPC_CONFIG",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "CN_CONFIG",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "VIA_CONFIG",
+          "line": 119,
+          "isDefault": false
+        },
+        {
+          "name": "EDC_CONFIG",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "BDC_CONFIG",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "CMHC_CONFIG",
+          "line": 197,
+          "isDefault": false
+        },
+        {
+          "name": "CCC_CONFIG",
+          "line": 221,
+          "isDefault": false
+        },
+        {
+          "name": "NAC_CONFIG",
+          "line": 245,
+          "isDefault": false
+        },
+        {
+          "name": "FCC_CONFIG",
+          "line": 269,
+          "isDefault": false
+        },
+        {
+          "name": "PSP_CONFIG",
+          "line": 293,
+          "isDefault": false
+        },
+        {
+          "name": "CROWN_CORP_CONFIGS",
+          "line": 317,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_CROWN_CORPS",
+          "line": 334,
+          "isDefault": false
+        },
+        {
+          "name": "CURRENT_CROWN_CORPS",
+          "line": 339,
+          "isDefault": false
+        },
+        {
+          "name": "QUARTERLY_REPORTING_CORPS",
+          "line": 344,
+          "isDefault": false
+        },
+        {
+          "name": "RSS_FEED_CORPS",
+          "line": 354,
+          "isDefault": false
+        },
+        {
+          "name": "ANNUAL_REPORT_URL_PATTERNS",
+          "line": 367,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 390,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 393,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 396,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 399,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationError",
+          "line": 408,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 416
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 22,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/crown-corporations/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 382,
+      "nonEmptyLines": 345,
+      "functions": [
+        {
+          "name": "extractReportLinks",
+          "startLine": 55,
+          "endLine": 89,
+          "params": [
+            "html"
+          ]
+        },
+        {
+          "name": "resolveUrl",
+          "startLine": 94,
+          "endLine": 100,
+          "params": [
+            "href",
+            "baseUrl"
+          ]
+        },
+        {
+          "name": "fetchCrownCorpReport",
+          "startLine": 117,
+          "endLine": 238,
+          "params": [
+            "org",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllCrownCorps",
+          "startLine": 243,
+          "endLine": 275,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCBCReports",
+          "startLine": 289,
+          "endLine": 297,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCanadaPostReports",
+          "startLine": 306,
+          "endLine": 314,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCMHCReports",
+          "startLine": 324,
+          "endLine": 332,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchEDCReports",
+          "startLine": 341,
+          "endLine": 349,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchViaRailReports",
+          "startLine": 358,
+          "endLine": 366,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchBDCReports",
+          "startLine": 374,
+          "endLine": 382,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "extractReportLinks",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "resolveUrl",
+          "line": 94,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCrownCorpReport",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCrownCorps",
+          "line": 243,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCBCReports",
+          "line": 289,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCanadaPostReports",
+          "line": 306,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCMHCReports",
+          "line": 324,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEDCReports",
+          "line": 341,
+          "isDefault": false
+        },
+        {
+          "name": "fetchViaRailReports",
+          "line": 358,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBDCReports",
+          "line": 374,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "extractReportLinks",
+          "callee": "linkPattern.exec",
+          "lineNumber": 68
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "match[1].trim",
+          "lineNumber": 69
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "innerHtml.replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 71
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "innerHtml.replace",
+          "lineNumber": 71
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "url.startsWith",
+          "lineNumber": 74
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "url.startsWith",
+          "lineNumber": 75
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "url.startsWith",
+          "lineNumber": 75
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "url.startsWith",
+          "lineNumber": 76
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "seen.has",
+          "lineNumber": 78
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "seen.add",
+          "lineNumber": 79
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "reportKeywords.test",
+          "lineNumber": 82
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "reportKeywords.test",
+          "lineNumber": 82
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "pdfExt.test",
+          "lineNumber": 82
+        },
+        {
+          "caller": "extractReportLinks",
+          "callee": "links.push",
+          "lineNumber": 83
+        },
+        {
+          "caller": "resolveUrl",
+          "callee": "href.startsWith",
+          "lineNumber": 95
+        },
+        {
+          "caller": "resolveUrl",
+          "callee": "href.startsWith",
+          "lineNumber": 95
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "new Date().toISOString",
+          "lineNumber": 137
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "httpGet",
+          "lineNumber": 147
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "extractReportLinks",
+          "lineNumber": 166
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "Math.min",
+          "lineNumber": 168
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "link.text.match",
+          "lineNumber": 172
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "new Date().getFullYear().toString",
+          "lineNumber": 173
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 173
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "link.text.toLowerCase",
+          "lineNumber": 177
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "link.url.toLowerCase",
+          "lineNumber": 178
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bannual\\b/.test",
+          "lineNumber": 181
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bquarter(?:ly)?\\b/.test",
+          "lineNumber": 182
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bcorporate\\s*plan\\b/.test",
+          "lineNumber": 183
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bboard\\s*minutes\\b/.test",
+          "lineNumber": 184
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bexecutive\\s*compensation\\b/.test",
+          "lineNumber": 185
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bsustainability\\b/.test",
+          "lineNumber": 186
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "/\\bdiversity\\b/.test",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "combined.match",
+          "lineNumber": 190
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "quarterMatch?.[0]?.toUpperCase",
+          "lineNumber": 191
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "resolveUrl",
+          "lineNumber": 193
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "computeHash",
+          "lineNumber": 197
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "records.push",
+          "lineNumber": 199
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "org.toLowerCase",
+          "lineNumber": 223
+        },
+        {
+          "caller": "fetchCrownCorpReport",
+          "callee": "String",
+          "lineNumber": 230
+        },
+        {
+          "caller": "fetchAllCrownCorps",
+          "callee": "CURRENT_CROWN_CORPS.map",
+          "lineNumber": 253
+        },
+        {
+          "caller": "fetchAllCrownCorps",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 260
+        },
+        {
+          "caller": "fetchAllCrownCorps",
+          "callee": "String",
+          "lineNumber": 268
+        },
+        {
+          "caller": "fetchAllCrownCorps",
+          "callee": "console.warn",
+          "lineNumber": 269
+        },
+        {
+          "caller": "fetchCBCReports",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 296
+        },
+        {
+          "caller": "fetchCanadaPostReports",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 313
+        },
+        {
+          "caller": "fetchCMHCReports",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 331
+        },
+        {
+          "caller": "fetchEDCReports",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 348
+        },
+        {
+          "caller": "fetchViaRailReports",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 365
+        },
+        {
+          "caller": "fetchBDCReports",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 381
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 10,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/crown-corporations/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 638,
+      "nonEmptyLines": 570,
+      "functions": [
+        {
+          "name": "initializeCrownCorporationsTable",
+          "startLine": 198,
+          "endLine": 200,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertRecord",
+          "startLine": 207,
+          "endLine": 250,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "recordExists",
+          "startLine": 255,
+          "endLine": 271,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "getLatestPublishedDate",
+          "startLine": 276,
+          "endLine": 292,
+          "params": [
+            "db",
+            "org"
+          ]
+        },
+        {
+          "name": "crownCorporationsTableExists",
+          "startLine": 297,
+          "endLine": 306,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "ingestCrownCorporations",
+          "startLine": 325,
+          "endLine": 465,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAllCrownCorporations",
+          "startLine": 471,
+          "endLine": 479,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "searchCrownCorporations",
+          "startLine": 492,
+          "endLine": 513,
+          "params": [
+            "db",
+            "query",
+            "limit"
+          ]
+        },
+        {
+          "name": "getByOrg",
+          "startLine": 523,
+          "endLine": 546,
+          "params": [
+            "db",
+            "org",
+            "reportType",
+            "limit"
+          ]
+        },
+        {
+          "name": "getByFiscalYear",
+          "startLine": 556,
+          "endLine": 579,
+          "params": [
+            "db",
+            "fiscalYear",
+            "org",
+            "limit"
+          ]
+        },
+        {
+          "name": "getRecentRecords",
+          "startLine": 587,
+          "endLine": 599,
+          "params": [
+            "db",
+            "limit"
+          ]
+        },
+        {
+          "name": "getAnnualFinancials",
+          "startLine": 607,
+          "endLine": 638,
+          "params": [
+            "db",
+            "fiscalYear"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCrownCorpReport",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCrownCorps",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCBCReports",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCanadaPostReports",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCMHCReports",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "fetchEDCReports",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "fetchViaRailReports",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "fetchBDCReports",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "parseReport",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "parseRecords",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "detectReportType",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "detectQuarter",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "extractFiscalYear",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeOrgCode",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "CROWN_CORP_CONFIGS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_CROWN_CORPS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "CURRENT_CROWN_CORPS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "QUARTERLY_REPORTING_CORPS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "RSS_FEED_CORPS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "ANNUAL_REPORT_URL_PATTERNS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationError",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationRecord",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationCode",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "ReportType",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationConfig",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationIngestionOptions",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "CrownCorporationIngestionResult",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "CROWN_CORPORATIONS_DDL",
+          "line": 130,
+          "isDefault": false
+        },
+        {
+          "name": "initializeCrownCorporationsTable",
+          "line": 198,
+          "isDefault": false
+        },
+        {
+          "name": "recordExists",
+          "line": 255,
+          "isDefault": false
+        },
+        {
+          "name": "getLatestPublishedDate",
+          "line": 276,
+          "isDefault": false
+        },
+        {
+          "name": "crownCorporationsTableExists",
+          "line": 297,
+          "isDefault": false
+        },
+        {
+          "name": "ingestCrownCorporations",
+          "line": 325,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllCrownCorporations",
+          "line": 471,
+          "isDefault": false
+        },
+        {
+          "name": "searchCrownCorporations",
+          "line": 492,
+          "isDefault": false
+        },
+        {
+          "name": "getByOrg",
+          "line": 523,
+          "isDefault": false
+        },
+        {
+          "name": "getByFiscalYear",
+          "line": 556,
+          "isDefault": false
+        },
+        {
+          "name": "getRecentRecords",
+          "line": 587,
+          "isDefault": false
+        },
+        {
+          "name": "getAnnualFinancials",
+          "line": 607,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeCrownCorporationsTable",
+          "callee": "db.exec",
+          "lineNumber": 199
+        },
+        {
+          "caller": "upsertRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO crown_corporations\n      (id, org, org_name, report_type, fiscal_year, fiscal_quarter,\n       title, summary, revenue, expenses, net_income, government_funding,\n       total_assets, total_liabilities, employee_count,\n       executive_compensation, board_members, board_chair, ceo_name,\n       report_url, published_date, language, source_url, source_system,\n       ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 211
+        },
+        {
+          "caller": "upsertRecord",
+          "callee": "db.prepare",
+          "lineNumber": 211
+        },
+        {
+          "caller": "upsertRecord",
+          "callee": "stmt.run",
+          "lineNumber": 248
+        },
+        {
+          "caller": "recordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM crown_corporations\n     WHERE org = ? AND fiscal_year = ? AND report_type = ? AND source_url = ?\n     LIMIT 1`,\n  ).bind(\n    record.org,\n    record.fiscalYear,\n    record.reportType,\n    record.sourceUrl,\n  ).first",
+          "lineNumber": 259
+        },
+        {
+          "caller": "recordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM crown_corporations\n     WHERE org = ? AND fiscal_year = ? AND report_type = ? AND source_url = ?\n     LIMIT 1`,\n  ).bind",
+          "lineNumber": 259
+        },
+        {
+          "caller": "recordExists",
+          "callee": "db.prepare",
+          "lineNumber": 259
+        },
+        {
+          "caller": "getLatestPublishedDate",
+          "callee": "params.push",
+          "lineNumber": 285
+        },
+        {
+          "caller": "getLatestPublishedDate",
+          "callee": "await db.prepare(sql).bind(...params).first",
+          "lineNumber": 290
+        },
+        {
+          "caller": "getLatestPublishedDate",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 290
+        },
+        {
+          "caller": "getLatestPublishedDate",
+          "callee": "db.prepare",
+          "lineNumber": 290
+        },
+        {
+          "caller": "crownCorporationsTableExists",
+          "callee": "db.prepare(\n      `SELECT name FROM sqlite_master WHERE type='table' AND name='crown_corporations'`,\n    ).first",
+          "lineNumber": 299
+        },
+        {
+          "caller": "crownCorporationsTableExists",
+          "callee": "db.prepare",
+          "lineNumber": 299
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "Date.now",
+          "lineNumber": 329
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "CURRENT_CROWN_CORPS.map",
+          "lineNumber": 341
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 346
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "initializeCrownCorporationsTable",
+          "lineNumber": 347
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "Date.now",
+          "lineNumber": 352
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 363
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "fetchCrownCorpReport",
+          "lineNumber": 367
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 376
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "parseRecords",
+          "lineNumber": 384
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 389
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "recordExists",
+          "lineNumber": 396
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "upsertRecord",
+          "lineNumber": 400
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "String",
+          "lineNumber": 406
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "orgResult.errors.push",
+          "lineNumber": 407
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "record.id?.substring",
+          "lineNumber": 407
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 416
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "String",
+          "lineNumber": 420
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "orgResult.errors.push",
+          "lineNumber": 421
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 422
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "upsertOrganization",
+          "lineNumber": 430
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "result.errors.push",
+          "lineNumber": 449
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "orgResult.errors.map",
+          "lineNumber": 449
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "String",
+          "lineNumber": 452
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "result.errors.push",
+          "lineNumber": 453
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 454
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "Date.now",
+          "lineNumber": 457
+        },
+        {
+          "caller": "ingestCrownCorporations",
+          "callee": "log",
+          "lineNumber": 458
+        },
+        {
+          "caller": "ingestAllCrownCorporations",
+          "callee": "ingestCrownCorporations",
+          "lineNumber": 475
+        },
+        {
+          "caller": "ingestAllCrownCorporations",
+          "callee": "CURRENT_CROWN_CORPS.map",
+          "lineNumber": 477
+        },
+        {
+          "caller": "searchCrownCorporations",
+          "callee": "query.toLowerCase",
+          "lineNumber": 497
+        },
+        {
+          "caller": "searchCrownCorporations",
+          "callee": "db.prepare(`\n    SELECT * FROM crown_corporations\n    WHERE LOWER(org_name) LIKE ?\n       OR LOWER(title) LIKE ?\n       OR LOWER(summary) LIKE ?\n       OR LOWER(ceo_name) LIKE ?\n       OR LOWER(board_chair) LIKE ?\n       OR LOWER(fiscal_year) LIKE ?\n    ORDER BY published_date DESC, fiscal_year DESC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 499
+        },
+        {
+          "caller": "searchCrownCorporations",
+          "callee": "db.prepare",
+          "lineNumber": 499
+        },
+        {
+          "caller": "searchCrownCorporations",
+          "callee": "await stmt.all",
+          "lineNumber": 511
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "conditions.push",
+          "lineNumber": 533
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "params.push",
+          "lineNumber": 534
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "conditions.join",
+          "lineNumber": 538
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "params.push",
+          "lineNumber": 541
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 543
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "db.prepare",
+          "lineNumber": 543
+        },
+        {
+          "caller": "getByOrg",
+          "callee": "await stmt.all",
+          "lineNumber": 544
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "conditions.push",
+          "lineNumber": 566
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "params.push",
+          "lineNumber": 567
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "conditions.join",
+          "lineNumber": 571
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "params.push",
+          "lineNumber": 574
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 576
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "db.prepare",
+          "lineNumber": 576
+        },
+        {
+          "caller": "getByFiscalYear",
+          "callee": "await stmt.all",
+          "lineNumber": 577
+        },
+        {
+          "caller": "getRecentRecords",
+          "callee": "db.prepare(`\n    SELECT * FROM crown_corporations\n    ORDER BY published_date DESC, ingested_at DESC\n    LIMIT ?\n  `).bind",
+          "lineNumber": 591
+        },
+        {
+          "caller": "getRecentRecords",
+          "callee": "db.prepare",
+          "lineNumber": 591
+        },
+        {
+          "caller": "getRecentRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 597
+        },
+        {
+          "caller": "getAnnualFinancials",
+          "callee": "db.prepare(`\n    SELECT org, org_name,\n           revenue, expenses, net_income,\n           government_funding, employee_count\n    FROM crown_corporations\n    WHERE fiscal_year = ? AND report_type = 'annual-report'\n    ORDER BY org\n  `).bind",
+          "lineNumber": 619
+        },
+        {
+          "caller": "getAnnualFinancials",
+          "callee": "db.prepare",
+          "lineNumber": 619
+        },
+        {
+          "caller": "getAnnualFinancials",
+          "callee": "await stmt.all",
+          "lineNumber": 628
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 40,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/crown-corporations/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 244,
+      "nonEmptyLines": 220,
+      "functions": [
+        {
+          "name": "parseReport",
+          "startLine": 47,
+          "endLine": 123,
+          "params": [
+            "html",
+            "org",
+            "orgName",
+            "options"
+          ]
+        },
+        {
+          "name": "parseRecords",
+          "startLine": 133,
+          "endLine": 156,
+          "params": [
+            "rawRecords",
+            "org"
+          ]
+        },
+        {
+          "name": "detectReportType",
+          "startLine": 165,
+          "endLine": 177,
+          "params": [
+            "title",
+            "url"
+          ]
+        },
+        {
+          "name": "detectQuarter",
+          "startLine": 182,
+          "endLine": 192,
+          "params": [
+            "title",
+            "url"
+          ]
+        },
+        {
+          "name": "extractFiscalYear",
+          "startLine": 197,
+          "endLine": 200,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "normalizeOrgCode",
+          "startLine": 205,
+          "endLine": 244,
+          "params": [
+            "input"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseReport",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "parseRecords",
+          "line": 133,
+          "isDefault": false
+        },
+        {
+          "name": "detectReportType",
+          "line": 165,
+          "isDefault": false
+        },
+        {
+          "name": "detectQuarter",
+          "line": 182,
+          "isDefault": false
+        },
+        {
+          "name": "extractFiscalYear",
+          "line": 197,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeOrgCode",
+          "line": 205,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseReport",
+          "callee": "new Date().toISOString",
+          "lineNumber": 58
+        },
+        {
+          "caller": "parseReport",
+          "callee": "extractReportLinks",
+          "lineNumber": 63
+        },
+        {
+          "caller": "parseReport",
+          "callee": "link.text.match",
+          "lineNumber": 69
+        },
+        {
+          "caller": "parseReport",
+          "callee": "link.url.match",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseReport",
+          "callee": "new Date().getFullYear().toString",
+          "lineNumber": 74
+        },
+        {
+          "caller": "parseReport",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 74
+        },
+        {
+          "caller": "parseReport",
+          "callee": "detectReportType",
+          "lineNumber": 78
+        },
+        {
+          "caller": "parseReport",
+          "callee": "detectQuarter",
+          "lineNumber": 81
+        },
+        {
+          "caller": "parseReport",
+          "callee": "computeHash",
+          "lineNumber": 85
+        },
+        {
+          "caller": "parseReport",
+          "callee": "seenHashes.has",
+          "lineNumber": 87
+        },
+        {
+          "caller": "parseReport",
+          "callee": "seenHashes.add",
+          "lineNumber": 88
+        },
+        {
+          "caller": "parseReport",
+          "callee": "records.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "parseReport",
+          "callee": "org.toLowerCase",
+          "lineNumber": 114
+        },
+        {
+          "caller": "parseReport",
+          "callee": "console.warn",
+          "lineNumber": 118
+        },
+        {
+          "caller": "parseReport",
+          "callee": "String",
+          "lineNumber": 118
+        },
+        {
+          "caller": "parseRecords",
+          "callee": "rawRecords.flat",
+          "lineNumber": 140
+        },
+        {
+          "caller": "parseRecords",
+          "callee": "seenHashes.has",
+          "lineNumber": 145
+        },
+        {
+          "caller": "parseRecords",
+          "callee": "seenHashes.add",
+          "lineNumber": 146
+        },
+        {
+          "caller": "parseRecords",
+          "callee": "records.push",
+          "lineNumber": 147
+        },
+        {
+          "caller": "parseRecords",
+          "callee": "String",
+          "lineNumber": 150
+        },
+        {
+          "caller": "parseRecords",
+          "callee": "console.warn",
+          "lineNumber": 151
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "(title + ' ' + url).toLowerCase",
+          "lineNumber": 166
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bannual\\b/.test",
+          "lineNumber": 168
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bquarter(?:ly)?\\b/.test",
+          "lineNumber": 169
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bcorporate\\s*plan\\b/.test",
+          "lineNumber": 170
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bboard\\s*minutes\\b/.test",
+          "lineNumber": 171
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bexecutive\\s*comp(?:ensation)?\\b/.test",
+          "lineNumber": 172
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bsustainability\\b/.test",
+          "lineNumber": 173
+        },
+        {
+          "caller": "detectReportType",
+          "callee": "/\\bdiversity\\b/.test",
+          "lineNumber": 174
+        },
+        {
+          "caller": "detectQuarter",
+          "callee": "(title + ' ' + url).toLowerCase",
+          "lineNumber": 183
+        },
+        {
+          "caller": "detectQuarter",
+          "callee": "combined.match",
+          "lineNumber": 184
+        },
+        {
+          "caller": "detectQuarter",
+          "callee": "/\\bfirst\\s+quarter\\b/.test",
+          "lineNumber": 187
+        },
+        {
+          "caller": "detectQuarter",
+          "callee": "/\\bsecond\\s+quarter\\b/.test",
+          "lineNumber": 188
+        },
+        {
+          "caller": "detectQuarter",
+          "callee": "/\\bthird\\s+quarter\\b/.test",
+          "lineNumber": 189
+        },
+        {
+          "caller": "detectQuarter",
+          "callee": "/\\bfourth\\s+quarter\\b/.test",
+          "lineNumber": 190
+        },
+        {
+          "caller": "extractFiscalYear",
+          "callee": "text.match",
+          "lineNumber": 198
+        },
+        {
+          "caller": "normalizeOrgCode",
+          "callee": "input.toUpperCase().trim",
+          "lineNumber": 206
+        },
+        {
+          "caller": "normalizeOrgCode",
+          "callee": "input.toUpperCase",
+          "lineNumber": 206
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/crown-corporations/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 233,
+      "nonEmptyLines": 182,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

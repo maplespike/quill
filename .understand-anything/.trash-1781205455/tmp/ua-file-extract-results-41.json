@@ -1,0 +1,1077 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/sdk/src/__tests__/sdk.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 77,
+      "nonEmptyLines": 65,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk/src/agents.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 407,
+      "nonEmptyLines": 368,
+      "functions": [
+        {
+          "name": "getAgent",
+          "startLine": 388,
+          "endLine": 397,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "listAgents",
+          "startLine": 400,
+          "endLine": 402,
+          "params": []
+        },
+        {
+          "name": "listActions",
+          "startLine": 405,
+          "endLine": 407,
+          "params": [
+            "agentName"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AGENTS",
+          "line": 243,
+          "isDefault": false
+        },
+        {
+          "name": "getAgent",
+          "line": 388,
+          "isDefault": false
+        },
+        {
+          "name": "listAgents",
+          "line": 400,
+          "isDefault": false
+        },
+        {
+          "name": "listActions",
+          "line": 405,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getAgent",
+          "callee": "name.toLowerCase",
+          "lineNumber": 389
+        },
+        {
+          "caller": "getAgent",
+          "callee": "Object.keys(AGENTS).find",
+          "lineNumber": 391
+        },
+        {
+          "caller": "getAgent",
+          "callee": "Object.keys",
+          "lineNumber": 391
+        },
+        {
+          "caller": "getAgent",
+          "callee": "k.toLowerCase",
+          "lineNumber": 391
+        },
+        {
+          "caller": "getAgent",
+          "callee": "Object.keys(AGENTS).join",
+          "lineNumber": 393
+        },
+        {
+          "caller": "getAgent",
+          "callee": "Object.keys",
+          "lineNumber": 393
+        },
+        {
+          "caller": "listAgents",
+          "callee": "Object.values",
+          "lineNumber": 401
+        },
+        {
+          "caller": "listActions",
+          "callee": "getAgent",
+          "lineNumber": 406
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk/src/auth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "getApiKey",
+          "startLine": 13,
+          "endLine": 15,
+          "params": []
+        },
+        {
+          "name": "setApiKey",
+          "startLine": 18,
+          "endLine": 20,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "getJwtToken",
+          "startLine": 23,
+          "endLine": 25,
+          "params": []
+        },
+        {
+          "name": "setJwtToken",
+          "startLine": 28,
+          "endLine": 30,
+          "params": [
+            "token"
+          ]
+        },
+        {
+          "name": "clearAuth",
+          "startLine": 33,
+          "endLine": 36,
+          "params": []
+        },
+        {
+          "name": "isAuthenticated",
+          "startLine": 39,
+          "endLine": 41,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "getApiKey",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "setApiKey",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "getJwtToken",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "setJwtToken",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "clearAuth",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "isAuthenticated",
+          "line": 39,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk/src/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 550,
+      "nonEmptyLines": 453,
+      "classes": [
+        {
+          "name": "MapleSpike",
+          "startLine": 182,
+          "endLine": 548,
+          "methods": [
+            "constructor",
+            "apiKey",
+            "apiKey",
+            "jwtToken",
+            "jwtToken",
+            "baseUrl",
+            "baseUrl",
+            "clearAuth",
+            "isAuthenticated",
+            "query",
+            "agent",
+            "getMcpUrl",
+            "getMcpConfig"
+          ],
+          "properties": [
+            "_apiKey",
+            "_jwtToken",
+            "_baseUrl",
+            "committees",
+            "corporate",
+            "immigration",
+            "elections",
+            "oversight",
+            "gazette",
+            "lmia",
+            "courts",
+            "provincial",
+            "gic",
+            "influence",
+            "regulations",
+            "science",
+            "health",
+            "indigenous",
+            "criminalJustice",
+            "defence",
+            "municipal",
+            "transport",
+            "realtime",
+            "media",
+            "education",
+            "socialPrograms",
+            "bankOfCanada",
+            "sedi",
+            "unions",
+            "universities",
+            "crtc",
+            "craCharity",
+            "provincialRegulators",
+            "a2aj",
+            "legislation",
+            "gocSpending",
+            "financialRegulation",
+            "energy",
+            "realEstate",
+            "watcher"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "MapleSpikeResponse",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "QueryOptions",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ResponseMeta",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ResponseQuality",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "Citation",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "AuthConfig",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "SdkConfig",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpikeApiError",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "AgentDefinition",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ActionDefinition",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpikeError",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "getAgent",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "listAgents",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "listActions",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "AGENTS",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "getApiKey",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "setApiKey",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "getJwtToken",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "setJwtToken",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "isAuthenticated",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "clearAuth",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "SCHEMAS",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "validateParams",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "committeeMembershipSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "committeeMeetingsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "committeeReportsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "committeeWitnessesSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "corporationProfileSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "corporationFilingsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "directorRegistrySchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "lobbyingActivitiesSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "politicalContributionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "fundraisingEventsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "mediaOwnershipSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "regulatoryProposalsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "regulatoryDecisionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "consultationCommentsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "courtDecisionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "caseTrackingSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "tribunalRulingsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "auditorReportsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "watchdogReportsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "accessToInformationSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "conflictOfInterestSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "governmentSpendingSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "electionResultsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "populationStatisticsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "publicSalaryDisclosureSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "permanentResidentsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "studyPermitsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "workPermitsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "refugeeDecisionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "cbsaEnforcementSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "landClaimsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "iscSpendingSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "fnTransparencySchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "trcProgressSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "correctionsPopulationSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "paroleDecisionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "rcmpCrimeStatsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "prosecutionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "personnelSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "procurementSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "municipalMeetingsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "municipalBudgetsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "municipalOpenDataSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "tsbOccurrencesSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "tcRecallsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "ctaRulingsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "weatherAlertsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "borderWaitsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "paroleRegistrySchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "crtcMarketReportsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "ownershipChartsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "cmfDataSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "triCouncilGrantsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "researchChairsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "studentLoansSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "cudoDataSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "ccbDataSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "cppOasSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "eiStatisticsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "povertyDataSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "rateDecisionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "monetaryPolicySchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "insiderTransactionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "unionReportsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "universityDataSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "crtcDecisionsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "crtcOwnershipSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "charitySearchSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "politicalSpendingSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "regulatorSearchSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "regulatorCoverageSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "legalSearchSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "legalFetchSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "legalCoverageSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "federalActsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "federalRegulationsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "provincialLegislationSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "contractsSchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "spendingSummarySchema",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "MapleSpike",
+          "line": 182,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "resolveBaseUrl",
+          "lineNumber": 190
+        },
+        {
+          "caller": "constructor",
+          "callee": "setApiKey",
+          "lineNumber": 191
+        },
+        {
+          "caller": "constructor",
+          "callee": "setJwtToken",
+          "lineNumber": 192
+        },
+        {
+          "caller": "apiKey",
+          "callee": "setApiKey",
+          "lineNumber": 196
+        },
+        {
+          "caller": "jwtToken",
+          "callee": "setJwtToken",
+          "lineNumber": 199
+        },
+        {
+          "caller": "baseUrl",
+          "callee": "resolveBaseUrl",
+          "lineNumber": 202
+        },
+        {
+          "caller": "clearAuth",
+          "callee": "clearAuth",
+          "lineNumber": 204
+        },
+        {
+          "caller": "query",
+          "callee": "buildUrl",
+          "lineNumber": 215
+        },
+        {
+          "caller": "query",
+          "callee": "buildHeaders",
+          "lineNumber": 216
+        },
+        {
+          "caller": "query",
+          "callee": "fetch",
+          "lineNumber": 217
+        },
+        {
+          "caller": "query",
+          "callee": "parseResponse",
+          "lineNumber": 218
+        },
+        {
+          "caller": "agent",
+          "callee": "self.agent",
+          "lineNumber": 226
+        },
+        {
+          "caller": "agent",
+          "callee": "self.query",
+          "lineNumber": 228
+        },
+        {
+          "caller": "getMcpConfig",
+          "callee": "this.getMcpUrl",
+          "lineNumber": 544
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 103,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/sdk/src/query.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 114,
+      "nonEmptyLines": 99,
+      "functions": [
+        {
+          "name": "resolveBaseUrl",
+          "startLine": 14,
+          "endLine": 27,
+          "params": [
+            "customBaseUrl"
+          ]
+        },
+        {
+          "name": "buildUrl",
+          "startLine": 30,
+          "endLine": 67,
+          "params": [
+            "base",
+            "agent",
+            "action",
+            "params",
+            "options"
+          ]
+        },
+        {
+          "name": "buildHeaders",
+          "startLine": 70,
+          "endLine": 88,
+          "params": [
+            "apiKey",
+            "jwtToken"
+          ]
+        },
+        {
+          "name": "parseResponse",
+          "startLine": 91,
+          "endLine": 114,
+          "params": [
+            "response"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "DEFAULT_BASE_URL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "resolveBaseUrl",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "buildUrl",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "buildHeaders",
+          "line": 70,
+          "isDefault": false
+        },
+        {
+          "name": "parseResponse",
+          "line": 91,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "resolveBaseUrl",
+          "callee": "customBaseUrl.replace",
+          "lineNumber": 15
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "encodeURIComponent",
+          "lineNumber": 37
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "encodeURIComponent",
+          "lineNumber": 37
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "Object.entries",
+          "lineNumber": 44
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "String",
+          "lineNumber": 46
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "String",
+          "lineNumber": 55
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "String",
+          "lineNumber": 56
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "String",
+          "lineNumber": 57
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "String",
+          "lineNumber": 59
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "Object.entries",
+          "lineNumber": 62
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "url.searchParams.set",
+          "lineNumber": 63
+        },
+        {
+          "caller": "buildUrl",
+          "callee": "url.toString",
+          "lineNumber": 66
+        },
+        {
+          "caller": "buildHeaders",
+          "callee": "getApiKey",
+          "lineNumber": 77
+        },
+        {
+          "caller": "buildHeaders",
+          "callee": "getJwtToken",
+          "lineNumber": 78
+        },
+        {
+          "caller": "parseResponse",
+          "callee": "response.json",
+          "lineNumber": 95
+        },
+        {
+          "caller": "parseResponse",
+          "callee": "response.json",
+          "lineNumber": 112
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 5,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk/src/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 132,
+      "nonEmptyLines": 113,
+      "classes": [
+        {
+          "name": "MapleSpikeError",
+          "startLine": 96,
+          "endLine": 108,
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "status",
+            "code",
+            "requestId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "MapleSpikeError",
+          "line": 96,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 102
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    }
+  ]
+}

@@ -68,7 +68,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'attestation',
-    status: 'placeholder',
+    status: 'active',
     description: 'Citation building, Merkle tree proofs, content-addressed store, digital signatures',
     category: 'government',
     modulePath: './attestation/index.js',
@@ -77,6 +77,18 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'on-ingest',
     testCallPattern: 'skip',
   },
+  {
+    name: 'templates',
+    status: 'placeholder',
+    description: 'Scaffolding for module creation',
+    category: 'government',
+    modulePath: './templates/index.js',
+    ingestFunctions: ['placeholderFunction'],
+    sources: [],
+    updateFrequency: 'on-ingest',
+    testCallPattern: 'skip',
+  },
+
   {
     name: 'provincial-ckan',
     description: 'Provincial CKAN portal fetchers for all 13 Canadian provinces and territories',
@@ -104,7 +116,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'gc-standards',
-    status: 'placeholder',
+    status: 'active',
     description: 'Government of Canada department codes, standards, and normalization mappings',
     category: 'government',
     modulePath: './gc-standards/index.js',
@@ -283,7 +295,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'federal',
-    status: 'placeholder',
+    status: 'active',
     description: 'Federal deep-dive datasets — supplementary federal data sources',
     category: 'government',
     modulePath: './federal/index.js',
@@ -308,7 +320,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'legislation',
-    status: 'placeholder',
+    status: 'active',
     description: 'Legislation — Justice Canada XML and provincial legislation tracking',
     category: 'legal',
     modulePath: './legislation/index.js',
@@ -326,7 +338,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'a2aj',
-    status: 'placeholder',
+    status: 'active',
     description: 'A2J Legal API — access to justice dataset coverage, citation lookup, search',
     category: 'legal',
     modulePath: './a2aj/index.js',
@@ -347,7 +359,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'goc-spending',
-    status: 'placeholder',
+    status: 'active',
     description: 'Government of Canada spending — GitHub-based federal contract and expenditure data',
     category: 'government',
     modulePath: './goc-spending/index.js',
@@ -358,7 +370,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'real-time-feeds',
-    status: 'placeholder',
+    status: 'active',
     description: 'Real-time government data feeds — emergency alerts, health advisories, urgent notices',
     category: 'government',
     modulePath: './real-time-feeds/index.js',
@@ -375,7 +387,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'regional-authorities',
-    status: 'placeholder',
+    status: 'active',
     description: 'Regional authorities — regional district, municipality, and local governance data',
     category: 'government',
     modulePath: './regional-authorities/index.js',
@@ -397,7 +409,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'municipal-long-tail',
-    status: 'placeholder',
+    status: 'active',
     description: 'Municipal long-tail — smaller municipalities, regional districts, specialized local datasets',
     category: 'government',
     modulePath: './municipal-long-tail/index.js',
@@ -446,7 +458,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'defence',
-    status: 'placeholder',
+    status: 'active',
     description: 'National Defence — DND personnel, procurement, and capability data',
     category: 'defence',
     modulePath: './defence/index.js',
@@ -542,12 +554,45 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'fisheries',
-    status: 'placeholder',
+    status: 'active',
     description: 'Fisheries and Oceans Canada — fish stocks, licenses, conservation data',
     category: 'environment',
     modulePath: './fisheries/index.js',
     ingestFunctions: ['ingestAllFisheries', 'searchFisheries'],
     sources: [{ name: 'DFO open.canada.ca', format: 'CSV' }],
+    updateFrequency: 'monthly',
+    testCallPattern: 'runModule',
+  },
+  {
+    name: 'corporate-filings',
+    status: 'active',
+    description: 'Corporate filings — Federal Corporations Registry (CBCA) — 400K+ active and inactive corporations from open.canada.ca',
+    category: 'corporate',
+    modulePath: './corporate-filings/index.js',
+    ingestFunctions: ['ingestAllFilings', 'fetchAllFilings'],
+    sources: [{ name: 'Federal Corporations Registry CKAN', format: 'CSV' }],
+    updateFrequency: 'daily',
+    testCallPattern: 'runModule',
+  },
+  {
+    name: 'ngo-influence-rss',
+    status: 'active',
+    description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
+    category: 'influence',
+    modulePath: './ngo-influence-rss/index.js',
+    ingestFunctions: ['ingestAllNgoRss', 'ingestNgoSource', 'searchNgoRss', 'classifyNarrative'],
+    sources: [{ name: 'Advocacy org RSS feeds', format: 'RSS' }],
+    updateFrequency: 'daily',
+    testCallPattern: 'fetchFeed',
+  },
+  {
+    name: 'media-broadcasting',
+    status: 'active',
+    description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
+    category: 'media',
+    modulePath: './media-broadcasting/index.js',
+    ingestFunctions: ['ingestAllMedia'],
+    sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
@@ -987,7 +1032,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'provincial',
-    status: 'placeholder',
+    status: 'active',
     description: 'Provincial deep-dive datasets — supplementary provincial data beyond core CKAN',
     category: 'provincial',
     modulePath: './provincial/index.js',
@@ -1006,10 +1051,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
-
   {
     name: 'provincial-orgs',
-    status: 'placeholder',
+    status: 'active',
     description: 'Provincial organizations — provincial agencies, boards, and commissions directory',
     category: 'provincial',
     modulePath: './provincial-orgs/index.js',
@@ -1018,10 +1062,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
-
   {
     name: 'provincial-regulators',
-    status: 'placeholder',
+    status: 'active',
     description: 'Provincial regulators — regulatory bodies and their coverage across provinces',
     category: 'provincial',
     modulePath: './provincial-regulators/index.js',
@@ -1048,7 +1091,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'unions',
-    status: 'placeholder',
+    status: 'active',
     description: 'Unions — labour organization data, collective agreements, membership statistics',
     category: 'labour',
     modulePath: './unions/index.js',
@@ -1057,42 +1100,9 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
   },
-
-  // ── Science & Education ──────────────────────────────────
-  {
-    name: 'science-research',
-    description: 'Science & research — CSA space missions, Mitacs grants, ocean observations, polar records',
-    category: 'science',
-    modulePath: './science-research/index.js',
-    ingestFunctions: ['ingestAllScience', 'searchScience'],
-    sources: [
-      { name: 'CSA space data', format: 'JSON' },
-      { name: 'Mitacs grants', format: 'CSV' },
-      { name: 'Ocean observations', format: 'CSV' },
-    ],
-    updateFrequency: 'monthly',
-    testCallPattern: 'runModule',
-  },
-
-  {
-    name: 'education-research',
-    description: 'Education & research — Tri-Council grants (CIHR/NSERC/SSHRC), Canada Research Chairs, CFI, student loans',
-    category: 'education',
-    modulePath: './education-research/index.js',
-    ingestFunctions: ['ingestTriCouncil', 'ingestResearchChairs', 'ingestCFIData', 'ingestStudentLoans', 'ingestAllEducationResearch'],
-    sources: [
-      { name: 'Tri-Council CKAN', format: 'CSV' },
-      { name: 'Canada Research Chairs', format: 'CSV' },
-      { name: 'Canada Foundation for Innovation', format: 'CSV' },
-      { name: 'CSL student loans', format: 'CSV' },
-    ],
-    updateFrequency: 'monthly',
-    testCallPattern: 'runModule',
-  },
-
   {
     name: 'universities',
-    status: 'placeholder',
+    status: 'active',
     description: 'Universities — deep university data: tuition, enrollment, program costs, institutional finances',
     category: 'education',
     modulePath: './universities/index.js',

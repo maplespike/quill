@@ -22,6 +22,9 @@
 import type { SdkConfig, MapleSpikeResponse, QueryOptions } from './types.js';
 import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
 import { setApiKey, setJwtToken, clearAuth } from './auth.js';
+import { SearchClient, type SearchQuery, type SearchResult } from './search.js';
+import { IngestionClient, type IngestionRequest, type IngestionJob, type IngestionJobStatus, type IngestionResult } from './ingestion.js';
+import { EntityResolutionClient, type Entity, type EntityGraph, type EntityResolutionQuery, type EntityResolutionResult, type EntityType, type MatchConfidence } from './entity-resolution.js';
 
 // Re-export types
 export type {
@@ -39,6 +42,18 @@ export type {
 export { MapleSpikeError } from './types.js';
 export { getAgent, listAgents, listActions, AGENTS } from './agents.js';
 export { getApiKey, setApiKey, getJwtToken, setJwtToken, isAuthenticated, clearAuth } from './auth.js';
+
+// Export search types and client
+export type { SearchQuery, SearchResult };
+export { SearchClient } from './search.js';
+
+// Export ingestion types and client
+export type { IngestionRequest, IngestionJob, IngestionJobStatus, IngestionResult };
+export { IngestionClient } from './ingestion.js';
+
+// Export entity resolution types and client
+export type { Entity, EntityGraph, EntityResolutionQuery, EntityResolutionResult, EntityType, MatchConfidence };
+export { EntityResolutionClient } from './entity-resolution.js';
 export {
   SCHEMAS,
   validateParams,
@@ -190,6 +205,23 @@ export class MapleSpike {
     this._baseUrl = resolveBaseUrl(config.baseUrl);
     if (config.apiKey) setApiKey(config.apiKey);
     if (config.jwtToken) setJwtToken(config.jwtToken);
+
+    // Initialize advanced clients
+    this.search = new SearchClient({
+      apiKey: this._apiKey,
+      jwtToken: this._jwtToken,
+      baseUrl: this._baseUrl,
+    });
+    this.ingestion = new IngestionClient({
+      apiKey: this._apiKey,
+      jwtToken: this._jwtToken,
+      baseUrl: this._baseUrl,
+    });
+    this.entityResolution = new EntityResolutionClient({
+      apiKey: this._apiKey,
+      jwtToken: this._jwtToken,
+      baseUrl: this._baseUrl,
+    });
   }
 
   get apiKey(): string | undefined { return this._apiKey; }
@@ -525,6 +557,21 @@ export class MapleSpike {
     status: (p: any = {}) => this.query('watcher', 'status', p),
     events: (p: any = {}) => this.query('watcher', 'events', p),
   };
+
+  // ─── Advanced Clients ───────────────────────────────────────────────────────
+
+  /**
+   * Search across all domains
+   */
+  search!: SearchClient;
+  /**
+   * Ingest data into MapleSpike
+   */
+  ingestion!: IngestionClient;
+  /**
+   * Resolve entities across datasets
+   */
+  entityResolution!: EntityResolutionClient;
 
   // ─── MCP Integration ──────────────────────────────────────────
 

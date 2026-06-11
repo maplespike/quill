@@ -1,0 +1,421 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 12,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/docs/api/ai-ask.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 301,
+      "nonEmptyLines": 298,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/api/ai-ask.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 127,
+      "nonEmptyLines": 103,
+      "sections": [
+        {
+          "heading": "POST /v1/ai_ask",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Request",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Parameters",
+          "level": 2,
+          "line": 19
+        },
+        {
+          "heading": "Source Filter Mappings",
+          "level": 3,
+          "line": 26
+        },
+        {
+          "heading": "Example Queries",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "Response",
+          "level": 2,
+          "line": 59
+        },
+        {
+          "heading": "Also Available",
+          "level": 2,
+          "line": 91
+        },
+        {
+          "heading": "POST /v1/ai/analyze",
+          "level": 2,
+          "line": 99
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 103
+        },
+        {
+          "heading": "Analysis Types",
+          "level": 3,
+          "line": 110
+        },
+        {
+          "heading": "Example",
+          "level": 3,
+          "line": 120
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "packages/docs/api/endpoints.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 511,
+      "nonEmptyLines": 509,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/api/endpoints.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 139,
+      "nonEmptyLines": 116,
+      "sections": [
+        {
+          "heading": "API Endpoints — Complete Catalog",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Base URL",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Standard Response Envelope",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Endpoint Table",
+          "level": 2,
+          "line": 50
+        },
+        {
+          "heading": "Key Management",
+          "level": 3,
+          "line": 67
+        },
+        {
+          "heading": "Account",
+          "level": 3,
+          "line": 76
+        },
+        {
+          "heading": "Billing",
+          "level": 3,
+          "line": 83
+        },
+        {
+          "heading": "Authentication",
+          "level": 3,
+          "line": 90
+        },
+        {
+          "heading": "Query Parameters (All GET Endpoints)",
+          "level": 3,
+          "line": 111
+        },
+        {
+          "heading": "Token Optimization",
+          "level": 2,
+          "line": 121
+        },
+        {
+          "heading": "Error Codes",
+          "level": 2,
+          "line": 129
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "packages/docs/api/gov-search.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 223,
+      "nonEmptyLines": 219,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/api/gov-search.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 101,
+      "nonEmptyLines": 77,
+      "sections": [
+        {
+          "heading": "GET /v1/gov/search",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Request",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Query Parameters",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Example Queries",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "Response",
+          "level": 2,
+          "line": 39
+        },
+        {
+          "heading": "GET /v1/gov/releases",
+          "level": 2,
+          "line": 71
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 75
+        },
+        {
+          "heading": "Example",
+          "level": 3,
+          "line": 82
+        },
+        {
+          "heading": "GET /v1/citation/:id",
+          "level": 2,
+          "line": 91
+        },
+        {
+          "heading": "Example",
+          "level": 3,
+          "line": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "packages/docs/api/health.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 226,
+      "nonEmptyLines": 224,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/api/health.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 90,
+      "nonEmptyLines": 79,
+      "sections": [
+        {
+          "heading": "GET /v1/health",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Request",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Response",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "Response Fields",
+          "level": 2,
+          "line": 65
+        },
+        {
+          "heading": "Error Response",
+          "level": 2,
+          "line": 80
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "packages/docs/api/mock.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 215,
+      "nonEmptyLines": 211,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/api/mock.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 73,
+      "nonEmptyLines": 56,
+      "sections": [
+        {
+          "heading": "Mock Mode (`_mock=true`)",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Usage",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Benefits",
+          "level": 2,
+          "line": 23
+        },
+        {
+          "heading": "Available Mock Data Categories",
+          "level": 2,
+          "line": 31
+        },
+        {
+          "heading": "Mock Response Characteristics",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "Implementation",
+          "level": 2,
+          "line": 60
+        },
+        {
+          "heading": "Use Cases",
+          "level": 2,
+          "line": 64
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "packages/docs/api/usage.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 249,
+      "nonEmptyLines": 247,
+      "metrics": {}
+    },
+    {
+      "path": "packages/docs/api/usage.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 103,
+      "nonEmptyLines": 81,
+      "sections": [
+        {
+          "heading": "GET /v1/usage",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Request",
+          "level": 2,
+          "line": 10
+        },
+        {
+          "heading": "Response",
+          "level": 2,
+          "line": 17
+        },
+        {
+          "heading": "Response Fields",
+          "level": 2,
+          "line": 43
+        },
+        {
+          "heading": "Usage Headers",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Monitoring Tips",
+          "level": 2,
+          "line": 65
+        },
+        {
+          "heading": "POST /v1/audit/query",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "Request",
+          "level": 3,
+          "line": 77
+        },
+        {
+          "heading": "Parameters",
+          "level": 3,
+          "line": 86
+        },
+        {
+          "heading": "GET /v1/signals",
+          "level": 2,
+          "line": 96
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    }
+  ]
+}

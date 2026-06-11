@@ -1,0 +1,815 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/ngo-influence-rss/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 65,
+      "nonEmptyLines": 57,
+      "exports": [
+        {
+          "name": "NGO_RSS_SOURCES",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "NARRATIVE_TAG_WEIGHTS",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "NGO_RSS_FETCH_TIMEOUT_MS",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_ITEMS_PER_SOURCE",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "NGO_RSS_USER_AGENT",
+          "line": 65,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ngo-influence-rss/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 146,
+      "nonEmptyLines": 128,
+      "functions": [
+        {
+          "name": "fetchXml",
+          "startLine": 10,
+          "endLine": 20,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "parseFeedItems",
+          "startLine": 26,
+          "endLine": 83,
+          "params": [
+            "xml",
+            "source"
+          ]
+        },
+        {
+          "name": "fetchNgoSource",
+          "startLine": 86,
+          "endLine": 94,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "fetchAllNgoSources",
+          "startLine": 97,
+          "endLine": 135,
+          "params": []
+        },
+        {
+          "name": "searchNgoItems",
+          "startLine": 138,
+          "endLine": 146,
+          "params": [
+            "items",
+            "query"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchNgoSource",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllNgoSources",
+          "line": 97,
+          "isDefault": false
+        },
+        {
+          "name": "searchNgoItems",
+          "line": 138,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchXml",
+          "callee": "httpGet",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "xml.match",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "xml.match",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<title[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/i)?.[1] ?? '').trim",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 46
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<summary[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/summary>/i)?.[1] ?? '').replace(/<[^>]+>/g, ' ').trim",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<summary[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/summary>/i)?.[1] ?? '').replace",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<content[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/content>/i)?.[1] ?? '').replace(/<[^>]+>/g, ' ').trim",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<content[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/content>/i)?.[1] ?? '').replace",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<published[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/published>/i)?.[1] ?? '').trim",
+          "lineNumber": 52
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 52
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<updated[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/updated>/i)?.[1] ?? '').trim",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<title[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/title>/i)?.[1] ?? '').trim",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<link[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/link>/i)?.[1] ?? '').trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 58
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<description[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/description>/i)?.[1] ?? '').replace(/<[^>]+>/g, ' ').trim",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<description[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/description>/i)?.[1] ?? '').replace",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 59
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "(block.match(/<pubDate[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/pubDate>/i)?.[1] ?? '').trim",
+          "lineNumber": 60
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "block.match",
+          "lineNumber": 60
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "computeHash",
+          "lineNumber": 66
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "items.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "desc.substring",
+          "lineNumber": 71
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "new Date(pubDate).toISOString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "parseFeedItems",
+          "callee": "new Date().toISOString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "fetchNgoSource",
+          "callee": "fetchXml",
+          "lineNumber": 88
+        },
+        {
+          "caller": "fetchNgoSource",
+          "callee": "parseFeedItems",
+          "lineNumber": 90
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "Date.now",
+          "lineNumber": 98
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "NGO_RSS_SOURCES.filter",
+          "lineNumber": 103
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "Promise.allSettled",
+          "lineNumber": 104
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "enabled.map",
+          "lineNumber": 105
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "fetchNgoSource",
+          "lineNumber": 106
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "allItems.push",
+          "lineNumber": 113
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "errors.push",
+          "lineNumber": 116
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "allItems.filter",
+          "lineNumber": 122
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "seen.has",
+          "lineNumber": 123
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "seen.add",
+          "lineNumber": 124
+        },
+        {
+          "caller": "fetchAllNgoSources",
+          "callee": "Date.now",
+          "lineNumber": 133
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "query.toLowerCase",
+          "lineNumber": 139
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "items.filter",
+          "lineNumber": 140
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.title.toLowerCase().includes",
+          "lineNumber": 141
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.title.toLowerCase",
+          "lineNumber": 141
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.summary.toLowerCase().includes",
+          "lineNumber": 142
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.summary.toLowerCase",
+          "lineNumber": 142
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.source.toLowerCase().includes",
+          "lineNumber": 143
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.source.toLowerCase",
+          "lineNumber": 143
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "item.narrativeTags.some",
+          "lineNumber": 144
+        },
+        {
+          "caller": "searchNgoItems",
+          "callee": "t.includes",
+          "lineNumber": 144
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ngo-influence-rss/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "ingestAllNgoRss",
+          "startLine": 6,
+          "endLine": 8,
+          "params": []
+        },
+        {
+          "name": "ingestNgoSource",
+          "startLine": 11,
+          "endLine": 15,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "searchNgoRss",
+          "startLine": 18,
+          "endLine": 20,
+          "params": [
+            "items",
+            "query"
+          ]
+        },
+        {
+          "name": "classifyNarrative",
+          "startLine": 23,
+          "endLine": 37,
+          "params": [
+            "item"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllNgoRss",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "ingestNgoSource",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "searchNgoRss",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "classifyNarrative",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "NGO_RSS_SOURCES",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "NgoRssItem",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "NgoRssIngestionResult",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "NgoRssConfig",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "NgoCategory",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "NarrativeFlag",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "parseNgoRssItem",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "parseNgoRssItems",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestAllNgoRss",
+          "callee": "fetchAllNgoSources",
+          "lineNumber": 7
+        },
+        {
+          "caller": "ingestNgoSource",
+          "callee": "NGO_RSS_SOURCES.find",
+          "lineNumber": 12
+        },
+        {
+          "caller": "ingestNgoSource",
+          "callee": "fetchNgoSource",
+          "lineNumber": 14
+        },
+        {
+          "caller": "searchNgoRss",
+          "callee": "searchNgoItems",
+          "lineNumber": 19
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "item.narrativeTags.map",
+          "lineNumber": 25
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.toLowerCase",
+          "lineNumber": 25
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "`${item.title} ${item.summary}`.toLowerCase",
+          "lineNumber": 26
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "tags.some",
+          "lineNumber": 28
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 28
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 28
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "flags.push",
+          "lineNumber": 28
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "tags.some",
+          "lineNumber": 29
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 29
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 29
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "flags.push",
+          "lineNumber": 29
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "tags.some",
+          "lineNumber": 30
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 30
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 30
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "flags.push",
+          "lineNumber": 30
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "tags.some",
+          "lineNumber": 31
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 31
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "t.includes",
+          "lineNumber": 31
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "flags.push",
+          "lineNumber": 31
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "text.includes",
+          "lineNumber": 33
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "text.includes",
+          "lineNumber": 33
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "flags.push",
+          "lineNumber": 33
+        },
+        {
+          "caller": "classifyNarrative",
+          "callee": "flags.push",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 14,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ngo-influence-rss/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseNgoRssItem",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseNgoRssItems",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseNgoRssItem",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseNgoRssItems",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseNgoRssItem",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseNgoRssItem",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseNgoRssItem",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseNgoRssItems",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseNgoRssItems",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseNgoRssItems",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseNgoRssItems",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseNgoRssItems",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseNgoRssItems",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ngo-influence-rss/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 47,
+      "nonEmptyLines": 43,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 8,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/engine/src/schemas/base.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 17,
+      "exports": [
+        {
+          "name": "GovernmentSourceSchema",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "BaseEntitySchema",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/contract.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 55,
+      "exports": [
+        {
+          "name": "ContractStatusSchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "TenderStatusSchema",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "ContractSchema",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "TenderSchema",
+          "line": 42,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/disclosure.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 34,
+      "nonEmptyLines": 31,
+      "exports": [
+        {
+          "name": "InterestCategorySchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "InterestSchema",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "DisclosureSchema",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/donation.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 28,
+      "exports": [
+        {
+          "name": "DonationRecipientTypeSchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "DonationSchema",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/gac.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 35,
+      "exports": [
+        {
+          "name": "GACProjectStatusSchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "ImplementingPartnerSchema",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "GACProjectSchema",
+          "line": 19,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/lobbying.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 41,
+      "exports": [
+        {
+          "name": "CommunicationTypeSchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "LobbyistSchema",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "LobbyingCommunicationSchema",
+          "line": 20,
+          "isDefault": false
+        },
+        {
+          "name": "LobbyingFilingSchema",
+          "line": 28,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/organization.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 36,
+      "exports": [
+        {
+          "name": "OrganizationTypeSchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "RegistrationSchema",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "OrganizationSchema",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/engine/src/schemas/person.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 62,
+      "nonEmptyLines": 57,
+      "exports": [
+        {
+          "name": "RoleCategorySchema",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "RoleSchema",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "RelationshipTypeSchema",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "RelationshipSchema",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "PersonSchema",
+          "line": 48,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

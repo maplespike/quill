@@ -1,6 +1,21 @@
 export { BaseEntitySchema, GovernmentSourceSchema } from "./base";
 export { BriefSchema, BriefSectionSchema } from "./brief";
 export {
+  BoardMemberSchema,
+  CharityActivitySchema,
+  CharitySchema,
+  CharityStatusSchema,
+  CharityTypeSchema,
+  FinancialSummarySchema,
+} from "./charity";
+export {
+  CommitteeMemberSchema,
+  CommitteeMeetingSchema,
+  CommitteeSchema,
+  CommitteeScopeSchema,
+  CommitteeTypeSchema,
+} from "./committee";
+export {
   ContractSchema,
   ContractStatusSchema,
   TenderSchema,

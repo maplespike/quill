@@ -1,0 +1,80 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".sisyphus/notepads/migrate-raw-fetch-httpget/issues.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 112,
+      "nonEmptyLines": 110,
+      "metrics": {}
+    },
+    {
+      "path": ".sisyphus/notepads/migrate-raw-fetch-httpget/issues.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 5,
+      "nonEmptyLines": 3,
+      "sections": [
+        {
+          "heading": "Issues — Migrate raw fetch() → httpGet()",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "TypeScript issues",
+          "level": 2,
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    },
+    {
+      "path": ".sisyphus/notepads/migrate-raw-fetch-httpget/learnings.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 120,
+      "nonEmptyLines": 118,
+      "metrics": {}
+    },
+    {
+      "path": ".sisyphus/notepads/migrate-raw-fetch-httpget/learnings.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 15,
+      "nonEmptyLines": 11,
+      "sections": [
+        {
+          "heading": "Learnings — Migrate raw fetch() → httpGet()",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Key patterns",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Files migrated (23 total)",
+          "level": 2,
+          "line": 13
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    }
+  ]
+}

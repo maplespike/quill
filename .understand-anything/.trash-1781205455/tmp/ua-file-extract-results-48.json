@@ -1,0 +1,507 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-education/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 46,
+      "nonEmptyLines": 41,
+      "classes": [
+        {
+          "name": "BcEducationError",
+          "startLine": 41,
+          "endLine": 46,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "BCEDUCATION_DDL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "BcEducationError",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 43
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-education/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 35,
+      "functions": [
+        {
+          "name": "fetchBcEducationRecords",
+          "startLine": 6,
+          "endLine": 40,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchBcEducationRecords",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "httpGet",
+          "lineNumber": 13
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "errors.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "JSON.parse",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "records.push",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "String",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchBcEducationRecords",
+          "callee": "errors.push",
+          "lineNumber": 36
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-education/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "initializeBcEducationTable",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertBcEducationRecord",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "searchBcEducationRecords",
+          "startLine": 39,
+          "endLine": 56,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestBcEducationData",
+          "startLine": 58,
+          "endLine": 97,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchBcEducationRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEducationRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEducationBatch",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "BCEDUCATION_DDL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "BcEducationError",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "BcEducationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "BcEducationIngestionOptions",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "BcEducationIngestionResult",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RawBcEducationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "initializeBcEducationTable",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "searchBcEducationRecords",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "ingestBcEducationData",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeBcEducationTable",
+          "callee": "db.exec",
+          "lineNumber": 27
+        },
+        {
+          "caller": "upsertBcEducationRecord",
+          "callee": "fields.map(() => '?').join",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertBcEducationRecord",
+          "callee": "fields.map",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertBcEducationRecord",
+          "callee": "db.prepare('INSERT OR IGNORE INTO bc_education_records (' + fields.join(', ') + ') VALUES (' + placeholders + ')').bind",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertBcEducationRecord",
+          "callee": "db.prepare",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertBcEducationRecord",
+          "callee": "fields.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertBcEducationRecord",
+          "callee": "stmt.run",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "likeCols.map(c => c + ' LIKE ?').join",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "likeCols.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "params.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "params.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "db.prepare",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchBcEducationRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "Date.now",
+          "lineNumber": 59
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "log",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "initializeBcEducationTable",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "log",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "fetchBcEducationRecords",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "result.errors.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "log",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "parseBcEducationBatch",
+          "lineNumber": 76
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "upsertBcEducationRecord",
+          "lineNumber": 82
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "result.errors.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "log",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "Date.now",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestBcEducationData",
+          "callee": "log",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 13,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-education/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 52,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "parseBcEducationRecord",
+          "startLine": 6,
+          "endLine": 43,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseBcEducationBatch",
+          "startLine": 45,
+          "endLine": 52,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseBcEducationRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseBcEducationBatch",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseBcEducationRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseBcEducationRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseBcEducationRecord",
+          "callee": "computeHash",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseBcEducationBatch",
+          "callee": "parseBcEducationRecord",
+          "lineNumber": 48
+        },
+        {
+          "caller": "parseBcEducationBatch",
+          "callee": "results.push",
+          "lineNumber": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/bc-education/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 46,
+      "nonEmptyLines": 42,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}
