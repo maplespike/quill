@@ -45,7 +45,7 @@ import { Textarea } from "@/components/ui/textarea";
                     Ask anything about Canadian government
                   </h3>
                   <p class="text-sm text-muted-foreground max-w-md mb-6">
-                    Questions answered using MapleSpike's 126 data modules. Every response
+                    Questions answered using MapleSpike's 142 data modules. Every response
                     includes citations for verification.
                   </p>
                   <div class="flex flex-wrap gap-2 justify-center" id="suggestion-chips">
@@ -427,55 +427,78 @@ import { Textarea } from "@/components/ui/textarea";
         let answer, citations;
 
         try {
-          const resp = await fetch(GOV_SEARCH + "?query=" + encodeURIComponent(text) + "&limit=5", {
-            signal: AbortSignal.timeout(8000),
+          // Try AI Ask endpoint first (synthesized answer via Inference Gateway)
+          const aiResp = await fetch(API_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: text, max_sources: 5 }),
+            signal: AbortSignal.timeout(15000),
           });
-          if (resp.ok) {
-            const data = await resp.json();
-            const results = data?.data?.results;
-            const all = [...(results?.pipeline || []), ...(results?.ckan || [])].slice(0, 5);
-            if (all.length > 0) {
-              answer =
-                '**Search results for "' +
-                escapeHtml(text) +
-                '"**\n\nFound ' +
-                all.length +
-                " relevant sources:\n\n" +
-                all
-                  .map(function (r, i) {
-                    return (
-                      i +
-                      1 +
-                      ". **" +
-                      (r.title || r.name || "Dataset") +
-                      "**" +
-                      (r.description
-                        ? "\n   " + r.description.substring(0, 120)
-                        : "") +
-                      (r.url ? "\n   " + r.url : "")
-                    );
-                  })
-                  .join("\n\n");
-              citations = all.map(function (r) {
-                return {
-                  source: r.organization?.title || r.source || "Government of Canada",
-                  title: r.title || r.name || "Dataset",
-                  url: r.url || "#",
-                  hash: "",
-                };
+          if (aiResp.ok) {
+            const data = await aiResp.json();
+            if (data?.data?.answer) {
+              answer = data.data.answer;
+              citations = (data.data.citations || []).map(function (c) {
+                return { source: c.source, title: c.title, url: c.url, hash: c.hash || "" };
               });
             } else {
-              throw new Error("No results");
+              throw new Error("No AI answer");
             }
           } else {
-            throw new Error("HTTP " + resp.status);
+            throw new Error("HTTP " + aiResp.status);
           }
         } catch (_) {
-          const mock = getMock(text);
-          answer = mock.answer;
-          citations = mock.citations;
+          // Fallback: gov/search
+          try {
+            const resp = await fetch(GOV_SEARCH + "?query=" + encodeURIComponent(text) + "&limit=5", {
+              signal: AbortSignal.timeout(8000),
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              const results = data?.data?.results;
+              const all = [...(results?.pipeline || []), ...(results?.ckan || [])].slice(0, 5);
+              if (all.length > 0) {
+                answer =
+                  '**Search results for "' +
+                  escapeHtml(text) +
+                  '"**\n\nFound ' +
+                  all.length +
+                  " relevant sources:\n\n" +
+                  all
+                    .map(function (r, i) {
+                      return (
+                        i +
+                        1 +
+                        ". **" +
+                        (r.title || r.name || "Dataset") +
+                        "**" +
+                        (r.description
+                          ? "\n   " + r.description.substring(0, 120)
+                          : "") +
+                        (r.url ? "\n   " + r.url : "")
+                      );
+                    })
+                    .join("\n\n");
+                citations = all.map(function (r) {
+                  return {
+                    source: r.organization?.title || r.source || "Government of Canada",
+                    title: r.title || r.name || "Dataset",
+                    url: r.url || "#",
+                    hash: "",
+                  };
+                });
+              } else {
+                throw new Error("No results");
+              }
+            } else {
+              throw new Error("HTTP " + resp.status);
+            }
+          } catch (_) {
+            const mock = getMock(text);
+            answer = mock.answer;
+            citations = mock.citations;
+          }
         }
-
         hideTyping();
         addMessage("assistant", answer, citations);
         sendBtn.disabled = false;
