@@ -7,7 +7,7 @@ status: active
 
 > **Current version:** v0.2.1 (2026-05-13)
 > **Build:** ✅ `pnpm build` passes (12/12 packages)
-> **Tests:** 468 passing (pipeline-core 339, api-server 66, engine 56, sdk 7)
+> **Tests:** 683 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7)
 > **Modules:** 135 ingestion directories, 142 registry entries
 > **MCP tools:** ~53 registered in tools/index.ts
 
@@ -20,19 +20,22 @@ status: active
 | Fix mcp-server build (4 missing tool files, pino dep) | ✅ DONE | Committed 1fbe306 |
 | Add `.github/workflows/ci.yml` | ✅ DONE | Build + test on push |
 | Fix fantasy docs (PIPELINE-ARCHITECTURE.md, SELF-HEALING.md) | ✅ DONE | Added aspirational warnings |
-| Close stale open issues | ✅ DONE | Closed 5 issues marked "complete" but still open |
+| Add doc metadata to all 9 remaining files | ✅ DONE | Last-reviewed + status frontmatter |
+| Fix metrics.json (135→53 MCP tools) | ✅ DONE | Real tool count now accurate |
+| Close stale open issues | ✅ DONE | Closed 7 issues (#640, #641, #642, #653, #659, #660, #393) |
+| Fix #642 shared attribution imports | ✅ DONE | worldbank-wdi fixed; 3 skeletons skipped |
+| Add MCP server tests | ✅ DONE | 215 tests covering all 53 tools |
+| Fix search-gic uncaught error | ✅ DONE | Added try/catch to handler |
 | Verify flake.nix image builds | 🔴 BLOCKED | Remote builder sandbox has no npm network access. Needs `__noChroot` or local build |
 
 ## Phase 2: MVP Quality Gate (Next)
 
 | Task | Priority | Effort | Notes |
 |------|----------|--------|-------|
-| Add mcp-server tests (mock HTTP layer) | P1 | 2-4h | Currently 0 tests — "#1 quality gap" |
-| Close remaining 7 open issues | P1 | 1h | #557, #549, #642, #617, #393, #370, #564 |
-| Align metrics.json (135→~53 MCP tools) | P2 | 30m | Currently overstated by ~2.5x |
-| Add last-reviewed metadata to 7 remaining doc files | P2 | 15m | Mechanical fix |
+| Close remaining open issues | P1 | 30m | #617, #557, #549, #558, #564, #370 — mostly epics |
+| Strip 37% placeholder modules from production view | P2 | 1-2h | 32 metadata-only/skeleton modules |
 | Create k8s/ manifests for dev deployment | P2 | 2-4h | Currently none exist despite being documented |
-| Strip 37% placeholder modules from production view | P3 | 1-2h | 32 metadata-only/skeleton modules |
+| docker-compose.yml for local stack | P1 | 2h | Flake outputs one already, needs access to images |
 
 ## Phase 3: Deployment (This Month)
 
