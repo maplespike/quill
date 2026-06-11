@@ -85,9 +85,11 @@ export class SubscriptionStore {
 
     if (sourceId) {
       rows = this.db.prepare(`
-        SELECT * FROM notification_subscriptions
-        WHERE active = 1 AND (
-          source_filter = '[]' OR json_array_contains(source_filter, ?)
+        SELECT DISTINCT s.* FROM notification_subscriptions s
+        WHERE s.active = 1 AND (
+          s.source_filter = '[]' OR EXISTS (
+            SELECT 1 FROM json_each(s.source_filter) WHERE value = ?
+          )
         )
       `).all(sourceId) as Record<string, unknown>[];
     } else {
