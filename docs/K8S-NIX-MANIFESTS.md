@@ -1,17 +1,60 @@
 ---
 last-reviewed: 2026-06-11
-status: archived
+status: active
 ---
 
-# K8s Nix Manifests
+# K8s Manifests — Nix-generated via easykubenix
 
-**Status:** ARCHIVED — This entire document was aspirational fiction. None of the described files exist.
+All Kubernetes manifests are generated from Nix via [easykubenix](https://github.com/lillecarl/easykubenix).
+Source files live in `k8s/` directory. The flake attribute is `.#k8s-manifests`.
 
-## Reality
+## Usage
 
-- No `k8s/` directory exists in the repository
-- No CronJob, StatefulSet, Deployment, Service, Ingress, or ConfigMap manifests exist
-- No Prometheus, Alertmanager, Loki, Grafana, or Uptime Kuma configurations
-- `nix build .#k8s-manifests` will fail — the flake attribute doesn't exist
+```bash
+# View generated manifests
+nix run .#k8s-manifests
 
-See `ROADMAP.md` for deployment plans. This file will be recreated when K8s manifests are actually built.
+# Build manifests (produces multi-doc YAML in result/)
+nix build .#k8s-manifests
+
+# Apply to dev cluster
+nix build .#k8s-manifests -o k8s-output
+kubectl apply -f k8s-output/manifest.yaml -n maplespike
+```
+
+## Structure
+
+```
+k8s/
+├── cron.nix          # 24 CronJobs (23 pipeline + searxng-health)
+├── default.nix       # Module import list
+├── dev.nix           # maplespike-dev namespace, deployments, services, configmaps
+├── prod.nix          # maplespike-prod namespace, statefulset, deployments, services, ingresses
+├── infra.nix         # Observability (Prometheus, Alertmanager, Loki, Promtail, Pushgateway)
+├── grafana-dashboard.json
+└── prod/
+    └── ghcr-secret.nix
+```
+
+## Docker Compose (for local dev)
+
+```bash
+# View generated docker-compose.yml
+nix run .#docker-compose
+
+# Build manifests directory (Dockerfile + docker-compose.yml)
+nix build .#docker-manifests
+```
+
+## Helm (for non-Nix clusters)
+
+```bash
+# View generated values.yaml
+nix run .#helm-values
+```
+
+## See also
+
+- `k8s/` — easykubenix module files
+- `nix/` — NixOS module for MapleSpike services
+- `flake.nix` — package definitions for all images, manifests, and apps
