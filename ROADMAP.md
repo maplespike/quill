@@ -5,51 +5,57 @@ status: active
 
 # MapleSpike Roadmap
 
-> **Current version:** v0.2.1 (2026-05-13)
+> **Current version:** v0.2.1 (2026-06-11)
 > **Build:** ✅ `pnpm build` passes (12/12 packages)
-> **Tests:** 683 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7)
-> **Modules:** 135 ingestion directories, 142 registry entries
-> **MCP tools:** ~53 registered in tools/index.ts
+> **Tests:** 687 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7, notification-service 13)
+> **Modules:** 142 registry entries (24 marked placeholder)
+> **MCP tools:** 53 registered in tools/index.ts
+> **Open issues:** 4 (down from 9)
 
 ---
 
-## Phase 1: Build Integrity & CI (NOW — June 2026)
+## Phase 1: Build Integrity & CI ✅ DONE
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Fix mcp-server build (4 missing tool files, pino dep) | ✅ DONE | Committed 1fbe306 |
-| Add `.github/workflows/ci.yml` | ✅ DONE | Build + test on push |
-| Fix fantasy docs (PIPELINE-ARCHITECTURE.md, SELF-HEALING.md) | ✅ DONE | Added aspirational warnings |
-| Add doc metadata to all 9 remaining files | ✅ DONE | Last-reviewed + status frontmatter |
-| Fix metrics.json (135→53 MCP tools) | ✅ DONE | Real tool count now accurate |
-| Close stale open issues | ✅ DONE | Closed 7 issues (#640, #641, #642, #653, #659, #660, #393) |
-| Fix #642 shared attribution imports | ✅ DONE | worldbank-wdi fixed; 3 skeletons skipped |
-| Add MCP server tests | ✅ DONE | 215 tests covering all 53 tools |
-| Fix search-gic uncaught error | ✅ DONE | Added try/catch to handler |
-| Verify flake.nix image builds | 🔴 BLOCKED | Remote builder sandbox has no npm network access. Needs `__noChroot` or local build |
+| Task | Status |
+|------|--------|
+| Fix mcp-server build (4 missing tool files) | ✅ |
+| Add `.github/workflows/ci.yml` | ✅ |
+| Archive 3 fiction docs (PIPELINE-ARCHITECTURE, SELF-HEALING, K8S-NIX-MANIFESTS) | ✅ |
+| Fix kanban docs (empty board, no cronjobs) | ✅ |
+| Fix metrics.json (135→53 MCP tools) | ✅ |
+| Fix ARCHITECTURE.md metrics | ✅ |
+| Close 5 stale issues | ✅ |
+| Fix #642 shared imports | ✅ |
+| Add MCP server tests (215) | ✅ |
+| Fix notification-service tests (4 SQLITE_ERROR) | ✅ |
+| Add Dockerfile + docker-compose.yml | ✅ |
+| Mark 32 placeholder modules in registry | ✅ |
+| Label remaining 4 open issues | ✅ |
 
 ## Phase 2: MVP Quality Gate (Next)
 
 | Task | Priority | Effort | Notes |
 |------|----------|--------|-------|
-| Close remaining open issues | P1 | 30m | #617, #557, #549, #558, #564, #370 — mostly epics |
-| Strip 37% placeholder modules from production view | P2 | 1-2h | 32 metadata-only/skeleton modules |
-| Create k8s/ manifests for dev deployment | P2 | 2-4h | Currently none exist despite being documented |
-| docker-compose.yml for local stack | P1 | 2h | Flake outputs one already, needs access to images |
+| **Docker compose build verification** | P0 | 30m | Run `docker compose build` and verify locally |
+| **Create end-to-end run script** | P1 | 1h | Script that shows: clone → install → build → ingest → query |
+| **Fix flake.nix sandbox for Nix image builds** | P1 | 1-2h | Add `__noChroot = true` to maplespike-build derivation |
+| **Close #268 (AI Ask)** needs scoping | P1 | - | This is the largest remaining feature — needs PRD |
+| **Update metrics.json** | P2 | 15m | Run `node scripts/generate-metrics.mjs` and commit |
 
 ## Phase 3: Deployment (This Month)
 
 | Task | Priority | Effort |
 |------|----------|--------|
-| Docker compose for local stack (api + mcp + portal) | P1 | 2h |
-| Fix flake.nix sandbox networking for Nix image builds | P1 | 1-2h |
+| Create `run.sh` for local dev (install → build → start) | P1 | 1h |
+| Fix flake sandbox for Nix image builds | P1 | 1-2h |
 | CI publish to GHCR on main merge | P2 | 1h |
 | Deploy dev namespace on K3s | P2 | 2-4h |
 
----
+## Remaining Open Issues
 
-## Current Blockers
-
-1. **Remote builder sandbox**: `nix build .#maplespike-mcp-image` fails because the Nix sandbox on nexus can't reach npm registry. Fix: add `__noChroot = true` or use `--option sandbox false` for the build.
-2. **MCP server test gap**: Zero test coverage. The test script is a TODO stub. Blocks confidence in the primary consumer interface.
-3. **No deployment manifests**: The elaborate K8s/CI infrastructure documented in `docs/` does not exist. First step: a working `docker-compose.yml`.
+| # | Title | Priority | Status |
+|---|-------|----------|--------|
+| 268 | AI Ask — natural language Q&A | P1 | Needs scoping/PRD |
+| 549 | Quality Baseline & Competitive Gaps | P1 | Epic — partially done |
+| 309 | OWASP compliance dashboard | P2 | Security headers done, dashboard remaining |
+| 318 | Sovereign LLM Fine-tuning | P2 | Blocks on #268 |

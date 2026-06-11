@@ -5,7 +5,8 @@
   "modules": {
     "registryCount": 142,
     "ingestionDirs": 135,
-    "description": "142 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 135 ingestion/ subdirectories with standalone fetch→parse→persist pipelines. Header comment outdated (says 76)."
+    "placeholderCount": 32,
+    "description": "142 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 135 ingestion/ subdirectories with standalone fetch→parse→persist pipelines. 32 modules marked status:'placeholder' (15 skeleton + 17 metadata-only)."
   },
   "mcpTools": {
     "count": 53,

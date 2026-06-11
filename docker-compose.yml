@@ -1,0 +1,50 @@
+# =============================================================================
+# MapleSpike — Local Development Stack
+# =============================================================================
+# Prerequisites:
+#   1. Install Docker + docker compose plugin
+#   2. Run: docker compose build
+#   3. Run: docker compose up
+#
+# Services:
+#   - api-server: REST API on :8082
+#   - mcp-server: MCP SSE endpoint on :3001
+#   - portal:     Static web UI on :8081
+# =============================================================================
+
+services:
+  api-server:
+    build:
+      context: .
+      target: api-server
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - JWT_SECRET=maplespike-dev-secret-change-in-production
+      - NODE_ENV=development
+      - MAPLESPIKE_STORAGE=memory
+      - MAPLESPIKE_LOG_LEVEL=info
+    restart: unless-stopped
+
+  mcp-server:
+    build:
+      context: .
+      target: mcp-server
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MAPLESPIKE_API_BASE=http://api-server:8082
+    restart: unless-stopped
+    depends_on:
+      - api-server
+
+  portal:
+    build:
+      context: .
+      target: portal
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
