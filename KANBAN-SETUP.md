@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # MapleSpike Kanban Board Setup ✅
 
 **Date:** 2026-06-04  

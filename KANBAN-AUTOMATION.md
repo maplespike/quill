@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # MapleSpike Fully Automated Kanban System ✅
 
 **Date:** 2026-06-04  

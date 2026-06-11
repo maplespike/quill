@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # International Data Sources Research Update — Issues #562, #563, #564
 
 **Date**: 2026-06-02
