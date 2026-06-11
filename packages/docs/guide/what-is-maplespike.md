@@ -66,12 +66,12 @@ K3s Cluster (nexus)
 
 ## Status
 
-- **126 ingestion modules** — ~159K lines of TypeScript
-- **130 MCP tools** — all live and returning real data
+- **142 ingestion modules** — ~178K lines of TypeScript
+- **135 MCP tools** — all live and returning real data
 - **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
 - **1,240+ unique external endpoints** consumed across all modules
 - **19 cities** with direct open data fetchers; **3,490+** via federation
-- **12 packages** — compile clean with full CI/CD pipeline
+- **13 packages** — compile clean with full CI/CD pipeline
 
 ## Attribution
 

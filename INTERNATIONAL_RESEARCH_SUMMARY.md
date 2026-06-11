@@ -484,14 +484,14 @@ All sources are publicly available, most have REST APIs, and licensing is compat
 - Live scraping + Claude-backed PDF parsing
 - Pricing: Free tier (1K API calls/month), Pro ($49/mo, 100K calls), Business ($199/mo, 500K calls), Enterprise tiers up to 50M requests
 
-**Competitive Gap**: Katzilla is US-first with limited Canadian coverage (only open.canada.ca integration), while MapleSpike is Canada-first with deep Canadian coverage (126 modules, 130 MCP tools) across federal, provincial, and municipal jurisdictions.
+**Competitive Gap**: Katzilla is US-first with limited Canadian coverage (only open.canada.ca integration), while MapleSpike is Canada-first with deep Canadian coverage (142 modules, 135 MCP tools) across federal, provincial, and municipal jurisdictions.
 
 ### MapleSpike's Unique Advantages
 
 | Dimension | MapleSpike | Katzilla |
 |-----------|------------|----------|
 | **Geographic Focus** | Canada (all jurisdictions) | US-first, limited Canada |
-| **Data Depth** | 126 modules, 1,240+ endpoints | 283K datasets (US-heavy) |
+| **Data Depth** | 142 modules, 1,240+ endpoints | 283K datasets (US-heavy) |
 | **MCP Coverage** | 130 tools | 27 agents, 217+ actions |
 | **Sovereignty** | Canadian K3s, zero US cloud | US SaaS |
 | **Licensing** | AGPL-3.0 core, MIT tools | Proprietary API |

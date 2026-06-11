@@ -13,7 +13,7 @@ Comprehensive architecture documentation for the MapleSpike monorepo — a sover
 
 MapleSpike is a unified data pipeline that ingests, verifies, and surfaces 126 data modules of Canadian public-domain government data across federal, provincial, territorial, and municipal levels. The system provides three primary access patterns: Model Context Protocol (MCP) for AI agents, REST API for developers, and client SDKs for programmatic integration. All data records include SHA-256 citation hashes, source provenance, and audit trails for independent verification.
 
-The platform currently maintains 130 MCP tools and approximately 159,000 lines of TypeScript code across 12 packages. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine. The entire system runs on a Canadian K3s cluster with no cloud dependencies, ensuring data sovereignty and control.
+The platform currently maintains 135 MCP tools and approximately 178,000 lines of TypeScript code across 13 packages. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine. The entire system runs on a Canadian K3s cluster with no cloud dependencies, ensuring data sovereignty and control.
 
 ```
                            Upstream Government APIs
@@ -37,7 +37,7 @@ The platform currently maintains 130 MCP tools and approximately 159,000 lines o
             ▼                             ▼                             ▼
   ┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
   │    mcp-server     │    │    api-server     │    │      engine       │
-  │  (130 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
+  │  (135 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
   │  stdio/SSE modes  │    │  auth + rate      │    │   signal gen)     │
   └────────┬──────────┘    └────────┬──────────┘    └───────────────────┘
            │                        │
@@ -58,7 +58,7 @@ The platform currently maintains 130 MCP tools and approximately 159,000 lines o
 
 ## Repository Structure
 
-The monorepo follows a standard pnpm workspace structure with 12 packages under the `packages/` directory. The root contains shared configuration files including `turbo.json` for build orchestration, `tsconfig.json` for TypeScript project references, and infrastructure manifests in `k8s/` for Kubernetes deployments.
+The monorepo follows a standard pnpm workspace structure with 13 packages under the `packages/` directory. The root contains shared configuration files including `turbo.json` for build orchestration, `tsconfig.json` for TypeScript project references, and infrastructure manifests in `k8s/` for Kubernetes deployments.
 
 ### Package Overview
 
@@ -496,6 +496,6 @@ The `pretext-civic` package is an orphaned React component library that was prev
 
 ## Conclusion
 
-MapleSpike represents a comprehensive approach to Canadian government data aggregation and distribution, balancing technical sophistication with practical deployment constraints. The architecture prioritizes data sovereignty, ease of AI integration, and developer experience while maintaining zero external cloud spend. The monorepo structure with pnpm and Turbo enables efficient development and deployment across 12 packages, while the separation of concerns between ingestion, storage, access, and analysis ensures maintainability and scalability.
+MapleSpike represents a comprehensive approach to Canadian government data aggregation and distribution, balancing technical sophistication with practical deployment constraints. The architecture prioritizes data sovereignty, ease of AI integration, and developer experience while maintaining zero external cloud spend. The monorepo structure with pnpm and Turbo enables efficient development and deployment across 13 packages, while the separation of concerns between ingestion, storage, access, and analysis ensures maintainability and scalability.
 
-The system currently processes 126 data modules across federal, provincial, territorial, and municipal sources, exposing 130 MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.
+The system currently processes 142 data modules across federal, provincial, territorial, and municipal sources, exposing 135 MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.

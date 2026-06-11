@@ -70,7 +70,7 @@ FETCH ──→ PARSE ──→ PERSIST ──→ SEARCH ──→ PRESENT
 
 | Layer | Description | Status |
 |-------|-------------|--------|
-| **Fetch** | HTTP/API fetchers for each module — CKAN, StatCan WDS, RSS, HTML | ✅ All 126 modules fetch data |
+| **Fetch** | HTTP/API fetchers for each module — CKAN, StatCan WDS, RSS, HTML | ✅ All 142 modules fetch data |
 | **Parse** | Data parsing into typed records with normalization | ✅ All modules parse into typed records |
 | **Persist** | SQLite database storage with upsert semantics | ✅ All modules persist via shared SQLite |
 | **Search** | MCP search tools querying pipeline-core DB | ✅ All 34 tools wired to real DB queries |

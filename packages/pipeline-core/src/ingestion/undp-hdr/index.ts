@@ -3,6 +3,7 @@
 import { fetchHdrIndicator } from './api.js';
 import { parseHdrResponse } from './parser.js';
 import { UNDP_HDR_INDICATORS } from './constants.js';
+import { buildAttribution, withAttribution } from '../../shared/attribution.js';
 import type {
   UndpRecord,
   UndpIngestionResult,
