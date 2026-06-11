@@ -1,7 +1,8 @@
 # Self-Healing CI/CD Implementation
 
 **Last Verified:** 2026-06-06  
-**Status:** ✅ Complete and Verified
+**Status:** ⚠️ ASPIRATIONAL — Auto-remediation infrastructure not yet deployed  
+**NOTE:** This document describes the *planned* self-healing system. The scripts exist in `scripts/` but the CI/CD workflows, Slack/PagerDuty integration, and K8s deployment infrastructure they reference are not yet set up. See `docs/PIPELINE-ARCHITECTURE.md` for status.
 
 ## Overview
 
