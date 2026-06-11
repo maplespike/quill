@@ -46,6 +46,8 @@
       name = "maplespike-build";
       src = maplespike-src;
       buildInputs = [ nodejs pnpm pkgs.python3 pkgs.gcc ];
+      # Sandbox must be off for pnpm to reach npm registry
+      __noChroot = true;
       buildPhase = ''
         export HOME=$TMPDIR
         pnpm install --frozen-lockfile
@@ -434,15 +436,16 @@ ingress:
 '';
 
       # ── Docker/Podman manifests (generated from Nix builds) ────────
-      docker-manifests = pkgs.symlinkJoin {
-        name = "maplespike-docker-manifests";
-        paths = [
-          (pkgs.writeText "docker-compose.yml" ''
+      docker-compose = pkgs.writeText "docker-compose.yml" ''
 version: "3.8"
 
 services:
   maplespike-api:
-    image: ghcr.io/reverb256/maplespike/maplespike-api:${self.shortRev or "stable"}
+    image: maplespike-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-server
     container_name: maplespike-api
     ports:
       - "8082:8082"
@@ -450,13 +453,18 @@ services:
       - NODE_ENV=production
       - MAPLESPIKE_STORAGE=sqlite
       - PORT=8082
+      - JWT_SECRET=change-me-in-production
     volumes:
       - maplespike-api-data:/data
     networks:
       - maplespike
 
   maplespike-mcp:
-    image: ghcr.io/reverb256/maplespike/maplespike-mcp:${self.shortRev or "stable"}
+    image: maplespike-mcp:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: mcp-server
     container_name: maplespike-mcp
     ports:
       - "3001:3001"
@@ -469,7 +477,11 @@ services:
       - maplespike
 
   maplespike-portal:
-    image: ghcr.io/reverb256/maplespike/maplespike-portal:${self.shortRev or "stable"}
+    image: maplespike-portal:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: portal
     container_name: maplespike-portal
     ports:
       - "8080:8080"
@@ -487,9 +499,13 @@ networks:
 
 volumes:
   maplespike-api-data:
-'')
-        ];
-      };
+'';
+
+      docker-manifests = pkgs.runCommand "maplespike-docker-manifests" {} ''
+        mkdir -p $out
+        cp ${self.packages.${system}.docker-compose} $out/docker-compose.yml
+        cp ${./Dockerfile} $out/Dockerfile
+      '';
     };
 
     # ── Convenience: k8sManifests as top-level flake output ──────
@@ -539,6 +555,42 @@ volumes:
           done
           echo "✅ Prod images built. Deploy via kubectl apply -f k8s/prod/"
         ''}/bin/maplespike-deploy-prod";
+      };
+
+      # Show generated docker-compose.yml
+      docker-compose = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "maplespike-docker-compose" ''
+          cat ${self.packages.${system}.docker-compose}
+        ''}/bin/maplespike-docker-compose";
+      };
+
+      # Show generated Helm values.yaml
+      helm-values = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "maplespike-helm-values" ''
+          cat ${self.packages.${system}.helm-values}
+        ''}/bin/maplespike-helm-values";
+      };
+
+      # Show generated K8s manifests
+      k8s-manifests = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "maplespike-k8s-manifests" ''
+          cat ${self.packages.${system}.k8s-manifests}
+        ''}/bin/maplespike-k8s-manifests";
+      };
+
+      # Load all images into podman/docker
+      load-all = {
+        type = "app";
+        program = "${self.packages.${system}.maplespike-load-all}/bin/maplespike-load-all";
+      };
+
+      # Build all images
+      build-all = {
+        type = "app";
+        program = "${self.packages.${system}.maplespike-build-all}/bin/maplespike-build-all";
       };
     };
 
