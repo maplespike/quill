@@ -32,6 +32,8 @@ export interface ModuleInfo {
   sources: { name: string; format: string }[];
   /** How often the source data changes */
   updateFrequency: string;
+  /** 'active' (default) = working module, 'placeholder' = skeleton/metadata-only */
+  status?: 'active' | 'placeholder';
   /** How to call this module in a minimal live test. 'runModule' (default) = use runModule(),
    *  'fetchFeed' = RSS-style fetch, 'skip' = no external I/O utilities */
   testCallPattern?: 'runModule' | 'fetchFeed' | 'skip';
@@ -66,6 +68,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'attestation',
+    status: 'placeholder',
     description: 'Citation building, Merkle tree proofs, content-addressed store, digital signatures',
     category: 'government',
     modulePath: './attestation/index.js',
@@ -101,6 +104,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'gc-standards',
+    status: 'placeholder',
     description: 'Government of Canada department codes, standards, and normalization mappings',
     category: 'government',
     modulePath: './gc-standards/index.js',
@@ -279,6 +283,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'federal',
+    status: 'placeholder',
     description: 'Federal deep-dive datasets — supplementary federal data sources',
     category: 'government',
     modulePath: './federal/index.js',
@@ -303,6 +308,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'legislation',
+    status: 'placeholder',
     description: 'Legislation — Justice Canada XML and provincial legislation tracking',
     category: 'legal',
     modulePath: './legislation/index.js',
@@ -320,6 +326,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'a2aj',
+    status: 'placeholder',
     description: 'A2J Legal API — access to justice dataset coverage, citation lookup, search',
     category: 'legal',
     modulePath: './a2aj/index.js',
@@ -340,6 +347,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'goc-spending',
+    status: 'placeholder',
     description: 'Government of Canada spending — GitHub-based federal contract and expenditure data',
     category: 'government',
     modulePath: './goc-spending/index.js',
@@ -350,6 +358,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'real-time-feeds',
+    status: 'placeholder',
     description: 'Real-time government data feeds — emergency alerts, health advisories, urgent notices',
     category: 'government',
     modulePath: './real-time-feeds/index.js',
@@ -366,6 +375,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'regional-authorities',
+    status: 'placeholder',
     description: 'Regional authorities — regional district, municipality, and local governance data',
     category: 'government',
     modulePath: './regional-authorities/index.js',
@@ -387,6 +397,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'municipal-long-tail',
+    status: 'placeholder',
     description: 'Municipal long-tail — smaller municipalities, regional districts, specialized local datasets',
     category: 'government',
     modulePath: './municipal-long-tail/index.js',
@@ -435,6 +446,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'defence',
+    status: 'placeholder',
     description: 'National Defence — DND personnel, procurement, and capability data',
     category: 'defence',
     modulePath: './defence/index.js',
@@ -530,6 +542,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'fisheries',
+    status: 'placeholder',
     description: 'Fisheries and Oceans Canada — fish stocks, licenses, conservation data',
     category: 'environment',
     modulePath: './fisheries/index.js',
@@ -591,6 +604,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'corporate-filings',
+    status: 'placeholder',
     description: 'Corporate filings — Federal Corporations Registry (CBCA) — 400K+ active and inactive corporations from open.canada.ca',
     category: 'corporate',
     modulePath: './corporate-filings/index.js',
@@ -719,6 +733,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'ngo-influence-rss',
+    status: 'placeholder',
     description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
     category: 'influence',
     modulePath: './ngo-influence-rss/index.js',
@@ -746,6 +761,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'media-broadcasting',
+    status: 'placeholder',
     description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
     category: 'media',
     modulePath: './media-broadcasting/index.js',
@@ -971,6 +987,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'provincial',
+    status: 'placeholder',
     description: 'Provincial deep-dive datasets — supplementary provincial data beyond core CKAN',
     category: 'provincial',
     modulePath: './provincial/index.js',
@@ -992,6 +1009,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'provincial-orgs',
+    status: 'placeholder',
     description: 'Provincial organizations — provincial agencies, boards, and commissions directory',
     category: 'provincial',
     modulePath: './provincial-orgs/index.js',
@@ -1003,6 +1021,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'provincial-regulators',
+    status: 'placeholder',
     description: 'Provincial regulators — regulatory bodies and their coverage across provinces',
     category: 'provincial',
     modulePath: './provincial-regulators/index.js',
@@ -1029,6 +1048,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'unions',
+    status: 'placeholder',
     description: 'Unions — labour organization data, collective agreements, membership statistics',
     category: 'labour',
     modulePath: './unions/index.js',
@@ -1072,6 +1092,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'universities',
+    status: 'placeholder',
     description: 'Universities — deep university data: tuition, enrollment, program costs, institutional finances',
     category: 'education',
     modulePath: './universities/index.js',
@@ -1430,6 +1451,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'un-comtrade',
+    status: 'placeholder',
     description: 'UN Comtrade — international trade statistics by commodity and partner country',
     category: 'international',
     modulePath: './un-comtrade/index.js',
@@ -1441,6 +1463,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'ontario-provincial',
+    status: 'placeholder',
     description: 'Ontario Provincial Data — Ontario Open Data Catalog across health, education, environment, economy domains',
     category: 'provincial',
     modulePath: './ontario-provincial/index.js',
@@ -1452,6 +1475,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'gtfs-transit',
+    status: 'placeholder',
     description: 'GTFS transit data — routes, stops, schedules for 30+ Canadian transit agencies across all provinces',
     category: 'infrastructure',
     modulePath: './gtfs-transit/index.js',
@@ -1506,6 +1530,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'police-data',
+    status: 'placeholder',
     description: 'Police Data — crime statistics, police service data, and public safety metrics from Canadian municipal police services',
     category: 'government',
     modulePath: './police-data/index.js',
@@ -1525,6 +1550,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'political-donations',
+    status: 'placeholder',
     description: 'Political Donations — political financing and donation data from Canadian provincial elections authorities',
     category: 'government',
     modulePath: './political-donations/index.js',
@@ -1541,6 +1567,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'parliamentary-voting',
+    status: 'placeholder',
     description: 'Parliamentary voting records — division votes, MP voting patterns from ourcommons.ca',
     category: 'government',
     modulePath: './parliamentary-voting/index.js',
@@ -1557,6 +1584,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'public-accounts',
+    status: 'placeholder',
     description: 'Public Accounts of Canada — departmental financial statements, program spending, revenue, debt',
     category: 'financial',
     modulePath: './public-accounts/index.js',
@@ -1575,6 +1603,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'oecd-stat',
+    status: 'placeholder',
     description: 'OECD Statistics — economic, social, and environmental indicators from OECD.Stat API',
     category: 'international',
     modulePath: './oecd-stat/index.js',
@@ -1592,6 +1621,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'undp-hdi',
+    status: 'placeholder',
     description: 'UNDP Human Development Index — HDI rankings and component indicators from UNDP Human Development Reports',
     category: 'international',
     modulePath: './undp-hdi/index.js',
@@ -1603,6 +1633,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'unhcr-refugees',
+    status: 'placeholder',
     description: 'UNHCR Refugee Statistics — refugee, asylum-seeker, and forcibly displaced data from UNHCR',
     category: 'international',
     modulePath: './unhcr-refugees/index.js',
@@ -1614,6 +1645,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'fire-emergency',
+    status: 'placeholder',
     description: 'Fire department data — incidents, response times, station locations from 4 Canadian cities',
     category: 'oversight',
     modulePath: './fire-emergency/index.js',
@@ -1647,6 +1679,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'worldbank-wdi',
+    status: 'placeholder',
     description: 'World Bank WDI — development indicators (GDP, population, health, education, etc.)',
     category: 'international',
     modulePath: './worldbank-wdi/index.js',
