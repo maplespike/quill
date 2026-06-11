@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { buildAttribution, withAttribution } from '../../shared/attribution.js';
 import { fetchCountryIndicator, fetchMultiCountryIndicator, fetchCountryAllIndicators } from './fetcher.js';
 import { parseIndicatorData, buildCountryProfile, buildComparison, analyzeTrend } from './parser.js';
 import { DEFAULT_COUNTRIES, DEFAULT_INDICATORS, TOPIC_INDICATORS } from './constants.js';

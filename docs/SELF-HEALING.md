@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # Self-Healing CI/CD Implementation
 
 **Last Verified:** 2026-06-06  

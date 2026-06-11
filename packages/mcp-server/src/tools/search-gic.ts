@@ -54,27 +54,40 @@ export const handler: ToolHandler = async (args) => {
   const limit = Math.min((args.limit as number) ?? 10, 50);
 
   // Live search via API server
-  const result = await fetchGicAppointments(query, limit);
-  let results = result.results;
-  let total = result.total;
+  try {
+    const result = await fetchGicAppointments(query, limit);
+    let results = result.results;
+    let total = result.total;
 
-  // Apply department filter if provided
-  let filteredResults = results;
-  if (department) {
-    const d = department.toLowerCase();
-    filteredResults = results.filter((r: any) =>
-      JSON.stringify(r).toLowerCase().includes(d)
-    );
+    // Apply department filter if provided
+    let filteredResults = results;
+    if (department) {
+      const d = department.toLowerCase();
+      filteredResults = results.filter((r: any) =>
+        JSON.stringify(r).toLowerCase().includes(d)
+      );
+    }
+
+    return {
+      content: {
+        tool: 'search_gic',
+        query,
+        department: department || undefined,
+        limit,
+        results: filteredResults,
+        totalCount: department ? filteredResults.length : total,
+      },
+    };
+  } catch (err) {
+    return {
+      content: {
+        tool: 'search_gic',
+        query,
+        department: department || undefined,
+        limit,
+        error: err instanceof Error ? err.message : 'Unknown error fetching GIC appointments',
+      },
+      isError: true,
+    };
   }
-
-  return {
-    content: {
-      tool: 'search_gic',
-      query,
-      department: department || undefined,
-      limit,
-      results: filteredResults,
-      totalCount: department ? filteredResults.length : total,
-    },
-  };
 };

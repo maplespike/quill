@@ -1,3 +1,8 @@
+---
+last-reviewed: 2026-06-11
+status: active
+---
+
 # CI/CD Pipeline Architecture
 
 **Last Verified:** 2026-06-06  
