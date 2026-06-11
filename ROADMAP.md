@@ -10,7 +10,7 @@ status: active
 > **Tests:** 696 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7, notification-service 13)
 > **Modules:** 142 registry entries (24 marked placeholder)
 > **MCP tools:** 53 registered in tools/index.ts
-> **MVP tracker:** [#665](https://github.com/reverb256/maplespike/issues/665)
+> **MVP tracker:** [#665](https://github.com/reverb256/maplespike/issues/665) — Real readiness: ~30%
 > **Open issues:** 7 (3 quality sub-issues + 4 strategic)
 
 ---
