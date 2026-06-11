@@ -1,0 +1,6186 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 35,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/api-server/src/__tests__/api.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 172,
+      "nonEmptyLines": 155,
+      "functions": [
+        {
+          "name": "makeCtx",
+          "startLine": 5,
+          "endLine": 23,
+          "params": [
+            "overrides"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeCtx",
+          "callee": "db.registerTenant",
+          "lineNumber": 8
+        },
+        {
+          "caller": "makeCtx",
+          "callee": "Date.now",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/__tests__/entity.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 153,
+      "nonEmptyLines": 141,
+      "functions": [
+        {
+          "name": "makeCtx",
+          "startLine": 5,
+          "endLine": 23,
+          "params": [
+            "overrides"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeCtx",
+          "callee": "db.registerTenant",
+          "lineNumber": 8
+        },
+        {
+          "caller": "makeCtx",
+          "callee": "Date.now",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/__tests__/normalize.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 122,
+      "nonEmptyLines": 102,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/__tests__/security.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 239,
+      "nonEmptyLines": 217,
+      "functions": [
+        {
+          "name": "makeCtx",
+          "startLine": 13,
+          "endLine": 31,
+          "params": [
+            "overrides"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeCtx",
+          "callee": "db.registerTenant",
+          "lineNumber": 16
+        },
+        {
+          "caller": "makeCtx",
+          "callee": "Date.now",
+          "lineNumber": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 272,
+      "nonEmptyLines": 242,
+      "functions": [
+        {
+          "name": "hashApiKey",
+          "startLine": 77,
+          "endLine": 83,
+          "params": [
+            "rawKey"
+          ]
+        },
+        {
+          "name": "extractBearerToken",
+          "startLine": 93,
+          "endLine": 97,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "extractApiKeyHeader",
+          "startLine": 102,
+          "endLine": 104,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "authenticateRequest",
+          "startLine": 118,
+          "endLine": 151,
+          "params": [
+            "request",
+            "db"
+          ]
+        },
+        {
+          "name": "authenticateWithApiKey",
+          "startLine": 157,
+          "endLine": 181,
+          "params": [
+            "rawKey",
+            "db"
+          ]
+        },
+        {
+          "name": "authenticateWithJwt",
+          "startLine": 187,
+          "endLine": 221,
+          "params": [
+            "token",
+            "method"
+          ]
+        },
+        {
+          "name": "generateApiKey",
+          "startLine": 231,
+          "endLine": 238,
+          "params": []
+        },
+        {
+          "name": "registerApiKey",
+          "startLine": 243,
+          "endLine": 249,
+          "params": [
+            "rawKey",
+            "tenantId",
+            "name"
+          ]
+        },
+        {
+          "name": "revokeApiKey",
+          "startLine": 254,
+          "endLine": 256,
+          "params": [
+            "rawKey"
+          ]
+        },
+        {
+          "name": "listApiKeysForTenant",
+          "startLine": 261,
+          "endLine": 272,
+          "params": [
+            "tenantId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "hashApiKey",
+          "line": 77,
+          "isDefault": false
+        },
+        {
+          "name": "extractBearerToken",
+          "line": 93,
+          "isDefault": false
+        },
+        {
+          "name": "authenticateRequest",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "generateApiKey",
+          "line": 231,
+          "isDefault": false
+        },
+        {
+          "name": "registerApiKey",
+          "line": 243,
+          "isDefault": false
+        },
+        {
+          "name": "revokeApiKey",
+          "line": 254,
+          "isDefault": false
+        },
+        {
+          "name": "listApiKeysForTenant",
+          "line": 261,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "hashApiKey",
+          "callee": "encoder.encode",
+          "lineNumber": 79
+        },
+        {
+          "caller": "hashApiKey",
+          "callee": "crypto.subtle.digest",
+          "lineNumber": 80
+        },
+        {
+          "caller": "hashApiKey",
+          "callee": "Array.from",
+          "lineNumber": 81
+        },
+        {
+          "caller": "hashApiKey",
+          "callee": "hashArray.map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 82
+        },
+        {
+          "caller": "hashApiKey",
+          "callee": "hashArray.map",
+          "lineNumber": 82
+        },
+        {
+          "caller": "hashApiKey",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 82
+        },
+        {
+          "caller": "hashApiKey",
+          "callee": "b.toString",
+          "lineNumber": 82
+        },
+        {
+          "caller": "extractBearerToken",
+          "callee": "request.headers.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "extractBearerToken",
+          "callee": "auth.startsWith",
+          "lineNumber": 95
+        },
+        {
+          "caller": "extractBearerToken",
+          "callee": "auth.slice(7).trim",
+          "lineNumber": 96
+        },
+        {
+          "caller": "extractBearerToken",
+          "callee": "auth.slice",
+          "lineNumber": 96
+        },
+        {
+          "caller": "extractApiKeyHeader",
+          "callee": "request.headers.get",
+          "lineNumber": 103
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "extractApiKeyHeader",
+          "lineNumber": 123
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "authenticateWithApiKey",
+          "lineNumber": 125
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "extractBearerToken",
+          "lineNumber": 130
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "bearerToken.split",
+          "lineNumber": 133
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "authenticateWithJwt",
+          "lineNumber": 134
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "authenticateWithApiKey",
+          "lineNumber": 138
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "tokenFromRequest",
+          "lineNumber": 144
+        },
+        {
+          "caller": "authenticateRequest",
+          "callee": "authenticateWithJwt",
+          "lineNumber": 146
+        },
+        {
+          "caller": "authenticateWithApiKey",
+          "callee": "apiKeyMap.get",
+          "lineNumber": 161
+        },
+        {
+          "caller": "authenticateWithApiKey",
+          "callee": "db.authenticate",
+          "lineNumber": 173
+        },
+        {
+          "caller": "authenticateWithJwt",
+          "callee": "verifyToken",
+          "lineNumber": 191
+        },
+        {
+          "caller": "authenticateWithJwt",
+          "callee": "getUser",
+          "lineNumber": 195
+        },
+        {
+          "caller": "authenticateWithJwt",
+          "callee": "getTenantForUser",
+          "lineNumber": 197
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 233
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 234
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 234
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "Array.from",
+          "lineNumber": 234
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 234
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "b.toString",
+          "lineNumber": 234
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "hashApiKey",
+          "lineNumber": 236
+        },
+        {
+          "caller": "registerApiKey",
+          "callee": "apiKeyMap.set",
+          "lineNumber": 248
+        },
+        {
+          "caller": "revokeApiKey",
+          "callee": "apiKeyMap.delete",
+          "lineNumber": 255
+        },
+        {
+          "caller": "listApiKeysForTenant",
+          "callee": "keys.push",
+          "lineNumber": 265
+        },
+        {
+          "caller": "listApiKeysForTenant",
+          "callee": "rawKey.slice",
+          "lineNumber": 267
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 7,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/challenges.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 50,
+      "functions": [
+        {
+          "name": "prune",
+          "startLine": 22,
+          "endLine": 31,
+          "params": []
+        },
+        {
+          "name": "setChallenge",
+          "startLine": 33,
+          "endLine": 36,
+          "params": [
+            "key",
+            "challenge",
+            "address"
+          ]
+        },
+        {
+          "name": "getChallenge",
+          "startLine": 38,
+          "endLine": 47,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "consumeChallenge",
+          "startLine": 49,
+          "endLine": 53,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "generateNonce",
+          "startLine": 55,
+          "endLine": 59,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "setChallenge",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "getChallenge",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "consumeChallenge",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "generateNonce",
+          "line": 55,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "prune",
+          "callee": "Date.now",
+          "lineNumber": 23
+        },
+        {
+          "caller": "prune",
+          "callee": "store.delete",
+          "lineNumber": 28
+        },
+        {
+          "caller": "setChallenge",
+          "callee": "prune",
+          "lineNumber": 34
+        },
+        {
+          "caller": "setChallenge",
+          "callee": "store.set",
+          "lineNumber": 35
+        },
+        {
+          "caller": "setChallenge",
+          "callee": "Date.now",
+          "lineNumber": 35
+        },
+        {
+          "caller": "getChallenge",
+          "callee": "prune",
+          "lineNumber": 39
+        },
+        {
+          "caller": "getChallenge",
+          "callee": "store.get",
+          "lineNumber": 40
+        },
+        {
+          "caller": "getChallenge",
+          "callee": "Date.now",
+          "lineNumber": 42
+        },
+        {
+          "caller": "getChallenge",
+          "callee": "store.delete",
+          "lineNumber": 43
+        },
+        {
+          "caller": "consumeChallenge",
+          "callee": "getChallenge",
+          "lineNumber": 50
+        },
+        {
+          "caller": "consumeChallenge",
+          "callee": "store.delete",
+          "lineNumber": 51
+        },
+        {
+          "caller": "generateNonce",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 57
+        },
+        {
+          "caller": "generateNonce",
+          "callee": "Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 58
+        },
+        {
+          "caller": "generateNonce",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 58
+        },
+        {
+          "caller": "generateNonce",
+          "callee": "Array.from",
+          "lineNumber": 58
+        },
+        {
+          "caller": "generateNonce",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 58
+        },
+        {
+          "caller": "generateNonce",
+          "callee": "b.toString",
+          "lineNumber": 58
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/github.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 362,
+      "nonEmptyLines": 316,
+      "functions": [
+        {
+          "name": "githubLoginHandler",
+          "startLine": 34,
+          "endLine": 57,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "githubCallbackHandler",
+          "startLine": 68,
+          "endLine": 161,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "refreshTokenHandler",
+          "startLine": 172,
+          "endLine": 207,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "logoutHandler",
+          "startLine": 217,
+          "endLine": 225,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "meHandler",
+          "startLine": 236,
+          "endLine": 268,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "generateState",
+          "startLine": 274,
+          "endLine": 279,
+          "params": [
+            "requestId"
+          ]
+        },
+        {
+          "name": "exchangeCodeForToken",
+          "startLine": 281,
+          "endLine": 304,
+          "params": [
+            "code"
+          ]
+        },
+        {
+          "name": "fetchGitHubUser",
+          "startLine": 306,
+          "endLine": 321,
+          "params": [
+            "accessToken"
+          ]
+        },
+        {
+          "name": "fetchGitHubEmails",
+          "startLine": 323,
+          "endLine": 338,
+          "params": [
+            "accessToken"
+          ]
+        },
+        {
+          "name": "serializeCookie",
+          "startLine": 340,
+          "endLine": 362,
+          "params": [
+            "name",
+            "value",
+            "maxAgeSeconds"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "githubLoginHandler",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "githubCallbackHandler",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "refreshTokenHandler",
+          "line": 172,
+          "isDefault": false
+        },
+        {
+          "name": "logoutHandler",
+          "line": 217,
+          "isDefault": false
+        },
+        {
+          "name": "meHandler",
+          "line": 236,
+          "isDefault": false
+        },
+        {
+          "name": "serializeCookie",
+          "line": 340,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "githubLoginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "githubLoginHandler",
+          "callee": "buildError",
+          "lineNumber": 37
+        },
+        {
+          "caller": "githubLoginHandler",
+          "callee": "generateState",
+          "lineNumber": 46
+        },
+        {
+          "caller": "githubLoginHandler",
+          "callee": "params.toString",
+          "lineNumber": 49
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 70
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 71
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 74
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 75
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "exchangeCodeForToken",
+          "lineNumber": 83
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 86
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 87
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "fetchGitHubUser",
+          "lineNumber": 95
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 98
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 99
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "fetchGitHubEmails",
+          "lineNumber": 107
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "emails.find",
+          "lineNumber": 108
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "createUser",
+          "lineNumber": 118
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "getTenantForUser",
+          "lineNumber": 119
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "generateToken",
+          "lineNumber": 122
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "request.headers.get",
+          "lineNumber": 129
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "accept.includes",
+          "lineNumber": 130
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "serializeCookie",
+          "lineNumber": 137
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 143
+        },
+        {
+          "caller": "githubCallbackHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 143
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "request.json",
+          "lineNumber": 177
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "tokenFromRequest",
+          "lineNumber": 184
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 188
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "buildError",
+          "lineNumber": 189
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "refreshToken",
+          "lineNumber": 194
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 196
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "buildError",
+          "lineNumber": 197
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 202
+        },
+        {
+          "caller": "refreshTokenHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 202
+        },
+        {
+          "caller": "logoutHandler",
+          "callee": "serializeCookie",
+          "lineNumber": 222
+        },
+        {
+          "caller": "meHandler",
+          "callee": "getUser",
+          "lineNumber": 237
+        },
+        {
+          "caller": "meHandler",
+          "callee": "getUserKeys",
+          "lineNumber": 238
+        },
+        {
+          "caller": "meHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 240
+        },
+        {
+          "caller": "meHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 240
+        },
+        {
+          "caller": "meHandler",
+          "callee": "keys.map",
+          "lineNumber": 262
+        },
+        {
+          "caller": "generateState",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 276
+        },
+        {
+          "caller": "generateState",
+          "callee": "Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 277
+        },
+        {
+          "caller": "generateState",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 277
+        },
+        {
+          "caller": "generateState",
+          "callee": "Array.from",
+          "lineNumber": 277
+        },
+        {
+          "caller": "generateState",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 277
+        },
+        {
+          "caller": "generateState",
+          "callee": "b.toString",
+          "lineNumber": 277
+        },
+        {
+          "caller": "exchangeCodeForToken",
+          "callee": "fetch",
+          "lineNumber": 282
+        },
+        {
+          "caller": "exchangeCodeForToken",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 285
+        },
+        {
+          "caller": "exchangeCodeForToken",
+          "callee": "JSON.stringify",
+          "lineNumber": 286
+        },
+        {
+          "caller": "exchangeCodeForToken",
+          "callee": "response.json",
+          "lineNumber": 298
+        },
+        {
+          "caller": "fetchGitHubUser",
+          "callee": "fetch",
+          "lineNumber": 307
+        },
+        {
+          "caller": "fetchGitHubUser",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 313
+        },
+        {
+          "caller": "fetchGitHubUser",
+          "callee": "response.json",
+          "lineNumber": 320
+        },
+        {
+          "caller": "fetchGitHubEmails",
+          "callee": "fetch",
+          "lineNumber": 324
+        },
+        {
+          "caller": "fetchGitHubEmails",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 330
+        },
+        {
+          "caller": "fetchGitHubEmails",
+          "callee": "response.json",
+          "lineNumber": 337
+        },
+        {
+          "caller": "serializeCookie",
+          "callee": "encodeURIComponent",
+          "lineNumber": 342
+        },
+        {
+          "caller": "serializeCookie",
+          "callee": "parts.push",
+          "lineNumber": 349
+        },
+        {
+          "caller": "serializeCookie",
+          "callee": "parts.push",
+          "lineNumber": 351
+        },
+        {
+          "caller": "serializeCookie",
+          "callee": "parts.push",
+          "lineNumber": 352
+        },
+        {
+          "caller": "serializeCookie",
+          "callee": "parts.push",
+          "lineNumber": 358
+        },
+        {
+          "caller": "serializeCookie",
+          "callee": "parts.join",
+          "lineNumber": 361
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 6,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/jwt.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 233,
+      "nonEmptyLines": 199,
+      "functions": [
+        {
+          "name": "base64UrlEncode",
+          "startLine": 47,
+          "endLine": 53,
+          "params": [
+            "data"
+          ]
+        },
+        {
+          "name": "base64UrlDecode",
+          "startLine": 55,
+          "endLine": 59,
+          "params": [
+            "str"
+          ]
+        },
+        {
+          "name": "sign",
+          "startLine": 65,
+          "endLine": 70,
+          "params": [
+            "input",
+            "secret"
+          ]
+        },
+        {
+          "name": "verify",
+          "startLine": 72,
+          "endLine": 76,
+          "params": [
+            "input",
+            "signature",
+            "secret"
+          ]
+        },
+        {
+          "name": "generateToken",
+          "startLine": 92,
+          "endLine": 118,
+          "params": [
+            "payload",
+            "secret",
+            "expiresIn"
+          ]
+        },
+        {
+          "name": "verifyToken",
+          "startLine": 124,
+          "endLine": 164,
+          "params": [
+            "token",
+            "secret"
+          ]
+        },
+        {
+          "name": "tokenFromRequest",
+          "startLine": 170,
+          "endLine": 201,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "generateRefreshToken",
+          "startLine": 212,
+          "endLine": 217,
+          "params": [
+            "payload",
+            "secret"
+          ]
+        },
+        {
+          "name": "refreshToken",
+          "startLine": 223,
+          "endLine": 233,
+          "params": [
+            "oldToken",
+            "secret"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "generateToken",
+          "line": 92,
+          "isDefault": false
+        },
+        {
+          "name": "verifyToken",
+          "line": 124,
+          "isDefault": false
+        },
+        {
+          "name": "tokenFromRequest",
+          "line": 170,
+          "isDefault": false
+        },
+        {
+          "name": "extractToken",
+          "line": 207,
+          "isDefault": false
+        },
+        {
+          "name": "generateRefreshToken",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "refreshToken",
+          "line": 223,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "base64UrlEncode",
+          "callee": "data\n    .toString('base64')\n    .replace(/=/g, '')\n    .replace(/\\+/g, '-')\n    .replace",
+          "lineNumber": 48
+        },
+        {
+          "caller": "base64UrlEncode",
+          "callee": "data\n    .toString('base64')\n    .replace(/=/g, '')\n    .replace",
+          "lineNumber": 48
+        },
+        {
+          "caller": "base64UrlEncode",
+          "callee": "data\n    .toString('base64')\n    .replace",
+          "lineNumber": 48
+        },
+        {
+          "caller": "base64UrlEncode",
+          "callee": "data\n    .toString",
+          "lineNumber": 48
+        },
+        {
+          "caller": "base64UrlDecode",
+          "callee": "str.replace(/-/g, '+').replace",
+          "lineNumber": 56
+        },
+        {
+          "caller": "base64UrlDecode",
+          "callee": "str.replace",
+          "lineNumber": 56
+        },
+        {
+          "caller": "base64UrlDecode",
+          "callee": "Buffer.from",
+          "lineNumber": 58
+        },
+        {
+          "caller": "sign",
+          "callee": "base64UrlEncode",
+          "lineNumber": 67
+        },
+        {
+          "caller": "sign",
+          "callee": "crypto.createHmac('sha256', key).update(input).digest",
+          "lineNumber": 68
+        },
+        {
+          "caller": "sign",
+          "callee": "crypto.createHmac('sha256', key).update",
+          "lineNumber": 68
+        },
+        {
+          "caller": "sign",
+          "callee": "crypto.createHmac",
+          "lineNumber": 68
+        },
+        {
+          "caller": "verify",
+          "callee": "sign",
+          "lineNumber": 73
+        },
+        {
+          "caller": "verify",
+          "callee": "crypto.timingSafeEqual",
+          "lineNumber": 75
+        },
+        {
+          "caller": "verify",
+          "callee": "Buffer.from",
+          "lineNumber": 75
+        },
+        {
+          "caller": "verify",
+          "callee": "Buffer.from",
+          "lineNumber": 75
+        },
+        {
+          "caller": "generateToken",
+          "callee": "Math.floor",
+          "lineNumber": 103
+        },
+        {
+          "caller": "generateToken",
+          "callee": "Date.now",
+          "lineNumber": 103
+        },
+        {
+          "caller": "generateToken",
+          "callee": "base64UrlEncode",
+          "lineNumber": 112
+        },
+        {
+          "caller": "generateToken",
+          "callee": "Buffer.from",
+          "lineNumber": 113
+        },
+        {
+          "caller": "generateToken",
+          "callee": "JSON.stringify",
+          "lineNumber": 113
+        },
+        {
+          "caller": "generateToken",
+          "callee": "sign",
+          "lineNumber": 116
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "token.split",
+          "lineNumber": 125
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "JSON.parse",
+          "lineNumber": 132
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "base64UrlDecode(header).toString",
+          "lineNumber": 132
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "base64UrlDecode",
+          "lineNumber": 132
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "verify",
+          "lineNumber": 141
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "JSON.parse",
+          "lineNumber": 147
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "base64UrlDecode(payload).toString",
+          "lineNumber": 148
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "base64UrlDecode",
+          "lineNumber": 148
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "Math.floor",
+          "lineNumber": 152
+        },
+        {
+          "caller": "verifyToken",
+          "callee": "Date.now",
+          "lineNumber": 152
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 172
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "auth.startsWith",
+          "lineNumber": 173
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "auth.slice(7).trim",
+          "lineNumber": 174
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "auth.slice",
+          "lineNumber": 174
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "token.split",
+          "lineNumber": 176
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 183
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "apiKey.split",
+          "lineNumber": 184
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 189
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "cookie.match",
+          "lineNumber": 191
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "decodeURIComponent",
+          "lineNumber": 193
+        },
+        {
+          "caller": "tokenFromRequest",
+          "callee": "token.split",
+          "lineNumber": 194
+        },
+        {
+          "caller": "generateRefreshToken",
+          "callee": "generateToken",
+          "lineNumber": 216
+        },
+        {
+          "caller": "refreshToken",
+          "callee": "verifyToken",
+          "lineNumber": 224
+        },
+        {
+          "caller": "refreshToken",
+          "callee": "generateToken",
+          "lineNumber": 228
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 9,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/oauth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 248,
+      "nonEmptyLines": 212,
+      "functions": [
+        {
+          "name": "registerBuiltIn",
+          "startLine": 49,
+          "endLine": 70,
+          "params": []
+        },
+        {
+          "name": "loadDynamicProviders",
+          "startLine": 78,
+          "endLine": 131,
+          "params": []
+        },
+        {
+          "name": "getProvider",
+          "startLine": 139,
+          "endLine": 141,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "listProviders",
+          "startLine": 143,
+          "endLine": 148,
+          "params": []
+        },
+        {
+          "name": "buildAuthorizeUrl",
+          "startLine": 153,
+          "endLine": 157,
+          "params": [
+            "provider",
+            "state"
+          ]
+        },
+        {
+          "name": "exchangeCode",
+          "startLine": 162,
+          "endLine": 188,
+          "params": [
+            "provider",
+            "code"
+          ]
+        },
+        {
+          "name": "fetchProfile",
+          "startLine": 193,
+          "endLine": 211,
+          "params": [
+            "provider",
+            "accessToken"
+          ]
+        },
+        {
+          "name": "loginWithOAuth",
+          "startLine": 216,
+          "endLine": 248,
+          "params": [
+            "provider",
+            "code"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getProvider",
+          "line": 139,
+          "isDefault": false
+        },
+        {
+          "name": "listProviders",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "buildAuthorizeUrl",
+          "line": 153,
+          "isDefault": false
+        },
+        {
+          "name": "exchangeCode",
+          "line": 162,
+          "isDefault": false
+        },
+        {
+          "name": "fetchProfile",
+          "line": 193,
+          "isDefault": false
+        },
+        {
+          "name": "loginWithOAuth",
+          "line": 216,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "registerBuiltIn",
+          "callee": "String",
+          "lineNumber": 63
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "Object.keys",
+          "lineNumber": 85
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "key.match",
+          "lineNumber": 86
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "match[1].toLowerCase",
+          "lineNumber": 88
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "getEnv",
+          "lineNumber": 98
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "getEnv",
+          "lineNumber": 99
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "getEnv",
+          "lineNumber": 100
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "getEnv",
+          "lineNumber": 101
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "encodeURIComponent",
+          "lineNumber": 107
+        },
+        {
+          "caller": "loadDynamicProviders",
+          "callee": "String",
+          "lineNumber": 124
+        },
+        {
+          "caller": "listProviders",
+          "callee": "Object.entries(PROVIDERS).map",
+          "lineNumber": 144
+        },
+        {
+          "caller": "listProviders",
+          "callee": "Object.entries",
+          "lineNumber": 144
+        },
+        {
+          "caller": "buildAuthorizeUrl",
+          "callee": "baseUrl.includes",
+          "lineNumber": 155
+        },
+        {
+          "caller": "buildAuthorizeUrl",
+          "callee": "encodeURIComponent",
+          "lineNumber": 156
+        },
+        {
+          "caller": "exchangeCode",
+          "callee": "fetch",
+          "lineNumber": 166
+        },
+        {
+          "caller": "exchangeCode",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 172
+        },
+        {
+          "caller": "exchangeCode",
+          "callee": "JSON.stringify",
+          "lineNumber": 173
+        },
+        {
+          "caller": "exchangeCode",
+          "callee": "resp.json",
+          "lineNumber": 186
+        },
+        {
+          "caller": "fetchProfile",
+          "callee": "fetch",
+          "lineNumber": 197
+        },
+        {
+          "caller": "fetchProfile",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 202
+        },
+        {
+          "caller": "fetchProfile",
+          "callee": "resp.json",
+          "lineNumber": 209
+        },
+        {
+          "caller": "fetchProfile",
+          "callee": "provider.mapProfile",
+          "lineNumber": 210
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "exchangeCode",
+          "lineNumber": 220
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "fetchProfile",
+          "lineNumber": 221
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "getUser",
+          "lineNumber": 225
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "createUser",
+          "lineNumber": 230
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "Number",
+          "lineNumber": 231
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "Date.now",
+          "lineNumber": 231
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "getTenantForUser",
+          "lineNumber": 239
+        },
+        {
+          "caller": "loginWithOAuth",
+          "callee": "generateToken",
+          "lineNumber": 241
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/passkey.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 276,
+      "nonEmptyLines": 233,
+      "functions": [
+        {
+          "name": "beginRegistration",
+          "startLine": 79,
+          "endLine": 114,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "completeRegistration",
+          "startLine": 119,
+          "endLine": 156,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "beginLogin",
+          "startLine": 179,
+          "endLine": 206,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "completeLogin",
+          "startLine": 211,
+          "endLine": 256,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "listCredentials",
+          "startLine": 265,
+          "endLine": 269,
+          "params": [
+            "userId"
+          ]
+        },
+        {
+          "name": "deleteCredential",
+          "startLine": 274,
+          "endLine": 276,
+          "params": [
+            "credentialId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "beginRegistration",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "completeRegistration",
+          "line": 119,
+          "isDefault": false
+        },
+        {
+          "name": "beginLogin",
+          "line": 179,
+          "isDefault": false
+        },
+        {
+          "name": "completeLogin",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "listCredentials",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "deleteCredential",
+          "line": 274,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "beginRegistration",
+          "callee": "generateNonce",
+          "lineNumber": 82
+        },
+        {
+          "caller": "beginRegistration",
+          "callee": "Array.from(credentials.values())\n        .filter(c => c.userId === req.userId)\n        .map",
+          "lineNumber": 86
+        },
+        {
+          "caller": "beginRegistration",
+          "callee": "Array.from(credentials.values())\n        .filter",
+          "lineNumber": 86
+        },
+        {
+          "caller": "beginRegistration",
+          "callee": "Array.from",
+          "lineNumber": 86
+        },
+        {
+          "caller": "beginRegistration",
+          "callee": "credentials.values",
+          "lineNumber": 86
+        },
+        {
+          "caller": "beginRegistration",
+          "callee": "generateRegistrationOptions",
+          "lineNumber": 94
+        },
+        {
+          "caller": "beginRegistration",
+          "callee": "setChallenge",
+          "lineNumber": 108
+        },
+        {
+          "caller": "completeRegistration",
+          "callee": "consumeChallenge",
+          "lineNumber": 122
+        },
+        {
+          "caller": "completeRegistration",
+          "callee": "verifyRegistrationResponse",
+          "lineNumber": 127
+        },
+        {
+          "caller": "completeRegistration",
+          "callee": "Buffer.from(credentialID).toString",
+          "lineNumber": 144
+        },
+        {
+          "caller": "completeRegistration",
+          "callee": "Buffer.from",
+          "lineNumber": 144
+        },
+        {
+          "caller": "completeRegistration",
+          "callee": "new Date().toISOString",
+          "lineNumber": 150
+        },
+        {
+          "caller": "completeRegistration",
+          "callee": "credentials.set",
+          "lineNumber": 153
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "generateNonce",
+          "lineNumber": 182
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "Array.from(credentials.values())\n        .filter(c => c.userId === req.userId)\n        .map",
+          "lineNumber": 186
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "Array.from(credentials.values())\n        .filter",
+          "lineNumber": 186
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "Array.from",
+          "lineNumber": 186
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "credentials.values",
+          "lineNumber": 186
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "generateAuthenticationOptions",
+          "lineNumber": 194
+        },
+        {
+          "caller": "beginLogin",
+          "callee": "setChallenge",
+          "lineNumber": 200
+        },
+        {
+          "caller": "completeLogin",
+          "callee": "consumeChallenge",
+          "lineNumber": 214
+        },
+        {
+          "caller": "completeLogin",
+          "callee": "Buffer.from(credentialRaw.id as string, 'base64url').toString",
+          "lineNumber": 220
+        },
+        {
+          "caller": "completeLogin",
+          "callee": "Buffer.from",
+          "lineNumber": 220
+        },
+        {
+          "caller": "completeLogin",
+          "callee": "credentials.get",
+          "lineNumber": 222
+        },
+        {
+          "caller": "completeLogin",
+          "callee": "verifyAuthenticationResponse",
+          "lineNumber": 227
+        },
+        {
+          "caller": "completeLogin",
+          "callee": "generateToken",
+          "lineNumber": 250
+        },
+        {
+          "caller": "listCredentials",
+          "callee": "Array.from(credentials.values())\n    .filter(c => c.userId === userId)\n    .map",
+          "lineNumber": 266
+        },
+        {
+          "caller": "listCredentials",
+          "callee": "Array.from(credentials.values())\n    .filter",
+          "lineNumber": 266
+        },
+        {
+          "caller": "listCredentials",
+          "callee": "Array.from",
+          "lineNumber": 266
+        },
+        {
+          "caller": "listCredentials",
+          "callee": "credentials.values",
+          "lineNumber": 266
+        },
+        {
+          "caller": "deleteCredential",
+          "callee": "credentials.delete",
+          "lineNumber": 275
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/users.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 195,
+      "nonEmptyLines": 164,
+      "functions": [
+        {
+          "name": "createUser",
+          "startLine": 29,
+          "endLine": 109,
+          "params": [
+            "githubProfile"
+          ]
+        },
+        {
+          "name": "getUser",
+          "startLine": 115,
+          "endLine": 117,
+          "params": [
+            "id"
+          ]
+        },
+        {
+          "name": "getUserByEmail",
+          "startLine": 119,
+          "endLine": 123,
+          "params": [
+            "email"
+          ]
+        },
+        {
+          "name": "getUserByGithubId",
+          "startLine": 125,
+          "endLine": 129,
+          "params": [
+            "githubId"
+          ]
+        },
+        {
+          "name": "listUsers",
+          "startLine": 131,
+          "endLine": 133,
+          "params": []
+        },
+        {
+          "name": "getTenantForUser",
+          "startLine": 135,
+          "endLine": 137,
+          "params": [
+            "userId"
+          ]
+        },
+        {
+          "name": "generateApiKey",
+          "startLine": 143,
+          "endLine": 162,
+          "params": [
+            "userId"
+          ]
+        },
+        {
+          "name": "revokeApiKey",
+          "startLine": 164,
+          "endLine": 173,
+          "params": [
+            "userId",
+            "keyId"
+          ]
+        },
+        {
+          "name": "getUserKeys",
+          "startLine": 175,
+          "endLine": 177,
+          "params": [
+            "userId"
+          ]
+        },
+        {
+          "name": "generateId",
+          "startLine": 183,
+          "endLine": 188,
+          "params": [
+            "prefix"
+          ]
+        },
+        {
+          "name": "generateRawApiKey",
+          "startLine": 190,
+          "endLine": 195,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "createUser",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "getUser",
+          "line": 115,
+          "isDefault": false
+        },
+        {
+          "name": "getUserByEmail",
+          "line": 119,
+          "isDefault": false
+        },
+        {
+          "name": "getUserByGithubId",
+          "line": 125,
+          "isDefault": false
+        },
+        {
+          "name": "listUsers",
+          "line": 131,
+          "isDefault": false
+        },
+        {
+          "name": "getTenantForUser",
+          "line": 135,
+          "isDefault": false
+        },
+        {
+          "name": "generateApiKey",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "revokeApiKey",
+          "line": 164,
+          "isDefault": false
+        },
+        {
+          "name": "getUserKeys",
+          "line": 175,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "createUser",
+          "callee": "githubIdIndex.get",
+          "lineNumber": 31
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubProfile.id.toString",
+          "lineNumber": 31
+        },
+        {
+          "caller": "createUser",
+          "callee": "userStore.get",
+          "lineNumber": 33
+        },
+        {
+          "caller": "createUser",
+          "callee": "new Date().toISOString",
+          "lineNumber": 40
+        },
+        {
+          "caller": "createUser",
+          "callee": "emailIndex.get",
+          "lineNumber": 47
+        },
+        {
+          "caller": "createUser",
+          "callee": "userStore.get",
+          "lineNumber": 49
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubIdIndex.set",
+          "lineNumber": 51
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubProfile.id.toString",
+          "lineNumber": 51
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubProfile.id.toString",
+          "lineNumber": 52
+        },
+        {
+          "caller": "createUser",
+          "callee": "new Date().toISOString",
+          "lineNumber": 56
+        },
+        {
+          "caller": "createUser",
+          "callee": "generateId",
+          "lineNumber": 63
+        },
+        {
+          "caller": "createUser",
+          "callee": "new Date().toISOString",
+          "lineNumber": 64
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubProfile.id.toString",
+          "lineNumber": 69
+        },
+        {
+          "caller": "createUser",
+          "callee": "userStore.set",
+          "lineNumber": 79
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubIdIndex.set",
+          "lineNumber": 80
+        },
+        {
+          "caller": "createUser",
+          "callee": "githubProfile.id.toString",
+          "lineNumber": 80
+        },
+        {
+          "caller": "createUser",
+          "callee": "emailIndex.set",
+          "lineNumber": 82
+        },
+        {
+          "caller": "createUser",
+          "callee": "tenantStore.set",
+          "lineNumber": 86
+        },
+        {
+          "caller": "createUser",
+          "callee": "generateId",
+          "lineNumber": 97
+        },
+        {
+          "caller": "createUser",
+          "callee": "generateRawApiKey",
+          "lineNumber": 98
+        },
+        {
+          "caller": "createUser",
+          "callee": "userApiKeys.set",
+          "lineNumber": 106
+        },
+        {
+          "caller": "getUser",
+          "callee": "userStore.get",
+          "lineNumber": 116
+        },
+        {
+          "caller": "getUserByEmail",
+          "callee": "emailIndex.get",
+          "lineNumber": 120
+        },
+        {
+          "caller": "getUserByEmail",
+          "callee": "userStore.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "getUserByGithubId",
+          "callee": "githubIdIndex.get",
+          "lineNumber": 126
+        },
+        {
+          "caller": "getUserByGithubId",
+          "callee": "userStore.get",
+          "lineNumber": 128
+        },
+        {
+          "caller": "listUsers",
+          "callee": "Array.from",
+          "lineNumber": 132
+        },
+        {
+          "caller": "listUsers",
+          "callee": "userStore.values",
+          "lineNumber": 132
+        },
+        {
+          "caller": "getTenantForUser",
+          "callee": "tenantStore.get",
+          "lineNumber": 136
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "userStore.has",
+          "lineNumber": 144
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "generateId",
+          "lineNumber": 146
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "generateRawApiKey",
+          "lineNumber": 147
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "userApiKeys.get",
+          "lineNumber": 157
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "keys.push",
+          "lineNumber": 158
+        },
+        {
+          "caller": "generateApiKey",
+          "callee": "userApiKeys.set",
+          "lineNumber": 159
+        },
+        {
+          "caller": "revokeApiKey",
+          "callee": "userApiKeys.get",
+          "lineNumber": 165
+        },
+        {
+          "caller": "revokeApiKey",
+          "callee": "keys.find",
+          "lineNumber": 168
+        },
+        {
+          "caller": "getUserKeys",
+          "callee": "userApiKeys.get",
+          "lineNumber": 176
+        },
+        {
+          "caller": "generateId",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 185
+        },
+        {
+          "caller": "generateId",
+          "callee": "Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 186
+        },
+        {
+          "caller": "generateId",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 186
+        },
+        {
+          "caller": "generateId",
+          "callee": "Array.from",
+          "lineNumber": 186
+        },
+        {
+          "caller": "generateId",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 186
+        },
+        {
+          "caller": "generateId",
+          "callee": "b.toString",
+          "lineNumber": 186
+        },
+        {
+          "caller": "generateRawApiKey",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 192
+        },
+        {
+          "caller": "generateRawApiKey",
+          "callee": "Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 193
+        },
+        {
+          "caller": "generateRawApiKey",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 193
+        },
+        {
+          "caller": "generateRawApiKey",
+          "callee": "Array.from",
+          "lineNumber": 193
+        },
+        {
+          "caller": "generateRawApiKey",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 193
+        },
+        {
+          "caller": "generateRawApiKey",
+          "callee": "b.toString",
+          "lineNumber": 193
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/auth/web3.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 123,
+      "nonEmptyLines": 105,
+      "functions": [
+        {
+          "name": "buildSiweMessage",
+          "startLine": 38,
+          "endLine": 47,
+          "params": [
+            "params"
+          ]
+        },
+        {
+          "name": "createChallenge",
+          "startLine": 52,
+          "endLine": 76,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "verifyAndLogin",
+          "startLine": 81,
+          "endLine": 123,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "createChallenge",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "verifyAndLogin",
+          "line": 81,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "createChallenge",
+          "callee": "req.address.match",
+          "lineNumber": 53
+        },
+        {
+          "caller": "createChallenge",
+          "callee": "generateNonce",
+          "lineNumber": 57
+        },
+        {
+          "caller": "createChallenge",
+          "callee": "getAddress",
+          "lineNumber": 58
+        },
+        {
+          "caller": "createChallenge",
+          "callee": "new Date().toISOString",
+          "lineNumber": 61
+        },
+        {
+          "caller": "createChallenge",
+          "callee": "buildSiweMessage",
+          "lineNumber": 63
+        },
+        {
+          "caller": "createChallenge",
+          "callee": "setChallenge",
+          "lineNumber": 73
+        },
+        {
+          "caller": "createChallenge",
+          "callee": "address.toLowerCase",
+          "lineNumber": 73
+        },
+        {
+          "caller": "verifyAndLogin",
+          "callee": "getAddress(req.address).toLowerCase",
+          "lineNumber": 88
+        },
+        {
+          "caller": "verifyAndLogin",
+          "callee": "getAddress",
+          "lineNumber": 88
+        },
+        {
+          "caller": "verifyAndLogin",
+          "callee": "consumeChallenge",
+          "lineNumber": 89
+        },
+        {
+          "caller": "verifyAndLogin",
+          "callee": "verifyMessage",
+          "lineNumber": 103
+        },
+        {
+          "caller": "verifyAndLogin",
+          "callee": "generateToken",
+          "lineNumber": 117
+        },
+        {
+          "caller": "verifyAndLogin",
+          "callee": "getAddress",
+          "lineNumber": 122
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/cache.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 99,
+      "nonEmptyLines": 89,
+      "classes": [
+        {
+          "name": "MemoryCache",
+          "startLine": 19,
+          "endLine": 96,
+          "methods": [
+            "get",
+            "set",
+            "has",
+            "delete",
+            "clear",
+            "stats"
+          ],
+          "properties": [
+            "store",
+            "hits",
+            "misses"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "MemoryCache",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "globalCache",
+          "line": 99,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get",
+          "callee": "this.store.get",
+          "lineNumber": 28
+        },
+        {
+          "caller": "get",
+          "callee": "Date.now",
+          "lineNumber": 33
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.delete",
+          "lineNumber": 34
+        },
+        {
+          "caller": "set",
+          "callee": "Date.now",
+          "lineNumber": 46
+        },
+        {
+          "caller": "set",
+          "callee": "this.store.set",
+          "lineNumber": 47
+        },
+        {
+          "caller": "has",
+          "callee": "this.store.get",
+          "lineNumber": 54
+        },
+        {
+          "caller": "has",
+          "callee": "Date.now",
+          "lineNumber": 56
+        },
+        {
+          "caller": "has",
+          "callee": "this.store.delete",
+          "lineNumber": 57
+        },
+        {
+          "caller": "delete",
+          "callee": "this.store.delete",
+          "lineNumber": 67
+        },
+        {
+          "caller": "clear",
+          "callee": "this.store.clear",
+          "lineNumber": 74
+        },
+        {
+          "caller": "stats",
+          "callee": "Date.now",
+          "lineNumber": 84
+        },
+        {
+          "caller": "stats",
+          "callee": "this.store.delete",
+          "lineNumber": 87
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/api-server/src/config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 75,
+      "nonEmptyLines": 67,
+      "functions": [
+        {
+          "name": "validateConfig",
+          "startLine": 51,
+          "endLine": 62,
+          "params": [
+            "env"
+          ]
+        },
+        {
+          "name": "loadConfig",
+          "startLine": 64,
+          "endLine": 75,
+          "params": [
+            "env"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "CURATED_MODELS",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "validateConfig",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "loadConfig",
+          "line": 64,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "validateConfig",
+          "callee": "log.warn",
+          "lineNumber": 60
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 3,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/dev-server.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 203,
+      "nonEmptyLines": 180,
+      "functions": [
+        {
+          "name": "verifyStorageHealth",
+          "startLine": 103,
+          "endLine": 114,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "verifyStorageHealth",
+          "callee": "(db as any).getTenant",
+          "lineNumber": 107
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/email.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 230,
+      "nonEmptyLines": 207,
+      "functions": [
+        {
+          "name": "initEmailConfig",
+          "startLine": 48,
+          "endLine": 58,
+          "params": [
+            "env"
+          ]
+        },
+        {
+          "name": "getEmailConfig",
+          "startLine": 60,
+          "endLine": 71,
+          "params": []
+        },
+        {
+          "name": "sendVerificationEmail",
+          "startLine": 76,
+          "endLine": 96,
+          "params": [
+            "params"
+          ]
+        },
+        {
+          "name": "sendWelcomeEmail",
+          "startLine": 101,
+          "endLine": 128,
+          "params": [
+            "params"
+          ]
+        },
+        {
+          "name": "sendContactEmail",
+          "startLine": 138,
+          "endLine": 156,
+          "params": [
+            "params"
+          ]
+        },
+        {
+          "name": "sendEmail",
+          "startLine": 161,
+          "endLine": 185,
+          "params": [
+            "{\n  to,\n  subject,\n  html,\n  text,\n}"
+          ]
+        },
+        {
+          "name": "sendViaSendgrid",
+          "startLine": 187,
+          "endLine": 230,
+          "params": [
+            "{\n  to,\n  subject,\n  html,\n  text,\n  config,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "initEmailConfig",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "getEmailConfig",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "sendVerificationEmail",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "sendWelcomeEmail",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "sendContactEmail",
+          "line": 138,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "sendVerificationEmail",
+          "callee": "getEmailConfig",
+          "lineNumber": 77
+        },
+        {
+          "caller": "sendVerificationEmail",
+          "callee": "sendEmail",
+          "lineNumber": 95
+        },
+        {
+          "caller": "sendWelcomeEmail",
+          "callee": "getEmailConfig",
+          "lineNumber": 102
+        },
+        {
+          "caller": "sendWelcomeEmail",
+          "callee": "sendEmail",
+          "lineNumber": 127
+        },
+        {
+          "caller": "sendContactEmail",
+          "callee": "getEmailConfig",
+          "lineNumber": 139
+        },
+        {
+          "caller": "sendContactEmail",
+          "callee": "sendEmail",
+          "lineNumber": 155
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "getEmailConfig",
+          "lineNumber": 172
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "sendViaSendgrid",
+          "lineNumber": 175
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "log.info",
+          "lineNumber": 179
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "log.info",
+          "lineNumber": 180
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "log.info",
+          "lineNumber": 181
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "log.info",
+          "lineNumber": 182
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "text.substring",
+          "lineNumber": 182
+        },
+        {
+          "caller": "sendEmail",
+          "callee": "log.info",
+          "lineNumber": 183
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "fetch",
+          "lineNumber": 201
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "JSON.stringify",
+          "lineNumber": 207
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "response.text",
+          "lineNumber": 219
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "log.error",
+          "lineNumber": 220
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "log.info",
+          "lineNumber": 224
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "log.error",
+          "lineNumber": 227
+        },
+        {
+          "caller": "sendViaSendgrid",
+          "callee": "String",
+          "lineNumber": 227
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/freshness.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 141,
+      "nonEmptyLines": 127,
+      "functions": [
+        {
+          "name": "recordIngestion",
+          "startLine": 22,
+          "endLine": 28,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "recordUptime",
+          "startLine": 33,
+          "endLine": 42,
+          "params": [
+            "source",
+            "uptime"
+          ]
+        },
+        {
+          "name": "getFreshness",
+          "startLine": 48,
+          "endLine": 52,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "getConfidence",
+          "startLine": 63,
+          "endLine": 69,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "getCertainty",
+          "startLine": 81,
+          "endLine": 100,
+          "params": [
+            "source"
+          ]
+        },
+        {
+          "name": "recordSourceStatus",
+          "startLine": 105,
+          "endLine": 113,
+          "params": [
+            "source",
+            "uptime"
+          ]
+        },
+        {
+          "name": "seedFreshness",
+          "startLine": 118,
+          "endLine": 138,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "recordIngestion",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "recordUptime",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "getFreshness",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "getConfidence",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "getCertainty",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "recordSourceStatus",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "seedFreshness",
+          "line": 118,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "recordIngestion",
+          "callee": "ingestionStore.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "ingestionStore.set",
+          "lineNumber": 24
+        },
+        {
+          "caller": "recordIngestion",
+          "callee": "Date.now",
+          "lineNumber": 25
+        },
+        {
+          "caller": "recordUptime",
+          "callee": "ingestionStore.get",
+          "lineNumber": 34
+        },
+        {
+          "caller": "recordUptime",
+          "callee": "Date.now",
+          "lineNumber": 35
+        },
+        {
+          "caller": "recordUptime",
+          "callee": "ingestionStore.set",
+          "lineNumber": 38
+        },
+        {
+          "caller": "recordUptime",
+          "callee": "Math.max",
+          "lineNumber": 40
+        },
+        {
+          "caller": "recordUptime",
+          "callee": "Math.min",
+          "lineNumber": 40
+        },
+        {
+          "caller": "getFreshness",
+          "callee": "ingestionStore.get",
+          "lineNumber": 49
+        },
+        {
+          "caller": "getFreshness",
+          "callee": "Math.floor",
+          "lineNumber": 51
+        },
+        {
+          "caller": "getFreshness",
+          "callee": "Date.now",
+          "lineNumber": 51
+        },
+        {
+          "caller": "getConfidence",
+          "callee": "getFreshness",
+          "lineNumber": 64
+        },
+        {
+          "caller": "getCertainty",
+          "callee": "getFreshness",
+          "lineNumber": 82
+        },
+        {
+          "caller": "getCertainty",
+          "callee": "ingestionStore.get",
+          "lineNumber": 83
+        },
+        {
+          "caller": "getCertainty",
+          "callee": "Math.round",
+          "lineNumber": 99
+        },
+        {
+          "caller": "recordSourceStatus",
+          "callee": "recordIngestion",
+          "lineNumber": 109
+        },
+        {
+          "caller": "recordSourceStatus",
+          "callee": "recordUptime",
+          "lineNumber": 111
+        },
+        {
+          "caller": "seedFreshness",
+          "callee": "Date.now",
+          "lineNumber": 119
+        },
+        {
+          "caller": "seedFreshness",
+          "callee": "ingestionStore.set",
+          "lineNumber": 133
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 616,
+      "nonEmptyLines": 565,
+      "functions": [
+        {
+          "name": "getSourceName",
+          "startLine": 207,
+          "endLine": 212,
+          "params": [
+            "handler"
+          ]
+        },
+        {
+          "name": "generateRequestId",
+          "startLine": 214,
+          "endLine": 218,
+          "params": []
+        },
+        {
+          "name": "matchRoute",
+          "startLine": 324,
+          "endLine": 340,
+          "params": [
+            "url",
+            "method"
+          ]
+        },
+        {
+          "name": "handleRequest",
+          "startLine": 342,
+          "endLine": 586,
+          "params": [
+            "request",
+            "env",
+            "db",
+            "cache"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ApiResponse",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "QueryOptions",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "handleRequest",
+          "line": 342,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateRequestId",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 216
+        },
+        {
+          "caller": "generateRequestId",
+          "callee": "Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join",
+          "lineNumber": 217
+        },
+        {
+          "caller": "generateRequestId",
+          "callee": "Array.from(bytes).map",
+          "lineNumber": 217
+        },
+        {
+          "caller": "generateRequestId",
+          "callee": "Array.from",
+          "lineNumber": 217
+        },
+        {
+          "caller": "generateRequestId",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 217
+        },
+        {
+          "caller": "generateRequestId",
+          "callee": "b.toString",
+          "lineNumber": 217
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "pathname.match",
+          "lineNumber": 329
+        },
+        {
+          "caller": "matchRoute",
+          "callee": "route.params.forEach",
+          "lineNumber": 332
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "loadConfig",
+          "lineNumber": 348
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "generateRequestId",
+          "lineNumber": 350
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 351
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "parseQueryOptions",
+          "lineNumber": 353
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 354
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "corsPreflight",
+          "lineNumber": 358
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 364
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Response.redirect",
+          "lineNumber": 368
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "httpsUrl.toString",
+          "lineNumber": 368
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "matchRoute",
+          "lineNumber": 371
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 378
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "jsonResponse",
+          "lineNumber": 380
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "buildError",
+          "lineNumber": 380
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "authenticateRequest",
+          "lineNumber": 414
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 422
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "jsonResponse",
+          "lineNumber": 424
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "buildError",
+          "lineNumber": 424
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "globalCache.get",
+          "lineNumber": 444
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "JSON.parse",
+          "lineNumber": 449
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "new Date().toISOString",
+          "lineNumber": 452
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 453
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Math.floor",
+          "lineNumber": 456
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 456
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "JSON.stringify",
+          "lineNumber": 457
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 463
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "getAllowedOrigin",
+          "lineNumber": 464
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "applySecurityHeaders",
+          "lineNumber": 473
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 493
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim",
+          "lineNumber": 494
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get('X-Forwarded-For')?.split",
+          "lineNumber": 494
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 494
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "request.headers.get",
+          "lineNumber": 495
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "checkRateLimit",
+          "lineNumber": 499
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "db.logAudit",
+          "lineNumber": 502
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 510
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 522
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Math.ceil",
+          "lineNumber": 525
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Date.now",
+          "lineNumber": 525
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "jsonResponse",
+          "lineNumber": 526
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "buildError",
+          "lineNumber": 526
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "String",
+          "lineNumber": 526
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "Math.max",
+          "lineNumber": 526
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "addRateLimitHeaders",
+          "lineNumber": 528
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "addAttributionHeader",
+          "lineNumber": 530
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "parseAgentAction",
+          "lineNumber": 539
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "mockHandler",
+          "lineNumber": 551
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "pathname.replace(/^\\/v1\\//, '').replace",
+          "lineNumber": 565
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "pathname.replace",
+          "lineNumber": 565
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "getMockData",
+          "lineNumber": 567
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "url.searchParams.has",
+          "lineNumber": 568
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "jsonResponse",
+          "lineNumber": 580
+        },
+        {
+          "caller": "handleRequest",
+          "callee": "buildSuccess",
+          "lineNumber": 580
+        },
+        {
+          "caller": "fetch",
+          "callee": "initAnnotationStore",
+          "lineNumber": 591
+        },
+        {
+          "caller": "fetch",
+          "callee": "validateConfig",
+          "lineNumber": 606
+        },
+        {
+          "caller": "fetch",
+          "callee": "JSON.stringify",
+          "lineNumber": 609
+        },
+        {
+          "caller": "fetch",
+          "callee": "handleRequest",
+          "lineNumber": 614
+        }
+      ],
+      "metrics": {
+        "importCount": 43,
+        "exportCount": 3,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/loaders/briefs.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 11,
+      "functions": [
+        {
+          "name": "briefsHandler",
+          "startLine": 5,
+          "endLine": 13,
+          "params": [
+            "req",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "briefsHandler",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "briefsHandler",
+          "callee": "memoryStore.getBriefs",
+          "lineNumber": 6
+        },
+        {
+          "caller": "briefsHandler",
+          "callee": "JSON.stringify",
+          "lineNumber": 7
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/loaders/entities.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 15,
+      "functions": [
+        {
+          "name": "entitiesHandler",
+          "startLine": 5,
+          "endLine": 17,
+          "params": [
+            "req",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "entitiesHandler",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "entitiesHandler",
+          "callee": "memoryStore.getEntities",
+          "lineNumber": 6
+        },
+        {
+          "caller": "entitiesHandler",
+          "callee": "JSON.stringify",
+          "lineNumber": 7
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/loaders/graph.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 12,
+      "functions": [
+        {
+          "name": "graphHandler",
+          "startLine": 5,
+          "endLine": 14,
+          "params": [
+            "req",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "graphHandler",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "graphHandler",
+          "callee": "memoryStore.getGraphNodes",
+          "lineNumber": 6
+        },
+        {
+          "caller": "graphHandler",
+          "callee": "memoryStore.getGraphEdges",
+          "lineNumber": 7
+        },
+        {
+          "caller": "graphHandler",
+          "callee": "JSON.stringify",
+          "lineNumber": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/loaders/memory-store.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 104,
+      "nonEmptyLines": 91,
+      "classes": [
+        {
+          "name": "MemoryDataStore",
+          "startLine": 56,
+          "endLine": 101,
+          "methods": [
+            "getSignals",
+            "setSignals",
+            "addSignal",
+            "getBriefs",
+            "setBriefs",
+            "getEntities",
+            "setEntities",
+            "getGraphNodes",
+            "getGraphEdges",
+            "setGraph",
+            "clear"
+          ],
+          "properties": [
+            "signals",
+            "entities",
+            "briefs",
+            "graphNodes",
+            "graphEdges"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "memoryStore",
+          "line": 103,
+          "isDefault": false
+        },
+        {
+          "name": "StoredSignal",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "StoredEntity",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "StoredBrief",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "StoredGraphNode",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "StoredGraphEdge",
+          "line": 104,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getSignals",
+          "callee": "this.signals.slice",
+          "lineNumber": 65
+        },
+        {
+          "caller": "addSignal",
+          "callee": "this.signals.unshift",
+          "lineNumber": 68
+        },
+        {
+          "caller": "getBriefs",
+          "callee": "this.briefs.slice",
+          "lineNumber": 72
+        },
+        {
+          "caller": "getGraphNodes",
+          "callee": "this.graphNodes.slice",
+          "lineNumber": 84
+        },
+        {
+          "caller": "getGraphEdges",
+          "callee": "this.graphEdges.slice",
+          "lineNumber": 87
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/api-server/src/loaders/signals.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 12,
+      "functions": [
+        {
+          "name": "signalsHandler",
+          "startLine": 5,
+          "endLine": 14,
+          "params": [
+            "req",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "signalsHandler",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "signalsHandler",
+          "callee": "memoryStore.getSignals",
+          "lineNumber": 6
+        },
+        {
+          "caller": "signalsHandler",
+          "callee": "JSON.stringify",
+          "lineNumber": 7
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/middleware/attribution.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 7,
+      "nonEmptyLines": 6,
+      "functions": [
+        {
+          "name": "addAttributionHeader",
+          "startLine": 4,
+          "endLine": 7,
+          "params": [
+            "response"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "OGL_CA_ATTRIBUTION",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "addAttributionHeader",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "addAttributionHeader",
+          "callee": "response.headers.set",
+          "lineNumber": 5
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/middleware/security-headers.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 100,
+      "nonEmptyLines": 86,
+      "functions": [
+        {
+          "name": "buildHstsHeader",
+          "startLine": 43,
+          "endLine": 48,
+          "params": [
+            "maxAge",
+            "includeSubDomains",
+            "preload"
+          ]
+        },
+        {
+          "name": "buildCspHeader",
+          "startLine": 63,
+          "endLine": 72,
+          "params": []
+        },
+        {
+          "name": "applySecurityHeaders",
+          "startLine": 78,
+          "endLine": 100,
+          "params": [
+            "headers",
+            "environment"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "DEFAULT_SECURITY_HEADERS",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "HSTS_HEADER",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "buildHstsHeader",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "CSP_HEADER",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "buildCspHeader",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "applySecurityHeaders",
+          "line": 78,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "buildCspHeader",
+          "callee": "directives.join",
+          "lineNumber": 71
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "Object.entries",
+          "lineNumber": 82
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "headers.has",
+          "lineNumber": 84
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "headers.set",
+          "lineNumber": 85
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "headers.has",
+          "lineNumber": 90
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "headers.set",
+          "lineNumber": 91
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "buildHstsHeader",
+          "lineNumber": 91
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "headers.has",
+          "lineNumber": 95
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "headers.set",
+          "lineNumber": 96
+        },
+        {
+          "caller": "applySecurityHeaders",
+          "callee": "buildCspHeader",
+          "lineNumber": 96
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/mock-data.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 863,
+      "nonEmptyLines": 794,
+      "functions": [
+        {
+          "name": "getMockResponse",
+          "startLine": 738,
+          "endLine": 789,
+          "params": [
+            "agent",
+            "action",
+            "ctx"
+          ]
+        },
+        {
+          "name": "getMockData",
+          "startLine": 861,
+          "endLine": 863,
+          "params": [
+            "source"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "MOCK_DATA_MAP",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "getMockResponse",
+          "line": 738,
+          "isDefault": false
+        },
+        {
+          "name": "MOCK_DATA_SOURCES",
+          "line": 799,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_MOCK_CATEGORIES",
+          "line": 859,
+          "isDefault": false
+        },
+        {
+          "name": "getMockData",
+          "line": 861,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getMockResponse",
+          "callee": "crypto.randomUUID().slice",
+          "lineNumber": 755
+        },
+        {
+          "caller": "getMockResponse",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 755
+        },
+        {
+          "caller": "getMockResponse",
+          "callee": "Date.now",
+          "lineNumber": 756
+        },
+        {
+          "caller": "getMockResponse",
+          "callee": "enrichCitation",
+          "lineNumber": 759
+        },
+        {
+          "caller": "getMockResponse",
+          "callee": "new Date().toISOString",
+          "lineNumber": 762
+        },
+        {
+          "caller": "getMockResponse",
+          "callee": "buildQualityMeta",
+          "lineNumber": 769
+        },
+        {
+          "caller": "getMockResponse",
+          "callee": "new Date().toISOString",
+          "lineNumber": 776
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/pg-storage.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 365,
+      "nonEmptyLines": 316,
+      "classes": [
+        {
+          "name": "PgStorage",
+          "startLine": 22,
+          "endLine": 345,
+          "methods": [
+            "constructor",
+            "init",
+            "close",
+            "migrate",
+            "seed",
+            "authenticate",
+            "getDailyUsage",
+            "getMonthlyUsage",
+            "incrementUsage",
+            "logAudit",
+            "queryAudit",
+            "listApiKeys",
+            "createTenant",
+            "createApiKey",
+            "revokeApiKey",
+            "getTenant"
+          ],
+          "properties": [
+            "pool"
+          ]
+        },
+        {
+          "name": "PgCache",
+          "startLine": 348,
+          "endLine": 365,
+          "methods": [
+            "get",
+            "put"
+          ],
+          "properties": [
+            "store"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "PgStorage",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "PgCache",
+          "line": 348,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "(() => {\n        const host = process.env.MAPLESPIKE_DB_HOST || 'localhost';\n        const port = process.env.MAPLESPIKE_DB_PORT || '5432';\n        const db   = process.env.MAPLESPIKE_DB_NAME || 'maplespike';\n        const user = process.env.MAPLESPIKE_DB_USER || 'maplespike';\n        const pass = process.env.MAPLESPIKE_DB_PASSWORD || '';\n        return `postgresql://${user}:${pass}@${host}:${port}/${db}`;\n      })",
+          "lineNumber": 28
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.pool.on",
+          "lineNumber": 38
+        },
+        {
+          "caller": "constructor",
+          "callee": "log.error",
+          "lineNumber": 39
+        },
+        {
+          "caller": "init",
+          "callee": "this.migrate",
+          "lineNumber": 44
+        },
+        {
+          "caller": "init",
+          "callee": "this.seed",
+          "lineNumber": 45
+        },
+        {
+          "caller": "close",
+          "callee": "this.pool.end",
+          "lineNumber": 49
+        },
+        {
+          "caller": "migrate",
+          "callee": "this.pool.connect",
+          "lineNumber": 55
+        },
+        {
+          "caller": "migrate",
+          "callee": "client.query",
+          "lineNumber": 57
+        },
+        {
+          "caller": "migrate",
+          "callee": "client.release",
+          "lineNumber": 127
+        },
+        {
+          "caller": "seed",
+          "callee": "this.pool.query",
+          "lineNumber": 134
+        },
+        {
+          "caller": "seed",
+          "callee": "this.pool.query",
+          "lineNumber": 140
+        },
+        {
+          "caller": "seed",
+          "callee": "this.pool.query",
+          "lineNumber": 147
+        },
+        {
+          "caller": "authenticate",
+          "callee": "hashApiKey",
+          "lineNumber": 157
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.pool.query",
+          "lineNumber": 159
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.pool.query",
+          "lineNumber": 177
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.floor",
+          "lineNumber": 185
+        },
+        {
+          "caller": "authenticate",
+          "callee": "expiryDate.getTime",
+          "lineNumber": 185
+        },
+        {
+          "caller": "authenticate",
+          "callee": "now.getTime",
+          "lineNumber": 185
+        },
+        {
+          "caller": "authenticate",
+          "callee": "generateApiKey",
+          "lineNumber": 187
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Array.from(new Uint8Array(16))\n          .map(() => Math.random().toString(16).slice(2, 4)).join",
+          "lineNumber": 188
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Array.from(new Uint8Array(16))\n          .map",
+          "lineNumber": 188
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Array.from",
+          "lineNumber": 188
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.random().toString(16).slice",
+          "lineNumber": 189
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.random().toString",
+          "lineNumber": 189
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Math.random",
+          "lineNumber": 189
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.setDate",
+          "lineNumber": 191
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.getDate",
+          "lineNumber": 191
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.createApiKey",
+          "lineNumber": 192
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.toISOString",
+          "lineNumber": 192
+        },
+        {
+          "caller": "authenticate",
+          "callee": "this.revokeApiKey",
+          "lineNumber": 193
+        },
+        {
+          "caller": "authenticate",
+          "callee": "newExpiresAt.toISOString",
+          "lineNumber": 194
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 203
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 205
+        },
+        {
+          "caller": "authenticate",
+          "callee": "Boolean",
+          "lineNumber": 206
+        },
+        {
+          "caller": "getDailyUsage",
+          "callee": "this.pool.query",
+          "lineNumber": 214
+        },
+        {
+          "caller": "getMonthlyUsage",
+          "callee": "this.pool.query",
+          "lineNumber": 222
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.pool.query",
+          "lineNumber": 230
+        },
+        {
+          "caller": "incrementUsage",
+          "callee": "this.pool.query",
+          "lineNumber": 236
+        },
+        {
+          "caller": "logAudit",
+          "callee": "this.pool.query",
+          "lineNumber": 244
+        },
+        {
+          "caller": "logAudit",
+          "callee": "(entry.inputPreview || '').slice",
+          "lineNumber": 254
+        },
+        {
+          "caller": "logAudit",
+          "callee": "(entry.outputSummary || '').slice",
+          "lineNumber": 255
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 271
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 275
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 279
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 283
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "params.push",
+          "lineNumber": 287
+        },
+        {
+          "caller": "queryAudit",
+          "callee": "this.pool.query",
+          "lineNumber": 289
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "this.pool.query",
+          "lineNumber": 294
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "(rows as Array<{ id: string; name: string; is_active: boolean; created_at: string; last_used_at: string | null; expires_at: string | null }>).map",
+          "lineNumber": 298
+        },
+        {
+          "caller": "listApiKeys",
+          "callee": "Boolean",
+          "lineNumber": 301
+        },
+        {
+          "caller": "createTenant",
+          "callee": "this.pool.query",
+          "lineNumber": 311
+        },
+        {
+          "caller": "createApiKey",
+          "callee": "this.pool.query",
+          "lineNumber": 318
+        },
+        {
+          "caller": "revokeApiKey",
+          "callee": "this.pool.query",
+          "lineNumber": 325
+        },
+        {
+          "caller": "getTenant",
+          "callee": "this.pool.query",
+          "lineNumber": 332
+        },
+        {
+          "caller": "getTenant",
+          "callee": "Boolean",
+          "lineNumber": 339
+        },
+        {
+          "caller": "getTenant",
+          "callee": "Boolean",
+          "lineNumber": 341
+        },
+        {
+          "caller": "getTenant",
+          "callee": "Boolean",
+          "lineNumber": 342
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.get",
+          "lineNumber": 352
+        },
+        {
+          "caller": "get",
+          "callee": "Date.now",
+          "lineNumber": 354
+        },
+        {
+          "caller": "get",
+          "callee": "this.store.delete",
+          "lineNumber": 355
+        },
+        {
+          "caller": "put",
+          "callee": "Date.now",
+          "lineNumber": 362
+        },
+        {
+          "caller": "put",
+          "callee": "this.store.set",
+          "lineNumber": 363
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "packages/api-server/src/rate-limit.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 64,
+      "nonEmptyLines": 53,
+      "functions": [
+        {
+          "name": "checkRateLimit",
+          "startLine": 23,
+          "endLine": 64,
+          "params": [
+            "tenantId",
+            "limit",
+            "windowMs"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "checkRateLimit",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "checkRateLimit",
+          "callee": "Date.now",
+          "lineNumber": 28
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "rateStore.has",
+          "lineNumber": 30
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "rateStore.set",
+          "lineNumber": 31
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "rateStore.get",
+          "lineNumber": 34
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "entries.filter",
+          "lineNumber": 38
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "active.reduce",
+          "lineNumber": 40
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "active.reduce",
+          "lineNumber": 45
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "Math.min",
+          "lineNumber": 45
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "active.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "rateStore.set",
+          "lineNumber": 52
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "active.reduce",
+          "lineNumber": 56
+        },
+        {
+          "caller": "checkRateLimit",
+          "callee": "Math.min",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/response.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 374,
+      "nonEmptyLines": 340,
+      "functions": [
+        {
+          "name": "enrichCitation",
+          "startLine": 48,
+          "endLine": 62,
+          "params": [
+            "meta"
+          ]
+        },
+        {
+          "name": "buildQualityMeta",
+          "startLine": 68,
+          "endLine": 77,
+          "params": [
+            "ctx"
+          ]
+        },
+        {
+          "name": "buildResponseMeta",
+          "startLine": 79,
+          "endLine": 107,
+          "params": [
+            "ctx",
+            "overrides"
+          ]
+        },
+        {
+          "name": "applyTokenOptimization",
+          "startLine": 119,
+          "endLine": 172,
+          "params": [
+            "data",
+            "opts"
+          ]
+        },
+        {
+          "name": "stripNulls",
+          "startLine": 178,
+          "endLine": 199,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "buildSuccess",
+          "startLine": 220,
+          "endLine": 240,
+          "params": [
+            "data",
+            "ctx",
+            "extraCitation"
+          ]
+        },
+        {
+          "name": "buildError",
+          "startLine": 242,
+          "endLine": 257,
+          "params": [
+            "code",
+            "message",
+            "ctx",
+            "statusCode"
+          ]
+        },
+        {
+          "name": "getAllowedOrigin",
+          "startLine": 285,
+          "endLine": 290,
+          "params": [
+            "requestOrigin"
+          ]
+        },
+        {
+          "name": "jsonResponse",
+          "startLine": 292,
+          "endLine": 322,
+          "params": [
+            "body",
+            "status",
+            "extraHeaders",
+            "requestOrigin",
+            "environment"
+          ]
+        },
+        {
+          "name": "addRateLimitHeaders",
+          "startLine": 328,
+          "endLine": 343,
+          "params": [
+            "response",
+            "rateInfo"
+          ]
+        },
+        {
+          "name": "corsPreflight",
+          "startLine": 345,
+          "endLine": 354,
+          "params": [
+            "requestOrigin",
+            "environment"
+          ]
+        },
+        {
+          "name": "calcRateLimitReset",
+          "startLine": 364,
+          "endLine": 374,
+          "params": [
+            "period"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "CitationMeta",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "QualityMeta",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "OGL_C_CITATION",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "enrichCitation",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "buildQualityMeta",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "buildSuccess",
+          "line": 220,
+          "isDefault": false
+        },
+        {
+          "name": "buildError",
+          "line": 242,
+          "isDefault": false
+        },
+        {
+          "name": "getAllowedOrigin",
+          "line": 285,
+          "isDefault": false
+        },
+        {
+          "name": "jsonResponse",
+          "line": 292,
+          "isDefault": false
+        },
+        {
+          "name": "addRateLimitHeaders",
+          "line": 328,
+          "isDefault": false
+        },
+        {
+          "name": "corsPreflight",
+          "line": 345,
+          "isDefault": false
+        },
+        {
+          "name": "calcRateLimitReset",
+          "line": 364,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "retrieved_at",
+          "callee": "new Date().toISOString",
+          "lineNumber": 33
+        },
+        {
+          "caller": "enrichCitation",
+          "callee": "d.toISOString().split",
+          "lineNumber": 51
+        },
+        {
+          "caller": "enrichCitation",
+          "callee": "d.toISOString",
+          "lineNumber": 51
+        },
+        {
+          "caller": "enrichCitation",
+          "callee": "d.toLocaleString",
+          "lineNumber": 52
+        },
+        {
+          "caller": "enrichCitation",
+          "callee": "d.getFullYear",
+          "lineNumber": 53
+        },
+        {
+          "caller": "buildQualityMeta",
+          "callee": "Math.floor",
+          "lineNumber": 70
+        },
+        {
+          "caller": "buildQualityMeta",
+          "callee": "Date.now",
+          "lineNumber": 70
+        },
+        {
+          "caller": "buildQualityMeta",
+          "callee": "new Date().toISOString",
+          "lineNumber": 74
+        },
+        {
+          "caller": "buildResponseMeta",
+          "callee": "new Date().toISOString",
+          "lineNumber": 90
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "Array.isArray",
+          "lineNumber": 126
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "(result as unknown[]).slice",
+          "lineNumber": 127
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "Array.isArray",
+          "lineNumber": 131
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "stripNulls",
+          "lineNumber": 144
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "Array.isArray",
+          "lineNumber": 148
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "Object.keys",
+          "lineNumber": 153
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "items.slice",
+          "lineNumber": 154
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "normalizeFields",
+          "lineNumber": 163
+        },
+        {
+          "caller": "applyTokenOptimization",
+          "callee": "convertUnits",
+          "lineNumber": 168
+        },
+        {
+          "caller": "stripNulls",
+          "callee": "Array.isArray",
+          "lineNumber": 181
+        },
+        {
+          "caller": "stripNulls",
+          "callee": "value\n      .map(stripNulls)\n      .filter",
+          "lineNumber": 182
+        },
+        {
+          "caller": "stripNulls",
+          "callee": "value\n      .map",
+          "lineNumber": 182
+        },
+        {
+          "caller": "stripNulls",
+          "callee": "Object.entries",
+          "lineNumber": 190
+        },
+        {
+          "caller": "stripNulls",
+          "callee": "stripNulls",
+          "lineNumber": 191
+        },
+        {
+          "caller": "stripNulls",
+          "callee": "Object.keys",
+          "lineNumber": 196
+        },
+        {
+          "caller": "buildSuccess",
+          "callee": "applyTokenOptimization",
+          "lineNumber": 226
+        },
+        {
+          "caller": "buildSuccess",
+          "callee": "buildResponseMeta",
+          "lineNumber": 234
+        },
+        {
+          "caller": "buildSuccess",
+          "callee": "buildQualityMeta",
+          "lineNumber": 235
+        },
+        {
+          "caller": "buildSuccess",
+          "callee": "enrichCitation",
+          "lineNumber": 237
+        },
+        {
+          "caller": "buildSuccess",
+          "callee": "enrichCitation",
+          "lineNumber": 238
+        },
+        {
+          "caller": "buildError",
+          "callee": "buildResponseMeta",
+          "lineNumber": 253
+        },
+        {
+          "caller": "buildError",
+          "callee": "buildQualityMeta",
+          "lineNumber": 254
+        },
+        {
+          "caller": "getAllowedOrigin",
+          "callee": "requestOrigin.replace",
+          "lineNumber": 287
+        },
+        {
+          "caller": "getAllowedOrigin",
+          "callee": "ALLOWED_ORIGINS.includes",
+          "lineNumber": 288
+        },
+        {
+          "caller": "jsonResponse",
+          "callee": "randomUUID",
+          "lineNumber": 303
+        },
+        {
+          "caller": "jsonResponse",
+          "callee": "getAllowedOrigin",
+          "lineNumber": 304
+        },
+        {
+          "caller": "jsonResponse",
+          "callee": "Object.entries",
+          "lineNumber": 313
+        },
+        {
+          "caller": "jsonResponse",
+          "callee": "head.set",
+          "lineNumber": 314
+        },
+        {
+          "caller": "jsonResponse",
+          "callee": "applySecurityHeaders",
+          "lineNumber": 316
+        },
+        {
+          "caller": "jsonResponse",
+          "callee": "JSON.stringify",
+          "lineNumber": 318
+        },
+        {
+          "caller": "addRateLimitHeaders",
+          "callee": "headers.set",
+          "lineNumber": 336
+        },
+        {
+          "caller": "addRateLimitHeaders",
+          "callee": "String",
+          "lineNumber": 336
+        },
+        {
+          "caller": "addRateLimitHeaders",
+          "callee": "Math.max",
+          "lineNumber": 336
+        },
+        {
+          "caller": "addRateLimitHeaders",
+          "callee": "headers.set",
+          "lineNumber": 337
+        },
+        {
+          "caller": "addRateLimitHeaders",
+          "callee": "String",
+          "lineNumber": 337
+        },
+        {
+          "caller": "addRateLimitHeaders",
+          "callee": "Math.floor",
+          "lineNumber": 337
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "headers.set",
+          "lineNumber": 347
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "getAllowedOrigin",
+          "lineNumber": 347
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "headers.set",
+          "lineNumber": 348
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "headers.set",
+          "lineNumber": 349
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "headers.set",
+          "lineNumber": 350
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "headers.set",
+          "lineNumber": 351
+        },
+        {
+          "caller": "corsPreflight",
+          "callee": "applySecurityHeaders",
+          "lineNumber": 352
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "Date.UTC",
+          "lineNumber": 368
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "now.getUTCFullYear",
+          "lineNumber": 368
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "now.getUTCMonth",
+          "lineNumber": 368
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "now.getUTCDate",
+          "lineNumber": 368
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "Math.floor",
+          "lineNumber": 369
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "reset.getTime",
+          "lineNumber": 369
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "Date.UTC",
+          "lineNumber": 372
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "now.getUTCFullYear",
+          "lineNumber": 372
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "now.getUTCMonth",
+          "lineNumber": 372
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "Math.floor",
+          "lineNumber": 373
+        },
+        {
+          "caller": "calcRateLimitReset",
+          "callee": "reset.getTime",
+          "lineNumber": 373
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 12,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/ai.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 196,
+      "nonEmptyLines": 174,
+      "functions": [
+        {
+          "name": "gatewayChat",
+          "startLine": 34,
+          "endLine": 62,
+          "params": [
+            "messages",
+            "temperature",
+            "maxTokens"
+          ]
+        },
+        {
+          "name": "govSearch",
+          "startLine": 64,
+          "endLine": 90,
+          "params": [
+            "query"
+          ]
+        },
+        {
+          "name": "aiAskHandler",
+          "startLine": 97,
+          "endLine": 154,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "aiAnalyzeHandler",
+          "startLine": 160,
+          "endLine": 196,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "aiAskHandler",
+          "line": 97,
+          "isDefault": false
+        },
+        {
+          "name": "aiAnalyzeHandler",
+          "line": 160,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "gatewayChat",
+          "callee": "fetch",
+          "lineNumber": 45
+        },
+        {
+          "caller": "gatewayChat",
+          "callee": "JSON.stringify",
+          "lineNumber": 48
+        },
+        {
+          "caller": "gatewayChat",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 54
+        },
+        {
+          "caller": "gatewayChat",
+          "callee": "resp.json",
+          "lineNumber": 57
+        },
+        {
+          "caller": "govSearch",
+          "callee": "fetch",
+          "lineNumber": 68
+        },
+        {
+          "caller": "govSearch",
+          "callee": "encodeURIComponent",
+          "lineNumber": 68
+        },
+        {
+          "caller": "govSearch",
+          "callee": "AbortSignal.timeout",
+          "lineNumber": 69
+        },
+        {
+          "caller": "govSearch",
+          "callee": "resp.json",
+          "lineNumber": 72
+        },
+        {
+          "caller": "govSearch",
+          "callee": "[...pipeline, ...ckan].slice",
+          "lineNumber": 77
+        },
+        {
+          "caller": "govSearch",
+          "callee": "allResults.map",
+          "lineNumber": 80
+        },
+        {
+          "caller": "govSearch",
+          "callee": "(r.notes || r.description || '').substring",
+          "lineNumber": 82
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "request.json",
+          "lineNumber": 101
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "validateBody",
+          "lineNumber": 102
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 107
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "buildError",
+          "lineNumber": 107
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 107
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "errs.map",
+          "lineNumber": 107
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "(body.query as string).trim",
+          "lineNumber": 110
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "gatewayChat",
+          "lineNumber": 119
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 125
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 125
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "govSearch",
+          "lineNumber": 133
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "searchResults.results.map((r, i) =>\n        `${i + 1}. **${r.title}**${r.description ? '\\n   ' + r.description.substring(0, 200) : ''}${r.url ? '\\n   🔗 ' + r.url : ''}`\n      ).join",
+          "lineNumber": 135
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "searchResults.results.map",
+          "lineNumber": 135
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "r.description.substring",
+          "lineNumber": 136
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 139
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 139
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 147
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 147
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 152
+        },
+        {
+          "caller": "aiAskHandler",
+          "callee": "buildError",
+          "lineNumber": 152
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "request.json",
+          "lineNumber": 164
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "validateBody",
+          "lineNumber": 165
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 170
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "buildError",
+          "lineNumber": 170
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 170
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "errs.map",
+          "lineNumber": 170
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "gatewayChat",
+          "lineNumber": 179
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "(body.text as string).substring",
+          "lineNumber": 181
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 185
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 185
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 192
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "buildError",
+          "lineNumber": 192
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 194
+        },
+        {
+          "caller": "aiAnalyzeHandler",
+          "callee": "buildError",
+          "lineNumber": 194
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/annotations.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 56,
+      "nonEmptyLines": 51,
+      "functions": [
+        {
+          "name": "listAnnotationsHandler",
+          "startLine": 7,
+          "endLine": 14,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "createAnnotationHandler",
+          "startLine": 16,
+          "endLine": 27,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "updateAnnotationHandler",
+          "startLine": 29,
+          "endLine": 38,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "deleteAnnotationHandler",
+          "startLine": 40,
+          "endLine": 45,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "exportAnnotationsHandler",
+          "startLine": 47,
+          "endLine": 56,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "listAnnotationsHandler",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "createAnnotationHandler",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "updateAnnotationHandler",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "deleteAnnotationHandler",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "exportAnnotationsHandler",
+          "line": 47,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 10
+        },
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 11
+        },
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 12
+        },
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "buildError",
+          "lineNumber": 12
+        },
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 13
+        },
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 13
+        },
+        {
+          "caller": "listAnnotationsHandler",
+          "callee": "listAnnotations",
+          "lineNumber": 13
+        },
+        {
+          "caller": "createAnnotationHandler",
+          "callee": "request.json",
+          "lineNumber": 19
+        },
+        {
+          "caller": "createAnnotationHandler",
+          "callee": "createAnnotation",
+          "lineNumber": 20
+        },
+        {
+          "caller": "createAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 25
+        },
+        {
+          "caller": "createAnnotationHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 25
+        },
+        {
+          "caller": "createAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 26
+        },
+        {
+          "caller": "createAnnotationHandler",
+          "callee": "buildError",
+          "lineNumber": 26
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 31
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "buildError",
+          "lineNumber": 31
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "request.json",
+          "lineNumber": 33
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "updateAnnotation",
+          "lineNumber": 34
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 35
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "buildError",
+          "lineNumber": 35
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 36
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 37
+        },
+        {
+          "caller": "updateAnnotationHandler",
+          "callee": "buildError",
+          "lineNumber": 37
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 42
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "buildError",
+          "lineNumber": 42
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "deleteAnnotation",
+          "lineNumber": 43
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 43
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 43
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 44
+        },
+        {
+          "caller": "deleteAnnotationHandler",
+          "callee": "buildError",
+          "lineNumber": 44
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 50
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 51
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 52
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 53
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "buildError",
+          "lineNumber": 53
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "exportAnnotations",
+          "lineNumber": 54
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 55
+        },
+        {
+          "caller": "exportAnnotationsHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 55
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/api-keys.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 52,
+      "nonEmptyLines": 42,
+      "functions": [
+        {
+          "name": "listKeysHandler",
+          "startLine": 15,
+          "endLine": 20,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "createKeyHandler",
+          "startLine": 22,
+          "endLine": 35,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "revokeKeyHandler",
+          "startLine": 37,
+          "endLine": 52,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "listKeysHandler",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "createKeyHandler",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "revokeKeyHandler",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "listKeysHandler",
+          "callee": "userKeyStore.get",
+          "lineNumber": 18
+        },
+        {
+          "caller": "listKeysHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 19
+        },
+        {
+          "caller": "listKeysHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 19
+        },
+        {
+          "caller": "listKeysHandler",
+          "callee": "keys.map",
+          "lineNumber": 19
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "generateApiKey",
+          "lineNumber": 25
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Date.now",
+          "lineNumber": 26
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 26
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Math.random().toString",
+          "lineNumber": 26
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "Math.random",
+          "lineNumber": 26
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "rawKey.slice",
+          "lineNumber": 27
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "userKeyStore.has",
+          "lineNumber": 29
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "userKeyStore.set",
+          "lineNumber": 29
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "userKeyStore.get(tenantId)!.push",
+          "lineNumber": 30
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "userKeyStore.get",
+          "lineNumber": 30
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 30
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "registerApiKey",
+          "lineNumber": 32
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 34
+        },
+        {
+          "caller": "createKeyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 34
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 41
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 41
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "userKeyStore.get",
+          "lineNumber": 43
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "keys.find",
+          "lineNumber": 44
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 45
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "buildError",
+          "lineNumber": 45
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "keys.filter",
+          "lineNumber": 47
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "userKeyStore.delete",
+          "lineNumber": 48
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "userKeyStore.set",
+          "lineNumber": 49
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 51
+        },
+        {
+          "caller": "revokeKeyHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/audit-get.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 34,
+      "nonEmptyLines": 31,
+      "functions": [
+        {
+          "name": "auditGetHandler",
+          "startLine": 4,
+          "endLine": 34,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "auditGetHandler",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "auditGetHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 7
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 8
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 10
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 11
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "Math.min",
+          "lineNumber": 12
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "Number",
+          "lineNumber": 12
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 12
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "Number",
+          "lineNumber": 13
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 13
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "ctx.db.queryAudit",
+          "lineNumber": 15
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 25
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 25
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 32
+        },
+        {
+          "caller": "auditGetHandler",
+          "callee": "buildError",
+          "lineNumber": 32
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/audit.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 75,
+      "nonEmptyLines": 65,
+      "functions": [
+        {
+          "name": "auditQueryHandler",
+          "startLine": 11,
+          "endLine": 75,
+          "params": [
+            "request",
+            "ctx"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "auditQueryHandler",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "auditQueryHandler",
+          "callee": "['business', 'enterprise', 'internal'].includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 14
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "buildError",
+          "lineNumber": 15
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "request.json",
+          "lineNumber": 22
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 24
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "buildError",
+          "lineNumber": 24
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "validateBody",
+          "lineNumber": 27
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 36
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "buildError",
+          "lineNumber": 36
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "errs.map((e: { field: string; message: string }) => e.message).join",
+          "lineNumber": 36
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "errs.map",
+          "lineNumber": 36
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "Date.now",
+          "lineNumber": 41
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "ctx.db.queryAudit",
+          "lineNumber": 44
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "Date.now",
+          "lineNumber": 54
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "ctx.db.logAudit",
+          "lineNumber": 56
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 67
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 67
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 73
+        },
+        {
+          "caller": "auditQueryHandler",
+          "callee": "buildError",
+          "lineNumber": 73
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/src/routes/auth-oauth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 143,
+      "nonEmptyLines": 127,
+      "functions": [
+        {
+          "name": "oauthProvidersHandler",
+          "startLine": 26,
+          "endLine": 30,
+          "params": [
+            "_request",
+            "ctx"
+          ]
+        },
+        {
+          "name": "oauthLoginHandler",
+          "startLine": 36,
+          "endLine": 54,
+          "params": [
+            "_request",
+            "ctx",
+            "params"
+          ]
+        },
+        {
+          "name": "oauthCallbackHandler",
+          "startLine": 60,
+          "endLine": 143,
+          "params": [
+            "request",
+            "ctx",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "oauthProvidersHandler",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "oauthLoginHandler",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "oauthCallbackHandler",
+          "line": 60,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "oauthProvidersHandler",
+          "callee": "listProviders",
+          "lineNumber": 27
+        },
+        {
+          "caller": "oauthProvidersHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 29
+        },
+        {
+          "caller": "oauthProvidersHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 29
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "getProvider",
+          "lineNumber": 37
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 39
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "buildError",
+          "lineNumber": 40
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "listProviders().map(p => p.name).join",
+          "lineNumber": 40
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "listProviders().map",
+          "lineNumber": 40
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "listProviders",
+          "lineNumber": 40
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "generateNonce",
+          "lineNumber": 45
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "setChallenge",
+          "lineNumber": 46
+        },
+        {
+          "caller": "oauthLoginHandler",
+          "callee": "buildAuthorizeUrl",
+          "lineNumber": 48
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "getProvider",
+          "lineNumber": 61
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 63
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 64
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 70
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 71
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "url.searchParams.get",
+          "lineNumber": 74
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 75
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 76
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "consumeChallenge",
+          "lineNumber": 83
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 85
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 86
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "loginWithOAuth",
+          "lineNumber": 93
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "crypto.randomUUID().replace(/-/g, '').slice",
+          "lineNumber": 99
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "crypto.randomUUID().replace",
+          "lineNumber": 99
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 99
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "generateApiKey",
+          "lineNumber": 100
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "db.createApiKey",
+          "lineNumber": 107
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "db.createKey",
+          "lineNumber": 109
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 118
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "buildSuccess",
+          "lineNumber": 118
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "headers.set",
+          "lineNumber": 130
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "serializeCookie",
+          "lineNumber": 132
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "jsonResponse",
+          "lineNumber": 141
+        },
+        {
+          "caller": "oauthCallbackHandler",
+          "callee": "buildError",
+          "lineNumber": 141
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    }
+  ]
+}

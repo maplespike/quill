@@ -1,0 +1,540 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/regional-authorities/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 117,
+      "nonEmptyLines": 112,
+      "exports": [
+        {
+          "name": "REGIONAL_AUTHORITIES",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "REGIONAL_AUTHORITY_MAP",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "REGIONAL_FETCH_TIMEOUT_MS",
+          "line": 116,
+          "isDefault": false
+        },
+        {
+          "name": "REGIONAL_USER_AGENT",
+          "line": 117,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/regional-authorities/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 112,
+      "nonEmptyLines": 102,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 6,
+          "endLine": 14,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchCkanData",
+          "startLine": 17,
+          "endLine": 43,
+          "params": [
+            "config"
+          ]
+        },
+        {
+          "name": "fetchArcgisHubData",
+          "startLine": 46,
+          "endLine": 67,
+          "params": [
+            "config"
+          ]
+        },
+        {
+          "name": "fetchAllRegional",
+          "startLine": 70,
+          "endLine": 99,
+          "params": []
+        },
+        {
+          "name": "searchRegional",
+          "startLine": 102,
+          "endLine": 112,
+          "params": [
+            "records",
+            "query",
+            "authority"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAllRegional",
+          "line": 70,
+          "isDefault": false
+        },
+        {
+          "name": "searchRegional",
+          "line": 102,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 8
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "new Date().toISOString",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "await fetchJson",
+          "lineNumber": 20
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "pkgList.result.slice",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "await fetchJson",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "pkg.result.resources.slice",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "records.push",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchCkanData",
+          "callee": "computeHash",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchArcgisHubData",
+          "callee": "new Date().toISOString",
+          "lineNumber": 48
+        },
+        {
+          "caller": "fetchArcgisHubData",
+          "callee": "await fetchJson",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchArcgisHubData",
+          "callee": "records.push",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchArcgisHubData",
+          "callee": "computeHash",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "Date.now",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "Promise.allSettled",
+          "lineNumber": 76
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "REGIONAL_AUTHORITIES.map",
+          "lineNumber": 77
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "fetchCkanData",
+          "lineNumber": 80
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "fetchArcgisHubData",
+          "lineNumber": 82
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "allRecords.push",
+          "lineNumber": 91
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "errors.push",
+          "lineNumber": 94
+        },
+        {
+          "caller": "fetchAllRegional",
+          "callee": "Date.now",
+          "lineNumber": 98
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "query.toLowerCase",
+          "lineNumber": 107
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "records.filter",
+          "lineNumber": 108
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "r.title.toLowerCase().includes",
+          "lineNumber": 110
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "r.title.toLowerCase",
+          "lineNumber": 110
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "r.name.toLowerCase().includes",
+          "lineNumber": 110
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "r.name.toLowerCase",
+          "lineNumber": 110
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "r.description.toLowerCase().includes",
+          "lineNumber": 110
+        },
+        {
+          "caller": "searchRegional",
+          "callee": "r.description.toLowerCase",
+          "lineNumber": 110
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/regional-authorities/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 12,
+      "functions": [
+        {
+          "name": "ingestAllRegional",
+          "startLine": 5,
+          "endLine": 7,
+          "params": []
+        },
+        {
+          "name": "searchRegionalAuthorities",
+          "startLine": 9,
+          "endLine": 11,
+          "params": [
+            "records",
+            "query",
+            "authority"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllRegional",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "searchRegionalAuthorities",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "REGIONAL_AUTHORITIES",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "REGIONAL_AUTHORITY_MAP",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "RegionalRecord",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "RegionalIngestionResult",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "RegionalAuthorityCode",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "RegionalPortalType",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "RegionalAuthorityConfig",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "parseRegionalRecord",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "parseRegionalRecords",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeDate",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestAllRegional",
+          "callee": "fetchAllRegional",
+          "lineNumber": 6
+        },
+        {
+          "caller": "searchRegionalAuthorities",
+          "callee": "searchRegional",
+          "lineNumber": 10
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 13,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/regional-authorities/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "dateStr"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 10,
+          "endLine": 15,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "parseRegionalRecord",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseRegionalRecords",
+          "startLine": 27,
+          "endLine": 41,
+          "params": [
+            "rawRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeDate",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "parseNumeric",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "parseRegionalRecord",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "parseRegionalRecords",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "isNaN",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "dateStr.substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().substring",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String(val).replace",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseRegionalRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseRegionalRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseRegionalRecord",
+          "callee": "console.warn",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseRegionalRecords",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseRegionalRecords",
+          "callee": "JSON.stringify",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parseRegionalRecords",
+          "callee": "seen.has",
+          "lineNumber": 33
+        },
+        {
+          "caller": "parseRegionalRecords",
+          "callee": "seen.add",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parseRegionalRecords",
+          "callee": "results.push",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseRegionalRecords",
+          "callee": "console.warn",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/regional-authorities/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 41,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

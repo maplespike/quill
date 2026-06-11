@@ -1,0 +1,267 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".sisyphus/WORKFLOW.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 107,
+      "nonEmptyLines": 105,
+      "metrics": {}
+    },
+    {
+      "path": ".sisyphus/WORKFLOW.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 73,
+      "nonEmptyLines": 65,
+      "sections": [
+        {
+          "heading": "Sisyphus Workflow — Repository Contract",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "This file defines how agents (Hermes, Claude, OMP, Pi) operate in this repo.",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "All tools call track.sh and follow the same worktree/PR conventions.",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "Version: 2",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "Sisyphus Workflow Template",
+          "level": 1,
+          "line": 36
+        },
+        {
+          "heading": "Context",
+          "level": 2,
+          "line": 40
+        },
+        {
+          "heading": "Rules",
+          "level": 2,
+          "line": 48
+        },
+        {
+          "heading": "MUST DO",
+          "level": 3,
+          "line": 50
+        },
+        {
+          "heading": "MUST NOT DO",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "Proof of Work",
+          "level": 3,
+          "line": 68
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": ".sisyphus/github-settings.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 134,
+      "nonEmptyLines": 132,
+      "metrics": {}
+    },
+    {
+      "path": ".sisyphus/github-settings.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 46,
+      "nonEmptyLines": 35,
+      "sections": [
+        {
+          "heading": "GitHub Repository Configuration Guide",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. Branch Protection Rules",
+          "level": 2,
+          "line": 5
+        },
+        {
+          "heading": "Required Status Checks",
+          "level": 3,
+          "line": 8
+        },
+        {
+          "heading": "Review Requirements",
+          "level": 3,
+          "line": 15
+        },
+        {
+          "heading": "History Integrity",
+          "level": 3,
+          "line": 21
+        },
+        {
+          "heading": "2. General Repository Settings",
+          "level": 2,
+          "line": 28
+        },
+        {
+          "heading": "Pull Requests",
+          "level": 3,
+          "line": 31
+        },
+        {
+          "heading": "Issues",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "3. Verification Checklist",
+          "level": 2,
+          "line": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": ".sisyphus/state.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "sections": [
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "active",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "completed",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "concurrency",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": ".sisyphus/track.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 400,
+      "nonEmptyLines": 339,
+      "functions": [
+        {
+          "name": "load_state",
+          "startLine": 16,
+          "endLine": 18,
+          "params": []
+        },
+        {
+          "name": "save_state",
+          "startLine": 20,
+          "endLine": 24,
+          "params": []
+        },
+        {
+          "name": "slugify",
+          "startLine": 26,
+          "endLine": 29,
+          "params": []
+        },
+        {
+          "name": "cmd_poll",
+          "startLine": 33,
+          "endLine": 54,
+          "params": []
+        },
+        {
+          "name": "dispatch_issue",
+          "startLine": 58,
+          "endLine": 103,
+          "params": []
+        },
+        {
+          "name": "cmd_status",
+          "startLine": 107,
+          "endLine": 136,
+          "params": []
+        },
+        {
+          "name": "cmd_cleanup",
+          "startLine": 140,
+          "endLine": 157,
+          "params": []
+        },
+        {
+          "name": "cmd_retry",
+          "startLine": 161,
+          "endLine": 202,
+          "params": []
+        },
+        {
+          "name": "cmd_continue",
+          "startLine": 206,
+          "endLine": 271,
+          "params": []
+        },
+        {
+          "name": "cmd_done",
+          "startLine": 275,
+          "endLine": 284,
+          "params": []
+        },
+        {
+          "name": "cmd_proof",
+          "startLine": 288,
+          "endLine": 370,
+          "params": []
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    }
+  ]
+}

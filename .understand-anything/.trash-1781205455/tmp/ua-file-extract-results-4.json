@@ -1,0 +1,2197 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 34,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/mcp-server/src/tools/parliamentary-voting.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 128,
+      "nonEmptyLines": 118,
+      "functions": [
+        {
+          "name": "getVotingRecordHandler",
+          "startLine": 55,
+          "endLine": 77,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "getMPVotingPatternHandler",
+          "startLine": 79,
+          "endLine": 104,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "comparePartyVotingHandler",
+          "startLine": 106,
+          "endLine": 128,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getVotingRecordDefinition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "getMPVotingPatternDefinition",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "comparePartyVotingDefinition",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "getVotingRecordHandler",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "getMPVotingPatternHandler",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "comparePartyVotingHandler",
+          "line": 106,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getVotingRecordHandler",
+          "callee": "ingestParliamentaryVotes",
+          "lineNumber": 59
+        },
+        {
+          "caller": "getMPVotingPatternHandler",
+          "callee": "ingestParliamentaryVotes",
+          "lineNumber": 84
+        },
+        {
+          "caller": "comparePartyVotingHandler",
+          "callee": "ingestParliamentaryVotes",
+          "lineNumber": 110
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 6,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/police-data.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 162,
+      "nonEmptyLines": 149,
+      "functions": [
+        {
+          "name": "getPoliceByCityHandler",
+          "startLine": 67,
+          "endLine": 89,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "comparePoliceCrimeHandler",
+          "startLine": 91,
+          "endLine": 116,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "getPoliceTrendsHandler",
+          "startLine": 118,
+          "endLine": 143,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "searchPoliceAgenciesHandler",
+          "startLine": 145,
+          "endLine": 162,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getPoliceByCityDefinition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "comparePoliceCrimeDefinition",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "getPoliceTrendsDefinition",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "searchPoliceAgenciesDefinition",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "getPoliceByCityHandler",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "comparePoliceCrimeHandler",
+          "line": 91,
+          "isDefault": false
+        },
+        {
+          "name": "getPoliceTrendsHandler",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "searchPoliceAgenciesHandler",
+          "line": 145,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getPoliceByCityHandler",
+          "callee": "ingestPoliceCity",
+          "lineNumber": 71
+        },
+        {
+          "caller": "comparePoliceCrimeHandler",
+          "callee": "Promise.all",
+          "lineNumber": 96
+        },
+        {
+          "caller": "comparePoliceCrimeHandler",
+          "callee": "cities.map",
+          "lineNumber": 96
+        },
+        {
+          "caller": "comparePoliceCrimeHandler",
+          "callee": "ingestPoliceCity",
+          "lineNumber": 96
+        },
+        {
+          "caller": "getPoliceTrendsHandler",
+          "callee": "ingestPoliceCity",
+          "lineNumber": 123
+        },
+        {
+          "caller": "searchPoliceAgenciesHandler",
+          "callee": "searchPolice",
+          "lineNumber": 151
+        },
+        {
+          "caller": "searchPoliceAgenciesHandler",
+          "callee": "results.map",
+          "lineNumber": 156
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 8,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/political-donations.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 130,
+      "nonEmptyLines": 120,
+      "functions": [
+        {
+          "name": "getDonationsByJurisdictionHandler",
+          "startLine": 51,
+          "endLine": 76,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "compareDonationsPartiesHandler",
+          "startLine": 78,
+          "endLine": 103,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "getDonationsTrendsHandler",
+          "startLine": 105,
+          "endLine": 130,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getDonationsByJurisdictionDefinition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "compareDonationsPartiesDefinition",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "getDonationsTrendsDefinition",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "getDonationsByJurisdictionHandler",
+          "line": 51,
+          "isDefault": false
+        },
+        {
+          "name": "compareDonationsPartiesHandler",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "getDonationsTrendsHandler",
+          "line": 105,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getDonationsByJurisdictionHandler",
+          "callee": "ingestDonationsByJurisdiction",
+          "lineNumber": 56
+        },
+        {
+          "caller": "compareDonationsPartiesHandler",
+          "callee": "ingestDonationsByJurisdiction",
+          "lineNumber": 83
+        },
+        {
+          "caller": "getDonationsTrendsHandler",
+          "callee": "ingestDonationsByJurisdiction",
+          "lineNumber": 110
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 6,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/public-accounts.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 130,
+      "nonEmptyLines": 120,
+      "functions": [
+        {
+          "name": "getPublicAccountsHandler",
+          "startLine": 54,
+          "endLine": 76,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "getDepartmentSpendingHandler",
+          "startLine": 78,
+          "endLine": 103,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "compareSpendingTrendsHandler",
+          "startLine": 105,
+          "endLine": 130,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getPublicAccountsDefinition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "getDepartmentSpendingDefinition",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "compareSpendingTrendsDefinition",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "getPublicAccountsHandler",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "getDepartmentSpendingHandler",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "compareSpendingTrendsHandler",
+          "line": 105,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getPublicAccountsHandler",
+          "callee": "ingestAllPublicAccounts",
+          "lineNumber": 58
+        },
+        {
+          "caller": "getDepartmentSpendingHandler",
+          "callee": "ingestAllPublicAccounts",
+          "lineNumber": 83
+        },
+        {
+          "caller": "compareSpendingTrendsHandler",
+          "callee": "ingestAllPublicAccounts",
+          "lineNumber": 110
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 6,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/qa-schema.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 92,
+      "nonEmptyLines": 84,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 29,
+          "endLine": 92,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 29,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String(args.moduleName ?? '').toLowerCase",
+          "lineNumber": 31
+        },
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 31
+        },
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 32
+        },
+        {
+          "caller": "handler",
+          "callee": "extractSchemas",
+          "lineNumber": 35
+        },
+        {
+          "caller": "handler",
+          "callee": "schemas.filter",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handler",
+          "callee": "s.file.toLowerCase().includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handler",
+          "callee": "s.file.toLowerCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handler",
+          "callee": "s.name.toLowerCase().includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handler",
+          "callee": "s.name.toLowerCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handler",
+          "callee": "filtered.map(schemaToMarkdown).join",
+          "lineNumber": 54
+        },
+        {
+          "caller": "handler",
+          "callee": "filtered.map",
+          "lineNumber": 54
+        },
+        {
+          "caller": "handler",
+          "callee": "filtered.map",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handler",
+          "callee": "s.fields.map",
+          "lineNumber": 73
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/qa-validate-module.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 94,
+      "nonEmptyLines": 87,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 46,
+          "endLine": 94,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 46,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 48
+        },
+        {
+          "caller": "handler",
+          "callee": "Array.isArray",
+          "lineNumber": 52
+        },
+        {
+          "caller": "handler",
+          "callee": "Date.now",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handler",
+          "callee": "records.flatMap",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handler",
+          "callee": "validateAgainstSchema",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handler",
+          "callee": "computeSuiteResult",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handler",
+          "callee": "allResults.filter(r => r.status === 'fail').map",
+          "lineNumber": 75
+        },
+        {
+          "caller": "handler",
+          "callee": "allResults.filter",
+          "lineNumber": 75
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-bridges.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 27,
+      "nonEmptyLines": 24,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 18,
+          "endLine": 27,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 20
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchBridgeConditions",
+          "lineNumber": 22
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-cpi.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 14,
+          "endLine": 22,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchStatCanTable",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "rows.slice",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-gdp.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 14,
+          "endLine": 22,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchStatCanTable",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "rows.slice",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-gov-data.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 108,
+      "nonEmptyLines": 101,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 46,
+          "endLine": 108,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 46,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 48
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 59
+        },
+        {
+          "caller": "handler",
+          "callee": "KNOWN_JURISDICTIONS.includes",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handler",
+          "callee": "KNOWN_JURISDICTIONS.join",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 80
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-labour.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 14,
+          "endLine": 22,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchStatCanTable",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "rows.slice",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-population.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 14,
+          "endLine": 22,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchStatCanTable",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "rows.slice",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/query-trade.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 19,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 14,
+          "endLine": 22,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchStatCanTable",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "rows.slice",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/resolve-entity.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 87,
+      "nonEmptyLines": 82,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 45,
+          "endLine": 87,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "(args.name as string)?.trim",
+          "lineNumber": 46
+        },
+        {
+          "caller": "handler",
+          "callee": "resolveEntity",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handler",
+          "callee": "result.appearances.map",
+          "lineNumber": 73
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-a2aj.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 25,
+          "endLine": 35,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-ab-data.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 41,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 22,
+          "endLine": 45,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 22,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String(args.query ?? '').trim",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 24
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchProvincialData",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-agriculture.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 37,
+      "nonEmptyLines": 35,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 25,
+          "endLine": 37,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 32
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-arcgis-layers.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 26,
+      "nonEmptyLines": 22,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 15,
+          "endLine": 26,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "String(args.keyword ?? '').trim",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "searchArcGISLayers",
+          "lineNumber": 21
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-ati.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 57,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 26,
+          "endLine": 61,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-bank-of-canada.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 57,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 26,
+          "endLine": 61,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-bc-data.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 41,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 22,
+          "endLine": 45,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 22,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String(args.query ?? '').trim",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 24
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchProvincialData",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "new Date().toISOString",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-bills.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 28,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 19,
+          "endLine": 31,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 19,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 20
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchParliamentBills",
+          "lineNumber": 26
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-canlii.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 83,
+      "nonEmptyLines": 77,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 41,
+          "endLine": 83,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 43
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 55
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchCanlii",
+          "lineNumber": 57
+        },
+        {
+          "caller": "handler",
+          "callee": "court.toLowerCase",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handler",
+          "callee": "results.filter",
+          "lineNumber": 65
+        },
+        {
+          "caller": "handler",
+          "callee": "JSON.stringify(r).toLowerCase().includes",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handler",
+          "callee": "JSON.stringify(r).toLowerCase",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handler",
+          "callee": "JSON.stringify",
+          "lineNumber": 66
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-charity-t3010.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 27,
+          "endLine": 39,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-cipo.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 37,
+      "nonEmptyLines": 35,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 25,
+          "endLine": 37,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 32
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-cmhc.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 57,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 26,
+          "endLine": 61,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-committees-op.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 24,
+      "nonEmptyLines": 21,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 15,
+          "endLine": 24,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 17
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchParliamentCommittees",
+          "lineNumber": 19
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-committees.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 110,
+      "nonEmptyLines": 103,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 45,
+          "endLine": 110,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 47
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handler",
+          "callee": "sourceKeys.push",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handler",
+          "callee": "sourceKeys.push",
+          "lineNumber": 65
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchCommittees",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handler",
+          "callee": "committeeCode.toLowerCase",
+          "lineNumber": 92
+        },
+        {
+          "caller": "handler",
+          "callee": "results.filter",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handler",
+          "callee": "(r.committee || '').toLowerCase().includes",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handler",
+          "callee": "(r.committee || '').toLowerCase",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handler",
+          "callee": "(r.name || '').toLowerCase().includes",
+          "lineNumber": 95
+        },
+        {
+          "caller": "handler",
+          "callee": "(r.name || '').toLowerCase",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-corporate-filings.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 25,
+          "endLine": 35,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-corporate.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 98,
+      "nonEmptyLines": 91,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 49,
+          "endLine": 98,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 49,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 51
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handler",
+          "callee": "fetchCorporate",
+          "lineNumber": 70
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-cra-charity.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 57,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 26,
+          "endLine": 61,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-criminal-justice.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 71,
+      "nonEmptyLines": 66,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 41,
+          "endLine": 71,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 43
+        },
+        {
+          "caller": "handler",
+          "callee": "Math.min",
+          "lineNumber": 54
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 59
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-crown-corporations.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 25,
+          "endLine": 35,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/mcp-server/src/tools/search-crtc-decisions.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 39,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 27,
+          "endLine": 39,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "definition",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "handler",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handler",
+          "callee": "Number",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handler",
+          "callee": "query.trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handler",
+          "callee": "searchCkan",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

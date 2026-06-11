@@ -1,0 +1,573 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/legislation/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 55,
+      "exports": [
+        {
+          "name": "LEGISLATION_SOURCES",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "LEGISLATION_UA",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "LEGISLATION_TIMEOUT_MS",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_LEGISLATION_RECORDS",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "JUSTICE_CANADA_XML_MASTER",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/legislation/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 68,
+      "nonEmptyLines": 56,
+      "functions": [
+        {
+          "name": "fetchText",
+          "startLine": 6,
+          "endLine": 11,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchJson",
+          "startLine": 13,
+          "endLine": 18,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "fetchJusticeCanadaMaster",
+          "startLine": 20,
+          "endLine": 24,
+          "params": []
+        },
+        {
+          "name": "fetchProvincialCkanLegislation",
+          "startLine": 26,
+          "endLine": 30,
+          "params": []
+        },
+        {
+          "name": "fetchProvincialLegislationWeb",
+          "startLine": 32,
+          "endLine": 46,
+          "params": []
+        },
+        {
+          "name": "ingestAllLegislation",
+          "startLine": 48,
+          "endLine": 68,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllLegislation",
+          "line": 48,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchText",
+          "callee": "httpGet",
+          "lineNumber": 8
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 16
+        },
+        {
+          "caller": "fetchJusticeCanadaMaster",
+          "callee": "fetchText",
+          "lineNumber": 21
+        },
+        {
+          "caller": "fetchJusticeCanadaMaster",
+          "callee": "parseJusticeCanadaXml",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchProvincialCkanLegislation",
+          "callee": "fetchJson",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchProvincialCkanLegislation",
+          "callee": "parseProvincialCkanPackages",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchProvincialLegislationWeb",
+          "callee": "fetchText",
+          "lineNumber": 35
+        },
+        {
+          "caller": "fetchProvincialLegislationWeb",
+          "callee": "records.push",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchProvincialLegislationWeb",
+          "callee": "parseProvincialWebHtml",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchProvincialLegislationWeb",
+          "callee": "fetchText",
+          "lineNumber": 40
+        },
+        {
+          "caller": "fetchProvincialLegislationWeb",
+          "callee": "records.push",
+          "lineNumber": 42
+        },
+        {
+          "caller": "fetchProvincialLegislationWeb",
+          "callee": "parseProvincialWebHtml",
+          "lineNumber": 42
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "Date.now",
+          "lineNumber": 49
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "Promise.allSettled",
+          "lineNumber": 53
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "fetchJusticeCanadaMaster().catch",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "fetchJusticeCanadaMaster",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "errors.push",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "fetchProvincialCkanLegislation().catch",
+          "lineNumber": 55
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "fetchProvincialCkanLegislation",
+          "lineNumber": 55
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "errors.push",
+          "lineNumber": 55
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "fetchProvincialLegislationWeb().catch",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "fetchProvincialLegislationWeb",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "errors.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "records.push",
+          "lineNumber": 59
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "records.push",
+          "lineNumber": 60
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "records.push",
+          "lineNumber": 61
+        },
+        {
+          "caller": "ingestAllLegislation",
+          "callee": "Date.now",
+          "lineNumber": 66
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/legislation/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 10,
+      "functions": [
+        {
+          "name": "ingestAllLegislationData",
+          "startLine": 6,
+          "endLine": 8,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestAllLegislationData",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "LEGISLATION_SOURCES",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "toLegislationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseJusticeCanadaXml",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialCkanPackages",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialWebHtml",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "LegislationRecord",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "LegislationIngestionResult",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestAllLegislationData",
+          "callee": "ingestAllLegislation",
+          "lineNumber": 7
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 8,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/legislation/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 109,
+      "nonEmptyLines": 94,
+      "functions": [
+        {
+          "name": "toLegislationRecord",
+          "startLine": 6,
+          "endLine": 33,
+          "params": [
+            "source",
+            "jurisdiction",
+            "title",
+            "url",
+            "year",
+            "format",
+            "description",
+            "additionalData"
+          ]
+        },
+        {
+          "name": "parseJusticeCanadaXml",
+          "startLine": 35,
+          "endLine": 60,
+          "params": [
+            "xml",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseProvincialCkanPackages",
+          "startLine": 62,
+          "endLine": 80,
+          "params": [
+            "pkgs",
+            "maxRecords"
+          ]
+        },
+        {
+          "name": "parseProvincialWebHtml",
+          "startLine": 82,
+          "endLine": 109,
+          "params": [
+            "html",
+            "source",
+            "jurisdiction",
+            "baseUrl",
+            "maxRecords"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "toLegislationRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseJusticeCanadaXml",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialCkanPackages",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "parseProvincialWebHtml",
+          "line": 82,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toLegislationRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 19
+        },
+        {
+          "caller": "toLegislationRecord",
+          "callee": "computeHash",
+          "lineNumber": 20
+        },
+        {
+          "caller": "toLegislationRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "actRegex.exec",
+          "lineNumber": 40
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "block.match(/<Title[^>]*>([\\s\\S]*?)<\\/Title>/i)?.[1]?.trim",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "block.match",
+          "lineNumber": 42
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "block.match",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "block.match",
+          "lineNumber": 44
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "block.match",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "block.match",
+          "lineNumber": 45
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "records.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "toLegislationRecord",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "fileUrl.startsWith",
+          "lineNumber": 51
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "parseInt",
+          "lineNumber": 52
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 52
+        },
+        {
+          "caller": "parseJusticeCanadaXml",
+          "callee": "m[1].toLowerCase",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "records.push",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "toLegislationRecord",
+          "lineNumber": 68
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "pkg.metadata_created?.substring",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "parseInt",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "pkg.metadata_created.substring",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseProvincialCkanPackages",
+          "callee": "(pkg.notes || '').substring",
+          "lineNumber": 75
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "lp.exec",
+          "lineNumber": 93
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "m[2].replace(/<[^>]+>/g, '').trim",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "m[2].replace",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "/(act|regulation|statute|bill)/i.test",
+          "lineNumber": 95
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "records.push",
+          "lineNumber": 97
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "toLegislationRecord",
+          "lineNumber": 97
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "m[1].startsWith",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseProvincialWebHtml",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 102
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/legislation/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 21,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

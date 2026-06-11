@@ -1,0 +1,467 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 17,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/portal/README.fr.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/README.fr.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 53,
+      "nonEmptyLines": 37,
+      "sections": [
+        {
+          "heading": "MapleSpike — Portail développeur",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "Pages",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Fonctionnalités du tableau de bord",
+          "level": 2,
+          "line": 25
+        },
+        {
+          "heading": "Fonctionnalités IA",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "Déploiement",
+          "level": 2,
+          "line": 41
+        },
+        {
+          "heading": "Licence",
+          "level": 2,
+          "line": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "packages/portal/README.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 52,
+      "nonEmptyLines": 37,
+      "sections": [
+        {
+          "heading": "MapleSpike — Developer Portal",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "AI-friendly features",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "Local development",
+          "level": 2,
+          "line": 21
+        },
+        {
+          "heading": "Deployment",
+          "level": 2,
+          "line": 30
+        },
+        {
+          "heading": "Stack",
+          "level": 2,
+          "line": 42
+        },
+        {
+          "heading": "OGL-C Attribution",
+          "level": 2,
+          "line": 50
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "packages/portal/agent-card.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 15,
+      "nonEmptyLines": 15,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "url",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "author",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "capabilities",
+          "level": 1,
+          "line": 9
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 14
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "packages/portal/agents.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 1010,
+      "nonEmptyLines": 1010,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "url",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "moduleCount",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "actionCount",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "updatedAt",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "tools",
+          "level": 1,
+          "line": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "packages/portal/blog.xml",
+      "language": "xml",
+      "fileCategory": "config",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/browserconfig.xml",
+      "language": "xml",
+      "fileCategory": "config",
+      "totalLines": 11,
+      "nonEmptyLines": 11,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/components.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 21,
+      "nonEmptyLines": 21,
+      "sections": [
+        {
+          "heading": "$schema",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "style",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "rsc",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "tsx",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "tailwind",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "aliases",
+          "level": 1,
+          "line": 13
+        },
+        {
+          "heading": "iconLibrary",
+          "level": 1,
+          "line": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "packages/portal/llms-full.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 123,
+      "nonEmptyLines": 93,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/llms.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 46,
+      "nonEmptyLines": 42,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/manifest.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 13,
+      "nonEmptyLines": 13,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "short_name",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "start_url",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "display",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "background_color",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "theme_color",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "icons",
+          "level": 1,
+          "line": 9
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    },
+    {
+      "path": "packages/portal/package.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 53,
+      "nonEmptyLines": 53,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "private",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "type",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "scripts",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "dependencies",
+          "level": 1,
+          "line": 20
+        },
+        {
+          "heading": "devDependencies",
+          "level": 1,
+          "line": 47
+        },
+        {
+          "heading": "license",
+          "level": 1,
+          "line": 52
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": "packages/portal/robots.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/sitemap.xml",
+      "language": "xml",
+      "fileCategory": "config",
+      "totalLines": 46,
+      "nonEmptyLines": 46,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/styles.css",
+      "language": "css",
+      "fileCategory": "markup",
+      "totalLines": 3484,
+      "nonEmptyLines": 2992,
+      "metrics": {}
+    },
+    {
+      "path": "packages/portal/tsconfig.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 12,
+      "nonEmptyLines": 12,
+      "sections": [
+        {
+          "heading": "extends",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "compilerOptions",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "include",
+          "level": 1,
+          "line": 11
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 3
+      }
+    }
+  ]
+}

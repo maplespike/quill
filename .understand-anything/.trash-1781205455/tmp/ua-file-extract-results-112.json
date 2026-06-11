@@ -1,0 +1,1285 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".devenv/imports.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {}
+    },
+    {
+      "path": ".devenv/input-paths.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 6,
+      "nonEmptyLines": 6,
+      "metrics": {}
+    },
+    {
+      "path": ".devenv/shell-eb596efaf38b47a9.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 2317,
+      "nonEmptyLines": 2192,
+      "functions": [
+        {
+          "name": "isELF",
+          "startLine": 328,
+          "endLine": 342,
+          "params": []
+        },
+        {
+          "name": "buildPhase",
+          "startLine": 343,
+          "endLine": 358,
+          "params": []
+        },
+        {
+          "name": "nixInfoLog",
+          "startLine": 359,
+          "endLine": 363,
+          "params": []
+        },
+        {
+          "name": "genericBuild",
+          "startLine": 364,
+          "endLine": 381,
+          "params": []
+        },
+        {
+          "name": "nixVomitLog",
+          "startLine": 382,
+          "endLine": 386,
+          "params": []
+        },
+        {
+          "name": "_defaultUnpack",
+          "startLine": 387,
+          "endLine": 414,
+          "params": []
+        },
+        {
+          "name": "_multioutDocs",
+          "startLine": 415,
+          "endLine": 425,
+          "params": []
+        },
+        {
+          "name": "showPhaseHeader",
+          "startLine": 426,
+          "endLine": 435,
+          "params": []
+        },
+        {
+          "name": "definePhases",
+          "startLine": 436,
+          "endLine": 442,
+          "params": []
+        },
+        {
+          "name": "distPhase",
+          "startLine": 443,
+          "endLine": 456,
+          "params": []
+        },
+        {
+          "name": "sysconfigdataHook",
+          "startLine": 457,
+          "endLine": 464,
+          "params": []
+        },
+        {
+          "name": "_multioutConfig",
+          "startLine": 465,
+          "endLine": 485,
+          "params": []
+        },
+        {
+          "name": "runHook",
+          "startLine": 486,
+          "endLine": 499,
+          "params": []
+        },
+        {
+          "name": "toPythonPath",
+          "startLine": 500,
+          "endLine": 511,
+          "params": []
+        },
+        {
+          "name": "getHostRoleEnvHook",
+          "startLine": 512,
+          "endLine": 516,
+          "params": []
+        },
+        {
+          "name": "updateSourceDateEpoch",
+          "startLine": 517,
+          "endLine": 533,
+          "params": []
+        },
+        {
+          "name": "echoCmd",
+          "startLine": 534,
+          "endLine": 541,
+          "params": []
+        },
+        {
+          "name": "addToSearchPathWithCustomDelimiter",
+          "startLine": 542,
+          "endLine": 551,
+          "params": []
+        },
+        {
+          "name": "_allFlags",
+          "startLine": 552,
+          "endLine": 560,
+          "params": []
+        },
+        {
+          "name": "checkPhase",
+          "startLine": 561,
+          "endLine": 589,
+          "params": []
+        },
+        {
+          "name": "getHostRole",
+          "startLine": 590,
+          "endLine": 594,
+          "params": []
+        },
+        {
+          "name": "addEnvHooks",
+          "startLine": 595,
+          "endLine": 606,
+          "params": []
+        },
+        {
+          "name": "concatTo",
+          "startLine": 607,
+          "endLine": 643,
+          "params": []
+        },
+        {
+          "name": "getTargetRole",
+          "startLine": 644,
+          "endLine": 648,
+          "params": []
+        },
+        {
+          "name": "_multioutPropagateDev",
+          "startLine": 649,
+          "endLine": 678,
+          "params": []
+        },
+        {
+          "name": "installCheckPhase",
+          "startLine": 679,
+          "endLine": 697,
+          "params": []
+        },
+        {
+          "name": "nixTalkativeLog",
+          "startLine": 698,
+          "endLine": 702,
+          "params": []
+        },
+        {
+          "name": "substituteAll",
+          "startLine": 703,
+          "endLine": 711,
+          "params": []
+        },
+        {
+          "name": "substituteAllInPlace",
+          "startLine": 712,
+          "endLine": 718,
+          "params": []
+        },
+        {
+          "name": "nixNoticeLog",
+          "startLine": 719,
+          "endLine": 723,
+          "params": []
+        },
+        {
+          "name": "addPythonPath",
+          "startLine": 724,
+          "endLine": 728,
+          "params": []
+        },
+        {
+          "name": "moveToOutput",
+          "startLine": 729,
+          "endLine": 770,
+          "params": []
+        },
+        {
+          "name": "nixErrorLog",
+          "startLine": 771,
+          "endLine": 775,
+          "params": []
+        },
+        {
+          "name": "prependToVar",
+          "startLine": 776,
+          "endLine": 806,
+          "params": []
+        },
+        {
+          "name": "_activatePkgs",
+          "startLine": 807,
+          "endLine": 826,
+          "params": []
+        },
+        {
+          "name": "printPhases",
+          "startLine": 827,
+          "endLine": 836,
+          "params": []
+        },
+        {
+          "name": "getRole",
+          "startLine": 837,
+          "endLine": 855,
+          "params": []
+        },
+        {
+          "name": "_moveSystemdUserUnits",
+          "startLine": 856,
+          "endLine": 876,
+          "params": []
+        },
+        {
+          "name": "recordPropagatedDependencies",
+          "startLine": 877,
+          "endLine": 891,
+          "params": []
+        },
+        {
+          "name": "activatePackage",
+          "startLine": 892,
+          "endLine": 916,
+          "params": []
+        },
+        {
+          "name": "_doStrip",
+          "startLine": 917,
+          "endLine": 943,
+          "params": []
+        },
+        {
+          "name": "fixupPhase",
+          "startLine": 944,
+          "endLine": 982,
+          "params": []
+        },
+        {
+          "name": "_overrideFirst",
+          "startLine": 983,
+          "endLine": 989,
+          "params": []
+        },
+        {
+          "name": "stripDirs",
+          "startLine": 990,
+          "endLine": 1025,
+          "params": []
+        },
+        {
+          "name": "stripHash",
+          "startLine": 1026,
+          "endLine": 1041,
+          "params": []
+        },
+        {
+          "name": "bintoolsWrapper_addLDVars",
+          "startLine": 1042,
+          "endLine": 1056,
+          "params": []
+        },
+        {
+          "name": "getAllOutputNames",
+          "startLine": 1057,
+          "endLine": 1065,
+          "params": []
+        },
+        {
+          "name": "addToSearchPath",
+          "startLine": 1066,
+          "endLine": 1070,
+          "params": []
+        },
+        {
+          "name": "_pruneLibtoolFiles",
+          "startLine": 1071,
+          "endLine": 1078,
+          "params": []
+        },
+        {
+          "name": "nixChattyLog",
+          "startLine": 1079,
+          "endLine": 1083,
+          "params": []
+        },
+        {
+          "name": "compressManPages",
+          "startLine": 1084,
+          "endLine": 1100,
+          "params": []
+        },
+        {
+          "name": "patchShebangs",
+          "startLine": 1101,
+          "endLine": 1201,
+          "params": []
+        },
+        {
+          "name": "nixWarnLog",
+          "startLine": 1202,
+          "endLine": 1206,
+          "params": []
+        },
+        {
+          "name": "substitute",
+          "startLine": 1207,
+          "endLine": 1223,
+          "params": []
+        },
+        {
+          "name": "substituteAllStream",
+          "startLine": 1224,
+          "endLine": 1230,
+          "params": []
+        },
+        {
+          "name": "substituteStream",
+          "startLine": 1231,
+          "endLine": 1291,
+          "params": []
+        },
+        {
+          "name": "noBrokenSymlinks",
+          "startLine": 1292,
+          "endLine": 1346,
+          "params": []
+        },
+        {
+          "name": "_moveSbin",
+          "startLine": 1347,
+          "endLine": 1366,
+          "params": []
+        },
+        {
+          "name": "_nixLogWithLevel",
+          "startLine": 1367,
+          "endLine": 1407,
+          "params": []
+        },
+        {
+          "name": "concatStringsSep",
+          "startLine": 1408,
+          "endLine": 1431,
+          "params": []
+        },
+        {
+          "name": "dumpVars",
+          "startLine": 1432,
+          "endLine": 1442,
+          "params": []
+        },
+        {
+          "name": "_updateSourceDateEpochFromSourceRoot",
+          "startLine": 1443,
+          "endLine": 1449,
+          "params": []
+        },
+        {
+          "name": "_moveToShare",
+          "startLine": 1450,
+          "endLine": 1475,
+          "params": []
+        },
+        {
+          "name": "consumeEntire",
+          "startLine": 1476,
+          "endLine": 1483,
+          "params": []
+        },
+        {
+          "name": "_makeSymlinksRelative",
+          "startLine": 1484,
+          "endLine": 1510,
+          "params": []
+        },
+        {
+          "name": "getTargetRoleWrapper",
+          "startLine": 1511,
+          "endLine": 1529,
+          "params": []
+        },
+        {
+          "name": "installPhase",
+          "startLine": 1530,
+          "endLine": 1550,
+          "params": []
+        },
+        {
+          "name": "isScript",
+          "startLine": 1551,
+          "endLine": 1565,
+          "params": []
+        },
+        {
+          "name": "nixDebugLog",
+          "startLine": 1566,
+          "endLine": 1570,
+          "params": []
+        },
+        {
+          "name": "ccWrapper_addCVars",
+          "startLine": 1571,
+          "endLine": 1589,
+          "params": []
+        },
+        {
+          "name": "patchELF",
+          "startLine": 1590,
+          "endLine": 1607,
+          "params": []
+        },
+        {
+          "name": "appendToVar",
+          "startLine": 1608,
+          "endLine": 1638,
+          "params": []
+        },
+        {
+          "name": "configurePhase",
+          "startLine": 1639,
+          "endLine": 1692,
+          "params": []
+        },
+        {
+          "name": "_multioutDevs",
+          "startLine": 1693,
+          "endLine": 1709,
+          "params": []
+        },
+        {
+          "name": "fixLibtool",
+          "startLine": 1710,
+          "endLine": 1723,
+          "params": []
+        },
+        {
+          "name": "nixLog",
+          "startLine": 1724,
+          "endLine": 1733,
+          "params": []
+        },
+        {
+          "name": "_logHook",
+          "startLine": 1734,
+          "endLine": 1767,
+          "params": []
+        },
+        {
+          "name": "patchShebangsAuto",
+          "startLine": 1768,
+          "endLine": 1778,
+          "params": []
+        },
+        {
+          "name": "pkgConfigWrapper_addPkgConfigPath",
+          "startLine": 1779,
+          "endLine": 1786,
+          "params": []
+        },
+        {
+          "name": "runPhase",
+          "startLine": 1787,
+          "endLine": 1829,
+          "params": []
+        },
+        {
+          "name": "exitHandler",
+          "startLine": 1830,
+          "endLine": 1855,
+          "params": []
+        },
+        {
+          "name": "auditTmpdir",
+          "startLine": 1856,
+          "endLine": 1902,
+          "params": []
+        },
+        {
+          "name": "patchPhase",
+          "startLine": 1903,
+          "endLine": 1932,
+          "params": []
+        },
+        {
+          "name": "unpackPhase",
+          "startLine": 1933,
+          "endLine": 1990,
+          "params": []
+        },
+        {
+          "name": "runOneHook",
+          "startLine": 1991,
+          "endLine": 2007,
+          "params": []
+        },
+        {
+          "name": "updateAutotoolsGnuConfigScriptsPhase",
+          "startLine": 2008,
+          "endLine": 2022,
+          "params": []
+        },
+        {
+          "name": "findInputs",
+          "startLine": 2023,
+          "endLine": 2082,
+          "params": []
+        },
+        {
+          "name": "_addRpathPrefix",
+          "startLine": 2083,
+          "endLine": 2089,
+          "params": []
+        },
+        {
+          "name": "getTargetRoleEnvHook",
+          "startLine": 2090,
+          "endLine": 2094,
+          "params": []
+        },
+        {
+          "name": "noBrokenSymlinksInAllOutputs",
+          "startLine": 2095,
+          "endLine": 2104,
+          "params": []
+        },
+        {
+          "name": "printLines",
+          "startLine": 2105,
+          "endLine": 2110,
+          "params": []
+        },
+        {
+          "name": "printWords",
+          "startLine": 2111,
+          "endLine": 2116,
+          "params": []
+        },
+        {
+          "name": "_eval",
+          "startLine": 2117,
+          "endLine": 2125,
+          "params": []
+        },
+        {
+          "name": "_assignFirst",
+          "startLine": 2126,
+          "endLine": 2153,
+          "params": []
+        },
+        {
+          "name": "mapOffset",
+          "startLine": 2154,
+          "endLine": 2164,
+          "params": []
+        },
+        {
+          "name": "_callImplicitHook",
+          "startLine": 2165,
+          "endLine": 2186,
+          "params": []
+        },
+        {
+          "name": "showPhaseFooter",
+          "startLine": 2187,
+          "endLine": 2202,
+          "params": []
+        },
+        {
+          "name": "substituteInPlace",
+          "startLine": 2203,
+          "endLine": 2223,
+          "params": []
+        },
+        {
+          "name": "isMachO",
+          "startLine": 2224,
+          "endLine": 2246,
+          "params": []
+        },
+        {
+          "name": "unpackFile",
+          "startLine": 2247,
+          "endLine": 2256,
+          "params": []
+        },
+        {
+          "name": "_moveLib64",
+          "startLine": 2257,
+          "endLine": 2276,
+          "params": []
+        },
+        {
+          "name": "_addToEnv",
+          "startLine": 2277,
+          "endLine": 2310,
+          "params": []
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 102,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".devenv/shell-ffc7c21592452012.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 2317,
+      "nonEmptyLines": 2192,
+      "functions": [
+        {
+          "name": "patchShebangsAuto",
+          "startLine": 328,
+          "endLine": 338,
+          "params": []
+        },
+        {
+          "name": "findInputs",
+          "startLine": 339,
+          "endLine": 398,
+          "params": []
+        },
+        {
+          "name": "getHostRoleEnvHook",
+          "startLine": 399,
+          "endLine": 403,
+          "params": []
+        },
+        {
+          "name": "updateAutotoolsGnuConfigScriptsPhase",
+          "startLine": 404,
+          "endLine": 418,
+          "params": []
+        },
+        {
+          "name": "checkPhase",
+          "startLine": 419,
+          "endLine": 447,
+          "params": []
+        },
+        {
+          "name": "_assignFirst",
+          "startLine": 448,
+          "endLine": 475,
+          "params": []
+        },
+        {
+          "name": "bintoolsWrapper_addLDVars",
+          "startLine": 476,
+          "endLine": 490,
+          "params": []
+        },
+        {
+          "name": "substituteAll",
+          "startLine": 491,
+          "endLine": 499,
+          "params": []
+        },
+        {
+          "name": "fixupPhase",
+          "startLine": 500,
+          "endLine": 538,
+          "params": []
+        },
+        {
+          "name": "unpackPhase",
+          "startLine": 539,
+          "endLine": 596,
+          "params": []
+        },
+        {
+          "name": "distPhase",
+          "startLine": 597,
+          "endLine": 610,
+          "params": []
+        },
+        {
+          "name": "substituteAllInPlace",
+          "startLine": 611,
+          "endLine": 617,
+          "params": []
+        },
+        {
+          "name": "_logHook",
+          "startLine": 618,
+          "endLine": 651,
+          "params": []
+        },
+        {
+          "name": "buildPhase",
+          "startLine": 652,
+          "endLine": 667,
+          "params": []
+        },
+        {
+          "name": "_moveSystemdUserUnits",
+          "startLine": 668,
+          "endLine": 688,
+          "params": []
+        },
+        {
+          "name": "nixErrorLog",
+          "startLine": 689,
+          "endLine": 693,
+          "params": []
+        },
+        {
+          "name": "_addToEnv",
+          "startLine": 694,
+          "endLine": 727,
+          "params": []
+        },
+        {
+          "name": "nixInfoLog",
+          "startLine": 728,
+          "endLine": 732,
+          "params": []
+        },
+        {
+          "name": "_multioutDocs",
+          "startLine": 733,
+          "endLine": 743,
+          "params": []
+        },
+        {
+          "name": "echoCmd",
+          "startLine": 744,
+          "endLine": 751,
+          "params": []
+        },
+        {
+          "name": "_moveSbin",
+          "startLine": 752,
+          "endLine": 771,
+          "params": []
+        },
+        {
+          "name": "showPhaseFooter",
+          "startLine": 772,
+          "endLine": 787,
+          "params": []
+        },
+        {
+          "name": "genericBuild",
+          "startLine": 788,
+          "endLine": 805,
+          "params": []
+        },
+        {
+          "name": "_eval",
+          "startLine": 806,
+          "endLine": 814,
+          "params": []
+        },
+        {
+          "name": "_multioutDevs",
+          "startLine": 815,
+          "endLine": 831,
+          "params": []
+        },
+        {
+          "name": "consumeEntire",
+          "startLine": 832,
+          "endLine": 839,
+          "params": []
+        },
+        {
+          "name": "_callImplicitHook",
+          "startLine": 840,
+          "endLine": 861,
+          "params": []
+        },
+        {
+          "name": "nixTalkativeLog",
+          "startLine": 862,
+          "endLine": 866,
+          "params": []
+        },
+        {
+          "name": "recordPropagatedDependencies",
+          "startLine": 867,
+          "endLine": 881,
+          "params": []
+        },
+        {
+          "name": "definePhases",
+          "startLine": 882,
+          "endLine": 888,
+          "params": []
+        },
+        {
+          "name": "fixLibtool",
+          "startLine": 889,
+          "endLine": 902,
+          "params": []
+        },
+        {
+          "name": "patchPhase",
+          "startLine": 903,
+          "endLine": 932,
+          "params": []
+        },
+        {
+          "name": "addPythonPath",
+          "startLine": 933,
+          "endLine": 937,
+          "params": []
+        },
+        {
+          "name": "addToSearchPathWithCustomDelimiter",
+          "startLine": 938,
+          "endLine": 947,
+          "params": []
+        },
+        {
+          "name": "substituteInPlace",
+          "startLine": 948,
+          "endLine": 968,
+          "params": []
+        },
+        {
+          "name": "_moveLib64",
+          "startLine": 969,
+          "endLine": 988,
+          "params": []
+        },
+        {
+          "name": "printLines",
+          "startLine": 989,
+          "endLine": 994,
+          "params": []
+        },
+        {
+          "name": "nixWarnLog",
+          "startLine": 995,
+          "endLine": 999,
+          "params": []
+        },
+        {
+          "name": "runHook",
+          "startLine": 1000,
+          "endLine": 1013,
+          "params": []
+        },
+        {
+          "name": "patchELF",
+          "startLine": 1014,
+          "endLine": 1031,
+          "params": []
+        },
+        {
+          "name": "noBrokenSymlinks",
+          "startLine": 1032,
+          "endLine": 1086,
+          "params": []
+        },
+        {
+          "name": "runOneHook",
+          "startLine": 1087,
+          "endLine": 1103,
+          "params": []
+        },
+        {
+          "name": "runPhase",
+          "startLine": 1104,
+          "endLine": 1146,
+          "params": []
+        },
+        {
+          "name": "patchShebangs",
+          "startLine": 1147,
+          "endLine": 1247,
+          "params": []
+        },
+        {
+          "name": "stripDirs",
+          "startLine": 1248,
+          "endLine": 1283,
+          "params": []
+        },
+        {
+          "name": "_moveToShare",
+          "startLine": 1284,
+          "endLine": 1309,
+          "params": []
+        },
+        {
+          "name": "toPythonPath",
+          "startLine": 1310,
+          "endLine": 1321,
+          "params": []
+        },
+        {
+          "name": "substitute",
+          "startLine": 1322,
+          "endLine": 1338,
+          "params": []
+        },
+        {
+          "name": "getTargetRole",
+          "startLine": 1339,
+          "endLine": 1343,
+          "params": []
+        },
+        {
+          "name": "_makeSymlinksRelative",
+          "startLine": 1344,
+          "endLine": 1370,
+          "params": []
+        },
+        {
+          "name": "_multioutConfig",
+          "startLine": 1371,
+          "endLine": 1391,
+          "params": []
+        },
+        {
+          "name": "addToSearchPath",
+          "startLine": 1392,
+          "endLine": 1396,
+          "params": []
+        },
+        {
+          "name": "getAllOutputNames",
+          "startLine": 1397,
+          "endLine": 1405,
+          "params": []
+        },
+        {
+          "name": "auditTmpdir",
+          "startLine": 1406,
+          "endLine": 1452,
+          "params": []
+        },
+        {
+          "name": "installCheckPhase",
+          "startLine": 1453,
+          "endLine": 1471,
+          "params": []
+        },
+        {
+          "name": "isScript",
+          "startLine": 1472,
+          "endLine": 1486,
+          "params": []
+        },
+        {
+          "name": "_defaultUnpack",
+          "startLine": 1487,
+          "endLine": 1514,
+          "params": []
+        },
+        {
+          "name": "moveToOutput",
+          "startLine": 1515,
+          "endLine": 1556,
+          "params": []
+        },
+        {
+          "name": "sysconfigdataHook",
+          "startLine": 1557,
+          "endLine": 1564,
+          "params": []
+        },
+        {
+          "name": "isELF",
+          "startLine": 1565,
+          "endLine": 1579,
+          "params": []
+        },
+        {
+          "name": "nixVomitLog",
+          "startLine": 1580,
+          "endLine": 1584,
+          "params": []
+        },
+        {
+          "name": "unpackFile",
+          "startLine": 1585,
+          "endLine": 1594,
+          "params": []
+        },
+        {
+          "name": "_multioutPropagateDev",
+          "startLine": 1595,
+          "endLine": 1624,
+          "params": []
+        },
+        {
+          "name": "printPhases",
+          "startLine": 1625,
+          "endLine": 1634,
+          "params": []
+        },
+        {
+          "name": "nixLog",
+          "startLine": 1635,
+          "endLine": 1644,
+          "params": []
+        },
+        {
+          "name": "stripHash",
+          "startLine": 1645,
+          "endLine": 1660,
+          "params": []
+        },
+        {
+          "name": "configurePhase",
+          "startLine": 1661,
+          "endLine": 1714,
+          "params": []
+        },
+        {
+          "name": "concatTo",
+          "startLine": 1715,
+          "endLine": 1751,
+          "params": []
+        },
+        {
+          "name": "_overrideFirst",
+          "startLine": 1752,
+          "endLine": 1758,
+          "params": []
+        },
+        {
+          "name": "getHostRole",
+          "startLine": 1759,
+          "endLine": 1763,
+          "params": []
+        },
+        {
+          "name": "showPhaseHeader",
+          "startLine": 1764,
+          "endLine": 1773,
+          "params": []
+        },
+        {
+          "name": "_pruneLibtoolFiles",
+          "startLine": 1774,
+          "endLine": 1781,
+          "params": []
+        },
+        {
+          "name": "_nixLogWithLevel",
+          "startLine": 1782,
+          "endLine": 1822,
+          "params": []
+        },
+        {
+          "name": "exitHandler",
+          "startLine": 1823,
+          "endLine": 1848,
+          "params": []
+        },
+        {
+          "name": "updateSourceDateEpoch",
+          "startLine": 1849,
+          "endLine": 1865,
+          "params": []
+        },
+        {
+          "name": "ccWrapper_addCVars",
+          "startLine": 1866,
+          "endLine": 1884,
+          "params": []
+        },
+        {
+          "name": "dumpVars",
+          "startLine": 1885,
+          "endLine": 1895,
+          "params": []
+        },
+        {
+          "name": "_addRpathPrefix",
+          "startLine": 1896,
+          "endLine": 1902,
+          "params": []
+        },
+        {
+          "name": "_updateSourceDateEpochFromSourceRoot",
+          "startLine": 1903,
+          "endLine": 1909,
+          "params": []
+        },
+        {
+          "name": "addEnvHooks",
+          "startLine": 1910,
+          "endLine": 1921,
+          "params": []
+        },
+        {
+          "name": "activatePackage",
+          "startLine": 1922,
+          "endLine": 1946,
+          "params": []
+        },
+        {
+          "name": "_allFlags",
+          "startLine": 1947,
+          "endLine": 1955,
+          "params": []
+        },
+        {
+          "name": "appendToVar",
+          "startLine": 1956,
+          "endLine": 1986,
+          "params": []
+        },
+        {
+          "name": "compressManPages",
+          "startLine": 1987,
+          "endLine": 2003,
+          "params": []
+        },
+        {
+          "name": "nixDebugLog",
+          "startLine": 2004,
+          "endLine": 2008,
+          "params": []
+        },
+        {
+          "name": "_activatePkgs",
+          "startLine": 2009,
+          "endLine": 2028,
+          "params": []
+        },
+        {
+          "name": "nixNoticeLog",
+          "startLine": 2029,
+          "endLine": 2033,
+          "params": []
+        },
+        {
+          "name": "installPhase",
+          "startLine": 2034,
+          "endLine": 2054,
+          "params": []
+        },
+        {
+          "name": "prependToVar",
+          "startLine": 2055,
+          "endLine": 2085,
+          "params": []
+        },
+        {
+          "name": "_doStrip",
+          "startLine": 2086,
+          "endLine": 2112,
+          "params": []
+        },
+        {
+          "name": "getTargetRoleWrapper",
+          "startLine": 2113,
+          "endLine": 2131,
+          "params": []
+        },
+        {
+          "name": "mapOffset",
+          "startLine": 2132,
+          "endLine": 2142,
+          "params": []
+        },
+        {
+          "name": "substituteAllStream",
+          "startLine": 2143,
+          "endLine": 2149,
+          "params": []
+        },
+        {
+          "name": "pkgConfigWrapper_addPkgConfigPath",
+          "startLine": 2150,
+          "endLine": 2157,
+          "params": []
+        },
+        {
+          "name": "printWords",
+          "startLine": 2158,
+          "endLine": 2163,
+          "params": []
+        },
+        {
+          "name": "noBrokenSymlinksInAllOutputs",
+          "startLine": 2164,
+          "endLine": 2173,
+          "params": []
+        },
+        {
+          "name": "getRole",
+          "startLine": 2174,
+          "endLine": 2192,
+          "params": []
+        },
+        {
+          "name": "getTargetRoleEnvHook",
+          "startLine": 2193,
+          "endLine": 2197,
+          "params": []
+        },
+        {
+          "name": "substituteStream",
+          "startLine": 2198,
+          "endLine": 2258,
+          "params": []
+        },
+        {
+          "name": "isMachO",
+          "startLine": 2259,
+          "endLine": 2281,
+          "params": []
+        },
+        {
+          "name": "nixChattyLog",
+          "startLine": 2282,
+          "endLine": 2286,
+          "params": []
+        },
+        {
+          "name": "concatStringsSep",
+          "startLine": 2287,
+          "endLine": 2310,
+          "params": []
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 102,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".devenv/task-names.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 7,
+      "nonEmptyLines": 7,
+      "metrics": {}
+    }
+  ]
+}

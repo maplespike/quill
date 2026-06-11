@@ -1,0 +1,881 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 7,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 75,
+      "nonEmptyLines": 73,
+      "exports": [
+        {
+          "name": "SCIENCE_SOURCE_NAMES",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "SOURCES",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "SCIENCE_CKAN_DATASETS",
+          "line": 64,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/csa.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 34,
+      "nonEmptyLines": 29,
+      "functions": [
+        {
+          "name": "fetchCsaMissions",
+          "startLine": 6,
+          "endLine": 34,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCsaMissions",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCsaMissions",
+          "callee": "httpGet",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchCsaMissions",
+          "callee": "resp.json",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchCsaMissions",
+          "callee": "new Date().toISOString",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchCsaMissions",
+          "callee": "toSpaceMission",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchCsaMissions",
+          "callee": "missions.push",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchCsaMissions",
+          "callee": "errors.push",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 52,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "ingestAllScience",
+          "startLine": 11,
+          "endLine": 25,
+          "params": []
+        },
+        {
+          "name": "searchScience",
+          "startLine": 27,
+          "endLine": 52,
+          "params": [
+            "query"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCsaMissions",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMitacsGrants",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "fetchOceanObservations",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPolarRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "ResearchGrant",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "SpaceMission",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "OceanObservation",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "PolarRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "ScienceIngestionResult",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllScience",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "searchScience",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestAllScience",
+          "callee": "Promise.all",
+          "lineNumber": 12
+        },
+        {
+          "caller": "ingestAllScience",
+          "callee": "fetchCsaMissions",
+          "lineNumber": 13
+        },
+        {
+          "caller": "ingestAllScience",
+          "callee": "fetchMitacsGrants",
+          "lineNumber": 14
+        },
+        {
+          "caller": "ingestAllScience",
+          "callee": "Promise.all",
+          "lineNumber": 15
+        },
+        {
+          "caller": "ingestAllScience",
+          "callee": "fetchOceanObservations",
+          "lineNumber": 15
+        },
+        {
+          "caller": "ingestAllScience",
+          "callee": "fetchPolarRecords",
+          "lineNumber": 15
+        },
+        {
+          "caller": "searchScience",
+          "callee": "ingestAllScience",
+          "lineNumber": 28
+        },
+        {
+          "caller": "searchScience",
+          "callee": "query.toLowerCase",
+          "lineNumber": 29
+        },
+        {
+          "caller": "searchScience",
+          "callee": "all.grants.filter",
+          "lineNumber": 32
+        },
+        {
+          "caller": "searchScience",
+          "callee": "g.title.toLowerCase().includes",
+          "lineNumber": 33
+        },
+        {
+          "caller": "searchScience",
+          "callee": "g.title.toLowerCase",
+          "lineNumber": 33
+        },
+        {
+          "caller": "searchScience",
+          "callee": "g.recipient.toLowerCase().includes",
+          "lineNumber": 34
+        },
+        {
+          "caller": "searchScience",
+          "callee": "g.recipient.toLowerCase",
+          "lineNumber": 34
+        },
+        {
+          "caller": "searchScience",
+          "callee": "g.program.toLowerCase().includes",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchScience",
+          "callee": "g.program.toLowerCase",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchScience",
+          "callee": "all.missions.filter",
+          "lineNumber": 37
+        },
+        {
+          "caller": "searchScience",
+          "callee": "m.mission.toLowerCase().includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "searchScience",
+          "callee": "m.mission.toLowerCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "searchScience",
+          "callee": "m.description.toLowerCase().includes",
+          "lineNumber": 39
+        },
+        {
+          "caller": "searchScience",
+          "callee": "m.description.toLowerCase",
+          "lineNumber": 39
+        },
+        {
+          "caller": "searchScience",
+          "callee": "all.observations.filter",
+          "lineNumber": 41
+        },
+        {
+          "caller": "searchScience",
+          "callee": "o.station.toLowerCase().includes",
+          "lineNumber": 42
+        },
+        {
+          "caller": "searchScience",
+          "callee": "o.station.toLowerCase",
+          "lineNumber": 42
+        },
+        {
+          "caller": "searchScience",
+          "callee": "o.region.toLowerCase().includes",
+          "lineNumber": 43
+        },
+        {
+          "caller": "searchScience",
+          "callee": "o.region.toLowerCase",
+          "lineNumber": 43
+        },
+        {
+          "caller": "searchScience",
+          "callee": "all.polar.filter",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchScience",
+          "callee": "p.title.toLowerCase().includes",
+          "lineNumber": 46
+        },
+        {
+          "caller": "searchScience",
+          "callee": "p.title.toLowerCase",
+          "lineNumber": 46
+        },
+        {
+          "caller": "searchScience",
+          "callee": "p.investigator.toLowerCase().includes",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchScience",
+          "callee": "p.investigator.toLowerCase",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchScience",
+          "callee": "p.organization.toLowerCase().includes",
+          "lineNumber": 48
+        },
+        {
+          "caller": "searchScience",
+          "callee": "p.organization.toLowerCase",
+          "lineNumber": 48
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 11,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/mitacs.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 28,
+      "functions": [
+        {
+          "name": "fetchMitacsGrants",
+          "startLine": 7,
+          "endLine": 35,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchMitacsGrants",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "new Date().toISOString",
+          "lineNumber": 9
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "httpGet",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "csv.split('\\n').filter",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "csv.split",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "parseCsvLine",
+          "lineNumber": 21
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "parseInt",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "parseFloat",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "cols[3].replace",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "isNaN",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "grants.push",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchMitacsGrants",
+          "callee": "toMitacsGrant",
+          "lineNumber": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/onc.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 51,
+      "nonEmptyLines": 42,
+      "functions": [
+        {
+          "name": "fetchOceanObservations",
+          "startLine": 6,
+          "endLine": 29,
+          "params": []
+        },
+        {
+          "name": "fetchPolarRecords",
+          "startLine": 31,
+          "endLine": 51,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchOceanObservations",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "fetchPolarRecords",
+          "line": 31,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "new Date().toISOString",
+          "lineNumber": 8
+        },
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "httpGet",
+          "lineNumber": 11
+        },
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "resp.json",
+          "lineNumber": 17
+        },
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "stations.slice",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "observations.push",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "toOceanObservation",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchOceanObservations",
+          "callee": "String",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "import",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "import",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "new Date().toISOString",
+          "lineNumber": 33
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "httpGet",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "resp.json",
+          "lineNumber": 42
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "data.slice",
+          "lineNumber": 43
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "records.push",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchPolarRecords",
+          "callee": "toPolarRecord",
+          "lineNumber": 44
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 108,
+      "nonEmptyLines": 101,
+      "functions": [
+        {
+          "name": "mapMissionStatus",
+          "startLine": 8,
+          "endLine": 15,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "mapRecipientType",
+          "startLine": 17,
+          "endLine": 23,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "toSpaceMission",
+          "startLine": 25,
+          "endLine": 42,
+          "params": [
+            "raw",
+            "ingestedAt"
+          ]
+        },
+        {
+          "name": "toMitacsGrant",
+          "startLine": 44,
+          "endLine": 65,
+          "params": [
+            "cols",
+            "year",
+            "amount",
+            "sourceUrl",
+            "ingestedAt"
+          ]
+        },
+        {
+          "name": "toOceanObservation",
+          "startLine": 67,
+          "endLine": 88,
+          "params": [
+            "station",
+            "stationId",
+            "baseUrl",
+            "ingestedAt"
+          ]
+        },
+        {
+          "name": "toPolarRecord",
+          "startLine": 90,
+          "endLine": 108,
+          "params": [
+            "raw",
+            "baseUrl",
+            "ingestedAt"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "mapMissionStatus",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "mapRecipientType",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "toSpaceMission",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "toMitacsGrant",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "toOceanObservation",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "toPolarRecord",
+          "line": 90,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "mapMissionStatus",
+          "callee": "raw.toLowerCase",
+          "lineNumber": 9
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 10
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 10
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 11
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 11
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 12
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 12
+        },
+        {
+          "caller": "mapMissionStatus",
+          "callee": "s.includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "name.toLowerCase",
+          "lineNumber": 18
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 19
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 19
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 19
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 20
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 20
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 20
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 20
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 21
+        },
+        {
+          "caller": "mapRecipientType",
+          "callee": "lc.includes",
+          "lineNumber": 21
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "computeHash",
+          "lineNumber": 32
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "String",
+          "lineNumber": 33
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "mapMissionStatus",
+          "lineNumber": 35
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "String",
+          "lineNumber": 35
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "Number",
+          "lineNumber": 36
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "String",
+          "lineNumber": 37
+        },
+        {
+          "caller": "toSpaceMission",
+          "callee": "Number",
+          "lineNumber": 38
+        },
+        {
+          "caller": "toMitacsGrant",
+          "callee": "computeHash",
+          "lineNumber": 52
+        },
+        {
+          "caller": "toMitacsGrant",
+          "callee": "mapRecipientType",
+          "lineNumber": 56
+        },
+        {
+          "caller": "toMitacsGrant",
+          "callee": "isNaN",
+          "lineNumber": 57
+        },
+        {
+          "caller": "toOceanObservation",
+          "callee": "String",
+          "lineNumber": 73
+        },
+        {
+          "caller": "toOceanObservation",
+          "callee": "computeHash",
+          "lineNumber": 75
+        },
+        {
+          "caller": "toOceanObservation",
+          "callee": "String",
+          "lineNumber": 76
+        },
+        {
+          "caller": "toOceanObservation",
+          "callee": "Number",
+          "lineNumber": 78
+        },
+        {
+          "caller": "toOceanObservation",
+          "callee": "Number",
+          "lineNumber": 79
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "computeHash",
+          "lineNumber": 96
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "String",
+          "lineNumber": 97
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "String",
+          "lineNumber": 98
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "String",
+          "lineNumber": 99
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "String",
+          "lineNumber": 100
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "String",
+          "lineNumber": 101
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "Number",
+          "lineNumber": 102
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 102
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "Number",
+          "lineNumber": 103
+        },
+        {
+          "caller": "toPolarRecord",
+          "callee": "Number",
+          "lineNumber": 104
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/science-research/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 63,
+      "nonEmptyLines": 59,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,512 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-education/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 43,
+      "classes": [
+        {
+          "name": "AbEducationError",
+          "startLine": 43,
+          "endLine": 48,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ABEDUCATION_DDL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "AbEducationError",
+          "line": 43,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 45
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-education/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "fetchAbEducationRecords",
+          "startLine": 6,
+          "endLine": 41,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAbEducationRecords",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "httpGet",
+          "lineNumber": 13
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "errors.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "JSON.parse",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "records.push",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "String",
+          "lineNumber": 33
+        },
+        {
+          "caller": "fetchAbEducationRecords",
+          "callee": "errors.push",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-education/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 81,
+      "functions": [
+        {
+          "name": "initializeAbEducationTable",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertAbEducationRecord",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "searchAbEducationRecords",
+          "startLine": 39,
+          "endLine": 56,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestAbEducationData",
+          "startLine": 58,
+          "endLine": 97,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchAbEducationRecords",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEducationRecord",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEducationBatch",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "ABEDUCATION_DDL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "AbEducationError",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "AbEducationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "AbEducationIngestionOptions",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "AbEducationIngestionResult",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "RawAbEducationRecord",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "initializeAbEducationTable",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "searchAbEducationRecords",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAbEducationData",
+          "line": 58,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeAbEducationTable",
+          "callee": "db.exec",
+          "lineNumber": 27
+        },
+        {
+          "caller": "upsertAbEducationRecord",
+          "callee": "fields.map(() => '?').join",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertAbEducationRecord",
+          "callee": "fields.map",
+          "lineNumber": 33
+        },
+        {
+          "caller": "upsertAbEducationRecord",
+          "callee": "db.prepare('INSERT OR IGNORE INTO ab_education_records (' + fields.join(', ') + ') VALUES (' + placeholders + ')').bind",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertAbEducationRecord",
+          "callee": "db.prepare",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertAbEducationRecord",
+          "callee": "fields.join",
+          "lineNumber": 34
+        },
+        {
+          "caller": "upsertAbEducationRecord",
+          "callee": "stmt.run",
+          "lineNumber": 35
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "likeCols.map(c => c + ' LIKE ?').join",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "likeCols.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "params.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "params.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "db.prepare",
+          "lineNumber": 53
+        },
+        {
+          "caller": "searchAbEducationRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 54
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "Date.now",
+          "lineNumber": 59
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "log",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "initializeAbEducationTable",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "log",
+          "lineNumber": 71
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "fetchAbEducationRecords",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "result.errors.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "log",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "parseAbEducationBatch",
+          "lineNumber": 76
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "upsertAbEducationRecord",
+          "lineNumber": 82
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "result.errors.push",
+          "lineNumber": 90
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "log",
+          "lineNumber": 91
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "Date.now",
+          "lineNumber": 94
+        },
+        {
+          "caller": "ingestAbEducationData",
+          "callee": "log",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 13,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-education/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "parseAbEducationRecord",
+          "startLine": 6,
+          "endLine": 45,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseAbEducationBatch",
+          "startLine": 47,
+          "endLine": 54,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseAbEducationRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseAbEducationBatch",
+          "line": 47,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseAbEducationRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseAbEducationRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseAbEducationRecord",
+          "callee": "computeHash",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseAbEducationBatch",
+          "callee": "parseAbEducationRecord",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseAbEducationBatch",
+          "callee": "results.push",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/ab-education/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 44,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

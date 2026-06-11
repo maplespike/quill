@@ -1,0 +1,1079 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/cipo/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 193,
+      "nonEmptyLines": 168,
+      "classes": [
+        {
+          "name": "CipoError",
+          "startLine": 182,
+          "endLine": 193,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CIPO_SOURCES",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_IP_TYPE_CONFIG",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_CIPO_IP_TYPES",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_STATUS_MAP",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_DDL",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 169,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 170,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 171,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 173,
+          "isDefault": false
+        },
+        {
+          "name": "CipoError",
+          "line": 182,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 190
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 10,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cipo/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 293,
+      "nonEmptyLines": 263,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 51,
+          "endLine": 69,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchText",
+          "startLine": 74,
+          "endLine": 92,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCipoPatents",
+          "startLine": 105,
+          "endLine": 146,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCipoTrademarks",
+          "startLine": 155,
+          "endLine": 194,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCipoDesigns",
+          "startLine": 203,
+          "endLine": 241,
+          "params": [
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchCipoRecords",
+          "startLine": 254,
+          "endLine": 269,
+          "params": [
+            "ipType",
+            "year",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllCipoRecords",
+          "startLine": 278,
+          "endLine": 293,
+          "params": [
+            "year",
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "CipoFetchError",
+          "startLine": 32,
+          "endLine": 42,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CipoFetchError",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCipoPatents",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCipoTrademarks",
+          "line": 155,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCipoDesigns",
+          "line": 203,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCipoRecords",
+          "line": 254,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCipoRecords",
+          "line": 278,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 68
+        },
+        {
+          "caller": "fetchText",
+          "callee": "httpGet",
+          "lineNumber": 78
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "params.set",
+          "lineNumber": 115
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "params.set",
+          "lineNumber": 116
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "String",
+          "lineNumber": 116
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "params.set",
+          "lineNumber": 117
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "String",
+          "lineNumber": 117
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "params.toString",
+          "lineNumber": 119
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "await fetchJson",
+          "lineNumber": 120
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "(apiRecords || []).map",
+          "lineNumber": 122
+        },
+        {
+          "caller": "fetchCipoPatents",
+          "callee": "errors.push",
+          "lineNumber": 143
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "params.set",
+          "lineNumber": 164
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "params.set",
+          "lineNumber": 165
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "String",
+          "lineNumber": 165
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "params.set",
+          "lineNumber": 166
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "String",
+          "lineNumber": 166
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "params.toString",
+          "lineNumber": 168
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "await fetchJson",
+          "lineNumber": 169
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "(apiRecords || []).map",
+          "lineNumber": 171
+        },
+        {
+          "caller": "fetchCipoTrademarks",
+          "callee": "errors.push",
+          "lineNumber": 191
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "params.set",
+          "lineNumber": 212
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "params.set",
+          "lineNumber": 213
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "String",
+          "lineNumber": 213
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "params.set",
+          "lineNumber": 214
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "String",
+          "lineNumber": 214
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "params.toString",
+          "lineNumber": 216
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "await fetchJson",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "(apiRecords || []).map",
+          "lineNumber": 219
+        },
+        {
+          "caller": "fetchCipoDesigns",
+          "callee": "errors.push",
+          "lineNumber": 238
+        },
+        {
+          "caller": "fetchCipoRecords",
+          "callee": "fetchCipoPatents",
+          "lineNumber": 261
+        },
+        {
+          "caller": "fetchCipoRecords",
+          "callee": "fetchCipoTrademarks",
+          "lineNumber": 263
+        },
+        {
+          "caller": "fetchCipoRecords",
+          "callee": "fetchCipoDesigns",
+          "lineNumber": 265
+        },
+        {
+          "caller": "fetchAllCipoRecords",
+          "callee": "Promise.all",
+          "lineNumber": 282
+        },
+        {
+          "caller": "fetchAllCipoRecords",
+          "callee": "fetchCipoPatents",
+          "lineNumber": 283
+        },
+        {
+          "caller": "fetchAllCipoRecords",
+          "callee": "fetchCipoTrademarks",
+          "lineNumber": 284
+        },
+        {
+          "caller": "fetchAllCipoRecords",
+          "callee": "fetchCipoDesigns",
+          "lineNumber": 285
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 7,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cipo/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 431,
+      "nonEmptyLines": 385,
+      "functions": [
+        {
+          "name": "initializeCipoTable",
+          "startLine": 109,
+          "endLine": 111,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertCipoRecord",
+          "startLine": 118,
+          "endLine": 152,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "cipoRecordExists",
+          "startLine": 157,
+          "endLine": 166,
+          "params": [
+            "db",
+            "id"
+          ]
+        },
+        {
+          "name": "cipoTableExists",
+          "startLine": 171,
+          "endLine": 180,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "getLatestCipoIngestionDate",
+          "startLine": 185,
+          "endLine": 190,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "searchCipoRecords",
+          "startLine": 199,
+          "endLine": 247,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getCipoByType",
+          "startLine": 252,
+          "endLine": 265,
+          "params": [
+            "db",
+            "ipType",
+            "options"
+          ]
+        },
+        {
+          "name": "getCipoByOwner",
+          "startLine": 270,
+          "endLine": 282,
+          "params": [
+            "db",
+            "ownerName",
+            "options"
+          ]
+        },
+        {
+          "name": "getActiveCipoRecords",
+          "startLine": 287,
+          "endLine": 299,
+          "params": [
+            "db",
+            "options"
+          ]
+        },
+        {
+          "name": "getExpiringCipoRecords",
+          "startLine": 304,
+          "endLine": 328,
+          "params": [
+            "db",
+            "daysAhead",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestCipo",
+          "startLine": 347,
+          "endLine": 431,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCipoRecords",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllCipoRecords",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "parseCipoRecord",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "parseCipoBatch",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeCipoStatus",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeCipoType",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_DDL",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_SOURCES",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_IP_TYPE_CONFIG",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "CIPO_STATUS_MAP",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "ALL_CIPO_IP_TYPES",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "CipoError",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "CipoRecord",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "CipoIpType",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "CipoStatus",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "CipoIngestionOptions",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "CipoIngestionResult",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "RawCipoRecord",
+          "line": 75,
+          "isDefault": false
+        },
+        {
+          "name": "initializeCipoTable",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "cipoRecordExists",
+          "line": 157,
+          "isDefault": false
+        },
+        {
+          "name": "cipoTableExists",
+          "line": 171,
+          "isDefault": false
+        },
+        {
+          "name": "getLatestCipoIngestionDate",
+          "line": 185,
+          "isDefault": false
+        },
+        {
+          "name": "searchCipoRecords",
+          "line": 199,
+          "isDefault": false
+        },
+        {
+          "name": "getCipoByType",
+          "line": 252,
+          "isDefault": false
+        },
+        {
+          "name": "getCipoByOwner",
+          "line": 270,
+          "isDefault": false
+        },
+        {
+          "name": "getActiveCipoRecords",
+          "line": 287,
+          "isDefault": false
+        },
+        {
+          "name": "getExpiringCipoRecords",
+          "line": 304,
+          "isDefault": false
+        },
+        {
+          "name": "ingestCipo",
+          "line": 347,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeCipoTable",
+          "callee": "db.exec",
+          "lineNumber": 110
+        },
+        {
+          "caller": "upsertCipoRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO cipo_records\n      (id, application_number, filing_date, status, type,\n       title, description, owner_name, agent_name,\n       ipc_classification, nice_classification,\n       registration_date, expiry_date, publication_date,\n       source_url, source_system, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 122
+        },
+        {
+          "caller": "upsertCipoRecord",
+          "callee": "db.prepare",
+          "lineNumber": 122
+        },
+        {
+          "caller": "upsertCipoRecord",
+          "callee": "stmt.run",
+          "lineNumber": 150
+        },
+        {
+          "caller": "cipoRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM cipo_records WHERE id = ? LIMIT 1`,\n  ).bind(id).first",
+          "lineNumber": 161
+        },
+        {
+          "caller": "cipoRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM cipo_records WHERE id = ? LIMIT 1`,\n  ).bind",
+          "lineNumber": 161
+        },
+        {
+          "caller": "cipoRecordExists",
+          "callee": "db.prepare",
+          "lineNumber": 161
+        },
+        {
+          "caller": "cipoTableExists",
+          "callee": "db.prepare(\n      `SELECT name FROM sqlite_master WHERE type='table' AND name='cipo_records'`,\n    ).first",
+          "lineNumber": 173
+        },
+        {
+          "caller": "cipoTableExists",
+          "callee": "db.prepare",
+          "lineNumber": 173
+        },
+        {
+          "caller": "getLatestCipoIngestionDate",
+          "callee": "await db.prepare(\n    'SELECT ingested_at FROM cipo_records ORDER BY ingested_at DESC LIMIT 1',\n  ).first",
+          "lineNumber": 186
+        },
+        {
+          "caller": "getLatestCipoIngestionDate",
+          "callee": "db.prepare",
+          "lineNumber": 186
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 223
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 228
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 233
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 238
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 242
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 244
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "db.prepare",
+          "lineNumber": 244
+        },
+        {
+          "caller": "searchCipoRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 245
+        },
+        {
+          "caller": "getCipoByType",
+          "callee": "searchCipoRecords",
+          "lineNumber": 260
+        },
+        {
+          "caller": "getCipoByOwner",
+          "callee": "searchCipoRecords",
+          "lineNumber": 278
+        },
+        {
+          "caller": "getActiveCipoRecords",
+          "callee": "searchCipoRecords",
+          "lineNumber": 294
+        },
+        {
+          "caller": "getExpiringCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 319
+        },
+        {
+          "caller": "getExpiringCipoRecords",
+          "callee": "params.push",
+          "lineNumber": 323
+        },
+        {
+          "caller": "getExpiringCipoRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 325
+        },
+        {
+          "caller": "getExpiringCipoRecords",
+          "callee": "db.prepare",
+          "lineNumber": 325
+        },
+        {
+          "caller": "getExpiringCipoRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 326
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "Date.now",
+          "lineNumber": 351
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "log",
+          "lineNumber": 374
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "initializeCipoTable",
+          "lineNumber": 375
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "log",
+          "lineNumber": 380
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "fetchCipoRecords",
+          "lineNumber": 383
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "result.errors.push",
+          "lineNumber": 389
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "log",
+          "lineNumber": 390
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "parseCipoBatch",
+          "lineNumber": 396
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "upsertCipoRecord",
+          "lineNumber": 407
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "result.errors.push",
+          "lineNumber": 417
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "log",
+          "lineNumber": 418
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "result.errors.push",
+          "lineNumber": 423
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "log",
+          "lineNumber": 424
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "Date.now",
+          "lineNumber": 427
+        },
+        {
+          "caller": "ingestCipo",
+          "callee": "log",
+          "lineNumber": 428
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 29,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cipo/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 196,
+      "nonEmptyLines": 174,
+      "functions": [
+        {
+          "name": "normalizeCipoStatus",
+          "startLine": 26,
+          "endLine": 48,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "normalizeCipoType",
+          "startLine": 53,
+          "endLine": 79,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseCipoRecord",
+          "startLine": 92,
+          "endLine": 165,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseCipoBatch",
+          "startLine": 178,
+          "endLine": 196,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeCipoStatus",
+          "line": 26,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeCipoType",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "parseCipoRecord",
+          "line": 92,
+          "isDefault": false
+        },
+        {
+          "name": "parseCipoBatch",
+          "line": 178,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 31
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "raw.trim",
+          "lineNumber": 31
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 39
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 39
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 40
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 41
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 42
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 44
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "normalizeCipoStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "normalizeCipoType",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 58
+        },
+        {
+          "caller": "normalizeCipoType",
+          "callee": "raw.trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "parseCipoRecord",
+          "callee": "normalizeCipoType",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseCipoRecord",
+          "callee": "new Date().toISOString",
+          "lineNumber": 106
+        },
+        {
+          "caller": "parseCipoRecord",
+          "callee": "normalizeCipoStatus",
+          "lineNumber": 108
+        },
+        {
+          "caller": "parseCipoRecord",
+          "callee": "JSON.stringify",
+          "lineNumber": 126
+        },
+        {
+          "caller": "parseCipoRecord",
+          "callee": "computeHash",
+          "lineNumber": 144
+        },
+        {
+          "caller": "parseCipoBatch",
+          "callee": "parseCipoRecord",
+          "lineNumber": 189
+        },
+        {
+          "caller": "parseCipoBatch",
+          "callee": "results.push",
+          "lineNumber": 191
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/cipo/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 212,
+      "nonEmptyLines": 176,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

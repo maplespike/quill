@@ -1,0 +1,818 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 7,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/notification-service/src/__tests__/mailer.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 306,
+      "nonEmptyLines": 265,
+      "functions": [
+        {
+          "name": "makeDb",
+          "startLine": 24,
+          "endLine": 50,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeDb",
+          "callee": "db.exec",
+          "lineNumber": 26
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/notification-service/src/config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 47,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "loadConfig",
+          "startLine": 32,
+          "endLine": 47,
+          "params": [
+            "overrides"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "loadConfig",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "loadConfig",
+          "callee": "parseInt",
+          "lineNumber": 35
+        },
+        {
+          "caller": "loadConfig",
+          "callee": "parseInt",
+          "lineNumber": 41
+        },
+        {
+          "caller": "loadConfig",
+          "callee": "parseInt",
+          "lineNumber": 45
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/notification-service/src/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 118,
+      "nonEmptyLines": 100,
+      "classes": [
+        {
+          "name": "NotificationService",
+          "startLine": 36,
+          "endLine": 118,
+          "methods": [
+            "constructor",
+            "start",
+            "stop",
+            "subscriptions",
+            "emailer",
+            "poller"
+          ],
+          "properties": [
+            "config",
+            "db",
+            "mailer",
+            "subscriptionStore",
+            "watcher"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Mailer",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "MailResult",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "SubscriptionStore",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "Subscription",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "CreateSubscriptionInput",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "UpdateSubscriptionInput",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "Watcher",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "DataChangeEvent",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "WatcherDeps",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "loadConfig",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "NotificationConfig",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "buildNotificationEmail",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "EmailPayload",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "loadConfig",
+          "lineNumber": 44
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.db.exec",
+          "lineNumber": 48
+        },
+        {
+          "caller": "start",
+          "callee": "this.mailer.init",
+          "lineNumber": 91
+        },
+        {
+          "caller": "start",
+          "callee": "this.watcher.start",
+          "lineNumber": 92
+        },
+        {
+          "caller": "start",
+          "callee": "console.log",
+          "lineNumber": 93
+        },
+        {
+          "caller": "stop",
+          "callee": "this.watcher.stop",
+          "lineNumber": 98
+        },
+        {
+          "caller": "stop",
+          "callee": "this.mailer.close",
+          "lineNumber": 99
+        },
+        {
+          "caller": "stop",
+          "callee": "this.db.close",
+          "lineNumber": 100
+        },
+        {
+          "caller": "stop",
+          "callee": "console.log",
+          "lineNumber": 101
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 14,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/notification-service/src/mailer.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 93,
+      "nonEmptyLines": 81,
+      "classes": [
+        {
+          "name": "Mailer",
+          "startLine": 17,
+          "endLine": 93,
+          "methods": [
+            "constructor",
+            "init",
+            "sendNotification",
+            "close"
+          ],
+          "properties": [
+            "transporter",
+            "config",
+            "dryRun"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Mailer",
+          "line": 17,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "init",
+          "callee": "nodemailer.createTransport",
+          "lineNumber": 32
+        },
+        {
+          "caller": "init",
+          "callee": "this.transporter.verify",
+          "lineNumber": 42
+        },
+        {
+          "caller": "sendNotification",
+          "callee": "buildNotificationEmail",
+          "lineNumber": 53
+        },
+        {
+          "caller": "sendNotification",
+          "callee": "console.log",
+          "lineNumber": 63
+        },
+        {
+          "caller": "sendNotification",
+          "callee": "Date.now",
+          "lineNumber": 64
+        },
+        {
+          "caller": "sendNotification",
+          "callee": "this.transporter.sendMail",
+          "lineNumber": 72
+        },
+        {
+          "caller": "sendNotification",
+          "callee": "String",
+          "lineNumber": 81
+        },
+        {
+          "caller": "close",
+          "callee": "this.transporter.close",
+          "lineNumber": 89
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/notification-service/src/subscriptions.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 166,
+      "nonEmptyLines": 143,
+      "classes": [
+        {
+          "name": "SubscriptionStore",
+          "startLine": 34,
+          "endLine": 166,
+          "methods": [
+            "constructor",
+            "create",
+            "getById",
+            "listActive",
+            "update",
+            "delete",
+            "matchesSubscription",
+            "rowToSubscription"
+          ],
+          "properties": [
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SubscriptionStore",
+          "line": 34,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "create",
+          "callee": "randomUUID",
+          "lineNumber": 43
+        },
+        {
+          "caller": "create",
+          "callee": "new Date().toISOString",
+          "lineNumber": 44
+        },
+        {
+          "caller": "create",
+          "callee": "this.db.prepare(`\n      INSERT INTO notification_subscriptions (id, email, source_filter, event_types, active, label, created_at, updated_at)\n      VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n    `).run",
+          "lineNumber": 56
+        },
+        {
+          "caller": "create",
+          "callee": "this.db.prepare",
+          "lineNumber": 56
+        },
+        {
+          "caller": "create",
+          "callee": "JSON.stringify",
+          "lineNumber": 62
+        },
+        {
+          "caller": "create",
+          "callee": "JSON.stringify",
+          "lineNumber": 63
+        },
+        {
+          "caller": "getById",
+          "callee": "this.db.prepare(`\n      SELECT * FROM notification_subscriptions WHERE id = ?\n    `).get",
+          "lineNumber": 75
+        },
+        {
+          "caller": "getById",
+          "callee": "this.db.prepare",
+          "lineNumber": 75
+        },
+        {
+          "caller": "getById",
+          "callee": "this.rowToSubscription",
+          "lineNumber": 79
+        },
+        {
+          "caller": "listActive",
+          "callee": "this.db.prepare(`\n        SELECT DISTINCT s.* FROM notification_subscriptions s\n        WHERE s.active = 1 AND (\n          s.source_filter = '[]' OR EXISTS (\n            SELECT 1 FROM json_each(s.source_filter) WHERE value = ?\n          )\n        )\n      `).all",
+          "lineNumber": 87
+        },
+        {
+          "caller": "listActive",
+          "callee": "this.db.prepare",
+          "lineNumber": 87
+        },
+        {
+          "caller": "listActive",
+          "callee": "this.db.prepare(`\n        SELECT * FROM notification_subscriptions WHERE active = 1\n      `).all",
+          "lineNumber": 96
+        },
+        {
+          "caller": "listActive",
+          "callee": "this.db.prepare",
+          "lineNumber": 96
+        },
+        {
+          "caller": "listActive",
+          "callee": "rows.map",
+          "lineNumber": 101
+        },
+        {
+          "caller": "listActive",
+          "callee": "this.rowToSubscription",
+          "lineNumber": 101
+        },
+        {
+          "caller": "update",
+          "callee": "this.getById",
+          "lineNumber": 106
+        },
+        {
+          "caller": "update",
+          "callee": "new Date().toISOString",
+          "lineNumber": 115
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare(`\n      UPDATE notification_subscriptions\n      SET source_filter = ?, event_types = ?, active = ?, label = ?, updated_at = ?\n      WHERE id = ?\n    `).run",
+          "lineNumber": 118
+        },
+        {
+          "caller": "update",
+          "callee": "this.db.prepare",
+          "lineNumber": 118
+        },
+        {
+          "caller": "update",
+          "callee": "JSON.stringify",
+          "lineNumber": 123
+        },
+        {
+          "caller": "update",
+          "callee": "JSON.stringify",
+          "lineNumber": 124
+        },
+        {
+          "caller": "delete",
+          "callee": "this.db.prepare(`\n      DELETE FROM notification_subscriptions WHERE id = ?\n    `).run",
+          "lineNumber": 136
+        },
+        {
+          "caller": "delete",
+          "callee": "this.db.prepare",
+          "lineNumber": 136
+        },
+        {
+          "caller": "matchesSubscription",
+          "callee": "sub.sourceFilter.includes",
+          "lineNumber": 147
+        },
+        {
+          "caller": "matchesSubscription",
+          "callee": "sub.eventTypes.includes",
+          "lineNumber": 149
+        },
+        {
+          "caller": "rowToSubscription",
+          "callee": "JSON.parse",
+          "lineNumber": 158
+        },
+        {
+          "caller": "rowToSubscription",
+          "callee": "JSON.parse",
+          "lineNumber": 159
+        },
+        {
+          "caller": "rowToSubscription",
+          "callee": "Boolean",
+          "lineNumber": 160
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/notification-service/src/templates/email.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 72,
+      "nonEmptyLines": 65,
+      "functions": [
+        {
+          "name": "buildNotificationEmail",
+          "startLine": 15,
+          "endLine": 64,
+          "params": [
+            "params"
+          ]
+        },
+        {
+          "name": "escapeHtml",
+          "startLine": 66,
+          "endLine": 72,
+          "params": [
+            "str"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "buildNotificationEmail",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "[\n    `Hello ${displayName},`,\n    ``,\n    `A data change was detected by MapleSpike:`,\n    ``,\n    `  Source:   ${sourceId}`,\n    `  Event:    ${eventType}`,\n    `  Summary:  ${summary}`,\n    ``,\n    `View details at ${apiBaseUrl}`,\n    ``,\n    `— MapleSpike Alerts`,\n    `Unsubscribe: ${apiBaseUrl}/v1/notifications/unsubscribe?email=${encodeURIComponent(email)}`,\n  ].join",
+          "lineNumber": 28
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "encodeURIComponent",
+          "lineNumber": 40
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "[\n    `<div style=\"font-family: sans-serif; max-width: 600px; margin: 0 auto;\">`,\n    `  <h2 style=\"color: #dc2626;\">🔔 Data Change Alert</h2>`,\n    `  <p>Hello <strong>${escapeHtml(displayName)}</strong>,</p>`,\n    `  <table style=\"border-collapse: collapse; width: 100%; margin: 16px 0;\">`,\n    `    <tr><td style=\"padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;\">Source</td>`,\n    `        <td style=\"padding: 8px; border: 1px solid #e5e7eb;\">${escapeHtml(sourceId)}</td></tr>`,\n    `    <tr><td style=\"padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;\">Event</td>`,\n    `        <td style=\"padding: 8px; border: 1px solid #e5e7eb;\">${escapeHtml(eventType)}</td></tr>`,\n    `    <tr><td style=\"padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;\">Summary</td>`,\n    `        <td style=\"padding: 8px; border: 1px solid #e5e7eb;\">${escapeHtml(summary)}</td></tr>`,\n    `  </table>`,\n    `  <p><a href=\"${escapeHtml(apiBaseUrl)}\">View details →</a></p>`,\n    `  <hr style=\"border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;\">`,\n    `  <p style=\"font-size: 12px; color: #6b7280;\">`,\n    `    MapleSpike Alerts — <a href=\"${escapeHtml(apiBaseUrl)}/v1/notifications/unsubscribe?email=${encodeURIComponent(email)}\">Unsubscribe</a>`,\n    `  </p>`,\n    `</div>`,\n  ].join",
+          "lineNumber": 43
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 46
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 49
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 51
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 53
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 55
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildNotificationEmail",
+          "callee": "encodeURIComponent",
+          "lineNumber": 58
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "str\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace",
+          "lineNumber": 67
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "str\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace",
+          "lineNumber": 67
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "str\n    .replace(/&/g, \"&amp;\")\n    .replace",
+          "lineNumber": 67
+        },
+        {
+          "caller": "escapeHtml",
+          "callee": "str\n    .replace",
+          "lineNumber": 67
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/notification-service/src/watcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 162,
+      "nonEmptyLines": 141,
+      "classes": [
+        {
+          "name": "Watcher",
+          "startLine": 34,
+          "endLine": 162,
+          "methods": [
+            "constructor",
+            "start",
+            "stop",
+            "poll",
+            "defaultFetchChanges"
+          ],
+          "properties": [
+            "db",
+            "config",
+            "mailer",
+            "subscriptionStore",
+            "fetchChangesFn",
+            "intervalHandle",
+            "lastPollTimestamp"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Watcher",
+          "line": 34,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "this.defaultFetchChanges.bind",
+          "lineNumber": 48
+        },
+        {
+          "caller": "constructor",
+          "callee": "new Date().toISOString",
+          "lineNumber": 49
+        },
+        {
+          "caller": "start",
+          "callee": "console.log",
+          "lineNumber": 56
+        },
+        {
+          "caller": "start",
+          "callee": "this.poll().catch",
+          "lineNumber": 59
+        },
+        {
+          "caller": "start",
+          "callee": "this.poll",
+          "lineNumber": 59
+        },
+        {
+          "caller": "start",
+          "callee": "console.error",
+          "lineNumber": 60
+        },
+        {
+          "caller": "start",
+          "callee": "setInterval",
+          "lineNumber": 63
+        },
+        {
+          "caller": "start",
+          "callee": "this.poll().catch",
+          "lineNumber": 64
+        },
+        {
+          "caller": "start",
+          "callee": "this.poll",
+          "lineNumber": 64
+        },
+        {
+          "caller": "start",
+          "callee": "console.error",
+          "lineNumber": 65
+        },
+        {
+          "caller": "stop",
+          "callee": "clearInterval",
+          "lineNumber": 73
+        },
+        {
+          "caller": "stop",
+          "callee": "console.log",
+          "lineNumber": 75
+        },
+        {
+          "caller": "poll",
+          "callee": "new Date().toISOString",
+          "lineNumber": 82
+        },
+        {
+          "caller": "poll",
+          "callee": "this.fetchChangesFn",
+          "lineNumber": 85
+        },
+        {
+          "caller": "poll",
+          "callee": "this.subscriptionStore.listActive",
+          "lineNumber": 95
+        },
+        {
+          "caller": "poll",
+          "callee": "this.subscriptionStore.matchesSubscription",
+          "lineNumber": 97
+        },
+        {
+          "caller": "poll",
+          "callee": "randomUUID",
+          "lineNumber": 98
+        },
+        {
+          "caller": "poll",
+          "callee": "this.db.prepare(`\n            INSERT INTO notification_events (id, subscription_id, source_id, event_type, summary, status, created_at)\n            VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))\n          `).run",
+          "lineNumber": 99
+        },
+        {
+          "caller": "poll",
+          "callee": "this.db.prepare",
+          "lineNumber": 99
+        },
+        {
+          "caller": "poll",
+          "callee": "pendingEvents.push",
+          "lineNumber": 104
+        },
+        {
+          "caller": "poll",
+          "callee": "pendingEvents.slice",
+          "lineNumber": 111
+        },
+        {
+          "caller": "poll",
+          "callee": "this.subscriptionStore.getById",
+          "lineNumber": 116
+        },
+        {
+          "caller": "poll",
+          "callee": "this.mailer.sendNotification",
+          "lineNumber": 119
+        },
+        {
+          "caller": "poll",
+          "callee": "this.db.prepare(`\n          UPDATE notification_events SET status = 'delivered', delivered_at = datetime('now') WHERE id = ?\n        `).run",
+          "lineNumber": 128
+        },
+        {
+          "caller": "poll",
+          "callee": "this.db.prepare",
+          "lineNumber": 128
+        },
+        {
+          "caller": "poll",
+          "callee": "this.db.prepare(`\n          UPDATE notification_events SET status = 'failed', error = ? WHERE id = ?\n        `).run",
+          "lineNumber": 133
+        },
+        {
+          "caller": "poll",
+          "callee": "this.db.prepare",
+          "lineNumber": 133
+        },
+        {
+          "caller": "poll",
+          "callee": "console.log",
+          "lineNumber": 140
+        },
+        {
+          "caller": "defaultFetchChanges",
+          "callee": "encodeURIComponent",
+          "lineNumber": 147
+        },
+        {
+          "caller": "defaultFetchChanges",
+          "callee": "fetch",
+          "lineNumber": 148
+        },
+        {
+          "caller": "defaultFetchChanges",
+          "callee": "console.error",
+          "lineNumber": 152
+        },
+        {
+          "caller": "defaultFetchChanges",
+          "callee": "res.json",
+          "lineNumber": 155
+        },
+        {
+          "caller": "defaultFetchChanges",
+          "callee": "console.error",
+          "lineNumber": 158
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    }
+  ]
+}

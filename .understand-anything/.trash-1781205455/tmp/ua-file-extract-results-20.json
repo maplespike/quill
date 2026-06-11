@@ -1,0 +1,2443 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 26,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdi/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 52,
+      "nonEmptyLines": 44,
+      "functions": [
+        {
+          "name": "makeAttribution",
+          "startLine": 9,
+          "endLine": 15,
+          "params": []
+        },
+        {
+          "name": "fetchHDIByCountry",
+          "startLine": 17,
+          "endLine": 22,
+          "params": [
+            "countryCode",
+            "year"
+          ]
+        },
+        {
+          "name": "fetchAllHDIData",
+          "startLine": 24,
+          "endLine": 50,
+          "params": [
+            "years"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchHDIByCountry",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllHDIData",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "HDIRecord",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "HDIIngestionResult",
+          "line": 52,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeAttribution",
+          "callee": "buildAttribution",
+          "lineNumber": 10
+        },
+        {
+          "caller": "fetchHDIByCountry",
+          "callee": "makeAttribution",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchHDIByCountry",
+          "callee": "fetchHDIRanking",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchHDIByCountry",
+          "callee": "parseHDIRanking",
+          "lineNumber": 20
+        },
+        {
+          "caller": "fetchHDIByCountry",
+          "callee": "withAttribution",
+          "lineNumber": 21
+        },
+        {
+          "caller": "fetchAllHDIData",
+          "callee": "makeAttribution",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchAllHDIData",
+          "callee": "fetchAllHDIRankings",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchAllHDIData",
+          "callee": "parseHDIRankings",
+          "lineNumber": 33
+        },
+        {
+          "caller": "fetchAllHDIData",
+          "callee": "allRecords.push",
+          "lineNumber": 34
+        },
+        {
+          "caller": "fetchAllHDIData",
+          "callee": "errors.push",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchAllHDIData",
+          "callee": "withAttribution",
+          "lineNumber": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 4,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdi/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 38,
+      "functions": [
+        {
+          "name": "classifyHDI",
+          "startLine": 6,
+          "endLine": 11,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "parseHDIRanking",
+          "startLine": 13,
+          "endLine": 30,
+          "params": [
+            "countryCode",
+            "hdiValue",
+            "rank",
+            "year"
+          ]
+        },
+        {
+          "name": "parseHDIRankings",
+          "startLine": 32,
+          "endLine": 43,
+          "params": [
+            "raw",
+            "year"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "classifyHDI",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseHDIRanking",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "parseHDIRankings",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseHDIRanking",
+          "callee": "classifyHDI",
+          "lineNumber": 28
+        },
+        {
+          "caller": "parseHDIRankings",
+          "callee": "parseHDIRanking",
+          "lineNumber": 39
+        },
+        {
+          "caller": "parseHDIRankings",
+          "callee": "results.push",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdi/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdr/api.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 50,
+      "nonEmptyLines": 39,
+      "functions": [
+        {
+          "name": "fetchHdrIndicator",
+          "startLine": 7,
+          "endLine": 50,
+          "params": [
+            "indicatorCode",
+            "country",
+            "yearRange"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchHdrIndicator",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "indicatorCode.toLowerCase",
+          "lineNumber": 12
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "url.searchParams.set",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "country.toUpperCase",
+          "lineNumber": 15
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "url.searchParams.set",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "url.searchParams.set",
+          "lineNumber": 24
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "httpGet",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "url.toString",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "resp.json",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchHdrIndicator",
+          "callee": "Array.isArray",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdr/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 39,
+      "exports": [
+        {
+          "name": "UNDP_API_BASE",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "UNDP_TIMEOUT_MS",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "UNDP_HDR_INDICATORS",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_COUNTRIES",
+          "line": 40,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdr/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 134,
+      "nonEmptyLines": 116,
+      "functions": [
+        {
+          "name": "ingestHdrIndicator",
+          "startLine": 16,
+          "endLine": 60,
+          "params": [
+            "indicatorCode",
+            "country",
+            "yearRange"
+          ]
+        },
+        {
+          "name": "ingestAllHdr",
+          "startLine": 62,
+          "endLine": 84,
+          "params": [
+            "country",
+            "yearRange"
+          ]
+        },
+        {
+          "name": "searchHdrRecords",
+          "startLine": 86,
+          "endLine": 123,
+          "params": [
+            "indicatorCode",
+            "filters"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestHdrIndicator",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllHdr",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "searchHdrRecords",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "UNDP_HDR_INDICATORS",
+          "line": 125,
+          "isDefault": false
+        },
+        {
+          "name": "UndpRecord",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "UndpIngestionResult",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "UndpAllIndicatorsResult",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "UndpIndicator",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "UndpApiResponse",
+          "line": 127,
+          "isDefault": false
+        },
+        {
+          "name": "UndpApiRow",
+          "line": 127,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "Date.now",
+          "lineNumber": 21
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "UNDP_HDR_INDICATORS.find",
+          "lineNumber": 24
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "UNDP_HDR_INDICATORS.map((i) => i.code).join",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "UNDP_HDR_INDICATORS.map",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "Date.now",
+          "lineNumber": 33
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "fetchHdrIndicator",
+          "lineNumber": 38
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "parseHdrResponse",
+          "lineNumber": 39
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "Date.now",
+          "lineNumber": 47
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "errors.push",
+          "lineNumber": 50
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "String",
+          "lineNumber": 50
+        },
+        {
+          "caller": "ingestHdrIndicator",
+          "callee": "Date.now",
+          "lineNumber": 57
+        },
+        {
+          "caller": "ingestAllHdr",
+          "callee": "Date.now",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ingestAllHdr",
+          "callee": "ingestHdrIndicator",
+          "lineNumber": 72
+        },
+        {
+          "caller": "ingestAllHdr",
+          "callee": "results.push",
+          "lineNumber": 73
+        },
+        {
+          "caller": "ingestAllHdr",
+          "callee": "Date.now",
+          "lineNumber": 82
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "filters?.country?.toUpperCase",
+          "lineNumber": 96
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "fetchHdrIndicator",
+          "lineNumber": 101
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "parseHdrResponse",
+          "lineNumber": 102
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "filtered.filter",
+          "lineNumber": 107
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "filtered.filter",
+          "lineNumber": 111
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "filtered.filter",
+          "lineNumber": 115
+        },
+        {
+          "caller": "searchHdrRecords",
+          "callee": "filtered.filter",
+          "lineNumber": 119
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 10,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdr/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 99,
+      "nonEmptyLines": 82,
+      "functions": [
+        {
+          "name": "parseHdrResponse",
+          "startLine": 7,
+          "endLine": 59,
+          "params": [
+            "rows",
+            "indicatorCode"
+          ]
+        },
+        {
+          "name": "parseYear",
+          "startLine": 61,
+          "endLine": 79,
+          "params": [
+            "year"
+          ]
+        },
+        {
+          "name": "parseNumeric",
+          "startLine": 81,
+          "endLine": 99,
+          "params": [
+            "value"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseHdrResponse",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseHdrResponse",
+          "callee": "UNDP_HDR_INDICATORS.find",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "new Date().toISOString",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "row.country_code?.trim().toUpperCase",
+          "lineNumber": 20
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "row.country_code?.trim",
+          "lineNumber": 20
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "row.country_name?.trim",
+          "lineNumber": 21
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "parseYear",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "parseNumeric",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "parseNumeric",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "parseNumeric",
+          "lineNumber": 25
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "JSON.stringify",
+          "lineNumber": 31
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "String",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "computeHash",
+          "lineNumber": 41
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "records.push",
+          "lineNumber": 43
+        },
+        {
+          "caller": "parseHdrResponse",
+          "callee": "indicatorCode.toLowerCase",
+          "lineNumber": 54
+        },
+        {
+          "caller": "parseYear",
+          "callee": "Number.isInteger",
+          "lineNumber": 67
+        },
+        {
+          "caller": "parseYear",
+          "callee": "parseInt",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseYear",
+          "callee": "String",
+          "lineNumber": 73
+        },
+        {
+          "caller": "parseYear",
+          "callee": "isNaN",
+          "lineNumber": 74
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 87
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isFinite",
+          "lineNumber": 87
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "parseFloat",
+          "lineNumber": 93
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "String",
+          "lineNumber": 93
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isNaN",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parseNumeric",
+          "callee": "isFinite",
+          "lineNumber": 94
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/undp-hdr/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 129,
+      "nonEmptyLines": 118,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unhcr-refugees/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 8,
+      "nonEmptyLines": 6,
+      "exports": [
+        {
+          "name": "UNHCR_API_URL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "UNHCR_TIMEOUT_MS",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "UNHCR_USER_AGENT",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_COUNTRIES",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_YEARS",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unhcr-refugees/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 53,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "fetchRefugeePopulation",
+          "startLine": 12,
+          "endLine": 32,
+          "params": [
+            "countryCode",
+            "year"
+          ]
+        },
+        {
+          "name": "fetchAsylumSeekers",
+          "startLine": 34,
+          "endLine": 53,
+          "params": [
+            "destinationCountry"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchRefugeePopulation",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAsylumSeekers",
+          "line": 34,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchRefugeePopulation",
+          "callee": "httpGet",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchRefugeePopulation",
+          "callee": "resp.json",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchRefugeePopulation",
+          "callee": "Array.isArray",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchRefugeePopulation",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchAsylumSeekers",
+          "callee": "httpGet",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchAsylumSeekers",
+          "callee": "resp.json",
+          "lineNumber": 48
+        },
+        {
+          "caller": "fetchAsylumSeekers",
+          "callee": "Array.isArray",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchAsylumSeekers",
+          "callee": "String",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unhcr-refugees/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 80,
+      "nonEmptyLines": 71,
+      "functions": [
+        {
+          "name": "makeAttribution",
+          "startLine": 9,
+          "endLine": 15,
+          "params": []
+        },
+        {
+          "name": "fetchRefugeeDataByCountry",
+          "startLine": 17,
+          "endLine": 32,
+          "params": [
+            "countryCode",
+            "year"
+          ]
+        },
+        {
+          "name": "fetchRefugeeDataMultiCountry",
+          "startLine": 34,
+          "endLine": 69,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "healthCheck",
+          "startLine": 71,
+          "endLine": 78,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchRefugeeDataByCountry",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "fetchRefugeeDataMultiCountry",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "healthCheck",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "RefugeeRecord",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "RefugeeIngestionResult",
+          "line": 80,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeAttribution",
+          "callee": "buildAttribution",
+          "lineNumber": 10
+        },
+        {
+          "caller": "fetchRefugeeDataByCountry",
+          "callee": "makeAttribution",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchRefugeeDataByCountry",
+          "callee": "fetchRefugeePopulation",
+          "lineNumber": 20
+        },
+        {
+          "caller": "fetchRefugeeDataByCountry",
+          "callee": "parsePopulationRecords",
+          "lineNumber": 21
+        },
+        {
+          "caller": "fetchRefugeeDataByCountry",
+          "callee": "withAttribution",
+          "lineNumber": 23
+        },
+        {
+          "caller": "fetchRefugeeDataMultiCountry",
+          "callee": "makeAttribution",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchRefugeeDataMultiCountry",
+          "callee": "fetchRefugeePopulation",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchRefugeeDataMultiCountry",
+          "callee": "errors.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "fetchRefugeeDataMultiCountry",
+          "callee": "parsePopulationRecords",
+          "lineNumber": 53
+        },
+        {
+          "caller": "fetchRefugeeDataMultiCountry",
+          "callee": "allRecords.push",
+          "lineNumber": 54
+        },
+        {
+          "caller": "fetchRefugeeDataMultiCountry",
+          "callee": "withAttribution",
+          "lineNumber": 60
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "fetchRefugeePopulation",
+          "lineNumber": 72
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "makeAttribution",
+          "lineNumber": 73
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "withAttribution",
+          "lineNumber": 74
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 5,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unhcr-refugees/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "parsePopulationRecord",
+          "startLine": 15,
+          "endLine": 31,
+          "params": [
+            "record"
+          ]
+        },
+        {
+          "name": "parsePopulationRecords",
+          "startLine": 33,
+          "endLine": 42,
+          "params": [
+            "records"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parsePopulationRecord",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "parsePopulationRecords",
+          "line": 33,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parsePopulationRecords",
+          "callee": "parsePopulationRecord",
+          "lineNumber": 38
+        },
+        {
+          "caller": "parsePopulationRecords",
+          "callee": "results.push",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/unhcr-refugees/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 25,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/who-gho/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 26,
+      "nonEmptyLines": 22,
+      "exports": [
+        {
+          "name": "WHO_GHO_API_URL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "WHO_GHO_TIMEOUT_MS",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "WHO_GHO_USER_AGENT",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_INDICATORS",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_COUNTRIES",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_YEARS",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/who-gho/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 57,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "fetchIndicatorData",
+          "startLine": 12,
+          "endLine": 35,
+          "params": [
+            "indicatorCode",
+            "countryCode"
+          ]
+        },
+        {
+          "name": "fetchMultipleIndicators",
+          "startLine": 37,
+          "endLine": 57,
+          "params": [
+            "indicatorCodes",
+            "countryCodes"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchIndicatorData",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMultipleIndicators",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchIndicatorData",
+          "callee": "httpGet",
+          "lineNumber": 21
+        },
+        {
+          "caller": "fetchIndicatorData",
+          "callee": "resp.json",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchIndicatorData",
+          "callee": "Array.isArray",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchIndicatorData",
+          "callee": "String",
+          "lineNumber": 33
+        },
+        {
+          "caller": "fetchMultipleIndicators",
+          "callee": "fetchIndicatorData",
+          "lineNumber": 47
+        },
+        {
+          "caller": "fetchMultipleIndicators",
+          "callee": "errors.push",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchMultipleIndicators",
+          "callee": "allRecords.push",
+          "lineNumber": 51
+        },
+        {
+          "caller": "fetchMultipleIndicators",
+          "callee": "errors.join",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/who-gho/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 126,
+      "nonEmptyLines": 112,
+      "functions": [
+        {
+          "name": "makeAttribution",
+          "startLine": 10,
+          "endLine": 16,
+          "params": []
+        },
+        {
+          "name": "ingestGhoIndicator",
+          "startLine": 18,
+          "endLine": 62,
+          "params": [
+            "indicatorCode",
+            "countryCode",
+            "year"
+          ]
+        },
+        {
+          "name": "ingestAllGho",
+          "startLine": 64,
+          "endLine": 99,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "searchGhoRecords",
+          "startLine": 101,
+          "endLine": 111,
+          "params": [
+            "indicatorCode",
+            "countryCode",
+            "year"
+          ]
+        },
+        {
+          "name": "healthCheck",
+          "startLine": 113,
+          "endLine": 124,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestGhoIndicator",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllGho",
+          "line": 64,
+          "isDefault": false
+        },
+        {
+          "name": "searchGhoRecords",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "healthCheck",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "WhoGhoRecord",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "WhoGhoIngestionResult",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "WhoGhoRawRecord",
+          "line": 126,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeAttribution",
+          "callee": "buildAttribution",
+          "lineNumber": 11
+        },
+        {
+          "caller": "ingestGhoIndicator",
+          "callee": "makeAttribution",
+          "lineNumber": 23
+        },
+        {
+          "caller": "ingestGhoIndicator",
+          "callee": "fetchIndicatorData",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ingestGhoIndicator",
+          "callee": "withAttribution",
+          "lineNumber": 28
+        },
+        {
+          "caller": "ingestGhoIndicator",
+          "callee": "parseGhoRecords",
+          "lineNumber": 43
+        },
+        {
+          "caller": "ingestGhoIndicator",
+          "callee": "records.filter",
+          "lineNumber": 46
+        },
+        {
+          "caller": "ingestGhoIndicator",
+          "callee": "withAttribution",
+          "lineNumber": 49
+        },
+        {
+          "caller": "ingestAllGho",
+          "callee": "makeAttribution",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ingestAllGho",
+          "callee": "fetchMultipleIndicators",
+          "lineNumber": 74
+        },
+        {
+          "caller": "ingestAllGho",
+          "callee": "parseGhoRecords",
+          "lineNumber": 75
+        },
+        {
+          "caller": "ingestAllGho",
+          "callee": "allRecords.filter",
+          "lineNumber": 79
+        },
+        {
+          "caller": "ingestAllGho",
+          "callee": "years.includes",
+          "lineNumber": 79
+        },
+        {
+          "caller": "ingestAllGho",
+          "callee": "withAttribution",
+          "lineNumber": 86
+        },
+        {
+          "caller": "searchGhoRecords",
+          "callee": "ingestGhoIndicator",
+          "lineNumber": 107
+        },
+        {
+          "caller": "searchGhoRecords",
+          "callee": "ingestAllGho",
+          "lineNumber": 108
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "makeAttribution",
+          "lineNumber": 114
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "fetchIndicatorData",
+          "lineNumber": 115
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "withAttribution",
+          "lineNumber": 116
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 7,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/who-gho/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "parseGhoRecord",
+          "startLine": 6,
+          "endLine": 34,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseGhoRecords",
+          "startLine": 36,
+          "endLine": 43,
+          "params": [
+            "raw"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseGhoRecord",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "parseGhoRecords",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseGhoRecord",
+          "callee": "computeHash",
+          "lineNumber": 19
+        },
+        {
+          "caller": "parseGhoRecords",
+          "callee": "parseGhoRecord",
+          "lineNumber": 39
+        },
+        {
+          "caller": "parseGhoRecords",
+          "callee": "results.push",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/who-gho/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 37,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/worldbank-wdi/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 237,
+      "nonEmptyLines": 227,
+      "exports": [
+        {
+          "name": "WDI_BASE_URL",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "WDI_TIMEOUT_MS",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "WDI_MAX_RECORDS",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "WDI_PER_PAGE",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_COUNTRIES",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "WDI_USER_AGENT",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "TOPIC_INDICATORS",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_INDICATORS",
+          "line": 191,
+          "isDefault": false
+        },
+        {
+          "name": "CORE_INDICATORS",
+          "line": 216,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 9,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/worldbank-wdi/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 105,
+      "nonEmptyLines": 87,
+      "functions": [
+        {
+          "name": "fetchCountryIndicator",
+          "startLine": 11,
+          "endLine": 37,
+          "params": [
+            "countryCode",
+            "indicatorCode",
+            "dateRange",
+            "perPage"
+          ]
+        },
+        {
+          "name": "fetchMultiCountryIndicator",
+          "startLine": 39,
+          "endLine": 57,
+          "params": [
+            "countryCodes",
+            "indicatorCode",
+            "dateRange"
+          ]
+        },
+        {
+          "name": "fetchCountryAllIndicators",
+          "startLine": 59,
+          "endLine": 78,
+          "params": [
+            "countryCode",
+            "indicatorCodes",
+            "dateRange"
+          ]
+        },
+        {
+          "name": "fetchIndicatorMetadata",
+          "startLine": 80,
+          "endLine": 105,
+          "params": [
+            "indicatorCode"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchCountryIndicator",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMultiCountryIndicator",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "fetchCountryAllIndicators",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "fetchIndicatorMetadata",
+          "line": 80,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "url.searchParams.set",
+          "lineNumber": 18
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "url.searchParams.set",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "url.searchParams.set",
+          "lineNumber": 20
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "httpGet",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "url.toString",
+          "lineNumber": 22
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "resp.json",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchCountryIndicator",
+          "callee": "Array.isArray",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchMultiCountryIndicator",
+          "callee": "fetchCountryIndicator",
+          "lineNumber": 48
+        },
+        {
+          "caller": "fetchMultiCountryIndicator",
+          "callee": "results.set",
+          "lineNumber": 50
+        },
+        {
+          "caller": "fetchCountryAllIndicators",
+          "callee": "indicatorCodes.map",
+          "lineNumber": 66
+        },
+        {
+          "caller": "fetchCountryAllIndicators",
+          "callee": "fetchCountryIndicator",
+          "lineNumber": 68
+        },
+        {
+          "caller": "fetchCountryAllIndicators",
+          "callee": "results.set",
+          "lineNumber": 70
+        },
+        {
+          "caller": "fetchCountryAllIndicators",
+          "callee": "Promise.all",
+          "lineNumber": 76
+        },
+        {
+          "caller": "fetchIndicatorMetadata",
+          "callee": "url.searchParams.set",
+          "lineNumber": 82
+        },
+        {
+          "caller": "fetchIndicatorMetadata",
+          "callee": "httpGet",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fetchIndicatorMetadata",
+          "callee": "url.toString",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fetchIndicatorMetadata",
+          "callee": "resp.json",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchIndicatorMetadata",
+          "callee": "Array.isArray",
+          "lineNumber": 95
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/worldbank-wdi/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 84,
+      "nonEmptyLines": 64,
+      "functions": [
+        {
+          "name": "ingestWDIIndicator",
+          "startLine": 9,
+          "endLine": 23,
+          "params": [
+            "indicatorCode",
+            "countries",
+            "dateRange"
+          ]
+        },
+        {
+          "name": "getCountryProfile",
+          "startLine": 25,
+          "endLine": 35,
+          "params": [
+            "country",
+            "dateRange"
+          ]
+        },
+        {
+          "name": "compareCountries",
+          "startLine": 37,
+          "endLine": 44,
+          "params": [
+            "indicatorCode",
+            "countries",
+            "dateRange"
+          ]
+        },
+        {
+          "name": "analyzeIndicatorTrend",
+          "startLine": 46,
+          "endLine": 57,
+          "params": [
+            "indicatorCode",
+            "country",
+            "dateRange"
+          ]
+        },
+        {
+          "name": "fetchTopicData",
+          "startLine": 59,
+          "endLine": 77,
+          "params": [
+            "topicCode",
+            "countries",
+            "dateRange"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestWDIIndicator",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "getCountryProfile",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "compareCountries",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "analyzeIndicatorTrend",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "fetchTopicData",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "IndicatorValue",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "WdiCountryProfile",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "WdiComparison",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "WdiTrendAnalysis",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "IndicatorMetadata",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "CORE_INDICATORS",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "TOPIC_INDICATORS",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "getIndicatorMetadata",
+          "line": 84,
+          "isDefault": false
+        },
+        {
+          "name": "fetchIndicatorMetadata",
+          "line": 84,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ingestWDIIndicator",
+          "callee": "fetchMultiCountryIndicator",
+          "lineNumber": 11
+        },
+        {
+          "caller": "ingestWDIIndicator",
+          "callee": "parseIndicatorData",
+          "lineNumber": 17
+        },
+        {
+          "caller": "ingestWDIIndicator",
+          "callee": "values.push",
+          "lineNumber": 18
+        },
+        {
+          "caller": "getCountryProfile",
+          "callee": "country.toUpperCase",
+          "lineNumber": 26
+        },
+        {
+          "caller": "getCountryProfile",
+          "callee": "fetchCountryAllIndicators",
+          "lineNumber": 31
+        },
+        {
+          "caller": "getCountryProfile",
+          "callee": "buildCountryProfile",
+          "lineNumber": 32
+        },
+        {
+          "caller": "compareCountries",
+          "callee": "countries.map",
+          "lineNumber": 38
+        },
+        {
+          "caller": "compareCountries",
+          "callee": "c.toUpperCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "compareCountries",
+          "callee": "fetchMultiCountryIndicator",
+          "lineNumber": 40
+        },
+        {
+          "caller": "compareCountries",
+          "callee": "buildComparison",
+          "lineNumber": 41
+        },
+        {
+          "caller": "analyzeIndicatorTrend",
+          "callee": "country.toUpperCase",
+          "lineNumber": 47
+        },
+        {
+          "caller": "analyzeIndicatorTrend",
+          "callee": "fetchCountryIndicator",
+          "lineNumber": 52
+        },
+        {
+          "caller": "analyzeIndicatorTrend",
+          "callee": "parseIndicatorData",
+          "lineNumber": 53
+        },
+        {
+          "caller": "analyzeIndicatorTrend",
+          "callee": "analyzeTrend",
+          "lineNumber": 54
+        },
+        {
+          "caller": "fetchTopicData",
+          "callee": "Object.keys(TOPIC_INDICATORS).join",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchTopicData",
+          "callee": "Object.keys",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchTopicData",
+          "callee": "fetchMultiCountryIndicator",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchTopicData",
+          "callee": "parseIndicatorData",
+          "lineNumber": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 14,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/worldbank-wdi/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 123,
+      "nonEmptyLines": 103,
+      "functions": [
+        {
+          "name": "parseIndicatorDatum",
+          "startLine": 5,
+          "endLine": 26,
+          "params": [
+            "datum",
+            "countryCode"
+          ]
+        },
+        {
+          "name": "parseIndicatorData",
+          "startLine": 28,
+          "endLine": 42,
+          "params": [
+            "data",
+            "countryCode"
+          ]
+        },
+        {
+          "name": "buildCountryProfile",
+          "startLine": 44,
+          "endLine": 60,
+          "params": [
+            "countryCode",
+            "indicatorData"
+          ]
+        },
+        {
+          "name": "buildComparison",
+          "startLine": 62,
+          "endLine": 80,
+          "params": [
+            "indicatorCode",
+            "dataByCountry"
+          ]
+        },
+        {
+          "name": "analyzeTrend",
+          "startLine": 82,
+          "endLine": 123,
+          "params": [
+            "data"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseIndicatorDatum",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseIndicatorData",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "buildCountryProfile",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "buildComparison",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "analyzeTrend",
+          "line": 82,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseIndicatorDatum",
+          "callee": "parseInt",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parseIndicatorDatum",
+          "callee": "isNaN",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parseIndicatorDatum",
+          "callee": "parseFloat",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parseIndicatorDatum",
+          "callee": "isNaN",
+          "lineNumber": 15
+        },
+        {
+          "caller": "parseIndicatorData",
+          "callee": "parseIndicatorDatum",
+          "lineNumber": 35
+        },
+        {
+          "caller": "parseIndicatorData",
+          "callee": "results.push",
+          "lineNumber": 37
+        },
+        {
+          "caller": "buildCountryProfile",
+          "callee": "parseIndicatorData",
+          "lineNumber": 51
+        },
+        {
+          "caller": "buildCountryProfile",
+          "callee": "indicators.push",
+          "lineNumber": 52
+        },
+        {
+          "caller": "buildCountryProfile",
+          "callee": "new Date().toISOString",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildComparison",
+          "callee": "parseIndicatorData",
+          "lineNumber": 69
+        },
+        {
+          "caller": "buildComparison",
+          "callee": "entries.push",
+          "lineNumber": 71
+        },
+        {
+          "caller": "buildComparison",
+          "callee": "new Date().toISOString",
+          "lineNumber": 78
+        },
+        {
+          "caller": "analyzeTrend",
+          "callee": "[...data].sort",
+          "lineNumber": 97
+        },
+        {
+          "caller": "analyzeTrend",
+          "callee": "Math.abs",
+          "lineNumber": 106
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/worldbank-wdi/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 36,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/shared/attribution.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 85,
+      "functions": [
+        {
+          "name": "buildAttribution",
+          "startLine": 36,
+          "endLine": 58,
+          "params": [
+            "source",
+            "options"
+          ]
+        },
+        {
+          "name": "withAttribution",
+          "startLine": 63,
+          "endLine": 68,
+          "params": [
+            "data",
+            "attribution"
+          ]
+        },
+        {
+          "name": "isValidAttribution",
+          "startLine": 73,
+          "endLine": 80,
+          "params": [
+            "attribution"
+          ]
+        },
+        {
+          "name": "formatAttribution",
+          "startLine": 85,
+          "endLine": 97,
+          "params": [
+            "attribution"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "buildAttribution",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "withAttribution",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "isValidAttribution",
+          "line": 73,
+          "isDefault": false
+        },
+        {
+          "name": "formatAttribution",
+          "line": 85,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isValidAttribution",
+          "callee": "isNaN",
+          "lineNumber": 78
+        },
+        {
+          "caller": "isValidAttribution",
+          "callee": "attribution.retrievedAt.getTime",
+          "lineNumber": 78
+        },
+        {
+          "caller": "formatAttribution",
+          "callee": "parts.push",
+          "lineNumber": 89
+        },
+        {
+          "caller": "formatAttribution",
+          "callee": "parts.push",
+          "lineNumber": 93
+        },
+        {
+          "caller": "formatAttribution",
+          "callee": "parts.join",
+          "lineNumber": 96
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/shared/country-codes.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 127,
+      "nonEmptyLines": 110,
+      "functions": [
+        {
+          "name": "alpha2ToInfo",
+          "startLine": 76,
+          "endLine": 78,
+          "params": [
+            "alpha2"
+          ]
+        },
+        {
+          "name": "alpha3ToAlpha2",
+          "startLine": 83,
+          "endLine": 85,
+          "params": [
+            "alpha3"
+          ]
+        },
+        {
+          "name": "numericToAlpha2",
+          "startLine": 90,
+          "endLine": 92,
+          "params": [
+            "numeric"
+          ]
+        },
+        {
+          "name": "normalizeCountryCode",
+          "startLine": 98,
+          "endLine": 106,
+          "params": [
+            "code"
+          ]
+        },
+        {
+          "name": "getCountriesByRegion",
+          "startLine": 111,
+          "endLine": 113,
+          "params": [
+            "region"
+          ]
+        },
+        {
+          "name": "getCountriesBySubregion",
+          "startLine": 118,
+          "endLine": 120,
+          "params": [
+            "subregion"
+          ]
+        },
+        {
+          "name": "isValidCountryCode",
+          "startLine": 125,
+          "endLine": 127,
+          "params": [
+            "code"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "COUNTRIES",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ALPHA3_TO_ALPHA2",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "NUMERIC_TO_ALPHA2",
+          "line": 69,
+          "isDefault": false
+        },
+        {
+          "name": "alpha2ToInfo",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "alpha3ToAlpha2",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "numericToAlpha2",
+          "line": 90,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeCountryCode",
+          "line": 98,
+          "isDefault": false
+        },
+        {
+          "name": "getCountriesByRegion",
+          "line": 111,
+          "isDefault": false
+        },
+        {
+          "name": "getCountriesBySubregion",
+          "line": 118,
+          "isDefault": false
+        },
+        {
+          "name": "isValidCountryCode",
+          "line": 125,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "alpha2ToInfo",
+          "callee": "alpha2.toUpperCase",
+          "lineNumber": 77
+        },
+        {
+          "caller": "alpha3ToAlpha2",
+          "callee": "alpha3.toUpperCase",
+          "lineNumber": 84
+        },
+        {
+          "caller": "normalizeCountryCode",
+          "callee": "code.toUpperCase",
+          "lineNumber": 100
+        },
+        {
+          "caller": "normalizeCountryCode",
+          "callee": "alpha3ToAlpha2",
+          "lineNumber": 103
+        },
+        {
+          "caller": "normalizeCountryCode",
+          "callee": "code.toUpperCase",
+          "lineNumber": 103
+        },
+        {
+          "caller": "normalizeCountryCode",
+          "callee": "numericToAlpha2",
+          "lineNumber": 105
+        },
+        {
+          "caller": "getCountriesByRegion",
+          "callee": "Object.values(COUNTRIES).filter",
+          "lineNumber": 112
+        },
+        {
+          "caller": "getCountriesByRegion",
+          "callee": "Object.values",
+          "lineNumber": 112
+        },
+        {
+          "caller": "getCountriesBySubregion",
+          "callee": "Object.values(COUNTRIES).filter",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getCountriesBySubregion",
+          "callee": "Object.values",
+          "lineNumber": 119
+        },
+        {
+          "caller": "isValidCountryCode",
+          "callee": "normalizeCountryCode",
+          "lineNumber": 126
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 10,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/shared/rate-limiter.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "createRateLimiter",
+          "startLine": 56,
+          "endLine": 58,
+          "params": [
+            "maxRequests",
+            "windowMs"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "RateLimiter",
+          "startLine": 15,
+          "endLine": 54,
+          "methods": [
+            "constructor",
+            "check",
+            "reset",
+            "clear"
+          ],
+          "properties": [
+            "maxRequests",
+            "windowMs"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "RateLimiter",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "createRateLimiter",
+          "line": 56,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "check",
+          "callee": "limiters.get",
+          "lineNumber": 26
+        },
+        {
+          "caller": "check",
+          "callee": "limiters.set",
+          "lineNumber": 29
+        },
+        {
+          "caller": "check",
+          "callee": "now.getTime",
+          "lineNumber": 29
+        },
+        {
+          "caller": "check",
+          "callee": "now.getTime",
+          "lineNumber": 30
+        },
+        {
+          "caller": "check",
+          "callee": "now.getTime",
+          "lineNumber": 35
+        },
+        {
+          "caller": "reset",
+          "callee": "limiters.delete",
+          "lineNumber": 48
+        },
+        {
+          "caller": "clear",
+          "callee": "limiters.clear",
+          "lineNumber": 52
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    }
+  ]
+}

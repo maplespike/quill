@@ -1,0 +1,1004 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/species-at-risk/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 166,
+      "nonEmptyLines": 141,
+      "classes": [
+        {
+          "name": "SaraError",
+          "startLine": 155,
+          "endLine": 166,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SARA_SOURCES",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_STATUS_MAP",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_TAXONOMIC_GROUPS",
+          "line": 69,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_SPECIES_DDL",
+          "line": 87,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 142,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_USER_AGENT",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_TIMEOUT_MS",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_HEADERS",
+          "line": 146,
+          "isDefault": false
+        },
+        {
+          "name": "SaraError",
+          "line": 155,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 163
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 9,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/species-at-risk/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 213,
+      "nonEmptyLines": 187,
+      "functions": [
+        {
+          "name": "fetchJson",
+          "startLine": 42,
+          "endLine": 60,
+          "params": [
+            "url",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchSaraSpecies",
+          "startLine": 74,
+          "endLine": 102,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchAllSaraSpecies",
+          "startLine": 110,
+          "endLine": 139,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchSaraSpeciesDetail",
+          "startLine": 147,
+          "endLine": 159,
+          "params": [
+            "speciesId"
+          ]
+        },
+        {
+          "name": "fetchSaraRecoveryStrategies",
+          "startLine": 167,
+          "endLine": 186,
+          "params": [
+            "options"
+          ]
+        },
+        {
+          "name": "fetchSaraListingDecisions",
+          "startLine": 194,
+          "endLine": 213,
+          "params": [
+            "options"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "SaraFetchError",
+          "startLine": 24,
+          "endLine": 33,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SaraFetchError",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraSpecies",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllSaraSpecies",
+          "line": 110,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraSpeciesDetail",
+          "line": 147,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraRecoveryStrategies",
+          "line": 167,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraListingDecisions",
+          "line": 194,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "httpGet",
+          "lineNumber": 46
+        },
+        {
+          "caller": "fetchJson",
+          "callee": "resp.json",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "params.set",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "String",
+          "lineNumber": 84
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "params.set",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "String",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "params.set",
+          "lineNumber": 88
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "String",
+          "lineNumber": 88
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "params.set",
+          "lineNumber": 90
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "params.set",
+          "lineNumber": 91
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "params.toString",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "await fetchJson",
+          "lineNumber": 96
+        },
+        {
+          "caller": "fetchSaraSpecies",
+          "callee": "console.warn",
+          "lineNumber": 99
+        },
+        {
+          "caller": "fetchAllSaraSpecies",
+          "callee": "fetchSaraSpecies",
+          "lineNumber": 122
+        },
+        {
+          "caller": "fetchAllSaraSpecies",
+          "callee": "allSpecies.push",
+          "lineNumber": 131
+        },
+        {
+          "caller": "fetchAllSaraSpecies",
+          "callee": "allSpecies.slice",
+          "lineNumber": 138
+        },
+        {
+          "caller": "fetchSaraSpeciesDetail",
+          "callee": "await fetchJson",
+          "lineNumber": 153
+        },
+        {
+          "caller": "fetchSaraSpeciesDetail",
+          "callee": "console.warn",
+          "lineNumber": 156
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "params.set",
+          "lineNumber": 174
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "String",
+          "lineNumber": 174
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "params.set",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "String",
+          "lineNumber": 175
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "params.toString",
+          "lineNumber": 177
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "await fetchJson",
+          "lineNumber": 180
+        },
+        {
+          "caller": "fetchSaraRecoveryStrategies",
+          "callee": "console.warn",
+          "lineNumber": 183
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "params.set",
+          "lineNumber": 201
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "String",
+          "lineNumber": 201
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "params.set",
+          "lineNumber": 202
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "String",
+          "lineNumber": 202
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "params.toString",
+          "lineNumber": 204
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "await fetchJson",
+          "lineNumber": 207
+        },
+        {
+          "caller": "fetchSaraListingDecisions",
+          "callee": "console.warn",
+          "lineNumber": 210
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/species-at-risk/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 394,
+      "nonEmptyLines": 355,
+      "functions": [
+        {
+          "name": "initializeSaraTable",
+          "startLine": 115,
+          "endLine": 117,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "upsertSaraRecord",
+          "startLine": 124,
+          "endLine": 154,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "saraRecordExists",
+          "startLine": 159,
+          "endLine": 174,
+          "params": [
+            "db",
+            "record"
+          ]
+        },
+        {
+          "name": "saraTableExists",
+          "startLine": 179,
+          "endLine": 188,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "getLatestSaraIngestionDate",
+          "startLine": 193,
+          "endLine": 198,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "searchSaraRecords",
+          "startLine": 212,
+          "endLine": 251,
+          "params": [
+            "db",
+            "query",
+            "options"
+          ]
+        },
+        {
+          "name": "getSaraByStatus",
+          "startLine": 256,
+          "endLine": 269,
+          "params": [
+            "db",
+            "status",
+            "options"
+          ]
+        },
+        {
+          "name": "getSaraByGroup",
+          "startLine": 274,
+          "endLine": 287,
+          "params": [
+            "db",
+            "taxonomicGroup",
+            "options"
+          ]
+        },
+        {
+          "name": "getSaraByProvince",
+          "startLine": 292,
+          "endLine": 304,
+          "params": [
+            "db",
+            "province",
+            "options"
+          ]
+        },
+        {
+          "name": "ingestSaraSpecies",
+          "startLine": 323,
+          "endLine": 394,
+          "params": [
+            "db",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchSaraSpecies",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "fetchAllSaraSpecies",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraSpeciesDetail",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraRecoveryStrategies",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "fetchSaraListingDecisions",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "parseSaraSpecies",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "parseSaraBatch",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "parseSaraResponse",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeStatus",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_SPECIES_DDL",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_SOURCES",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_STATUS_MAP",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "SARA_TAXONOMIC_GROUPS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_MAX_RECORDS",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "SaraError",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "SpeciesAtRiskRecord",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "SpeciesStatus",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "SaraIngestionOptions",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "SaraIngestionResult",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "RawSaraSpecies",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "SaraApiResponse",
+          "line": 81,
+          "isDefault": false
+        },
+        {
+          "name": "initializeSaraTable",
+          "line": 115,
+          "isDefault": false
+        },
+        {
+          "name": "saraRecordExists",
+          "line": 159,
+          "isDefault": false
+        },
+        {
+          "name": "saraTableExists",
+          "line": 179,
+          "isDefault": false
+        },
+        {
+          "name": "getLatestSaraIngestionDate",
+          "line": 193,
+          "isDefault": false
+        },
+        {
+          "name": "searchSaraRecords",
+          "line": 212,
+          "isDefault": false
+        },
+        {
+          "name": "getSaraByStatus",
+          "line": 256,
+          "isDefault": false
+        },
+        {
+          "name": "getSaraByGroup",
+          "line": 274,
+          "isDefault": false
+        },
+        {
+          "name": "getSaraByProvince",
+          "line": 292,
+          "isDefault": false
+        },
+        {
+          "name": "ingestSaraSpecies",
+          "line": 323,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "initializeSaraTable",
+          "callee": "db.exec",
+          "lineNumber": 116
+        },
+        {
+          "caller": "upsertSaraRecord",
+          "callee": "db.prepare(`\n    INSERT OR IGNORE INTO species_at_risk_records\n      (id, species_name, scientific_name, taxonomic_group, status,\n       assessment_date, listing_date, recovery_strategy_url,\n       critical_habitat, province_territory, sara_species_id,\n       source_url, source_system, ingested_at)\n    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n  `).bind",
+          "lineNumber": 128
+        },
+        {
+          "caller": "upsertSaraRecord",
+          "callee": "db.prepare",
+          "lineNumber": 128
+        },
+        {
+          "caller": "upsertSaraRecord",
+          "callee": "stmt.run",
+          "lineNumber": 152
+        },
+        {
+          "caller": "saraRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM species_at_risk_records\n     WHERE species_name = ? AND status = ? AND source_url = ?\n     LIMIT 1`,\n  ).bind(\n    record.speciesName,\n    record.status,\n    record.sourceUrl,\n  ).first",
+          "lineNumber": 163
+        },
+        {
+          "caller": "saraRecordExists",
+          "callee": "db.prepare(\n    `SELECT 1 FROM species_at_risk_records\n     WHERE species_name = ? AND status = ? AND source_url = ?\n     LIMIT 1`,\n  ).bind",
+          "lineNumber": 163
+        },
+        {
+          "caller": "saraRecordExists",
+          "callee": "db.prepare",
+          "lineNumber": 163
+        },
+        {
+          "caller": "saraTableExists",
+          "callee": "db.prepare(\n      `SELECT name FROM sqlite_master WHERE type='table' AND name='species_at_risk_records'`,\n    ).first",
+          "lineNumber": 181
+        },
+        {
+          "caller": "saraTableExists",
+          "callee": "db.prepare",
+          "lineNumber": 181
+        },
+        {
+          "caller": "getLatestSaraIngestionDate",
+          "callee": "await db.prepare(\n    'SELECT ingested_at FROM species_at_risk_records ORDER BY ingested_at DESC LIMIT 1',\n  ).first",
+          "lineNumber": 194
+        },
+        {
+          "caller": "getLatestSaraIngestionDate",
+          "callee": "db.prepare",
+          "lineNumber": 194
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "params.push",
+          "lineNumber": 232
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "params.push",
+          "lineNumber": 237
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "params.push",
+          "lineNumber": 242
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "params.push",
+          "lineNumber": 246
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "db.prepare(sql).bind",
+          "lineNumber": 248
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "db.prepare",
+          "lineNumber": 248
+        },
+        {
+          "caller": "searchSaraRecords",
+          "callee": "await stmt.all",
+          "lineNumber": 249
+        },
+        {
+          "caller": "getSaraByStatus",
+          "callee": "searchSaraRecords",
+          "lineNumber": 264
+        },
+        {
+          "caller": "getSaraByGroup",
+          "callee": "searchSaraRecords",
+          "lineNumber": 282
+        },
+        {
+          "caller": "getSaraByProvince",
+          "callee": "searchSaraRecords",
+          "lineNumber": 300
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "Date.now",
+          "lineNumber": 327
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "log",
+          "lineNumber": 343
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "initializeSaraTable",
+          "lineNumber": 344
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "log",
+          "lineNumber": 348
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "fetchAllSaraSpecies",
+          "lineNumber": 350
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "log",
+          "lineNumber": 354
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "parseSaraBatch",
+          "lineNumber": 357
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "upsertSaraRecord",
+          "lineNumber": 372
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "result.errors.push",
+          "lineNumber": 381
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "log",
+          "lineNumber": 382
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "result.errors.push",
+          "lineNumber": 386
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "log",
+          "lineNumber": 387
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "Date.now",
+          "lineNumber": 390
+        },
+        {
+          "caller": "ingestSaraSpecies",
+          "callee": "log",
+          "lineNumber": 391
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 30,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/species-at-risk/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 184,
+      "nonEmptyLines": 163,
+      "functions": [
+        {
+          "name": "normalizeStatus",
+          "startLine": 31,
+          "endLine": 49,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "parseBoolean",
+          "startLine": 54,
+          "endLine": 61,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "parseSaraSpecies",
+          "startLine": 74,
+          "endLine": 133,
+          "params": [
+            "raw",
+            "options"
+          ]
+        },
+        {
+          "name": "parseSaraBatch",
+          "startLine": 146,
+          "endLine": 163,
+          "params": [
+            "rawRecords",
+            "options"
+          ]
+        },
+        {
+          "name": "parseSaraResponse",
+          "startLine": 172,
+          "endLine": 184,
+          "params": [
+            "json",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeStatus",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "parseSaraSpecies",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "parseSaraBatch",
+          "line": 146,
+          "isDefault": false
+        },
+        {
+          "name": "parseSaraResponse",
+          "line": 172,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeStatus",
+          "callee": "raw.trim().toLowerCase",
+          "lineNumber": 34
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "raw.trim",
+          "lineNumber": 34
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 41
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 42
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 44
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 44
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 46
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "trimmed.includes",
+          "lineNumber": 46
+        },
+        {
+          "caller": "parseBoolean",
+          "callee": "String(value).trim().toLowerCase",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseBoolean",
+          "callee": "String(value).trim",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseBoolean",
+          "callee": "String",
+          "lineNumber": 57
+        },
+        {
+          "caller": "parseSaraSpecies",
+          "callee": "normalizeStatus",
+          "lineNumber": 86
+        },
+        {
+          "caller": "parseSaraSpecies",
+          "callee": "parseBoolean",
+          "lineNumber": 90
+        },
+        {
+          "caller": "parseSaraSpecies",
+          "callee": "new Date().toISOString",
+          "lineNumber": 94
+        },
+        {
+          "caller": "parseSaraSpecies",
+          "callee": "JSON.stringify",
+          "lineNumber": 101
+        },
+        {
+          "caller": "parseSaraSpecies",
+          "callee": "computeHash",
+          "lineNumber": 115
+        },
+        {
+          "caller": "parseSaraBatch",
+          "callee": "parseSaraSpecies",
+          "lineNumber": 156
+        },
+        {
+          "caller": "parseSaraBatch",
+          "callee": "results.push",
+          "lineNumber": 158
+        },
+        {
+          "caller": "parseSaraResponse",
+          "callee": "Array.isArray",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseSaraResponse",
+          "callee": "parseSaraBatch",
+          "lineNumber": 183
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/species-at-risk/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 148,
+      "nonEmptyLines": 125,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

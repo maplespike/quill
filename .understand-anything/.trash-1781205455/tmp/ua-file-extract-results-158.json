@@ -1,0 +1,1360 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 14,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/portal/v1/openapi.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 5939,
+      "nonEmptyLines": 5939,
+      "sections": [
+        {
+          "heading": "openapi",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "info",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "servers",
+          "level": 1,
+          "line": 17
+        },
+        {
+          "heading": "paths",
+          "level": 1,
+          "line": 27
+        },
+        {
+          "heading": "components",
+          "level": 1,
+          "line": 5761
+        },
+        {
+          "heading": "tags",
+          "level": 1,
+          "line": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 6
+      }
+    },
+    {
+      "path": "packages/sdk-shell/maplespike",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 196,
+      "nonEmptyLines": 176,
+      "metrics": {}
+    },
+    {
+      "path": "packages/sdk/src/schemas.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 748,
+      "nonEmptyLines": 610,
+      "functions": [
+        {
+          "name": "str",
+          "startLine": 12,
+          "endLine": 12,
+          "params": []
+        },
+        {
+          "name": "num",
+          "startLine": 14,
+          "endLine": 14,
+          "params": []
+        },
+        {
+          "name": "lim",
+          "startLine": 16,
+          "endLine": 16,
+          "params": []
+        },
+        {
+          "name": "reqStr",
+          "startLine": 18,
+          "endLine": 18,
+          "params": []
+        },
+        {
+          "name": "reqNum",
+          "startLine": 20,
+          "endLine": 20,
+          "params": []
+        },
+        {
+          "name": "validateParams",
+          "startLine": 737,
+          "endLine": 748,
+          "params": [
+            "agent",
+            "action",
+            "params"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "committeeMembershipSchema",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "committeeMeetingsSchema",
+          "line": 32,
+          "isDefault": false
+        },
+        {
+          "name": "committeeReportsSchema",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "committeeWitnessesSchema",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "corporationProfileSchema",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "corporationFilingsSchema",
+          "line": 63,
+          "isDefault": false
+        },
+        {
+          "name": "directorRegistrySchema",
+          "line": 70,
+          "isDefault": false
+        },
+        {
+          "name": "lobbyingActivitiesSchema",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "politicalContributionsSchema",
+          "line": 86,
+          "isDefault": false
+        },
+        {
+          "name": "fundraisingEventsSchema",
+          "line": 94,
+          "isDefault": false
+        },
+        {
+          "name": "mediaOwnershipSchema",
+          "line": 101,
+          "isDefault": false
+        },
+        {
+          "name": "regulatoryProposalsSchema",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "regulatoryDecisionsSchema",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "consultationCommentsSchema",
+          "line": 124,
+          "isDefault": false
+        },
+        {
+          "name": "courtDecisionsSchema",
+          "line": 133,
+          "isDefault": false
+        },
+        {
+          "name": "caseTrackingSchema",
+          "line": 141,
+          "isDefault": false
+        },
+        {
+          "name": "tribunalRulingsSchema",
+          "line": 149,
+          "isDefault": false
+        },
+        {
+          "name": "auditorReportsSchema",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "watchdogReportsSchema",
+          "line": 165,
+          "isDefault": false
+        },
+        {
+          "name": "accessToInformationSchema",
+          "line": 172,
+          "isDefault": false
+        },
+        {
+          "name": "conflictOfInterestSchema",
+          "line": 179,
+          "isDefault": false
+        },
+        {
+          "name": "governmentSpendingSchema",
+          "line": 188,
+          "isDefault": false
+        },
+        {
+          "name": "electionResultsSchema",
+          "line": 196,
+          "isDefault": false
+        },
+        {
+          "name": "populationStatisticsSchema",
+          "line": 204,
+          "isDefault": false
+        },
+        {
+          "name": "publicSalaryDisclosureSchema",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "permanentResidentsSchema",
+          "line": 221,
+          "isDefault": false
+        },
+        {
+          "name": "studyPermitsSchema",
+          "line": 228,
+          "isDefault": false
+        },
+        {
+          "name": "workPermitsSchema",
+          "line": 234,
+          "isDefault": false
+        },
+        {
+          "name": "refugeeDecisionsSchema",
+          "line": 241,
+          "isDefault": false
+        },
+        {
+          "name": "cbsaEnforcementSchema",
+          "line": 248,
+          "isDefault": false
+        },
+        {
+          "name": "landClaimsSchema",
+          "line": 256,
+          "isDefault": false
+        },
+        {
+          "name": "iscSpendingSchema",
+          "line": 262,
+          "isDefault": false
+        },
+        {
+          "name": "fnTransparencySchema",
+          "line": 269,
+          "isDefault": false
+        },
+        {
+          "name": "trcProgressSchema",
+          "line": 275,
+          "isDefault": false
+        },
+        {
+          "name": "correctionsPopulationSchema",
+          "line": 283,
+          "isDefault": false
+        },
+        {
+          "name": "paroleDecisionsSchema",
+          "line": 289,
+          "isDefault": false
+        },
+        {
+          "name": "rcmpCrimeStatsSchema",
+          "line": 295,
+          "isDefault": false
+        },
+        {
+          "name": "prosecutionsSchema",
+          "line": 302,
+          "isDefault": false
+        },
+        {
+          "name": "personnelSchema",
+          "line": 310,
+          "isDefault": false
+        },
+        {
+          "name": "procurementSchema",
+          "line": 317,
+          "isDefault": false
+        },
+        {
+          "name": "municipalMeetingsSchema",
+          "line": 326,
+          "isDefault": false
+        },
+        {
+          "name": "municipalBudgetsSchema",
+          "line": 333,
+          "isDefault": false
+        },
+        {
+          "name": "municipalOpenDataSchema",
+          "line": 339,
+          "isDefault": false
+        },
+        {
+          "name": "tsbOccurrencesSchema",
+          "line": 347,
+          "isDefault": false
+        },
+        {
+          "name": "tcRecallsSchema",
+          "line": 354,
+          "isDefault": false
+        },
+        {
+          "name": "ctaRulingsSchema",
+          "line": 361,
+          "isDefault": false
+        },
+        {
+          "name": "weatherAlertsSchema",
+          "line": 369,
+          "isDefault": false
+        },
+        {
+          "name": "borderWaitsSchema",
+          "line": 375,
+          "isDefault": false
+        },
+        {
+          "name": "paroleRegistrySchema",
+          "line": 381,
+          "isDefault": false
+        },
+        {
+          "name": "crtcMarketReportsSchema",
+          "line": 388,
+          "isDefault": false
+        },
+        {
+          "name": "ownershipChartsSchema",
+          "line": 394,
+          "isDefault": false
+        },
+        {
+          "name": "cmfDataSchema",
+          "line": 399,
+          "isDefault": false
+        },
+        {
+          "name": "triCouncilGrantsSchema",
+          "line": 407,
+          "isDefault": false
+        },
+        {
+          "name": "researchChairsSchema",
+          "line": 414,
+          "isDefault": false
+        },
+        {
+          "name": "studentLoansSchema",
+          "line": 420,
+          "isDefault": false
+        },
+        {
+          "name": "cudoDataSchema",
+          "line": 426,
+          "isDefault": false
+        },
+        {
+          "name": "ccbDataSchema",
+          "line": 435,
+          "isDefault": false
+        },
+        {
+          "name": "cppOasSchema",
+          "line": 442,
+          "isDefault": false
+        },
+        {
+          "name": "eiStatisticsSchema",
+          "line": 449,
+          "isDefault": false
+        },
+        {
+          "name": "povertyDataSchema",
+          "line": 455,
+          "isDefault": false
+        },
+        {
+          "name": "rateDecisionsSchema",
+          "line": 464,
+          "isDefault": false
+        },
+        {
+          "name": "monetaryPolicySchema",
+          "line": 470,
+          "isDefault": false
+        },
+        {
+          "name": "insiderTransactionsSchema",
+          "line": 477,
+          "isDefault": false
+        },
+        {
+          "name": "unionReportsSchema",
+          "line": 487,
+          "isDefault": false
+        },
+        {
+          "name": "universityDataSchema",
+          "line": 495,
+          "isDefault": false
+        },
+        {
+          "name": "crtcDecisionsSchema",
+          "line": 504,
+          "isDefault": false
+        },
+        {
+          "name": "crtcOwnershipSchema",
+          "line": 511,
+          "isDefault": false
+        },
+        {
+          "name": "charitySearchSchema",
+          "line": 518,
+          "isDefault": false
+        },
+        {
+          "name": "politicalSpendingSchema",
+          "line": 525,
+          "isDefault": false
+        },
+        {
+          "name": "regulatorSearchSchema",
+          "line": 532,
+          "isDefault": false
+        },
+        {
+          "name": "regulatorCoverageSchema",
+          "line": 539,
+          "isDefault": false
+        },
+        {
+          "name": "legalSearchSchema",
+          "line": 545,
+          "isDefault": false
+        },
+        {
+          "name": "legalFetchSchema",
+          "line": 554,
+          "isDefault": false
+        },
+        {
+          "name": "legalCoverageSchema",
+          "line": 559,
+          "isDefault": false
+        },
+        {
+          "name": "federalActsSchema",
+          "line": 565,
+          "isDefault": false
+        },
+        {
+          "name": "federalRegulationsSchema",
+          "line": 570,
+          "isDefault": false
+        },
+        {
+          "name": "provincialLegislationSchema",
+          "line": 575,
+          "isDefault": false
+        },
+        {
+          "name": "contractsSchema",
+          "line": 583,
+          "isDefault": false
+        },
+        {
+          "name": "spendingSummarySchema",
+          "line": 590,
+          "isDefault": false
+        },
+        {
+          "name": "SCHEMAS",
+          "line": 599,
+          "isDefault": false
+        },
+        {
+          "name": "validateParams",
+          "line": 737,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "str",
+          "callee": "z.string().optional",
+          "lineNumber": 12
+        },
+        {
+          "caller": "str",
+          "callee": "z.string",
+          "lineNumber": 12
+        },
+        {
+          "caller": "num",
+          "callee": "z.coerce.number().optional",
+          "lineNumber": 14
+        },
+        {
+          "caller": "num",
+          "callee": "z.coerce.number",
+          "lineNumber": 14
+        },
+        {
+          "caller": "lim",
+          "callee": "z.coerce.number().int().min(1).max(1000).optional",
+          "lineNumber": 16
+        },
+        {
+          "caller": "lim",
+          "callee": "z.coerce.number().int().min(1).max",
+          "lineNumber": 16
+        },
+        {
+          "caller": "lim",
+          "callee": "z.coerce.number().int().min",
+          "lineNumber": 16
+        },
+        {
+          "caller": "lim",
+          "callee": "z.coerce.number().int",
+          "lineNumber": 16
+        },
+        {
+          "caller": "lim",
+          "callee": "z.coerce.number",
+          "lineNumber": 16
+        },
+        {
+          "caller": "reqStr",
+          "callee": "z.string().min",
+          "lineNumber": 18
+        },
+        {
+          "caller": "reqStr",
+          "callee": "z.string",
+          "lineNumber": 18
+        },
+        {
+          "caller": "reqNum",
+          "callee": "z.coerce.number",
+          "lineNumber": 20
+        },
+        {
+          "caller": "validateParams",
+          "callee": "Object.keys(SCHEMAS).join",
+          "lineNumber": 745
+        },
+        {
+          "caller": "validateParams",
+          "callee": "Object.keys",
+          "lineNumber": 745
+        },
+        {
+          "caller": "validateParams",
+          "callee": "schema.parse",
+          "lineNumber": 747
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 81,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk/src/sdk.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 155,
+      "nonEmptyLines": 137,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/sdk/tsup.config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/audit-placeholders.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 304,
+      "nonEmptyLines": 273,
+      "functions": [
+        {
+          "name": "lineNo",
+          "startLine": 117,
+          "endLine": 119,
+          "params": [
+            "content",
+            "index"
+          ]
+        },
+        {
+          "name": "shouldScan",
+          "startLine": 121,
+          "endLine": 128,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "walk",
+          "startLine": 130,
+          "endLine": 145,
+          "params": [
+            "dir"
+          ]
+        },
+        {
+          "name": "main",
+          "startLine": 170,
+          "endLine": 299,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "lineNo",
+          "callee": "content.substring(0, index).match",
+          "lineNumber": 118
+        },
+        {
+          "caller": "lineNo",
+          "callee": "content.substring",
+          "lineNumber": 118
+        },
+        {
+          "caller": "shouldScan",
+          "callee": "relative",
+          "lineNumber": 122
+        },
+        {
+          "caller": "shouldScan",
+          "callee": "rel.startsWith",
+          "lineNumber": 124
+        },
+        {
+          "caller": "shouldScan",
+          "callee": "rel.includes",
+          "lineNumber": 124
+        },
+        {
+          "caller": "shouldScan",
+          "callee": "/\\.(ts|js|mjs|yml|yaml|json|md)$/.test",
+          "lineNumber": 127
+        },
+        {
+          "caller": "walk",
+          "callee": "readFileSync",
+          "lineNumber": 133
+        },
+        {
+          "caller": "walk",
+          "callee": "readFileSync",
+          "lineNumber": 140
+        },
+        {
+          "caller": "main",
+          "callee": "process.argv.slice",
+          "lineNumber": 171
+        },
+        {
+          "caller": "main",
+          "callee": "args.includes",
+          "lineNumber": 172
+        },
+        {
+          "caller": "main",
+          "callee": "args.includes",
+          "lineNumber": 173
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 178
+        },
+        {
+          "caller": "main",
+          "callee": "existsSync",
+          "lineNumber": 179
+        },
+        {
+          "caller": "main",
+          "callee": "walkFiles",
+          "lineNumber": 181
+        },
+        {
+          "caller": "main",
+          "callee": "readFileSync",
+          "lineNumber": 184
+        },
+        {
+          "caller": "main",
+          "callee": "pattern.test",
+          "lineNumber": 190
+        },
+        {
+          "caller": "main",
+          "callee": "findings.push",
+          "lineNumber": 192
+        },
+        {
+          "caller": "main",
+          "callee": "relative",
+          "lineNumber": 193
+        },
+        {
+          "caller": "main",
+          "callee": "hits.slice",
+          "lineNumber": 198
+        },
+        {
+          "caller": "main",
+          "callee": "existsSync",
+          "lineNumber": 207
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.parse",
+          "lineNumber": 209
+        },
+        {
+          "caller": "main",
+          "callee": "readFileSync",
+          "lineNumber": 209
+        },
+        {
+          "caller": "main",
+          "callee": "findingKey",
+          "lineNumber": 217
+        },
+        {
+          "caller": "main",
+          "callee": "findingMap.has",
+          "lineNumber": 218
+        },
+        {
+          "caller": "main",
+          "callee": "findingMap.set",
+          "lineNumber": 219
+        },
+        {
+          "caller": "main",
+          "callee": "Array.from",
+          "lineNumber": 223
+        },
+        {
+          "caller": "main",
+          "callee": "findingMap.values",
+          "lineNumber": 223
+        },
+        {
+          "caller": "main",
+          "callee": "Object.keys",
+          "lineNumber": 231
+        },
+        {
+          "caller": "main",
+          "callee": "currentFindings.map",
+          "lineNumber": 232
+        },
+        {
+          "caller": "main",
+          "callee": "Object.keys",
+          "lineNumber": 233
+        },
+        {
+          "caller": "main",
+          "callee": "currentFindings.filter",
+          "lineNumber": 234
+        },
+        {
+          "caller": "main",
+          "callee": "baselineKeys.has",
+          "lineNumber": 234
+        },
+        {
+          "caller": "main",
+          "callee": "findingKey",
+          "lineNumber": 234
+        },
+        {
+          "caller": "main",
+          "callee": "[...baselineKeys].filter",
+          "lineNumber": 235
+        },
+        {
+          "caller": "main",
+          "callee": "currentKeys.has",
+          "lineNumber": 235
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 238
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify",
+          "lineNumber": 238
+        },
+        {
+          "caller": "main",
+          "callee": "new Date().toISOString",
+          "lineNumber": 239
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 247
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 251
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 254
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 255
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 259
+        },
+        {
+          "caller": "main",
+          "callee": "writeFileSync",
+          "lineNumber": 261
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify",
+          "lineNumber": 261
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 262
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 267
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 268
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 269
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 270
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 273
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 275
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 277
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 281
+        },
+        {
+          "caller": "main",
+          "callee": "findingKey",
+          "lineNumber": 287
+        },
+        {
+          "caller": "main",
+          "callee": "writeFileSync",
+          "lineNumber": 289
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify",
+          "lineNumber": 289
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 290
+        },
+        {
+          "caller": "main",
+          "callee": "Object.keys",
+          "lineNumber": 290
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 294
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 295
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 298
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/build-docs.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 436,
+      "nonEmptyLines": 409,
+      "functions": [
+        {
+          "name": "buildSidebar",
+          "startLine": 75,
+          "endLine": 92,
+          "params": [
+            "currentSection",
+            "currentSlug"
+          ]
+        },
+        {
+          "name": "buildNav",
+          "startLine": 95,
+          "endLine": 139,
+          "params": []
+        },
+        {
+          "name": "buildPage",
+          "startLine": 142,
+          "endLine": 368,
+          "params": [
+            "title",
+            "description",
+            "sectionKey",
+            "slug",
+            "bodyHtml"
+          ]
+        },
+        {
+          "name": "extractDescription",
+          "startLine": 371,
+          "endLine": 382,
+          "params": [
+            "md"
+          ]
+        },
+        {
+          "name": "main",
+          "startLine": 385,
+          "endLine": 434,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "buildPage",
+          "callee": "buildNav",
+          "lineNumber": 143
+        },
+        {
+          "caller": "buildPage",
+          "callee": "buildSidebar",
+          "lineNumber": 144
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "md.split",
+          "lineNumber": 373
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "line.trim",
+          "lineNumber": 375
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 376
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 376
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 376
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 376
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.replace(/\\*\\*/g, '').replace(/`/g, '').slice",
+          "lineNumber": 378
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.replace(/\\*\\*/g, '').replace",
+          "lineNumber": 378
+        },
+        {
+          "caller": "extractDescription",
+          "callee": "trimmed.replace",
+          "lineNumber": 378
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 389
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 390
+        },
+        {
+          "caller": "main",
+          "callee": "existsSync",
+          "lineNumber": 392
+        },
+        {
+          "caller": "main",
+          "callee": "mkdirSync",
+          "lineNumber": 393
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 397
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 398
+        },
+        {
+          "caller": "main",
+          "callee": "existsSync",
+          "lineNumber": 400
+        },
+        {
+          "caller": "main",
+          "callee": "console.warn",
+          "lineNumber": 401
+        },
+        {
+          "caller": "main",
+          "callee": "readFileSync",
+          "lineNumber": 405
+        },
+        {
+          "caller": "main",
+          "callee": "marked",
+          "lineNumber": 406
+        },
+        {
+          "caller": "main",
+          "callee": "extractDescription",
+          "lineNumber": 407
+        },
+        {
+          "caller": "main",
+          "callee": "buildPage",
+          "lineNumber": 409
+        },
+        {
+          "caller": "main",
+          "callee": "writeFileSync",
+          "lineNumber": 410
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 412
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 417
+        },
+        {
+          "caller": "main",
+          "callee": "writeFileSync",
+          "lineNumber": 430
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 431
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 433
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/fix-package-exports.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 29,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/generate-metrics.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 136,
+      "nonEmptyLines": 116,
+      "functions": [
+        {
+          "name": "run",
+          "startLine": 19,
+          "endLine": 21,
+          "params": [
+            "cmd"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "run",
+          "callee": "execSync(cmd, { encoding: 'utf-8', cwd: ROOT }).trim",
+          "lineNumber": 20
+        },
+        {
+          "caller": "run",
+          "callee": "execSync",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/lib/common.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 141,
+      "nonEmptyLines": 127,
+      "functions": [
+        {
+          "name": "detect_runtime",
+          "startLine": 9,
+          "endLine": 56,
+          "params": []
+        },
+        {
+          "name": "get_health_endpoints",
+          "startLine": 60,
+          "endLine": 101,
+          "params": []
+        },
+        {
+          "name": "get_nix_manifest_path",
+          "startLine": 105,
+          "endLine": 111,
+          "params": []
+        },
+        {
+          "name": "describe_runtime",
+          "startLine": 115,
+          "endLine": 126,
+          "params": []
+        },
+        {
+          "name": "has_kubectl",
+          "startLine": 129,
+          "endLine": 131,
+          "params": []
+        },
+        {
+          "name": "has_nix",
+          "startLine": 133,
+          "endLine": 135,
+          "params": []
+        },
+        {
+          "name": "log_info",
+          "startLine": 138,
+          "endLine": 138,
+          "params": []
+        },
+        {
+          "name": "log_warn",
+          "startLine": 139,
+          "endLine": 139,
+          "params": []
+        },
+        {
+          "name": "log_error",
+          "startLine": 140,
+          "endLine": 140,
+          "params": []
+        },
+        {
+          "name": "log_ok",
+          "startLine": 141,
+          "endLine": 141,
+          "params": []
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "secrets/github-pat.age",
+      "language": "age",
+      "fileCategory": "code",
+      "totalLines": 7,
+      "nonEmptyLines": 7,
+      "metrics": {}
+    },
+    {
+      "path": "secrets/pubkey.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "secrets/secrets.nix",
+      "language": "nix",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 9,
+      "metrics": {}
+    },
+    {
+      "path": "test-results/.last-run.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 4,
+      "nonEmptyLines": 4,
+      "sections": [
+        {
+          "heading": "status",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "failedTests",
+          "level": 1,
+          "line": 3
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    }
+  ]
+}

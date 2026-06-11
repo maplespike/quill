@@ -1,0 +1,419 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 8,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/api-server/USAGE.html",
+      "language": "html",
+      "fileCategory": "markup",
+      "totalLines": 109,
+      "nonEmptyLines": 106,
+      "metrics": {}
+    },
+    {
+      "path": "packages/api-server/USAGE.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 128,
+      "nonEmptyLines": 95,
+      "sections": [
+        {
+          "heading": "Usage Control & Rate Limiting",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "1. Authentication",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "2. Rate Limiting (Per-Second)",
+          "level": 2,
+          "line": 29
+        },
+        {
+          "heading": "3. Quota Enforcement (Monthly)",
+          "level": 2,
+          "line": 48
+        },
+        {
+          "heading": "4. Token Optimization Params",
+          "level": 2,
+          "line": 85
+        },
+        {
+          "heading": "5. Usage Endpoint",
+          "level": 2,
+          "line": 104
+        },
+        {
+          "heading": "Response Headers",
+          "level": 2,
+          "line": 122
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "packages/api-server/package.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 39,
+      "nonEmptyLines": 39,
+      "sections": [
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "version",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "description",
+          "level": 1,
+          "line": 4
+        },
+        {
+          "heading": "type",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "main",
+          "level": 1,
+          "line": 6
+        },
+        {
+          "heading": "types",
+          "level": 1,
+          "line": 7
+        },
+        {
+          "heading": "scripts",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "dependencies",
+          "level": 1,
+          "line": 16
+        },
+        {
+          "heading": "devDependencies",
+          "level": 1,
+          "line": 27
+        },
+        {
+          "heading": "sideEffects",
+          "level": 1,
+          "line": 37
+        },
+        {
+          "heading": "license",
+          "level": 1,
+          "line": 38
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 11
+      }
+    },
+    {
+      "path": "packages/api-server/schema.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 120,
+      "nonEmptyLines": 107,
+      "definitions": [
+        {
+          "name": "tenants",
+          "kind": "table",
+          "fields": [
+            "id",
+            "journalism_mode",
+            "updated_at"
+          ],
+          "startLine": 8,
+          "endLine": 17
+        },
+        {
+          "name": "api_keys",
+          "kind": "table",
+          "fields": [
+            "id",
+            "last_used_at",
+            "expires_at"
+          ],
+          "startLine": 22,
+          "endLine": 32
+        },
+        {
+          "name": "daily_usage",
+          "kind": "table",
+          "fields": [
+            "id",
+            "tenant_id",
+            "date",
+            "updated_at"
+          ],
+          "startLine": 41,
+          "endLine": 49
+        },
+        {
+          "name": "monthly_usage",
+          "kind": "table",
+          "fields": [
+            "id",
+            "tenant_id",
+            "year_month",
+            "updated_at"
+          ],
+          "startLine": 56,
+          "endLine": 64
+        },
+        {
+          "name": "audit_log",
+          "kind": "table",
+          "fields": [
+            "id",
+            "tenant_id",
+            "api_key_id",
+            "operation",
+            "or",
+            "0",
+            "duration_ms",
+            "created_at"
+          ],
+          "startLine": 71,
+          "endLine": 86
+        },
+        {
+          "name": "annotations",
+          "kind": "table",
+          "fields": [
+            "id",
+            "entity_type",
+            "entity_id",
+            "user_id",
+            "annotation_type",
+            "content",
+            "metadata",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 95,
+          "endLine": 105
+        },
+        {
+          "name": "idx_keys_tenant",
+          "kind": "index",
+          "fields": [],
+          "startLine": 34,
+          "endLine": 34
+        },
+        {
+          "name": "idx_keys_hash",
+          "kind": "index",
+          "fields": [],
+          "startLine": 35,
+          "endLine": 35
+        },
+        {
+          "name": "idx_keys_active",
+          "kind": "index",
+          "fields": [],
+          "startLine": 36,
+          "endLine": 36
+        },
+        {
+          "name": "idx_usage_tenant_date",
+          "kind": "index",
+          "fields": [],
+          "startLine": 51,
+          "endLine": 51
+        },
+        {
+          "name": "idx_monthly_tenant",
+          "kind": "index",
+          "fields": [],
+          "startLine": 66,
+          "endLine": 66
+        },
+        {
+          "name": "idx_audit_tenant",
+          "kind": "index",
+          "fields": [],
+          "startLine": 88,
+          "endLine": 88
+        },
+        {
+          "name": "idx_audit_operation",
+          "kind": "index",
+          "fields": [],
+          "startLine": 89,
+          "endLine": 89
+        },
+        {
+          "name": "idx_audit_created",
+          "kind": "index",
+          "fields": [],
+          "startLine": 90,
+          "endLine": 90
+        },
+        {
+          "name": "idx_annotations_entity",
+          "kind": "index",
+          "fields": [],
+          "startLine": 107,
+          "endLine": 107
+        },
+        {
+          "name": "idx_annotations_user",
+          "kind": "index",
+          "fields": [],
+          "startLine": 108,
+          "endLine": 108
+        },
+        {
+          "name": "idx_annotations_type",
+          "kind": "index",
+          "fields": [],
+          "startLine": 109,
+          "endLine": 109
+        },
+        {
+          "name": "idx_annotations_created",
+          "kind": "index",
+          "fields": [],
+          "startLine": 110,
+          "endLine": 110
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 18
+      }
+    },
+    {
+      "path": "packages/api-server/start-api-wrapper.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/start-api.sh",
+      "language": "shell",
+      "fileCategory": "script",
+      "totalLines": 5,
+      "nonEmptyLines": 5,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/api-server/tsconfig.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 15,
+      "nonEmptyLines": 15,
+      "sections": [
+        {
+          "heading": "extends",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "compilerOptions",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "include",
+          "level": 1,
+          "line": 10
+        },
+        {
+          "heading": "exclude",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "references",
+          "level": 1,
+          "line": 12
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "packages/api-server/wrangler.toml",
+      "language": "toml",
+      "fileCategory": "config",
+      "totalLines": 37,
+      "nonEmptyLines": 30,
+      "sections": [
+        {
+          "heading": "[[d1_databases]]",
+          "level": 1,
+          "line": 8
+        },
+        {
+          "heading": "[[kv_namespaces]]",
+          "level": 1,
+          "line": 14
+        },
+        {
+          "heading": "vars",
+          "level": 1,
+          "line": 19
+        },
+        {
+          "heading": "env.production",
+          "level": 2,
+          "line": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    }
+  ]
+}

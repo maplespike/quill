@@ -1,0 +1,474 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "packages/pipeline-core/src/ingestion/au-abs/__tests__/parser.test.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 43,
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/au-abs/constants.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 34,
+      "exports": [
+        {
+          "name": "ABS_BASE_URL",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "ABS_TIMEOUT_MS",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "ABS_THROTTLE",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "ABS_USER_AGENT",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_DATAFLOWS",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "KEY_DATASTRUCTURES",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "TOPIC_DATAFLOWS",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 7,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/au-abs/fetcher.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 50,
+      "functions": [
+        {
+          "name": "fetchDataflows",
+          "startLine": 7,
+          "endLine": 19,
+          "params": []
+        },
+        {
+          "name": "fetchDataflowData",
+          "startLine": 21,
+          "endLine": 40,
+          "params": [
+            "dataflowId",
+            "options"
+          ]
+        },
+        {
+          "name": "fetchMultiDataflowData",
+          "startLine": 42,
+          "endLine": 54,
+          "params": [
+            "dataflowIds",
+            "options"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "fetchDataflows",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "fetchDataflowData",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "fetchMultiDataflowData",
+          "line": 42,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fetchDataflows",
+          "callee": "httpGet",
+          "lineNumber": 10
+        },
+        {
+          "caller": "fetchDataflows",
+          "callee": "resp.json",
+          "lineNumber": 16
+        },
+        {
+          "caller": "fetchDataflowData",
+          "callee": "params.set",
+          "lineNumber": 26
+        },
+        {
+          "caller": "fetchDataflowData",
+          "callee": "params.set",
+          "lineNumber": 27
+        },
+        {
+          "caller": "fetchDataflowData",
+          "callee": "params.set",
+          "lineNumber": 28
+        },
+        {
+          "caller": "fetchDataflowData",
+          "callee": "params.toString",
+          "lineNumber": 29
+        },
+        {
+          "caller": "fetchDataflowData",
+          "callee": "httpGet",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchDataflowData",
+          "callee": "resp.json",
+          "lineNumber": 38
+        },
+        {
+          "caller": "fetchMultiDataflowData",
+          "callee": "fetchDataflowData",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchMultiDataflowData",
+          "callee": "results.set",
+          "lineNumber": 50
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/au-abs/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 53,
+      "functions": [
+        {
+          "name": "makeAttribution",
+          "startLine": 9,
+          "endLine": 15,
+          "params": []
+        },
+        {
+          "name": "ingestDataflow",
+          "startLine": 17,
+          "endLine": 25,
+          "params": [
+            "dataflowId"
+          ]
+        },
+        {
+          "name": "ingestAllAbs",
+          "startLine": 27,
+          "endLine": 35,
+          "params": [
+            "dataflows"
+          ]
+        },
+        {
+          "name": "ingestByTopic",
+          "startLine": 37,
+          "endLine": 47,
+          "params": [
+            "topicKey",
+            "dataflows"
+          ]
+        },
+        {
+          "name": "healthCheck",
+          "startLine": 49,
+          "endLine": 57,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ingestDataflow",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "ingestAllAbs",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ingestByTopic",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "healthCheck",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "AbsFactRecord",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "AbsSdmxJsonData",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "AbsIngestionResult",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "DEFAULT_DATAFLOWS",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "TOPIC_DATAFLOWS",
+          "line": 60,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "makeAttribution",
+          "callee": "buildAttribution",
+          "lineNumber": 10
+        },
+        {
+          "caller": "ingestDataflow",
+          "callee": "Date.now",
+          "lineNumber": 18
+        },
+        {
+          "caller": "ingestDataflow",
+          "callee": "fetchDataflowData",
+          "lineNumber": 19
+        },
+        {
+          "caller": "ingestDataflow",
+          "callee": "Date.now",
+          "lineNumber": 21
+        },
+        {
+          "caller": "ingestDataflow",
+          "callee": "parseSdmxObservations",
+          "lineNumber": 23
+        },
+        {
+          "caller": "ingestDataflow",
+          "callee": "Date.now",
+          "lineNumber": 24
+        },
+        {
+          "caller": "ingestAllAbs",
+          "callee": "fetchMultiDataflowData",
+          "lineNumber": 29
+        },
+        {
+          "caller": "ingestAllAbs",
+          "callee": "parseSdmxObservations",
+          "lineNumber": 32
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "Object.keys(TOPIC_DATAFLOWS).join",
+          "lineNumber": 39
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "Object.keys",
+          "lineNumber": 39
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "DEFAULT_DATAFLOWS.filter",
+          "lineNumber": 40
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "topic.prefixes.some",
+          "lineNumber": 40
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "df.startsWith",
+          "lineNumber": 40
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "fetchMultiDataflowData",
+          "lineNumber": 41
+        },
+        {
+          "caller": "ingestByTopic",
+          "callee": "parseSdmxObservations",
+          "lineNumber": 44
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "makeAttribution",
+          "lineNumber": 50
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "fetchDataflows",
+          "lineNumber": 52
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "withAttribution",
+          "lineNumber": 53
+        },
+        {
+          "caller": "healthCheck",
+          "callee": "withAttribution",
+          "lineNumber": 55
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 9,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/au-abs/parser.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 50,
+      "nonEmptyLines": 44,
+      "functions": [
+        {
+          "name": "parseSdmxObservations",
+          "startLine": 5,
+          "endLine": 40,
+          "params": [
+            "dataflowId",
+            "dataflowName",
+            "sdmxData"
+          ]
+        },
+        {
+          "name": "parseMultiDataflowResults",
+          "startLine": 42,
+          "endLine": 50,
+          "params": [
+            "results"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parseSdmxObservations",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "parseMultiDataflowResults",
+          "line": 42,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parseSdmxObservations",
+          "callee": "new Date().toISOString",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parseSdmxObservations",
+          "callee": "Object.entries",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseSdmxObservations",
+          "callee": "key.split(':').map",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseSdmxObservations",
+          "callee": "key.split",
+          "lineNumber": 18
+        },
+        {
+          "caller": "parseSdmxObservations",
+          "callee": "String",
+          "lineNumber": 23
+        },
+        {
+          "caller": "parseSdmxObservations",
+          "callee": "records.push",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseMultiDataflowResults",
+          "callee": "allRecords.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "parseMultiDataflowResults",
+          "callee": "parseSdmxObservations",
+          "lineNumber": 47
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "packages/pipeline-core/src/ingestion/au-abs/types.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 53,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}
