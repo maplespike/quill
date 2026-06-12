@@ -95,6 +95,7 @@ import {
 } from './routes/webhooks.js';
 import { entityResolveHandler, entityConnectionsHandler } from './routes/entity.js';
 import { municipalDataHandler, municipalCityHandler } from './routes/municipal.js';
+import { dataQualityHandler } from './routes/data-quality.js';
 import {
   githubLoginHandler,
   githubCallbackHandler,
@@ -320,6 +321,14 @@ ROUTES.push(
   { pattern: /^\/v1\/export\/([^/]+)\/?$/, method: 'GET', params: ['module'], handler: withRouteCache(exportModuleHandler, 3600) },
 );
 
+// Data Quality Monitoring — feeds Grafana dashboard
+ROUTES.push({
+  pattern: /^\/v1\/data\/quality\/?$/,
+  method: 'GET',
+  params: [],
+  handler: withRouteCache(dataQualityHandler, 300),
+});
+
 function matchRoute(url: string, method: string): { route: Route; params: Record<string, string> } | null {
   const pathname = new URL(url, 'http://localhost').pathname;
 
@@ -407,7 +416,9 @@ export async function handleRequest(
     || route.handler === passkeyLoginBeginHandler
     || route.handler === passkeyLoginCompleteHandler
     // Contact form (no auth required)
-    || route.handler === contactHandler;
+    || route.handler === contactHandler
+    // Data quality monitoring (feeds Grafana dashboard)
+    || route.handler === dataQualityHandler;
 
   const tenant = authExempt
     ? null
@@ -439,9 +450,9 @@ export async function handleRequest(
   const tier = ctx.tenant.tier;
   const creditsCharged = tier === 'free' ? 0 : 1;
 
-  // Rate limit (skip for health and spec)
+  // Rate limit (skip for health, data quality, and spec)
   let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
-  if (!path.startsWith('/v1/health') && route.handler !== openApiHandler) {
+  if (!path.startsWith('/v1/health') && path !== '/v1/data/quality' && route.handler !== openApiHandler && route.handler !== dataQualityHandler) {
     // Stricter limits for unauthenticated requests
     const isAuthenticated = tenant !== null;
     const tierLimits = TIER_LIMITS[ctx.tenant.tier];
