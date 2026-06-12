@@ -3,6 +3,7 @@
  *
  * Runs a single ingestion pipeline by module name.
  * Called by the ingestion CronJob container with MAPLESPIKE_PIPELINE env.
+ * Persists results to PostgreSQL when DATABASE_URL is set.
  *
  * Usage:
  *   node packages/pipeline-core/dist/ingestion/run-pipeline.js --name=committees
@@ -10,11 +11,100 @@
  *
  * Env:
  *   MAPLESPIKE_PIPELINE  — module name to run (required)
- *   NODE_ENV             — defaults to 'production'
- *   JWT_SECRET           — required for API calls (set in k8s secrets)
+ *   DATABASE_URL          — PostgreSQL connection string (optional; skips persistence if absent)
+ *   NODE_ENV              — defaults to 'production'
+ *   JWT_SECRET            — required for API calls (set in k8s secrets)
  */
 
 import { runModule, getModule, getAllModules } from './registry.js';
+import type { ModuleCategory } from './registry.js';
+
+interface IngestionRecord {
+  id: string;
+  pipeline_name: string;
+  category: ModuleCategory;
+  source: string;
+  records_count: number;
+  summary: string;
+  status: 'success' | 'failed' | 'skipped';
+  error_message: string | null;
+  duration_ms: number;
+}
+
+async function getPgPool() {
+  const { default: pg } = await import('pg');
+  const connStr = process.env.DATABASE_URL || (() => {
+    const host = process.env.MAPLESPIKE_DB_HOST || 'localhost';
+    const port = process.env.MAPLESPIKE_DB_PORT || '5432';
+    const db   = process.env.MAPLESPIKE_DB_NAME || 'maplespike';
+    const user = process.env.MAPLESPIKE_DB_USER || 'maplespike';
+    const pass = process.env.MAPLESPIKE_DB_PASSWORD || '';
+    return `postgresql://${user}:${pass}@${host}:${port}/${db}`;
+  })();
+  const pool = new pg.Pool({ connectionString: connStr, max: 5 });
+  pool.on('error', (err: Error) => {
+    console.error('[ingestion] PG pool error:', err.message);
+  });
+  return pool;
+}
+
+async function ensureIngestionLogTable(pool: import('pg').Pool): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ingestion_log (
+        id TEXT PRIMARY KEY,
+        pipeline_name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        source TEXT NOT NULL,
+        records_count INTEGER NOT NULL DEFAULT 0,
+        summary TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'success',
+        error_message TEXT,
+        duration_ms INTEGER NOT NULL DEFAULT 0,
+        started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        completed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_ingestion_log_pipeline ON ingestion_log(pipeline_name);
+      CREATE INDEX IF NOT EXISTS idx_ingestion_log_started ON ingestion_log(started_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_ingestion_log_status ON ingestion_log(status);
+    `);
+  } finally {
+    client.release();
+  }
+}
+
+async function persistResult(
+  pool: import('pg').Pool,
+  record: IngestionRecord,
+): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      INSERT INTO ingestion_log (id, pipeline_name, category, source, records_count, summary, status, error_message, duration_ms)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      ON CONFLICT (id) DO UPDATE SET
+        records_count = EXCLUDED.records_count,
+        summary = EXCLUDED.summary,
+        status = EXCLUDED.status,
+        error_message = EXCLUDED.error_message,
+        duration_ms = EXCLUDED.duration_ms,
+        completed_at = NOW()
+    `, [
+      record.id,
+      record.pipeline_name,
+      record.category,
+      record.source,
+      record.records_count,
+      record.summary,
+      record.status,
+      record.error_message,
+      record.duration_ms,
+    ]);
+  } finally {
+    client.release();
+  }
+}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -48,18 +138,62 @@ async function main() {
   console.log(`[ingestion] Update frequency: ${module.updateFrequency}`);
   console.log(`[ingestion] Limit: ${limit ?? 'default'}`);
 
+  // Determine if we have DB persistence
+  const hasDb = !!(process.env.DATABASE_URL || process.env.MAPLESPIKE_DB_HOST);
+  let pool: import('pg').Pool | null = null;
+  if (hasDb) {
+    try {
+      pool = await getPgPool();
+      await ensureIngestionLogTable(pool);
+      console.log('[ingestion] PostgreSQL persistence enabled');
+    } catch (err) {
+      console.warn(`[ingestion] PostgreSQL unavailable — running without persistence: ${err instanceof Error ? err.message : String(err)}`);
+      pool = null;
+    }
+  } else {
+    console.log('[ingestion] No DATABASE_URL set — running without persistence');
+  }
+
   // Health check before running
   if (module.healthCheckUrl) {
     try {
       const resp = await fetch(module.healthCheckUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
       if (!resp.ok) {
         console.warn(`[ingestion] Health check FAILED for ${module.healthCheckUrl} (${resp.status}) — skipping`);
+        if (pool) {
+          await persistResult(pool, {
+            id: `${pipelineName}-${Date.now()}`,
+            pipeline_name: pipelineName,
+            category: module.category,
+            source: module.sources.map(s => s.name).join(', '),
+            records_count: 0,
+            summary: `Upstream health check failed: ${resp.status}`,
+            status: 'skipped',
+            error_message: `Health check returned ${resp.status}`,
+            duration_ms: 0,
+          });
+        }
+        await pool?.end().catch(() => {});
         process.exit(0);
       }
       console.log(`[ingestion] Health check OK: ${module.healthCheckUrl} → ${resp.status}`);
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
       console.warn(`[ingestion] Health check error for ${module.healthCheckUrl}: ${errMsg} — skipping`);
+      if (pool) {
+        await persistResult(pool, {
+          id: `${pipelineName}-${Date.now()}`,
+          pipeline_name: pipelineName,
+          category: module.category,
+          source: module.sources.map(s => s.name).join(', '),
+          records_count: 0,
+          summary: `Upstream unreachable: ${errMsg}`,
+          status: 'skipped',
+          error_message: errMsg,
+          duration_ms: 0,
+        });
+      }
+      await pool?.end().catch(() => {});
       process.exit(0);
     }
   } else {
@@ -68,21 +202,75 @@ async function main() {
 
   // Run the module
   const startTime = Date.now();
+  let recordsCount = 0;
+  let summary = '';
+  let errorMsg: string | null = null;
+  let status: IngestionRecord['status'] = 'success';
+
   try {
     const result = await runModule(pipelineName, { limit });
     const duration = Date.now() - startTime;
     console.log(`[ingestion] Pipeline '${pipelineName}' completed in ${duration}ms`);
-    if (result && typeof result === 'object' && 'records' in (result as Record<string, unknown>)) {
-      const records = (result as Record<string, unknown>).records;
-      console.log(`[ingestion] Records processed: ${Array.isArray(records) ? records.length : 'unknown'}`);
+
+    if (result && typeof result === 'object') {
+      const r = result as Record<string, unknown>;
+      if ('skipped' in r && r.skipped) {
+        status = 'skipped';
+        summary = (r.reason as string) || 'Module skipped (upstream unhealthy)';
+        console.log(`[ingestion] Pipeline skipped: ${summary}`);
+      } else if ('error' in r && r.error) {
+        status = 'failed';
+        summary = String(r.error);
+        console.error(`[ingestion] Pipeline returned error: ${summary}`);
+      } else if ('records' in r) {
+        recordsCount = Array.isArray(r.records) ? r.records.length : (typeof r.records === 'number' ? r.records as number : 0);
+        summary = `Processed ${recordsCount} records`;
+        console.log(`[ingestion] Records processed: ${recordsCount}`);
+      } else if ('count' in r) {
+        recordsCount = typeof r.count === 'number' ? r.count as number : 0;
+        summary = `Processed ${recordsCount} records`;
+        console.log(`[ingestion] Records processed: ${recordsCount}`);
+      } else {
+        summary = 'Completed (no record count available)';
+      }
+    } else {
+      summary = 'Completed';
     }
-    process.exit(0);
+
+    console.log(`[ingestion] Pipeline '${pipelineName}' completed successfully`);
   } catch (err) {
     const duration = Date.now() - startTime;
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error(`[ingestion] Pipeline '${pipelineName}' FAILED after ${duration}ms: ${errMsg}`);
-    process.exit(1);
+    status = 'failed';
+    errorMsg = errMsg;
+    summary = `Failed: ${errMsg}`;
   }
+
+  const duration = Date.now() - startTime;
+
+  // Persist result
+  if (pool) {
+    try {
+      await persistResult(pool, {
+        id: `${pipelineName}-${Date.now()}`,
+        pipeline_name: pipelineName,
+        category: module.category,
+        source: module.sources.map(s => s.name).join(', '),
+        records_count: recordsCount,
+        summary,
+        status,
+        error_message: errorMsg,
+        duration_ms: duration,
+      });
+      console.log('[ingestion] Result persisted to PostgreSQL');
+    } catch (err) {
+      console.error(`[ingestion] Failed to persist result: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    await pool.end().catch(() => {});
+  }
+
+  process.exit(status === 'success' ? 0 : 1);
 }
 
 main();
