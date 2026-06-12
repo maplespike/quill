@@ -91,8 +91,9 @@ async function govSearch(query: string): Promise<{
 
 /**
  * POST /v1/ai_ask (DEPRECATED - use POST /v1/ai/ask instead)
- * Ask a natural language question. Tries AI Gateway first,
- * falls back to gov/search, then returns a structured answer.
+ * Ask a natural language question. Uses RAG: searches pipeline data first,
+ * injects results as context, then sends to LLM for a cited answer.
+ * Falls back to gov/search when the gateway is unreachable.
  */
 export const aiAskHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
@@ -109,16 +110,48 @@ export const aiAskHandler: RouteHandler = async (request, ctx) => {
 
     const query = (body.query as string).trim();
 
-    // Try AI Gateway first
-    const systemPrompt = `You are MapleSpike AI, a sovereign Canadian government data assistant.
-Answer the user's question about Canadian government data using the available pipeline sources.
-Be specific, cite sources where possible, and note limitations.
-If you don't know the answer, say so — never fabricate data.
-Keep responses concise and factual.`;
+    // ── Step 1: RAG — search pipeline data for relevant context ──────────
+    let ragContext = '';
+    let sourceCount = 0;
+    try {
+      const govResp = await fetch(`${GOV_SEARCH_ENDPOINT}?query=${encodeURIComponent(query)}&limit=10`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (govResp.ok) {
+        const govData = await govResp.json() as any;
+        if (govData?.success && govData?.data?.results) {
+          const pipeline = govData.data.results.pipeline || [];
+          const ckan = govData.data.results.ckan || [];
+          const allResults = [...pipeline, ...ckan].slice(0, 10);
+          sourceCount = allResults.length;
 
+          if (allResults.length > 0) {
+            ragContext = '\n\nRelevant government data sources retrieved from MapleSpike:\n' +
+              allResults.map((r: any, i: number) =>
+                `[${i + 1}] ${r.title || r.name || 'Dataset'}\n` +
+                `    Description: ${(r.notes || r.description || '').substring(0, 400)}\n` +
+                `    Source: ${r.organization?.title || r.source || 'Government of Canada'}\n` +
+                (r.url ? `    URL: ${r.url}\n` : '')
+              ).join('\n');
+          }
+        }
+      }
+    } catch {
+      // gov/search unavailable — continue without RAG context
+    }
+
+    // ── Step 2: Build RAG-enhanced system prompt ─────────────────────────
+    const systemPrompt = `You are MapleSpike AI, a sovereign Canadian government data assistant.
+
+Answer the user's question about Canadian government data using the provided context.
+Be specific, cite sources by their [number] references, and note limitations.
+If the context doesn't contain enough information, say so clearly — never fabricate data.
+Keep responses concise and factual.${ragContext}`;
+
+    // ── Step 3: Try AI Gateway with RAG context ──────────────────────────
     const aiAnswer = await gatewayChat([
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: query },
+      { role: 'user', content: `Question: ${query}\n\nUse the context above (if any) to answer. Cite sources as [1], [2], etc.` },
     ]);
 
     if (aiAnswer) {
@@ -126,21 +159,25 @@ Keep responses concise and factual.`;
         answer: aiAnswer,
         source: 'ai-gateway',
         model: CHAT_MODEL,
+        contextSources: sourceCount,
       }, bc));
     }
 
-    // Fallback: gov/search via API server
-    const searchResults = await govSearch(query);
-    if (searchResults && searchResults.results.length > 0) {
-      const answer = `**Search results for "${query}"**\n\nFound ${searchResults.results.length} relevant government data sources:\n\n${searchResults.results.map((r, i) =>
-        `${i + 1}. **${r.title}**${r.description ? '\n   ' + r.description.substring(0, 200) : ''}${r.url ? '\n   🔗 ' + r.url : ''}`
-      ).join('\n\n')}\n\n— Results from MapleSpike's pipeline data and Government of Canada open data portals.`;
+    // ── Fallback: gov/search results (raw listing) ───────────────────────
+    if (sourceCount > 0) {
+      // Re-fetch results for fallback display
+      const fallbackResults = await govSearch(query);
+      if (fallbackResults && fallbackResults.results.length > 0) {
+        const answer = `**Search results for "${query}"**\n\nFound ${fallbackResults.results.length} relevant government data sources:\n\n${fallbackResults.results.map((r, i) =>
+          `${i + 1}. **${r.title}**${r.description ? '\n   ' + r.description.substring(0, 200) : ''}${r.url ? '\n   🔗 ' + r.url : ''}`
+        ).join('\n\n')}\n\n— Results from MapleSpike's pipeline data and Government of Canada open data portals.`;
 
-      return jsonResponse(buildSuccess({
-        answer,
-        source: 'gov-search',
-        results: searchResults.results,
-      }, bc));
+        return jsonResponse(buildSuccess({
+          answer,
+          source: 'gov-search',
+          results: fallbackResults.results,
+        }, bc));
+      }
     }
 
     // Last resort
