@@ -41,9 +41,6 @@ def build_url(
                 all_params[k] = str(v)
 
     if options:
-        # Map QueryOptions to URL parameters
-        if options.get('mock') is not None:
-            all_params['_mock'] = str(options['mock'])
         if options.get('fields'):
             all_params['_fields'] = options['fields']
         if options.get('format'):

@@ -18,6 +18,8 @@ import {
 import type {
   AuthenticatorTransportFuture,
   GenerateRegistrationOptionsOpts,
+  RegistrationResponseJSON,
+  AuthenticationResponseJSON,
 } from '@simplewebauthn/server';
 import { generateToken } from './jwt.js';
 import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
@@ -105,7 +107,7 @@ export async function beginRegistration(
   });
 
   // Store the challenge for verification
-  setChallenge(`passkey:register:${registrationId}`, (options as any).challenge as string, req.userId);
+  setChallenge(`passkey:register:${registrationId}`, options.challenge, req.userId);
 
   return {
     options: options as unknown as Record<string, unknown>,
@@ -125,7 +127,7 @@ export async function completeRegistration(
   }
 
   const verification = await verifyRegistrationResponse({
-    response: req.credential as any,
+    response: req.credential as unknown as RegistrationResponseJSON,
     expectedChallenge: stored.challenge,
     expectedOrigin: ORIGIN,
     expectedRPID: RP_ID,
@@ -135,16 +137,19 @@ export async function completeRegistration(
     throw new Error('Passkey registration verification failed');
   }
 
-  const regInfo = verification.registrationInfo as any;
-  const credentialPublicKey: Uint8Array = regInfo.credentialPublicKey;
-  const credentialID: Uint8Array = regInfo.credentialID;
-  const counter: number = regInfo.counter;
+  // TypeScript discriminates the union after the verified check above
+  const regInfo = verification.registrationInfo;
+  const credentialPubKey = regInfo.credential.publicKey;
+  const credentialId = regInfo.credential.id;
+  const counter = regInfo.credential.counter;
+
+  const reqCred = req.credential as unknown as RegistrationResponseJSON;
 
   const credential: PasskeyCredential = {
-    id: Buffer.from(credentialID).toString('base64url'),
-    publicKey: new Uint8Array(credentialPublicKey),
+    id: credentialId,
+    publicKey: new Uint8Array(credentialPubKey),
     counter,
-    transports: (req.credential as any)?.response?.transports || [],
+    transports: reqCred.response.transports || [],
     userId: stored.address || 'anon',
     deviceName: req.deviceName || 'Passkey',
     createdAt: new Date().toISOString(),
@@ -176,9 +181,9 @@ export interface PasskeyLoginCompleteRequest {
 /**
  * Step 2a: Generate WebAuthn assertion options for the browser.
  */
-export function beginLogin(
+export async function beginLogin(
   req: PasskeyLoginBeginRequest,
-): PasskeyLoginBeginResponse {
+): Promise<PasskeyLoginBeginResponse> {
   const loginId = generateNonce();
 
   // Find credentials for this user, or allow any credential
@@ -191,13 +196,13 @@ export function beginLogin(
         }))
     : [];
 
-  const options = generateAuthenticationOptions({
+  const options = await generateAuthenticationOptions({
     rpID: RP_ID,
     allowCredentials: allowedCredentials.length > 0 ? allowedCredentials : undefined,
     userVerification: 'required',
   });
 
-  setChallenge(`passkey:login:${loginId}`, (options as any).challenge as string);
+  setChallenge(`passkey:login:${loginId}`, options.challenge);
 
   return {
     options: options as unknown as Record<string, unknown>,
@@ -216,8 +221,8 @@ export async function completeLogin(
     throw new Error('Login session expired. Please try again.');
   }
 
-  const credentialRaw = req.credential as any;
-  const credentialId = Buffer.from(credentialRaw.id as string, 'base64url').toString('base64url');
+  const credentialRaw = req.credential as unknown as AuthenticationResponseJSON;
+  const credentialId = credentialRaw.id;
 
   const credential = credentials.get(credentialId);
   if (!credential) {
@@ -230,8 +235,8 @@ export async function completeLogin(
     expectedOrigin: ORIGIN,
     expectedRPID: RP_ID,
     credential: {
-      id: credential.id as any,
-      publicKey: new Uint8Array(credential.publicKey) as any,
+      id: credential.id,
+      publicKey: new Uint8Array(credential.publicKey),
       counter: credential.counter,
       transports: credential.transports,
     },

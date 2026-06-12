@@ -96,6 +96,32 @@ monitoring:
     enabled: true
     namespace: ai-inference
 
+  # ── Alerting ──────────────────────────────────────────────────
+  # Prometheus alerting rules (PrometheusRule CRD) defined in k8s/infra.nix:
+  #   CronJobFailed          — severity=critical, fires when a CronJob fails
+  #   CronJobRunningTooLong  — severity=warning,  fires when job runs >30m
+  #   PipelineIngestionStale — severity=warning,  fires when pushgateway >2h stale
+  #   NoPipelineData         — severity=critical, fires when data >24h old
+  #
+  # Alerts are routed by Alertmanager (deployed via k8s/infra.nix):
+  #   critical → Slack (#alerts-maplespike)
+  #   warning  → Email (admin@maplespike.lan)
+  #
+  # Grafana Alerting provisioning (contact points + notification policies)
+  # lives in config/grafana/provisioning/ for Grafana-side notifications.
+  # Before production use, replace placeholders in both:
+  #   - k8s/infra.nix — Alertmanager Slack URL + SMTP smarthost
+  #   - config/grafana/provisioning/ — Slack webhook URL + email addresses
+  alerting:
+    slack:
+      enabled: true
+      channel: "#alerts-maplespike"
+      # webhook_url set via Alertmanager config in k8s/infra.nix
+    email:
+      enabled: true
+      to: "admin@maplespike.lan"
+      smarthost: "localhost:25"
+
 # Secrets (set via --set or external secrets)
 secrets:
   apiKey: ""

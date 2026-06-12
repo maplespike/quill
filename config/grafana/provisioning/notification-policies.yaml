@@ -1,0 +1,80 @@
+# MapleSpike Grafana Notification Policies — Alert Routing
+# Provisioned automatically on Grafana start.
+# Place in: /etc/grafana/provisioning/notification-policies.yaml
+#
+# Routes alert notifications based on labels to the contact points
+# defined in contact-points.yaml.
+#
+# Routing hierarchy:
+#   Root (default) → send everything to Ops Email
+#     ├── CronJobFailed (critical) → Slack + Ops Email
+#     ├── CronJobRunningTooLong (warning) → Email (warning)
+#     ├── PipelineIngestionStale (warning) → Email (warning)
+#     └── NoPipelineData (critical) → Slack + Ops Email
+
+apiVersion: 1
+policies:
+  # ── Root policy: catch-all → Ops Email ────────────────────────
+  - receiver: "Ops Email — All Alerts"
+    group_by:
+      - alertname
+      - namespace
+      - job
+      - severity
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+
+    # ── Sub-policies per alert type ──────────────────────────────
+    routes:
+      # CronJobFailed — any job that failed → Slack + Ops Email
+      - receiver: "CronJob Critical — Slack"
+        matchers:
+          - alertname = "CronJobFailed"
+        group_wait: 10s
+        group_interval: 1m
+        repeat_interval: 1h
+        continue: true  # also evaluate sibling routes (Ops Email)
+        routes:
+          - receiver: "Ops Email — All Alerts"
+            matchers:
+              - alertname = "CronJobFailed"
+            repeat_interval: 1h
+
+      # CronJobRunningTooLong — stuck jobs → Email (warning)
+      - receiver: "CronJob Warning — Email"
+        matchers:
+          - alertname = "CronJobRunningTooLong"
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 2h
+
+      # PipelineIngestionStale — pushgateway too old → Email (warning)
+      - receiver: "CronJob Warning — Email"
+        matchers:
+          - alertname = "PipelineIngestionStale"
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 2h
+
+      # NoPipelineData — no data in >24h → Slack + Ops Email
+      - receiver: "CronJob Critical — Slack"
+        matchers:
+          - alertname = "NoPipelineData"
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 1h
+        continue: true
+        routes:
+          - receiver: "Ops Email — All Alerts"
+            matchers:
+              - alertname = "NoPipelineData"
+            repeat_interval: 1h
+
+      # Catch-all for any other alertname matching CronJob/Pipeline → Email
+      - receiver: "CronJob Warning — Email"
+        matchers:
+          - alertname =~ "CronJob.*|Pipeline.*|Ingestion.*"
+        group_wait: 1m
+        group_interval: 10m
+        repeat_interval: 4h

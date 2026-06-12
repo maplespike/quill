@@ -6,9 +6,20 @@
  * DELETE /v1/keys/:id   — Revoke an API key
  */
 
-import type { RouteHandler } from '../types.js';
+import type { RouteHandler, MapleSpikeStorage, Tenant } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
+
+/**
+ * Extended storage with optional key management methods.
+ * Not all storage backends implement these (MemoryStorage uses registerTenant
+ * instead), so we check their presence at runtime via typeof checks.
+ */
+interface ExtendedStorage extends MapleSpikeStorage {
+  createApiKey?: (keyId: string, tenantId: string, keyHash: string, name: string, expiresAt?: string) => void | Promise<void>;
+  registerTenant?: (tenant: Tenant, keyHash: string, keyId: string) => void | Promise<void>;
+  revokeApiKey?: (keyId: string, tenantId: string) => void | Promise<void>;
+}
 
 export const listKeysHandler: RouteHandler = async (_request, ctx) => {
   const keys = await ctx.db.listApiKeys(ctx.tenant.id);
@@ -25,10 +36,11 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
       .map(() => Math.random().toString(16).slice(2, 4)).join('');
 
     // Persist via storage (both SqliteStorage and MemoryStorage support createApiKey/registerTenant)
-    if (typeof (ctx.db as any).createApiKey === 'function') {
-      (ctx.db as any).createApiKey(keyId, ctx.tenant.id, keyHash, 'default');
-    } else if (typeof (ctx.db as any).registerTenant === 'function') {
-      (ctx.db as any).registerTenant(ctx.tenant, keyHash, keyId);
+    const extDb = ctx.db as ExtendedStorage;
+    if (typeof extDb.createApiKey === 'function') {
+      extDb.createApiKey(keyId, ctx.tenant.id, keyHash, 'default');
+    } else if (typeof extDb.registerTenant === 'function') {
+      extDb.registerTenant(ctx.tenant, keyHash, keyId);
     } else {
       return jsonResponse(buildError('STORAGE_ERROR', 'Storage backend does not support key creation', ctx), 500);
     }
@@ -52,8 +64,9 @@ export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
   }
 
   try {
-    if (typeof (ctx.db as any).revokeApiKey === 'function') {
-      (ctx.db as any).revokeApiKey(keyId, ctx.tenant.id);
+    const extDb = ctx.db as ExtendedStorage;
+    if (typeof extDb.revokeApiKey === 'function') {
+      extDb.revokeApiKey(keyId, ctx.tenant.id);
     } else {
       return jsonResponse(buildError('STORAGE_ERROR', 'Storage backend does not support key revocation', ctx), 500);
     }
@@ -86,10 +99,11 @@ export const rotateKeyHandler: RouteHandler = async (_request, ctx, params) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 90);
 
-    if (typeof (ctx.db as any).revokeApiKey === 'function' &&
-        typeof (ctx.db as any).createApiKey === 'function') {
-      (ctx.db as any).revokeApiKey(keyId, ctx.tenant.id);
-      (ctx.db as any).createApiKey(newKeyId, ctx.tenant.id, keyHash, 'rotated', expiresAt.toISOString());
+    const extDb = ctx.db as ExtendedStorage;
+    if (typeof extDb.revokeApiKey === 'function' &&
+        typeof extDb.createApiKey === 'function') {
+      extDb.revokeApiKey(keyId, ctx.tenant.id);
+      extDb.createApiKey(newKeyId, ctx.tenant.id, keyHash, 'rotated', expiresAt.toISOString());
     } else {
       return jsonResponse(buildError('STORAGE_ERROR', 'Storage backend does not support key rotation', ctx), 500);
     }
