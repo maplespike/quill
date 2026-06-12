@@ -317,7 +317,28 @@ export async function getDataQualityReport(): Promise<DataQualitySummary> {
   const cached = globalCache.get<DataQualitySummary>(CACHE_KEY);
   if (cached) return cached;
 
-  const modules = getAllModules();
+  let modules: ModuleInfo[];
+  try {
+    modules = getAllModules();
+  } catch (err) {
+    console.error('[data-quality] Failed to load modules:', err);
+    const empty: DataQualitySummary = {
+      status: 'unhealthy',
+      totalModules: 0,
+      modulesProbed: 0,
+      modulesWithHealthUrl: 0,
+      healthCheckResults: { up: 0, down: 0, untested: 0 },
+      freshnessResults: { fresh: 0, stale: 0, unknown: 0 },
+      errorAggregation: { totalErrors: 0, modulesWithErrors: 0, topErrors: [] },
+      modules: [],
+      computedAt: new Date().toISOString(),
+      cacheTTLSeconds: CACHE_TTL,
+    };
+    try {
+      globalCache.set(CACHE_KEY, empty, CACHE_TTL);
+    } catch {}
+    return empty;
+  }
 
   const reports: ModuleQualityReport[] = [];
   let modulesWithHealthUrl = 0;

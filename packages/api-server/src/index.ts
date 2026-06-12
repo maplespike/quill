@@ -417,8 +417,8 @@ export async function handleRequest(
     || route.handler === passkeyLoginCompleteHandler
     // Contact form (no auth required)
     || route.handler === contactHandler
-    // Data quality monitoring (feeds Grafana dashboard)
-    || route.handler === dataQualityHandler;
+    // Data quality (public, feeds Grafana dashboard)
+    || path === '/v1/data/quality'
 
   const tenant = authExempt
     ? null
@@ -452,7 +452,7 @@ export async function handleRequest(
 
   // Rate limit (skip for health, data quality, and spec)
   let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
-  if (!path.startsWith('/v1/health') && path !== '/v1/data/quality' && route.handler !== openApiHandler && route.handler !== dataQualityHandler) {
+  if (!path.startsWith('/v1/health') && path !== '/v1/data/quality' && route.handler !== openApiHandler) {
     // Stricter limits for unauthenticated requests
     const isAuthenticated = tenant !== null;
     const tierLimits = TIER_LIMITS[ctx.tenant.tier];
