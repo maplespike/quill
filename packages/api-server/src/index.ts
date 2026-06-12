@@ -35,10 +35,8 @@ import { D1Storage, KVCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { globalCache } from './cache.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
-import { getMockData, MOCK_DATA_SOURCES, ALL_MOCK_CATEGORIES, MOCK_DATA_MAP } from './mock-data.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
-import { parseAgentAction, mockHandler } from './routes/mock.js';
 import pino from 'pino';
 
 interface Route {
@@ -532,57 +530,8 @@ export async function handleRequest(
     }
   }
 
-  // ── Route matched ──
-  const pathname = url.pathname;
-
-  // Try the new agent/action pattern first
-  const agentAction = parseAgentAction(pathname);
-  if (agentAction) {
-    const bc: BuildContext = {
-      tenant: { id: 'dev', name: 'Dev User', emailVerified: true, tier: 'pro', isActive: true, journalismMode: false },
-      requestId,
-      startTime,
-      queryOptions,
-      metaOverrides: { cacheStatus: 'mock', durationMs: 0 },
-    };
-
-    // Build RouteContext-like params for mockHandler
-    const routeParams = { agent: agentAction.agent, action: agentAction.action };
-    return mockHandler(request, {
-      tenant: bc.tenant,
-      apiKeyId: '',
-      requestId,
-      startTime,
-      env: {},
-      db: undefined as unknown as MapleSpikeStorage,
-      cache: undefined as unknown as MapleSpikeCache,
-    }, routeParams);
-  }
-
-  // Legacy fallback for flat-source paths (/_mock=true on /v1/gov/search, etc.)
-  const source = pathname === '/v1/search' || pathname === '/v1/gov/search'
-    ? 'hoc'
-    : pathname.replace(/^\/v1\//, '').replace(/[^a-zA-Z]/g, '');
-
-  const data = getMockData(source);
-  const allSources = url.searchParams.has('_sources')
-    ? MOCK_DATA_SOURCES
-    : undefined;
-
-  const bc: BuildContext = {
-    tenant: { id: 'dev', name: 'Dev User', emailVerified: true, tier: 'pro', isActive: true, journalismMode: false },
-    requestId,
-    startTime,
-    queryOptions,
-    metaOverrides: { cacheStatus: 'mock', durationMs: 0 },
-  };
-
-  return jsonResponse(buildSuccess({
-    results: data,
-    totalCount: data.length,
-    sources: ALL_MOCK_CATEGORIES,
-    mockData: allSources,
-  }, bc), 200, {}, undefined, environment);
+  // ── Dispatch to matched route handler ──
+  return route.handler(request, ctx, params);
 }
 
 export default {
