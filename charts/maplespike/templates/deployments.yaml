@@ -31,6 +31,12 @@ spec:
           value: "{{ .Values.api.env.MAPLESPIKE_STORAGE | default "memory" }}"
         - name: MAPLESPIKE_API_URL
           value: "{{ .Values.api.env.MAPLESPIKE_API_URL }}"
+        - name: MAPLESPIKE_QDRANT_ENDPOINT
+          value: "{{ .Values.api.env.MAPLESPIKE_QDRANT_ENDPOINT | default "http://qdrant:6333" }}"
+        - name: MAPLESPIKE_QDRANT_COLLECTION
+          value: "{{ .Values.api.env.MAPLESPIKE_QDRANT_COLLECTION | default "maplespike" }}"
+        - name: MAPLESPIKE_EMBED_MODEL
+          value: "{{ .Values.api.env.MAPLESPIKE_EMBED_MODEL | default "nvidia/llama-3.2-nv-embedqa-1b-v2" }}"
         - name: MAPLESPIKE_API_KEY
           valueFrom:
             secretKeyRef:

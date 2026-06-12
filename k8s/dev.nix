@@ -174,6 +174,19 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                     };
                     default = "maplespike-dev-key";
                   };
+                  # Qdrant vector DB for semantic RAG
+                  QDRANT_ENDPOINT = {
+                    name = "MAPLESPIKE_QDRANT_ENDPOINT";
+                    value = "http://qdrant:6333";
+                  };
+                  QDRANT_COLLECTION = {
+                    name = "MAPLESPIKE_QDRANT_COLLECTION";
+                    value = "maplespike";
+                  };
+                  EMBED_MODEL = {
+                    name = "MAPLESPIKE_EMBED_MODEL";
+                    value = "nvidia/llama-3.2-nv-embedqa-1b-v2";
+                  };
                 };
                 resources = {
                   requests = { cpu = "50m"; memory = "64Mi"; };
