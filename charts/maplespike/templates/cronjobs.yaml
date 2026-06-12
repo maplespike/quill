@@ -28,6 +28,24 @@ spec:
               value: production
             - name: PROMETHEUS_PUSHGATEWAY
               value: "http://prometheus-pushgateway.observability:9091"
+            {{- if eq $.Values.api.env.MAPLESPIKE_STORAGE "postgres" }}
+            - name: MAPLESPIKE_DB_HOST
+              value: "{{ $.Values.api.env.MAPLESPIKE_DB_HOST | default "maplespike-db" }}"
+            - name: MAPLESPIKE_DB_PORT
+              value: "{{ $.Values.api.env.MAPLESPIKE_DB_PORT | default "5432" }}"
+            - name: MAPLESPIKE_DB_NAME
+              value: "{{ $.Values.api.env.MAPLESPIKE_DB_NAME | default "maplespike" }}"
+            - name: MAPLESPIKE_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-db-secret
+                  key: postgres-user
+            - name: MAPLESPIKE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-db-secret
+                  key: postgres-password
+            {{- end }}
             resources:
               requests:
                 cpu: {{ $.Values.ingestion.resources.requests.cpu }}

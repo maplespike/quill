@@ -59,6 +59,8 @@ export class PgStorage implements MapleSpikeStorage {
           id TEXT PRIMARY KEY,
           name TEXT NOT NULL,
           email TEXT,
+          email_verified BOOLEAN DEFAULT FALSE,
+          verification_token TEXT,
           tier TEXT NOT NULL DEFAULT 'free',
           is_active BOOLEAN DEFAULT TRUE,
           journalism_mode BOOLEAN DEFAULT FALSE,
@@ -307,11 +309,11 @@ export class PgStorage implements MapleSpikeStorage {
 
   /*  Extra helpers (for registration / key management)                */
 
-  async createTenant(tenant: Tenant): Promise<void> {
+  async createTenant(tenant: Tenant & { verificationToken?: string }): Promise<void> {
     await this.pool.query(`
-      INSERT INTO tenants (id, name, email, tier, is_active, journalism_mode)
-      VALUES ($1, $2, $3, $4, $5, $6)
-    `, [tenant.id, tenant.name, tenant.email || null, tenant.tier, tenant.isActive, tenant.journalismMode]);
+      INSERT INTO tenants (id, name, email, email_verified, verification_token, tier, is_active, journalism_mode)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `, [tenant.id, tenant.name, tenant.email || null, Boolean(tenant.emailVerified), tenant.verificationToken || null, tenant.tier, tenant.isActive, tenant.journalismMode]);
   }
 
   async createApiKey(keyId: string, tenantId: string, keyHash: string, name: string, expiresAt?: string): Promise<void> {
@@ -341,6 +343,20 @@ export class PgStorage implements MapleSpikeStorage {
       isActive: Boolean(row.is_active),
       journalismMode: Boolean(row.journalism_mode),
     };
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    const { rows } = await this.pool.query(
+      'SELECT id FROM tenants WHERE verification_token = $1 AND email_verified = FALSE',
+      [token],
+    );
+    const row = rows[0] as Record<string, unknown> | undefined;
+    if (!row) return false;
+    await this.pool.query(
+      'UPDATE tenants SET email_verified = TRUE, verification_token = NULL, updated_at = NOW() WHERE id = $1',
+      [row.id],
+    );
+    return true;
   }
 }
 

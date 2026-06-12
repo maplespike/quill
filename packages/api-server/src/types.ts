@@ -290,6 +290,9 @@ export interface Env {
   ENVIRONMENT?: string;
   MAPLESPIKE_VERSION?: string;
   MAPLESPIKE_NAME?: string;
+  MAPLESPIKE_STORAGE?: string;
+  DATABASE_URL?: string;
+  MAPLESPIKE_DB_HOST?: string;
   FREE_LIMIT?: string;
   PRO_LIMIT?: string;
   BUSINESS_LIMIT?: string;

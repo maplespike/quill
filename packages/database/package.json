@@ -8,7 +8,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./schema": "./dist/schema.js",
-    "./connection": "./dist/connection.js"
+    "./connection": "./dist/connection.js",
+    "./migrate-pg": "./dist/migrate-pg.js"
   },
   "scripts": {
     "build": "tsc -b",
@@ -17,11 +18,13 @@
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.20.0",
     "typescript": "^5.7.0"
   },
   "sideEffects": false
