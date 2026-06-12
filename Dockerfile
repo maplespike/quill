@@ -29,11 +29,18 @@ COPY packages/portal/package.json packages/portal/
 RUN apt-get update -qq && apt-get install -y -qq python3 make g++ && \
     pnpm install --no-frozen-lockfile
 
+# Ensure tsx is available for extensionless ESM imports
+
 # Copy source code
 COPY . .
 
 # Build packages needed for all targets
 RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database --filter=@maplespike/mcp-server --filter=@maplespike/engine
+
+# Fix ESM imports in dist/ (Node.js requires .js extensions for local imports)
+RUN node scripts/fix-esm-imports.ts packages/database/dist && \
+    node scripts/fix-esm-imports.ts packages/mcp-server/dist && \
+    node scripts/fix-esm-imports.ts packages/pipeline-core/dist || true
 
 # Fix package.json exports to point to dist/ for production
 COPY scripts/fix-package-exports.js /tmp/
