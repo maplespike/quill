@@ -13,8 +13,8 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "start": "node dist/cli.js",
     "start:sse": "node dist/index.js",
-    "test": "tsx --test 'src/mcp-server.test.ts'",
-    "test:coverage": "tsx --experimental-test-coverage --test 'src/mcp-server.test.ts'"
+    "test": "tsx --test 'src/**/*.test.ts'",
+    "test:coverage": "tsx --experimental-test-coverage --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "@maplespike/database": "workspace:*",

@@ -27,13 +27,11 @@ import {
   jsonResponse,
   corsPreflight,
   addRateLimitHeaders,
-  getAllowedOrigin,
 } from './response.js';
 import type { BuildContext } from './response.js';
 import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
-import { globalCache } from './cache.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
@@ -44,11 +42,13 @@ interface Route {
   method: string;
   params: string[];
   handler: RouteHandler;
+  /** Per-route cache TTL in seconds. Only GET routes with ttlSeconds > 0 are cached. */
+  ttlSeconds?: number;
 }
 
 import { healthHandler } from './routes/health.js';
 import { addAttributionHeader } from './middleware/attribution.js';
-import { applySecurityHeaders } from './middleware/security-headers.js';
+import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
@@ -104,50 +104,51 @@ import {
 } from './auth/github.js';
 
 const ROUTES: Route[] = [
-  { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: healthHandler },
-  { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: complianceHandler },
-  { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: onboardingHandler },
+  { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
+  { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: withRouteCache(complianceHandler, 3600) },
+  { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: withRouteCache(onboardingHandler, 3600) },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
   { pattern: /^\/v1\/register\/?$/, method: 'POST', params: [], handler: registerHandler },
   { pattern: /^\/v1\/verify\/([^/]+)\/?$/, method: 'GET', params: ['token'], handler: verifyHandler },
-  { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: meHandler },
-  { pattern: /^\/v1\/gov\/releases\/?$/, method: 'GET', params: [], handler: listReleasesHandler },
-  { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: searchGovHandler },
+  { pattern: /^\/v1\/me\/?$/, method: 'GET', params: [], handler: withRouteCache(meHandler, 60) },
+  { pattern: /^\/v1\/gov\/releases\/?$/, method: 'GET', params: [], handler: withRouteCache(listReleasesHandler, 3600) },
+  { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: withRouteCache(searchGovHandler, 300) },
 
-  { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: getCitationHandler },
+  { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: withRouteCache(getCitationHandler, 3600) },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
-  { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: auditGetHandler },
-  { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: usageHandler },
+  { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: withRouteCache(auditGetHandler, 60) },
+  { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: withRouteCache(usageHandler, 60) },
   // Billing
-  { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: billingPlansHandler },
+  { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: withRouteCache(billingPlansHandler, 3600) },
   { pattern: /^\/v1\/billing\/order\/?$/, method: 'POST', params: [], handler: billingOrderHandler },
   { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
 
   // API Key Management
-  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: apiKeysListHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: withRouteCache(apiKeysListHandler, 60) },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: apiKeysCreateHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: apiKeysRevokeHandler },
 
   // Journalism — Annotations
-  { pattern: /^\/v1\/annotations\/?$/, method: 'GET', params: [], handler: listAnnotationsHandler },
+  { pattern: /^\/v1\/annotations\/?$/, method: 'GET', params: [], handler: withRouteCache(listAnnotationsHandler, 60) },
   { pattern: /^\/v1\/annotations\/?$/, method: 'POST', params: [], handler: createAnnotationHandler },
   { pattern: /^\/v1\/annotations\/([^/]+)\/?$/, method: 'PATCH', params: ['id'], handler: updateAnnotationHandler },
   { pattern: /^\/v1\/annotations\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteAnnotationHandler },
-  { pattern: /^\/v1\/annotations\/export\/?$/, method: 'GET', params: [], handler: exportAnnotationsHandler },
+  { pattern: /^\/v1\/annotations\/export\/?$/, method: 'GET', params: [], handler: withRouteCache(exportAnnotationsHandler, 60) },
   // AI
   { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
   { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
-  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: withRouteCache(listKeysHandler, 60) },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },
-  { pattern: /^\/v1\/openapi\.json\/?$/, method: 'GET', params: [], handler: openApiHandler },
-  { pattern: /^\/v1\/?$/, method: 'GET', params: [], handler: openApiHandler }, // Root redirect to spec
+  { pattern: /^\/v1\/openapi\.json\/?$/, method: 'GET', params: [], handler: withRouteCache(openApiHandler, 3600) },
+  { pattern: /^\/v1\/?$/, method: 'GET', params: [], handler: withRouteCache(openApiHandler, 3600) }, // Root redirect to spec
 
   // --- Auth routes ---
   // Generic OAuth
-  { pattern: /^\/v1\/auth\/oauth\/providers\/?$/, method: 'GET', params: [], handler: oauthProvidersHandler },
+  { pattern: /^\/v1\/auth\/oauth\/providers\/?$/, method: 'GET', params: [], handler: withRouteCache(oauthProvidersHandler, 3600) },
+  // OAuth login/callback redirects — no cache (user-specific redirects)
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/?$/, method: 'GET', params: ['provider'], handler: oauthLoginHandler },
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/callback\/?$/, method: 'GET', params: ['provider'], handler: oauthCallbackHandler },
   // Legacy GitHub-specific (kept for backward compat)
@@ -155,7 +156,7 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/auth\/github\/callback\/?$/, method: 'GET', params: [], handler: githubCallbackHandler },
   { pattern: /^\/v1\/auth\/refresh\/?$/, method: 'POST', params: [], handler: refreshTokenHandler },
   { pattern: /^\/v1\/auth\/logout\/?$/, method: 'POST', params: [], handler: logoutHandler },
-  { pattern: /^\/v1\/auth\/me\/?$/, method: 'GET', params: [], handler: authMeHandler },
+  { pattern: /^\/v1\/auth\/me\/?$/, method: 'GET', params: [], handler: withRouteCache(authMeHandler, 60) },
   // Web3 wallet auth
   { pattern: /^\/v1\/auth\/web3\/challenge\/?$/, method: 'POST', params: [], handler: web3ChallengeHandler },
   { pattern: /^\/v1\/auth\/web3\/login\/?$/, method: 'POST', params: [], handler: web3LoginHandler },
@@ -164,39 +165,39 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/auth\/passkey\/register\/complete\/?$/, method: 'POST', params: [], handler: passkeyRegisterCompleteHandler },
   { pattern: /^\/v1\/auth\/passkey\/login\/begin\/?$/, method: 'POST', params: [], handler: passkeyLoginBeginHandler },
   { pattern: /^\/v1\/auth\/passkey\/login\/complete\/?$/, method: 'POST', params: [], handler: passkeyLoginCompleteHandler },
-  { pattern: /^\/v1\/auth\/passkey\/credentials\/?$/, method: 'GET', params: [], handler: passkeyListHandler },
+  { pattern: /^\/v1\/auth\/passkey\/credentials\/?$/, method: 'GET', params: [], handler: withRouteCache(passkeyListHandler, 60) },
   { pattern: /^\/v1\/auth\/passkey\/credentials\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: passkeyDeleteHandler },
 
   // Energy data
-  { pattern: /^\/v1\/energy\/?$/, method: 'GET', params: [], handler: energyDataHandler },
+  { pattern: /^\/v1\/energy\/?$/, method: 'GET', params: [], handler: withRouteCache(energyDataHandler, 3600) },
 
   // Real estate data
-  { pattern: /^\/v1\/real-estate\/?$/, method: 'GET', params: [], handler: realEstateDataHandler },
+  { pattern: /^\/v1\/real-estate\/?$/, method: 'GET', params: [], handler: withRouteCache(realEstateDataHandler, 3600) },
 
   // Financial regulation data
-  { pattern: /^\/v1\/financial-regulation\/?$/, method: 'GET', params: [], handler: finRegDataHandler },
-  { pattern: /^\/v1\/financial-regulation\/cross-reference\/?$/, method: 'GET', params: [], handler: finRegCrossRefHandler },
+  { pattern: /^\/v1\/financial-regulation\/?$/, method: 'GET', params: [], handler: withRouteCache(finRegDataHandler, 3600) },
+  { pattern: /^\/v1\/financial-regulation\/cross-reference\/?$/, method: 'GET', params: [], handler: withRouteCache(finRegCrossRefHandler, 3600) },
 
   // Municipal data
-  { pattern: /^\/v1\/municipal\/?$/, method: 'GET', params: [], handler: municipalDataHandler },
-  { pattern: /^\/v1\/municipal\/([^/]+)\/?$/, method: 'GET', params: ['city'], handler: municipalCityHandler },
+  { pattern: /^\/v1\/municipal\/?$/, method: 'GET', params: [], handler: withRouteCache(municipalDataHandler, 3600) },
+  { pattern: /^\/v1\/municipal\/([^/]+)\/?$/, method: 'GET', params: ['city'], handler: withRouteCache(municipalCityHandler, 3600) },
 
   // Entity resolution
   { pattern: /^\/v1\/entity\/resolve\/?$/, method: 'POST', params: [], handler: entityResolveHandler },
-  { pattern: /^\/v1\/entity\/connections\/?$/, method: 'GET', params: [], handler: entityConnectionsHandler },
+  { pattern: /^\/v1\/entity\/connections\/?$/, method: 'GET', params: [], handler: withRouteCache(entityConnectionsHandler, 300) },
 
   // Watcher (real-time monitoring)
-  { pattern: /^\/v1\/watcher\/status\/?$/, method: 'GET', params: [], handler: watcherStatusHandler },
-  { pattern: /^\/v1\/watcher\/events\/?$/, method: 'GET', params: [], handler: watcherEventsHandler },
+  { pattern: /^\/v1\/watcher\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(watcherStatusHandler, 60) },
+  { pattern: /^\/v1\/watcher\/events\/?$/, method: 'GET', params: [], handler: withRouteCache(watcherEventsHandler, 60) },
 
   // Webhook notifications
-  { pattern: /^\/v1\/webhooks\/?$/, method: 'GET', params: [], handler: webhookListHandler },
+  { pattern: /^\/v1\/webhooks\/?$/, method: 'GET', params: [], handler: withRouteCache(webhookListHandler, 60) },
   { pattern: /^\/v1\/webhooks\/?$/, method: 'POST', params: [], handler: webhookCreateHandler },
-  { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: webhookGetHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: withRouteCache(webhookGetHandler, 60) },
   { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'PATCH', params: ['id'], handler: webhookUpdateHandler },
   { pattern: /^\/v1\/webhooks\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: webhookDeleteHandler },
   { pattern: /^\/v1\/webhooks\/([^/]+)\/test\/?$/, method: 'POST', params: ['id'], handler: webhookTestHandler },
-  { pattern: /^\/v1\/webhooks\/([^/]+)\/deliveries\/?$/, method: 'GET', params: ['id'], handler: webhookDeliveriesHandler },
+  { pattern: /^\/v1\/webhooks\/([^/]+)\/deliveries\/?$/, method: 'GET', params: ['id'], handler: withRouteCache(webhookDeliveriesHandler, 60) },
 ];
 
 /**
@@ -300,7 +301,7 @@ ROUTES.push({
   pattern: /^\/v1\/engine\/status\/?$/,
   method: 'GET',
   params: [],
-  handler: engineStatusHandler,
+  handler: withRouteCache(engineStatusHandler, 300),
 });
 
 // Engine run route — trigger engine orchestrator
@@ -314,9 +315,9 @@ ROUTES.push({
 
 // Export API — REST/JSON export for external clients
 ROUTES.push(
-  { pattern: /^\/v1\/export\/modules\/?$/, method: 'GET', params: [], handler: listModulesHandler },
-  { pattern: /^\/v1\/export\/([^/]+)\/([^/]+)\/?$/, method: 'GET', params: ['module', 'id'], handler: exportModuleHandler },
-  { pattern: /^\/v1\/export\/([^/]+)\/?$/, method: 'GET', params: ['module'], handler: exportModuleHandler },
+  { pattern: /^\/v1\/export\/modules\/?$/, method: 'GET', params: [], handler: withRouteCache(listModulesHandler, 3600) },
+  { pattern: /^\/v1\/export\/([^/]+)\/([^/]+)\/?$/, method: 'GET', params: ['module', 'id'], handler: withRouteCache(exportModuleHandler, 3600) },
+  { pattern: /^\/v1\/export\/([^/]+)\/?$/, method: 'GET', params: ['module'], handler: withRouteCache(exportModuleHandler, 3600) },
 );
 
 function matchRoute(url: string, method: string): { route: Route; params: Record<string, string> } | null {
@@ -436,42 +437,6 @@ export async function handleRequest(
   const authMethod: string = tenant?.authMethod || 'api-key';
   const tier = ctx.tenant.tier;
   const creditsCharged = tier === 'free' ? 0 : 1;
-
-  // --- Cache check for regular requests ---
-  const cacheKey = `${request.method}:${url.pathname}:${url.search}`;
-  const cachedResponse = globalCache.get<string>(cacheKey);
-  let cacheStatus: 'hit' | 'miss' = 'miss';
-
-  if (cachedResponse) {
-    cacheStatus = 'hit';
-    const cached = JSON.parse(cachedResponse);
-    // Update the meta on cached response with fresh timestamps
-    cached.meta.cacheStatus = 'hit';
-    cached.meta.timestamp = new Date().toISOString();
-    cached.meta.durationMs = Date.now() - startTime;
-    cached.meta.creditsCharged = creditsCharged;
-    cached.meta.authMethod = authMethod;
-    cached.quality.freshness_seconds = Math.floor((Date.now() - startTime) / 1000);
-    const cachedRes = new Response(JSON.stringify(cached, null, 2), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-MapleSpike-Version': '0.1.0',
-        'X-Cache': 'hit',
-        'X-MapleSpike-Trace-Id': crypto.randomUUID(),
-        'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin),
-        'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
-        'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
-      },
-    });
-    // Apply security headers
-    const secureCachedRes = new Response(cachedRes.body, {
-      status: cachedRes.status,
-      headers: applySecurityHeaders(new Headers(cachedRes.headers), environment),
-    });
-    return secureCachedRes;
-  }
 
   // Rate limit (skip for health and spec)
   let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
