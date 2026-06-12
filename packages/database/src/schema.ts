@@ -329,7 +329,7 @@ export const committee_governance = sqliteTable(
     scope: text("scope").notNull(), // federal, provincial, municipal, other
     chamber: text("chamber"),
     mandate: text("mandate").notNull(),
-    parentCommitteeId: text("parent_committee_id").references(() => committee_governance.id),
+    parentCommitteeId: text("parent_committee_id"),
     sourceUrl: text("source_url"),
     sourceLastUpdated: text("source_last_updated"),
     createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
@@ -385,7 +385,7 @@ export const charities = sqliteTable(
     province: text("province"),
     postalCode: text("postal_code"),
     country: text("country").default("Canada"),
-    parentOrganizationId: text("parent_organization_id").references(() => charities.id),
+    parentOrganizationId: text("parent_organization_id"),
     sourceUrl: text("source_url"),
     sourceLastUpdated: text("source_last_updated"),
     createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
@@ -417,10 +417,7 @@ export const charity_financials = sqliteTable(
     currency: text("currency").default("CAD"),
     createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
     updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
-  },
-  (table) => ({
-    uniqueIdx: sql`UNIQUE(charity_id, year)`,
-  })
+  }
 );
 
 export const charity_board_members = sqliteTable(
