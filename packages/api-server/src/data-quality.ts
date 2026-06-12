@@ -16,8 +16,8 @@
  *                        → returns structured ModuleQualityReport[]
  */
 
-import type { ModuleInfo } from '@maplespike/pipeline-core';
-import { getAllModules } from '@maplespike/pipeline-core';
+import type { ModuleInfo } from './registry-snapshot.js';
+import { getAllModules } from './registry-snapshot.js';
 import { globalCache } from './cache.js';
 
 /* ------------------------------------------------------------------ */

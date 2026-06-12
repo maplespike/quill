@@ -30,7 +30,7 @@ import {
 } from './response.js';
 import type { BuildContext } from './response.js';
 import { loadConfig, validateConfig } from './config.js';
-import { D1Storage, KVCache } from './storage.js';
+import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
 export type { ApiResponse } from './types.js';
@@ -513,9 +513,36 @@ export async function handleRequest(
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const db = new D1Storage(env.DB);
+    // Support both Workers D1 and Node.js PG/SQLite backends
+    const storageMode = (env.MAPLESPIKE_STORAGE || process.env.MAPLESPIKE_STORAGE || '').toLowerCase();
+    const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
+
+    let db: MapleSpikeStorage;
+    let cache: MapleSpikeCache;
+
+    if (storageMode === 'postgres' || databaseUrl || env.MAPLESPIKE_DB_HOST || process.env.MAPLESPIKE_DB_HOST) {
+      // PostgreSQL mode — used in Node.js or when DATABASE_URL is provided
+      const { PgStorage, PgCache } = await import('./pg-storage.js');
+      const pgDb = new PgStorage(databaseUrl);
+      await pgDb.init();
+      db = pgDb;
+      cache = new PgCache();
+    } else if (storageMode === 'sqlite' || process.env.MAPLESPIKE_DB_PATH) {
+      // SQLite mode
+      const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
+      db = new SqliteStorage();
+      cache = new SqliteStorageCache();
+    } else if (env.DB) {
+      // Cloudflare Workers D1 mode
+      db = new D1Storage(env.DB);
+      cache = new KVCache(env.CACHE);
+    } else {
+      // Fallback to in-memory
+      db = new MemoryStorage();
+      cache = new MemoryCache();
+    }
+
     initAnnotationStore(env.DB);
-    const cache = new KVCache(env.CACHE);
     const envVars: Record<string, string | undefined> = {
       ENVIRONMENT: env.ENVIRONMENT,
       MAPLESPIKE_VERSION: env.MAPLESPIKE_VERSION,

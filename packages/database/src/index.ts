@@ -1,6 +1,8 @@
 export { getDb, getRawDb, closeDb, runMigrations, createDb } from "./connection";
 export type { DbClient, DbConfig } from "./connection";
 
+export { migrateDomainTables, PG_DOMAIN_MIGRATION_SQL } from "./migrate-pg";
+
 export * from "./schema";
 
 // Re-export Database namespace type from better-sqlite3 for consumers
