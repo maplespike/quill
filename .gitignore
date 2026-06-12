@@ -40,3 +40,6 @@ state.json
 
 # Nix build artifacts
 result
+
+# Understand Anything knowledge graph (local codebase analysis)
+.understand-anything/
