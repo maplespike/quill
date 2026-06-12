@@ -111,6 +111,9 @@ importers:
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@11.10.0)(gel@2.2.0)(pg@8.20.0)
+      pg:
+        specifier: ^8.20.0
+        version: 8.20.0
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.0
@@ -118,6 +121,9 @@ importers:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.19
+      '@types/pg':
+        specifier: ^8.20.0
+        version: 8.20.0
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -259,6 +265,9 @@ importers:
       fast-xml-parser:
         specifier: ^5.8.0
         version: 5.8.0
+      pg:
+        specifier: ^8.20.0
+        version: 8.20.0
       pino:
         specifier: ^10.3.1
         version: 10.3.1
@@ -269,6 +278,9 @@ importers:
       '@types/amqplib':
         specifier: ^0.10.7
         version: 0.10.8
+      '@types/pg':
+        specifier: ^8.20.0
+        version: 8.20.0
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -5792,10 +5804,11 @@ snapshots:
       globby: 11.1.0
       read-yaml-file: 1.1.0
 
-  '@maplespike/database@file:packages/database(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(gel@2.2.0)(pg@8.20.0)':
+  '@maplespike/database@file:packages/database(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(gel@2.2.0)':
     dependencies:
       better-sqlite3: 11.10.0
       drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@11.10.0)(gel@2.2.0)(pg@8.20.0)
+      pg: 8.20.0
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'
@@ -5820,7 +5833,7 @@ snapshots:
       - knex
       - kysely
       - mysql2
-      - pg
+      - pg-native
       - postgres
       - prisma
       - sql.js
@@ -5828,7 +5841,7 @@ snapshots:
 
   '@maplespike/engine@file:packages/engine(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(gel@2.2.0)':
     dependencies:
-      '@maplespike/database': file:packages/database(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(gel@2.2.0)(pg@8.20.0)
+      '@maplespike/database': file:packages/database(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(gel@2.2.0)
       better-sqlite3: 11.10.0
       drizzle-orm: 0.45.2(@cloudflare/workers-types@4.20260511.1)(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(better-sqlite3@11.10.0)(gel@2.2.0)(pg@8.20.0)
       fuse.js: 7.4.2

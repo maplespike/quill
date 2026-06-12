@@ -225,11 +225,13 @@
     "@maplespike/database": "workspace:*",
     "amqplib": "^0.10.5",
     "fast-xml-parser": "^5.8.0",
+    "pg": "^8.20.0",
     "pino": "^10.3.1",
     "undici": "^8.2.0"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
+    "@types/pg": "^8.20.0",
     "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   },
