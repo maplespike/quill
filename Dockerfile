@@ -80,3 +80,14 @@ COPY packages/portal/dist /app
 
 EXPOSE 8080
 CMD ["python3", "-m", "http.server", "8080"]
+
+# =============================================================================
+# Runtime: Ingestion Runner (runs a single pipeline by MAPLESPIKE_PIPELINE env)
+# =============================================================================
+FROM docker.io/node:22-bookworm AS ingestion
+
+WORKDIR /app
+COPY --from=build /app /app
+
+ENV NODE_ENV=production
+CMD ["sh", "-c", "node --experimental-specifier-resolution=node packages/pipeline-core/dist/ingestion/run-pipeline.js --name=$MAPLESPIKE_PIPELINE"]
