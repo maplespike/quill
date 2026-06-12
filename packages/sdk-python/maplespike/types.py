@@ -73,7 +73,6 @@ class MapleSpikeResponse:
 @dataclass
 class QueryOptions:
     """Options that modify how a query is sent or transformed."""
-    mock: Optional[bool] = None
     fields: Optional[str] = None
     format: Optional[str] = None
     limit: Optional[int] = None
