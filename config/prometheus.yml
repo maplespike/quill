@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+scrape_configs:
+  - job_name: 'maplespike-api'
+    static_configs:
+      - targets: ['maplespike-api.maplespike:8082']
+    metrics_path: '/v1/metrics'
+    scheme: 'http'
+
+  - job_name: 'maplespike-mcp'
+    static_configs:
+      - targets: ['maplespike-mcp.maplespike:3001']
+    metrics_path: '/metrics'
+    scheme: 'http'
+
+  - job_name: 'kubernetes-cronjobs'
+    static_configs:
+      - targets: ['localhost:10250']
+    scheme: 'https'
+    tls_config:
+      insecure_skip_verify: true
+    authorization:
+      credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
