@@ -140,6 +140,8 @@ import * as searchEurostat from './search-eurostat.js';
 import * as aiAsk from './ai-ask.js';
 import * as aiAnalyze from './ai-analyze.js';
 import * as aiSearchSemantic from './ai-search-semantic.js';
+import * as exploreCatalog from './explore-catalog.js';
+import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as findConnections from './find-connections.js';
@@ -287,6 +289,8 @@ export function getAllTools(): ToolModule[] {
     aiAsk,
     aiAnalyze,
     aiSearchSemantic,
+    exploreCatalog,
+    signalCheck,
     systemHealth,
     resolveEntity,
     findConnections,
