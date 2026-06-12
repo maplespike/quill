@@ -319,6 +319,126 @@ export const committee_witnesses = sqliteTable(
   }
 );
 
+// ─── Governance Committees ─────────────────────────────────────────────────────────────────────────────────────────
+export const committee_governance = sqliteTable(
+  "committee_governance",
+  {
+    id: text("id").primaryKey().notNull(),
+    names: text("names", { mode: "json" }).notNull().$type<string[]>(),
+    type: text("type").notNull(), // standing, special, joint, subcommittee, other
+    scope: text("scope").notNull(), // federal, provincial, municipal, other
+    chamber: text("chamber"),
+    mandate: text("mandate").notNull(),
+    parentCommitteeId: text("parent_committee_id").references(() => committee_governance.id),
+    sourceUrl: text("source_url"),
+    sourceLastUpdated: text("source_last_updated"),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+export const committee_governance_members = sqliteTable(
+  "committee_governance_members",
+  {
+    id: text("id").primaryKey().notNull(),
+    committeeId: text("committee_id").notNull().references(() => committee_governance.id, { onDelete: "cascade" }),
+    personId: text("person_id"),
+    personName: text("person_name").notNull(),
+    role: text("role").notNull(), // chair, vice_chair, member, clerk
+    startDate: text("start_date").notNull(),
+    endDate: text("end_date"),
+    party: text("party"),
+    riding: text("riding"),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+export const committee_governance_meetings = sqliteTable(
+  "committee_governance_meetings",
+  {
+    id: text("id").primaryKey().notNull(),
+    committeeId: text("committee_id").notNull().references(() => committee_governance.id, { onDelete: "cascade" }),
+    date: text("date").notNull(),
+    type: text("type").notNull(), // regular, emergency, in_camera
+    location: text("location"),
+    agenda: text("agenda", { mode: "json" }).$type<string[]>(),
+    attendees: text("attendees", { mode: "json" }).$type<string[]>(),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+// ─── Charities ─────────────────────────────────────────────────────────────────────────────────────────────────────
+export const charities = sqliteTable(
+  "charities",
+  {
+    id: text("id").primaryKey().notNull(),
+    names: text("names", { mode: "json" }).notNull().$type<string[]>(),
+    registrationNumber: text("registration_number").unique(),
+    type: text("type").notNull(), // charitable_organization, public_foundation, private_foundation, other
+    status: text("status").notNull(), // registered, revoked, suspended, pending, other
+    mandate: text("mandate").notNull(),
+    website: text("website"),
+    street: text("street"),
+    city: text("city"),
+    province: text("province"),
+    postalCode: text("postal_code"),
+    country: text("country").default("Canada"),
+    parentOrganizationId: text("parent_organization_id").references(() => charities.id),
+    sourceUrl: text("source_url"),
+    sourceLastUpdated: text("source_last_updated"),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+export const charity_activities = sqliteTable(
+  "charity_activities",
+  {
+    id: text("id").primaryKey().notNull(),
+    charityId: text("charity_id").notNull().references(() => charities.id, { onDelete: "cascade" }),
+    category: text("category").notNull(),
+    description: text("description").notNull(),
+    beneficiaries: text("beneficiaries").notNull(),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+export const charity_financials = sqliteTable(
+  "charity_financials",
+  {
+    id: text("id").primaryKey().notNull(),
+    charityId: text("charity_id").notNull().references(() => charities.id, { onDelete: "cascade" }),
+    year: integer("year").notNull(),
+    totalRevenue: real("total_revenue").notNull(),
+    totalExpenses: real("total_expenses").notNull(),
+    assets: real("assets").notNull(),
+    currency: text("currency").default("CAD"),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  },
+  (table) => ({
+    uniqueIdx: sql`UNIQUE(charity_id, year)`,
+  })
+);
+
+export const charity_board_members = sqliteTable(
+  "charity_board_members",
+  {
+    id: text("id").primaryKey().notNull(),
+    charityId: text("charity_id").notNull().references(() => charities.id, { onDelete: "cascade" }),
+    personId: text("person_id"),
+    personName: text("person_name").notNull(),
+    title: text("title").notNull(),
+    startDate: text("start_date").notNull(),
+    endDate: text("end_date"),
+    isCompensated: integer("is_compensated", { mode: "boolean" }).default(false),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
 // ─── Notification Subscriptions ────────────────────────────────────────────────────────────────────────────────────
 
 export const notification_subscriptions = sqliteTable(
