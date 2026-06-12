@@ -24,6 +24,9 @@ api:
     MAPLESPIKE_DB_HOST: "maplespike-db"
     MAPLESPIKE_DB_PORT: "5432"
     MAPLESPIKE_DB_NAME: "maplespike"
+    MAPLESPIKE_QDRANT_ENDPOINT: "http://qdrant:6333"
+    MAPLESPIKE_QDRANT_COLLECTION: "maplespike"
+    MAPLESPIKE_EMBED_MODEL: "nvidia/llama-3.2-nv-embedqa-1b-v2"
   ingress:
     host: api.maplespike.ca
     tls: true

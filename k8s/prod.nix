@@ -216,6 +216,19 @@ in {
                     };
                     default = "maplespike-dev-key";
                   };
+                  # Qdrant vector DB for semantic RAG
+                  QDRANT_ENDPOINT = {
+                    name = "MAPLESPIKE_QDRANT_ENDPOINT";
+                    value = "http://qdrant:6333";
+                  };
+                  QDRANT_COLLECTION = {
+                    name = "MAPLESPIKE_QDRANT_COLLECTION";
+                    value = "maplespike";
+                  };
+                  EMBED_MODEL = {
+                    name = "MAPLESPIKE_EMBED_MODEL";
+                    value = "nvidia/llama-3.2-nv-embedqa-1b-v2";
+                  };
                   # Database config (can be overridden by external Postgres)
                   DB_PATH = { name = "MAPLESPIKE_DB_PATH"; value = "/data/maplespike.db"; };
                   DB_HOST = {
