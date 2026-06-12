@@ -82,7 +82,6 @@ import * as searchMunicipalData from './search-municipal-data.js';
 import * as searchNpri from './search-npri.js';
 import * as searchNrcan from './search-nrcan.js';
 import * as searchNunavutData from './search-nunavut-data.js';
-// import * as searchOecd from './search-oecd.js'; // TODO: incomplete - missing handler
 import * as searchOnData from './search-on-data.js';
 import * as searchParks from './search-parks.js';
 import * as searchProvincialData from './search-provincial-data.js';
@@ -93,11 +92,49 @@ import * as searchRealTimeFeeds from './search-real-time-feeds.js';
 import * as searchRegionalAuthorities from './search-regional-authorities.js';
 import * as searchSedi from './search-sedi.js';
 import * as searchUn from './search-un.js';
-import * as searchUndpHdr from './search-undp-hdr.js';
 import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
 import * as searchUtilities from './search-utilities.js';
-// import * as searchVotes from './search-votes.js'; // TODO: incomplete - missing handler
+
+// ── Underscore-named legacy tools (CKAN-based) ──────────────────
+import * as searchEnergyData from './search_energy_data.js';
+import * as searchClimateData from './search_climate_data.js';
+import * as searchPublicSafety from './search_public_safety.js';
+import * as searchFederalContracts from './search_federal_contracts.js';
+import * as searchFederalGrants from './search_federal_grants.js';
+import * as searchGenderStats from './search_gender_stats.js';
+import * as searchHousingData from './search_housing_data.js';
+import * as searchMiningData from './search_mining_data.js';
+import * as searchOfficialLanguages from './search_official_languages.js';
+import * as searchTechnologyData from './search_technology_data.js';
+import * as searchPatents from './search_patents.js';
+import * as searchTrademarks from './search_trademarks.js';
+
+// ── New MCP search tools (phase: close coverage gap 93→130) ──────
+import * as searchPharmaceuticals from './search-pharmaceuticals.js';
+import * as searchTelecommunications from './search-telecommunications.js';
+import * as searchRealEstate from './search-real-estate.js';
+import * as searchEmergencyManagement from './search-emergency-management.js';
+import * as searchIndigenousServicesDirectory from './search-indigenous-services-directory.js';
+import * as searchPolicingSecurity from './search-policing-security.js';
+import * as searchFinancialRegulation from './search-financial-regulation.js';
+import * as searchMediaBroadcasting from './search-media-broadcasting.js';
+import * as searchMunicipalLongTail from './search-municipal-long-tail.js';
+import * as searchProvincialOrgs from './search-provincial-orgs.js';
+import * as searchCrossReference from './search-cross-reference.js';
+import * as searchNrcanRenewable from './search-nrcan-renewable.js';
+import * as searchNrcanFires from './search-nrcan-fires.js';
+import * as searchNrcanForests from './search-nrcan-forests.js';
+import * as searchNrcanMinerals from './search-nrcan-minerals.js';
+import * as searchOecdStat from './search-oecd-stat.js';
+import * as searchUndpHdi from './search-undp-hdi.js';
+import * as searchUnhcrRefugees from './search-unhcr-refugees.js';
+import * as searchUsCia from './search-us-cia.js';
+import * as searchAuAbs from './search-au-abs.js';
+import * as searchNzStats from './search-nz-stats.js';
+import * as searchUkOns from './search-uk-ons.js';
+import * as searchWhoGho from './search-who-gho.js';
+import * as searchEurostat from './search-eurostat.js';
 
 // ── AI & entity resolution ───────────────────────────────────────
 import * as aiAsk from './ai-ask.js';
@@ -140,6 +177,7 @@ export function getAllTools(): ToolModule[] {
     searchNgoRss,
     searchNarrativeTracker,
     searchHealth,
+    searchIlo,
 
     // Phase 5: New tools (#253)
     searchProactiveDisclosure,
@@ -192,7 +230,6 @@ export function getAllTools(): ToolModule[] {
     searchNpri,
     searchNrcan,
     searchNunavutData,
-    // searchOecd, // TODO: incomplete - missing handler
     searchOnData,
     searchParks,
     searchProvincialData,
@@ -203,11 +240,49 @@ export function getAllTools(): ToolModule[] {
     searchRegionalAuthorities,
     searchSedi,
     searchUn,
-    // searchUndpHdr, // TODO: incomplete - missing handler
     searchUnions,
     searchUniversities,
     searchUtilities,
-    // searchVotes, // TODO: incomplete - missing handler
+
+    // Legacy underscore-named tools (CKAN-based)
+    searchEnergyData,
+    searchClimateData,
+    searchPublicSafety,
+    searchFederalContracts,
+    searchFederalGrants,
+    searchGenderStats,
+    searchHousingData,
+    searchMiningData,
+    searchOfficialLanguages,
+    searchTechnologyData,
+    searchPatents,
+    searchTrademarks,
+
+    // New MCP search tools (coverage gap 93→130)
+    searchPharmaceuticals,
+    searchTelecommunications,
+    searchRealEstate,
+    searchEmergencyManagement,
+    searchIndigenousServicesDirectory,
+    searchPolicingSecurity,
+    searchFinancialRegulation,
+    searchMediaBroadcasting,
+    searchMunicipalLongTail,
+    searchProvincialOrgs,
+    searchCrossReference,
+    searchNrcanRenewable,
+    searchNrcanFires,
+    searchNrcanForests,
+    searchNrcanMinerals,
+    searchOecdStat,
+    searchUndpHdi,
+    searchUnhcrRefugees,
+    searchUsCia,
+    searchAuAbs,
+    searchNzStats,
+    searchUkOns,
+    searchWhoGho,
+    searchEurostat,
 
     aiAsk,
     aiAnalyze,

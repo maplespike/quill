@@ -1,1 +1,0 @@
-{"nodes": [{"id": "service:Dockerfile", "type": "service", "name": "Dockerfile", "filePath": "Dockerfile", "summary": "Infra: Dockerfile", "tags": ["dockerfile", "infrastructure"], "complexity": "moderate"}], "edges": []}

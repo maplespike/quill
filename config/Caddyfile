@@ -1,0 +1,17 @@
+maplespike.lan {
+    tls internal
+    bind 127.0.0.1 10.1.1.110 100.102.39.25
+    reverse_proxy 10.1.1.120:32481
+}
+
+api.maplespike.lan {
+    tls internal
+    bind 127.0.0.1 10.1.1.110 100.102.39.25
+    reverse_proxy 10.1.1.120:32481
+}
+
+mcp.maplespike.lan {
+    tls internal
+    bind 127.0.0.1 10.1.1.110 100.102.39.25
+    reverse_proxy 10.42.0.68:3001
+}

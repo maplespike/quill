@@ -7,11 +7,15 @@
  * GET /v1/export/:module/:id  — Export single record with provenance
  *
  * Query params: ?format=json|csv, ?limit=N&offset=N, ?since=ISO_DATE
+ *
+ * Now derives module list from @maplespike/pipeline-core's ingestion registry
+ * instead of using mock data.
  */
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
-import { getMockData, ALL_MOCK_CATEGORIES } from '../mock-data.js';
+import { getAllModules } from '@maplespike/pipeline-core';
+import type { ModuleInfo } from '@maplespike/pipeline-core';
 
 interface ModuleEntry {
   name: string;
@@ -20,13 +24,13 @@ interface ModuleEntry {
   lastUpdated: string;
 }
 
-const MODULE_LIST: ModuleEntry[] = [
-  ...ALL_MOCK_CATEGORIES.map((cat) => ({
-    name: cat,
-    description: `Government data: ${cat}`,
-    recordCount: 100,
-    lastUpdated: new Date().toISOString(),
-  })),
+// Build MODULE_LIST from pipeline-core's ingestion registry
+const MODULE_LIST: ModuleEntry[] = getAllModules().map((mod: ModuleInfo) => ({
+  name: mod.name,
+  description: mod.description,
+  recordCount: 100, // placeholder — actual counts require running the module
+  lastUpdated: new Date().toISOString(),
+})).concat([
   {
     name: 'committees',
     description: 'House of Commons and Senate committee evidence and transcripts',
@@ -69,7 +73,7 @@ const MODULE_LIST: ModuleEntry[] = [
     recordCount: 600,
     lastUpdated: new Date().toISOString(),
   },
-];
+]);
 
 /** GET /v1/export/modules */
 export const listModulesHandler: RouteHandler = async (_req, ctx) => {
@@ -100,8 +104,29 @@ export const exportModuleHandler: RouteHandler = async (_req, ctx, params) => {
     );
   }
 
-  // Return mock records for the requested module
-  const records = getMockData(moduleName);
+  // Look up the module in the pipeline-core registry for real data
+  const pipelineModule = getAllModules().find((m: ModuleInfo) => m.name === moduleName);
+
+  if (!pipelineModule) {
+    return jsonResponse(
+      buildError('MODULE_NOT_AVAILABLE', `Module "${moduleName}" found in catalog but no pipeline ingestion module available.`, ctx),
+      503,
+    );
+  }
+
+  // For now, return module metadata — real data ingestion requires running the pipeline
+  // which is done by the engine, not the API server.
+  const records: Record<string, unknown>[] = [
+    {
+      module: pipelineModule.name,
+      description: pipelineModule.description,
+      category: pipelineModule.category,
+      status: pipelineModule.status || 'active',
+      sources: pipelineModule.sources,
+      updateFrequency: pipelineModule.updateFrequency,
+      note: 'Data export via pipeline ingestion. Run the engine to populate real records.',
+    },
+  ];
 
   if (recordId) {
     const record = records.find((r: any) => r.id === recordId || r._id === recordId);

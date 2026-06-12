@@ -279,6 +279,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.statcan.gc.ca',
   },
   {
     name: 'indigenous-relations',
@@ -292,6 +293,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.statcan.gc.ca',
   },
   {
     name: 'federal',
@@ -307,6 +309,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.cihi.ca',
   },
   {
     name: 'cross-reference',
@@ -346,6 +349,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'A2J API', format: 'REST API' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://a2j.ca',
   },
   {
     name: 'federal-tribunals',
@@ -356,6 +360,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Federal tribunal websites', format: 'HTML' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/administrative-tribunals.html',
   },
   {
     name: 'goc-spending',
@@ -367,6 +372,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'GitHub government spending data', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.tbs-sct.gc.ca',
   },
   {
     name: 'real-time-feeds',
@@ -384,6 +390,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'continuous',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://weather.gc.ca',
   },
   {
     name: 'regional-authorities',
@@ -395,6 +402,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Regional authority websites', format: 'HTML' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca',
   },
   {
     name: 'municipal',
@@ -417,6 +425,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Small/medium city portals', format: 'HTML/API' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.toronto.ca',
   },
   {
     name: 'global-canada',
@@ -430,6 +439,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.international.gc.ca',
   },
   {
     name: 'health-canada',
@@ -455,6 +465,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.cihi.ca',
   },
   {
     name: 'defence',
@@ -466,6 +477,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'DND open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/department-national-defence.html',
   },
   {
     name: 'veterans',
@@ -476,6 +488,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'VAC open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.veterans.gc.ca',
   },
   {
     name: 'transport-infrastructure',
@@ -490,6 +503,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.tsb.gc.ca',
   },
   {
     name: 'utilities',
@@ -531,6 +545,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'IAAC registry', format: 'HTML/CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/environment-climate-change.html',
   },
   {
     name: 'npri',
@@ -541,6 +556,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'NPRI open.canada.ca', format: 'CSV' }],
     updateFrequency: 'annual',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/environment-climate-change.html',
   },
   {
     name: 'species-at-risk',
@@ -551,6 +567,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'SARA registry', format: 'JSON/CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/environment-climate-change/services/species-risk-public-registry.html',
   },
   {
     name: 'fisheries',
@@ -562,6 +579,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'DFO open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.dfo-mpo.gc.ca',
   },
   {
     name: 'corporate-filings',
@@ -573,6 +591,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Federal Corporations Registry CKAN', format: 'CSV' }],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'ngo-influence-rss',
@@ -584,6 +603,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Advocacy org RSS feeds', format: 'RSS' }],
     updateFrequency: 'daily',
     testCallPattern: 'fetchFeed',
+    healthCheckUrl: 'https://www.cra-arc.gc.ca',
   },
   {
     name: 'media-broadcasting',
@@ -595,6 +615,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://crtc.gc.ca',
   },
   {
     name: 'agriculture',
@@ -605,6 +626,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'AAFC open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://agriculture.canada.ca',
   },
   {
     name: 'nrcan',
@@ -678,6 +700,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Crown corp publications', format: 'HTML/PDF' }],
     updateFrequency: 'quarterly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca',
   },
 
   {
@@ -716,6 +739,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CMHC open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.cmhc-schl.gc.ca',
   },
   {
     name: 'real-estate',
@@ -730,6 +754,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.cmhc-schl.gc.ca',
   },
   {
     name: 'financial-regulation',
@@ -744,6 +769,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.osfi-bsif.gc.ca',
   },
   {
     name: 'energy',
@@ -759,6 +785,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.cer-rec.gc.ca',
   },
 
   // ── Influence ────────────────────────────────────────────
@@ -774,6 +801,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.cra-arc.gc.ca',
   },
 
   {
@@ -826,6 +854,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'LODE geospatial database', format: 'JSON' }, { name: 'Provincial CKAN geospatial', format: 'JSON' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
   },
 
   // ── Provincial ────────────────────────────────────────────
@@ -852,6 +881,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.lobbycanada.gc.ca',
   },
 
   {
@@ -867,6 +897,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.ourcommons.ca',
   },
 
   // ── Provincial Pipeline Modules (ON, BC, AB, QC — Health, Education, Infrastructure, Economic) ──
@@ -879,6 +910,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Health Data (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.ontario.ca',
   },
   {
     name: 'bc-health',
@@ -889,6 +921,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Health data (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'ab-health',
@@ -899,6 +932,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Alberta Health data (open.alberta.ca)', format: 'CKAN' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.alberta.ca',
   },
   {
     name: 'qc-health',
@@ -909,6 +943,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Quebec Health data (donneesquebec.ca)', format: 'CKAN' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.donneesquebec.ca',
   },
   {
     name: 'on-education',
@@ -919,6 +954,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Education data (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.ontario.ca',
   },
   {
     name: 'bc-education',
@@ -929,6 +965,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Education data (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'ab-education',
@@ -939,6 +976,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Alberta Education data (open.alberta.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.alberta.ca',
   },
   {
     name: 'qc-education',
@@ -949,6 +987,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Quebec Education data (donneesquebec.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.donneesquebec.ca',
   },
   {
     name: 'on-infrastructure',
@@ -959,6 +998,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Infrastructure (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.ontario.ca',
   },
   {
     name: 'bc-infrastructure',
@@ -969,6 +1009,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Infrastructure (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'ab-infrastructure',
@@ -979,6 +1020,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Alberta Infrastructure (open.alberta.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.alberta.ca',
   },
   {
     name: 'qc-infrastructure',
@@ -989,6 +1031,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Quebec Infrastructure (donneesquebec.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.donneesquebec.ca',
   },
   {
     name: 'on-economic',
@@ -999,6 +1042,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Economic data (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://data.ontario.ca',
   },
   {
     name: 'bc-economic',
@@ -1009,6 +1053,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Economic data (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
   },
   {
     name: 'ab-economic',
@@ -1019,6 +1064,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Alberta Economic data (open.alberta.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.alberta.ca',
   },
   {
     name: 'qc-economic',
@@ -1029,6 +1075,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Quebec Economic data (donneesquebec.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.donneesquebec.ca',
   },
   {
     name: 'provincial',
@@ -1050,6 +1097,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://open.canada.ca',
   },
   {
     name: 'provincial-orgs',
@@ -1061,6 +1109,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Provincial org directories', format: 'HTML' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca',
   },
   {
     name: 'provincial-regulators',
@@ -1072,6 +1121,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Provincial regulator websites', format: 'HTML' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca',
   },
 
   // ── Social ────────────────────────────────────────────────
@@ -1087,6 +1137,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/employment-social-development.html',
   },
 
   {
@@ -1099,6 +1150,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Labour program data', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/employment-social-development.html',
   },
   {
     name: 'universities',
@@ -1110,6 +1162,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'StatCan university data', format: 'CSV' }],
     updateFrequency: 'annual',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.statcan.gc.ca',
   },
 
   // ── Culture ──────────────────────────────────────────────
@@ -1122,6 +1175,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Canadian Heritage open.canada.ca', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/canadian-heritage.html',
   },
 
   // ── Intellectual Property ────────────────────────────────
@@ -1134,6 +1188,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CIPO open data', format: 'CSV' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.ic.gc.ca',
   },
 
   // ── Mining / Natural Resources ─────────────────────────────────────
@@ -1148,6 +1203,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.sac-isc.gc.ca',
   },
   {
     name: 'ircc-family-sponsorship',
@@ -1160,6 +1216,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship.html',
   },
   {
     name: 'isc-programs',
@@ -1172,6 +1229,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.sac-isc.gc.ca',
   },
 // ── NRCan / Natural Resources (batch 2) ───────────────────
   {
