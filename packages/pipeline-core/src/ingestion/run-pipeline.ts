@@ -14,7 +14,7 @@
  *   JWT_SECRET           — required for API calls (set in k8s secrets)
  */
 
-import { runModule, getModule, REGISTRY_STATS } from './registry.js';
+import { runModule, getModule, getAllModules } from './registry.js';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -25,7 +25,8 @@ async function main() {
 
   if (!pipelineName) {
     console.error('ERROR: No pipeline name provided. Set MAPLESPIKE_PIPELINE env or pass --name=<module>.');
-    console.error(`Available modules: ${REGISTRY_STATS.totalModules} total, ${REGISTRY_STATS.activeModules} active`);
+    const all = getAllModules();
+    console.error(`Available modules: ${all.length} total, ${all.filter(m => m.status !== 'placeholder').length} active`);
     process.exit(1);
   }
 
@@ -57,7 +58,8 @@ async function main() {
       }
       console.log(`[ingestion] Health check OK: ${module.healthCheckUrl} → ${resp.status}`);
     } catch (err) {
-      console.warn(`[ingestion] Health check error for ${module.healthCheckUrl}: ${err.message} — skipping`);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      console.warn(`[ingestion] Health check error for ${module.healthCheckUrl}: ${errMsg} — skipping`);
       process.exit(0);
     }
   } else {
@@ -77,7 +79,8 @@ async function main() {
     process.exit(0);
   } catch (err) {
     const duration = Date.now() - startTime;
-    console.error(`[ingestion] Pipeline '${pipelineName}' FAILED after ${duration}ms: ${err instanceof Error ? err.message : String(err)}`);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error(`[ingestion] Pipeline '${pipelineName}' FAILED after ${duration}ms: ${errMsg}`);
     process.exit(1);
   }
 }

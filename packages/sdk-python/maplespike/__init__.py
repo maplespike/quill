@@ -38,7 +38,6 @@ from .client import (
     parse_response,
     _make_request,
 )
-from .mock import get_mock_response
 from .auth import get_api_key, set_api_key, get_jwt_token, set_jwt_token, clear_auth, is_authenticated
 from .agents import AGENTS, get_agent, list_agents, list_actions
 from .langchain_adapter import get_maplespike_tools
@@ -83,7 +82,6 @@ class AgentProxy:
         self,
         action: str,
         *,
-        mock: Optional[bool] = None,
         fields: Optional[str] = None,
         format: Optional[str] = None,
         limit: Optional[int] = None,
@@ -102,8 +100,6 @@ class AgentProxy:
             MapleSpikeResponse with the query result.
         """
         options: Dict[str, Any] = {}
-        if mock is not None:
-            options['mock'] = mock
         if fields is not None:
             options['fields'] = fields
         if format is not None:
@@ -195,7 +191,6 @@ class MapleSpike:
         action: str,
         params: Optional[Dict[str, Any]] = None,
         *,
-        mock: Optional[bool] = None,
         fields: Optional[str] = None,
         format: Optional[str] = None,
         limit: Optional[int] = None,
@@ -210,8 +205,6 @@ class MapleSpike:
             agent: Agent name (e.g. "committees", "corporate").
             action: Action name (e.g. "committee-membership", "corporation-profile").
             params: Action-specific parameters as a dict.
-            mock: Use mock data instead of hitting the live API. Auto-enabled when
-                  no API key or JWT is configured.
             fields: Comma-separated field projection.
             format: Output format hint: normal, compact, full.
             limit: Max records to return.
@@ -222,11 +215,13 @@ class MapleSpike:
 
         Returns:
             MapleSpikeResponse with the query result.
+
+        Raises:
+            RuntimeError: If no API key or JWT token is configured — the
+                client must be authenticated to call the live API.
         """
         # Build options dict from keyword-only args
         options: Dict[str, Any] = {}
-        if mock is not None:
-            options['mock'] = mock
         if fields is not None:
             options['fields'] = fields
         if format is not None:
@@ -242,13 +237,15 @@ class MapleSpike:
         if summary is not None:
             options['summary'] = summary
 
-        # Auto-enable mock mode when not authenticated and not explicitly set
-        if mock is None and not self.is_authenticated():
-            options['mock'] = True
-
-        # Mock mode — no network call
-        if options.get('mock'):
-            return get_mock_response(agent, action)
+        if not self.is_authenticated():
+            raise RuntimeError(
+                'No API key or JWT token configured. '
+                'The mock data module has been removed. '
+                'Provide credentials to connect to the live MapleSpike API:\n\n'
+                '    ms = MapleSpike(api_key="ms_live_...")\n'
+                '    result = ms.query("committees", "committee-membership", ...)\n\n'
+                'See https://maplespike.ca/docs for an API key.'
+            )
 
         url = build_url(self._base_url, agent, action, params, options)
         headers = build_headers(self._api_key, self._jwt_token)
