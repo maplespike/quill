@@ -85,7 +85,7 @@ export const passkeyLoginBeginHandler: RouteHandler = async (request, ctx) => {
       const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
       return jsonResponse(buildError('VALIDATION_ERROR', errs.map((e: { field: string; message: string }) => e.message).join('; '), bc), 400);
     }
-    const result = beginLogin({
+    const result = await beginLogin({
       userId: body.userId as string,
     });
 

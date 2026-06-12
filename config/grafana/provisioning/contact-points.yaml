@@ -1,0 +1,56 @@
+# MapleSpike Grafana Contact Points — Alert Notification Channels
+# Provisioned automatically on Grafana start.
+# Place in: /etc/grafana/provisioning/contact-points.yaml
+#
+# Replace placeholder values before use:
+#   SLACK_WEBHOOK_URL — from Slack app integration (Incoming Webhooks)
+#   SMTP_* — working SMTP relay credentials
+#   NOTIFICATION_EMAIL — destination for alert emails
+#
+# These contact points are referenced by notification-policies.yaml
+# to route CronJob failure alerts to the right destinations.
+
+apiVersion: 1
+contactPoints:
+  # ── Slack notification channel for critical CronJob failures ─
+  - name: CronJob Critical — Slack
+    receivers:
+      - uid: slack-cronjob-critical
+        type: slack
+        disableResolveMessage: false
+        settings:
+          # TODO: Replace with real Slack webhook URL
+          url: "https://hooks.slack.com/services/PLACEHOLDER"
+          # Comma-separated channel overrides (optional, url default used if empty)
+          recipient: "#alerts-maplespike"
+          title: |-
+            {{ template "slack.maplespike.title" . }}
+          text: |-
+            {{ template "slack.maplespike.text" . }}
+          username: "MapleSpike Alertmanager"
+          icon_emoji: ":warning:"
+
+  # ── Email notification channel for warnings and general alerts ─
+  - name: CronJob Warning — Email
+    receivers:
+      - uid: email-cronjob-warning
+        type: email
+        disableResolveMessage: false
+        settings:
+          # TODO: Set real notification email address
+          addresses: "admin@maplespike.ca"
+          subject: |-
+            [MapleSpike] {{ .GroupLabels.alertname }} — {{ .Status }}
+          # Single address per Grafana email contact point; use multiple contact points
+          # or a mailing-list address for multiple recipients.
+
+  # ── Email notification channel for silent/ops alerts ─
+  - name: Ops Email — All Alerts
+    receivers:
+      - uid: email-ops-all
+        type: email
+        disableResolveMessage: false
+        settings:
+          addresses: "ops@maplespike.ca"
+          subject: |-
+            [MapleSpike Ops] {{ .GroupLabels.alertname }} — {{ .GroupLabels.namespace }}/{{ .GroupLabels.job }}

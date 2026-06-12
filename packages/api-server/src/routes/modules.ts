@@ -3,13 +3,13 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import type { BuildContext } from '../response.js';
+import type { ModuleInfo, ModuleCategory } from '@maplespike/pipeline-core';
 import {
   getAllModules,
   getModule,
   getModulesByCategory,
   getCategories,
 } from '@maplespike/pipeline-core';
-import type { ModuleInfo } from '@maplespike/pipeline-core';
 
 interface ToolEntry {
   name: string;
@@ -154,7 +154,7 @@ export const listModulesHandler: RouteHandler = async (request, ctx) => {
   const category = url.searchParams.get('category');
 
   const modules = category
-    ? getModulesByCategory(category.toUpperCase() as any)
+    ? getModulesByCategory(category.toUpperCase() as ModuleCategory)
     : getAllModules();
 
   const buildCtx: BuildContext = {
