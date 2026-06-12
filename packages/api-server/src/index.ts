@@ -382,7 +382,8 @@ export async function handleRequest(
   const { route, params } = matched;
 
   // Authentication (public routes: health, openapi, register, github login/callback, refresh, logout)
-  const authExempt = route.handler === healthHandler
+  const path = url.pathname;
+  const authExempt = path.startsWith('/v1/health')
     || route.handler === complianceHandler
     || route.handler === searchGovHandler
     || route.handler === openApiHandler
@@ -440,7 +441,7 @@ export async function handleRequest(
 
   // Rate limit (skip for health and spec)
   let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
-  if (route.handler !== healthHandler && route.handler !== openApiHandler) {
+  if (!path.startsWith('/v1/health') && route.handler !== openApiHandler) {
     // Stricter limits for unauthenticated requests
     const isAuthenticated = tenant !== null;
     const tierLimits = TIER_LIMITS[ctx.tenant.tier];
