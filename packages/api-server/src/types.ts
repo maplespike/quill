@@ -87,7 +87,7 @@ export interface QueryOptions {
   _units?: 'metric' | 'imperial';
   /** Return aggregate summary instead of rows */
   _summary?: boolean;
-  /** Return cached sample data, no upstream hit, free */
+  /** @deprecated Mock data — no longer supported */
   _mock?: boolean;
 }
 
