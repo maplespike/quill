@@ -11,7 +11,7 @@ Search across all Canadian government data sources. This is the primary data que
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/search?q=housing+starts&jurisdiction=federal&category=economy&limit=5"
+  "http://localhost:8082/v1/gov/search?q=housing+starts&jurisdiction=federal&category=economy&limit=5"
 ```
 
 ## Query Parameters
@@ -27,13 +27,13 @@ curl -H "Authorization: Bearer YOUR_API_KEY" \
 
 ```bash
 # Search federal spending data
-curl "http://maplespike.lan/v1/gov/search?q=procurement&jurisdiction=federal&category=spending&limit=5"
+curl "http://localhost:8082/v1/gov/search?q=procurement&jurisdiction=federal&category=spending&limit=5"
 
 # Search Ontario health data
-curl "http://maplespike.lan/v1/gov/search?q=wait+times&jurisdiction=ontario&category=health&limit=5"
+curl "http://localhost:8082/v1/gov/search?q=wait+times&jurisdiction=ontario&category=health&limit=5"
 
 # Search environmental data across all jurisdictions
-curl "http://maplespike.lan/v1/gov/search?q=carbon+emissions&category=environment&limit=10"
+curl "http://localhost:8082/v1/gov/search?q=carbon+emissions&category=environment&limit=10"
 ```
 
 ## Response
@@ -83,7 +83,7 @@ Get the latest government data releases and economic indicators.
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/releases?limit=5&category=economy"
+  "http://localhost:8082/v1/gov/releases?limit=5&category=economy"
 ```
 
 Response includes a `releases` array and `total` count.
@@ -95,7 +95,7 @@ Retrieve and verify a SHA-256 citation hash. No authentication required.
 ### Example
 
 ```bash
-curl "http://maplespike.lan/v1/citation/sha256-abc123def456"
+curl "http://localhost:8082/v1/citation/sha256-abc123def456"
 ```
 
 Response returns the original data, timestamp, source attribution, and a shell command for independent hash verification.

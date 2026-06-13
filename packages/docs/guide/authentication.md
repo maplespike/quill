@@ -15,14 +15,14 @@ API keys are the primary authentication method. Pass them via the `Authorization
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/search?q=housing&limit=5"
+  "http://localhost:8082/v1/gov/search?q=housing&limit=5"
 ```
 
 Or via the `X-API-Key` header:
 
 ```bash
 curl -H "X-API-Key: YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/search?q=housing&limit=5"
+  "http://localhost:8082/v1/gov/search?q=housing&limit=5"
 ```
 
 ### Key Management (Planned)
@@ -51,17 +51,17 @@ For session-based auth, MapleSpike will support JWT tokens issued via OAuth or G
 
 ```bash
 # Step 1: Initiate GitHub login
-curl http://maplespike.lan/v1/auth/github
+curl http://localhost:8082/v1/auth/github
 
 # Step 2: After GitHub callback, get JWT
 # (handled by browser redirect)
 
 # Step 3: Use the JWT token
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  "http://maplespike.lan/v1/me"
+  "http://localhost:8082/v1/me"
 
 # Refresh token
-curl -X POST http://maplespike.lan/v1/auth/refresh \
+curl -X POST http://localhost:8082/v1/auth/refresh \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -70,13 +70,13 @@ curl -X POST http://maplespike.lan/v1/auth/refresh \
 MapleSpike will support multiple OAuth providers. List available providers:
 
 ```bash
-curl http://maplespike.lan/v1/auth/oauth/providers
+curl http://localhost:8082/v1/auth/oauth/providers
 ```
 
 Initiate login for a specific provider:
 
 ```bash
-curl http://maplespike.lan/v1/auth/oauth/PROVIDER_NAME
+curl http://localhost:8082/v1/auth/oauth/PROVIDER_NAME
 ```
 
 ## Web3 / Wallet Authentication (Planned) 🚧
@@ -85,12 +85,12 @@ Connect a cryptocurrency wallet (Ethereum, etc.) for authentication:
 
 ```bash
 # Step 1: Request a challenge
-curl -X POST http://maplespike.lan/v1/auth/web3/challenge \
+curl -X POST http://localhost:8082/v1/auth/web3/challenge \
   -H "Content-Type: application/json" \
   -d '{"address": "0x1234..."}'
 
 # Step 2: Sign the challenge with your wallet and send back
-curl -X POST http://maplespike.lan/v1/auth/web3/login \
+curl -X POST http://localhost:8082/v1/auth/web3/login \
   -H "Content-Type: application/json" \
   -d '{"address": "0x1234...", "signature": "0xabcd...", "message": "MapleSpike auth: ..."}'
 ```
@@ -101,26 +101,26 @@ For passwordless authentication using biometrics or hardware security keys:
 
 ```bash
 # Step 1: Begin registration
-curl -X POST http://maplespike.lan/v1/auth/passkey/register/begin \
+curl -X POST http://localhost:8082/v1/auth/passkey/register/begin \
   -H "Content-Type: application/json" \
   -d '{"name": "My Passkey"}'
 
 # Step 2: Complete registration with browser credential
-curl -X POST http://maplespike.lan/v1/auth/passkey/register/complete \
+curl -X POST http://localhost:8082/v1/auth/passkey/register/complete \
   -H "Content-Type: application/json" \
   -d '{"credential": {...}}'
 
 # Login
-curl -X POST http://maplespike.lan/v1/auth/passkey/login/begin
-curl -X POST http://maplespike.lan/v1/auth/passkey/login/complete \
+curl -X POST http://localhost:8082/v1/auth/passkey/login/begin
+curl -X POST http://localhost:8082/v1/auth/passkey/login/complete \
   -d '{"credential": {...}}'
 
 # List registered credentials
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-  http://maplespike.lan/v1/auth/passkey/credentials
+  http://localhost:8082/v1/auth/passkey/credentials
 
 # Delete a credential
-curl -X DELETE http://maplespike.lan/v1/auth/passkey/credentials/CRED_ID \
+curl -X DELETE http://localhost:8082/v1/auth/passkey/credentials/CRED_ID \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

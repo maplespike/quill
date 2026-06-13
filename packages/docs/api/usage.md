@@ -11,7 +11,7 @@ View your current API usage statistics and quota information. This endpoint does
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/usage"
+  "http://localhost:8082/v1/usage"
 ```
 
 ## Response
@@ -77,7 +77,7 @@ Query the audit log for your tenant. All API operations are logged with request 
 ### Request
 
 ```bash
-curl -X POST http://maplespike.lan/v1/audit/query \
+curl -X POST http://localhost:8082/v1/audit/query \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"limit": 10, "offset": 0}'
@@ -99,5 +99,5 @@ Access engine signals data. This endpoint is dynamically loaded and requires the
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/signals"
+  "http://localhost:8082/v1/signals"
 ```

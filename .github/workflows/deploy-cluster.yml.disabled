@@ -1,0 +1,50 @@
+# =============================================================================
+# MapleSpike — Deploy to K3s Cluster
+# =============================================================================
+# ⚠️  DISABLED: This workflow references non-existent infrastructure
+#
+# Issues:
+# - References Dockerfile that may not work with current build system
+# - Tries to deploy to K3s cluster that was never set up
+# - References images that don't match actual package names
+# - Complex deployment logic for infrastructure that doesn't exist
+#
+# Current Reality:
+# - Deployment uses Docker Compose for local development
+# - No K3s cluster deployment exists (see ROADMAP.md Phase 3)
+# - See docs/CRITICAL-ISSUES-FOUND.md for details
+#
+# Original Purpose (archived):
+# Triggers on push to main: builds 4 Docker targets, pushes to GHCR, then
+# SSHs into nexus to import images into containerd and restart deployments.
+# =============================================================================
+
+name: Deploy Cluster (DISABLED - See header)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+    - 'packages/**'
+    - 'Dockerfile'
+    - '.github/workflows/deploy-cluster.yml.disabled'
+
+concurrency:
+  group: deploy-cluster-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  disabled:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - name: Workflow Disabled
+        run: |
+          echo "❌ This workflow is disabled"
+          echo "See docs/CRITICAL-ISSUES-FOUND.md for details"
+          echo "Current deployment: Docker Compose for local development"
+          exit 1

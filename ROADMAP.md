@@ -32,6 +32,10 @@ status: active
 | Add Dockerfile + docker-compose.yml | ✅ |
 | Mark 16 placeholder modules in registry | ✅ |
 | Label remaining 4 open issues | ✅ |
+| **Disable broken deployment workflows** | ✅ |
+| **Fix API docs domain references** | ✅ |
+| **Archive orphaned infrastructure scripts** | ✅ |
+| **Create Docker Compose deployment guide** | ✅ |
 
 ## Phase 2: MVP Quality Gate (Next)
 
@@ -43,14 +47,19 @@ status: active
 | **Close #268 (AI Ask)** needs scoping | P1 | - | This is the largest remaining feature — needs PRD |
 | **Update metrics.json** | P2 | 15m | Run `node scripts/generate-metrics.mjs` and commit |
 
-## Phase 3: Deployment (This Month)
+## Phase 3: Deployment (In Progress)
 
-| Task | Priority | Effort |
-|------|----------|--------|
-| Create `run.sh` for local dev (install → build → start) | P1 | 1h |
-| Fix flake sandbox for Nix image builds | P1 | 1-2h |
-| CI publish to GHCR on main merge | P2 | 1h |
-| Deploy dev namespace on K3s | P2 | 2-4h |
+| Task | Priority | Effort | Status |
+|------|----------|--------|--------|
+| **Disable broken K8s deployment workflows** | P0 | 30m | ✅ DONE |
+| **Fix API documentation domain references** | P0 | 1h | ✅ DONE |
+| **Archive orphaned infrastructure scripts** | P0 | 30m | ✅ DONE |
+| **Create Docker Compose deployment guide** | P1 | 1h | ✅ DONE |
+| **Fix flake.nix sandbox for Nix image builds** | P1 | 1-2h | 🔴 TODO |
+| **CI publish to GHCR on main merge** | P2 | 1h | 🔴 TODO |
+| **Deploy dev namespace on K3s** | P2 | 4-8h | 🔴 TODO |
+
+**Current Status:** Docker Compose working, K8s deployment planned.
 
 ## Remaining Open Issues
 
