@@ -10,7 +10,7 @@ Ask a natural language question about Canadian government data. The AI searches 
 ## Request
 
 ```bash
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST http://localhost:8082/v1/ai_ask \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "What did the Ethics Commissioner investigate in 2024?"}'
@@ -44,13 +44,13 @@ curl -X POST http://maplespike.lan/v1/ai_ask \
 
 ```bash
 # Query with source filter
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST http://localhost:8082/v1/ai_ask \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "What are the latest regulations on carbon pricing?", "source_filter": "regulations"}'
 
 # Broad question across all sources
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST http://localhost:8082/v1/ai_ask \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "How has immigration changed since 2020?"}'
@@ -120,7 +120,7 @@ Analyze a document, transcript, or data set using AI. Detects topics, sentiment,
 ### Example
 
 ```bash
-curl -X POST http://maplespike.lan/v1/ai/analyze \
+curl -X POST http://localhost:8082/v1/ai/analyze \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"text": "Full committee transcript text...", "analysis_type": "full"}'
