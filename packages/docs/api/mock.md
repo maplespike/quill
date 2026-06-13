@@ -11,13 +11,13 @@ MapleSpike includes a mock data mode for development, testing, and demonstration
 
 ```bash
 # Search with mock data
-curl "http://maplespike.lan/v1/gov/search?q=housing&_mock=true"
+curl "http://localhost:8082/v1/gov/search?q=housing&_mock=true"
 
 # Releases with mock data
-curl "http://maplespike.lan/v1/gov/releases?limit=3&_mock=true"
+curl "http://localhost:8082/v1/gov/releases?limit=3&_mock=true"
 
 # Health with mock data
-curl "http://maplespike.lan/v1/health?_mock=true"
+curl "http://localhost:8082/v1/health?_mock=true"
 ```
 
 ## Benefits

@@ -1,0 +1,51 @@
+# =============================================================================
+# MapleSpike — Deploy Prod
+# =============================================================================
+# ⚠️  DISABLED: This workflow references non-existent infrastructure
+#
+# Issues:
+# - Tries to deploy to K8s that was never implemented
+# - Calls archived scripts (auto-rollback.sh, escalate-incident.sh, health-verification.sh)
+# - References non-existent images (maplespike-api, maplespike-mcp, maplespike-portal)
+# - References secrets that don't exist (SLACK_WEBHOOK_URL, PAGERDUTY_ROUTING_KEY)
+#
+# Current Reality:
+# - Deployment uses Docker Compose for local development
+# - No K8s deployment exists (see ROADMAP.md Phase 3)
+# - See docs/CRITICAL-ISSUES-FOUND.md for details
+#
+# Original Purpose (archived):
+# Triggers on push to prod, builds images and deploys to maplespike-prod
+# =============================================================================
+
+name: Deploy Prod (DISABLED - See header)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [prod]
+    paths:
+    - 'packages/**'
+    - 'flake.nix'
+    - 'flake.lock'
+    - 'k8s/**'
+    - '.github/workflows/deploy-prod.yml.disabled'
+
+concurrency:
+  group: deploy-prod-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  disabled:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - name: Workflow Disabled
+        run: |
+          echo "❌ This workflow is disabled"
+          echo "See docs/CRITICAL-ISSUES-FOUND.md for details"
+          echo "Current deployment: Docker Compose for local development"
+          exit 1

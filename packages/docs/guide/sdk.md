@@ -24,7 +24,7 @@ import { MapleSpikeClient } from '@maplespike/sdk';
 
 const client = new MapleSpikeClient({
   apiKey: 'YOUR_API_KEY',
-  baseUrl: 'http://maplespike.lan/v1',
+  baseUrl: 'http://localhost/v1',
 });
 
 // Check health
@@ -54,7 +54,7 @@ const committees = await client.searchCommittees({
 ```typescript
 const client = new MapleSpikeClient({
   apiKey: string;        // Required: API key
-  baseUrl?: string;      // Default: 'http://maplespike.lan/v1'
+  baseUrl?: string;      // Default: 'http://localhost/v1'
   timeout?: number;      // Default: 15000 (ms)
   retries?: number;      // Default: 3
   headers?: Record<string, string>; // Additional headers

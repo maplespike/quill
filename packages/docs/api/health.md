@@ -10,7 +10,7 @@ Check service health and get current usage statistics. This is the only endpoint
 ## Request
 
 ```bash
-curl http://maplespike.lan/v1/health
+curl http://localhost:8082/v1/health
 ```
 
 No authentication required. No query parameters needed.
@@ -53,7 +53,7 @@ No authentication required. No query parameters needed.
   },
   "citation": {
     "source_name": "MapleSpike API",
-    "source_url": "http://maplespike.lan",
+    "source_url": "http://localhost",
     "retrieved_at": "2026-05-14T11:36:00Z",
     "data_hash": "",
     "license": "Open Government Licence – Canada",
