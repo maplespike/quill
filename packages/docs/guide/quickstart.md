@@ -10,7 +10,7 @@ A 5-minute walkthrough to get data from MapleSpike using curl and MCP.
 ## 1. Check the Service is Running
 
 ```bash
-curl http://maplespike.lan/v1/health
+curl http://localhost:8082/v1/health
 ```
 
 Expect a `200 OK` with `"status": "ok"`.
@@ -21,7 +21,7 @@ Search across all 50 House of Commons and Senate committees:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/search?q=foreign+interference&limit=3"
+  "http://localhost:8082/v1/gov/search?q=foreign+interference&limit=3"
 ```
 
 ## 3. Find Lobbying Records
@@ -30,7 +30,7 @@ Search the federal lobbying registry:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/gov/search?q=McKinsey&limit=5"
+  "http://localhost:8082/v1/gov/search?q=McKinsey&limit=5"
 ```
 
 ## 4. Verify a Citation
@@ -38,20 +38,20 @@ curl -H "Authorization: Bearer YOUR_API_KEY" \
 Every record has a SHA-256 citation hash. Verify one:
 
 ```bash
-curl "http://maplespike.lan/v1/citation/sha256-abc123"
+curl "http://localhost:8082/v1/citation/sha256-abc123"
 ```
 
 ## 5. Check Your Usage
 
 ```bash
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://maplespike.lan/v1/usage"
+  "http://localhost:8082/v1/usage"
 ```
 
 ## 6. Ask a Natural Language Question
 
 ```bash
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST http://localhost:8082/v1/ai_ask \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "What are the latest immigration numbers for 2024?"}'

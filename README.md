@@ -102,6 +102,8 @@ pnpm start
 
 **All 129 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
+**For full deployment guide, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
+
 ---
 
 ## Data sources
@@ -128,35 +130,31 @@ pnpm start
 
 ---
 
-## Infrastructure
+## Deployment
 
-> **⚠️ DEPLOYMENT STATUS:** The K3s deployment described below is **planned architecture, not currently implemented**. Current deployment uses Docker Compose for local development. See ROADMAP.md Phase 3 for deployment status.
+> **Current Deployment:** Docker Compose for local development (API: :8082, MCP: :3001, Portal: :3000)
+>
+> **Planned:** K8s deployment in ROADMAP.md Phase 3
 
-Two environments run on the same K3s cluster, isolated by namespace and ingress hostname:
+**Quick Start:**
+```bash
+# Start all services
+docker-compose up -d
 
-| Environment | Namespace | Hostname |
-|-------------|-----------|----------|
-| **Production** | `maplespike` | `maplespike.lan` |
-| **Development** | `maplespike-dev` | `dev.maplespike.lan` |
+# Check health
+curl http://localhost:8082/v1/health
+curl http://localhost:3000
+curl http://localhost:3001/sse
+```
 
-| Service | Platform | Stack |
-|---------|----------|-------|
-| Portal (marketing + docs) | **K3s cluster** (nginx) | Static HTML/CSS/JS per-environment config.js |
-| Product Dashboard | **K3s cluster** (nexus) | Next.js |
-| MCP Server | **K3s cluster** | Node.js, SSE transport on 3001 |
-| API Server | **K3s cluster** | Node.js, Bearer auth, rate limiting |
-| Engine / CronJobs | **K3s cluster** | Scheduled ingestion pipelines |
+**For complete deployment guide, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 
-**Development endpoints:**
-- Portal: [https://dev.maplespike.lan](https://dev.maplespike.lan) (NodePort 30965)
-- API: [https://dev-maplespike-api.lan](https://dev-maplespike-api.lan) (NodePort 31284)
-- MCP: [https://dev-maplespike-mcp.lan](https://dev-maplespike-mcp.lan) (NodePort 31746)
+**Infrastructure Status:**
+- ✅ Docker Compose — Working (local development)
+- 🚧 K8s Deployment — Planned (Phase 3, not implemented)
+- 🚧 Production Deployment — Planned (Phase 3)
 
-A **Caddy ingress controller** routes both `.lan` domains to the correct services and namespaces. Environment-specific manifests live in `k8s/dev/` and `k8s/prod/`. Portal config.js uses a `config.dev.js` / `config.prod.js` pattern, mounted via ConfigMap per environment.
-
-All backend data stays on Canadian K3s cluster. No external cloud spend.
-
-**API access:** Auth + rate limiting + usage tracking work. Billing (Stripe, crypto, Interac) is the next major build. See [ROADMAP.md](./ROADMAP.md).
+All backend data stays on Canadian infrastructure with zero external cloud spend.
 
 ---
 

@@ -5,12 +5,12 @@ status: active
 
 # API Endpoints — Complete Catalog
 
-The MapleSpike REST API is served at `http://maplespike.lan/v1/`. All responses follow a standard envelope with quality metadata, citations, and usage tracking.
+The MapleSpike REST API is served at `http://localhost:8082/v1/`. All responses follow a standard envelope with quality metadata, citations, and usage tracking.
 
 ## Base URL
 
 ```
-http://maplespike.lan/v1/
+http://localhost:8082/v1/
 ```
 
 ## Standard Response Envelope
@@ -123,7 +123,7 @@ http://maplespike.lan/v1/
 Use `_fields` to reduce response size and save tokens:
 
 ```bash
-curl "http://maplespike.lan/v1/gov/search?q=GDP&_fields=title,summary,url"
+curl "http://localhost:8082/v1/gov/search?q=GDP&_fields=title,summary,url"
 ```
 
 ## Error Codes
