@@ -17,7 +17,7 @@ Canada's open data ecosystem is fragmented. Developers and journalists navigate 
 
 ## Data Sources
 
-MapleSpike ingests from **126 data modules** covering every major category of Canadian government information:
+MapleSpike ingests from **144 data modules** covering every major category of Canadian government information:
 
 | Category | Modules |
 |----------|---------|
@@ -59,15 +59,15 @@ K3s Cluster (nexus)
 
 | Method | Description | Best For |
 |--------|-------------|----------|
-| **MCP Server** | 130 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
+| **MCP Server** | 129 tools for AI agents via Model Context Protocol | AI assistants (Claude Desktop, Cursor) |
 | **REST API** | HTTP endpoints at `/v1/*` with Bearer auth | Scripts, apps, direct integration |
 | **TypeScript SDK** | `@maplespike/sdk` — typed client for all modules | Node.js/TypeScript projects |
 | **CLI** | Run the MCP server locally via stdio | Local development |
 
 ## Status
 
-- **142 ingestion modules** — ~178K lines of TypeScript
-- **135 MCP tools** — all live and returning real data
+- **144 ingestion modules** — ~188K lines of TypeScript
+- **129 MCP tools** — all live and returning real data
 - **All 13 provinces/territories** — full oversight coverage (273 regulators, 21 categories)
 - **1,240+ unique external endpoints** consumed across all modules
 - **19 cities** with direct open data fetchers; **3,490+** via federation

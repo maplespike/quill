@@ -13,7 +13,7 @@ Comprehensive architecture documentation for the MapleSpike monorepo — a sover
 
 MapleSpike is a unified data pipeline that ingests, verifies, and surfaces Canadian public-domain government data across federal, provincial, territorial, and municipal levels. The system provides three primary access patterns: Model Context Protocol (MCP) for AI agents, REST API for developers, and client SDKs for programmatic integration. All data records include SHA-256 citation hashes, source provenance, and audit trails for independent verification.
 
-The platform currently maintains 53 registered MCP tools (87 search-*.ts files on disk), 142 modules in the registry (135 ingestion directories), and approximately 178,000 lines of TypeScript code across 13 packages. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
+The platform currently maintains 129 registered MCP tools (164 tool definition files on disk), 144 modules in the registry (135 ingestion directories), and approximately 188,000 lines of TypeScript code across 13 packages. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
 
 ```
                            Upstream Government APIs
@@ -85,7 +85,7 @@ Data flows through a multi-stage pipeline from upstream sources to end consumers
 
 ### Ingestion Stage
 
-The `pipeline-core` package contains 116 ingestion directories, each implementing a standalone `fetch → parse → persist` pipeline. Modules pull data from 1,240+ unique external endpoints across:
+The `pipeline-core` package contains 135 ingestion directories, each implementing a standalone `fetch → parse → persist` pipeline. Modules pull data from 1,240+ unique external endpoints across:
 
 - **Federal sources**: IRCC immigration, StatCan WDS (CPI/GDP/labour/population/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI requests, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
 - **Parliamentary sources**: House and Senate committee evidence via XML, Hansard transcripts, Canada Gazette RSS feeds, LEGISinfo bills
@@ -108,7 +108,7 @@ The `database` package provides a SQLite-based storage layer using `better-sqlit
 
 Data is surfaced through three primary access patterns:
 
-1. **MCP Server**: The `@reverb256/mcp-server` package exposes 130 tools via the Model Context Protocol. Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
+1. **MCP Server**: The `@reverb256/mcp-server` package exposes 129 tools via the Model Context Protocol. Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
 
 2. **API Server**: The `@maplespike/api-server` package provides a REST API gateway with Bearer authentication, rate limiting, and usage tracking. Multi-tenant architecture supports API keys and JWT tokens. The server wraps pipeline-core and engine functionality for programmatic access.
 
@@ -214,7 +214,9 @@ cd packages/sdk && pnpm build && pnpm test
 
 ## Deployment Architecture
 
-MapleSpike runs on a K3s cluster with two environments isolated by namespace and ingress hostname. All backend data stays on Canadian infrastructure with zero external cloud spend.
+> **⚠️ DEPLOYMENT STATUS:** The K3s deployment described in this section is **planned architecture, not currently implemented**. See ROADMAP.md Phase 3 for deployment status and PIPELINE-ARCHITECTURE.md for CI/CD reality.
+
+MapleSpike is designed to run on a K3s cluster with two environments isolated by namespace and ingress hostname. All backend data will stay on Canadian infrastructure with zero external cloud spend.
 
 ### Environments
 
@@ -446,15 +448,15 @@ The `pretext-civic` package is orphaned because the portal migrated from Next.js
 
 ### pipeline-core
 
-The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 126 ingestion modules across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. The package is licensed under AGPL-3.0 to ensure modifications to the core pipeline remain open-source.
+The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 135 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. The package is licensed under AGPL-3.0 to ensure modifications to the core pipeline remain open-source.
 
 ### mcp-server
 
-The `@reverb256/mcp-server` package implements a Model Context Protocol server exposing 130 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
+The `@reverb256/mcp-server` package implements a Model Context Protocol server exposing 129 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
 
 ### api-server
 
-The `@maplespike/api-server` package provides a multi-tenant REST API gateway wrapping pipeline-core and engine functionality for programmatic access. It implements Bearer authentication with API keys and JWT tokens, rate limiting to prevent abuse, and usage tracking for billing and analytics. The server exposes endpoints for all 126 data modules, cross-reference queries via the engine, and administrative functions for tenant management. It uses `@simplewebauthn/server` for passkey authentication, `viem` for cryptocurrency payment integration, and `zod` for request validation. The server is deployed as a Node.js service in the K3s cluster with NodePort 31284.
+The `@maplespike/api-server` package provides a multi-tenant REST API gateway wrapping pipeline-core and engine functionality for programmatic access. It implements Bearer authentication with API keys and JWT tokens, rate limiting to prevent abuse, and usage tracking for billing and analytics. The server exposes endpoints for all 135 data modules, cross-reference queries via the engine, and administrative functions for tenant management. It uses `@simplewebauthn/server` for passkey authentication, `viem` for cryptocurrency payment integration, and `zod` for request validation. The server is deployed as a Node.js service in the K3s cluster with NodePort 31284.
 
 ### engine
 
@@ -498,4 +500,4 @@ The `pretext-civic` package is an orphaned React component library that was prev
 
 MapleSpike represents a comprehensive approach to Canadian government data aggregation and distribution, balancing technical sophistication with practical deployment constraints. The architecture prioritizes data sovereignty, ease of AI integration, and developer experience while maintaining zero external cloud spend. The monorepo structure with pnpm and Turbo enables efficient development and deployment across 13 packages, while the separation of concerns between ingestion, storage, access, and analysis ensures maintainability and scalability.
 
-The system currently processes 142 data modules across federal, provincial, territorial, and municipal sources, exposing 53 registered MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.
+The system currently processes 144 data modules across federal, provincial, territorial, and municipal sources, exposing 53 registered MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.

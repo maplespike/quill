@@ -5,11 +5,11 @@ status: active
 
 # MapleSpike Roadmap
 
-> **Current version:** v0.2.1 (2026-06-11)
-> **Build:** ✅ `pnpm build` passes (12/12 packages)
+> **Current version:** v0.2.1 (2026-06-12)
+> **Build:** ✅ `pnpm build` passes (13/13 packages)
 > **Tests:** 696 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7, notification-service 13)
-> **Modules:** 142 registry entries (24 marked placeholder)
-> **MCP tools:** 53 registered in tools/index.ts
+> **Modules:** 144 registry entries (9 marked placeholder)
+> **MCP tools:** 129 registered in tools/index.ts (164 tool definition files)
 > **MVP tracker:** [#665](https://github.com/reverb256/maplespike/issues/665) — Real readiness: ~30%
 > **Open issues:** 7 (3 quality sub-issues + 4 strategic)
 
