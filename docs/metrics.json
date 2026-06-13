@@ -8,12 +8,12 @@
     "description": "144 entries in registry.ts (includes attestation, gc-standards, cross-reference utilities). 135 ingestion/ subdirectories with standalone fetch→parse→persist pipelines."
   },
   "mcpTools": {
-    "count": 140,
-    "description": "140 tool definition files, 97 registered in tools/index.ts"
+    "count": 164,
+    "description": "164 tool definition files, 129 registered in tools/index.ts"
   },
   "typescript": {
-    "totalLines": 181876,
-    "totalFiles": 1374,
+    "totalLines": 187902,
+    "totalFiles": 1410,
     "packages": 13,
     "perPackage": {
       "api-server": {
@@ -41,16 +41,16 @@
         "lines": 41
       },
       "mcp-server": {
-        "files": 174,
-        "lines": 14291
+        "files": 179,
+        "lines": 15231
       },
       "notification-service": {
         "files": 7,
         "lines": 964
       },
       "pipeline-core": {
-        "files": 1025,
-        "lines": 142093
+        "files": 1062,
+        "lines": 148539
       },
       "portal": {
         "files": 5,

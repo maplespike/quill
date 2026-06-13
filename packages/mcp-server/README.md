@@ -5,7 +5,7 @@ status: active
 
 # MapleSpike MCP Server
 
-Model Context Protocol server for Canadian government data. **126 tools** for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
+Model Context Protocol server for Canadian government data. **129 tools** for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
 
 > **Status:** All tools standalone. Zero config. `npx @reverb256/mcp-server` and it just works.
 
@@ -37,12 +37,12 @@ No API key, no config file, no database. Just `npx`.
 ### Local development
 
 ```bash
-cd packages/mcp-server
-pnpm start
-# → 🍁 MapleSpike MCP Server ready
-# → Tools: 94 registered
-# → Mode: standalone (no API server needed)
-# → Cache: in-memory (5 min TTL)
+ cd packages/mcp-server
+ pnpm start
+ # → 🍁 MapleSpike MCP Server ready
+ # → Tools: 129 registered
+ # → Mode: standalone (no API server needed)
+ # → Cache: in-memory (5 min TTL)
 ```
 
 ### Hosted / SSE mode
@@ -52,7 +52,7 @@ PORT=3001 pnpm start:sse
 # → http://localhost:3001/sse
 ```
 
-## Tools — 94 Total
+## Tools — 129 Total
 
 ### Cross-source & Semantic (new)
 | Tool | Description | Sources |

@@ -1,0 +1,128 @@
+---
+name: "Metrics Drift Check"
+on:
+  pull_request:
+    branches: [main, prod]
+    paths:
+      - 'packages/mcp-server/src/tools/**'
+      - 'packages/pipeline-core/src/ingestion/**'
+      - 'docs/metrics.json'
+      - 'scripts/generate-metrics.mjs'
+  push:
+    branches: [main, prod]
+    paths:
+      - 'packages/mcp-server/src/tools/**'
+      - 'packages/pipeline-core/src/ingestion/**'
+      - 'docs/metrics.json'
+      - 'scripts/generate-metrics.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-metrics:
+    name: "Check for metrics drift"
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Generate current metrics"
+        id: generate
+        run: |
+          echo "## 🔢 Generating current metrics..." >> $GITHUB_STEP_SUMMARY
+          node scripts/generate-metrics.mjs > /tmp/metrics-output.txt 2>&1
+          cat /tmp/metrics-output.txt
+
+          # Store the output
+          METRICS_OUTPUT=$(cat /tmp/metrics-output.txt)
+          echo "metrics_output=$METRICS_OUTPUT" >> $GITHUB_OUTPUT
+
+          # Extract numbers
+          CURRENT_MODULES=$(echo "$METRICS_OUTPUT" | grep -oP 'Modules: \K\d+')
+          CURRENT_TOOLS=$(echo "$METRICS_OUTPUT" | grep -oP 'MCP Tools: \K\d+')
+          CURRENT_FILES=$(echo "$METRICS_OUTPUT" | grep -oP 'TS Files: \K\d+')
+          CURRENT_LINES=$(echo "$METRICS_OUTPUT" | grep -oP 'TS Lines: \K\d+')
+
+          echo "current_modules=$CURRENT_MODULES" >> $GITHUB_OUTPUT
+          echo "current_tools=$CURRENT_TOOLS" >> $GITHUB_OUTPUT
+          echo "current_files=$CURRENT_FILES" >> $GITHUB_OUTPUT
+          echo "current_lines=$CURRENT_LINES" >> $GITHUB_OUTPUT
+
+      - name: "Compare with docs/metrics.json"
+        id: compare
+        run: |
+          echo "## 📊 Comparing with docs/metrics.json" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ ! -f "docs/metrics.json" ]; then
+            echo "❌ docs/metrics.json not found" >> $GITHUB_STEP_SUMMARY
+            echo "::error::docs/metrics.json not found - run: node scripts/generate-metrics.mjs"
+            exit 1
+          fi
+
+          # Read existing metrics
+          SAVED_MODULES=$(jq -r '.modules.registryCount // "?"' docs/metrics.json)
+          SAVED_TOOLS=$(jq -r '.mcpTools.count // "?"' docs/metrics.json)
+          SAVED_FILES=$(jq -r '.typescript.totalFiles // "?"' docs/metrics.json)
+          SAVED_LINES=$(jq -r '.typescript.totalLines // "?"' docs/metrics.json)
+
+          echo "| Metric | docs/metrics.json | Current | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------------------|---------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          DRIFT=0
+
+          if [ "$SAVED_MODULES" != "${{ steps.generate.outputs.current_modules }}" ]; then
+            echo "| Modules | $SAVED_MODULES | ${{ steps.generate.outputs.current_modules }} | ⚠️ DRIFT |" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Module count drift: docs=$SAVED_MODULES vs current=${{ steps.generate.outputs.current_modules }}"
+            DRIFT=$((DRIFT + 1))
+          else
+            echo "| Modules | $SAVED_MODULES | ${{ steps.generate.outputs.current_modules }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$SAVED_TOOLS" != "${{ steps.generate.outputs.current_tools }}" ]; then
+            echo "| MCP Tools | $SAVED_TOOLS | ${{ steps.generate.outputs.current_tools }} | ⚠️ DRIFT |" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::MCP tools drift: docs=$SAVED_TOOLS vs current=${{ steps.generate.outputs.current_tools }}"
+            DRIFT=$((DRIFT + 1))
+          else
+            echo "| MCP Tools | $SAVED_TOOLS | ${{ steps.generate.outputs.current_tools }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$SAVED_FILES" != "${{ steps.generate.outputs.current_files }}" ]; then
+            echo "| TS Files | $SAVED_FILES | ${{ steps.generate.outputs.current_files }} | ⚠️ DRIFT |" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::TS files drift: docs=$SAVED_FILES vs current=${{ steps.generate.outputs.current_files }}"
+            DRIFT=$((DRIFT + 1))
+          else
+            echo "| TS Files | $SAVED_FILES | ${{ steps.generate.outputs.current_files }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$SAVED_LINES" != "${{ steps.generate.outputs.current_lines }}" ]; then
+            echo "| TS Lines | $SAVED_LINES | ${{ steps.generate.outputs.current_lines }} | ⚠️ DRIFT |" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::TS lines drift: docs=$SAVED_LINES vs current=${{ steps.generate.outputs.current_lines }}"
+            DRIFT=$((DRIFT + 1))
+          else
+            echo "| TS Lines | $SAVED_LINES | ${{ steps.generate.outputs.current_lines }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "drift_count=$DRIFT" >> $GITHUB_OUTPUT
+
+      - name: "Update docs/metrics.json if drift detected"
+        if: steps.compare.outputs.drift_count > 0
+        run: |
+          echo "## 🔄 Updating docs/metrics.json" >> $GITHUB_STEP_SUMMARY
+          node scripts/generate-metrics.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/metrics.json
+          git diff --cached docs/metrics.json >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 Run \`git commit -m 'docs: update metrics.json (auto-generated)'\` to commit these changes" >> $GITHUB_STEP_SUMMARY
+
+      - name: "Fail on metrics drift"
+        if: steps.compare.outputs.drift_count > 0 && github.event_name == 'pull_request'
+        run: |
+          echo "::error::Metrics drift detected! Please run \`node scripts/generate-metrics.mjs\` and update docs/metrics.json"
+          exit 1
