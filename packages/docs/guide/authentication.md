@@ -1,13 +1,15 @@
 ---
-last-reviewed: 2026-05-25
-status: active
+last-reviewed: 2026-06-12
+status: partial
 ---
 
 # Authentication
 
+> **⚠️ PARTIALLY IMPLEMENTED**: Basic API key authentication exists. OAuth, Web3, and Passkey authentication are planned features. See ROADMAP.md Phase 6 for status.
+
 MapleSpike supports multiple authentication methods. Choose the one that fits your use case.
 
-## API Keys (Recommended for Programmatic Access)
+## API Keys (Implemented) ✅
 
 API keys are the primary authentication method. Pass them via the `Authorization` header:
 
@@ -23,35 +25,16 @@ curl -H "X-API-Key: YOUR_API_KEY" \
   "http://maplespike.lan/v1/gov/search?q=housing&limit=5"
 ```
 
-### Key Management
+### Key Management (Planned)
 
 Manage your API keys via the `/v1/keys` endpoints:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/v1/keys` | List all keys (returns label, prefix, createdAt) |
-| POST | `/v1/keys` | Create a new API key |
-| DELETE | `/v1/keys/:id` | Delete an API key |
-| POST | `/v1/keys/:id/rotate` | Rotate (regenerate) an API key |
-
-```bash
-# List keys
-curl -H "Authorization: Bearer YOUR_API_KEY" "http://maplespike.lan/v1/keys"
-
-# Create a new key
-curl -X POST http://maplespike.lan/v1/keys \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"label": "my-app-key"}'
-
-# Delete a key
-curl -X DELETE http://maplespike.lan/v1/keys/KEY_ID \
-  -H "Authorization: Bearer YOUR_API_KEY"
-
-# Rotate a key
-curl -X POST http://maplespike.lan/v1/keys/KEY_ID/rotate \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| GET | `/v1/keys` | List all keys (returns label, prefix, createdAt) | Planned |
+| POST | `/v1/keys` | Create a new API key | Planned |
+| DELETE | `/v1/keys/:id` | Delete an API key | Planned |
+| POST | `/v1/keys/:id/rotate` | Rotate (regenerate) an API key | Planned |
 
 ### Local Development Key
 
@@ -60,11 +43,11 @@ For local development, use:
 MAPLESPIKE_API_KEY=maplespike-dev-key
 ```
 
-## JWT Authentication
+## JWT Authentication (Planned) 🚧
 
-For session-based auth, MapleSpike supports JWT tokens issued via OAuth or GitHub login.
+For session-based auth, MapleSpike will support JWT tokens issued via OAuth or GitHub login.
 
-### GitHub OAuth
+### GitHub OAuth (Planned)
 
 ```bash
 # Step 1: Initiate GitHub login
@@ -82,9 +65,9 @@ curl -X POST http://maplespike.lan/v1/auth/refresh \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### Generic OAuth
+### Generic OAuth (Planned)
 
-MapleSpike supports multiple OAuth providers. List available providers:
+MapleSpike will support multiple OAuth providers. List available providers:
 
 ```bash
 curl http://maplespike.lan/v1/auth/oauth/providers
@@ -96,7 +79,7 @@ Initiate login for a specific provider:
 curl http://maplespike.lan/v1/auth/oauth/PROVIDER_NAME
 ```
 
-## Web3 / Wallet Authentication
+## Web3 / Wallet Authentication (Planned) 🚧
 
 Connect a cryptocurrency wallet (Ethereum, etc.) for authentication:
 
@@ -112,7 +95,7 @@ curl -X POST http://maplespike.lan/v1/auth/web3/login \
   -d '{"address": "0x1234...", "signature": "0xabcd...", "message": "MapleSpike auth: ..."}'
 ```
 
-## Passkey / WebAuthn Authentication
+## Passkey / WebAuthn Authentication (Planned) 🚧
 
 For passwordless authentication using biometrics or hardware security keys:
 
@@ -141,7 +124,7 @@ curl -X DELETE http://maplespike.lan/v1/auth/passkey/credentials/CRED_ID \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-## Rate Limit Headers
+## Rate Limit Headers (Implemented) ✅
 
 Every response includes rate limit information in headers:
 
@@ -152,18 +135,38 @@ X-RateLimit-Reset: 1715700000
 Retry-After: 45
 ```
 
-## Public (Unauthenticated) Endpoints
+## Public (Unauthenticated) Endpoints (Implemented) ✅
 
 The following endpoints do not require authentication:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v1/health` | GET | Health check |
-| `/v1/openapi.json` | GET | OpenAPI specification |
-| `/v1/gov/search` | GET | Search government data |
-| `/v1/citation/:id` | GET | Citation verification |
-| `/v1/register` | POST | Create new account |
-| `/v1/billing/plans` | GET | List billing plans |
-| All `/v1/auth/*` routes | Various | Authentication flows |
+| Endpoint | Method | Description | Status |
+|----------|--------|-------------|--------|
+| `/v1/health` | GET | Health check | ✅ Working |
+| `/v1/openapi.json` | GET | OpenAPI specification | ✅ Working |
+| `/v1/gov/search` | GET | Search government data | ✅ Working |
+| `/v1/citation/:id` | GET | Citation verification | ✅ Working |
+| `/v1/register` | POST | Create new account | Planned |
+| `/v1/billing/plans` | GET | List billing plans | Planned |
+| All `/v1/auth/*` routes | Various | Authentication flows | Planned |
 
 Unauthenticated requests have stricter rate limits (5/min max).
+
+## Implementation Status
+
+### ✅ Implemented
+- Basic API key authentication
+- Rate limiting headers
+- Public endpoint access
+
+### 🚧 Planned (Phase 6)
+- API key management UI/API
+- JWT authentication
+- GitHub OAuth
+- Generic OAuth providers
+- Web3 wallet authentication
+- Passkey/WebAuthn support
+- User registration flow
+
+## Current Development Status
+
+See ROADMAP.md Phase 6 for current authentication development status. Basic framework exists but advanced auth methods are not yet implemented.

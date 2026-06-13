@@ -44,10 +44,9 @@ maplespike/
 ├── packages/
 │   ├── pipeline-core/    # Ingestion, verification, audit (shared library)
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
-│   ├── pretext-civic/    # React component library (charts, geo) — orphaned
 │   ├── portal/           # Developer portal & landing page (static HTML)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── mcp-server/ # MCP protocol server (✅ 129 tools, all live)
+│   ├── mcp-server/       # MCP protocol server (✅ 129 tools, all live)
 │   ├── sdk/              # TypeScript client library
 │   ├── sdk-python/       # Python client library
 │   ├── legal-core/       # Legal data SDK
