@@ -1,13 +1,15 @@
 ---
-last-reviewed: 2026-05-25
-status: active
+last-reviewed: 2026-06-12
+status: planned
 ---
 
 # Billing & Rate Limits
 
-MapleSpike offers tiered pricing for different usage levels. Rate limits and monthly quotas vary by tier.
+> **⚠️ PLANNED FEATURE**: This documentation describes planned billing and authentication infrastructure. Current implementation is in development. See ROADMAP.md Phase 6 for status.
 
-## Pricing Tiers
+MapleSpike will offer tiered pricing for different usage levels. Rate limits and monthly quotas will vary by tier.
+
+## Pricing Tiers (Planned)
 
 | Tier | Price | Monthly Requests | Rate Limit | Support |
 |------|-------|-----------------|------------|---------|
@@ -16,9 +18,9 @@ MapleSpike offers tiered pricing for different usage levels. Rate limits and mon
 | Business | $199/mo | 500,000/mo | 100/sec | 24h SLA |
 | Enterprise | Custom | Custom | Custom | Dedicated |
 
-## Request Credits
+## Request Credits (Planned)
 
-Every API call consumes one credit from your monthly quota.
+Every API call will consume one credit from your monthly quota.
 
 | Operation | Credits |
 |-----------|---------|
@@ -30,11 +32,11 @@ Every API call consumes one credit from your monthly quota.
 | `POST /v1/ai_ask` | 1 |
 | `POST /v1/audit/query` | 1 |
 
-Free tier requests are always 0 credits charged. Check the `creditsCharged` field in the response meta.
+Free tier requests will always be 0 credits charged. Check the `creditsCharged` field in the response meta.
 
-## Rate Limiting
+## Rate Limiting (Planned)
 
-Rate limits are enforced per API key using a sliding window algorithm.
+Rate limits will be enforced per API key using a sliding window algorithm.
 
 ### Unauthenticated Requests
 
@@ -52,7 +54,7 @@ Rate limits are enforced per API key using a sliding window algorithm.
 
 ### Rate Limit Headers
 
-Every response includes rate limit information:
+Every response will include rate limit information:
 
 ```
 X-RateLimit-Limit: 30
@@ -61,8 +63,7 @@ X-RateLimit-Reset: 1715700000
 Retry-After: 45
 ```
 
-When you exceed the limit, the API returns HTTP 429:
-
+When you exceed the limit, the API will return HTTP 429:
 ```json
 {
   "success": false,
@@ -73,9 +74,9 @@ When you exceed the limit, the API returns HTTP 429:
 }
 ```
 
-## Monthly Quota
+## Monthly Quota (Planned)
 
-When monthly quota is exhausted for Free tier, the API returns HTTP 402:
+When monthly quota is exhausted for Free tier, the API will return HTTP 402:
 
 ```json
 {
@@ -87,38 +88,9 @@ When monthly quota is exhausted for Free tier, the API returns HTTP 402:
 }
 ```
 
-For paid tiers, a warning header is added but requests still succeed.
+For paid tiers, a warning header will be added but requests will still succeed.
 
-## Check Your Usage
-
-```bash
-curl -H "Authorization: Bearer YOUR_API_KEY" "http://maplespike.lan/v1/usage"
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "data": {
-    "periodCalls": 15,
-    "periodLimit": 1000,
-    "tier": "free",
-    "daily": { "count": 5, "limit": 30 },
-    "monthly": { "count": 15, "limit": 1000 }
-  }
-}
-```
-
-## Billing Plans Endpoint
-
-```bash
-curl http://maplespike.lan/v1/billing/plans
-```
-
-Returns all available plans with pricing details.
-
-## Payment Methods
+## Payment Methods (Planned)
 
 | Method | Details |
 |--------|---------|
@@ -127,9 +99,22 @@ Returns all available plans with pricing details.
 | **Interac e-Transfer** | Canadian bank transfers |
 | **Invoice** | Enterprise only, net-30 terms |
 
-## Coming Soon
+## Implementation Status
 
-- Public signup flow with self-serve tier selection
-- Usage dashboard with real-time graphs
-- Billing portal with invoice history
-- Email alerts for approaching quota thresholds
+- [ ] API key management endpoints
+- [ ] Rate limiting implementation
+- [ ] Usage tracking and quota enforcement
+- [ ] Stripe integration
+- [ ] Crypto payment processing
+- [ ] Interac e-Transfer handling
+- [ ] Billing dashboard
+- [ ] Invoice generation
+
+## Current Development Status
+
+See ROADMAP.md Phase 6 for current billing development status. Basic authentication framework exists but billing integration is not yet implemented.
+
+For local development, use the dev key:
+```
+MAPLESPIKE_API_KEY=maplespike-dev-key
+```

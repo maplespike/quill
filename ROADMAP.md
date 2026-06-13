@@ -30,7 +30,7 @@ status: active
 | Add MCP server tests (215) | ✅ |
 | Fix notification-service tests (4 SQLITE_ERROR) | ✅ |
 | Add Dockerfile + docker-compose.yml | ✅ |
-| Mark 32 placeholder modules in registry | ✅ |
+| Mark 16 placeholder modules in registry | ✅ |
 | Label remaining 4 open issues | ✅ |
 
 ## Phase 2: MVP Quality Gate (Next)

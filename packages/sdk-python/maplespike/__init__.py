@@ -41,9 +41,17 @@ from .client import (
 from .auth import get_api_key, set_api_key, get_jwt_token, set_jwt_token, clear_auth, is_authenticated
 from .agents import AGENTS, get_agent, list_agents, list_actions
 from .langchain_adapter import get_maplespike_tools
+from .high_level import (
+    MapleSpikeClient,
+    Search,
+    EntityResolution,
+    Ingestion,
+)
 
 __all__ = [
+    # Core types
     'MapleSpike',
+    'MapleSpikeClient',
     'MapleSpikeResponse',
     'MapleSpikeError',
     'MapleSpikeApiError',
@@ -53,16 +61,23 @@ __all__ = [
     'Citation',
     'AgentDefinition',
     'ActionDefinition',
+    # Domain classes
+    'Search',
+    'EntityResolution',
+    'Ingestion',
+    # Agent catalogue
     'get_agent',
     'list_agents',
     'list_actions',
+    'AGENTS',
+    # Auth
     'get_api_key',
     'set_api_key',
     'get_jwt_token',
     'set_jwt_token',
     'clear_auth',
     'is_authenticated',
-    'AGENTS',
+    # LangChain
     'get_maplespike_tools',
 ]
 
