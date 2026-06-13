@@ -1,0 +1,84 @@
+# =============================================================================
+# MapleSpike — Deploy Portal + Docs to GitHub Pages
+#
+# Builds the docs (marked MD → HTML) and the Astro portal, then deploys
+# the static output to GitHub Pages using the official deploy-pages action.
+#
+# Required GitHub Settings (under Settings → Pages):
+#   Source: "GitHub Actions"
+#   Custom domain: maplespike.ca (DNS: CNAME reverb256.github.io)
+#
+# Required Secrets:
+#   None — the GITHUB_TOKEN used by actions/deploy-pages is auto-provided.
+# =============================================================================
+name: Deploy Docs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    # Only run when docs or portal actually change
+    paths:
+      - "packages/docs/**"
+      - "packages/portal/**"
+      - "scripts/build-docs.mjs"
+      - ".github/workflows/deploy-docs.yml"
+  workflow_dispatch: # Allow manual trigger
+
+# Ensure only one deployment runs at a time
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build portal + docs
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build docs (MD → HTML)
+        run: node scripts/build-docs.mjs
+
+      - name: Build portal (Astro)
+        run: pnpm --filter @maplespike/portal build
+
+      - name: Copy docs and legacy assets into portal dist
+        run: |
+          cp -r packages/portal/docs packages/portal/dist/docs
+          cp packages/portal/styles.css packages/portal/dist/styles.css
+          cp packages/portal/docs-pretext.js packages/portal/dist/docs-pretext.js
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/portal/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
