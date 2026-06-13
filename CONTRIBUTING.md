@@ -8,7 +8,10 @@ Every change follows: **Issue → Branch/Worktree → PR → Merge → Close Iss
 3. **Branch naming**: `issue-NNN-short-description`
 4. **Commit messages**: `type: description (#NNN)` — conventional commits with issue ref.
 5. **PR**: Push branch → create PR with `Closes #NNN`. All changes through PRs.
-6. **Merge**: Squash merge preferred. Keep history clean.
+6. **Merge**: Squash merge to `main` for most changes. `prod` is reserved for production releases via changeset publish workflow.
+7. **Cleanup**: Remove worktree after merge: `git worktree remove /data/projects/own/maplespike-NNN`
+
+> **Branch Protection**: `main` is protected requiring PRs + CI. `prod` is production-only (changesets publish to `prod` then merge to `main`). Pre-commit hooks warn on commits to `prod`.
 
 ## Development Environment
 
@@ -65,8 +68,7 @@ git config user.signingkey <key-id>
 - [ ] Remote nodes synced: `git fetch origin && git reset --hard origin/main`
 
 ## Repository Settings (GitHub)
-Branch protection rules are configured for `main`:
-- Require pull request before merging
-- Require status checks (CI must pass)
-- Require up-to-date branches
-- Require signed commits (recommended)
+Branch protection rules are configured:
+
+- **main**: Requires pull request before merging, requires status checks (CI must pass), requires up-to-date branches, recommends signed commits
+- **prod**: Production branch - changesets publish workflow targets this branch, pre-commit hook warns against direct commits

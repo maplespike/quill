@@ -121,8 +121,8 @@ Then ask Claude: *"Search House of Commons committees for recent mentions of 'ca
 
 ## Next Steps
 
-- Read the [Quickstart](./quickstart) for a 5-minute walkthrough with curl examples
-- See the [API Endpoints](/api/endpoints) for the full API catalog
-- Browse the [MCP Tools](/mcp/tools) for all 22 available tools
-- Check [Authentication](./authentication) for all auth methods
-- Review [Billing & Limits](./billing) for tier information
+ - Read the [Quickstart](./quickstart) for a 5-minute walkthrough with curl examples
+ - See the [API Endpoints](/api/endpoints) for the full API catalog
+ - Browse the [MCP Tools](/mcp/tools) for all 129 available tools
+ - Check [Authentication](./authentication) for all auth methods
+ - Review [Billing & Limits](./billing) for tier information

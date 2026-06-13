@@ -5,10 +5,14 @@ status: active
 
 # K8s Manifests — Nix-generated via easykubenix
 
-All Kubernetes manifests are generated from Nix via [easykubenix](https://github.com/lillecarl/easykubenix).
+> **🚨 IMPORTANT:** This document describes **planned infrastructure that was never implemented**. See PIPELINE-ARCHITECTURE.md for CI/CD reality and ROADMAP.md Phase 3 for deployment status.
+
+All Kubernetes manifests are planned to be generated from Nix via [easykubenix](https://github.com/lillecarl/easykubenix).
 Source files live in `k8s/` directory. The flake attribute is `.#k8s-manifests`.
 
 ## Usage
+
+> **NOTE:** These commands are for the planned infrastructure. Current deployment uses Docker Compose.
 
 ```bash
 # View generated manifests

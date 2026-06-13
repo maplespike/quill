@@ -5,7 +5,7 @@ status: archived
 
 # CI/CD Pipeline Architecture
 
-**Status:** ARCHIVED — This document was aspirational fiction. The actual CI pipeline is at `.github/workflows/ci.yml` (ubuntu-latest, build+test only).
+> **🚨 IMPORTANT:** This document is **ARCHIVED**. It described aspirational infrastructure that was never built. The actual CI pipeline is at `.github/workflows/ci.yml` (ubuntu-latest, build+test only). No K8s deployment exists. No container images are published.
 
 ## What exists
 
