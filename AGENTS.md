@@ -46,17 +46,44 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 ---
 
-## Commands
+## Quick Start
 
-### Root
 ```bash
-pnpm install                     # Install all deps
-pnpm build                       # Turbo topological build
-pnpm -r build                    # Bypass Turbo, build each package independently
-pnpm test                        # Turbo: build → test all
-pnpm -r test                     # Run all package tests (no Turbo)
-pnpm run clean                   # Remove dist/ and tsconfig.tsbuildinfo
+# Enter dev environment (Nix-first)
+nix develop
+
+# Or using legacy shell
+nix-shell -A devShells.x86_64-linux.default
+
+# Build all packages
+pnpm build
+
+# Run tests
+pnpm test
 ```
+
+**New to MapleSpike?** Start with:
+1. `docs/NIX-DEV-ENVIRONMENT.md` — Dev environment setup
+2. `docs/NIX-FIRST-WORKFLOW.md` — Development workflow
+3. `docs/MCP-SERVER-ISSUES.md` — Known issues and fixes
+
+### Nix-Based Dev Shells
+
+```bash
+# General development
+nix develop
+
+# MCP-specific shell (includes test scripts)
+nix develop .#devShells.x86_64-linux.mcp
+
+# API-specific shell (includes DB tools)
+nix develop .#devShells.x86_64-linux.api
+
+# Portal-specific shell (includes Python tools)
+nix develop .#devShells.x86_64-linux.portal
+```
+
+See `docs/NIX-DEV-ENVIRONMENT.md` for full shell documentation.
 
 ### Per-package
 ```bash
