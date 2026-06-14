@@ -3,8 +3,10 @@
  *
  * Main navigation for the dashboard
  */
+import * as React from 'react';
+import type { ReactElement } from 'react';
 
-export default function Nav() {
+export default function Nav(): ReactElement {
   return (
     <nav
       style={{

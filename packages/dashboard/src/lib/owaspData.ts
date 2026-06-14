@@ -3,6 +3,7 @@
  *
  * Based on: https://owasp.org/www-project-top-10-for-large-language-model-applications/
  */
+import * as React from 'react';
 
 export interface OWASPCategory {
   id: string;

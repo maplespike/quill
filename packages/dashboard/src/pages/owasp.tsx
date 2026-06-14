@@ -3,10 +3,11 @@
  *
  * Displays security posture across OWASP LLM Top 10 categories
  */
-
+import * as React from 'react';
+import type { ReactElement } from 'react';
 import { owaspCategories, getStatusColor, getSeverityColor } from '../lib/owaspData';
 
-export default function OWASP() {
+export default function OWASP(): ReactElement {
   const passCount = owaspCategories.filter((c) => c.status === 'pass').length;
   const partialCount = owaspCategories.filter((c) => c.status === 'partial').length;
   const failCount = owaspCategories.filter((c) => c.status === 'fail').length;
