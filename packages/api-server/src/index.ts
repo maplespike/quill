@@ -47,6 +47,7 @@ interface Route {
 }
 
 import { healthHandler } from './routes/health.js';
+import { versionHandler } from './routes/version.js';
 import { addAttributionHeader } from './middleware/attribution.js';
 import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
@@ -106,6 +107,7 @@ import {
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
+  { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
   { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: withRouteCache(complianceHandler, 3600) },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: withRouteCache(onboardingHandler, 3600) },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
@@ -393,6 +395,7 @@ export async function handleRequest(
   // Authentication (public routes: health, openapi, register, github login/callback, refresh, logout)
   const path = url.pathname;
   const authExempt = path.startsWith('/v1/health')
+    || path.startsWith('/v1/version')
     || route.handler === complianceHandler
     || route.handler === searchGovHandler
     || route.handler === openApiHandler
