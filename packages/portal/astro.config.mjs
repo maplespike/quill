@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://maplespike.ca',
+  site: 'https://maplespike.lan',
   build: { format: 'file' },
   integrations: [react()],
   vite: {
