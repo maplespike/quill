@@ -49,12 +49,19 @@ function setAuthState(token: string, userId: string, method: string) {
   localStorage.setItem("maplespike_token", token);
   localStorage.setItem("maplespike_userId", userId);
   localStorage.setItem("maplespike_method", method);
+  // Sync global nav
+  if (typeof window !== "undefined" && window.MapleSpikeAuth) {
+    window.MapleSpikeAuth.setAuth(token, userId, method);
+  }
 }
 
 function clearAuthState() {
   localStorage.removeItem("maplespike_token");
   localStorage.removeItem("maplespike_userId");
   localStorage.removeItem("maplespike_method");
+  if (typeof window !== "undefined" && window.MapleSpikeAuth) {
+    window.MapleSpikeAuth.logout();
+  }
 }
 
 declare global {
@@ -63,6 +70,14 @@ declare global {
     ethereum?: {
       request: (args: { method: string; params?: unknown[] }) => Promise<string[]>;
       on?: (event: string, handler: () => void) => void;
+    };
+    MapleSpikeAuth?: {
+      getAuth: () => { token: string | null; userId: string | null; method: string | null; isAuthenticated: boolean };
+      setAuth: (token: string, userId: string, method: string) => void;
+      logout: () => void;
+      isAuthenticated: () => boolean;
+      getToken: () => string | null;
+      updateNav: () => void;
     };
   }
 }

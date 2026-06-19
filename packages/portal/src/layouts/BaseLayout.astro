@@ -147,6 +147,8 @@ const isActive = (match: string) =>
             class="btn-sheen hidden h-9 items-center rounded-full px-5 text-sm font-medium text-primary-foreground transition-colors sm:inline-flex"
           >Get Started</a
           >
+          <!-- Auth-aware container — populated by auth.js -->
+          <div id="nav-auth-container" class="flex items-center"></div>
           <!-- Mobile menu button -->
           <button
             id="mobile-menu-toggle"
@@ -313,6 +315,8 @@ const isActive = (match: string) =>
       }
     </script>
 
+    <!-- Load auth state manager (runs before React hydration) -->
+    <script src="/auth.js" is:inline></script>
     <!-- Load script.js for pages that need it -->
     <script src="/script.js" is:inline></script>
   </body>
