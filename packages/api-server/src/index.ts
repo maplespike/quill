@@ -537,11 +537,11 @@ export default {
       await pgDb.init();
       db = pgDb;
       cache = new PgCache();
-    } else if (storageMode === 'sqlite' || process.env.MAPLESPIKE_DB_PATH) {
-      // SQLite mode
-      const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
-      db = new SqliteStorage();
-      cache = new SqliteStorageCache();
+    } else if (storageMode === 'sqlite' || storageMode === 'node-sqlite' || process.env.MAPLESPIKE_DB_PATH) {
+      // Node built-in SQLite mode (no native compilation needed)
+      const { NodeSqliteStorage, NodeSqliteCache } = await import('./node-sqlite-storage.js');
+      db = new NodeSqliteStorage();
+      cache = new NodeSqliteCache();
     } else if (env.DB) {
       // Cloudflare Workers D1 mode
       db = new D1Storage(env.DB);
