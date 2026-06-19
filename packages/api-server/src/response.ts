@@ -271,11 +271,11 @@ const ALLOWED_ORIGINS = [
   'http://10.1.1.120:4321',
   'http://10.1.1.100:4321',
   // Production
-  'https://maplespike.ca',
-  'https://www.maplespike.ca',
-  'https://api.maplespike.ca',
-  'https://portal.maplespike.ca',
-  'https://mcp.maplespike.ca',
+  'https://maplespike.lan',
+  'https://www.maplespike.lan',
+  'https://api.maplespike.lan',
+  'https://portal.maplespike.lan',
+  'https://mcp.maplespike.lan',
   // Internal LAN
   'https://dev.maplespike.lan',
   'https://maplespike-api.lan',

@@ -16,7 +16,7 @@ const {
   lang = "en",
 } = Astro.props;
 const langPrefix = lang === "fr" ? "/fr" : "";
-const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${langPrefix}${Astro.url.pathname}`;
+const canonical = `${Astro.site?.href ?? "https://maplespike.lan"}${langPrefix}${Astro.url.pathname}`;
 const pathname = Astro.url.pathname;
 const navLinks = [
   { href: "/", label: "Home", match: "/" },
@@ -41,7 +41,7 @@ const isActive = (match: string) =>
     <link rel="alternate" href={canonical} hreflang={lang === "fr" ? "fr" : "en"} />
     <link
       rel="alternate"
-      href={`https://maplespike.ca${lang === "fr" ? "" : "/fr"}${Astro.url.pathname}`}
+      href={`https://maplespike.lan${lang === "fr" ? "" : "/fr"}${Astro.url.pathname}`}
       hreflang={lang === "fr" ? "en" : "fr"}
     />
     <meta property="og:title" content={`${title} | MapleSpike`} />

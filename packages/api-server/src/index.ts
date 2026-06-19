@@ -425,7 +425,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401, {}, requestOrigin, environment);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.lan/signup', ctx), 401, {}, requestOrigin, environment);
   }
 
   const ctx: RouteContext = {
