@@ -411,7 +411,9 @@ export async function handleRequest(
     || path.startsWith('/v1/billing/plans')
     || path.startsWith('/v1/contact')
     || path.startsWith('/v1/engine/status')
-    || path.startsWith('/v1/data/quality');
+    || path.startsWith('/v1/data/quality')
+    || path.startsWith('/v1/ai/ask')
+    || path.startsWith('/v1/ai_ask');
 
   const tenant = authExempt
     ? null
