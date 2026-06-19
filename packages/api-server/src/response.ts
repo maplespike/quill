@@ -280,6 +280,9 @@ const ALLOWED_ORIGINS = [
   'https://dev.maplespike.lan',
   'https://maplespike-api.lan',
   'https://maplespike-portal.lan',
+  'https://maplespike.lan',
+  'https://api.maplespike.lan',
+  'https://mcp.maplespike.lan',
 ];
 
 export function getAllowedOrigin(requestOrigin: string | null): string {

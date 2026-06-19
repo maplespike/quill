@@ -12,6 +12,7 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { validateBody } from '../validate.js';
+import { generateApiKey } from '../auth.js';
 import {
   beginRegistration,
   completeRegistration,
@@ -66,8 +67,49 @@ export const passkeyRegisterCompleteHandler: RouteHandler = async (request, ctx)
       deviceName: body.deviceName as string | undefined,
     });
 
+    // Auto-create tenant + API key for the new passkey user
+    let apiKey: { id: string; key: string } | null = null;
+    try {
+      const { rawKey, keyHash } = await generateApiKey();
+      const keyId = 'key_' + Array.from(new Uint8Array(16))
+        .map(() => Math.random().toString(16).slice(2, 4)).join('');
+      const tenantId = result.userId || ('tn_' + Array.from(new Uint8Array(8))
+        .map(b => b.toString(16).padStart(2, '0')).join(''));
+
+      const extDb = ctx.db as any;
+      const tenant = {
+        id: tenantId,
+        name: 'Passkey User',
+        email: '',
+        emailVerified: false,
+        tier: 'free' as const,
+        isActive: true,
+        journalismMode: false,
+      };
+      if (typeof extDb.registerTenant === 'function') {
+        extDb.registerTenant(tenant, keyHash, keyId);
+      } else if (typeof extDb.createTenant === 'function') {
+        extDb.createTenant(tenant);
+        if (typeof extDb.createApiKey === 'function') {
+          extDb.createApiKey(keyId, tenantId, keyHash, 'default');
+        }
+      }
+      apiKey = { id: keyId, key: rawKey };
+    } catch {
+      // Key creation is best-effort — passkey registration still succeeded
+    }
+
+    const response: Record<string, unknown> = {
+      credentialId: result.credentialId,
+      userId: result.userId,
+    };
+    if (apiKey) {
+      response.apiKey = apiKey;
+      response.message = 'Passkey registered. Save your API key — it will not be shown again.';
+    }
+
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
-    return jsonResponse(buildSuccess(result, bc));
+    return jsonResponse(buildSuccess(response, bc));
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Registration failed';
     const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };

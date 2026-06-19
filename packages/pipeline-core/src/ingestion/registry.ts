@@ -53,7 +53,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CBC, Globe, National Post, regional papers, The Tyee, policy feeds', format: 'RSS' }],
     updateFrequency: '30 min',
     testCallPattern: 'fetchFeed',
-    healthCheckUrl: 'https://www.cbc.ca/news',
+    healthCheckUrl: 'https://www.cbc.ca/webfeed/rss/rss-topstories',
   },
   {
     name: 'gov-api',

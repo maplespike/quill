@@ -29,6 +29,7 @@ import {
   addRateLimitHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
+import { getAllowedOrigin } from './response.js';
 import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
@@ -392,36 +393,25 @@ export async function handleRequest(
 
   const { route, params } = matched;
 
-  // Authentication (public routes: health, openapi, register, github login/callback, refresh, logout)
+  // Authentication — exempt public routes by path (not handler identity,
+  // because withRouteCache wraps handlers and breaks === comparison)
   const path = url.pathname;
-  const authExempt = path.startsWith('/v1/health')
+  const authExempt =
+    path.startsWith('/v1/health')
     || path.startsWith('/v1/version')
-    || route.handler === complianceHandler
-    || route.handler === searchGovHandler
-    || route.handler === openApiHandler
-    || route.handler === getCitationHandler
-    || route.handler === registerHandler
-    || route.handler === billingPlansHandler
-    || route.handler === githubLoginHandler
-    || route.handler === githubCallbackHandler
-    || route.handler === refreshTokenHandler
-    || route.handler === logoutHandler
-    || route.handler === engineStatusHandler
-    // Generic OAuth entry points
-    || route.handler === oauthProvidersHandler
-    || route.handler === oauthLoginHandler
-    || route.handler === oauthCallbackHandler
-    // Web3 + Passkey auth entry points
-    || route.handler === web3ChallengeHandler
-    || route.handler === web3LoginHandler
-    || route.handler === passkeyRegisterBeginHandler
-    || route.handler === passkeyRegisterCompleteHandler
-    || route.handler === passkeyLoginBeginHandler
-    || route.handler === passkeyLoginCompleteHandler
-    // Contact form (no auth required)
-    || route.handler === contactHandler
-    // Data quality (public, feeds Grafana dashboard)
-    || path === '/v1/data/quality'
+    || path.startsWith('/v1/compliance')
+    || path.startsWith('/v1/onboarding')
+    || path.startsWith('/v1/gov/search')
+    || path.startsWith('/v1/gov/releases')
+    || path.startsWith('/v1/openapi')
+    || path.startsWith('/v1/citation/')
+    || path.startsWith('/v1/auth/')
+    || path.startsWith('/v1/register')
+    || path.startsWith('/v1/verify/')
+    || path.startsWith('/v1/billing/plans')
+    || path.startsWith('/v1/contact')
+    || path.startsWith('/v1/engine/status')
+    || path.startsWith('/v1/data/quality');
 
   const tenant = authExempt
     ? null
@@ -435,7 +425,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401, {}, undefined, environment);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401, {}, requestOrigin, environment);
   }
 
   const ctx: RouteContext = {
@@ -511,7 +501,24 @@ export async function handleRequest(
   }
 
   // ── Dispatch to matched route handler ──
-  return route.handler(request, ctx, params);
+  const response = await route.handler(request, ctx, params);
+  // Add CORS headers to the actual response (not just preflight)
+  const allowedOrigin = getAllowedOrigin(requestOrigin);
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
+    'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
+  };
+  const newHeaders = new Headers(response.headers);
+  for (const [k, v] of Object.entries(corsHeaders)) {
+    newHeaders.set(k, v);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: newHeaders,
+  });
 }
 
 export default {

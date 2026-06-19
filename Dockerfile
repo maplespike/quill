@@ -2,7 +2,7 @@
 # MapleSpike — Production Multi-Stage Dockerfile
 # Builds all packages and produces runtime images.
 # =============================================================================
-FROM docker.io/node:22-bookworm AS build
+FROM docker.io/node:22-trixie AS build
 
 WORKDIR /app
 
@@ -27,7 +27,9 @@ COPY packages/portal/package.json packages/portal/
 
 # Install dependencies (native modules like better-sqlite3 need build tools)
 RUN apt-get update -qq && apt-get install -y -qq python3 make g++ && \
-    pnpm install --no-frozen-lockfile
+    pnpm install --no-frozen-lockfile && \
+    cd /app/node_modules/.pnpm/better-sqlite3@11.10.0/node_modules/better-sqlite3 && \
+    npx --yes node-gyp rebuild
 
 # Ensure tsx is available for extensionless ESM imports
 
@@ -49,7 +51,7 @@ RUN node /tmp/fix-package-exports.js
 # =============================================================================
 # Runtime: API Server
 # =============================================================================
-FROM docker.io/node:22-bookworm AS api-server
+FROM docker.io/node:22-trixie AS api-server
 
 WORKDIR /app
 COPY --from=build /app /app
@@ -61,7 +63,7 @@ CMD ["node", "packages/api-server/dist/dev-server.js"]
 # =============================================================================
 # Runtime: MCP Server
 # =============================================================================
-FROM docker.io/node:22-bookworm AS mcp-server
+FROM docker.io/node:22-trixie AS mcp-server
 
 WORKDIR /app
 COPY --from=build /app /app
@@ -77,14 +79,16 @@ FROM docker.io/python:3.13-slim AS portal
 
 WORKDIR /app
 COPY packages/portal/dist /app
+COPY packages/portal/server.py /app/server.py
 
 EXPOSE 8080
-CMD ["python3", "-m", "http.server", "8080"]
+ENV PORT=8080
+CMD ["python3", "/app/server.py"]
 
 # =============================================================================
 # Runtime: Ingestion Runner (runs a single pipeline by MAPLESPIKE_PIPELINE env)
 # =============================================================================
-FROM docker.io/node:22-bookworm AS ingestion
+FROM docker.io/node:22-trixie AS ingestion
 
 WORKDIR /app
 COPY --from=build /app /app

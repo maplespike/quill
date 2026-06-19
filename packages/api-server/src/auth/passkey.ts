@@ -35,7 +35,7 @@ import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
    ══════════════════════════════════════════════════════════════════ */
 
 const RP_NAME = 'MapleSpike';
-const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
+const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.lan';
 const ORIGIN = process.env.MAPLESPIKE_ORIGIN || `https://${RP_ID}`;
 
 /* ------------------------------------------------------------------ */

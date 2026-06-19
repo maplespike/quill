@@ -14,15 +14,21 @@ import {
 } from "@/components/ui/table";
 ---
 
-<BaseLayout title="Data Explorer" description="Browse and search Canadian government data across all 126 modules">
-  <section class="container mx-auto px-4 py-8 md:py-12">
-    <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Data Explorer</h1>
+<BaseLayout title="Data Explorer" description="Browse and search Canadian government data across all 144 modules">
+  <section class="aurora relative overflow-hidden border-b">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4 py-8 md:py-12">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+        Data <span class="text-gradient">Explorer</span>
+      </h1>
       <p class="mt-2 text-lg text-muted-foreground">
-        Search across 126 data modules spanning federal, provincial, and municipal government sources.
+        Search across 144 data modules spanning federal, provincial, and municipal government sources.
       </p>
     </div>
+  </section>
+
+  <section class="container mx-auto px-4 py-8 md:py-12">
+    <div class="mb-8">
 
     <!-- Search and Filters -->
     <Card class="mb-8">

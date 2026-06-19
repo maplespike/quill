@@ -1,0 +1,13 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import OwaspDashboard from "@/components/dashboard/OwaspDashboard";
+---
+
+<BaseLayout
+  title="OWASP Compliance Dashboard"
+  description="MapleSpike OWASP LLM Top 10 compliance assessment — security posture monitoring"
+>
+  <section class="container mx-auto px-4 py-8 md:py-12">
+    <OwaspDashboard client:load />
+  </section>
+</BaseLayout>

@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.PUBLIC_API_BASE || 'https://dev-maplespike-api.lan/v1'
+const API_BASE = import.meta.env.PUBLIC_API_BASE || 'https://api.maplespike.lan/v1'
 
 export interface HealthData {
   status: string; service: string; version: string; environment: string

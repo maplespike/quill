@@ -35,11 +35,11 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
     const keyId = 'key_' + Array.from(new Uint8Array(16))
       .map(() => Math.random().toString(16).slice(2, 4)).join('');
 
-    // Persist via storage (both SqliteStorage and MemoryStorage support createApiKey/registerTenant)
     const extDb = ctx.db as ExtendedStorage;
     if (typeof extDb.createApiKey === 'function') {
       extDb.createApiKey(keyId, ctx.tenant.id, keyHash, 'default');
     } else if (typeof extDb.registerTenant === 'function') {
+      // MemoryStorage: re-register the tenant with the new key
       extDb.registerTenant(ctx.tenant, keyHash, keyId);
     } else {
       return jsonResponse(buildError('STORAGE_ERROR', 'Storage backend does not support key creation', ctx), 500);

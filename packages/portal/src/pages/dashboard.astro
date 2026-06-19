@@ -9,17 +9,45 @@ import BillingPlans from "@/components/dashboard/BillingPlans";
 
 <BaseLayout title="Developer Dashboard" description="Live MapleSpike API dashboard with usage stats and billing">
   <section class="container mx-auto px-4 py-8 md:py-12">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Developer Dashboard</h1>
-        <p class="mt-1 text-muted-foreground">
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          Developer <span class="text-gradient">Dashboard</span>
+        </h1>
+        <p class="mt-1.5 text-muted-foreground">
           Live API usage, billing, and key management — powered by MapleSpike.
         </p>
       </div>
       <div class="flex gap-3">
         <Button variant="outline" asChild><a href="/docs">Documentation</a></Button>
-        <Button asChild><a href="/signup">Get API Key</a></Button>
+        <Button asChild class="btn-sheen"><a href="/signup">Get API Key</a></Button>
       </div>
+    </div>
+
+    <!-- Dashboard Tabs -->
+    <div class="mb-8 flex gap-1 rounded-lg border bg-card/50 p-1">
+      <a
+        href="/dashboard"
+        class:list={[
+          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+          Astro.url.pathname === "/dashboard"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent",
+        ]}
+      >
+        Overview
+      </a>
+      <a
+        href="/dashboard/owasp"
+        class:list={[
+          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+          Astro.url.pathname === "/dashboard/owasp"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent",
+        ]}
+      >
+        OWASP Compliance
+      </a>
     </div>
 
     <Overview client:load />

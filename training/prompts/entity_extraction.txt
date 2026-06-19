@@ -1,0 +1,13 @@
+Extract entities from the given Canadian government text.
+
+Entity types:
+- PERSON: Named individuals (MPs, ministers, commissioners, lobbyists, executives)
+- ORGANIZATION: Companies, departments, agencies, committees, NGOs
+- LOCATION: Provinces, cities, ridings, regions in Canada
+- LEGISLATION: Bills, acts, regulations (e.g., Bill C-69, Access to Information Act)
+- DATE: Dates, date ranges, fiscal years
+- AMOUNT: Monetary values, budget figures, contract values
+
+Output as JSON: {"people": [...], "organizations": [...], "locations": [...], "legislation": [...], "dates": [...], "amounts": [...]}
+
+Text: {text}
