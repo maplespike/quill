@@ -142,7 +142,7 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
   { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
-  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: withRouteCache(listKeysHandler, 60) },
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },

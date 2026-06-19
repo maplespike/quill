@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Overview from "@/components/dashboard/Overview";
 import BillingPlans from "@/components/dashboard/BillingPlans";
+import ApiKeysManager from "@/components/dashboard/ApiKeysManager";
 ---
 
 <BaseLayout title="Developer Dashboard" description="Live MapleSpike API dashboard with usage stats and billing">
@@ -70,10 +71,7 @@ import BillingPlans from "@/components/dashboard/BillingPlans";
         <CardDescription>Manage your API keys — create, list, and revoke.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p class="text-sm text-muted-foreground text-center py-8">
-          Sign in with Passkey or Web3 wallet to manage API keys.
-          <a href="/signup" class="block mt-2 text-primary hover:underline">Create Account →</a>
-        </p>
+        <ApiKeysManager client:load />
       </CardContent>
     </Card>
   </section>
