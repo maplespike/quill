@@ -14,6 +14,7 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { validateBody } from '../validate.js';
+import { resolveAIConfig } from './ai-settings.js';
 
 // ── AI Gateway ──────────────────────────────────────────────────────
 // Order: MAPLESPIKE_AI_ENDPOINT > MAPLESPIKE_GATEWAY_URL > AI_ENDPOINT > default
@@ -52,18 +53,23 @@ async function gatewayChat(
   messages: Array<{ role: string; content: string }>,
   temperature = 0.3,
   maxTokens = 2048,
+  config?: { endpoint: string; apiKey: string; model: string },
 ): Promise<string | null> {
   try {
+    const endpoint = config?.endpoint || GATEWAY_ENDPOINT;
+    const model = config?.model || CHAT_MODEL;
+    const apiKey = config?.apiKey || GATEWAY_API_KEY;
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    if (GATEWAY_API_KEY) headers['Authorization'] = `Bearer ${GATEWAY_API_KEY}`;
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
 
-    const resp = await fetch(`${GATEWAY_ENDPOINT}/chat/completions`, {
+    const resp = await fetch(`${endpoint}/chat/completions`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        model: CHAT_MODEL,
+        model,
         messages,
         temperature,
         max_tokens: maxTokens,
@@ -379,17 +385,20 @@ Be specific, cite sources by their [number] references, and note limitations.
 If the context doesn't contain enough information, say so clearly — never fabricate data.
 Keep responses concise and factual.${ragContext}`;
 
-    // ── Step 3: Try AI Gateway with RAG context ──────────────────────
+    // ── Step 3: Resolve AI config (BYOK or cluster default) ──────────
+    const aiConfig = resolveAIConfig(ctx.tenant.id);
+
+    // ── Step 4: Try AI Gateway with RAG context ──────────────────────
     const aiAnswer = await gatewayChat([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: `Question: ${query}\n\nUse the context above (if any) to answer. Cite sources as [1], [2], etc.` },
-    ]);
+    ], 0.3, 2048, aiConfig);
 
     if (aiAnswer) {
       return jsonResponse(buildSuccess({
         answer: aiAnswer,
-        source: 'ai-gateway',
-        model: CHAT_MODEL,
+        source: aiConfig.source,
+        model: aiConfig.model,
         ragSource: searchSource,          // 'qdrant' or 'gov-search'
         contextSources: sourceCount,
         ...(searchSource === 'qdrant' && qdrantMeta ? { qdrant: qdrantMeta } : {}),

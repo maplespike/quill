@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Overview from "@/components/dashboard/Overview";
 import BillingPlans from "@/components/dashboard/BillingPlans";
 import ApiKeysManager from "@/components/dashboard/ApiKeysManager";
+import AISettings from "@/components/dashboard/AISettings";
 ---
 
 <BaseLayout title="Developer Dashboard" description="Live MapleSpike API dashboard with usage stats and billing">
@@ -64,6 +65,16 @@ import ApiKeysManager from "@/components/dashboard/ApiKeysManager";
         </CardContent>
       </Card>
     </div>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>AI Settings</CardTitle>
+        <CardDescription>Bring your own AI key or use the cluster's hosted model</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <AISettings client:load />
+      </CardContent>
+    </Card>
 
     <Card>
       <CardHeader>

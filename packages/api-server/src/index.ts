@@ -69,6 +69,7 @@ import {
 } from './routes/annotations.js';
 import { initAnnotationStore } from './services/annotationService.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
+import { aiSettingsGetHandler, aiSettingsUpdateHandler, resolveAIConfig } from './routes/ai-settings.js';
 import {
   oauthLoginHandler,
   oauthCallbackHandler,
@@ -142,6 +143,8 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
   { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
+  { pattern: /^\/v1\/ai\/settings\/?$/, method: 'GET', params: [], handler: aiSettingsGetHandler },
+  { pattern: /^\/v1\/ai\/settings\/?$/, method: 'PUT', params: [], handler: aiSettingsUpdateHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
