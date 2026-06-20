@@ -242,13 +242,13 @@ status: active</h2>
 <p>MapleSpike includes a mock data mode for development, testing, and demonstration purposes. Append <code>_mock=true</code> to any API endpoint to receive curated sample data instead of live queries.</p>
 <h2>Usage</h2>
 <pre><code class="language-bash"># Search with mock data
-curl &quot;http://maplespike.lan/v1/gov/search?q=housing&amp;_mock=true&quot;
+curl &quot;http://localhost:8082/v1/gov/search?q=housing&amp;_mock=true&quot;
 
 # Releases with mock data
-curl &quot;http://maplespike.lan/v1/gov/releases?limit=3&amp;_mock=true&quot;
+curl &quot;http://localhost:8082/v1/gov/releases?limit=3&amp;_mock=true&quot;
 
 # Health with mock data
-curl &quot;http://maplespike.lan/v1/health?_mock=true&quot;
+curl &quot;http://localhost:8082/v1/health?_mock=true&quot;
 </code></pre>
 <h2>Benefits</h2>
 <ul>

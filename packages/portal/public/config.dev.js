@@ -1,12 +1,12 @@
 // ─────────────────────────────────────────────────────────────────
 // MapleSpike Portal Configuration — Dev Environment Override
 // Mounted as a ConfigMap at /usr/share/nginx/html/config.js
-// Target: dev.maplespike.lan → dev-maplespike-api.lan
+// Target: maplespike.lan → api.maplespike.lan
 // ─────────────────────────────────────────────────────────────────
 window.MAPLESPIKE = window.MAPLESPIKE || {};
 
 // ── API (dev: via dev-maplespike-api.lan with dev key) ──────────
-MAPLESPIKE.apiBase   = 'https://dev-maplespike-api.lan';
+MAPLESPIKE.apiBase   = 'https://api.maplespike.lan';
 MAPLESPIKE.apiKey    = '';  // User enters their own key via workspace
 
 // ── Timeouts (milliseconds) ─────────────────────────────────────

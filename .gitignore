@@ -44,3 +44,4 @@ result
 # Understand Anything knowledge graph (local codebase analysis)
 .understand-anything/
 *.egg-info/
+.env.deployment

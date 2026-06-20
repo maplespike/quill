@@ -6,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 
 const features = [
   {
-    title: "88+ Data Modules",
-    description: "Access all Canadian federal, provincial, territorial, and municipal government data through a single API.",
-    icon: "database",
+    title: "144 Data Modules",
+    description: "Access all 144 Canadian federal, provincial, territorial, and municipal government data sources through a single API.",
+    icon: "database"
   },
   {
     title: "Verified Citations",
@@ -16,7 +16,7 @@ const features = [
     icon: "shield",
   },
   {
-    title: "34 MCP Tools",
+    title: "129 MCP Tools",
     description: "Model Context Protocol tools for AI agents — committees, lobbying, court decisions, and more.",
     icon: "cpu",
   },
@@ -52,19 +52,20 @@ const iconPaths: Record<string, string> = {
   description="Get your free MapleSpike API key. Access all Canadian government data through a single API. 1,000 calls/month free, no credit card required."
 >
   <!-- Hero -->
-  <section class="border-b py-16 md:py-24">
-    <div class="container mx-auto px-4">
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          Get your free <span class="text-primary">API key</span>
+          Get your free <span class="text-gradient">API key</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           1,000 calls per month free. No credit card required. Access all Canadian government data —
           federal, provincial, territorial, and municipal — through a single, unified API.
         </p>
         <div class="flex flex-wrap gap-3 mt-6">
-          <Badge variant="secondary" class="text-xs">88+ Data Modules</Badge>
-          <Badge variant="secondary" class="text-xs">34 MCP Tools</Badge>
+          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">144 Data Modules</Badge>
+          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">129 MCP Tools</Badge>
           <Badge variant="secondary" class="text-xs">SHA-256 Citations</Badge>
           <Badge variant="secondary" class="text-xs">TypeScript & Python SDKs</Badge>
         </div>

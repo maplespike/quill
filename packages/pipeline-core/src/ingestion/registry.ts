@@ -53,7 +53,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CBC, Globe, National Post, regional papers, The Tyee, policy feeds', format: 'RSS' }],
     updateFrequency: '30 min',
     testCallPattern: 'fetchFeed',
-    healthCheckUrl: 'https://www.cbc.ca/news',
+    healthCheckUrl: 'https://www.cbc.ca/webfeed/rss/rss-topstories',
   },
   {
     name: 'gov-api',
@@ -165,7 +165,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     description: 'Independent oversight bodies — OAG, PBO, Ethics Commissioner, Lobbying Commissioner, Competition Bureau, CRTC',
     category: 'oversight',
     modulePath: './oversight/index.js',
-    ingestFunctions: ['ingestBody', 'ingestAllBodies', 'ingestOAG', 'ingestPBO', 'ingestEthicsCommissioner'],
+    ingestFunctions: ['ingestAllBodies', 'ingestBody', 'ingestOAG', 'ingestPBO', 'ingestEthicsCommissioner'],
     sources: [
       { name: 'OAG reports (oag-bvg.gc.ca)', format: 'RSS/HTML' },
       { name: 'PBO publications (pbo-dpb.ca)', format: 'HTML' },
@@ -282,7 +282,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.statcan.gc.ca',
   },
   {
-    name: 'indigenous-relations',
+    name: 'indigenous',
     description: 'Indigenous relations — CIRNAC land claims, ISC spending, FN transparency, TRC Calls to Action tracker',
     category: 'indigenous',
     modulePath: './indigenous-relations/index.js',

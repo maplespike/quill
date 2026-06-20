@@ -1,4 +1,17 @@
-const API_BASE = import.meta.env.PUBLIC_API_BASE || 'https://dev-maplespike-api.lan/v1'
+// Derive API base from hostname at runtime — no hardcoded URLs
+function getApiBase(): string {
+  if (import.meta.env.PUBLIC_API_BASE) return import.meta.env.PUBLIC_API_BASE;
+  if (typeof window !== 'undefined') {
+    if (window.MAPLESPIKE?.apiBase) return window.MAPLESPIKE.apiBase + '/v1';
+    const host = window.location.hostname;
+    const parts = host.split('.');
+    const base = parts.length > 2 && ['api','portal','www','dev'].includes(parts[0])
+      ? parts.slice(1).join('.') : host;
+    return `${window.location.protocol}//api.${base}/v1`;
+  }
+  return 'https://api.maplespike.lan/v1';
+}
+const API_BASE = getApiBase();
 
 export interface HealthData {
   status: string; service: string; version: string; environment: string

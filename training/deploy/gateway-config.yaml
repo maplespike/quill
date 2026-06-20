@@ -1,0 +1,21 @@
+# AI Inference Gateway model registration
+# Apply with: kubectl apply -f deploy/gateway-config.yaml
+# Or POST to: http://ai-inference-gateway:8080/v1/models
+
+models:
+  - name: maplespike-qa-v1
+    source: fine-tuned
+    base_model: Qwen/Qwen2.5-7B-Instruct
+    backend: vllm
+    parameters:
+      max_model_len: 4096
+      gpu_memory_utilization: 0.9
+      tensor_parallel_size: 1
+    endpoints:
+      - name: maplespike-qa-v1-chat
+        type: chat
+        path: /v1/chat/completions
+    labels:
+      maplespike: "true"
+      type: fine-tuned
+      task: maplespike-qa

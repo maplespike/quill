@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-23
+last-reviewed: 2026-06-19
 status: active
 ---
 
@@ -19,12 +19,13 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | Type | pnpm monorepo (pnpm@10.32.1) |
 | Orchestrator | Turbo (workspace config in `turbo.json`) |
 | Node | ≥18 (CI uses 22) |
-| Packages | 12 in `packages/*` |
+| Packages | 12 in `packages/*` (dashboard excluded — integrated into portal) |
 | TS | strict mode, ES2022 target, ESNext modules (bundler resolution) |
 | No ESLint/Prettier | Match existing code style |
 | npm scope | `@maplespike/` |
 | License | AGPL-3.0 (pipeline-core) / MIT (others) |
 | Changesets baseBranch | `prod` (not `main`) |
+| Deploy | `scripts/deploy.sh` (reads `.env.deployment`) |
 
 ---
 
@@ -40,9 +41,10 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | `legal-core` | `dist/index.js` (tsup) | `tsup` | — | Yes (npm) |
 | `legislation` | `dist/index.js` (tsup) | `tsup` | — | Yes (npm) |
 | `sdk-python` | `maplespike/__init__.py` | `python -m build` | — | Yes (PyPI) |
-| `portal` | `.` (static HTML) | No build step | — | No |
+| `portal` | `.` (Astro static + `server.py` runtime) | `astro build` | — | No |
 | `docs` | `src/index.md` | VitePress | — | No |
 | `pretext-civic` | — | Orphaned (no package.json) | — | No |
+| `dashboard` | — | Excluded from workspace (OWASP integrated into portal) | — | No |
 
 ---
 
@@ -52,9 +54,6 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 # Enter dev environment (Nix-first)
 nix develop
 
-# Or using legacy shell
-nix-shell -A devShells.x86_64-linux.default
-
 # Build all packages
 pnpm build
 
@@ -62,126 +61,133 @@ pnpm build
 pnpm test
 ```
 
-**New to MapleSpike?** Start with:
-1. `docs/NIX-DEV-ENVIRONMENT.md` — Dev environment setup
-2. `docs/NIX-FIRST-WORKFLOW.md` — Development workflow
-3. `docs/MCP-SERVER-ISSUES.md` — Known issues and fixes
-
-### Nix-Based Dev Shells
+### Portal Development
 
 ```bash
-# General development
-nix develop
-
-# MCP-specific shell (includes test scripts)
-nix develop .#devShells.x86_64-linux.mcp
-
-# API-specific shell (includes DB tools)
-nix develop .#devShells.x86_64-linux.api
-
-# Portal-specific shell (includes Python tools)
-nix develop .#devShells.x86_64-linux.portal
+cd packages/portal
+pnpm dev          # Astro dev server (hot reload)
+pnpm build        # Build to dist/
+pnpm preview      # Preview built site
 ```
 
-See `docs/NIX-DEV-ENVIRONMENT.md` for full shell documentation.
+The portal uses Astro + Tailwind v4 + shadcn/ui (React). Served in production
+by `server.py` (custom Python HTTP server with AI-friendly content negotiation
+and extensionless URL rewriting).
 
-### Per-package
+### API Server Development
+
 ```bash
-# mcp-server
-cd packages/mcp-server && pnpm start                  # stdio mode
-cd packages/mcp-server && pnpm start:sse               # SSE mode on :3001
-cd packages/mcp-server && pnpm test
-
-# engine
-cd packages/engine && pnpm test                         # vitest run
-cd packages/engine && pnpm run migrate                  # Run SQL migrations
-cd packages/engine && pnpm run typecheck                # tsc --noEmit
-
-# api-server
-cd packages/api-server && pnpm run dev                  # Start on :8082
-
-# sdk
-cd packages/sdk && pnpm build                           # tsup CJS+ESM+types
-cd packages/sdk && pnpm test
+cd packages/api-server
+pnpm build        # TypeScript compile
+node dist/dev-server.js   # Start on :8082
 ```
 
----
+Storage modes: `memory` (default), `sqlite` (node:sqlite built-in), `postgres`.
 
-## Git Hooks
+### Deployment
+
 ```bash
-git config core.hooksPath .githooks
-```
-| Hook | Behavior |
-|------|----------|
-| `pre-commit` | Blocks commits on `prod` branch |
-| `prepare-commit-msg` | Warns if commit lacks `#NNN` reference |
+# Copy and customize deployment config
+cp .env.deployment.example .env.deployment
 
----
+# Build images and deploy
+./scripts/deploy.sh --build
 
-## Primary Workflow
-
-Every change flows: **Issue → Branch/Worktree → PR → Merge → Close Issue**.
-
-1. **Issues first**: `gh issue create -R reverb256/maplespike --title "..." --label "p2" --body "..." --assignee "@me"`
-2. **Worktree**: `git worktree add -b issue-NNN-desc /data/projects/own/maplespike-NNN main`
-3. **Develop**: Commit with `(#NNN)` in message
-4. **PR**: `gh pr create -R reverb256/maplespike --base main --head issue-NNN-desc --title "feat: description (#NNN)" --body "Closes #NNN"`
-5. **Merge**: Squash-merge via GitHub UI
-6. **Cleanup**: `git worktree remove /data/projects/own/maplespike-NNN && git branch -d issue-NNN-desc`
-
----
-
-## Claude Code Protocol — Updated
-
-The AI Inference Gateway now has a **real Anthropic `/v1/messages` endpoint**. Claude Code can route through the gateway:
-
-```json
-// ~/.claude/settings.json
-{
-  "model": "claude-sonnet-4",
-  "provider": {
-    "apiKey": "***",
-    "baseUrl": "http://ai-inference-gateway.ai-inference.svc.cluster.local:8080"
-  }
-}
+# Or use a specific overlay
+./scripts/deploy.sh --overlay prod
 ```
 
-Model mapping (hardcoded in gateway router.py):
-- `claude-haiku-4` → local Qwen 0.8B distilled
-- `claude-sonnet-4` → local Qwen 9B distilled
-- `claude-opus-4` → local Qwen 35B distilled
+---
 
-Supports thinking levels, PII sanitization, and full gateway routing.
+## Architecture Overview
+
+```
+Browser → maplespike.lan (Caddy TLS)
+  ├→ Portal (:31559) — Astro static site + server.py
+  ├→ API    (:32481) — Node.js API server (SQLite/PostgreSQL)
+  │   ├→ AI Gateway — glm-5.2 via AI Inference Gateway
+  │   ├→ Qdrant — vector search for RAG
+  │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
+  │   └→ BYOK middleware — users bring their own AI key
+  └→ MCP    (:31746) — Model Context Protocol server (132 tools)
+```
+
+### Auth Chain
+
+Three auth methods, all returning JWT + MapleSpike API key:
+
+1. **Passkey (WebAuthn/FIDO2)** — `@simplewebauthn/server` (Node) + Astral Key (Rust)
+2. **Web3 (SIWE/EIP-4361)** — Ethereum signature verification via viem + Astral Key
+3. **OAuth** — Casdoor SSO, GitHub, Google
+
+Auth state is managed globally via `public/auth.js` — injects account UI into
+the navbar on every page. Components read from `window.MapleSpikeAuth`.
+
+### AI Architecture
+
+- **Default**: Routes to cluster AI Inference Gateway (GLM-5.2)
+- **BYOK**: Users configure their own provider (OpenAI, Anthropic, ZAI, etc.)
+  via `/v1/ai/settings` — stored per-tenant
+- **RAG**: Qdrant vector search → context injection → LLM generation
+- **Fallback**: Gov/keyword search if Qdrant has no data
 
 ---
 
-## Kelos Model Routing
+## Key Files
 
-When Kelos spawns agents for MapleSpike issues, the model is selected by `model-routing-controller`:
-
-| Issue Label | Model | Reason |
-|-------------|-------|--------|
-| `bug` / `fix` | Omni 30B (reasoning) | Debugging |
-| `enhancement` / `feature` | Super 120B | Code generation |
-| `documentation` | Qwen 3 Coder 480B | Prose |
-| `data` / `analysis` | Nano 30B | Analysis |
-| Default | Nano 30B | General |
-
-Updated every 15min by controller, every 6h by benchmark.
+| File | Purpose |
+|------|---------|
+| `packages/portal/src/layouts/BaseLayout.astro` | Global layout (nav, footer, auth) |
+| `packages/portal/src/styles/globals.css` | Design system (tokens, brand utilities) |
+| `packages/portal/public/auth.js` | Global auth state manager |
+| `packages/portal/public/config.js` | Runtime config (auto-derives API URL) |
+| `packages/api-server/src/index.ts` | Main router (CORS, auth exemption, routes) |
+| `packages/api-server/src/node-sqlite-storage.ts` | Persistent storage (node:sqlite) |
+| `packages/api-server/src/routes/ai.ts` | AI ask/analyze (RAG + BYOK) |
+| `packages/api-server/src/routes/astral-proxy.ts` | Astral Key auth proxy |
+| `packages/api-server/src/routes/ai-settings.ts` | BYOK provider resolution |
+| `packages/api-server/src/response.ts` | CORS origins, response envelope |
+| `.env.deployment.example` | Deployment config template |
+| `scripts/deploy.sh` | End-to-end deployment script |
+| `k8s/base/` | Kustomize base manifests |
+| `k8s/overlays/dev/` | Homelab overlay |
+| `k8s/overlays/prod/` | Production overlay |
+| `Dockerfile` | Multi-stage build (trixie base for node:sqlite) |
 
 ---
 
 ## CI/CD Pipeline
-_(unchanged)_
+
+GitHub Actions workflow (`.github/workflows/ci.yml`):
+- Triggers on push/PR to `main` and `prod`
+- Uses Node 22, pnpm (auto-detected version)
+- Runs `pnpm build` + `pnpm test`
+- On `prod` branch: pushes Docker images to GHCR
 
 ---
 
-## Data Module Architecture
-_(unchanged)_
+## Design System
+
+- **Theme**: Dark-first, shadcn/ui with Canadian-red primary (`hsl(0 72% 51%)`)
+- **Fonts**: Inter (sans) + JetBrains Mono (mono) — loaded via Google Fonts
+- **Brand utilities**: `.aurora`, `.bg-grid`, `.text-gradient`, `.card-hover`, `.btn-sheen`
+- **Card elevation**: `--card: 0 0% 6.5%` (dark) — visible against `--background: 0 0% 3.5%`
+- **Logo**: Geometric 11-spike maple leaf with data connection lines (SVG)
+
+---
+
+## Known Issues
+
+- `packages/dashboard` build fails (excluded from workspace — OWASP dashboard is in portal)
+- `packages/pretext-civic` is orphaned (no package.json)
+- Sentry node occasionally goes NotReady (k3s etcd flapping)
+- Forge node status Unknown (mining workload — non-critical for MapleSpike)
+- Nix builder `/etc/nix/machines` needs `nixos-rebuild switch` (source fixed, pending deploy)
 
 ---
 
 ## Related Repositories
 
-- [reverb256/ai-inference-gateway](https://github.com/reverb256/ai-inference-gateway) — AI gateway, model routing (#38), eval pipeline (#60)
+- [reverb256/ai-inference-gateway](https://github.com/reverb256/ai-inference-gateway) — AI gateway, model routing, RAG
+- [reverb256/astral-key](https://github.com/reverb256/astral-key) — Rust Web3/FIDO2/passkey auth microservice
 - [reverb256/nixos-config](https://github.com/reverb256/nixos-config) — Cluster NixOS config

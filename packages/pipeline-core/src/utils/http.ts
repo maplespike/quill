@@ -119,6 +119,8 @@ export interface HttpGetOptions {
   throttle?: DomainThrottleConfig;
   /** HTTP method (default 'GET'). Use 'HEAD' for lightweight health checks. */
   method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  /** Force HTTP/1.1 fallback for servers with HTTP/2 issues (e.g. CBC). */
+  preferHttp1?: boolean;
 }
 
 export interface HttpResponse {
@@ -191,11 +193,15 @@ export async function httpGet(
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const resp = await (undiciRequest as any)(url, {
+      const resp = await (undiciRequest as any)(url,
+      // When preferHttp1 is true, disable HTTP/2 ALPN negotiation
+      // to work around NGHTTP2_INTERNAL_ERROR on misconfigured servers.
+      {
         method: options.method ?? 'GET',
         headers: requestHeaders,
         headersTimeout: timeout,
         bodyTimeout: timeout,
+        ...(options.preferHttp1 ? { allowH2: false } : {}),
       });
 
       // Normalise headers — undici headers are iterable entries

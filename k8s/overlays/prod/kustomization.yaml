@@ -1,0 +1,47 @@
+# Production overlay — public deployment (maplespike.ca or custom domain)
+#
+# Usage: kubectl apply -k k8s/overlays/prod/
+#
+# Requires:
+# - Docker images pushed to registry (ghcr.io/reverb256/maplespike-*)
+# - TLS cert as k8s secret (or cert-manager)
+# - DNS pointing to your cluster's load balancer
+# - DATABASE_URL for PostgreSQL
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: maplespike-prod
+
+resources:
+  - ../../base
+
+images:
+  - name: maplespike-portal
+    newName: ghcr.io/reverb256/maplespike-portal
+    newTag: stable
+  - name: maplespike-api
+    newName: ghcr.io/reverb256/maplespike-api
+    newTag: stable
+
+patches:
+  - target:
+      kind: Deployment
+      name: maplespike-api
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_DOMAIN
+          value: "maplespike.ca"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_STORAGE
+          value: "postgres"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_AI_MODEL
+          value: "glm-5.2"
+      # DATABASE_URL must be provided via secret
+      # JWT_SECRET must be provided via secret
