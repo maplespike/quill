@@ -239,9 +239,9 @@
 <h2>last-reviewed: 2026-05-25
 status: active</h2>
 <h1>API Endpoints — Complete Catalog</h1>
-<p>The MapleSpike REST API is served at <code>http://maplespike.lan/v1/</code>. All responses follow a standard envelope with quality metadata, citations, and usage tracking.</p>
+<p>The MapleSpike REST API is served at <code>http://localhost:8082/v1/</code>. All responses follow a standard envelope with quality metadata, citations, and usage tracking.</p>
 <h2>Base URL</h2>
-<pre><code>http://maplespike.lan/v1/
+<pre><code>http://localhost:8082/v1/
 </code></pre>
 <h2>Standard Response Envelope</h2>
 <pre><code class="language-json">{
@@ -595,7 +595,7 @@ status: active</h2>
 </tbody></table>
 <h2>Token Optimization</h2>
 <p>Use <code>_fields</code> to reduce response size and save tokens:</p>
-<pre><code class="language-bash">curl &quot;http://maplespike.lan/v1/gov/search?q=GDP&amp;_fields=title,summary,url&quot;
+<pre><code class="language-bash">curl &quot;http://localhost:8082/v1/gov/search?q=GDP&amp;_fields=title,summary,url&quot;
 </code></pre>
 <h2>Error Codes</h2>
 <table>

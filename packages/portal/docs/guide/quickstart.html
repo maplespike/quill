@@ -241,29 +241,29 @@ status: active</h2>
 <h1>Quickstart</h1>
 <p>A 5-minute walkthrough to get data from MapleSpike using curl and MCP.</p>
 <h2>1. Check the Service is Running</h2>
-<pre><code class="language-bash">curl http://maplespike.lan/v1/health
+<pre><code class="language-bash">curl http://localhost:8082/v1/health
 </code></pre>
 <p>Expect a <code>200 OK</code> with <code>&quot;status&quot;: &quot;ok&quot;</code>.</p>
 <h2>2. Search Committee Evidence</h2>
 <p>Search across all 50 House of Commons and Senate committees:</p>
 <pre><code class="language-bash">curl -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  &quot;http://maplespike.lan/v1/gov/search?q=foreign+interference&amp;limit=3&quot;
+  &quot;http://localhost:8082/v1/gov/search?q=foreign+interference&amp;limit=3&quot;
 </code></pre>
 <h2>3. Find Lobbying Records</h2>
 <p>Search the federal lobbying registry:</p>
 <pre><code class="language-bash">curl -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  &quot;http://maplespike.lan/v1/gov/search?q=McKinsey&amp;limit=5&quot;
+  &quot;http://localhost:8082/v1/gov/search?q=McKinsey&amp;limit=5&quot;
 </code></pre>
 <h2>4. Verify a Citation</h2>
 <p>Every record has a SHA-256 citation hash. Verify one:</p>
-<pre><code class="language-bash">curl &quot;http://maplespike.lan/v1/citation/sha256-abc123&quot;
+<pre><code class="language-bash">curl &quot;http://localhost:8082/v1/citation/sha256-abc123&quot;
 </code></pre>
 <h2>5. Check Your Usage</h2>
 <pre><code class="language-bash">curl -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  &quot;http://maplespike.lan/v1/usage&quot;
+  &quot;http://localhost:8082/v1/usage&quot;
 </code></pre>
 <h2>6. Ask a Natural Language Question</h2>
-<pre><code class="language-bash">curl -X POST http://maplespike.lan/v1/ai_ask \
+<pre><code class="language-bash">curl -X POST http://localhost:8082/v1/ai_ask \
   -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;query&quot;: &quot;What are the latest immigration numbers for 2024?&quot;}&#39;

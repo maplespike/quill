@@ -31,11 +31,11 @@ import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
 /* ══════════════════════════════════════════════════════════════════
    RP_ID must match the origin domain for passkeys to work cross-platform.
    In development, set MAPLESPIKE_DOMAIN=localhost and MAPLESPIKE_ORIGIN=http://localhost:PORT
-   For production, MAPLESPIKE_DOMAIN=maplespike.ca, origin must be https.
+   For production, MAPLESPIKE_DOMAIN=maplespike.lan, origin must be https.
    ══════════════════════════════════════════════════════════════════ */
 
 const RP_NAME = 'MapleSpike';
-const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
+const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.lan';
 const ORIGIN = process.env.MAPLESPIKE_ORIGIN || `https://${RP_ID}`;
 
 /* ------------------------------------------------------------------ */

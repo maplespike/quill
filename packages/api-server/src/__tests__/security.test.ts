@@ -96,9 +96,9 @@ describe('Security Headers', () => {
 describe('CORS Headers', () => {
   it('options preflight returns 204 with correct CORS headers', async () => {
     const { corsPreflight } = await import('../response.js');
-    const resp = corsPreflight('https://maplespike.ca');
+    const resp = corsPreflight('https://maplespike.lan');
     assert.equal(resp.status, 204);
-    assert.equal(resp.headers.get('Access-Control-Allow-Origin'), 'https://maplespike.ca');
+    assert.equal(resp.headers.get('Access-Control-Allow-Origin'), 'https://maplespike.lan');
     assert.equal(resp.headers.get('Access-Control-Allow-Methods'), 'GET, POST, PATCH, DELETE, OPTIONS');
     assert.equal(resp.headers.get('Access-Control-Expose-Headers'), 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice');
     assert.ok(resp.headers.get('Access-Control-Max-Age'));
@@ -106,17 +106,17 @@ describe('CORS Headers', () => {
 
   it('cors preflight includes security headers', async () => {
     const { corsPreflight } = await import('../response.js');
-    const resp = corsPreflight('https://maplespike.ca');
+    const resp = corsPreflight('https://maplespike.lan');
     assert.equal(resp.headers.get('X-Content-Type-Options'), 'nosniff');
   });
 
   it('allows registered production origins', async () => {
     const { getAllowedOrigin } = await import('../response.js');
-    assert.equal(getAllowedOrigin('https://maplespike.ca'), 'https://maplespike.ca');
-    assert.equal(getAllowedOrigin('https://www.maplespike.ca'), 'https://www.maplespike.ca');
-    assert.equal(getAllowedOrigin('https://api.maplespike.ca'), 'https://api.maplespike.ca');
-    assert.equal(getAllowedOrigin('https://portal.maplespike.ca'), 'https://portal.maplespike.ca');
-    assert.equal(getAllowedOrigin('https://mcp.maplespike.ca'), 'https://mcp.maplespike.ca');
+    assert.equal(getAllowedOrigin('https://maplespike.lan'), 'https://maplespike.lan');
+    assert.equal(getAllowedOrigin('https://www.maplespike.lan'), 'https://www.maplespike.lan');
+    assert.equal(getAllowedOrigin('https://api.maplespike.lan'), 'https://api.maplespike.lan');
+    assert.equal(getAllowedOrigin('https://portal.maplespike.lan'), 'https://portal.maplespike.lan');
+    assert.equal(getAllowedOrigin('https://mcp.maplespike.lan'), 'https://mcp.maplespike.lan');
   });
 
   it('allows local dev origins', async () => {

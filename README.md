@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-19
 status: active
 ---
 
@@ -7,7 +7,7 @@ status: active
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
-**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Static HTML/CSS/JS (portal)
+**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal)
 > **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 144 modules, 129 MCP tools, ~188K lines TS, 13 packages.
 
 ---
@@ -44,7 +44,7 @@ maplespike/
 ├── packages/
 │   ├── pipeline-core/    # Ingestion, verification, audit (shared library)
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
-│   ├── portal/           # Developer portal & landing page (static HTML)
+│   ├── portal/           # Developer portal & landing page (Astro + React + Tailwind)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
 │   ├── mcp-server/       # MCP protocol server (✅ 129 tools, all live)
 │   ├── sdk/              # TypeScript client library
@@ -69,7 +69,7 @@ pipeline-core ──→ SQLite DB ──→ MCP server (129 live tools) ──�
      │                                                             │
      └── Engine reads same DB ──→ briefs/signals ─────────────────┘
                                                                      │
-                                         Portal (static marketing) ──┘
+                                         Portal (Astro/React) ──┘
 ```
 
 | Phase | What | Status |

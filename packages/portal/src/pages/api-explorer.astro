@@ -8,11 +8,11 @@ import { Input } from "@/components/ui/input";
 
 <BaseLayout title="API Explorer" description="Test MapleSpike API endpoints, view OpenAPI spec, and run live queries against Canadian government data.">
   <!-- Hero -->
-  <section class="border-b py-16 md:py-20">
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-20"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
     <div class="container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4">Developer playground</Badge>
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">Developer playground</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        API&nbsp;<span class="text-primary">Explorer</span>
+        API&nbsp;<span class="text-gradient">Explorer</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         Test endpoints, inspect responses, and explore the MapleSpike API. All requests go directly
@@ -132,23 +132,23 @@ import { Input } from "@/components/ui/input";
             <div class="rounded-lg border bg-muted/30 p-4">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium">Search government data</span>
-                <Button variant="ghost" size="sm" class="copy-sample" data-code='curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"'>Copy</Button>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code='curl -s "https://api.maplespike.lan/v1/gov/search?query=housing&limit=5"'>Copy</Button>
               </div>
-              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"</code></pre>
+              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s "https://api.maplespike.lan/v1/gov/search?query=housing&limit=5"</code></pre>
             </div>
             <div class="rounded-lg border bg-muted/30 p-4">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium">Health check</span>
-                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/health">Copy</Button>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.lan/v1/health">Copy</Button>
               </div>
-              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.ca/v1/health</code></pre>
+              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.lan/v1/health</code></pre>
             </div>
             <div class="rounded-lg border bg-muted/30 p-4">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium">Get data sources</span>
-                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/sources">Copy</Button>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.lan/v1/sources">Copy</Button>
               </div>
-              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.ca/v1/sources</code></pre>
+              <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.lan/v1/sources</code></pre>
             </div>
           </div>
         </CardContent>

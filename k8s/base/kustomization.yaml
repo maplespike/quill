@@ -1,0 +1,29 @@
+# MapleSpike K8s Deployment
+#
+# Base manifests — environment-agnostic.
+# Use overlays (dev/, prod/) for environment-specific config.
+#
+# All customization is via env vars set in the overlay's kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: maplespike
+
+resources:
+  - namespace.yaml
+  - portal.yaml
+  - api.yaml
+  - mcp.yaml
+  - configmap.yaml
+
+commonLabels:
+  app.kubernetes.io/name: maplespike
+  app.kubernetes.io/part-of: maplespike
+
+images:
+  - name: maplespike-portal
+    newName: localhost/maplespike-portal
+    newTag: latest
+  - name: maplespike-api
+    newName: localhost/maplespike-api
+    newTag: latest

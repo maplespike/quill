@@ -225,9 +225,9 @@ describe('getAllowedOrigin', () => {
   });
 
   it('allows configured production origins', () => {
-    assert.equal(getAllowedOrigin('https://maplespike.ca'), 'https://maplespike.ca');
-    assert.equal(getAllowedOrigin('https://api.maplespike.ca'), 'https://api.maplespike.ca');
-    assert.equal(getAllowedOrigin('https://mcp.maplespike.ca'), 'https://mcp.maplespike.ca');
+    assert.equal(getAllowedOrigin('https://maplespike.lan'), 'https://maplespike.lan');
+    assert.equal(getAllowedOrigin('https://api.maplespike.lan'), 'https://api.maplespike.lan');
+    assert.equal(getAllowedOrigin('https://mcp.maplespike.lan'), 'https://mcp.maplespike.lan');
   });
 
   it('rejects unknown origins with null', () => {
@@ -241,8 +241,8 @@ describe('getAllowedOrigin', () => {
 
   it('normalizes trailing slash', () => {
     assert.equal(
-      getAllowedOrigin('https://maplespike.ca/'),
-      'https://maplespike.ca',
+      getAllowedOrigin('https://maplespike.lan/'),
+      'https://maplespike.lan',
     );
   });
 
@@ -387,8 +387,8 @@ describe('corsPreflight', () => {
   });
 
   it('includes Access-Control-Allow-Origin', () => {
-    const resp = corsPreflight('https://maplespike.ca');
-    assert.equal(resp.headers.get('Access-Control-Allow-Origin'), 'https://maplespike.ca');
+    const resp = corsPreflight('https://maplespike.lan');
+    assert.equal(resp.headers.get('Access-Control-Allow-Origin'), 'https://maplespike.lan');
   });
 
   it('includes Access-Control-Max-Age of 86400', () => {

@@ -20,7 +20,7 @@ cd packages/dashboard && pnpm dev               # Dashboard on :4322
 ```
 
 ## Key files
-- `packages/pipeline-core/src/ingestion/registry.ts` — All 126+ modules registered here
+- `packages/pipeline-core/src/ingestion/registry.ts` — All 144 modules registered here
 - `packages/mcp-server/src/tools/index.ts` — All 135 MCP tools
 - `packages/api-server/src/index.ts` — API routes
 - `docs/metrics.json` — Auto-generated module/tool counts

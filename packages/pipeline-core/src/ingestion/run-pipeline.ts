@@ -19,6 +19,59 @@
 import { runModule, getModule, getAllModules } from './registry.js';
 import type { ModuleCategory } from './registry.js';
 
+/**
+ * Pipeline alias map.
+ * Maps CronJob pipeline names (MAPLESPIKE_PIPELINE) to registry module names.
+ * Kept in sync with cli/ingest.ts PIPELINE_CONFIG.
+ */
+const PIPELINE_CONFIG: Record<string, string> = {
+  committee: 'committees',
+  corporate: 'corporate',
+  influence: 'influence',
+  gazette: 'gazette',
+  gic: 'gic',
+  elections: 'elections',
+  'provincial-lobbying': 'provincial-lobbying',
+  oversight: 'oversight',
+  canlii: 'canlii',
+  lmia: 'lmia',
+  indigenous: 'indigenous',
+  defence: 'defence',
+  immigration: 'immigration',
+  tribunals: 'federal-tribunals',
+  veterans: 'veterans',
+  fisheries: 'fisheries',
+  agriculture: 'agriculture',
+  culture: 'culture',
+  'ngo-rss': 'ngo-influence-rss',
+  'regional-authorities': 'regional-authorities',
+  media: 'media-broadcasting',
+  realtime: 'real-time-feeds',
+  'municipal-long-tail': 'municipal-long-tail',
+  universities: 'universities',
+  unions: 'unions',
+  'corporate-filings': 'corporate-filings',
+  provincial: 'provincial',
+  federal: 'federal',
+  a2aj: 'a2aj',
+  legislation: 'legislation',
+  'goc-spending': 'goc-spending',
+  'cross-reference': 'cross-reference',
+  ati: 'ati',
+  'cra-charity': 'cra-charity',
+  'criminal-justice': 'criminal-justice',
+  'crown-corporations': 'crown-corporations',
+  'education-research': 'education-research',
+  'federal-budget': 'federal-budget',
+  geospatial: 'geospatial',
+  'provincial-legislatures': 'provincial-legislatures',
+  'provincial-orgs': 'provincial-orgs',
+  'provincial-regulators': 'provincial-regulators',
+  'social-programs': 'social-programs',
+  statcan: 'statcan',
+  'transport-infrastructure': 'transport-infrastructure',
+};
+
 interface IngestionRecord {
   id: string;
   pipeline_name: string;
@@ -120,18 +173,24 @@ async function main() {
     process.exit(1);
   }
 
-  const module = getModule(pipelineName);
+  // Resolve alias → registry module name
+  const moduleName = PIPELINE_CONFIG[pipelineName] || pipelineName;
+  if (moduleName !== pipelineName) {
+    console.log(`[ingestion] Alias '${pipelineName}' → '${moduleName}'`);
+  }
+
+  const module = getModule(moduleName);
   if (!module) {
-    console.error(`ERROR: Module '${pipelineName}' not found in registry.`);
+    console.error(`ERROR: Module '${moduleName}' not found in registry.`);
     process.exit(1);
   }
 
   if (module.status === 'placeholder') {
-    console.warn(`SKIP: Module '${pipelineName}' is a placeholder — no implementation to run.`);
+    console.warn(`SKIP: Module '${moduleName}' is a placeholder — no implementation to run.`);
     process.exit(0);
   }
 
-  console.log(`[ingestion] Starting pipeline: ${pipelineName}`);
+  console.log(`[ingestion] Starting pipeline: ${moduleName}`);
   console.log(`[ingestion] Description: ${module.description}`);
   console.log(`[ingestion] Category: ${module.category}`);
   console.log(`[ingestion] Sources: ${module.sources.map(s => s.name).join(', ')}`);
@@ -208,9 +267,9 @@ async function main() {
   let status: IngestionRecord['status'] = 'success';
 
   try {
-    const result = await runModule(pipelineName, { limit });
+    const result = await runModule(moduleName, { limit });
     const duration = Date.now() - startTime;
-    console.log(`[ingestion] Pipeline '${pipelineName}' completed in ${duration}ms`);
+    console.log(`[ingestion] Pipeline '${moduleName}' completed in ${duration}ms`);
 
     if (result && typeof result === 'object') {
       const r = result as Record<string, unknown>;
@@ -237,11 +296,11 @@ async function main() {
       summary = 'Completed';
     }
 
-    console.log(`[ingestion] Pipeline '${pipelineName}' completed successfully`);
+    console.log(`[ingestion] Pipeline '${moduleName}' completed successfully`);
   } catch (err) {
     const duration = Date.now() - startTime;
     const errMsg = err instanceof Error ? err.message : String(err);
-    console.error(`[ingestion] Pipeline '${pipelineName}' FAILED after ${duration}ms: ${errMsg}`);
+    console.error(`[ingestion] Pipeline '${moduleName}' FAILED after ${duration}ms: ${errMsg}`);
     status = 'failed';
     errorMsg = errMsg;
     summary = `Failed: ${errMsg}`;
