@@ -29,6 +29,7 @@ import {
   addRateLimitHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
+import { getAllowedOrigin } from './response.js';
 import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
@@ -47,6 +48,7 @@ interface Route {
 }
 
 import { healthHandler } from './routes/health.js';
+import { versionHandler } from './routes/version.js';
 import { addAttributionHeader } from './middleware/attribution.js';
 import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
@@ -67,6 +69,17 @@ import {
 } from './routes/annotations.js';
 import { initAnnotationStore } from './services/annotationService.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
+import { aiSettingsGetHandler, aiSettingsUpdateHandler, resolveAIConfig } from './routes/ai-settings.js';
+import {
+  astralWeb3NonceHandler,
+  astralWeb3VerifyHandler,
+  astralWeb3ChainsHandler,
+  astralFido2RegisterOptionsHandler,
+  astralFido2RegisterVerifyHandler,
+  astralFido2AuthOptionsHandler,
+  astralFido2AuthVerifyHandler,
+  astralHealthHandler,
+} from './routes/astral-proxy.js';
 import {
   oauthLoginHandler,
   oauthCallbackHandler,
@@ -106,6 +119,7 @@ import {
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
+  { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
   { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: withRouteCache(complianceHandler, 3600) },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: withRouteCache(onboardingHandler, 3600) },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
@@ -139,7 +153,18 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/ai_ask\/?$/, method: 'POST', params: [], handler: aiAskHandler }, // DEPRECATED: use /v1/ai/ask
   { pattern: /^\/v1\/ai\/ask\/?$/, method: 'POST', params: [], handler: aiAskHandler },
   { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
-  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: withRouteCache(listKeysHandler, 60) },
+  { pattern: /^\/v1\/ai\/settings\/?$/, method: 'GET', params: [], handler: aiSettingsGetHandler },
+  { pattern: /^\/v1\/ai\/settings\/?$/, method: 'PUT', params: [], handler: aiSettingsUpdateHandler },
+  // Astral Key proxy — Web3 + FIDO2 via Astral Key microservice
+  { pattern: /^\/v1\/astral\/health\/?$/, method: 'GET', params: [], handler: astralHealthHandler },
+  { pattern: /^\/v1\/astral\/web3\/chains\/?$/, method: 'GET', params: [], handler: astralWeb3ChainsHandler },
+  { pattern: /^\/v1\/astral\/web3\/nonce\/?$/, method: 'POST', params: [], handler: astralWeb3NonceHandler },
+  { pattern: /^\/v1\/astral\/web3\/verify\/?$/, method: 'POST', params: [], handler: astralWeb3VerifyHandler },
+  { pattern: /^\/v1\/astral\/fido2\/register\/options\/?$/, method: 'POST', params: [], handler: astralFido2RegisterOptionsHandler },
+  { pattern: /^\/v1\/astral\/fido2\/register\/verify\/?$/, method: 'POST', params: [], handler: astralFido2RegisterVerifyHandler },
+  { pattern: /^\/v1\/astral\/fido2\/authenticate\/options\/?$/, method: 'POST', params: [], handler: astralFido2AuthOptionsHandler },
+  { pattern: /^\/v1\/astral\/fido2\/authenticate\/verify\/?$/, method: 'POST', params: [], handler: astralFido2AuthVerifyHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },
@@ -390,35 +415,28 @@ export async function handleRequest(
 
   const { route, params } = matched;
 
-  // Authentication (public routes: health, openapi, register, github login/callback, refresh, logout)
+  // Authentication — exempt public routes by path (not handler identity,
+  // because withRouteCache wraps handlers and breaks === comparison)
   const path = url.pathname;
-  const authExempt = path.startsWith('/v1/health')
-    || route.handler === complianceHandler
-    || route.handler === searchGovHandler
-    || route.handler === openApiHandler
-    || route.handler === getCitationHandler
-    || route.handler === registerHandler
-    || route.handler === billingPlansHandler
-    || route.handler === githubLoginHandler
-    || route.handler === githubCallbackHandler
-    || route.handler === refreshTokenHandler
-    || route.handler === logoutHandler
-    || route.handler === engineStatusHandler
-    // Generic OAuth entry points
-    || route.handler === oauthProvidersHandler
-    || route.handler === oauthLoginHandler
-    || route.handler === oauthCallbackHandler
-    // Web3 + Passkey auth entry points
-    || route.handler === web3ChallengeHandler
-    || route.handler === web3LoginHandler
-    || route.handler === passkeyRegisterBeginHandler
-    || route.handler === passkeyRegisterCompleteHandler
-    || route.handler === passkeyLoginBeginHandler
-    || route.handler === passkeyLoginCompleteHandler
-    // Contact form (no auth required)
-    || route.handler === contactHandler
-    // Data quality (public, feeds Grafana dashboard)
-    || path === '/v1/data/quality'
+  const authExempt =
+    path.startsWith('/v1/health')
+    || path.startsWith('/v1/version')
+    || path.startsWith('/v1/compliance')
+    || path.startsWith('/v1/onboarding')
+    || path.startsWith('/v1/gov/search')
+    || path.startsWith('/v1/gov/releases')
+    || path.startsWith('/v1/openapi')
+    || path.startsWith('/v1/citation/')
+    || path.startsWith('/v1/auth/')
+    || path.startsWith('/v1/register')
+    || path.startsWith('/v1/verify/')
+    || path.startsWith('/v1/billing/plans')
+    || path.startsWith('/v1/contact')
+    || path.startsWith('/v1/engine/status')
+    || path.startsWith('/v1/data/quality')
+    || path.startsWith('/v1/ai/ask')
+    || path.startsWith('/v1/ai_ask')
+    || path.startsWith('/v1/astral/');
 
   const tenant = authExempt
     ? null
@@ -432,7 +450,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.ca', ctx), 401, {}, undefined, environment);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.lan/signup', ctx), 401, {}, requestOrigin, environment);
   }
 
   const ctx: RouteContext = {
@@ -508,7 +526,24 @@ export async function handleRequest(
   }
 
   // ── Dispatch to matched route handler ──
-  return route.handler(request, ctx, params);
+  const response = await route.handler(request, ctx, params);
+  // Add CORS headers to the actual response (not just preflight)
+  const allowedOrigin = getAllowedOrigin(requestOrigin);
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
+    'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
+  };
+  const newHeaders = new Headers(response.headers);
+  for (const [k, v] of Object.entries(corsHeaders)) {
+    newHeaders.set(k, v);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: newHeaders,
+  });
 }
 
 export default {
@@ -527,11 +562,11 @@ export default {
       await pgDb.init();
       db = pgDb;
       cache = new PgCache();
-    } else if (storageMode === 'sqlite' || process.env.MAPLESPIKE_DB_PATH) {
-      // SQLite mode
-      const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
-      db = new SqliteStorage();
-      cache = new SqliteStorageCache();
+    } else if (storageMode === 'sqlite' || storageMode === 'node-sqlite' || process.env.MAPLESPIKE_DB_PATH) {
+      // Node built-in SQLite mode (no native compilation needed)
+      const { NodeSqliteStorage, NodeSqliteCache } = await import('./node-sqlite-storage.js');
+      db = new NodeSqliteStorage();
+      cache = new NodeSqliteCache();
     } else if (env.DB) {
       // Cloudflare Workers D1 mode
       db = new D1Storage(env.DB);

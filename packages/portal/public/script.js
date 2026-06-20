@@ -146,7 +146,7 @@
     const overlay = document.querySelector('.nav-mobile-overlay');
 
     if (!toggle || !links) {
-      console.warn('[Mobile Menu] Toggle or links not found');
+      // Astro BaseLayout handles mobile menu via IDs; silently skip legacy class-based setup
       return;
     }
 

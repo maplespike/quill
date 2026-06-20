@@ -22,7 +22,7 @@ const tiers = [
     badgeVariant: "outline" as const,
     features: [
       "1,000 API calls per month",
-      "Access to all 126 data modules",
+      "Access to all 144 data modules",
       "7-day historical data window",
       "REST API access (rate-limited)",
       "Community Discord support",
@@ -86,7 +86,7 @@ const allFeatures = [
   "SHA-256 citations",
 ];
 const featureValues: Record<string, (string | boolean)[]> = {
-  "Data modules": ["126 modules", "126 modules", "126 + custom"],
+  "Data modules": ["144 modules", "144 modules", "144 + custom"],
   "API calls": ["1,000/mo", "100,000/mo", "Unlimited"],
   "Historical access": ["7 days", "Full", "Full"],
   "Real-time signals": [false, true, true],
@@ -99,9 +99,12 @@ const featureValues: Record<string, (string | boolean)[]> = {
 
 <BaseLayout title="Pricing">
   <!-- Hero -->
-  <section class="border-b py-16 md:py-24">
-    <div class="container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4">Simple, transparent pricing</Badge>
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary"
+        >Simple, transparent pricing</Badge
+      >
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
         Pricing for every&nbsp;scale
       </h1>
@@ -119,14 +122,14 @@ const featureValues: Record<string, (string | boolean)[]> = {
         {tiers.map((tier) => (
           <Card
             class={cn(
-              "relative flex flex-col transition-shadow hover:shadow-md",
+              "card-hover relative flex flex-col",
               tier.highlighted &&
-                "border-primary/50 ring-1 ring-primary/20 shadow-primary/5 shadow-lg"
+                "border-primary/50 ring-1 ring-primary/20 shadow-lg shadow-primary/5"
             )}
           >
             {tier.highlighted && (
               <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge variant="default" class="px-4 py-1 text-xs">
+                <Badge class="btn-sheen px-4 py-1 text-xs">
                   Most Popular
                 </Badge>
               </div>
@@ -285,7 +288,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
         <div>
           <h3 class="mb-2 font-semibold">What data modules are included?</h3>
           <p class="text-sm text-muted-foreground">
-            All 126 modules across federal, provincial, municipal, corporate, legal, and regulatory
+            All 144 modules across federal, provincial, municipal, corporate, legal, and regulatory
             sources are available on every plan.
           </p>
         </div>

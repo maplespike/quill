@@ -252,7 +252,7 @@ yarn add @maplespike/sdk
 
 const client = new MapleSpikeClient({
   apiKey: &#39;YOUR_API_KEY&#39;,
-  baseUrl: &#39;http://maplespike.lan/v1&#39;,
+  baseUrl: &#39;http://localhost/v1&#39;,
 });
 
 // Check health
@@ -278,7 +278,7 @@ const committees = await client.searchCommittees({
 <h3>Construction</h3>
 <pre><code class="language-typescript">const client = new MapleSpikeClient({
   apiKey: string;        // Required: API key
-  baseUrl?: string;      // Default: &#39;http://maplespike.lan/v1&#39;
+  baseUrl?: string;      // Default: &#39;http://localhost/v1&#39;
   timeout?: number;      // Default: 15000 (ms)
   retries?: number;      // Default: 3
   headers?: Record&lt;string, string&gt;; // Additional headers

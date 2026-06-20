@@ -1,0 +1,64 @@
+# Dev overlay — local homelab deployment
+#
+# Usage: kubectl apply -k k8s/overlays/dev/
+#
+# Customize by copying to your own overlay and editing the env vars.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: maplespike
+
+resources:
+  - ../../base
+
+# Patch images for local registry
+images:
+  - name: maplespike-portal
+    newName: localhost/maplespike-portal
+    newTag: latest
+  - name: maplespike-api
+    newName: localhost/maplespike-api
+    newTag: latest
+
+# Environment-specific config
+patches:
+  - target:
+      kind: Deployment
+      name: maplespike-api
+    patch: |-
+      - op: add
+        path: /spec/template/spec/nodeName
+        value: nexus
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_DOMAIN
+          value: "maplespike.lan"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_STORAGE
+          value: "sqlite"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_DB_PATH
+          value: "/data/maplespike.db"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_AI_ENDPOINT
+          value: "http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: MAPLESPIKE_AI_MODEL
+          value: "glm-5.2"
+
+  - target:
+      kind: Deployment
+      name: maplespike-portal
+    patch: |-
+      - op: add
+        path: /spec/template/spec/nodeName
+        value: nexus

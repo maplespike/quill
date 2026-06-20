@@ -29,6 +29,8 @@ export interface RSSSource {
   name: string;
   url: string;
   category: string;
+  /** Force HTTP/1.1 for feeds that have HTTP/2 issues (e.g. CBC). */
+  preferHttp1?: boolean;
 }
 
 /** Canonical article shape produced by the pipeline. */
@@ -52,12 +54,12 @@ export interface RawArticle {
  */
 export const RSS_SOURCES: RSSSource[] = [
   // National broadcasters
-  { name: 'CBC News Top Stories', url: 'https://www.cbc.ca/webfeed/rss/rss-topstories', category: 'news' },
-  { name: 'CBC Politics', url: 'https://www.cbc.ca/webfeed/rss/rss-politics', category: 'politics' },
-  { name: 'CBC Business', url: 'https://www.cbc.ca/webfeed/rss/rss-business', category: 'business' },
-  { name: 'CBC Technology', url: 'https://www.cbc.ca/webfeed/rss/rss-technology', category: 'technology' },
-  { name: 'CBC Health', url: 'https://www.cbc.ca/webfeed/rss/rss-health', category: 'health' },
-  { name: 'CBC World', url: 'https://www.cbc.ca/webfeed/rss/rss-world', category: 'world' },
+  { name: 'CBC News Top Stories', url: 'https://www.cbc.ca/webfeed/rss/rss-topstories', category: 'news', preferHttp1: true },
+  { name: 'CBC Politics', url: 'https://www.cbc.ca/webfeed/rss/rss-politics', category: 'politics', preferHttp1: true },
+  { name: 'CBC Business', url: 'https://www.cbc.ca/webfeed/rss/rss-business', category: 'business', preferHttp1: true },
+  { name: 'CBC Technology', url: 'https://www.cbc.ca/webfeed/rss/rss-technology', category: 'technology', preferHttp1: true },
+  { name: 'CBC Health', url: 'https://www.cbc.ca/webfeed/rss/rss-health', category: 'health', preferHttp1: true },
+  { name: 'CBC World', url: 'https://www.cbc.ca/webfeed/rss/rss-world', category: 'world', preferHttp1: true },
 
   // National newspapers
   { name: 'The Globe and Mail - Canada', url: 'https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/', category: 'politics' },
@@ -224,6 +226,8 @@ const CACHE_TTL_MS = 60 * 60 * 1000;
 export interface FetchOptions {
   userAgent?: string;
   timeout?: number;
+  /** Force HTTP/1.1 for this particular fetch (e.g. feeds with HTTP/2 issues). */
+  preferHttp1?: boolean;
 }
 
 /**
@@ -247,6 +251,7 @@ export async function fetchFeed(
   const resp = await httpGet(url, {
     headers: reqHeaders,
     timeoutMs: timeout,
+    ...(options.preferHttp1 ? { preferHttp1: true } : {}),
   });
 
   if (resp.statusCode === 304 && cached) {

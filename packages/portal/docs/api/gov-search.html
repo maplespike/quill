@@ -242,7 +242,7 @@ status: active</h2>
 <p>Search across all Canadian government data sources. This is the primary data query endpoint, covering Statistics Canada cubes, open.canada.ca CKAN datasets, provincial data, federal spending, and more.</p>
 <h2>Request</h2>
 <pre><code class="language-bash">curl -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  &quot;http://maplespike.lan/v1/gov/search?q=housing+starts&amp;jurisdiction=federal&amp;category=economy&amp;limit=5&quot;
+  &quot;http://localhost:8082/v1/gov/search?q=housing+starts&amp;jurisdiction=federal&amp;category=economy&amp;limit=5&quot;
 </code></pre>
 <h2>Query Parameters</h2>
 <table>
@@ -281,13 +281,13 @@ status: active</h2>
 </tbody></table>
 <h2>Example Queries</h2>
 <pre><code class="language-bash"># Search federal spending data
-curl &quot;http://maplespike.lan/v1/gov/search?q=procurement&amp;jurisdiction=federal&amp;category=spending&amp;limit=5&quot;
+curl &quot;http://localhost:8082/v1/gov/search?q=procurement&amp;jurisdiction=federal&amp;category=spending&amp;limit=5&quot;
 
 # Search Ontario health data
-curl &quot;http://maplespike.lan/v1/gov/search?q=wait+times&amp;jurisdiction=ontario&amp;category=health&amp;limit=5&quot;
+curl &quot;http://localhost:8082/v1/gov/search?q=wait+times&amp;jurisdiction=ontario&amp;category=health&amp;limit=5&quot;
 
 # Search environmental data across all jurisdictions
-curl &quot;http://maplespike.lan/v1/gov/search?q=carbon+emissions&amp;category=environment&amp;limit=10&quot;
+curl &quot;http://localhost:8082/v1/gov/search?q=carbon+emissions&amp;category=environment&amp;limit=10&quot;
 </code></pre>
 <h2>Response</h2>
 <pre><code class="language-json">{
@@ -345,13 +345,13 @@ curl &quot;http://maplespike.lan/v1/gov/search?q=carbon+emissions&amp;category=e
 </tbody></table>
 <h3>Example</h3>
 <pre><code class="language-bash">curl -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
-  &quot;http://maplespike.lan/v1/gov/releases?limit=5&amp;category=economy&quot;
+  &quot;http://localhost:8082/v1/gov/releases?limit=5&amp;category=economy&quot;
 </code></pre>
 <p>Response includes a <code>releases</code> array and <code>total</code> count.</p>
 <h2>GET /v1/citation/:id</h2>
 <p>Retrieve and verify a SHA-256 citation hash. No authentication required.</p>
 <h3>Example</h3>
-<pre><code class="language-bash">curl &quot;http://maplespike.lan/v1/citation/sha256-abc123def456&quot;
+<pre><code class="language-bash">curl &quot;http://localhost:8082/v1/citation/sha256-abc123def456&quot;
 </code></pre>
 <p>Response returns the original data, timestamp, source attribution, and a shell command for independent hash verification.</p>
 

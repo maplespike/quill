@@ -8,14 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 
 <BaseLayout title="Ask" description="Ask natural language questions about Canadian government data. AI-powered answers with verified citations.">
   <!-- Hero -->
-  <section class="border-b py-16 md:py-20">
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-20"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
     <div class="container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4">AI-powered queries</Badge>
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">AI-powered queries</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        Ask&nbsp;<span class="text-primary">MapleSpike</span>
+        Ask&nbsp;<span class="text-gradient">MapleSpike</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-        Natural language queries across 88+ government data modules. Every answer includes
+        Natural language queries across 144 government data modules. Every answer includes
         verified citations and SHA-256 source hashes.
       </p>
     </div>
@@ -104,7 +104,7 @@ import { Textarea } from "@/components/ui/textarea";
               </CardHeader>
               <CardContent class="px-4 pb-4 pt-0">
                 <p class="text-xs text-muted-foreground">
-                  Queries search across 88+ modules: Parliament, lobbying, courts,
+                  Queries search across 144 modules: Parliament, lobbying, courts,
                   immigration, regulations, procurement, and more.
                 </p>
               </CardContent>
@@ -318,7 +318,7 @@ import { Textarea } from "@/components/ui/textarea";
         },
         "default": {
           answer:
-            'Based on available government data sources, I found relevant information.\n\n**Summary:**\nMapleSpike covers 88+ Canadian government sources including committees, lobbying, Canada Gazette, court decisions, and more.\n\nTry narrowing your query — mention a committee code (ETHI, FINA), company name, or specific department.',
+            'Based on available government data sources, I found relevant information.\n\n**Summary:**\nMapleSpike covers 144 Canadian government sources including committees, lobbying, Canada Gazette, court decisions, and more.\n\nTry narrowing your query — mention a committee code (ETHI, FINA), company name, or specific department.',
           citations: [
             { source: "ourcommons.ca", title: "House of Commons", url: "https://www.ourcommons.ca/", hash: "sha256:f6a7b8c9..." },
           ],
