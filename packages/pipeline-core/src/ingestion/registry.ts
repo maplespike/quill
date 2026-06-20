@@ -815,6 +815,21 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'daily',
     testCallPattern: 'fetchFeed',
   },
+  {
+    name: 'ontario-lobbying',
+    status: 'active',
+    description: 'Ontario Lobbyists Registry — Integrity Commissioner of Ontario (OICO), 3rd largest lobbying registry in Canada, CKAN CSV + HTML search ingestion',
+    category: 'influence',
+    modulePath: './ontario-lobbying/index.js',
+    ingestFunctions: ['ingestOntarioLobbying', 'searchOntarioLobbying', 'getOntarioLobbyingStats'],
+    sources: [
+      { name: 'Ontario Data Catalogue CKAN (lobbyists datasets)', format: 'CKAN/CSV' },
+      { name: 'OICO Lobbyists Registry HTML search', format: 'HTML' },
+    ],
+    updateFrequency: 'weekly',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://lobbyist.oico.on.ca',
+  },
 
   // ── Media ────────────────────────────────────────────────
   {
