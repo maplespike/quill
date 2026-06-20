@@ -261,56 +261,39 @@ export function buildError(
 /* ------------------------------------------------------------------ */
 
 const ALLOWED_ORIGINS = [
-  // Development
-  'http://localhost:8082',
+  // Dev
   'http://localhost:4321',
+  'http://localhost:8082',
   'http://localhost:3001',
-  'http://127.0.0.1:8082',
+  'http://localhost:3000',
   'http://127.0.0.1:4321',
+  'http://127.0.0.1:8082',
   'http://127.0.0.1:3001',
+  'http://127.0.0.1:3000',
   'http://10.1.1.120:4321',
   'http://10.1.1.100:4321',
-  // Production
+  // Production (always included for backward compat)
   'https://maplespike.lan',
   'https://www.maplespike.lan',
   'https://api.maplespike.lan',
   'https://portal.maplespike.lan',
   'https://mcp.maplespike.lan',
-// ── Derive allowed origins from domain ──────────────────────────────
-const DOMAIN = process.env.MAPLESPIKE_DOMAIN || '';
-const ALLOWED_ORIGINS = [
-  // Dev
-  'http://localhost:4321',
-  'http://localhost:8082',
-  'http://localhost:3000',
-  'http://127.0.0.1:4321',
-  'http://127.0.0.1:8082',
-  'http://127.0.0.1:3000',
-  // Production
-  'https://maplespike.ca',
-  'https://www.maplespike.ca',
-  'https://api.maplespike.ca',
-  'https://portal.maplespike.ca',
-  'https://mcp.maplespike.ca',
-  // Internal LAN (auto-derived from MAPLESPIKE_DOMAIN)
-  ...(DOMAIN ? [
-    `https://${DOMAIN}`,
-    `https://api.${DOMAIN}`,
-    `https://mcp.${DOMAIN}`,
-    `https://portal.${DOMAIN}`,
-    `https://dev.${DOMAIN}`,
-    `https://dev-api.${DOMAIN}`,
-    `https://dev-mcp.${DOMAIN}`,
-    `https://maplespike-api.lan`,
-    `https://maplespike-portal.lan`,
-  ] : [
-    'https://dev.maplespike.lan',
-    'https://maplespike.lan',
-    'https://api.maplespike.lan',
-    'https://mcp.maplespike.lan',
-    'https://maplespike-api.lan',
-    'https://maplespike-portal.lan',
-  ]),
+  // Auto-derived from MAPLESPIKE_DOMAIN env var
+  ...(() => {
+    const d = process.env.MAPLESPIKE_DOMAIN;
+    if (!d) return [];
+    return [
+      `https://${d}`,
+      `https://api.${d}`,
+      `https://mcp.${d}`,
+      `https://portal.${d}`,
+      `https://dev.${d}`,
+      `https://dev-api.${d}`,
+      `https://dev-mcp.${d}`,
+      `https://maplespike-api.lan`,
+      `https://maplespike-portal.lan`,
+    ];
+  })(),
 ];
 
 export function getAllowedOrigin(requestOrigin: string | null): string {
