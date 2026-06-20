@@ -816,6 +816,52 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'fetchFeed',
   },
 
+  // ── Municipal / Transit ──────────────────────────────
+  {
+    name: 'ttc',
+    description: 'TTC delay data — bus, streetcar, and subway delays from Toronto Open Data CKAN',
+    category: 'infrastructure',
+    modulePath: './ttc/index.js',
+    ingestFunctions: ['ingestTTC'],
+    sources: [{ name: 'Toronto Open Data CKAN', format: 'CKAN' }],
+    updateFrequency: 'daily',
+    healthCheckUrl: 'https://ckan0.cf.opendata.inter.prod-toronto.ca',
+  },
+
+  // ── Corporate / Property ──────────────────────────────
+  {
+    name: 'bc-assessment',
+    description: 'BC Assessment property data — property values and descriptions from BC Data Catalogue',
+    category: 'corporate',
+    modulePath: './bc-assessment/index.js',
+    ingestFunctions: ['ingestBCAssessment'],
+    sources: [{ name: 'BC Data Catalogue', format: 'CKAN' }],
+    updateFrequency: 'monthly',
+    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
+  },
+
+  // ── Influence ──────────────────────────────────────────
+  {
+    name: 'ontario-lobbying',
+    description: 'Ontario Lobbyists Registry — search lobbyist registrations and monthly communication reports',
+    category: 'influence',
+    modulePath: './ontario-lobbying/index.js',
+    ingestFunctions: ['ingestOntarioLobbying'],
+    sources: [{ name: 'Ontario Lobbyists Registry', format: 'HTML' }],
+    updateFrequency: 'daily',
+    healthCheckUrl: 'https://lobbyist.oico.on.ca',
+  },
+  {
+    name: 'quebec-lobbying',
+    description: 'Quebec lobby register — search lobbyist registrations and communication reports',
+    category: 'influence',
+    modulePath: './quebec-lobbying/index.js',
+    ingestFunctions: ['ingestQuebecLobbying'],
+    sources: [{ name: 'Quebec Lobby Registry', format: 'HTML' }],
+    updateFrequency: 'daily',
+    healthCheckUrl: 'https://lobby.quebec',
+  },
+
   // ── Media ────────────────────────────────────────────────
   {
     name: 'crtc',
