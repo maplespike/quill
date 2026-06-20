@@ -27,7 +27,9 @@ const GATEWAY_API_KEY = process.env.MAPLESPIKE_GATEWAY_API_KEY || '';
 const CHAT_MODEL = process.env.MAPLESPIKE_AI_MODEL
   || process.env.MAPLESPIKE_CHAT_MODEL
   || process.env.AI_MODEL
-  || 'glm-5.2';
+  || 'qwen3.5-4b-local';
+const LOCAL_ENDPOINT = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001';
+const LOCAL_MODEL = process.env.MAPLESPIKE_LOCAL_MODEL || 'Qwen3.5-4B-Q4_K_M.gguf';
 // Embedding model
 const EMBED_MODEL = process.env.MAPLESPIKE_EMBED_MODEL
   || 'nvidia/llama-3.2-nv-embedqa-1b-v2';
@@ -56,9 +58,41 @@ async function gatewayChat(
   config?: { endpoint: string; apiKey: string; model: string },
 ): Promise<string | null> {
   try {
-    const endpoint = config?.endpoint || GATEWAY_ENDPOINT;
-    const model = config?.model || CHAT_MODEL;
+    const requestedModel = config?.model || CHAT_MODEL;
+    const isLocalModel = requestedModel.includes('local') || requestedModel.includes('gguf');
     const apiKey = config?.apiKey || GATEWAY_API_KEY;
+
+    if (isLocalModel) {
+      // Local llama.cpp models: use completions endpoint with Qwen chat format
+      const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001/v1';
+      const localModel = process.env.MAPLESPIKE_LOCAL_MODEL || requestedModel;
+
+      // Build Qwen-style chat prompt with actual newlines
+      const prompt = messages.map(m => {
+        const role = m.role === 'system' ? 'system' : m.role === 'user' ? 'user' : 'assistant';
+        return `<|im_start|>${role}\n${m.content}<|im_end|>\n`;
+      }).join('') + '<|im_start|>assistant\n';
+
+      const resp = await fetch(`${localUrl}/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` }: {}) },
+        body: JSON.stringify({
+          model: localModel,
+          prompt,
+          max_tokens: maxTokens,
+          temperature,
+          stop: ['<|im_end|>', '<|im_start|>'],
+        }),
+        signal: AbortSignal.timeout(60000),
+      });
+      if (!resp.ok) return null;
+      const data = await resp.json() as any;
+      return data?.choices?.[0]?.text ?? null;
+    }
+
+    // Standard OpenAI-compatible chat completions (gateway or BYOK)
+    const endpoint = config?.endpoint || GATEWAY_ENDPOINT;
+    const chatModel = config?.model || CHAT_MODEL;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -69,7 +103,7 @@ async function gatewayChat(
       method: 'POST',
       headers,
       body: JSON.stringify({
-        model,
+        model: chatModel,
         messages,
         temperature,
         max_tokens: maxTokens,
