@@ -1,0 +1,11 @@
+import { fetchCKANPackages } from "../gov-api.js";
+import type { CKANPackage } from "../gov-api.js";
+
+export async function ingestFederalimmigrationirb(): Promise<{ success: boolean; records: number }> {
+  const packages = await fetchCKANPackages("https://open.canada.ca/data", { query: "federal-immigration-irb", rows: 5 });
+  return { success: packages.length > 0, records: packages.length };
+}
+
+export async function searchFederalimmigrationirb(query: string): Promise<CKANPackage[]> {
+  return fetchCKANPackages("https://open.canada.ca/data", { query: "federal-immigration-irb {{query}}", rows: 10 });
+}
