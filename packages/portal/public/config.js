@@ -1,23 +1,39 @@
 // ─────────────────────────────────────────────────────────────────
 // MapleSpike Portal Configuration
-// Single source of truth for all API endpoints, keys, and timeouts.
-// Override per-environment by mounting this file as a ConfigMap
-// in the K8s deployment (mount at /usr/share/nginx/html/config.js).
+// Derives all URLs from the current domain — no hardcoded hosts.
 //
-// Dev defaults point at a local API server on port 8082.
-// Production overrides:
-//   apiBase: "https://maplespike-api.lan"
-//   apiKey: ""  ← user enters their own key via workspace
+// Override by setting window.MAPLESPIKE before this script loads,
+// or by mounting a ConfigMap at /config.js in k8s.
 // ─────────────────────────────────────────────────────────────────
 window.MAPLESPIKE = window.MAPLESPIKE || {};
 
-// ── API ─────────────────────────────────────────────────────────
-MAPLESPIKE.apiBase   = 'https://api.maplespike.lan';  // API ingress — override via ConfigMap for dev
-MAPLESPIKE.apiKey    = '';       // Enter your key via workspace or ConfigMap
+(function () {
+  // Derive API base from current hostname
+  var host = window.location.hostname;
+  var proto = window.location.protocol;
+  var port = window.location.port ? ':' + window.location.port : '';
 
-// ── Timeouts (milliseconds) ─────────────────────────────────────
-MAPLESPIKE.timeout = {
-  health:  3_000,   // Health checks (fast)
-  quick:   5_000,   // Simple queries, release listings
-  default: 8_000,   // Standard API calls, search queries
-};
+  // If we're on a subdomain like api.X, portal.X, or www.X,
+  // strip it to get the base domain
+  var parts = host.split('.');
+  var baseDomain;
+  if (parts.length > 2 && ['api', 'portal', 'www', 'mcp', 'dev'].includes(parts[0])) {
+    baseDomain = parts.slice(1).join('.');
+  } else {
+    baseDomain = host;
+  }
+
+  // Default: api subdomain of the base domain
+  var defaultApiBase = proto + '//api.' + baseDomain + port;
+
+  // ── API ─────────────────────────────────────────────────────────
+  MAPLESPIKE.apiBase = MAPLESPIKE.apiBase || defaultApiBase;
+  MAPLESPIKE.apiKey = MAPLESPIKE.apiKey || '';
+
+  // ── Timeouts ────────────────────────────────────────────────────
+  MAPLESPIKE.timeout = MAPLESPIKE.timeout || {
+    health: 3000,
+    quick: 5000,
+    default: 8000,
+  };
+})();

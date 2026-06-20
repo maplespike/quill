@@ -30,8 +30,21 @@ interface AuthState {
 /* ------------------------------------------------------------------ */
 
 function getApiBase(): string {
-  if (typeof window !== "undefined" && window.MAPLESPIKE?.apiBase) {
-    return window.MAPLESPIKE.apiBase;
+  if (typeof window !== "undefined") {
+    // Prefer explicit config
+    if (window.MAPLESPIKE?.apiBase) {
+      return window.MAPLESPIKE.apiBase;
+    }
+    // Derive from hostname: api.<domain>
+    const host = window.location.hostname;
+    const parts = host.split(".");
+    let baseDomain;
+    if (parts.length > 2 && ["api", "portal", "www", "dev"].includes(parts[0])) {
+      baseDomain = parts.slice(1).join(".");
+    } else {
+      baseDomain = host;
+    }
+    return `${window.location.protocol}//api.${baseDomain}`;
   }
   return "https://api.maplespike.lan";
 }

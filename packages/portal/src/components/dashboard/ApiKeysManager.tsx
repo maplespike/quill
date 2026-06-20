@@ -5,8 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 function getApiBase(): string {
-  if (typeof window !== "undefined" && window.MAPLESPIKE?.apiBase) {
-    return window.MAPLESPIKE.apiBase;
+  if (typeof window !== "undefined") {
+    if (window.MAPLESPIKE?.apiBase) return window.MAPLESPIKE.apiBase;
+    const host = window.location.hostname;
+    const parts = host.split(".");
+    const base = parts.length > 2 && ["api", "portal", "www", "dev"].includes(parts[0])
+      ? parts.slice(1).join(".") : host;
+    return `${window.location.protocol}//api.${base}`;
   }
   return "https://api.maplespike.lan";
 }
