@@ -71,6 +71,16 @@ import { initAnnotationStore } from './services/annotationService.js';
 import { aiAskHandler, aiAnalyzeHandler } from './routes/ai.js';
 import { aiSettingsGetHandler, aiSettingsUpdateHandler, resolveAIConfig } from './routes/ai-settings.js';
 import {
+  astralWeb3NonceHandler,
+  astralWeb3VerifyHandler,
+  astralWeb3ChainsHandler,
+  astralFido2RegisterOptionsHandler,
+  astralFido2RegisterVerifyHandler,
+  astralFido2AuthOptionsHandler,
+  astralFido2AuthVerifyHandler,
+  astralHealthHandler,
+} from './routes/astral-proxy.js';
+import {
   oauthLoginHandler,
   oauthCallbackHandler,
   oauthProvidersHandler,
@@ -145,6 +155,15 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/ai\/analyze\/?$/, method: 'POST', params: [], handler: aiAnalyzeHandler },
   { pattern: /^\/v1\/ai\/settings\/?$/, method: 'GET', params: [], handler: aiSettingsGetHandler },
   { pattern: /^\/v1\/ai\/settings\/?$/, method: 'PUT', params: [], handler: aiSettingsUpdateHandler },
+  // Astral Key proxy — Web3 + FIDO2 via Astral Key microservice
+  { pattern: /^\/v1\/astral\/health\/?$/, method: 'GET', params: [], handler: astralHealthHandler },
+  { pattern: /^\/v1\/astral\/web3\/chains\/?$/, method: 'GET', params: [], handler: astralWeb3ChainsHandler },
+  { pattern: /^\/v1\/astral\/web3\/nonce\/?$/, method: 'POST', params: [], handler: astralWeb3NonceHandler },
+  { pattern: /^\/v1\/astral\/web3\/verify\/?$/, method: 'POST', params: [], handler: astralWeb3VerifyHandler },
+  { pattern: /^\/v1\/astral\/fido2\/register\/options\/?$/, method: 'POST', params: [], handler: astralFido2RegisterOptionsHandler },
+  { pattern: /^\/v1\/astral\/fido2\/register\/verify\/?$/, method: 'POST', params: [], handler: astralFido2RegisterVerifyHandler },
+  { pattern: /^\/v1\/astral\/fido2\/authenticate\/options\/?$/, method: 'POST', params: [], handler: astralFido2AuthOptionsHandler },
+  { pattern: /^\/v1\/astral\/fido2\/authenticate\/verify\/?$/, method: 'POST', params: [], handler: astralFido2AuthVerifyHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
@@ -416,7 +435,8 @@ export async function handleRequest(
     || path.startsWith('/v1/engine/status')
     || path.startsWith('/v1/data/quality')
     || path.startsWith('/v1/ai/ask')
-    || path.startsWith('/v1/ai_ask');
+    || path.startsWith('/v1/ai_ask')
+    || path.startsWith('/v1/astral/');
 
   const tenant = authExempt
     ? null
