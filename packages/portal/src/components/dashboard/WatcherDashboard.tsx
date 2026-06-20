@@ -27,50 +27,50 @@ export default function WatcherDashboard() {
 
   return (
     <>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
         <Card>
-          <CardHeader class="pb-2">
-            <CardTitle class="text-sm font-medium">Watched Sources</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Watched Sources</CardTitle>
           </CardHeader>
           <CardContent>
-            <p class="text-2xl font-bold">{status?.totalSources ?? '—'}</p>
-            <p class="text-xs text-muted-foreground">polling at configured intervals</p>
+            <p className="text-2xl font-bold">{status?.totalSources ?? '—'}</p>
+            <p className="text-xs text-muted-foreground">polling at configured intervals</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader class="pb-2">
-            <CardTitle class="text-sm font-medium">Changes Detected</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Changes Detected</CardTitle>
           </CardHeader>
           <CardContent>
-            <p class="text-2xl font-bold">{recentChanges}</p>
-            <p class="text-xs text-muted-foreground">in recent events</p>
+            <p className="text-2xl font-bold">{recentChanges}</p>
+            <p className="text-xs text-muted-foreground">in recent events</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader class="pb-2">
-            <CardTitle class="text-sm font-medium">Webhooks</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Webhooks</CardTitle>
           </CardHeader>
           <CardContent>
-            <p class="text-2xl font-bold">{webhooks.length}</p>
-            <p class="text-xs text-muted-foreground">registered</p>
+            <p className="text-2xl font-bold">{webhooks.length}</p>
+            <p className="text-xs text-muted-foreground">registered</p>
           </CardContent>
         </Card>
       </div>
 
-      <h2 class="text-xl font-semibold mb-4">Watched Sources</h2>
+      <h2 className="text-xl font-semibold mb-4">Watched Sources</h2>
 
-      <div class="space-y-3 mb-8">
+      <div className="space-y-3 mb-8">
         {status?.watchedSources?.map(source => (
           <Card key={source.id}>
-            <CardHeader class="pb-2">
-              <div class="flex items-center justify-between">
-                <CardTitle class="text-base">{source.name}</CardTitle>
-                <Badge class="bg-green-500/10 text-green-500 border-green-500/20">Active</Badge>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">{source.name}</CardTitle>
+                <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Active</Badge>
               </div>
               <CardDescription>Type: {source.type}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div class="flex justify-between text-sm">
+              <div className="flex justify-between text-sm">
                 <span>Interval: <strong>{Math.round(source.intervalMs / 60000)} min</strong></span>
                 <span>Type: <strong>{source.type.toUpperCase()}</strong></span>
               </div>
@@ -81,15 +81,15 @@ export default function WatcherDashboard() {
 
       {events.length > 0 && (
         <>
-          <h2 class="text-xl font-semibold mb-4">Recent Events</h2>
-          <div class="space-y-2 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Recent Events</h2>
+          <div className="space-y-2 mb-8">
             {events.slice(0, 10).map((event, i) => (
               <Card key={`${event.sourceId}-${i}`}>
-                <CardContent class="py-3">
-                  <div class="flex items-center justify-between">
+                <CardContent className="py-3">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <span class="font-medium">{event.sourceName}</span>
-                      <span class="ml-2 text-sm text-muted-foreground">
+                      <span className="font-medium">{event.sourceName}</span>
+                      <span className="ml-2 text-sm text-muted-foreground">
                         {new Date(event.detectedAt).toLocaleString()}
                       </span>
                     </div>
@@ -97,7 +97,7 @@ export default function WatcherDashboard() {
                       {event.changed ? "Changed" : "No Change"}
                     </Badge>
                   </div>
-                  <p class="text-sm text-muted-foreground mt-1">{event.summary}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{event.summary}</p>
                 </CardContent>
               </Card>
             ))}
@@ -107,22 +107,22 @@ export default function WatcherDashboard() {
 
       {webhooks.length > 0 && (
         <>
-          <h2 class="text-xl font-semibold mb-4">Webhooks</h2>
-          <div class="space-y-2 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Webhooks</h2>
+          <div className="space-y-2 mb-8">
             {webhooks.map(wh => (
               <Card key={wh.id}>
-                <CardContent class="py-3">
-                  <div class="flex items-center justify-between">
+                <CardContent className="py-3">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <span class="font-medium">{wh.label || wh.url}</span>
-                      <span class="ml-2 text-sm text-muted-foreground">{wh.url}</span>
+                      <span className="font-medium">{wh.label || wh.url}</span>
+                      <span className="ml-2 text-sm text-muted-foreground">{wh.url}</span>
                     </div>
                     <Badge variant={wh.active ? "default" : "outline"}>
                       {wh.active ? "Active" : "Disabled"}
                     </Badge>
                   </div>
                   {wh.sourceFilter.length > 0 && (
-                    <p class="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Sources: {wh.sourceFilter.includes('*') ? 'All' : wh.sourceFilter.join(', ')}
                     </p>
                   )}

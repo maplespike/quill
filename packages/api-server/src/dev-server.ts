@@ -70,12 +70,12 @@ if (MAPLESPIKE_STORAGE === 'postgres') {
   await pgDb.init();
   db = pgDb;
   cache = new PgCache();
-} else if (MAPLESPIKE_STORAGE === 'sqlite') {
-  log.info(`Using SQLite backend: ${MAPLESPIKE_DB_PATH}`);
-  // Dynamic import so that better-sqlite3 native module is only loaded when needed
-  const { SqliteStorage, SqliteStorageCache } = await import('./sqlite-storage.js');
-  db = new SqliteStorage(MAPLESPIKE_DB_PATH);
-  cache = new SqliteStorageCache();
+} else if (MAPLESPIKE_STORAGE === 'sqlite' || MAPLESPIKE_STORAGE === 'node-sqlite') {
+  log.info(`Using Node SQLite backend: ${MAPLESPIKE_DB_PATH}`);
+  // Uses node:sqlite (built into Node 22+, no native compilation needed)
+  const { NodeSqliteStorage, NodeSqliteCache } = await import('./node-sqlite-storage.js');
+  db = new NodeSqliteStorage(MAPLESPIKE_DB_PATH);
+  cache = new NodeSqliteCache();
 } else {
   log.info('Using in-memory backend');
 

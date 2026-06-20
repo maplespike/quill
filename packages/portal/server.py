@@ -139,6 +139,21 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(body)
                 return
 
+        # ── Extensionless URL rewriting ────────────────────────
+        # Astro generates .html files but routes are extensionless (/dashboard/owasp → owasp.html)
+        if not os.path.splitext(p)[1] and not p.endswith("/"):
+            html_path = p.lstrip("/") + ".html"
+            full_html = os.path.join(DIRECTORY, html_path)
+            if os.path.isfile(full_html):
+                with open(full_html, "rb") as f:
+                    body = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+
         # ── Serve portal pages ───────────────────────────────────────
         path = p
 

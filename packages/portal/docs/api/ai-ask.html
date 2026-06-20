@@ -241,7 +241,7 @@ status: active</h2>
 <h1>POST /v1/ai_ask</h1>
 <p>Ask a natural language question about Canadian government data. The AI searches across all pipeline sources (committees, lobbying, procurement, regulations, courts, oversight) and returns a cited, synthesized answer.</p>
 <h2>Request</h2>
-<pre><code class="language-bash">curl -X POST http://maplespike.lan/v1/ai_ask \
+<pre><code class="language-bash">curl -X POST http://localhost:8082/v1/ai_ask \
   -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;query&quot;: &quot;What did the Ethics Commissioner investigate in 2024?&quot;}&#39;
@@ -328,13 +328,13 @@ status: active</h2>
 </tbody></table>
 <h2>Example Queries</h2>
 <pre><code class="language-bash"># Query with source filter
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST http://localhost:8082/v1/ai_ask \
   -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;query&quot;: &quot;What are the latest regulations on carbon pricing?&quot;, &quot;source_filter&quot;: &quot;regulations&quot;}&#39;
 
 # Broad question across all sources
-curl -X POST http://maplespike.lan/v1/ai_ask \
+curl -X POST http://localhost:8082/v1/ai_ask \
   -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;query&quot;: &quot;How has immigration changed since 2020?&quot;}&#39;
@@ -427,7 +427,7 @@ curl -X POST http://maplespike.lan/v1/ai_ask \
 </tr>
 </tbody></table>
 <h3>Example</h3>
-<pre><code class="language-bash">curl -X POST http://maplespike.lan/v1/ai/analyze \
+<pre><code class="language-bash">curl -X POST http://localhost:8082/v1/ai/analyze \
   -H &quot;Authorization: Bearer YOUR_API_KEY&quot; \
   -H &quot;Content-Type: application/json&quot; \
   -d &#39;{&quot;text&quot;: &quot;Full committee transcript text...&quot;, &quot;analysis_type&quot;: &quot;full&quot;}&#39;

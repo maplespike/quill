@@ -157,7 +157,7 @@ const releases: Release[] = [
       "JIT zero-knowledge key rotation: Auto-rotation within 7 days of expiry, response header delivery (X-Key-Rotated, X-New-Key, X-New-Key-Id, X-New-Key-Expires), storage-backed auth with SQLite fallback chain",
       "Real citation verification: SHA-256 hash lookup against pipeline data — returns verified citation with source URL, license, and shell verify command. Replaced hardcoded SAMPLE_CITATIONS",
       "Workspace page: Auth panel with OAuth login buttons, session info display, passkey/web3 placeholders, auto-login detection via session cookie, API key management wired to live endpoints (/v1/keys, /v1/usage)",
-      "Docs rewrite (10 sections): Comprehensive reference — Quickstart, Auth (3 methods), Request/Response format, Endpoints catalog, Token Optimization (_fields, _summary, _mock), Citation Contract, 14-Tool MCP Catalog, Rate Limits, Error Codes, FAQ — with proper CSS layout system",
+      "Docs rewrite (10 sections): Comprehensive reference — Quickstart, Auth (3 methods), Request/Response format, Endpoints catalog, Token Optimization (_fields, _summary, _mock), Citation Contract, MCP Tool Catalog, Rate Limits, Error Codes, FAQ — with proper CSS layout system",
       "OG image redesign: Terminal aesthetic SVG with curl example, live stats, source badges, MapleSpike branding",
       "Analytics-ready: DNS-prefetch, email waitlist capture, comprehensive SEO on all pages",
       "MCP ↔ API server alignment via shared api-client, pipeline-data.json as primary data source",
@@ -279,7 +279,7 @@ const releases: Release[] = [
     breaking:
       "All -deep and -long-tail suffixes dropped from module directories (e.g. municipal-long-tail/ → municipal/). All civint references purged from code, docs, DNS, and K8s — pure MapleSpike branding. Server-side mock-data.ts (422 lines) and pipeline-data.json (37KB) deleted — all data now live. 15 generated .d.ts files removed from engine/src. 6 stale docs files (MRD, MVP-SCOPE, PRD, Katzilla GAPs, etc.) deleted.",
     items: [
-      "65 ingestion modules (was 28) — all 13 provinces/territories, 19 cities, 1,141+ unique endpoints, ~113K lines TypeScript",
+      "65 ingestion modules (was 28) — all 13 provinces/territories, 8 cities, 1,141+ unique endpoints, ~113K lines TypeScript",
       "22 live MCP tools — immigration, science, tribunals, LODE geospatial, AI analysis, semantic search, system health all returning real data. SSE transport built into cli.ts (PORT=3001). Deployed on K3s at port 32537",
       "A2AJ legal corpus — 116K+ decisions, 5K+ statutes via api.a2aj.ca (no auth)",
       "Legislation module — Justice Canada XML, Ontario e-Laws, BC Laws, provincial CKAN",

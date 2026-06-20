@@ -1,78 +1,12 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: maplespike-caddyfile
-  namespace: maplespike
-data:
-  Caddyfile: |
-    maplespike.lan {
-        tls internal
-        reverse_proxy maplespike-api:8082
-    }
-    api.maplespike.lan {
-        tls internal
-        reverse_proxy maplespike-api:8082
-    }
-    mcp.maplespike.lan {
-        tls internal
-        reverse_proxy maplespike-mcp:3001
-    }
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: maplespike-ingress
-  namespace: maplespike
-  labels:
-    app: maplespike-ingress
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: maplespike-ingress
-  template:
-    metadata:
-      labels:
-        app: maplespike-ingress
-    spec:
-      nodeName: nexus
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
-      containers:
-      - name: caddy
-        image: caddy:latest
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
-        - containerPort: 443
-        volumeMounts:
-        - name: config
-          mountPath: /etc/caddy
-        args:
-        - "caddy"
-        - "run"
-        - "--config"
-        - "/etc/caddy/Caddyfile"
-      volumes:
-      - name: config
-        configMap:
-          name: maplespike-caddyfile
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: maplespike-ingress
-  namespace: maplespike
-spec:
-  selector:
-    app: maplespike-ingress
-  ports:
-  - name: http
-    port: 80
-    targetPort: 80
-    protocol: TCP
-  - name: https
-    port: 443
-    targetPort: 443
-    protocol: TCP
-  type: NodePort
+maplespike.lan {
+    tls internal
+    reverse_proxy maplespike-portal:8080
+}
+api.maplespike.lan {
+    tls internal
+    reverse_proxy maplespike-api:8082
+}
+mcp.maplespike.lan {
+    tls internal
+    reverse_proxy maplespike-mcp:3001
+}
