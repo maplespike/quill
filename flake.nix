@@ -45,12 +45,16 @@
     maplespike-build = pkgs.stdenv.mkDerivation {
       name = "maplespike-build";
       src = maplespike-src;
-      buildInputs = [ nodejs pnpm pkgs.python3 pkgs.gcc ];
+      buildInputs = [ nodejs pnpm pkgs.python3 pkgs.gcc pkgs.cacert ];
       # Sandbox must be off for pnpm to reach npm registry
       __noChroot = true;
       buildPhase = ''
         export HOME=$TMPDIR
-        pnpm install --frozen-lockfile
+        export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+        export NIX_SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+        # Disable corepack auto-download to avoid TLS bootstrap issue
+        export COREPACK_ENABLE_STRICT=0
+        pnpm install --no-frozen-lockfile
         pnpm build
       '';
       installPhase = ''
