@@ -2250,3 +2250,33 @@ export async function runAllModules(
   }
   return results;
 }
+  {
+    name: 'ontario-securities-commission',
+    description: 'Ontario Securities Commission — enforcement actions, regulatory filings, insider trading reports',
+    category: 'oversight',
+    modulePath: './ontario-securities-commission/index.js',
+    ingestFunctions: ['ingestOntarioSecuritiesCommission'],
+    sources: [{ name: 'OSC', format: 'HTML' }],
+    updateFrequency: 'weekly',
+    healthCheckUrl: 'https://www.osc.ca',
+  },
+  {
+    name: 'ontario-land-registry',
+    description: 'Ontario land registry — Teranet property deeds, liens, transfers',
+    category: 'corporate',
+    modulePath: './ontario-land-registry/index.js',
+    ingestFunctions: ['ingestOntarioLandRegistry'],
+    sources: [{ name: 'Teranet / OnLand', format: 'HTML' }],
+    updateFrequency: 'monthly',
+    healthCheckUrl: 'https://www.onland.ca',
+  },
+  {
+    name: 'federal-lobbying-monthly',
+    description: 'Federal lobbying monthly communication reports',
+    category: 'influence',
+    modulePath: './federal-lobbying-monthly/index.js',
+    ingestFunctions: ['ingestFederalLobbyingMonthly'],
+    sources: [{ name: 'Lobby Canada', format: 'HTML' }],
+    updateFrequency: 'monthly',
+    healthCheckUrl: 'https://lobbycanada.gc.ca',
+  },
