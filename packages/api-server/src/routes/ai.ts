@@ -123,6 +123,25 @@ async function gatewayChat(
  * Returns the vector array on success, or null on failure.
  */
 async function embedQuery(text: string): Promise<number[] | null> {
+  // Try local llama.cpp embeddings endpoint first (fast, on sentry)
+  try {
+    const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001/v1';
+    const resp = await fetch(`${localUrl}/embeddings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: text }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (resp.ok) {
+      const data = await resp.json() as any;
+      const embedding = data?.data?.[0]?.embedding;
+      if (embedding && Array.isArray(embedding)) return embedding as number[];
+    }
+  } catch {
+    // Fall through to AI Gateway
+  }
+
+  // Fallback: AI Gateway embeddings
   try {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
