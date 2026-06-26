@@ -93,7 +93,37 @@ interface PaymentVerifier {
 
 const ORDER_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_ORDERS_PER_TENANT_PER_HOUR = 20;
+const MAX_VERIFY_ATTEMPTS_PER_ORDER = 10;
+const MAX_VERIFY_ATTEMPTS_PER_HOUR = 30;
 const SIGNING_SECRET = process.env.MAPLESPIKE_BILLING_SECRET || randomUUID();
+
+// Rate limiting for verify endpoint
+const verifyRateLimits = new Map<string, number[]>(); // tenantId -> timestamps
+const verifyOrderLimits = new Map<string, number>(); // orderId -> attempt count
+
+function checkVerifyRateLimit(tenantId: string, orderId: string): { allowed: boolean; reason?: string } {
+  const now = Date.now();
+  const window = 60 * 60 * 1000;
+
+  // Per-order limit
+  const orderAttempts = verifyOrderLimits.get(orderId) || 0;
+  if (orderAttempts >= MAX_VERIFY_ATTEMPTS_PER_ORDER) {
+    return { allowed: false, reason: `Max ${MAX_VERIFY_ATTEMPTS_PER_ORDER} verify attempts for this order` };
+  }
+
+  // Per-tenant limit
+  let timestamps = verifyRateLimits.get(tenantId) || [];
+  timestamps = timestamps.filter(ts => now - ts < window);
+  if (timestamps.length >= MAX_VERIFY_ATTEMPTS_PER_HOUR) {
+    verifyRateLimits.set(tenantId, timestamps);
+    return { allowed: false, reason: `Max ${MAX_VERIFY_ATTEMPTS_PER_HOUR} verify attempts per hour` };
+  }
+
+  timestamps.push(now);
+  verifyRateLimits.set(tenantId, timestamps);
+  verifyOrderLimits.set(orderId, orderAttempts + 1);
+  return { allowed: true };
+}
 
 const PLANS: Plan[] = [
   {
@@ -423,6 +453,12 @@ export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
     const order = store.get(body.orderId as string);
     if (!order) return jsonResponse(buildError('NOT_FOUND', 'Order not found', bc), 404);
     if (order.tenantId !== ctx.tenant.id) return jsonResponse(buildError('FORBIDDEN', 'Order belongs to different tenant', bc), 403);
+
+    // Rate limit verify attempts
+    const rateCheck = checkVerifyRateLimit(ctx.tenant.id, order.id);
+    if (!rateCheck.allowed) {
+      return jsonResponse(buildError('RATE_LIMITED', rateCheck.reason || 'Too many verify attempts', bc), 429);
+    }
 
     // Idempotency: already verified
     if (order.status === 'verified') {
