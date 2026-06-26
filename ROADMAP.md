@@ -8,8 +8,8 @@ status: active
 > **Current version:** v0.2.1 (2026-06-12)
 > **Build:** ✅ `pnpm build` passes (13/13 packages)
 > **Tests:** 696 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7, notification-service 13)
-> **Modules:** 144 registry entries (9 marked placeholder)
-> **MCP tools:** 129 registered in tools/index.ts (164 tool definition files)
+> **Modules:** 198 registry entries (9 marked placeholder)
+> **MCP tools:** 164 registered in tools/index.ts
 > **MVP tracker:** [#665](https://github.com/reverb256/maplespike/issues/665) — Real readiness: ~30%
 > **Open issues:** 7 (3 quality sub-issues + 4 strategic)
 
