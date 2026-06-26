@@ -15,6 +15,7 @@
     "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
+  "exclude": ["src/**/__integration__/**"],
   "references": [
     { "path": "../pipeline-core" }
   ]
