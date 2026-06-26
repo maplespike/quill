@@ -45,3 +45,4 @@ result
 .understand-anything/
 *.egg-info/
 .env.deployment
+*.tgz
