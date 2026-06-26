@@ -1,5 +1,32 @@
 # Changelog
 
+## [Unreleased] — 2026-06-26
+
+### Added
+- **Provincial Coverage:** 33 new data modules covering all 9 previously-missing provinces/territories (SK, MB, NS, NB, NL, PE, YT, NT, NU). All 13 Canadian jurisdictions now have dedicated modules.
+  - NS (4): health, education, labour, budget — Socrata (749 datasets)
+  - NB (4): health, education, energy, labour — Socrata
+  - PE (4): health, agriculture, education, budget — Socrata
+  - NL (4): health, budget, energy, education — custom portal
+  - SK (6): health, education, agriculture, crown-corps, labour, budget — CKAN
+  - MB (6): health, education, hydro, MPI, labour, budget — CKAN
+  - YT (3): health, education, energy-mines — CKAN
+  - NT (1): health-social — custom portal
+  - NU (1): statcan cross-province — federal CKAN
+- **Socrata API Connector:** New `socrata-api.ts` in pipeline-core providing reusable SODA v2.1 client for Nova Scotia, New Brunswick, and PEI portals
+- **MCP Tools:** 32 additional MCP tools registered (was 129, now 164) — StatCan time-series, infrastructure, governance, QA, health monitoring, and CKAN batch tools
+
+### Changed
+- **Registry:** 198 modules (was 144, +54 total including prior batch modules)
+- **MCP tools:** 164 registered in tools/index.ts (was 129)
+- **Metrics:** 191K lines TypeScript across 1,475 files
+
+### Fixed
+- **MCP server:** Handler timeout (55s default via `MAPLESPIKE_HANDLER_TIMEOUT_MS`) with auto-exit on failure — prevents stale subprocess accumulation and gateway blacklisting
+- **Database:** ESM `.js` extension resolution for Node.js stdio mode
+- **API server:** Deduplicated `/v1/keys` GET route (was registered twice)
+- **Portal:** OG image updated to dedicated social card, description encoding fixed
+
 ## [0.3.0] — 2025-06-11
 
 ### Added

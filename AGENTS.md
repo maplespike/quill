@@ -6,7 +6,7 @@ status: active
 # AGENTS.md — MapleSpike
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 144 modules, 129 MCP tools, ~188K lines TS, 13 packages.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 198 modules, 164 MCP tools, ~191K lines TS, 13 packages.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
@@ -109,7 +109,7 @@ Browser → maplespike.lan (Caddy TLS)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ MCP    (:31746) — Model Context Protocol server (132 tools)
+  └→ MCP    (:31746) — Model Context Protocol server (164 tools)
 ```
 
 ### Auth Chain
