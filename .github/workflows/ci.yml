@@ -36,8 +36,37 @@ jobs:
       - name: Build all packages
         run: pnpm build
 
-      - name: Run tests
-        run: pnpm -r test -- --reporter=dot
+      - name: Run unit tests
+        run: pnpm test
+
+  integration-test:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Run integration tests (network-dependent)
+        run: pnpm -r test:integration
+        env:
+          MAPLESPIKE_HTTP_MAX_RETRIES: '1'
+          MAPLESPIKE_HTTP_TIMEOUT_MS: '15000'
 
   docker:
     needs: build-and-test
