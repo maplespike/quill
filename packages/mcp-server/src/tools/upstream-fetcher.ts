@@ -315,6 +315,7 @@ export async function fetchEntityCrossReference(name: string): Promise<{ mp: Rec
 const SOCRATA_DOMAINS: Record<string, string> = {
   'novascotia': 'https://data.novascotia.ca',
   'newbrunswick': 'https://gnb.socrata.com',
+  'pei': 'https://data.princeedwardisland.ca',
   'peel': 'https://opendata.peelregion.ca',
   'calgary': 'https://data.calgary.ca',
   'toronto': 'https://open.toronto.ca',
