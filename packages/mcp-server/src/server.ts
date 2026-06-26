@@ -109,6 +109,16 @@ export class McpServer {
   private serverVersion = '0.1.0';
   private serverName = 'maplespike-canada-mcp';
 
+  // ── Timeout handling ──────────────────────────────────────────────────
+
+  // Maximum time (ms) a single tool.handler() may run. The Hermes gateway
+  // times out after 60s, so stay safely under that so we can return a clean
+  // JSON-RPC error instead of letting the gateway kill the connection.
+  private handlerTimeoutMs = parseInt(
+    process.env['MAPLESPIKE_HANDLER_TIMEOUT_MS'] ?? '',
+    10,
+  ) || 55_000;
+
   // ── Tool registration ─────────────────────────────────────────────────
 
   registerTool(definition: ToolDefinition, handler: ToolHandler): void {
@@ -250,13 +260,20 @@ export class McpServer {
       return;
     }
 
-    // Run handler; catch sync and async errors
+    // Run handler with timeout; catch sync and async errors
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const rawResult: ToolResponse = await tool.handler(args);
+      const resultPromise = tool.handler(args);
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          const msg = `Tool "${toolName}" timed out after ${this.handlerTimeoutMs}ms`;
+          log.error(msg);
+          reject(new Error(msg));
+        }, this.handlerTimeoutMs);
+      });
+      const rawResult: ToolResponse = await Promise.race([resultPromise, timeoutPromise]);
+      clearTimeout(timer);
       const result: ToolResponse = sanitizeOutput(rawResult);
-
-      // MCP tool result envelope
-      // content is an array of text|image|resource items
       send(this.result(id ?? null, {
         content: [
           {
@@ -269,11 +286,19 @@ export class McpServer {
         isError: result.isError ?? false,
       }));
     } catch (err) {
+      clearTimeout(timer);
       const msg = err instanceof Error ? err.message : String(err);
+      const isTimeout = msg.includes('timed out');
       send(this.result(id ?? null, {
         content: [{ type: 'text', text: `Error: ${msg}` }],
         isError: true,
       }));
+      // On timeout or unrecoverable network error, exit the process so the
+      // MCP gateway spawns a fresh one. This prevents a broken process from
+      // accumulating failures and being blacklisted by the gateway.
+      if (isTimeout) {
+        setImmediate(() => process.exit(1));
+      }
     }
   }
 
