@@ -30,7 +30,7 @@
     ],
     "overrides": {
       "vitest": ">=3.2.6",
-      "shell-quote": ">=1.8.3",
+      "shell-quote": ">=1.9.0",
       "cookie": ">=0.7.0",
       "undici": ">=7.8.0",
       "nodemailer": ">=7.0.0"
