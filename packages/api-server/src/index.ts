@@ -62,7 +62,6 @@ import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
 import { billingPlansHandler, billingOrderHandler, billingVerifyHandler } from './routes/billing.js';
-import { listKeysHandler as apiKeysListHandler, createKeyHandler as apiKeysCreateHandler, revokeKeyHandler as apiKeysRevokeHandler } from './routes/api-keys.js';
 import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
   deleteAnnotationHandler, exportAnnotationsHandler,
@@ -139,9 +138,7 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
 
   // API Key Management
-  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: withRouteCache(apiKeysListHandler, 60) },
-  { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: apiKeysCreateHandler },
-  { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: apiKeysRevokeHandler },
+  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
 
   // Journalism — Annotations
   { pattern: /^\/v1\/annotations\/?$/, method: 'GET', params: [], handler: withRouteCache(listAnnotationsHandler, 60) },
@@ -164,7 +161,6 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/astral\/fido2\/register\/verify\/?$/, method: 'POST', params: [], handler: astralFido2RegisterVerifyHandler },
   { pattern: /^\/v1\/astral\/fido2\/authenticate\/options\/?$/, method: 'POST', params: [], handler: astralFido2AuthOptionsHandler },
   { pattern: /^\/v1\/astral\/fido2\/authenticate\/verify\/?$/, method: 'POST', params: [], handler: astralFido2AuthVerifyHandler },
-  { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },
