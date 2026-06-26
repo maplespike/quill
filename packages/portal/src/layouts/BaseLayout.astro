@@ -11,8 +11,9 @@ export interface Props {
 
 const {
   title,
-  description = "MapleSpike \u2014 Canada\u2019s Government Data Intelligence Layer",
-  ogImage = "/assets/maplespike_logo.svg",
+  description = "MapleSpike — Canada's Government Data Intelligence Layer",
+  // Default social card image
+  ogImage = '/og-image.svg',
   lang = "en",
 } = Astro.props;
 const langPrefix = lang === "fr" ? "/fr" : "";
