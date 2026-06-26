@@ -61,7 +61,7 @@ import { openApiHandler } from './routes/openapi.js';
 import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
-import { billingPlansHandler, billingOrderHandler, billingVerifyHandler } from './routes/billing.js';
+import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingVerifyHandler } from './routes/billing.js';
 import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
   deleteAnnotationHandler, exportAnnotationsHandler,
@@ -135,6 +135,7 @@ const ROUTES: Route[] = [
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: withRouteCache(billingPlansHandler, 3600) },
   { pattern: /^\/v1\/billing\/order\/?$/, method: 'POST', params: [], handler: billingOrderHandler },
+  { pattern: /^\/v1\/billing\/order\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: billingOrderStatusHandler },
   { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
 
   // API Key Management
