@@ -1,10 +1,17 @@
 # MapleSpike Data Coverage Gap Analysis
 # Top 50 missing modules — prioritized by data value + effort
+# Last updated: 2026-06-26
+
+## ✅ Provincial Gaps — RESOLVED (2026-06-26)
+All 9 previously-missing provinces/territories now have dedicated modules.
+See CHANGELOG.md [Unreleased] for the full list of 33 new modules covering
+SK, MB, NS, NB, NL, PE, YT, NT, NU. All Tier 2 Provincial Gaps below are
+now implemented.
 
 ## Tier 1: Zero-Effort, High Impact (Already in pipeline via CKAN/Socrata)
 # These just need registry entries — the fetchers already exist
-- provincial-ckan: add missing territories (NU, NT, YT standalones)
-- add 15 missing municipal CKAN portals as curated sources
+- provincial-ckan: add missing territories (NU, NT, YT standalones) ✅ DONE
+- add 15 missing municipal CKAN portals as curated sources ✅ DONE
 
 ## Tier 2: High Value, Medium Effort (New modules, known API patterns)
 
