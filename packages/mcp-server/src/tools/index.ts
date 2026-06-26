@@ -182,8 +182,24 @@ import * as systemHealth from './system-health.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as findConnections from './find-connections.js';
 
-// NOTE: worldbank-wdi.ts and un-comtrade.ts export multiple tools each (6 and 3 respectively).
-// They need adapter files to be registered. See those files for the tool definitions.
+// Multi-tool adapters (worldbank-wdi and un-comtrade export multiple tools)
+import * as wdiAdapter from './worldbank-wdi-modules.js';
+import * as comtradeAdapter from './un-comtrade-modules.js';
+
+const wdiModules = [
+  wdiAdapter.wdiIndicator,
+  wdiAdapter.wdiCompareCountries,
+  wdiAdapter.wdiCountryProfile,
+  wdiAdapter.wdiTrend,
+  wdiAdapter.wdiTopic,
+  wdiAdapter.wdiMetadata,
+];
+
+const comtradeModules = [
+  comtradeAdapter.comtradeByPartner,
+  comtradeAdapter.comtradeByCommodity,
+  comtradeAdapter.comtradeTrends,
+];
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -394,6 +410,11 @@ export function getAllTools(): ToolModule[] {
     searxngHealth,
     smartSearch,
     trackBill,
+
+    // World Bank WDI tools (adapter for multi-export)
+    ...wdiModules,
+    // UN Comtrade tools (adapter for multi-export)
+    ...comtradeModules,
 
     aiAsk,
     aiAnalyze,
