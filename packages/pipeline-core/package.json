@@ -218,6 +218,7 @@
     "build": "tsc -b",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "test": "tsx --test src/**/*.test.ts src/ingestion/__tests__/*.test.ts",
+    "test:integration": "tsx --test src/ingestion/__integration__/*.test.ts",
     "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts",
     "heartbeat": "node scripts/push-heartbeat.mjs"
   },

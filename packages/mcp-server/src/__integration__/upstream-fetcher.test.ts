@@ -96,7 +96,7 @@ describe('upstream-fetcher — CKAN-based functions', () => {
   });
 
   it('fetchCommittees returns results and total', async () => {
-    const { fetchCommittees } = await import('../upstream-fetcher.js');
+    const { fetchCommittees } = await import('../tools/upstream-fetcher.js');
     const result = await fetchCommittees('finance', 5);
     assert.ok(Array.isArray(result.results));
     assert.equal(typeof result.total, 'number');
@@ -111,38 +111,38 @@ describe('upstream-fetcher — CKAN-based functions', () => {
   });
 
   it('fetchCorporate returns results and total', async () => {
-    const { fetchCorporate } = await import('../upstream-fetcher.js');
+    const { fetchCorporate } = await import('../tools/upstream-fetcher.js');
     const result = await fetchCorporate('lobbying', 5);
     assert.equal(result.total, 2);
     assert.equal(result.results.length, 2);
   });
 
   it('fetchElections returns results and total', async () => {
-    const { fetchElections } = await import('../upstream-fetcher.js');
+    const { fetchElections } = await import('../tools/upstream-fetcher.js');
     const result = await fetchElections('voter', 5);
     assert.equal(result.total, 2);
   });
 
   it('fetchLmia returns results and total', async () => {
-    const { fetchLmia } = await import('../upstream-fetcher.js');
+    const { fetchLmia } = await import('../tools/upstream-fetcher.js');
     const result = await fetchLmia('labour', 5);
     assert.equal(result.total, 2);
   });
 
   it('fetchOversight returns results and total', async () => {
-    const { fetchOversight } = await import('../upstream-fetcher.js');
+    const { fetchOversight } = await import('../tools/upstream-fetcher.js');
     const result = await fetchOversight('auditor', 5);
     assert.equal(result.total, 2);
   });
 
   it('searchCkan returns results and total', async () => {
-    const { searchCkan } = await import('../upstream-fetcher.js');
+    const { searchCkan } = await import('../tools/upstream-fetcher.js');
     const result = await searchCkan('canada', 5);
     assert.equal(result.total, 2);
   });
 
   it('fetchCanlii returns CKAN results when available', async () => {
-    const { fetchCanlii } = await import('../upstream-fetcher.js');
+    const { fetchCanlii } = await import('../tools/upstream-fetcher.js');
     const result = await fetchCanlii('court decision', 5);
     assert.equal(result.total, 2);
     assert.equal(result.results.length, 2);
@@ -182,7 +182,7 @@ describe('upstream-fetcher — Gazette RSS parsing', () => {
   });
 
   it('fetchGazette filters results by query', async () => {
-    const { fetchGazette } = await import('../upstream-fetcher.js');
+    const { fetchGazette } = await import('../tools/upstream-fetcher.js');
     const result = await fetchGazette('Regulations', 10);
     assert.ok(Array.isArray(result.results));
     // Should only match items containing "Regulations"
@@ -194,14 +194,14 @@ describe('upstream-fetcher — Gazette RSS parsing', () => {
   });
 
   it('fetchGazette returns empty for no match', async () => {
-    const { fetchGazette } = await import('../upstream-fetcher.js');
+    const { fetchGazette } = await import('../tools/upstream-fetcher.js');
     const result = await fetchGazette('zzzznonexistent', 10);
     assert.equal(result.results.length, 0);
     assert.equal(result.total, 0);
   });
 
   it('fetchGazette includes citation metadata', async () => {
-    const { fetchGazette } = await import('../upstream-fetcher.js');
+    const { fetchGazette } = await import('../tools/upstream-fetcher.js');
     const result = await fetchGazette('Order', 10);
     for (const item of result.results) {
       // cached() attaches source (tool name), retrievedAt, and license to each result item
@@ -228,20 +228,20 @@ describe('upstream-fetcher — Socrata functions', () => {
   });
 
   it('searchSocrata returns results for known domain', async () => {
-    const { searchSocrata } = await import('../upstream-fetcher.js');
+    const { searchSocrata } = await import('../tools/upstream-fetcher.js');
     const result = await searchSocrata('novascotia', 'population', 5);
     assert.equal(result.total, 2);
     assert.equal(result.results.length, 2);
   });
 
   it('searchSocrata uses default socrata.com for unknown domain', async () => {
-    const { searchSocrata } = await import('../upstream-fetcher.js');
+    const { searchSocrata } = await import('../tools/upstream-fetcher.js');
     const result = await searchSocrata('unknown-city', 'data', 5);
     assert.equal(result.total, 2);
   });
 
   it('fetchSocrataDataset appends .json and $limit parameter', async () => {
-    const { fetchSocrataDataset } = await import('../upstream-fetcher.js');
+    const { fetchSocrataDataset } = await import('../tools/upstream-fetcher.js');
     const result = await fetchSocrataDataset('calgary', 'abc-123', 10);
     assert.equal(result.total, 2);
     // Note: fetchSocrataDataset does NOT go through cached()
@@ -261,7 +261,7 @@ describe('upstream-fetcher — CKAN error handling', () => {
   });
 
   it('fetchCommittees handles empty CKAN response', async () => {
-    const { fetchCommittees } = await import('../upstream-fetcher.js');
+    const { fetchCommittees } = await import('../tools/upstream-fetcher.js');
     const result = await fetchCommittees('nothing', 10);
     assert.equal(result.total, 0);
     assert.deepEqual(result.results, []);
@@ -280,7 +280,7 @@ describe('upstream-fetcher — HTTP error handling', () => {
   });
 
   it('fetchCommittees propagates HTTP error', async () => {
-    const { fetchCommittees } = await import('../upstream-fetcher.js');
+    const { fetchCommittees } = await import('../tools/upstream-fetcher.js');
     await assert.rejects(
       () => fetchCommittees('test', 5),
       /HTTP 500/,
@@ -288,7 +288,7 @@ describe('upstream-fetcher — HTTP error handling', () => {
   });
 
   it('fetchGazette silently catches per-feed failures', async () => {
-    const { fetchGazette } = await import('../upstream-fetcher.js');
+    const { fetchGazette } = await import('../tools/upstream-fetcher.js');
     // fetchText throws on non-OK; catch inside loop catches it
     const result = await fetchGazette('test', 10);
     assert.equal(result.total, 0);
@@ -320,7 +320,7 @@ describe('upstream-fetcher — caching behavior', () => {
   });
 
   it('second call with same params uses cache, does not call fetch', async () => {
-    const { fetchCommittees } = await import('../upstream-fetcher.js');
+    const { fetchCommittees } = await import('../tools/upstream-fetcher.js');
     const beforeCount = fetchCount;
     const result1 = await fetchCommittees('cachetest', 5);
     assert.equal(result1.total, 1);
@@ -358,14 +358,14 @@ describe('upstream-fetcher — Provincial CKAN routing', () => {
   });
 
   it('fetchProvincialCkan uses correct endpoint for QC', async () => {
-    const { fetchProvincialCkan } = await import('../upstream-fetcher.js');
+    const { fetchProvincialCkan } = await import('../tools/upstream-fetcher.js');
     const result = await fetchProvincialCkan('qc', 'education', 5);
     assert.equal(result.total, 1);
     assert.equal(result.results[0].name, 'QC Data');
   });
 
   it('fetchProvincialCkan returns empty for unknown province', async () => {
-    const { fetchProvincialCkan } = await import('../upstream-fetcher.js');
+    const { fetchProvincialCkan } = await import('../tools/upstream-fetcher.js');
     const result = await fetchProvincialCkan('xx', 'test', 5);
     assert.equal(result.total, 0);
     assert.deepEqual(result.results, []);
@@ -392,7 +392,7 @@ describe('upstream-fetcher — ArcGIS functions', () => {
   });
 
   it('listArcGISServices returns formatted service list', async () => {
-    const { listArcGISServices } = await import('../upstream-fetcher.js');
+    const { listArcGISServices } = await import('../tools/upstream-fetcher.js');
     const result = await listArcGISServices('mb');
     assert.equal(result.total, 3);
     assert.equal(result.results.length, 3);
@@ -404,14 +404,14 @@ describe('upstream-fetcher — ArcGIS functions', () => {
   });
 
   it('listArcGISServices returns empty for unknown province', async () => {
-    const { listArcGISServices } = await import('../upstream-fetcher.js');
+    const { listArcGISServices } = await import('../tools/upstream-fetcher.js');
     const result = await listArcGISServices('xx');
     assert.equal(result.total, 0);
     assert.deepEqual(result.results, []);
   });
 
   it('listArcGISServices accepts pei as alias for PE', async () => {
-    const { listArcGISServices } = await import('../upstream-fetcher.js');
+    const { listArcGISServices } = await import('../tools/upstream-fetcher.js');
     const result = await listArcGISServices('pei');
     assert.equal(result.total, 3);
   });
@@ -440,13 +440,13 @@ describe('upstream-fetcher — Municipal data routing', () => {
   });
 
   it('searchMunicipalData uses CKAN format for Vancouver', async () => {
-    const { searchMunicipalData } = await import('../upstream-fetcher.js');
+    const { searchMunicipalData } = await import('../tools/upstream-fetcher.js');
     const result = await searchMunicipalData('vancouver', 'parks', 5);
     assert.equal(result.total, 1);
   });
 
   it('searchMunicipalData returns empty for unknown city', async () => {
-    const { searchMunicipalData } = await import('../upstream-fetcher.js');
+    const { searchMunicipalData } = await import('../tools/upstream-fetcher.js');
     const result = await searchMunicipalData('nonexistent', 'test', 5);
     assert.equal(result.total, 0);
     assert.deepEqual(result.results, []);
@@ -470,7 +470,7 @@ describe('upstream-fetcher — Entity cross-reference', () => {
   });
 
   it('fetchEntityCrossReference returns combined data', async () => {
-    const { fetchEntityCrossReference } = await import('../upstream-fetcher.js');
+    const { fetchEntityCrossReference } = await import('../tools/upstream-fetcher.js');
     const result = await fetchEntityCrossReference('John Smith');
     assert.ok(result.mp !== null);
     assert.equal(typeof result.lobbyingRecords, 'number');
@@ -480,7 +480,7 @@ describe('upstream-fetcher — Entity cross-reference', () => {
   });
 
   it('fetchEntityCrossReference includes sources array', async () => {
-    const { fetchEntityCrossReference } = await import('../upstream-fetcher.js');
+    const { fetchEntityCrossReference } = await import('../tools/upstream-fetcher.js');
     const result = await fetchEntityCrossReference('Unknown');
     assert.ok(result.sources.length > 0);
   });
@@ -513,7 +513,7 @@ describe('upstream-fetcher — Open Parliament API functions', () => {
   });
 
   it('fetchParliamentDebates filters results by query', async () => {
-    const { fetchParliamentDebates } = await import('../upstream-fetcher.js');
+    const { fetchParliamentDebates } = await import('../tools/upstream-fetcher.js');
     const result = await fetchParliamentDebates('Climate', 5);
     for (const item of result.results) {
       const json = JSON.stringify(item).toLowerCase();
@@ -522,7 +522,7 @@ describe('upstream-fetcher — Open Parliament API functions', () => {
   });
 
   it('fetchPoliticians returns filtered results', async () => {
-    const { fetchPoliticians } = await import('../upstream-fetcher.js');
+    const { fetchPoliticians } = await import('../tools/upstream-fetcher.js');
     const result = await fetchPoliticians('Budget', 5);
     const filtered = result.results.filter(r =>
       JSON.stringify(r).toLowerCase().includes('budget'),
@@ -531,7 +531,7 @@ describe('upstream-fetcher — Open Parliament API functions', () => {
   });
 
   it('fetchParliamentVotes returns results with object structure', async () => {
-    const { fetchParliamentVotes } = await import('../upstream-fetcher.js');
+    const { fetchParliamentVotes } = await import('../tools/upstream-fetcher.js');
     const result = await fetchParliamentVotes('', 5);
     assert.ok(result.results.length > 0);
   });
