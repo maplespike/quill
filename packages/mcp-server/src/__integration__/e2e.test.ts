@@ -9,12 +9,12 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 // Import tool modules directly — same pattern as smoke.test.ts
-import * as factCheck from './tools/fact-check.js';
-import * as getCitation from './tools/get-citation.js';
-import * as latestReleases from './tools/latest-releases.js';
-import * as queryGovData from './tools/query-gov-data.js';
-import * as searchCommittees from './tools/search-committees.js';
-import * as searchCorporate from './tools/search-corporate.js';
+import * as factCheck from '../tools/fact-check.js';
+import * as getCitation from '../tools/get-citation.js';
+import * as latestReleases from '../tools/latest-releases.js';
+import * as queryGovData from '../tools/query-gov-data.js';
+import * as searchCommittees from '../tools/search-committees.js';
+import * as searchCorporate from '../tools/search-corporate.js';
 
 /* ------------------------------------------------------------------ */
 /*  Helper: assert common response contract                            */
@@ -112,7 +112,7 @@ describe('e2e: get_citation', () => {
 
   it('can retrieve a citation after registering one', async () => {
     // Register a citation via the exported function
-    const { registerCitation } = await import('./tools/get-citation.js');
+    const { registerCitation } = await import('../tools/get-citation.js');
     const hash = registerCitation('test-source', 'This is test content for citation verification');
 
     let result: unknown;

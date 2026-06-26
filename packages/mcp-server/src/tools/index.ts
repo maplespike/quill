@@ -190,8 +190,42 @@ export interface ToolModule {
   handler: ToolHandler;
 }
 
+/**
+ * Wrap a tool handler so unhandled errors become ToolResponse objects
+ * with the tool name and error context, instead of raw exceptions.
+ * This ensures every tool call returns a consistent shape.
+ */
+function wrapHandler(name: string, handler: ToolHandler): ToolHandler {
+  return async (args: Record<string, unknown>) => {
+    try {
+      return await handler(args);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[TOOL] ${name} threw: ${msg}`);
+      return {
+        content: {
+          tool: name,
+          error: msg,
+        },
+        isError: true,
+      };
+    }
+  };
+}
+
+/**
+ * Wrap all tool modules so their handlers never throw.
+ */
+function wrapTools(modules: ToolModule[]): ToolModule[] {
+  return modules.map(m => ({
+    definition: m.definition,
+    handler: wrapHandler(m.definition.name, m.handler),
+  }));
+}
+
 export function getAllTools(): ToolModule[] {
-  return [
+  return wrapTools([
+
     queryGovData,
     factCheck,
     getCitation,
@@ -369,7 +403,7 @@ export function getAllTools(): ToolModule[] {
     systemHealth,
     resolveEntity,
     findConnections,
-  ];
+  ]);
 }
 
 export function getToolNames(): string[] {
