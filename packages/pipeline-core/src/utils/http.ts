@@ -25,14 +25,28 @@
 
 import { request as undiciRequest } from 'undici';
 
+// Capture the original globalThis.fetch at module load for mock detection
+const ORIGINAL_GLOBAL_FETCH = globalThis.fetch;
+
+// Test override flag: set by mock-upstream to route HTTP through globalThis.fetch
+// Don't initialize it here — just check it at runtime
+declare global {
+  // eslint-disable-next-line no-var
+  var __MAPLESPIKE_MOCK_FETCH: boolean | undefined;
+}
+
 
 const DEFAULT_USER_AGENT =
   process.env['DEFAULT_USER_AGENT'] ??
   'MapleSpikePipeline/0.1 (civic-tech; mailto:j_kroeker@reverb256.ca)';
 
-const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_TIMEOUT_MS = process.env['MAPLESPIKE_HTTP_TIMEOUT_MS'] !== undefined
+  ? parseInt(process.env['MAPLESPIKE_HTTP_TIMEOUT_MS'], 10)
+  : 30_000;
 
-const MAX_RETRIES = 3;
+const MAX_RETRIES = process.env['MAPLESPIKE_HTTP_MAX_RETRIES'] !== undefined
+  ? parseInt(process.env['MAPLESPIKE_HTTP_MAX_RETRIES'], 10)
+  : 3;
 
 /** HTTP status codes considered transient (retriable). */
 const TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
@@ -185,10 +199,30 @@ export async function httpGet(
   }
 
   // Per-domain rate limiting — acquire token before request
+  // Skip throttling entirely when mock fetch is active
   const domain = new URL(url).hostname;
   const pathname = url.split('?')[0];
-  const domainThrottleConfig = options.throttle ?? DEFAULT_DOMAIN_THROTTLE;
-  await acquireToken(domain, domainThrottleConfig);
+  if (globalThis.__MAPLESPIKE_MOCK_FETCH !== true) {
+    const domainThrottleConfig = options.throttle ?? DEFAULT_DOMAIN_THROTTLE;
+    await acquireToken(domain, domainThrottleConfig);
+  }
+
+  // Test mode: if mock fetch flag is set, route through globalThis.fetch
+  if (globalThis.__MAPLESPIKE_MOCK_FETCH === true) {
+    const resp = await fetch(url, {
+      method: options.method ?? 'GET',
+      headers: requestHeaders,
+    });
+    const respHeaders: Record<string, string> = {};
+    resp.headers.forEach((v: string, k: string) => { respHeaders[k] = v; });
+    const body = await resp.text();
+    let parsed: unknown;
+    const json = async <T = unknown>(): Promise<T> => {
+      if (parsed === undefined) parsed = JSON.parse(body);
+      return parsed as T;
+    };
+    return { statusCode: resp.status, headers: respHeaders, body, json };
+  }
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {

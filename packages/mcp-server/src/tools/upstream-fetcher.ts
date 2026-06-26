@@ -6,21 +6,52 @@ const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 async function fetchJson<T>(url: string, timeoutMs = 10_000, extraHeaders: Record<string, string> = {}): Promise<T> {
-  const resp = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json', ...extraHeaders },
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
-  return resp.json() as Promise<T>;
+  const start = Date.now();
+  try {
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': USER_AGENT, Accept: 'application/json', ...extraHeaders },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!resp.ok) {
+      const elapsed = Date.now() - start;
+      console.error(`[FETCH] ${new URL(url).host} ${resp.status} ${resp.statusText} — ${elapsed}ms — ${url.split('?')[0]}`);
+      throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+    }
+    return resp.json() as Promise<T>;
+  } catch (err) {
+    const elapsed = Date.now() - start;
+    const host = (() => { try { return new URL(url).host; } catch { return '?'; } })();
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!msg.startsWith('HTTP ')) {
+      // Network error (timeout, DNS, connection refused, TLS) — log with context
+      console.error(`[FETCH] ${host} FAIL — ${elapsed}ms — ${msg} — ${url.split('?')[0]}`);
+    }
+    throw err;
+  }
 }
 
 async function fetchText(url: string, timeoutMs = 10_000): Promise<string> {
-  const resp = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT },
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
-  return resp.text();
+  const start = Date.now();
+  try {
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': USER_AGENT },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!resp.ok) {
+      const elapsed = Date.now() - start;
+      console.error(`[FETCH] ${new URL(url).host} ${resp.status} ${resp.statusText} — ${elapsed}ms — ${url.split('?')[0]}`);
+      throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+    }
+    return resp.text();
+  } catch (err) {
+    const elapsed = Date.now() - start;
+    const host = (() => { try { return new URL(url).host; } catch { return '?'; } })();
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!msg.startsWith('HTTP ')) {
+      console.error(`[FETCH] ${host} FAIL — ${elapsed}ms — ${msg} — ${url.split('?')[0]}`);
+    }
+    throw err;
+  }
 }
 
 function cached<T>(tool: string, params: Record<string, unknown>, fn: () => Promise<T>): Promise<T> {

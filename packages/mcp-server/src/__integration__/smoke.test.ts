@@ -8,20 +8,20 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 // Import tool modules directly
-import * as latestReleases from './tools/latest-releases.js';
-import * as queryGovData from './tools/query-gov-data.js';
-import * as factCheck from './tools/fact-check.js';
-import * as getCitation from './tools/get-citation.js';
-import * as searchCommittees from './tools/search-committees.js';
-import * as searchCorporate from './tools/search-corporate.js';
-import * as searchInfluence from './tools/search-influence.js';
-import * as searchGazette from './tools/search-gazette.js';
-import * as searchGic from './tools/search-gic.js';
-import * as searchElections from './tools/search-elections.js';
-import * as searchProvincialLobbying from './tools/search-provincial-lobbying.js';
-import * as searchOversight from './tools/search-oversight.js';
-import * as searchCanlii from './tools/search-canlii.js';
-import * as searchLmia from './tools/search-lmia.js';
+import * as latestReleases from '../tools/latest-releases.js';
+import * as queryGovData from '../tools/query-gov-data.js';
+import * as factCheck from '../tools/fact-check.js';
+import * as getCitation from '../tools/get-citation.js';
+import * as searchCommittees from '../tools/search-committees.js';
+import * as searchCorporate from '../tools/search-corporate.js';
+import * as searchInfluence from '../tools/search-influence.js';
+import * as searchGazette from '../tools/search-gazette.js';
+import * as searchGic from '../tools/search-gic.js';
+import * as searchElections from '../tools/search-elections.js';
+import * as searchProvincialLobbying from '../tools/search-provincial-lobbying.js';
+import * as searchOversight from '../tools/search-oversight.js';
+import * as searchCanlii from '../tools/search-canlii.js';
+import * as searchLmia from '../tools/search-lmia.js';
 
 describe('MCP Tool Definitions', () => {
   it('latest_releases has correct schema', () => {
@@ -280,7 +280,7 @@ describe('MCP Tool Handler async contract', () => {
 
 describe('MCP Server Unknown Tool Handling', () => {
   it('returns error for unknown tool name', async () => {
-    const { McpServer } = await import('./server.js');
+    const { McpServer } = await import('../server.js');
     const server = new McpServer();
 
     // Register a known tool so the server is set up
@@ -312,7 +312,7 @@ describe('MCP Server Unknown Tool Handling', () => {
 
 describe('system_health Tool', () => {
   it('has correct definition schema', async () => {
-    const systemHealth = await import('./tools/system-health.js');
+    const systemHealth = await import('../tools/system-health.js');
     assert.equal(systemHealth.definition.name, 'system_health');
     assert.equal(systemHealth.definition.inputSchema.type, 'object');
     assert.ok(systemHealth.definition.description);
@@ -323,7 +323,7 @@ describe('system_health Tool', () => {
   });
 
   it('returns correct result shape (content has tool, status, service fields)', async () => {
-    const systemHealth = await import('./tools/system-health.js');
+    const systemHealth = await import('../tools/system-health.js');
     const result = await systemHealth.handler({});
     assert.ok(result !== null && typeof result === 'object');
     assert.ok('content' in result);

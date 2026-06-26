@@ -1013,7 +1013,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     description: 'Additional municipal CKAN portals — CKAN portal',
     category: 'government',
     modulePath: './municipal-portals/index.js',
-    ingestFunctions: ['ingestMunicipalportals'],
+    ingestFunctions: ['ingestMunicipalPortals'],
     sources: [{ name: 'CKAN portal', format: 'CKAN' }],
     updateFrequency: 'weekly',
   },

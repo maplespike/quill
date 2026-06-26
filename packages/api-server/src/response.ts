@@ -278,10 +278,17 @@ const ALLOWED_ORIGINS = [
   'https://api.maplespike.lan',
   'https://portal.maplespike.lan',
   'https://mcp.maplespike.lan',
+  // Dev subdomains
+  'https://dev.maplespike.lan',
+  'https://dev-api.maplespike.lan',
+  'https://dev-mcp.maplespike.lan',
+  // LAN aliases
+  'https://maplespike-api.lan',
+  'https://maplespike-portal.lan',
   // Auto-derived from MAPLESPIKE_DOMAIN env var
   ...(() => {
     const d = process.env.MAPLESPIKE_DOMAIN;
-    if (!d) return [];
+    if (!d) return [] as string[];
     return [
       `https://${d}`,
       `https://api.${d}`,
@@ -290,8 +297,6 @@ const ALLOWED_ORIGINS = [
       `https://dev.${d}`,
       `https://dev-api.${d}`,
       `https://dev-mcp.${d}`,
-      `https://maplespike-api.lan`,
-      `https://maplespike-portal.lan`,
     ];
   })(),
 ];
