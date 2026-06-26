@@ -190,6 +190,9 @@ if (PORT > 0) {
 } else {
   // ─── stdio transport ───────────────────────────────────────────────────
   console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
+  const gwTimeout = parseInt(process.env['MAPLESPIKE_HANDLER_TIMEOUT_MS'] ?? '', 10) || 55_000;
+  console.error(`[maplespike-mcp] Handler timeout: ${gwTimeout}ms (MAPLESPIKE_HANDLER_TIMEOUT_MS)`);
+
 // Read JSON-RPC messages from stdin, write responses to stdout
 
 const rl = createInterface({
