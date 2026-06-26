@@ -94,7 +94,6 @@ import * as searchSedi from './search-sedi.js';
 import * as searchUn from './search-un.js';
 import * as searchUnions from './search-unions.js';
 import * as searchUniversities from './search-universities.js';
-import * as searchUtilities from './search-utilities.js';
 
 // ── Underscore-named legacy tools (CKAN-based) ──────────────────
 import * as searchEnergyData from './search_energy_data.js';
@@ -135,6 +134,43 @@ import * as searchNzStats from './search-nz-stats.js';
 import * as searchUkOns from './search-uk-ons.js';
 import * as searchWhoGho from './search-who-gho.js';
 import * as searchEurostat from './search-eurostat.js';
+import * as searchUtilities from './search-utilities.js';
+
+// ── Additional MCP tools (cache, health, voting, etc.) ─────────
+import * as cacheClear from './cache-clear.js';
+import * as cacheStatus from './cache-status.js';
+import * as compareRegions from './compare-regions.js';
+import * as getAnnotations from './get-annotations.js';
+import * as getEntityProfile from './get-entity-profile.js';
+import * as getMemberInfo from './get-member-info.js';
+import * as getModuleHealth from './get-module-health.js';
+import * as getPipelineHealth from './get-pipeline-health.js';
+import * as getPoliticianInfluence from './get-politician-influence.js';
+import * as qaSchema from './qa-schema.js';
+import * as qaValidateModule from './qa-validate-module.js';
+import * as queryBridges from './query-bridges.js';
+import * as queryCpi from './query-cpi.js';
+import * as queryGdp from './query-gdp.js';
+import * as queryLabour from './query-labour.js';
+import * as queryPopulation from './query-population.js';
+import * as queryTrade from './query-trade.js';
+import * as searchVotes from './search-votes.js';
+
+// ── Additional underscore-named legacy tools (CKAN-based) ──────
+import * as searchAgricultureData from './search_agriculture_data.js';
+import * as searchCitizenshipData from './search_citizenship_data.js';
+import * as searchCorporateRegistry from './search_corporate_registry.js';
+import * as searchCultureData from './search_culture_data.js';
+import * as searchEducationStats from './search_education_stats.js';
+import * as searchGazettePart1 from './search_gazette_part1.js';
+import * as searchGazettePart2 from './search_gazette_part2.js';
+import * as searchGazettePart3 from './search_gazette_part3.js';
+import * as searchImmigrationRefugees from './search_immigration_refugees.js';
+import * as searchIndigenousStats from './search_indigenous_stats.js';
+import * as searchTransportationData from './search_transportation_data.js';
+import * as searxngHealth from './searxng-health.js';
+import * as smartSearch from './smart-search.js';
+import * as trackBill from './track-bill.js';
 
 // ── AI & entity resolution ───────────────────────────────────────
 import * as aiAsk from './ai-ask.js';
@@ -145,6 +181,9 @@ import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as findConnections from './find-connections.js';
+
+// NOTE: worldbank-wdi.ts and un-comtrade.ts export multiple tools each (6 and 3 respectively).
+// They need adapter files to be registered. See those files for the tool definitions.
 
 export interface ToolModule {
   definition: ToolDefinition;
@@ -244,7 +283,6 @@ export function getAllTools(): ToolModule[] {
     searchUn,
     searchUnions,
     searchUniversities,
-    searchUtilities,
 
     // Legacy underscore-named tools (CKAN-based)
     searchEnergyData,
@@ -285,6 +323,43 @@ export function getAllTools(): ToolModule[] {
     searchUkOns,
     searchWhoGho,
     searchEurostat,
+    searchUtilities,
+
+    // Additional MCP tools (cache, health, voting, etc.)
+    cacheClear,
+    cacheStatus,
+    compareRegions,
+    getAnnotations,
+    getEntityProfile,
+    getMemberInfo,
+    getModuleHealth,
+    getPipelineHealth,
+    getPoliticianInfluence,
+    qaSchema,
+    qaValidateModule,
+    queryBridges,
+    queryCpi,
+    queryGdp,
+    queryLabour,
+    queryPopulation,
+    queryTrade,
+    searchVotes,
+
+    // Additional underscore-named legacy tools
+    searchAgricultureData,
+    searchCitizenshipData,
+    searchCorporateRegistry,
+    searchCultureData,
+    searchEducationStats,
+    searchGazettePart1,
+    searchGazettePart2,
+    searchGazettePart3,
+    searchImmigrationRefugees,
+    searchIndigenousStats,
+    searchTransportationData,
+    searxngHealth,
+    smartSearch,
+    trackBill,
 
     aiAsk,
     aiAnalyze,
