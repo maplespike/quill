@@ -670,17 +670,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'skip',
   },
   {
-    name: 'corporate-filings',
-    status: 'placeholder',
-    description: 'Corporate filings — Federal Corporations Registry (CBCA) — 400K+ active and inactive corporations from open.canada.ca',
-    category: 'corporate',
-    modulePath: './corporate-filings/index.js',
-    ingestFunctions: ['ingestAllFilings', 'fetchAllFilings'],
-    sources: [{ name: 'Federal Corporations Registry CKAN', format: 'CSV' }],
-    updateFrequency: 'daily',
-    testCallPattern: 'runModule',
-  },
-  {
     name: 'sedi',
     description: 'SEDI insider trading — TSX-listed executive/director stock transactions',
     category: 'corporate',
@@ -804,17 +793,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.cra-arc.gc.ca',
   },
 
-  {
-    name: 'ngo-influence-rss',
-    status: 'placeholder',
-    description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
-    category: 'influence',
-    modulePath: './ngo-influence-rss/index.js',
-    ingestFunctions: ['ingestAllNgoRss', 'ingestNgoSource', 'searchNgoRss', 'classifyNarrative'],
-    sources: [{ name: 'Advocacy org RSS feeds', format: 'RSS' }],
-    updateFrequency: 'daily',
-    testCallPattern: 'fetchFeed',
-  },
 
   // ── Municipal / Transit ──────────────────────────────
   {
@@ -1034,17 +1012,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://crtc.gc.ca',
   },
 
-  {
-    name: 'media-broadcasting',
-    status: 'placeholder',
-    description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
-    category: 'media',
-    modulePath: './media-broadcasting/index.js',
-    ingestFunctions: ['ingestAllMedia'],
-    sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
-    updateFrequency: 'monthly',
-    testCallPattern: 'runModule',
-  },
 
   // ── Geospatial ────────────────────────────────────────────
   {
