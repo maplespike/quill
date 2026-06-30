@@ -8,7 +8,7 @@ status: active
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal)
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 198 modules, 164 MCP tools, ~191K lines TS, 13 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 198 modules, 164 MCP tools, ~191K lines TS, 14 packages.
 
 ---
 
@@ -223,22 +223,13 @@ Stop the entire stack with `./scripts/dev-up.sh --down`.
 
 ## Deployment
 
-> **Current Deployment:** Docker Compose for local development (API: :8082, MCP: :3001, Portal: :3000)
+> **Current Deployment:** Docker Compose for local development via `./scripts/dev-up.sh` (API: :8082, MCP: :3001, Portal: :8080)
 >
 > **Planned:** K8s deployment in ROADMAP.md Phase 3
 
-**Quick Start:**
-```bash
-# Start all services
-docker-compose up -d
+The authoritative contributor recipe is **[Running the local development stack & smoke test](#running-the-local-development-stack--smoke-test)** above — use `scripts/dev-up.sh` and `scripts/e2e-smoke.sh` instead of raw `docker-compose up -d` (the v1 binary is not installed on hosts that ship only the `docker compose` plugin).
 
-# Check health
-curl http://localhost:8082/v1/health
-curl http://localhost:3000
-curl http://localhost:3001/sse
-```
-
-**For complete deployment guide, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
+For production-grade deployment notes, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
 **Infrastructure Status:**
 - ✅ Docker Compose — Working (local development)

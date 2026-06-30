@@ -19,7 +19,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | Type | pnpm monorepo (pnpm@10.32.1) |
 | Orchestrator | Turbo (workspace config in `turbo.json`) |
 | Node | ≥18 (CI uses 22) |
-| Packages | 12 in `packages/*` (dashboard excluded — integrated into portal) |
+| Packages | 13 in pnpm workspace (incl. `sdk-python` with `python -m build`) + dashboard (workspace-excluded, OWASP integrated into portal) = 14 directories in `packages/`. See [docs/metrics.json](./docs/metrics.json) `packages.names` for the authoritative list. |
 | TS | strict mode, ES2022 target, ESNext modules (bundler resolution) |
 | No ESLint/Prettier | Match existing code style |
 | npm scope | `@maplespike/` |
@@ -42,8 +42,10 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | `legislation` | `dist/index.js` (tsup) | `tsup` | — | Yes (npm) |
 | `sdk-python` | `maplespike/__init__.py` | `python -m build` | — | Yes (PyPI) |
 | `portal` | `.` (Astro static + `server.py` runtime) | `astro build` | — | No |
+| `database` | `dist/index.js` | `tsc -b` (better-sqlite3 via `node:sqlite` BUILTIN at runtime) | `node --test` (tsx) | No |
+| `notification-service` | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
+| `create-module` | `dist/cli.js` (bin) | `tsc -b` | — | No |
 | `docs` | `src/index.md` | VitePress | — | No |
-| `pretext-civic` | — | Orphaned (no package.json) | — | No |
 | `dashboard` | — | Excluded from workspace (OWASP integrated into portal) | — | No |
 
 ---
@@ -152,7 +154,7 @@ the navbar on every page. Components read from `window.MapleSpikeAuth`.
 | `k8s/base/` | Kustomize base manifests |
 | `k8s/overlays/dev/` | Homelab overlay |
 | `k8s/overlays/prod/` | Production overlay |
-| `Dockerfile` | Multi-stage build (trixie base for node:sqlite) |
+| `Dockerfile` | Multi-stage build (bookworm-slim base for `node:sqlite` ABI compat via Python 3 stdlib) |
 
 ---
 
@@ -179,7 +181,7 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 ## Known Issues
 
 - `packages/dashboard` build fails (excluded from workspace — OWASP dashboard is in portal)
-- `packages/pretext-civic` is orphaned (no package.json)
+- `packages/pretext-civic` directory has been removed (was orphaned React component library after the Next.js → Astro portal migration)
 - Sentry node occasionally goes NotReady (k3s etcd flapping)
 - Forge node status Unknown (mining workload — non-critical for MapleSpike)
 - Nix builder `/etc/nix/machines` needs `nixos-rebuild switch` (source fixed, pending deploy)

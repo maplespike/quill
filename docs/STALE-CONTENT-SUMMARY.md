@@ -1,7 +1,21 @@
+---
+status: archival-snapshot
+last-reviewed: 2026-06-12
+classification: historical-snapshot
+---
+
 # Stale Content & Outstanding Issues Summary
 
 **Date**: 2026-06-12
 **Follow-up to**: Documentation harsh reality audit
+
+> **Snapshot notice:** This document captures the audit findings as of
+> 2026-06-12. Items listed below may have been resolved by subsequent
+> commits — see `docs/HARSH-REALITY-AUDIT-COMPLETE.md` for the items
+> addressed in the three follow-up fix commits, and `docs/CRITICAL-ISSUES-FOUND.md`
+> for the broader issue list that drove the sweep. Do not treat the
+> "NEEDS ATTENTION" sections as a live todo; treat them as a record of
+> what was true on 2026-06-12.
 
 ---
 

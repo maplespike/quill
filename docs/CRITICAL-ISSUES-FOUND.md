@@ -1,4 +1,17 @@
+---
+status: archival-snapshot
+last-reviewed: 2026-06-12
+classification: historical-snapshot
+---
+
 # Additional Issues Found — Priority Fixes Needed
+
+> **Snapshot notice:** This document is a historical record of issues
+> found during the 2026-06-12 audit cycle. Every issue in the
+> "IMMEDIATE ACTION PLAN" section was addressed in the three follow-up
+> commits documented in `docs/HARSH-REALITY-AUDIT-COMPLETE.md`. Do not
+> re-execute the action plan; it is preserved here for traceability of
+> the audit trail, not as a live todo.
 
 **Date**: 2026-06-12
 **Follow-up to**: Harsh reality audit + stale content cleanup
