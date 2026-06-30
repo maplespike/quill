@@ -13,3 +13,8 @@ overrides:
   esbuild: ">=0.28.1"
   vite: ">=7.3.5"
   "@babel/core": ">=7.29.6"
+  # CVE-2025-3194: bigint-buffer <=1.1.5 has a buffer overflow in toBigIntLE().
+  # The original package is unmaintained; use the community fork that patches it.
+  bigint-buffer: "npm:bigint-buffer-fixed@1.1.6"
+  # tar: multiple path traversal / arbitrary file write CVEs
+  tar: ">=7.5.16"
