@@ -80,18 +80,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'skip',
   },
   {
-    name: 'templates',
-    status: 'placeholder',
-    description: 'Scaffolding for module creation',
-    category: 'government',
-    modulePath: './templates/index.js',
-    ingestFunctions: ['placeholderFunction'],
-    sources: [],
-    updateFrequency: 'on-ingest',
-    testCallPattern: 'skip',
-  },
-
-  {
     name: 'provincial-ckan',
     description: 'Provincial CKAN portal fetchers for all 13 Canadian provinces and territories',
     category: 'provincial',
@@ -673,7 +661,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'corporate-filings',
-    status: 'placeholder',
+    status: 'active',
     description: 'Corporate filings — Federal Corporations Registry (CBCA) — 400K+ active and inactive corporations from open.canada.ca',
     category: 'corporate',
     modulePath: './corporate-filings/index.js',
@@ -808,7 +796,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'ngo-influence-rss',
-    status: 'placeholder',
+    status: 'active',
     description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
     category: 'influence',
     modulePath: './ngo-influence-rss/index.js',
@@ -836,7 +824,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
 
   {
     name: 'media-broadcasting',
-    status: 'placeholder',
+    status: 'active',
     description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
     category: 'media',
     modulePath: './media-broadcasting/index.js',
@@ -1521,7 +1509,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'un-comtrade',
-    status: 'placeholder',
+    status: 'active',
     description: 'UN Comtrade — international trade statistics by commodity and partner country',
     category: 'international',
     modulePath: './un-comtrade/index.js',
@@ -1533,7 +1521,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'ontario-provincial',
-    status: 'placeholder',
+    status: 'active',
     description: 'Ontario Provincial Data — Ontario Open Data Catalog across health, education, environment, economy domains',
     category: 'provincial',
     modulePath: './ontario-provincial/index.js',
@@ -1545,7 +1533,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'gtfs-transit',
-    status: 'placeholder',
+    status: 'active',
     description: 'GTFS transit data — routes, stops, schedules for 30+ Canadian transit agencies across all provinces',
     category: 'infrastructure',
     modulePath: './gtfs-transit/index.js',
@@ -1600,7 +1588,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'police-data',
-    status: 'placeholder',
+    status: 'active',
     description: 'Police Data — crime statistics, police service data, and public safety metrics from Canadian municipal police services',
     category: 'government',
     modulePath: './police-data/index.js',
@@ -1620,7 +1608,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'political-donations',
-    status: 'placeholder',
+    status: 'active',
     description: 'Political Donations — political financing and donation data from Canadian provincial elections authorities',
     category: 'government',
     modulePath: './political-donations/index.js',
@@ -1637,7 +1625,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'parliamentary-voting',
-    status: 'placeholder',
+    status: 'active',
     description: 'Parliamentary voting records — division votes, MP voting patterns from ourcommons.ca',
     category: 'government',
     modulePath: './parliamentary-voting/index.js',
@@ -1654,7 +1642,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'public-accounts',
-    status: 'placeholder',
+    status: 'active',
     description: 'Public Accounts of Canada — departmental financial statements, program spending, revenue, debt',
     category: 'financial',
     modulePath: './public-accounts/index.js',
@@ -1673,7 +1661,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'oecd-stat',
-    status: 'placeholder',
+    status: 'active',
     description: 'OECD Statistics — economic, social, and environmental indicators from OECD.Stat API',
     category: 'international',
     modulePath: './oecd-stat/index.js',
@@ -1691,7 +1679,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'undp-hdi',
-    status: 'placeholder',
+    status: 'active',
     description: 'UNDP Human Development Index — HDI rankings and component indicators from UNDP Human Development Reports',
     category: 'international',
     modulePath: './undp-hdi/index.js',
@@ -1703,7 +1691,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'unhcr-refugees',
-    status: 'placeholder',
+    status: 'active',
     description: 'UNHCR Refugee Statistics — refugee, asylum-seeker, and forcibly displaced data from UNHCR',
     category: 'international',
     modulePath: './unhcr-refugees/index.js',
@@ -1715,7 +1703,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'fire-emergency',
-    status: 'placeholder',
+    status: 'active',
     description: 'Fire department data — incidents, response times, station locations from 4 Canadian cities',
     category: 'oversight',
     modulePath: './fire-emergency/index.js',
@@ -1749,7 +1737,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   },
   {
     name: 'worldbank-wdi',
-    status: 'placeholder',
+    status: 'active',
     description: 'World Bank WDI — development indicators (GDP, population, health, education, etc.)',
     category: 'international',
     modulePath: './worldbank-wdi/index.js',
