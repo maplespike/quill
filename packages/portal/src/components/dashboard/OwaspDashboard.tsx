@@ -42,11 +42,18 @@ interface AuditAdvisory {
   url?: string;
 }
 
+interface AuditMeta {
+  source: "live" | "static";
+  generatedAgeSeconds: number;
+  fallbackReason?: string;
+}
+
 interface AuditPayload {
   generatedAt: string;
   summary: AuditSummary;
   top: AuditAdvisory[];
   note?: string;
+  _meta?: AuditMeta;
 }
 
 const statusMeta = {
@@ -196,37 +203,95 @@ const EMPTY_AUDIT: AuditPayload = {
   top: [],
 };
 
+function formatAge(seconds: number): string {
+  if (seconds < 0) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const m = Math.floor(seconds / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
 /**
- * Fetches `/data/security/audit.json` at runtime. Falls back to a stub
- * summary if the file is missing or malformed so the dashboard never
- * crashes in environments where the build-time audit generator hasn't
- * been run yet.
+ * Resolve the API URL for live audit calls. Mirrors the pattern in
+ * `public/config.js` which sets `window.MAPLESPIKE.apiBase`. Falls
+ * back to a same-origin path for setups where the portal proxies
+ * /v1/* to the api-server (e.g., production via Caddy).
+ */
+function resolveAuditEndpoint(): string {
+  if (typeof window === "undefined") return "/v1/security/audit-summary";
+  const w = window as unknown as {
+    MAPLESPIKE?: { apiBase?: string };
+    location: Location;
+  };
+  const injected = typeof w.MAPLESPIKE?.apiBase === "string" ? w.MAPLESPIKE.apiBase.trim() : "";
+  if (injected) return injected.replace(/\/$/, "") + "/v1/security/audit-summary";
+  return `${w.location.protocol}//${w.location.hostname}:8082/v1/security/audit-summary`;
+}
+
+/**
+ * Fetches `/v1/security/audit-summary` (re-runs pnpm audit server-side)
+ * with a graceful fallback to the build-time `/data/security/audit.json` if
+ * the API is unreachable. Staleness is explicitly surfaced in the UI so
+ * a build-time snapshot is never confused for live data.
  */
 function DependencySecurityPanel() {
   const [audit, setAudit] = React.useState<AuditPayload>(EMPTY_AUDIT);
   const [loadState, setLoadState] = React.useState<"loading" | "ok" | "missing" | "error">(
     "loading"
   );
+  const [fetchSource, setFetchSource] = React.useState<"live" | "static" | "stub" | null>(
+    null
+  );
 
   React.useEffect(() => {
     let cancelled = false;
 
-    async function load() {
+    async function loadLive(): Promise<AuditPayload | null> {
+      try {
+        const res = await fetch(resolveAuditEndpoint(), { cache: "no-store" });
+        if (!res.ok) return null;
+        return (await res.json())?.data as AuditPayload | null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function loadStatic(): Promise<AuditPayload | null> {
       try {
         const res = await fetch("/data/security/audit.json", { cache: "no-store" });
-        if (cancelled) return;
-        if (!res.ok) {
-          // 404 — generated audit hasn't been produced yet
-          setLoadState(res.status === 404 ? "missing" : "error");
-          return;
-        }
-        const data = (await res.json()) as AuditPayload;
-        if (cancelled) return;
-        setAudit(data);
-        setLoadState("ok");
+        if (!res.ok) return null;
+        return (await res.json()) as AuditPayload;
       } catch {
-        if (!cancelled) setLoadState("error");
+        return null;
       }
+    }
+
+    async function load() {
+      // Try the live endpoint first.
+      const live = await loadLive();
+      if (cancelled) return;
+      if (live) {
+        setAudit(live);
+        setFetchSource(live._meta?.source ?? "static");
+        setLoadState("ok");
+        return;
+      }
+
+      // Fall back to the build-time static snapshot.
+      const staticData = await loadStatic();
+      if (cancelled) return;
+      if (staticData) {
+        setAudit({ ...staticData, _meta: { ...staticData._meta, source: "static" } });
+        setFetchSource("static");
+        setLoadState("ok");
+        return;
+      }
+
+      setFetchSource("stub");
+      setLoadState("missing");
     }
     void load();
 
@@ -254,19 +319,42 @@ function DependencySecurityPanel() {
         : "border-red-500/30 bg-red-500/10 text-red-300"
       : "border-border bg-card text-muted-foreground";
 
+  const ageSeconds =
+    audit._meta?.generatedAgeSeconds ??
+    Math.floor((Date.now() - new Date(audit.generatedAt).getTime()) / 1000);
+
+  const sourceBadge =
+    fetchSource === "live"
+      ? { label: `LIVE · ${formatAge(ageSeconds)}`, class: "border-emerald-500/40 bg-emerald-500/15 text-emerald-300" }
+      : fetchSource === "static"
+        ? { label: `BUILD-TIME SNAPSHOT · ${formatAge(ageSeconds)}`, class: "border-amber-500/40 bg-amber-500/15 text-amber-300" }
+        : { label: "STUB", class: "border-border bg-muted text-muted-foreground" };
+
   return (
     <section className="mb-10 rounded-xl border bg-card/40 p-6">
       {/* Header */}
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">
-            Live Dependency <span className="text-gradient">Security</span>
-          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl font-bold tracking-tight">
+              Live Dependency <span className="text-gradient">Security</span>
+            </h2>
+            <span
+              className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${sourceBadge.class}`}
+              title={
+                audit._meta?.fallbackReason ??
+                audit.note ??
+                "Live data from /v1/security/audit-summary"
+              }
+            >
+              {sourceBadge.label}
+            </span>
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Source: <code className="font-mono text-xs">pnpm audit --json</code>{" "}
             <span className="opacity-70">
-              (generated at portal build time by{" "}
-              <code className="font-mono text-xs">scripts/gen-security-audit.mjs</code>)
+              (re-run server-side by{" "}
+              <code className="font-mono text-xs">/v1/security/audit-summary</code>)
             </span>
           </p>
         </div>
@@ -283,8 +371,10 @@ function DependencySecurityPanel() {
       {/* Headline banner */}
       <div className={`mb-5 rounded-lg border p-3 text-sm ${headlineClass}`}>
         {headline}
-        {audit.note && (
-          <p className="mt-1 text-xs opacity-80">note: {audit.note}</p>
+        {(audit.note || audit._meta?.fallbackReason) && (
+          <p className="mt-1 text-xs opacity-80">
+            {audit._meta?.fallbackReason ? `note: ${audit._meta.fallbackReason}` : `note: ${audit.note}`}
+          </p>
         )}
       </div>
 
