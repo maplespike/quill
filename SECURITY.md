@@ -39,6 +39,32 @@ The pipeline ingests data from external government APIs and publishes it verbati
 | Unpinned GitHub Actions | Dependabot monitors github-actions ecosystem weekly | Active |
 | Legacy Docker image supply chain | CI forbids Dockerfiles — all images built via Nix | Active |
 
+#### Dependency Vulnerability Patching Strategy
+
+When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the following priority order:
+
+1. **Direct dependency bump** — update the package in the relevant `package.json`.
+2. **Workspace override** — add a semver range to `pnpm-workspace.yaml` (`overrides`) to force a patched version for all consumers.
+3. **Npm alias override** — for unmaintained packages with no upstream patch, redirect the package name to a community fork via `npm:<fork>@<version>`.
+4. **Document and accept** — if none of the above are feasible and the vulnerable code path is unreachable in production, document the risk here with a justification.
+
+**Current patched aliases & overrides:**
+
+| Package | Original Vuln | Mitigation | Justification |
+|---------|--------------|------------|---------------|
+| `bigint-buffer` | CVE-2025-3194 (HIGH) — buffer overflow in `toBigIntLE()` | Overridden to `bigint-buffer-fixed@1.1.6` via npm alias in `pnpm-workspace.yaml` | Original package is unmaintained; community fork patches the native C++ overflow. |
+| `tar` | Multiple path traversal / arbitrary file write CVEs | Overridden to `>=7.5.16` in `pnpm-workspace.yaml` | Transitive via `node-gyp`; latest 7.x resolves all known tar CVEs. |
+| `astro` | SSRF, XSS, replay (HIGH/MOD/LOW) | Bumped to `^6.4.8` + `@astrojs/react` to `^6.0.0` | Major version bump required for security patches; breaking changes resolved (e.g. `ViewTransitions` → `ClientRouter`). |
+| `undici` | TLS bypass, WS DoS (HIGH) | Overridden to `>=8.5.0` | api-server direct dev dependency. |
+| `nodemailer` | Raw option bypass, CRLF/JSON/TLS injection (HIGH/MOD/LOW) | Overridden to `>=9.0.1` | notification-service direct dependency. |
+| `vite` | fs.deny bypass, NTLM disclosure (HIGH/MOD) | Overridden to `>=7.3.5` | Transitive via `@astrojs/react` and `vitest`. |
+| `ws` | Memory DoS, uninitialized memory (HIGH/MOD) | Overridden to `>=8.21.0` | Transitive via `@solana/web3.js`. |
+| `uuid` | Buffer bounds check (MOD) | Overridden to `>=11.1.1` | Transitive via `jayson`. |
+| `esbuild` | Dev-server CORS, arbitrary file read (MOD/LOW) | Overridden to `>=0.28.1` | Transitive via `tsx` and `drizzle-kit`. |
+| `@babel/core` | Arbitrary file read (LOW) | Overridden to `>=7.29.6` | Transitive via `@vitejs/plugin-react`. |
+
+> **Note:** `js-yaml` was removed from overrides because forcing `>=4.2.0` broke Astro 6 CJS interop (`@astrojs/internal-helpers`). The vulnerability is moderate severity and only affects the `@changesets/cli` dev tool, not production code.
+
 ### 3. Cluster Infrastructure
 
 | Threat | Mitigation | Status |
