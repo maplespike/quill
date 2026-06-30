@@ -57,6 +57,7 @@ import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
 import { getCitationHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
 import { auditGetHandler } from './routes/audit-get.js';
+import { securityAuditSummaryHandler } from './routes/security-audit.js';
 import { usageHandler } from './routes/usage.js';
 import { openApiHandler } from './routes/openapi.js';
 import { listModulesHandler, exportModuleHandler } from './routes/export.js';
@@ -132,6 +133,8 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: withRouteCache(getCitationHandler, 3600) },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: withRouteCache(auditGetHandler, 60) },
+  // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
+  { pattern: /^\/v1\/security\/audit-summary\/?$/, method: 'GET', params: [], handler: withRouteCache(securityAuditSummaryHandler, 60) },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: withRouteCache(usageHandler, 60) },
   // Billing
   { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: withRouteCache(billingPlansHandler, 3600) },
@@ -455,6 +458,7 @@ export async function handleRequest(
     || path.startsWith('/v1/contact')
     || path.startsWith('/v1/engine/status')
     || path.startsWith('/v1/data/quality')
+    || path.startsWith('/v1/security/') // currently only /v1/security/audit-summary (public observability); tighten if more routes added under /v1/security/ need auth
     || path.startsWith('/v1/ai/ask')
     || path.startsWith('/v1/ai_ask')
     || path.startsWith('/v1/astral/');
