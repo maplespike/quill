@@ -1,3 +1,15 @@
 packages:
   - "packages/*"
   - "!packages/dashboard"
+
+# Workspace-wide dependency overrides for security patching
+# (pnpm 10+ reads these from pnpm-workspace.yaml, not package.json)
+overrides:
+  undici: ">=8.5.0"
+  nodemailer: ">=9.0.1"
+  ws: ">=8.21.0"
+  uuid: ">=11.1.1"
+  # js-yaml omitted: changesets-cli only (dev-time); forcing >=4.2.0 breaks Astro 6 CJS interop
+  esbuild: ">=0.28.1"
+  vite: ">=7.3.5"
+  "@babel/core": ">=7.29.6"
