@@ -39,7 +39,9 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
       try {
         const r = await fetchProvincialData(p, query, limit);
         if (r.total > 0) { results[PROVINCES[p]] = r; totalAll += r.total; }
-      } catch {}
+      } catch (err) {
+        console.warn(`[search-provincial-data] Fetch failed for ${p}: ${(err as Error).message}`);
+      }
     }
 
     return {

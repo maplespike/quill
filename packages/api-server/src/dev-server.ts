@@ -40,7 +40,7 @@ if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') 
 }
 
 const env = {
-  MAPLESPIKE_API_KEY: process.env.MAPLESPIKE_API_KEY || 'maplespike-dev-key',
+  MAPLESPIKE_API_KEY: process.env.MAPLESPIKE_API_KEY || '',
   MAPLESPIKE_VERSION: process.env.MAPLESPIKE_VERSION || '0.1.0',
   MAPLESPIKE_NAME: process.env.MAPLESPIKE_NAME || 'MapleSpike',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
@@ -82,21 +82,7 @@ if (MAPLESPIKE_STORAGE === 'postgres') {
   const memDb = new MemoryStorage();
   cache = new MemoryCache();
 
-  // Seed a dev tenant with known API key
-  // Usage: curl -H "Authorization: Bearer maples...key" http://localhost:8082/v1/health
-  memDb.registerTenant(
-    {
-      id: 'dev-tenant',
-      name: 'Dev User',
-      tier: 'pro',
-      emailVerified: true,
-      isActive: true,
-      journalismMode: false,
-    },
-    'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799', // SHA-256 of "maplespike-dev-key"
-    'dev-key-1',
-  );
-
+  // No hardcoded dev tenant — use /v1/register or set ALLOW_DEMO_KEYS=true for demo keys
   db = memDb;
 }
 
@@ -164,7 +150,7 @@ if (!verifyStorageHealth()) {
 }
 
 server.listen(PORT, '0.0.0.0', () => {
-  const devKey = process.env.MAPLESPIKE_DEV_API_KEY || 'maplespike-dev-key';
+  const devKey = process.env.MAPLESPIKE_DEV_API_KEY || '<generate with /v1/register>';
   const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
 
   console.log(`\n  MapleSpike API (dev)`);

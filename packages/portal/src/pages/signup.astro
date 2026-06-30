@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 
 const features = [
   {
-    title: "144 Data Modules",
-    description: "Access all 144 Canadian federal, provincial, territorial, and municipal government data sources through a single API.",
+    title: "198 Data Modules",
+    description: "Access all 198 Canadian federal, provincial, territorial, and municipal government data sources through a single API.",
     icon: "database"
   },
   {
@@ -64,8 +64,8 @@ const iconPaths: Record<string, string> = {
           federal, provincial, territorial, and municipal — through a single, unified API.
         </p>
         <div class="flex flex-wrap gap-3 mt-6">
-          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">144 Data Modules</Badge>
-          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">129 MCP Tools</Badge>
+          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">198 Data Modules</Badge>
+          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">173 MCP Tools</Badge>
           <Badge variant="secondary" class="text-xs">SHA-256 Citations</Badge>
           <Badge variant="secondary" class="text-xs">TypeScript & Python SDKs</Badge>
         </div>
@@ -82,7 +82,7 @@ const iconPaths: Record<string, string> = {
           <h2 class="text-2xl font-bold tracking-tight mb-8">Everything you get</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((feature) => (
-              <Card key={feature.title} class="hover:border-primary/50 transition-colors">
+              <Card key={feature.title} class="card-hover border-border/60">
                 <CardHeader class="p-4">
                   <div class="flex items-start gap-3">
                     <div class="shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
@@ -125,7 +125,7 @@ const iconPaths: Record<string, string> = {
     <div class="container mx-auto px-4 max-w-5xl">
       <h2 class="text-2xl font-bold tracking-tight mb-8 text-center">Choose your plan</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
+        <Card class="card-hover border-border/60">
           <CardHeader>
             <CardTitle class="text-lg">Free</CardTitle>
             <CardDescription>For exploration and prototyping</CardDescription>
@@ -150,9 +150,9 @@ const iconPaths: Record<string, string> = {
           </CardContent>
         </Card>
 
-        <Card class="border-primary/50 relative">
+        <Card class="card-hover border-primary/50 ring-1 ring-primary/20 shadow-lg shadow-primary/5 relative">
           <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-            <Badge>BEST VALUE</Badge>
+            <Badge class="btn-sheen">BEST VALUE</Badge>
           </div>
           <CardHeader>
             <CardTitle class="text-lg">Pro</CardTitle>
@@ -182,7 +182,7 @@ const iconPaths: Record<string, string> = {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card class="card-hover border-border/60">
           <CardHeader>
             <CardTitle class="text-lg">Enterprise</CardTitle>
             <CardDescription>For organizations and teams</CardDescription>

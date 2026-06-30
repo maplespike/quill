@@ -34,12 +34,37 @@ export const webhookGetHandler: RouteHandler = async (_request, ctx, params) => 
   return jsonResponse(buildSuccess({ webhook }, bc));
 };
 
+function isValidWebhookUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Allow only http/https; block localhost, loopback, and link-local
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+    const hostname = parsed.hostname.toLowerCase();
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return false;
+    if (hostname.startsWith('169.254.')) return false; // link-local
+    if (hostname.startsWith('0.') || hostname.startsWith('10.') || hostname.startsWith('192.168.')) return false;
+    if (hostname.startsWith('172.')) {
+      const second = parseInt(hostname.split('.')[1], 10);
+      if (second >= 16 && second <= 31) return false;
+    }
+    if (hostname.startsWith('fc00:') || hostname.startsWith('fd00:')) return false; // IPv6 private
+    if (hostname.startsWith('ff00:')) return false; // IPv6 multicast
+    if (hostname.startsWith('fe80:')) return false; // IPv6 link-local
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const webhookCreateHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   try {
     const body = await request.json() as Record<string, unknown>;
     if (typeof body.url !== 'string' || !body.url) {
       return jsonResponse(buildError('VALIDATION_ERROR', 'url is required', bc), 400);
+    }
+    if (!isValidWebhookUrl(body.url)) {
+      return jsonResponse(buildError('VALIDATION_ERROR', 'url must be a public http/https URL (private IPs and localhost are not allowed)', bc), 400);
     }
     const webhook = createWebhook({
       url: body.url as string,

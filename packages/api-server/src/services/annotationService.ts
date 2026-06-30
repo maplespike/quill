@@ -65,7 +65,10 @@ class D1AnnotationStore implements AnnotationStore {
       );
       const rows = stmt.all(entityType, entityId);
       return rows.map(this.rowToAnnotation);
-    } catch { return []; }
+    } catch (err) {
+      console.warn(`[AnnotationService] list failed: ${(err as Error).message}`);
+      return [];
+    }
   }
 
   create(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation {
@@ -101,7 +104,10 @@ class D1AnnotationStore implements AnnotationStore {
       );
       updateStmt.bind(content, annotationType, metadata, now, id).run();
       return this.rowToAnnotation({ ...existing, content, annotation_type: annotationType, metadata, updated_at: now });
-    } catch { return null; }
+    } catch (err) {
+      console.warn(`[AnnotationService] update failed: ${(err as Error).message}`);
+      return null;
+    }
   }
 
   delete(id: string): boolean {
@@ -109,14 +115,19 @@ class D1AnnotationStore implements AnnotationStore {
       const stmt = this.db.prepare('DELETE FROM annotations WHERE id = ?');
       const result = stmt.bind(id).run();
       return result.meta?.changes > 0 || result.changes > 0;
-    } catch { return false; }
+    } catch (err) {
+      console.warn(`[AnnotationService] delete failed: ${(err as Error).message}`);
+      return false;
+    }
   }
 
   clear(): void {
     try {
       const stmt = this.db.prepare('DELETE FROM annotations');
       stmt.bind().run();
-    } catch {}
+    } catch (err) {
+      console.warn(`[AnnotationService] clear failed: ${(err as Error).message}`);
+    }
   }
 
   private rowToAnnotation(row: any): Annotation {
@@ -149,7 +160,10 @@ class SqliteAnnotationStore implements AnnotationStore {
         'SELECT * FROM annotations WHERE entity_type = ? AND entity_id = ? ORDER BY created_at DESC',
       ).all(entityType, entityId);
       return rows.map(this.rowToAnnotation);
-    } catch { return []; }
+    } catch (err) {
+      console.warn(`[AnnotationService] list failed: ${(err as Error).message}`);
+      return [];
+    }
   }
 
   create(annotation: Omit<Annotation, 'id' | 'createdAt' | 'updatedAt'>): Annotation {
@@ -182,18 +196,26 @@ class SqliteAnnotationStore implements AnnotationStore {
         'UPDATE annotations SET content = ?, annotation_type = ?, metadata = ?, updated_at = ? WHERE id = ?',
       ).run(content, annotationType, metadata, now, id);
       return this.rowToAnnotation({ ...existing, content, annotation_type: annotationType, metadata, updated_at: now });
-    } catch { return null; }
+    } catch (err) {
+      console.warn(`[AnnotationService] update failed: ${(err as Error).message}`);
+      return null;
+    }
   }
 
   delete(id: string): boolean {
     try {
       const result = this.db.prepare('DELETE FROM annotations WHERE id = ?').run(id);
       return result.changes > 0;
-    } catch { return false; }
+    } catch (err) {
+      console.warn(`[AnnotationService] delete failed: ${(err as Error).message}`);
+      return false;
+    }
   }
 
   clear(): void {
-    try { this.db.exec('DELETE FROM annotations'); } catch {}
+    try { this.db.exec('DELETE FROM annotations'); } catch (err) {
+      console.warn(`[AnnotationService] clear failed: ${(err as Error).message}`);
+    }
   }
 
   private rowToAnnotation(row: any): Annotation {
@@ -219,7 +241,8 @@ export function initAnnotationStore(db?: any, dbPath?: string): void {
   if (db) {
     try {
       activeStore = new D1AnnotationStore(db);
-    } catch {
+    } catch (err) {
+      console.warn(`[AnnotationService] D1 store init failed: ${(err as Error).message}`);
       activeStore = new InMemoryAnnotationStore();
     }
   } else if (dbPath || process.env.MAPLESPIKE_DB_PATH) {
@@ -244,7 +267,8 @@ export function initAnnotationStore(db?: any, dbPath?: string): void {
         CREATE INDEX IF NOT EXISTS idx_annotations_user ON annotations(user_id);
       `);
       activeStore = new SqliteAnnotationStore(path);
-    } catch {
+    } catch (err) {
+      console.warn(`[AnnotationService] SQLite store init failed: ${(err as Error).message}`);
       activeStore = new InMemoryAnnotationStore();
     }
   } else {

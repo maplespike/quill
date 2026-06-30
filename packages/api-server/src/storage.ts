@@ -184,22 +184,7 @@ export class MemoryStorage implements MapleSpikeStorage {
   private auditLog: AuditEntry[] = [];
 
   constructor() {
-    // Seed: internal tenant for FG
-    const internalTenant: Tenant = {
-      id: 'fg-internal',
-      name: 'Frostbite Gazette',
-      emailVerified: true,
-      tier: 'internal',
-      isActive: true,
-      journalismMode: true,
-    };
-    this.tenants.set('fg-internal', internalTenant);
-  // Dev key: "maplespike-dev-key" -> SHA-256
-  const devKeyHash = 'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799';
-  this.keyToTenant.set(devKeyHash, {
-      tenantId: 'fg-internal',
-      keyId: 'dev-key-1',
-    });
+    // No hardcoded keys — demo keys are opt-in via ALLOW_DEMO_KEYS in auth.ts
   }
 
   /** Register a new tenant + key for testing. */

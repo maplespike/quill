@@ -301,7 +301,7 @@ const ALLOWED_ORIGINS = [
   })(),
 ];
 
-export function getAllowedOrigin(requestOrigin: string | null): string {
+export function getAllowedOrigin(requestOrigin: string | null | undefined): string {
   if (!requestOrigin) return 'null';
   const normalized = requestOrigin.replace(/\/$/, '');
   if (ALLOWED_ORIGINS.includes(normalized)) return normalized;

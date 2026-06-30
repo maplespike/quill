@@ -15,6 +15,7 @@ resources:
   - api.yaml
   - mcp.yaml
   - configmap.yaml
+  - health-check-cronjob.yaml
 
 commonLabels:
   app.kubernetes.io/name: maplespike

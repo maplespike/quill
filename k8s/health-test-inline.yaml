@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: health-check-test-script
+  namespace: maplespike
+data:
+  test.sh: |
+    #!/bin/bash
+    set -x
+    echo "Testing basic connectivity..."
+    curl -sk -o /dev/null -w "%{http_code}" https://maplespike.lan/ && echo " Portal OK"
+    curl -sk -o /dev/null -w "%{http_code}" https://api.maplespike.lan/v1/health && echo " API OK"
+    kubectl get pods -n maplespike | grep -E "(Running|Succeeded)"
+    echo "All tests done"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: health-test-inline
+  namespace: maplespike
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: maplespike-health-check
+      restartPolicy: Never
+      containers:
+      - name: test
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Testing basic connectivity..."
+          curl -sk -o /dev/null -w "%{http_code}" https://maplespike.lan/
+          curl -sk -o /dev/null -w "%{http_code}" https://api.maplespike.lan/v1/health
+          kubectl get pods -n maplespike | head -5
+          echo "All tests done"

@@ -137,13 +137,11 @@ export const verifyHandler: RouteHandler = async (request, ctx, params) => {
       if (!result) {
         return jsonResponse(buildError('INVALID_TOKEN', 'Verification token not found or expired', ctx), 404);
       }
-      // Send welcome email after successful verification
-      const tenant = ctx.tenant;
-      if (tenant.email) {
+      // Send welcome email after successful verification using the verified tenant
+      if (result.email) {
         sendWelcomeEmail({
-          to: tenant.email,
-          name: tenant.name,
-          apiKey: ctx.apiKeyId || 'your-api-key'
+          to: result.email,
+          name: result.name,
         }).catch(err => log.error({ requestId: ctx.requestId }, `Failed to send welcome email: ${err}`));
       }
       return jsonResponse(buildSuccess({ verified: true, message: 'Email verified successfully.' }, ctx));

@@ -28,7 +28,6 @@ const CHAT_MODEL = process.env.MAPLESPIKE_AI_MODEL
   || process.env.MAPLESPIKE_CHAT_MODEL
   || process.env.AI_MODEL
   || 'qwen3.5-4b-local';
-const LOCAL_ENDPOINT = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001';
 const LOCAL_MODEL = process.env.MAPLESPIKE_LOCAL_MODEL || 'Qwen3.5-4B-Q4_K_M.gguf';
 // Embedding model
 const EMBED_MODEL = process.env.MAPLESPIKE_EMBED_MODEL
@@ -64,7 +63,7 @@ async function gatewayChat(
 
     if (isLocalModel) {
       // Local llama.cpp models: use completions endpoint with Qwen chat format
-      const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001/v1';
+      const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://localhost:8001/v1';
       const localModel = process.env.MAPLESPIKE_LOCAL_MODEL || requestedModel;
 
       // Build Qwen-style chat prompt with actual newlines
@@ -125,7 +124,7 @@ async function gatewayChat(
 async function embedQuery(text: string): Promise<number[] | null> {
   // Try local llama.cpp embeddings endpoint first (fast, on sentry)
   try {
-    const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001/v1';
+    const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://localhost:8001/v1';
     const resp = await fetch(`${localUrl}/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
