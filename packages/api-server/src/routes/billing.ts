@@ -95,7 +95,11 @@ const ORDER_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_ORDERS_PER_TENANT_PER_HOUR = 20;
 const MAX_VERIFY_ATTEMPTS_PER_ORDER = 10;
 const MAX_VERIFY_ATTEMPTS_PER_HOUR = 30;
-const SIGNING_SECRET = process.env.MAPLESPIKE_BILLING_SECRET || randomUUID();
+const SIGNING_SECRET = process.env.MAPLESPIKE_BILLING_SECRET;
+if (!SIGNING_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('MAPLESPIKE_BILLING_SECRET environment variable must be set in production');
+}
+const FALLBACK_SIGNING_SECRET = randomUUID();
 
 // Rate limiting for verify endpoint
 const verifyRateLimits = new Map<string, number[]>(); // tenantId -> timestamps
@@ -188,11 +192,14 @@ const TREASURY: Record<string, string> = {
 class InMemoryOrderStore implements OrderStore {
   private orders = new Map<string, PaymentOrder>();
 
-  get(id: string) { return this.orders.get(id); }
-  set(order: PaymentOrder) { this.orders.set(order.id, order); }
+  get(id: string): PaymentOrder | undefined {
+    const order = this.orders.get(id);
+    return order ? { ...order } : undefined;
+  }
+  set(order: PaymentOrder) { this.orders.set(order.id, { ...order }); }
 
   getByTenant(tenantId: string): PaymentOrder[] {
-    return Array.from(this.orders.values()).filter(o => o.tenantId === tenantId);
+    return Array.from(this.orders.values()).map(o => ({ ...o })).filter(o => o.tenantId === tenantId);
   }
 }
 
@@ -223,8 +230,9 @@ function checkOrderRateLimit(tenantId: string): boolean {
 /* ------------------------------------------------------------------ */
 
 function signOrder(order: Omit<PaymentOrder, 'signature'>): string {
+  const secret = SIGNING_SECRET || FALLBACK_SIGNING_SECRET;
   const payload = `${order.id}:${order.tenantId}:${order.planId}:${order.chainId}:${order.amountUsd}:${order.reference}`;
-  return createHash('sha256').update(payload + SIGNING_SECRET).digest('hex');
+  return createHash('sha256').update(payload + secret).digest('hex');
 }
 
 function verifyOrderSignature(order: PaymentOrder): boolean {
@@ -309,10 +317,34 @@ async function verifyEvmPayment(params: {
       return { confirmed: true, actualAmount };
     }
 
-    // For native token (ETH/MATIC/AVAX/BNB) transfers: check transaction value
-    // This is a simplified check — full implementation would fetch the tx itself
-    // and verify the `to` field and `value` field
-    return { confirmed: true, actualAmount: params.expectedAmountUsd };
+    // For native token (ETH/MATIC/AVAX/BNB) transfers: fetch tx and verify recipient + value
+    const txResp = await fetch(params.rpcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'eth_getTransactionByHash',
+        params: [params.txHash],
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!txResp.ok) return { confirmed: false, error: `RPC tx fetch returned ${txResp.status}` };
+
+    const txJson = await txResp.json() as { result?: { to?: string; value?: string; from?: string } };
+    const tx = txJson.result;
+
+    if (!tx) return { confirmed: false, error: 'Transaction not found' };
+    if (!tx.to || tx.to.toLowerCase() !== params.treasuryAddress.toLowerCase()) {
+      return { confirmed: false, error: `Transaction sent to ${tx.to || 'unknown'}, not treasury ${params.treasuryAddress}` };
+    }
+
+    // Note: amount verification for native tokens requires a price oracle
+    // (ETH != USD). We verify the recipient only; the user must send the
+    // correct amount as shown on the order. A future improvement is to
+    // cross-check value against a Chainlink/Uniswap price feed.
+    return { confirmed: true };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[BILLING] EVM verification failed: ${msg}`);
@@ -404,7 +436,8 @@ export const billingOrderHandler: RouteHandler = async (request, ctx) => {
       expiresAt: new Date(order.expiresAt).toISOString(),
       features: plan.features,
     }, bc));
-  } catch {
+  } catch (err) {
+    console.warn(`[BILLING] Order creation parse error: ${err instanceof Error ? err.message : String(err)}`);
     return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body', bc), 400);
   }
 };
@@ -503,10 +536,9 @@ export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
         reference: order.reference,
       });
     } else {
-      // Solana, Tron, Bitcoin — manual verification for now
-      // Production: implement chain-specific verifiers
-      console.warn(`[BILLING] Manual verification required for ${chain.kind} — auto-confirming`);
-      verification = { confirmed: true, actualAmount: order.amountUsd };
+      // Solana, Tron, Bitcoin — require manual verification until chain-specific verifiers are implemented
+      console.warn(`[BILLING] On-chain verification not yet implemented for ${chain.kind} (${chain.name})`);
+      verification = { confirmed: false, error: `On-chain verification for ${chain.name} is not yet automated. Please contact support to complete your payment.` };
     }
 
     if (!verification.confirmed) {
@@ -534,7 +566,8 @@ export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
       verifiedAt: new Date(order.verifiedAt).toISOString(),
       message: 'Payment verified successfully. Your plan is now active.',
     }, bc));
-  } catch {
+  } catch (err) {
+    console.warn(`[BILLING] Verify parse error: ${err instanceof Error ? err.message : String(err)}`);
     return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body', bc), 400);
   }
 };

@@ -205,7 +205,9 @@ export class SqliteWebhookStore implements WebhookStore {
         delivery.attemptedAt, delivery.statusCode, delivery.success ? 1 : 0,
         delivery.error || null, delivery.durationMs,
       );
-    } catch {}
+    } catch (err) {
+      console.warn(`[Webhooks] logDelivery failed: ${(err as Error).message}`);
+    }
   }
 
   getDeliveries(webhookId: string, limit: number): WebhookDelivery[] {

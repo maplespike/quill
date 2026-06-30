@@ -106,7 +106,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
         >Simple, transparent pricing</Badge
       >
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        Pricing for every&nbsp;scale
+        Pricing for every&nbsp;<span class="text-gradient">scale</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         From solo researchers to enterprise government intelligence teams — access Canada's
@@ -174,7 +174,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
               <a href={tier.href} class="w-full">
                 <Button
                   variant={tier.highlighted ? "default" : "outline"}
-                  class="w-full"
+                  class={cn("w-full", tier.highlighted && "btn-sheen")}
                 >
                   {tier.cta}
                 </Button>

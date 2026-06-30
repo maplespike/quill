@@ -15,14 +15,14 @@ import {
 ---
 
 <BaseLayout title="Data Explorer" description="Browse and search Canadian government data across all 144 modules">
-  <section class="aurora relative overflow-hidden border-b">
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
-    <div class="relative z-10 container mx-auto px-4 py-8 md:py-12">
+    <div class="relative z-10 container mx-auto px-4">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         Data <span class="text-gradient">Explorer</span>
       </h1>
       <p class="mt-2 text-lg text-muted-foreground">
-        Search across 144 data modules spanning federal, provincial, and municipal government sources.
+        Search across 198 data modules spanning federal, provincial, and municipal government sources.
       </p>
     </div>
   </section>
@@ -43,7 +43,7 @@ import {
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <Input id="query" name="query" type="search" placeholder="Search committees, lobbying records, legislation..." className="pl-10" />
+              <Input id="query" name="query" type="search" placeholder="Search committees, lobbying records, legislation..." class="pl-10" />
             </div>
             <Button type="submit">Search</Button>
           </div>

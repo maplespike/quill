@@ -50,6 +50,7 @@ interface Route {
 import { healthHandler } from './routes/health.js';
 import { versionHandler } from './routes/version.js';
 import { addAttributionHeader } from './middleware/attribution.js';
+import { applySecurityHeaders } from './middleware/security-headers.js';
 import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
@@ -369,6 +370,29 @@ function matchRoute(url: string, method: string): { route: Route; params: Record
   return null;
 }
 
+/**
+ * Wrap a response with security headers and CORS headers.
+ * Applied to ALL outgoing responses for defense-in-depth.
+ */
+function finalizeResponse(
+  response: Response,
+  environment?: string,
+  requestOrigin: string | null | undefined = undefined,
+): Response {
+  const headers = new Headers(response.headers);
+  applySecurityHeaders(headers, environment);
+  const allowedOrigin = getAllowedOrigin(requestOrigin);
+  headers.set('Access-Control-Allow-Origin', allowedOrigin);
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode');
+  headers.set('Access-Control-Expose-Headers', 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice');
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export async function handleRequest(
   request: Request,
   env: Record<string, string | undefined>,
@@ -385,7 +409,7 @@ export async function handleRequest(
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
-    return corsPreflight(requestOrigin, environment);
+    return finalizeResponse(corsPreflight(requestOrigin, environment), environment, requestOrigin);
   }
 
   // --- TLS redirect (defense-in-depth) ---
@@ -395,7 +419,7 @@ export async function handleRequest(
   if (forwardedProto && forwardedProto !== 'https') {
     const httpsUrl = new URL(request.url);
     httpsUrl.protocol = 'https:';
-    return Response.redirect(httpsUrl.toString(), 307);
+    return finalizeResponse(Response.redirect(httpsUrl.toString(), 307), environment, requestOrigin);
   }
 
   const matched = matchRoute(request.url, request.method);
@@ -407,7 +431,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404, {}, undefined, environment);
+    return finalizeResponse(jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404, {}, undefined, environment), environment, requestOrigin);
   }
 
   const { route, params } = matched;
@@ -447,7 +471,7 @@ export async function handleRequest(
       queryOptions,
       metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
     };
-    return jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.lan/signup', ctx), 401, {}, requestOrigin, environment);
+    return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.lan/signup', ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
   }
 
   const ctx: RouteContext = {
@@ -479,11 +503,24 @@ export async function handleRequest(
     if (isAuthenticated) {
       rateLimitKey = ctx.tenant.id;
     } else {
-      // Use client IP when available to prevent shared-throttle attacks on public endpoints
-      const clientIp = request.headers.get('CF-Connecting-IP')
-        || request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim()
-        || request.headers.get('X-Real-IP')
-        || 'anon';
+      // Use client IP when available to prevent shared-throttle attacks on public endpoints.
+      // Only trust proxy headers (X-Real-IP, X-Forwarded-For) when TRUST_PROXY is set,
+      // because they are trivially spoofable by clients otherwise.
+      const trustProxy = process.env.TRUST_PROXY === 'true' || process.env.TRUST_PROXY === '1';
+      const cfIp = request.headers.get('CF-Connecting-IP');
+      const realIp = request.headers.get('X-Real-IP');
+      const forwardedFor = request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim();
+
+      let clientIp: string;
+      if (cfIp) {
+        clientIp = cfIp;
+      } else if (realIp && trustProxy) {
+        clientIp = realIp;
+      } else if (forwardedFor && trustProxy) {
+        clientIp = forwardedFor;
+      } else {
+        clientIp = 'anon';
+      }
       rateLimitKey = `anon:${clientIp}`;
     }
     const check = checkRateLimit(rateLimitKey, maxPerWindow, windowMs);
@@ -518,29 +555,13 @@ export async function handleRequest(
         response = addRateLimitHeaders(response, rateCheck);
       }
       addAttributionHeader(response);
-      return response;
+      return finalizeResponse(response, environment, requestOrigin);
     }
   }
 
   // ── Dispatch to matched route handler ──
   const response = await route.handler(request, ctx, params);
-  // Add CORS headers to the actual response (not just preflight)
-  const allowedOrigin = getAllowedOrigin(requestOrigin);
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
-    'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
-  };
-  const newHeaders = new Headers(response.headers);
-  for (const [k, v] of Object.entries(corsHeaders)) {
-    newHeaders.set(k, v);
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: newHeaders,
-  });
+  return finalizeResponse(response, environment, requestOrigin);
 }
 
 export default {
@@ -591,10 +612,10 @@ export default {
       validateConfig(envVars);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Invalid configuration';
-      return new Response(JSON.stringify({ success: false, error: { code: 'CONFIG_ERROR', message: msg } }), {
+      return finalizeResponse(new Response(JSON.stringify({ success: false, error: { code: 'CONFIG_ERROR', message: msg } }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
-      });
+      }), env.ENVIRONMENT || process.env.ENVIRONMENT, request.headers.get('Origin'));
     }
     return handleRequest(request, envVars, db, cache);
   },

@@ -36,7 +36,6 @@ export interface VerificationEmailParams {
 export interface WelcomeEmailParams {
   to: string;
   name: string;
-  apiKey: string;
 }
 
 let _config: EmailConfig | null = null;
@@ -97,22 +96,25 @@ export async function sendVerificationEmail(params: VerificationEmailParams): Pr
 
 /**
  * Send a welcome email after successful verification.
+ * NOTE: API keys are no longer sent via email for security.
+ * Users retrieve keys from the dashboard.
  */
 export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ sent: boolean; provider: string }> {
   const config = getEmailConfig();
   const dashboardUrl = `${config.appUrl}/dashboard`;
+  const keysUrl = `${config.appUrl}/dashboard/keys`;
   const docsUrl = `${config.appUrl}/docs`;
 
   const subject = `Welcome to ${config.appName}!`;
   const html = `
     <h2>You're all set!</h2>
     <p>Hi ${params.name},</p>
-    <p>Your email has been verified. Here's your API key to get started:</p>
-    <p><code style="padding:8px 12px;background:#f3f4f6;border-radius:4px;font-size:14px;">${params.apiKey}</code></p>
-    <p><strong>Save this key — it won't be shown again.</strong></p>
+    <p>Your email has been verified and your account is now active.</p>
+    <p><strong>API keys are available in your dashboard.</strong> For security, we no longer include them in emails.</p>
     <hr/>
     <h3>Quick Start</h3>
     <ol>
+      <li>Go to your <a href="${keysUrl}">API Keys</a> page to create a key.</li>
       <li>Use your API key to authenticate: <code>Authorization: Bearer YOUR_KEY</code></li>
       <li>Try your first call: <code>curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/health</code></li>
       <li>Check usage: <code>curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/me</code></li>
@@ -122,7 +124,7 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ se
     <br/>
     <p>— ${config.appName} Team</p>
   `;
-  const text = `You're all set!\n\nHi ${params.name},\n\nYour email has been verified. Here's your API key to get started:\n\n${params.apiKey}\n\nSave this key — it won't be shown again.\n\nQuick Start:\n1. Use your API key: Authorization: Bearer YOUR_KEY\n2. Try: curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/health\n3. Check usage: curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/me\n\nDashboard: ${dashboardUrl}\nDocs: ${docsUrl}\n\n— ${config.appName} Team`;
+  const text = `You're all set!\n\nHi ${params.name},\n\nYour email has been verified and your account is now active.\n\nAPI keys are available in your dashboard. For security, we no longer include them in emails.\n\nQuick Start:\n1. Go to ${keysUrl} to create an API key.\n2. Use your API key: Authorization: Bearer YOUR_KEY\n3. Try: curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/health\n4. Check usage: curl -H "Authorization: Bearer YOUR_KEY" ${config.appUrl}/v1/me\n\nDashboard: ${dashboardUrl}\nDocs: ${docsUrl}\n\n— ${config.appName} Team`;
 
   return sendEmail({ to: params.to, subject, html, text });
 }

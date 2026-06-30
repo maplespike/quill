@@ -86,19 +86,7 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
   }
 
   private seed(): void {
-    // Seed dev tenant if empty
-    const count = this.db.prepare('SELECT COUNT(*) as n FROM tenants').get() as { n: number };
-    if (count.n === 0) {
-      this.db.prepare(
-        'INSERT INTO tenants (id, name, email, email_verified, tier, is_active) VALUES (?, ?, ?, 1, ?, 1)'
-      ).run('ms-internal', 'MapleSpike Internal', 'internal@maplespike.lan', 'pro' as const);
-
-      // Create dev key
-      const keyHash = hashApiKeySync('ms_live_dev_key_2024');
-      this.db.prepare(
-        'INSERT INTO api_keys (id, tenant_id, key_hash, name) VALUES (?, ?, ?, ?)'
-      ).run('dev-key-1', 'ms-internal', keyHash, 'dev');
-    }
+    // No hardcoded dev keys — use ALLOW_DEMO_KEYS env + auth.ts for development
   }
 
   /* ── MapleSpikeStorage interface ─────────────────────────────── */
