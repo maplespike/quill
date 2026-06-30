@@ -2,7 +2,7 @@
 # MapleSpike — Production Multi-Stage Dockerfile
 # Builds all packages and produces runtime images.
 # =============================================================================
-FROM docker.io/node:22-trixie AS build
+FROM docker.io/node:22-bookworm-slim AS build
 
 WORKDIR /app
 
@@ -51,7 +51,7 @@ RUN node /tmp/fix-package-exports.js
 # =============================================================================
 # Runtime: API Server
 # =============================================================================
-FROM docker.io/node:22-trixie AS api-server
+FROM docker.io/node:22-bookworm-slim AS api-server
 
 WORKDIR /app
 COPY --from=build /app /app
@@ -63,7 +63,7 @@ CMD ["node", "packages/api-server/dist/dev-server.js"]
 # =============================================================================
 # Runtime: MCP Server
 # =============================================================================
-FROM docker.io/node:22-trixie AS mcp-server
+FROM docker.io/node:22-bookworm-slim AS mcp-server
 
 WORKDIR /app
 COPY --from=build /app /app
@@ -88,7 +88,7 @@ CMD ["python3", "/app/server.py"]
 # =============================================================================
 # Runtime: Ingestion Runner (runs a single pipeline by MAPLESPIKE_PIPELINE env)
 # =============================================================================
-FROM docker.io/node:22-trixie AS ingestion
+FROM docker.io/node:22-bookworm-slim AS ingestion
 
 WORKDIR /app
 COPY --from=build /app /app

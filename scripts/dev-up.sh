@@ -10,10 +10,13 @@
 #
 # Usage:
 #   ./scripts/dev-up.sh               # build if needed + boot in foreground
+#   ./scripts/dev-up.sh --up          # explicit: boot stack (same as default)
 #   ./scripts/dev-up.sh --detach      # boot in background, return immediately
 #   ./scripts/dev-up.sh --rebuild     # force rebuild of all images
 #   ./scripts/dev-up.sh --down        # tear down the stack
 #   ./scripts/dev-up.sh --logs        # follow logs of running stack
+#
+# Action flags (--up/--down/--logs) are mutually exclusive; last one wins.
 # =============================================================================
 set -euo pipefail
 
@@ -40,6 +43,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --detach|-d) DETACH="--detach"; shift ;;
     --rebuild) REBUILD="--build --force-recreate --no-deps"; shift ;;
+    --up) ACTION="up"; shift ;;
     --down) ACTION="down"; shift ;;
     --logs) ACTION="logs"; shift ;;
     --no-wait) WAIT_HEALTH=0; shift ;;
