@@ -18,7 +18,9 @@ export async function ingestAllDefence(
   let total = 0;
   const log = options.onProgress || (() => {});
 
-  if (db) try { await db.exec(DND_DDL); log('Defence table ready'); } catch {}
+  if (db) try { await db.exec(DND_DDL); log('Defence table ready'); } catch (err) {
+    console.warn(`[Defence] Failed to init table: ${(err as Error).message}`);
+  }
 
   try {
     log('Fetching DND Regular Force personnel...');

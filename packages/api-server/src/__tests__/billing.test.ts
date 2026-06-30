@@ -39,6 +39,36 @@ function makeGetRequest(url: string): Request {
 const FAKE_TX_HASH = '0x' + 'a1'.repeat(32);
 
 /* ------------------------------------------------------------------ */
+/*  RPC mock helpers                                                   */
+/* ------------------------------------------------------------------ */
+
+/** Mock global.fetch for EVM verification (receipt + tx). */
+function mockEvmFetch(opts: { status?: string; to?: string; value?: string } = {}) {
+  const receipt = {
+    status: opts.status ?? '0x1',
+    logs: [],
+  };
+  const tx = {
+    to: opts.to ?? TREASURY_ETH,
+    value: opts.value ?? '0x2C68AF0BB140000', // 0.2 ETH in wei
+    from: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  };
+  const originalFetch = global.fetch;
+  const mockFetch: typeof global.fetch = async (url, init) => {
+    const body = typeof init === 'object' && init && 'body' in init ? JSON.parse(String((init as Record<string, unknown>).body)) : {};
+    if (body.method === 'eth_getTransactionReceipt') {
+      return new Response(JSON.stringify({ jsonrpc: '2.0', id: body.id, result: receipt }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (body.method === 'eth_getTransactionByHash') {
+      return new Response(JSON.stringify({ jsonrpc: '2.0', id: body.id, result: tx }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    return originalFetch(url as RequestInfo, init as RequestInit);
+  };
+  global.fetch = mockFetch;
+  return () => { global.fetch = originalFetch; };
+}
+
+/* ------------------------------------------------------------------ */
 /*  Test contexts                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -252,9 +282,9 @@ describe('Billing Routes', () => {
   describe('Order lifecycle', () => {
     let orderId: string;
 
-    it('creates a bitcoin order for status/verify tests', async () => {
+    it('creates an ethereum order for status/verify tests', async () => {
       const resp = await billingOrderHandler(
-        makeRequest({ planId: 'pro', chainId: 'bitcoin' }),
+        makeRequest({ planId: 'pro', chainId: 'ethereum' }),
         ctx,
         {},
       );
@@ -277,7 +307,7 @@ describe('Billing Routes', () => {
       assert.equal(body.data.orderId, orderId);
       assert.equal(body.data.plan, 'pro');
       assert.equal(body.data.amount, 49);
-      assert.equal(body.data.chain, 'bitcoin');
+      assert.equal(body.data.chain, 'ethereum');
       assert.equal(body.data.txHash, null);
       assert.ok(body.data.createdAt);
       assert.ok(body.data.expiresAt);
@@ -305,19 +335,24 @@ describe('Billing Routes', () => {
       assert.equal(body.error.code, 'FORBIDDEN');
     });
 
-    it('verifies bitcoin order successfully (auto-confirm for non-EVM)', async () => {
-      const resp = await billingVerifyHandler(
-        makeRequest({ orderId, txHash: FAKE_TX_HASH }),
-        ctx,
-        {},
-      );
-      assert.equal(resp.status, 200);
-      const body = await resp.json();
-      assert.ok(body.success);
-      assert.equal(body.data.status, 'verified');
-      assert.equal(body.data.orderId, orderId);
-      assert.equal(body.data.txHash, FAKE_TX_HASH);
-      assert.ok(body.data.verifiedAt);
+    it('verifies ethereum order successfully via mocked RPC', async () => {
+      const restore = mockEvmFetch();
+      try {
+        const resp = await billingVerifyHandler(
+          makeRequest({ orderId, txHash: FAKE_TX_HASH }),
+          ctx,
+          {},
+        );
+        assert.equal(resp.status, 200);
+        const body = await resp.json();
+        assert.ok(body.success);
+        assert.equal(body.data.status, 'verified');
+        assert.equal(body.data.orderId, orderId);
+        assert.equal(body.data.txHash, FAKE_TX_HASH);
+        assert.ok(body.data.verifiedAt);
+      } finally {
+        restore();
+      }
     });
 
     it('verified order status reflects verified state', async () => {
@@ -340,38 +375,43 @@ describe('Billing Routes', () => {
 
   describe('Payment verification', () => {
     it('is idempotent: verified order stays verified', async () => {
-      // Create a fresh bitcoin order (auto-confirms without RPC)
-      const createResp = await billingOrderHandler(
-        makeRequest({ planId: 'pro', chainId: 'bitcoin' }),
-        ctx,
-        {},
-      );
-      const createBody = await createResp.json();
-      const orderId = createBody.data.orderId;
+      const restore = mockEvmFetch();
+      try {
+        // Create a fresh ethereum order
+        const createResp = await billingOrderHandler(
+          makeRequest({ planId: 'pro', chainId: 'ethereum' }),
+          ctx,
+          {},
+        );
+        const createBody = await createResp.json();
+        const orderId = createBody.data.orderId;
 
-      // First verify — should succeed and mark as verified
-      const resp1 = await billingVerifyHandler(
-        makeRequest({ orderId, txHash: FAKE_TX_HASH }),
-        ctx,
-        {},
-      );
-      assert.equal(resp1.status, 200);
-      const body1 = await resp1.json();
-      assert.equal(body1.data.status, 'verified');
+        // First verify — should succeed and mark as verified
+        const resp1 = await billingVerifyHandler(
+          makeRequest({ orderId, txHash: FAKE_TX_HASH }),
+          ctx,
+          {},
+        );
+        assert.equal(resp1.status, 200);
+        const body1 = await resp1.json();
+        assert.equal(body1.data.status, 'verified');
 
-      // Second verify — should be idempotent (cached, not re-verified)
-      const resp2 = await billingVerifyHandler(
-        makeRequest({ orderId, txHash: FAKE_TX_HASH }),
-        ctx,
-        {},
-      );
-      assert.equal(resp2.status, 200);
-      const body2 = await resp2.json();
-      assert.equal(body2.data.status, 'verified');
-      assert.ok(
-        body2.data.message.toLowerCase().includes('already verified'),
-        `expected idempotent message, got: ${body2.data.message}`,
-      );
+        // Second verify — should be idempotent (cached, not re-verified)
+        const resp2 = await billingVerifyHandler(
+          makeRequest({ orderId, txHash: FAKE_TX_HASH }),
+          ctx,
+          {},
+        );
+        assert.equal(resp2.status, 200);
+        const body2 = await resp2.json();
+        assert.equal(body2.data.status, 'verified');
+        assert.ok(
+          body2.data.message.toLowerCase().includes('already verified'),
+          `expected idempotent message, got: ${body2.data.message}`,
+        );
+      } finally {
+        restore();
+      }
     });
 
     it('returns 404 for unknown order', async () => {
@@ -388,7 +428,7 @@ describe('Billing Routes', () => {
     it('returns 403 for cross-tenant verify attempt', async () => {
       // Create order with test-tenant
       const createResp = await billingOrderHandler(
-        makeRequest({ planId: 'pro', chainId: 'bitcoin' }),
+        makeRequest({ planId: 'pro', chainId: 'ethereum' }),
         ctx,
         {},
       );
@@ -416,7 +456,7 @@ describe('Billing Routes', () => {
     it('rejects short txHash with VALIDATION_ERROR', async () => {
       // Create an order first so we pass the orderId check
       const createResp = await billingOrderHandler(
-        makeRequest({ planId: 'pro', chainId: 'bitcoin' }),
+        makeRequest({ planId: 'pro', chainId: 'ethereum' }),
         ctx,
         {},
       );

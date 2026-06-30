@@ -37,7 +37,15 @@ export function checkRateLimit(
   // Prune expired windows
   const active = entries.filter((e) => e.windowStart > cutoff);
 
-  const total = active.reduce((sum, e) => sum + e.count, 0);
+  // Aggregate into time buckets (1-second resolution) to prevent memory bloat
+  const bucketSizeMs = 1000;
+  const buckets = new Map<number, number>();
+  for (const e of active) {
+    const bucket = Math.floor(e.windowStart / bucketSizeMs) * bucketSizeMs;
+    buckets.set(bucket, (buckets.get(bucket) || 0) + e.count);
+  }
+
+  const total = Array.from(buckets.values()).reduce((sum, c) => sum + c, 0);
 
   if (total >= limit) {
     const oldest =
@@ -47,13 +55,20 @@ export function checkRateLimit(
     return { allowed: false, remaining: 0, resetTime: oldest + windowMs };
   }
 
-  // Record this request
-  active.push({ count: 1, windowStart: now });
-  rateStore.set(tenantId, active);
+  // Record this request in its bucket
+  const currentBucket = Math.floor(now / bucketSizeMs) * bucketSizeMs;
+  buckets.set(currentBucket, (buckets.get(currentBucket) || 0) + 1);
+
+  // Rebuild active entries from buckets (deduplicated)
+  const rebuilt: WindowEntry[] = [];
+  for (const [bucketStart, count] of buckets) {
+    rebuilt.push({ count, windowStart: bucketStart });
+  }
+  rateStore.set(tenantId, rebuilt);
 
   const oldest =
-    active.length > 0
-      ? active.reduce((min, e) => Math.min(min, e.windowStart), now)
+    rebuilt.length > 0
+      ? rebuilt.reduce((min, e) => Math.min(min, e.windowStart), now)
       : now;
 
   return {

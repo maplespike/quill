@@ -26,7 +26,9 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const results: Record<string, { total: number }> = {};
     let totalAll = 0;
     for (const c of targets) {
-      try { const r = await searchMunicipalData(c, query, limit); if (r.total > 0) { results[c] = { total: r.total }; totalAll += r.total; } } catch {}
+      try { const r = await searchMunicipalData(c, query, limit); if (r.total > 0) { results[c] = { total: r.total }; totalAll += r.total; } } catch (err) {
+        console.warn(`[search-municipal-data] Fetch failed for ${c}: ${(err as Error).message}`);
+      }
     }
     return { content: { tool: 'search_municipal_data', query, cityFilter: city || undefined, citiesSearched: targets.length, citiesWithResults: Object.keys(results).length, results, totalResults: totalAll } };
   } catch (error) {

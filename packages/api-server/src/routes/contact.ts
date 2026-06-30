@@ -19,6 +19,7 @@ const ipRateMap = new Map<string, RateEntry>();
 const RATE_LIMIT = 5;
 const WINDOW_MS = 60 * 60 * 1000;
 const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
+const MAX_TRACKED_IPS = 10_000;
 
 function pruneOldEntries(): void {
   const now = Date.now();
@@ -37,6 +38,20 @@ if (cleanupTimer.unref) {
 
 function checkContactRate(ip: string): boolean {
   const now = Date.now();
+  // Hard cap on tracked IPs to prevent unbounded memory growth
+  if (!ipRateMap.has(ip) && ipRateMap.size >= MAX_TRACKED_IPS) {
+    // Evict oldest entry when at capacity
+    let oldestIp: string | null = null;
+    let oldestTime = Infinity;
+    for (const [trackedIp, entry] of ipRateMap) {
+      const minTime = entry.timestamps.length > 0 ? Math.min(...entry.timestamps) : now;
+      if (minTime < oldestTime) {
+        oldestTime = minTime;
+        oldestIp = trackedIp;
+      }
+    }
+    if (oldestIp) ipRateMap.delete(oldestIp);
+  }
   let entry = ipRateMap.get(ip);
   if (!entry) {
     entry = { timestamps: [] };

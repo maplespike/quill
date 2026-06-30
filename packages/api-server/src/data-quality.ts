@@ -336,7 +336,9 @@ export async function getDataQualityReport(): Promise<DataQualitySummary> {
     };
     try {
       globalCache.set(CACHE_KEY, empty, CACHE_TTL);
-    } catch {}
+    } catch (err) {
+      console.warn(`[data-quality] Failed to cache empty report: ${(err as Error).message}`);
+    }
     return empty;
   }
 

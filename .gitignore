@@ -46,3 +46,9 @@ result
 *.egg-info/
 .env.deployment
 *.tgz
+
+# Bug hunter artifacts
+.bug-hunter/
+
+# Internal state
+.omo/

@@ -86,7 +86,9 @@ export async function parseGoCContracts(rows: Record<string, string>[], maxRecor
     try {
       const contract = await toGoCContract(row, now);
       contracts.push(contract);
-    } catch {}
+    } catch (err) {
+      console.warn(`[GoC-Spending] Failed to parse contract row: ${(err as Error).message}`);
+    }
   }
 
   return contracts;
@@ -100,7 +102,9 @@ export async function parseGoCDeptSpending(rows: Record<string, string>[]): Prom
     try {
       const dept = await toGoCDeptSpending(row, now);
       spending.push(dept);
-    } catch {}
+    } catch (err) {
+      console.warn(`[GoC-Spending] Failed to parse dept spending row: ${(err as Error).message}`);
+    }
   }
 
   return spending;
@@ -114,7 +118,9 @@ export async function parseGoCVendorSpending(rows: Record<string, string>[]): Pr
     try {
       const vendor = await toGoCVendorSpending(row, now);
       spending.push(vendor);
-    } catch {}
+    } catch (err) {
+      console.warn(`[GoC-Spending] Failed to parse vendor spending row: ${(err as Error).message}`);
+    }
   }
 
   return spending;
