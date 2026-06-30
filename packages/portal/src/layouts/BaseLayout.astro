@@ -1,6 +1,6 @@
 ---
 import "@/styles/globals.css";
-import { ViewTransitions } from "astro:transitions";
+import { ClientRouter } from "astro:transitions";
 
 export interface Props {
   title: string;
@@ -51,7 +51,7 @@ const isActive = (match: string) =>
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/assets/maplespike_logo.svg" />
-    <ViewTransitions />
+    <ClientRouter />
     <style is:global>
       html { view-transition-name: none; }
       ::view-transition-old(root) { animation: 100ms ease-out both fadeOut; }
