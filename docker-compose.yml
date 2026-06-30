@@ -29,8 +29,8 @@ services:
       NODE_ENV: production
       PORT: "8082"
       MAPLESPIKE_STORAGE: sqlite
-      MAPLESPIKE_API_KEY: ${MAPLESPIKE_API_KEY:?Set MAPLESPIKE_API_KEY in .env (any non-empty value for local dev)}
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env. Generate with: openssl rand -hex 64}
+      MAPLESPIKE_API_KEY: ${MAPLESPIKE_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
       MAPLESPIKE_DB_PATH: /data/maplespike.db
       MAPLESPIKE_LOG_LEVEL: ${MAPLESPIKE_LOG_LEVEL:-info}
       APP_URL: http://localhost:8082
