@@ -12,28 +12,30 @@ MapleSpike runs locally using Docker Compose with three main services:
 |---------|------|-------------|
 | **API Server** | 8082 | REST API with Bearer auth, rate limiting |
 | **MCP Server** | 3001 | Model Context Protocol server (stdio/SSE) |
-| **Portal** | 3000 | Developer portal and documentation |
+| **Portal** | 8080 | Developer portal and documentation (Astro static + `server.py`) |
 
 ### Quick Start
 
+The preferred recipe lives in the repo-root README under **Running the local development stack & smoke test**. Use the wrapper scripts instead of raw `docker compose`:
+
 ```bash
-# Build all services
+# Build all packages (host-side; image build also runs pnpm install internally)
 pnpm run build
 
-# Start all services
-docker-compose up -d
+# Bring the stack up — auto-bootstraps .env, builds images, waits for /v1/health
+./scripts/dev-up.sh
 
-# Check service health
-curl http://localhost:8082/v1/health
-curl http://localhost:3000
-curl http://localhost:3001/sse
+# Or detached (return immediately; useful in tmux or CI)
+./scripts/dev-up.sh --detach
 
-# View logs
-docker-compose logs -f
+# Tail logs of a running stack
+./scripts/dev-up.sh --logs
 
-# Stop all services
-docker-compose down
+# Tear back down (--down removes containers + orphans; .env is preserved)
+./scripts/dev-up.sh --down
 ```
+
+Docker Compose v1 (`docker-compose`) is not installed on hosts that ship only the `docker compose` plugin. The wrapper handles v2-vs-v1 dispatch for you.
 
 ### Environment Variables
 
@@ -48,7 +50,7 @@ API_PORT=8082
 MCP_PORT=3001
 
 # Portal
-PORTAL_PORT=3000
+PORTAL_PORT=8080
 ```
 
 ### Service-Specific Commands
@@ -92,10 +94,10 @@ PORT=3001 pnpm start:sse
 ```bash
 # Build and run portal
 cd packages/portal
-pnpm run dev  # Starts on http://localhost:3000
+pnpm run dev  # Astro dev server (hot reload) on http://localhost:4321
 
 # Access documentation
-open http://localhost:3000
+open http://localhost:8080  # when served via ./scripts/dev-up.sh
 ```
 
 ### Development Workflow
@@ -117,14 +119,14 @@ open http://localhost:3000
 
 4. **Start services:**
    ```bash
-   docker-compose up -d
+   ./scripts/dev-up.sh
    ```
 
 5. **Make changes and restart:**
    ```bash
    # After making code changes
    pnpm run build
-   docker-compose restart
+   ./scripts/dev-up.sh --rebuild   # force full image rebuild
    ```
 
 ### Troubleshooting
@@ -134,16 +136,16 @@ open http://localhost:3000
 # Check what's using the port
 lsof -i :8082  # API server
 lsof -i :3001  # MCP server
-lsof -i :3000  # Portal
+lsof -i :8080  # Portal
 
 # Change ports in docker-compose.yml or .env file
 ```
 
 #### Database Issues
 ```bash
-# Reset database
-docker-compose down -v
-docker-compose up -d
+# Reset database (container + named volume for the API's SQLite db)
+./scripts/dev-up.sh --down
+./scripts/dev-up.sh
 ```
 
 #### Build Failures
@@ -151,7 +153,7 @@ docker-compose up -d
 # Clean and rebuild
 pnpm run clean
 pnpm run build
-docker-compose build --no-cache
+./scripts/dev-up.sh --rebuild         # rebuilds containers --no-cache
 ```
 
 ## Planned K8s Deployment
@@ -166,14 +168,16 @@ K8s deployment is planned for ROADMAP.md Phase 3. See:
 ## Monitoring and Logs
 
 ### Docker Compose Logs
-```bash
-# All services
-docker-compose logs -f
+Use the wrapper, which knows the correct service names:
 
-# Specific service
-docker-compose logs -f api-server
-docker-compose logs -f mcp-server
-docker-compose logs -f portal
+```bash
+# All services (tails all compose logs)
+./scripts/dev-up.sh --logs
+
+# Specific service (raw docker compose, once you've identified the container name)
+docker compose logs -f api
+docker compose logs -f mcp
+docker compose logs -f portal
 ```
 
 ### Health Checks
@@ -185,7 +189,7 @@ curl http://localhost:8082/v1/health
 curl http://localhost:3001/health
 
 # Portal health
-curl http://localhost:3000/health
+curl http://localhost:8080/
 ```
 
 ## Production Considerations
