@@ -14,7 +14,7 @@
     "test:coverage": "tsx --experimental-test-coverage --test src/**/*.test.ts"
   },
   "dependencies": {
-    "@dexterai/x402": "^3.9.0",
+    "@dexterai/x402": "^5.1.0",
     "@maplespike/engine": "workspace:*",
     "@maplespike/pipeline-core": "workspace:*",
     "@simplewebauthn/server": "^13.3.0",
