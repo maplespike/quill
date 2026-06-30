@@ -106,6 +106,97 @@ pnpm start
 
 ---
 
+## Running the local development stack & smoke test
+
+The `scripts/dev-up.sh` wrapper handles env bootstrap, image build,
+and `docker compose` orchestration so you don't have to remember the
+exact incantation. `scripts/e2e-smoke.sh` confirms all three runtime
+services came up healthy. Both scripts live in the repo so they stay
+authoritative — prefer them over raw `docker compose`, which has known
+port-mapping and fallback behaviour drift across v1 and v2.
+
+### Prerequisites
+
+- Docker Desktop 4.x+ **or** the `docker-compose-plugin` (the wrapper
+  prefers `docker compose`, falls back to `docker-compose` v1)
+- ~4 GB of free RAM for the three service containers
+- Ports `8082` (API), `3001` (MCP), `8080` (Portal) free on the host
+- No host-side `pnpm install` needed — the Dockerfile runs `pnpm install`
+  inside each image build
+
+### Bring the stack up
+
+```bash
+# First run: builds images if needed, boots in the foreground,
+# waits for /v1/health to respond, then tails logs.
+./scripts/dev-up.sh
+
+# Detached — returns immediately (useful in tmux or CI).
+./scripts/dev-up.sh --detach
+
+# Force a full rebuild after editing the Dockerfile or docker-compose.yml.
+./scripts/dev-up.sh --rebuild
+
+# Tail logs of an already-running stack.
+./scripts/dev-up.sh --logs
+
+# Tear back down (removes containers + orphans; .env is preserved).
+./scripts/dev-up.sh --down
+```
+
+The wrapper auto-copies `.env.example` → `.env` on the first run so the
+API and MCP have non-empty `JWT_SECRET` / `MAPLESPIKE_API_KEY` defaults.
+Edit `.env` to override any of: API storage backend (`memory` /
+`sqlite` / `postgres`), ports, CORS origins, AI gateway URL, or
+Postgres connection settings. Re-run `./scripts/dev-up.sh --down && ./scripts/dev-up.sh`
+to pick up `.env` changes.
+
+### Run the end-to-end smoke test
+
+```bash
+# Self-contained: bring the stack up, hit every endpoint, tear down.
+./scripts/e2e-smoke.sh --mode=compose --up --down
+
+# Or, against an already-running stack (e.g. one you started with --detach).
+./scripts/e2e-smoke.sh --mode=local
+
+# Target custom hosts / ports (staging, prod mirror, etc.).
+./scripts/e2e-smoke.sh --mode=local \
+  --api=http://staging.lan:8082 \
+  --portal=http://staging.lan:8080 \
+  --mcp=http://staging.lan:3001
+```
+
+The smoke test first waits (up to 60s) for the bootstrap endpoints (`$API_URL/v1/health`, `$PORTAL_URL/`, `$MCP_URL/health`) to respond, then runs the explicit assertions below:
+
+| Check | Endpoint | Expects |
+|-------|----------|---------|
+| API health | `GET /v1/health` | `200` with a `status` field |
+| API modules | `GET /v1/modules` | non-empty `modules[]` |
+| API OpenAPI | `GET /v1/openapi.json` | valid OpenAPI 3.x doc |
+| Portal index | `GET /` | HTML containing `maplespike` or `<html` |
+| MCP health | `GET /healthz` | `2xx` or `3xx` |
+
+Exit codes:
+
+- `0` — all checks passed
+- `1` — one or more checks failed; the output tail suggests
+  `./scripts/dev-up.sh --logs` to investigate
+- `2` — missing dependency (compose plugin) or bad args
+
+### After the stack is up
+
+| Service | URL |
+|---------|-----|
+| Portal (Astro static + `server.py`) | http://localhost:8080 |
+| API | http://localhost:8082 |
+| API OpenAPI | http://localhost:8082/v1/openapi.json |
+| MCP (HTTP / SSE) | http://localhost:3001 |
+
+Stop the entire stack with `./scripts/dev-up.sh --down`.
+
+---
+
 ## Data sources
 
 | Source | Method | Coverage |
