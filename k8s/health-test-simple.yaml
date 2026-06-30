@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: health-test-simple
+  namespace: maplespike
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: maplespike-health-check
+      restartPolicy: Never
+      containers:
+      - name: test
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -x
+          echo "Testing cluster DNS..."
+          nslookup ai-inference-gateway.ai-inference.svc.cluster.local || exit 1
+          nslookup qdrant.ai-inference.svc.cluster.local || exit 1
+          echo "Testing kubectl access..."
+          kubectl get pods -n maplespike || exit 1
+          kubectl get pvc -n maplespike || exit 1
+          echo "Testing curl..."
+          curl -sk https://maplespike.lan/ -o /dev/null -w "%{http_code}\n" || exit 1
+          echo "All tests passed"

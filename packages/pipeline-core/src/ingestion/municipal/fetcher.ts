@@ -14,7 +14,9 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
       headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
     });
     if (resp.statusCode < 400) return 'ckan';
-  } catch {}
+  } catch (err) {
+    console.warn(`[Municipal] CKAN probe failed for ${municipalityId}: ${(err as Error).message}`);
+  }
 
   try {
     const resp = await httpGet(`${portal.baseUrl}/api/views.json`, {
@@ -22,7 +24,9 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
       headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
     });
     if (resp.statusCode < 400) return 'socrata';
-  } catch {}
+  } catch (err) {
+    console.warn(`[Municipal] Socrata probe failed for ${municipalityId}: ${(err as Error).message}`);
+  }
 
   try {
     // Detect ArcGIS Hub by checking the OGC API Records endpoint
@@ -34,9 +38,13 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
       try {
         const body = JSON.parse(resp.body);
         if (body?.type === 'FeatureCollection') return 'arcgis';
-      } catch {}
+      } catch (err) {
+        console.warn(`[Municipal] ArcGIS body parse failed for ${municipalityId}: ${(err as Error).message}`);
+      }
     }
-  } catch {}
+  } catch (err) {
+    console.warn(`[Municipal] ArcGIS probe failed for ${municipalityId}: ${(err as Error).message}`);
+  }
 
   return 'custom';
 }
@@ -82,7 +90,9 @@ export async function fetchAllMunicipalities(): Promise<Record<string, unknown>[
       try {
         const data = await fetchMunicipalDataset(id, dataset);
         results.push({ municipalityId: id, dataset, data });
-      } catch {}
+      } catch (err) {
+        console.warn(`[Municipal] Fetch failed for ${id}/${dataset}: ${(err as Error).message}`);
+      }
     }
   }
   return results;

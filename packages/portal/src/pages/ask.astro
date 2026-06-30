@@ -333,6 +333,42 @@ import { Textarea } from "@/components/ui/textarea";
         return MOCK.default;
       }
 
+      function sanitizeHtml(str) {
+        const allowed = { 'b': true, 'i': true, 'em': true, 'strong': true, 'code': true, 'pre': true, 'br': true, 'p': true, 'ul': true, 'ol': true, 'li': true, 'a': true, 'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'h6': true, 'blockquote': true, 'hr': true };
+        const div = document.createElement('div');
+        div.innerHTML = str;
+        const walker = document.createTreeWalker(div, NodeFilter.SHOW_ELEMENT, null, false);
+        const toRemove = [];
+        while (walker.nextNode()) {
+          const el = walker.currentNode;
+          const tag = el.tagName.toLowerCase();
+          if (el.nodeType === 1 && !allowed[tag]) {
+            toRemove.push(el);
+            continue;
+          }
+          // Strip all attributes except safe whitelisted ones
+          for (const attr of Array.from(el.attributes)) {
+            const name = attr.name.toLowerCase();
+            if (tag === 'a' && (name === 'href' || name === 'target' || name === 'rel')) continue;
+            el.removeAttribute(attr.name);
+          }
+          if (tag === 'a') {
+            el.setAttribute('target', '_blank');
+            el.setAttribute('rel', 'noopener noreferrer');
+            const href = el.getAttribute('href') || '';
+            if (!/^https?:\/\/|^#/.test(href)) {
+              el.removeAttribute('href');
+            }
+          }
+        }
+        toRemove.forEach(function (el) { el.remove(); });
+        return div.innerHTML;
+      }
+
+      function isSafeUrl(url) {
+        return !url || /^https?:\/\//.test(url) || url === '#';
+      }
+
       function addMessage(role, text, citations) {
         const msg = document.createElement("div");
         msg.className = "chat-message " + role;
@@ -346,7 +382,7 @@ import { Textarea } from "@/components/ui/textarea";
 
         const textDiv = document.createElement("div");
         textDiv.style.whiteSpace = "pre-wrap";
-        textDiv.innerHTML = text;
+        textDiv.innerHTML = sanitizeHtml(text);
         bubble.appendChild(textDiv);
 
         if (citations && citations.length > 0) {
@@ -359,19 +395,32 @@ import { Textarea } from "@/components/ui/textarea";
           citations.forEach(function (c) {
             const item = document.createElement("div");
             item.className = "cite-item";
-            item.innerHTML =
-              '<span style="color:hsl(var(--primary));font-weight:500;">' +
-              escapeHtml(c.source) +
-              "</span>" +
-              '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.72rem;color:hsl(var(--muted-foreground));">' +
-              escapeHtml(c.title) +
-              "</span>" +
-              '<span style="font-size:0.65rem;color:hsl(var(--muted-foreground));font-family:monospace;">' +
-              escapeHtml(c.hash) +
-              "</span>" +
-              '<a href="' +
-              escapeHtml(c.url) +
-              '" target="_blank" style="color:hsl(var(--muted-foreground));text-decoration:none;">↗</a>';
+
+            const sourceSpan = document.createElement("span");
+            sourceSpan.style.cssText = "color:hsl(var(--primary));font-weight:500;";
+            sourceSpan.textContent = c.source || '';
+
+            const titleSpan = document.createElement("span");
+            titleSpan.style.cssText = "flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.72rem;color:hsl(var(--muted-foreground));";
+            titleSpan.textContent = c.title || '';
+
+            const hashSpan = document.createElement("span");
+            hashSpan.style.cssText = "font-size:0.65rem;color:hsl(var(--muted-foreground));font-family:monospace;";
+            hashSpan.textContent = c.hash || '';
+
+            item.appendChild(sourceSpan);
+            item.appendChild(titleSpan);
+            item.appendChild(hashSpan);
+
+            if (isSafeUrl(c.url)) {
+              const link = document.createElement("a");
+              link.href = c.url || '#';
+              link.target = "_blank";
+              link.style.cssText = "color:hsl(var(--muted-foreground));text-decoration:none;";
+              link.textContent = "↗";
+              item.appendChild(link);
+            }
+
             details.appendChild(item);
           });
           bubble.appendChild(details);
@@ -507,10 +556,14 @@ import { Textarea } from "@/components/ui/textarea";
         const entry = document.createElement("div");
         entry.className =
           "flex items-center justify-between p-3 rounded-lg border bg-muted/30";
-        entry.innerHTML =
-          '<span class="text-sm truncate flex-1">' +
-          escapeHtml(text.substring(0, 80)) +
-          '</span><span class="text-xs text-muted-foreground shrink-0">Just now</span>';
+        const histText = document.createElement("span");
+        histText.className = "text-sm truncate flex-1";
+        histText.textContent = text.substring(0, 80);
+        const histTime = document.createElement("span");
+        histTime.className = "text-xs text-muted-foreground shrink-0";
+        histTime.textContent = "Just now";
+        entry.appendChild(histText);
+        entry.appendChild(histTime);
         historyList.prepend(entry);
         const placeholder = historyList.querySelector(".text-center");
         if (placeholder) placeholder.remove();
@@ -554,11 +607,7 @@ import { Textarea } from "@/components/ui/textarea";
         });
       });
 
-      function escapeHtml(str) {
-        const div = document.createElement("div");
-        div.textContent = str;
-        return div.innerHTML;
-      }
+
     })();
   </script>
 </BaseLayout>

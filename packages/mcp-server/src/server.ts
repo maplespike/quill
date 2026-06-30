@@ -35,10 +35,7 @@ interface ServerCapabilities {
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
+  level: process.env.MAPLESPIKE_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'silent'),
   redact: ['req.headers.authorization', 'req.headers.cookie'],
 });
 

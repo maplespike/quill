@@ -22,6 +22,13 @@ import * as crypto from 'node:crypto';
 const DEFAULT_SECRET = process.env.JWT_SECRET;
 const DEFAULT_EXPIRY = 7 * 24 * 60 * 60; // 7 days in seconds
 const REFRESH_EXPIRY = 30 * 24 * 60 * 60; // 30 days for refresh tokens
+const JWT_ISSUER = process.env.JWT_ISSUER || 'maplespike';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'maplespike-api';
+
+// Enforce JWT_SECRET in production to prevent empty-string signing
+if (!DEFAULT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET environment variable must be set in production');
+}
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -31,6 +38,8 @@ export interface JwtPayload {
   sub: string;
   email?: string;
   tier: string;
+  iss?: string;
+  aud?: string;
   iat: number;
   exp: number;
 }
@@ -63,16 +72,29 @@ function base64UrlDecode(str: string): Buffer {
 /* ------------------------------------------------------------------ */
 
 function sign(input: string, secret?: string): string {
-  const key = secret || DEFAULT_SECRET || '';
+  const key = secret || DEFAULT_SECRET;
+  if (!key) {
+    throw new Error('JWT_SECRET is not configured');
+  }
   return base64UrlEncode(
     crypto.createHmac('sha256', key).update(input).digest(),
   );
 }
 
 function verify(input: string, signature: string, secret?: string): boolean {
-  const expected = sign(input, secret);
-  // Constant-time comparison to prevent timing attacks
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  try {
+    const expected = sign(input, secret);
+    const expectedBuf = Buffer.from(expected);
+    const signatureBuf = Buffer.from(signature);
+    // Pad to same length to prevent timing side-channel on length mismatch
+    const maxLen = Math.max(expectedBuf.length, signatureBuf.length);
+    return crypto.timingSafeEqual(
+      Buffer.concat([expectedBuf, Buffer.alloc(maxLen - expectedBuf.length)]),
+      Buffer.concat([signatureBuf, Buffer.alloc(maxLen - signatureBuf.length)]),
+    );
+  } catch {
+    return false;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -105,6 +127,8 @@ export function generateToken(
     sub: payload.sub,
     email: payload.email,
     tier: payload.tier,
+    iss: JWT_ISSUER,
+    aud: JWT_AUDIENCE,
     iat: now,
     exp: now + expiresIn,
   };
@@ -156,6 +180,10 @@ export function verifyToken(token: string, secret?: string): JwtPayload | null {
 
     // Validate required fields
     if (!decoded.sub) return null;
+
+    // Validate issuer and audience to prevent cross-system token acceptance
+    if (decoded.iss && decoded.iss !== JWT_ISSUER) return null;
+    if (decoded.aud && decoded.aud !== JWT_AUDIENCE) return null;
 
     return decoded;
   } catch {

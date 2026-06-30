@@ -66,7 +66,7 @@ export function buildCspHeader(): string {
     "base-uri 'none'",
     "form-action 'none'",
     'connect-src *',      // API clients need to connect from anywhere
-    'frame-ancestors *',   // API is embedded by any portal (CORS enforces access)
+    "frame-ancestors 'none'",   // API should not be embedded in frames
   ];
   return directives.join('; ');
 }

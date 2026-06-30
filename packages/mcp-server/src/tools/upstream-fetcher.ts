@@ -107,7 +107,10 @@ export async function fetchGazette(query: string, limit = 10): Promise<{ results
             items.push({ title: titles[i], url: links[i], source: 'Canada ' + feed.part });
           }
         }
-      } catch { continue; }
+      } catch (err) {
+        console.warn(`[upstream-fetcher] Gazette RSS fetch failed for ${feed.url}: ${(err as Error).message}`);
+        continue;
+      }
     }
     return { results: items.slice(0, limit), total: items.length };
   });
@@ -160,7 +163,9 @@ export async function fetchCanlii(query: string, limit = 10): Promise<{ results:
       if (ckan?.result?.results?.length) {
         return { results: ckan.result.results, total: ckan.result.total ?? ckan.result.results.length };
       }
-    } catch {}
+    } catch (err) {
+      console.warn(`[upstream-fetcher] CanLII CKAN fallback failed: ${(err as Error).message}`);
+    }
 
     // Fallback: CanLII API with api_key query param (free key from https://www.canlii.org/en/feedback/feedback.html)
     const apiKey = process.env['CANLII_API_KEY'];
@@ -171,7 +176,8 @@ export async function fetchCanlii(query: string, limit = 10): Promise<{ results:
         8000,
       );
       return { results: json.results ?? [], total: json.total ?? 0 };
-    } catch {
+    } catch (err) {
+      console.warn(`[upstream-fetcher] CanLII API search failed: ${(err as Error).message}`);
       return { results: [], total: 0 };
     }
   });
@@ -372,19 +378,28 @@ export async function fetchProvincialData(province: string, query: string, limit
   const prov = province.toLowerCase();
   // Socrata provinces
   if (prov === 'ns' || prov === 'novascotia') {
-    try { const r = await searchSocrata('novascotia', query, limit); if (r.total > 0) return r; } catch {}
+    try { const r = await searchSocrata('novascotia', query, limit); if (r.total > 0) return r; } catch (err) {
+      console.warn(`[upstream-fetcher] Nova Scotia Socrata search failed: ${(err as Error).message}`);
+    }
   }
   if (prov === 'nb' || prov === 'newbrunswick') {
-    try { const r = await searchSocrata('newbrunswick', query, limit); if (r.total > 0) return r; } catch {}
+    try { const r = await searchSocrata('newbrunswick', query, limit); if (r.total > 0) return r; } catch (err) {
+      console.warn(`[upstream-fetcher] New Brunswick Socrata search failed: ${(err as Error).message}`);
+    }
   }
   // CKAN provinces (try provincial portal first, fall back to federal CKAN)
   try {
     const r = await fetchProvincialCkan(prov, query, limit);
     if (r.total > 0) return r;
-  } catch {}
+  } catch (err) {
+    console.warn(`[upstream-fetcher] Provincial CKAN search failed for ${prov}: ${(err as Error).message}`);
+  }
   // Federal CKAN fallback
   const { searchCkan } = await import('./upstream-fetcher.js');
-  try { return await searchCkan(query + ' ' + province, limit); } catch { return { results: [], total: 0 }; }
+  try { return await searchCkan(query + ' ' + province, limit); } catch (err) {
+    console.warn(`[upstream-fetcher] Federal CKAN fallback failed: ${(err as Error).message}`);
+    return { results: [], total: 0 };
+  }
 }
 
 // ── Provincial CKAN endpoints ──────────────────────────────────────
@@ -417,7 +432,10 @@ export async function fetchProvincialCkan(province: string, query: string, limit
       // Socrata format (array of views)
       if (Array.isArray(json)) return { results: json, total: json.length };
       return { results: [], total: 0 };
-    } catch { return { results: [], total: 0 }; }
+    } catch (err) {
+      console.warn(`[upstream-fetcher] Provincial CKAN fetch failed: ${(err as Error).message}`);
+      return { results: [], total: 0 };
+    }
   });
 }
 
@@ -452,7 +470,10 @@ export async function queryArcGISService(serverUrl: string, limit = 10): Promise
     if (!resp.ok) return { results: [], total: 0 };
     const json: any = await resp.json().catch(() => null);
     return { results: [{ service: serverUrl, count: json?.count ?? 0 }], total: json?.count ?? 0 };
-  } catch { return { results: [], total: 0 }; }
+  } catch (err) {
+    console.warn(`[upstream-fetcher] ArcGIS service query failed: ${(err as Error).message}`);
+    return { results: [], total: 0 };
+  }
 }
 
 // ── Municipal Data Routing ─────────────────────────────────────────
@@ -486,7 +507,10 @@ export async function searchMunicipalData(city: string, query: string, limit = 1
       if (Array.isArray(json)) return { results: json, total: json.length };
       if (json?.result?.results) return { results: json.result.results, total: json.result.total ?? json.result.results.length };
       return { results: [], total: 0 };
-    } catch { return { results: [], total: 0 }; }
+    } catch (err) {
+      console.warn(`[upstream-fetcher] Municipal data search failed for ${city}: ${(err as Error).message}`);
+      return { results: [], total: 0 };
+    }
   });
 }
 

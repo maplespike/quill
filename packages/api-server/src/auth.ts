@@ -25,11 +25,12 @@ interface ApiKeyEntry {
 
 const apiKeyMap = new Map<string, ApiKeyEntry>();
 
-// Seed with demo and internal keys (backward compatibility)
-apiKeyMap.set('maplespike-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
-apiKeyMap.set('maplespike-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
-if (process.env.NODE_ENV !== 'production') {
+// Demo/dev keys — only seeded when explicitly enabled (never in production)
+if (process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEMO_KEYS === 'true') {
+  apiKeyMap.set('maplespike-demo-key', { tenantId: 'demo-tenant', name: 'Demo User' });
+  apiKeyMap.set('maplespike-internal-key', { tenantId: 'internal-tenant', name: 'Internal Service' });
   apiKeyMap.set('maplespike-dev-key', { tenantId: 'dev-tenant', name: 'Dev User' });
+  console.warn('[AUTH] WARNING: Demo API keys are active. Set ALLOW_DEMO_KEYS=true only in development.');
 }
 
 const tenantDetails: Record<string, Tenant> = {
