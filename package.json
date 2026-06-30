@@ -16,6 +16,8 @@
     "build:engine": "pnpm --filter @maplespike/engine build",
     "build:sdk": "pnpm --filter @maplespike/sdk build",
     "test": "turbo test",
+    "e2e:smoke": "bash scripts/e2e-smoke.sh --mode=local",
+    "dev:up": "bash scripts/dev-up.sh",
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo"
   },
   "engines": {
