@@ -121,4 +121,10 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://maplespike.ca/status</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/status"/>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
 </urlset>
