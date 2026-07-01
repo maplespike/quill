@@ -1,9 +1,3 @@
-# MapleSpike K8s Deployment
-#
-# Base manifests — environment-agnostic.
-# Use overlays (dev/, prod/) for environment-specific config.
-#
-# All customization is via env vars set in the overlay's kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -11,10 +5,9 @@ namespace: maplespike
 
 resources:
   - namespace.yaml
-  - portal.yaml
-  - api.yaml
-  - mcp.yaml
-  - configmap.yaml
+  - ../manual/10-api-deploy.yaml
+  - ../manual/11-mcp-deploy.yaml
+  - ../manual/20-cronjob.yaml
   - health-check-cronjob.yaml
 
 commonLabels:
