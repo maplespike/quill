@@ -100,7 +100,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'daily',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.ontario.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'gc-standards',
@@ -267,7 +267,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.statcan.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'indigenous',
@@ -281,7 +281,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.statcan.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'federal',
@@ -337,7 +337,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'A2J API', format: 'REST API' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://a2j.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'federal-tribunals',
@@ -378,7 +378,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'continuous',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://weather.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'regional-authorities',
@@ -491,7 +491,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.tsb.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'utilities',
@@ -603,7 +603,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://crtc.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'agriculture',
@@ -803,7 +803,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ingestFunctions: ['ingestBCAssessment'],
     sources: [{ name: 'BC Data Catalogue', format: 'CKAN' }],
     updateFrequency: 'monthly',
-    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
 
   // ── Influence ──────────────────────────────────────────
@@ -997,7 +997,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'fetchFeed',
-    healthCheckUrl: 'https://crtc.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
 
 
@@ -1067,7 +1067,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Health Data (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.ontario.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'bc-health',
@@ -1078,7 +1078,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Health data (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'ab-health',
@@ -1111,7 +1111,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Education data (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.ontario.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'bc-education',
@@ -1122,7 +1122,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Education data (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'ab-education',
@@ -1155,7 +1155,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Infrastructure (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.ontario.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'bc-infrastructure',
@@ -1166,7 +1166,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Infrastructure (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'ab-infrastructure',
@@ -1199,7 +1199,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Economic data (data.ontario.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.ontario.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'bc-economic',
@@ -1210,7 +1210,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'BC Economic data (catalogue.data.gov.bc.ca)', format: 'CKAN' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://catalogue.data.gov.bc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'ab-economic',
@@ -1319,7 +1319,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'StatCan university data', format: 'CSV' }],
     updateFrequency: 'annual',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.statcan.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
 
   // ── Culture ──────────────────────────────────────────────
@@ -1620,7 +1620,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://www.statcan.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
 
   // ── Telecommunications & Digital (#312) ─────────────────────
@@ -1637,7 +1637,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://crtc.gc.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
 
   // ── Pharmaceuticals & Drug Policy (#313) ────────────────────
@@ -1696,7 +1696,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'Ontario Data Catalog', format: 'JSON' }],
     updateFrequency: 'weekly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.ontario.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'gtfs-transit',
@@ -1788,7 +1788,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     ],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://efis.fipa.on.ca',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'parliamentary-voting',
@@ -1866,7 +1866,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     sources: [{ name: 'UNHCR Population Data', format: 'JSON' }],
     updateFrequency: 'monthly',
     testCallPattern: 'runModule',
-    healthCheckUrl: 'https://data.unhcr.org',
+    healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
   },
   {
     name: 'fire-emergency',
@@ -1999,7 +1999,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   sources: [{ name: 'ABS Data API (SDMX)', format: 'SDMX-JSON' }],
   updateFrequency: 'quarterly',
   testCallPattern: 'runModule',
-  healthCheckUrl: 'https://api.data.abs.gov.au',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
  },
  {
   name: 'nz-stats',
@@ -2078,7 +2078,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNsHealth'],
   sources: [{ name: 'Nova Scotia Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.novascotia.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'ns-education',
@@ -2088,7 +2088,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNsEducation'],
   sources: [{ name: 'Nova Scotia Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.novascotia.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'ns-labour',
@@ -2098,7 +2098,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNsLabour'],
   sources: [{ name: 'Nova Scotia Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.novascotia.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'ns-budget',
@@ -2108,7 +2108,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNsBudget'],
   sources: [{ name: 'Nova Scotia Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.novascotia.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'nb-health',
@@ -2158,7 +2158,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestPeHealth'],
   sources: [{ name: 'PEI Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.princeedwardisland.ca',
+  healthCheckUrl: 'https://peigov.maps.arcgis.com/sharing/rest/content/groups/3f3e0df042854ea59560465cde7987cc?f=json&num=1',
 },
 {
   name: 'pe-agriculture',
@@ -2168,7 +2168,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestPeAgriculture'],
   sources: [{ name: 'PEI Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.princeedwardisland.ca',
+  healthCheckUrl: 'https://peigov.maps.arcgis.com/sharing/rest/content/groups/3f3e0df042854ea59560465cde7987cc?f=json&num=1',
 },
 {
   name: 'pe-education',
@@ -2178,7 +2178,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestPeEducation'],
   sources: [{ name: 'PEI Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.princeedwardisland.ca',
+  healthCheckUrl: 'https://peigov.maps.arcgis.com/sharing/rest/content/groups/3f3e0df042854ea59560465cde7987cc?f=json&num=1',
 },
 {
   name: 'pe-budget',
@@ -2188,7 +2188,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestPeBudget'],
   sources: [{ name: 'PEI Open Data (Socrata)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.princeedwardisland.ca',
+  healthCheckUrl: 'https://peigov.maps.arcgis.com/sharing/rest/content/groups/3f3e0df042854ea59560465cde7987cc?f=json&num=1',
 },
 // ── Provincial CKAN / Custom Portal Modules (2026-06-26) ───────────
 {
@@ -2199,7 +2199,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNlHealth'],
   sources: [{ name: 'NL Open Data Portal', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://opendata.gov.nl.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'nl-budget',
@@ -2209,7 +2209,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNlBudget'],
   sources: [{ name: 'NL Open Data Portal', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://opendata.gov.nl.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'nl-energy',
@@ -2219,7 +2219,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNlEnergy'],
   sources: [{ name: 'NL Open Data Portal', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://opendata.gov.nl.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'nl-education',
@@ -2229,7 +2229,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNlEducation'],
   sources: [{ name: 'NL Open Data Portal', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://opendata.gov.nl.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'sk-health',
@@ -2239,7 +2239,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestSkHealth'],
   sources: [{ name: 'Saskatchewan Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.saskatchewan.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=saskatchewan&rows=1',
 },
 {
   name: 'sk-education',
@@ -2249,7 +2249,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestSkEducation'],
   sources: [{ name: 'Saskatchewan Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.saskatchewan.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=saskatchewan&rows=1',
 },
 {
   name: 'sk-agriculture',
@@ -2259,7 +2259,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestSkAgriculture'],
   sources: [{ name: 'Saskatchewan Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.saskatchewan.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=saskatchewan&rows=1',
 },
 {
   name: 'sk-crown-corps',
@@ -2269,7 +2269,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestSkCrownCorps'],
   sources: [{ name: 'Saskatchewan Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.saskatchewan.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=saskatchewan&rows=1',
 },
 {
   name: 'sk-labour',
@@ -2279,7 +2279,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestSkLabour'],
   sources: [{ name: 'Saskatchewan Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.saskatchewan.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=saskatchewan&rows=1',
 },
 {
   name: 'sk-budget',
@@ -2289,7 +2289,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestSkBudget'],
   sources: [{ name: 'Saskatchewan Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.saskatchewan.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=saskatchewan&rows=1',
 },
 {
   name: 'mb-health',
@@ -2299,7 +2299,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestMbHealth'],
   sources: [{ name: 'Manitoba Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.gov.mb.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=manitoba&rows=1',
 },
 {
   name: 'mb-education',
@@ -2309,7 +2309,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestMbEducation'],
   sources: [{ name: 'Manitoba Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.gov.mb.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=manitoba&rows=1',
 },
 {
   name: 'mb-hydro',
@@ -2319,7 +2319,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestMbHydro'],
   sources: [{ name: 'Manitoba Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.gov.mb.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=manitoba&rows=1',
 },
 {
   name: 'mb-mpi',
@@ -2329,7 +2329,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestMbMpi'],
   sources: [{ name: 'Manitoba Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.gov.mb.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=manitoba&rows=1',
 },
 {
   name: 'mb-labour',
@@ -2339,7 +2339,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestMbLabour'],
   sources: [{ name: 'Manitoba Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.gov.mb.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=manitoba&rows=1',
 },
 {
   name: 'mb-budget',
@@ -2349,7 +2349,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestMbBudget'],
   sources: [{ name: 'Manitoba Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://data.gov.mb.ca',
+  healthCheckUrl: 'https://open.canada.ca/data/api/3/action/package_search?q=manitoba&rows=1',
 },
 {
   name: 'yt-health',
@@ -2359,7 +2359,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestYtHealth'],
   sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://open.yukon.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'yt-education',
@@ -2369,7 +2369,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestYtEducation'],
   sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://open.yukon.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'yt-energy-mines',
@@ -2379,7 +2379,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestYtEnergyMines'],
   sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://open.yukon.ca',
+  healthCheckUrl: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics'
 },
 {
   name: 'nt-health-social',
@@ -2389,7 +2389,7 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   ingestFunctions: ['ingestNtHealthSocial'],
   sources: [{ name: 'NWT Open Data Portal', format: 'JSON' }],
   updateFrequency: 'weekly',
-  healthCheckUrl: 'https://opendata.gov.nt.ca',
+  healthCheckUrl: 'https://www.ece.gov.nt.ca/en/services/open-government-product',
 },
 {
   name: 'nu-statcan',
@@ -2400,6 +2400,66 @@ const MODULE_REGISTRY: ModuleInfo[] = [
   sources: [{ name: 'Open Canada Search (CKAN)', format: 'JSON' }],
   updateFrequency: 'weekly',
   healthCheckUrl: 'https://search.open.canada.ca',
+},
+{
+  name: 'nu-bureau-statistics',
+  description: 'Nunavut Bureau of Statistics — direct file download (no API, Cloudflare on HTML only)',
+  category: 'provincial',
+  modulePath: './nu-bureau-statistics/index.js',
+  ingestFunctions: ['ingestNuBureauStatistics'],
+  sources: [{ name: 'Government of Nunavut — Bureau of Statistics', format: 'XLSX/PDF' }],
+  updateFrequency: 'monthly',
+  healthCheckUrl: 'https://www.gov.nu.ca/sites/default/files/documents/2025-03/Nunavut_Deaths_by_Sex__Age_Group__Marital_Status_and_by_Month__2007_to_2023__4_tables_.xlsx',
+},
+{
+  name: 'nt-open-government',
+  description: 'NWT Open Government Product — HTML page scraper (no API available)',
+  category: 'provincial',
+  modulePath: './nt-open-government/index.js',
+  ingestFunctions: ['ingestNtOpenGovernment'],
+  sources: [{ name: 'NWT Education/Culture/Employment — Open Government Product', format: 'HTML' }],
+  updateFrequency: 'monthly',
+  healthCheckUrl: 'https://www.ece.gov.nt.ca/en/services/open-government-product',
+},
+{
+  name: 'yk-statistics',
+  description: 'Yukon Bureau of Statistics — population, demographic, economic data (CKAN)',
+  category: 'provincial',
+  modulePath: './yk-statistics/index.js',
+  ingestFunctions: ['ingestYkStatistics'],
+  sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
+  updateFrequency: 'weekly',
+  healthCheckUrl: 'https://open.yukon.ca/api/3/action/package_search?rows=1',
+},
+{
+  name: 'yk-environment',
+  description: 'Yukon environment, wildlife, and nature data — 183 datasets (CKAN)',
+  category: 'environment',
+  modulePath: './yk-environment/index.js',
+  ingestFunctions: ['ingestYkEnvironment'],
+  sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
+  updateFrequency: 'weekly',
+  healthCheckUrl: 'https://open.yukon.ca/api/3/action/package_search?rows=1',
+},
+{
+  name: 'yk-geological',
+  description: 'Yukon Geological Survey — 1932 datasets, largest territorial portal (CKAN)',
+  category: 'science',
+  modulePath: './yk-geological/index.js',
+  ingestFunctions: ['ingestYkGeological'],
+  sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
+  updateFrequency: 'weekly',
+  healthCheckUrl: 'https://open.yukon.ca/api/3/action/package_search?rows=1',
+},
+{
+  name: 'yk-government',
+  description: 'Yukon government, finance, and budget data (CKAN)',
+  category: 'government',
+  modulePath: './yk-government/index.js',
+  ingestFunctions: ['ingestYkGovernment'],
+  sources: [{ name: 'Yukon Open Data (CKAN)', format: 'JSON' }],
+  updateFrequency: 'weekly',
+  healthCheckUrl: 'https://open.yukon.ca/api/3/action/package_search?rows=1',
 },
 ];
 
