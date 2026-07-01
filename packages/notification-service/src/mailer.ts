@@ -59,6 +59,11 @@ export class Mailer {
     eventType: string;
     summary: string;
   }): Promise<MailResult> {
+    // Validate required fields — reject empty recipients even in dry-run
+    if (!params.to || params.to.trim() === '') {
+      return { success: false, error: 'Recipient email address is required' };
+    }
+
     const payload = buildNotificationEmail({
       to: params.to,
       unsubscribeToken: params.unsubscribeToken,
