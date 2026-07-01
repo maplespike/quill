@@ -52,6 +52,18 @@ const isActive = (match: string) =>
       ::view-transition-new(root) { animation: 100ms ease-out both fadeIn; }
       @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
       @keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
+
+      /* Navbar scroll shrink */
+      header.header-scrolled .header-inner {
+        height: 3.25rem;
+      }
+      header.header-scrolled .header-inner img {
+        height: 1.75rem;
+        width: 1.75rem;
+      }
+      header.header-scrolled .header-inner .text-lg {
+        font-size: 0.95rem;
+      }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -71,8 +83,8 @@ const isActive = (match: string) =>
   <body class="min-h-screen bg-background text-foreground font-sans antialiased">
 
     <!-- Navigation -->
-    <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50">
-      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 transition-all duration-300 ease-out">
+      <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 transition-all duration-300 ease-out header-inner">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
           <img
@@ -83,9 +95,9 @@ const isActive = (match: string) =>
           <span class="text-lg font-bold tracking-tight">MapleSpike</span>
         </a>
 
-        <!-- Desktop nav -->
+        <!-- Desktop nav — vanishes on scroll -->
         <nav class="hidden items-center md:flex">
-          <div class="flex items-center rounded-full border border-border/60 bg-card/30 p-0.5 backdrop-blur-sm">
+          <div class="flex items-center rounded-full border border-border/60 bg-card/30 p-0.5 backdrop-blur-sm transition-all duration-300 ease-out nav-pills">
             {
               navLinks.map((link) => (
                 <a
@@ -296,19 +308,6 @@ const isActive = (match: string) =>
     </footer>
 
     <script>
-      // Theme toggle
-      const themeToggle = document.getElementById("theme-toggle");
-      if (themeToggle) {
-        themeToggle.addEventListener("click", () => {
-          const html = document.documentElement;
-          const current = html.getAttribute("data-theme");
-          const next = current === "dark" ? "light" : "dark";
-          html.setAttribute("data-theme", next);
-          html.classList.toggle("dark", next === "dark");
-          localStorage.setItem("data-theme", next);
-        });
-      }
-
       // Mobile menu toggle with icon swap
       const mobileToggle = document.getElementById("mobile-menu-toggle");
       const mobileNav = document.getElementById("mobile-nav");
@@ -324,6 +323,35 @@ const isActive = (match: string) =>
             iconClose.classList.toggle("hidden", !isHidden);
           }
         });
+      }
+
+      // Scroll shrink: reduce header height, hide center pills
+      const header = document.querySelector('header.sticky');
+      if (header) {
+        const pillNav = header.querySelector('.nav-pills');
+        let ticking = false;
+        function onScroll() {
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              const scrolled = window.scrollY > 40;
+              header.classList.toggle('header-scrolled', scrolled);
+              if (pillNav) {
+                pillNav.classList.toggle('opacity-0', scrolled);
+                pillNav.classList.toggle('-translate-y-2', scrolled);
+                pillNav.classList.toggle('pointer-events-none', scrolled);
+              }
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        if (window.scrollY > 40) {
+          header.classList.add('header-scrolled');
+          if (pillNav) {
+            pillNav.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
+          }
+        }
       }
     </script>
 

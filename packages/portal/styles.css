@@ -528,6 +528,18 @@ nav {
 nav.scrolled { height: 56px; }
 nav.scrolled .nav-inner { height: 56px; }
 
+/* Hide center nav links on scroll — keep logo + theme toggle */
+nav.scrolled .nav-links a:not(.btn) {
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+nav .nav-links a:not(.btn) {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
 nav .nav-inner {
   max-width: var(--max-width);
   margin: 0 auto;
