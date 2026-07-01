@@ -11,12 +11,14 @@ const sections = [
   { id: "authentication", num: "01", label: "Authentication" },
   { id: "request-response", num: "02", label: "Request + Response" },
   { id: "endpoints", num: "03", label: "API Reference" },
-  { id: "token-optimization", num: "04", label: "Token Optimization" },
-  { id: "citation-contract", num: "05", label: "Citation Contract" },
-  { id: "mcp-tools", num: "06", label: "MCP Tools", badge: "174 TOOLS" },
-  { id: "rate-limits", num: "07", label: "Rate Limits" },
-  { id: "errors", num: "08", label: "Errors" },
-  { id: "faq", num: "09", label: "FAQ" },
+  { id: "ai-endpoints", num: "04", label: "AI Endpoints", badge: "EDGE" },
+  { id: "extraction", num: "05", label: "Browser Extraction" },
+  { id: "token-optimization", num: "06", label: "Token Optimization" },
+  { id: "citation-contract", num: "07", label: "Citation Contract" },
+  { id: "mcp-tools", num: "08", label: "MCP Tools", badge: "174 TOOLS" },
+  { id: "rate-limits", num: "09", label: "Rate Limits" },
+  { id: "errors", num: "10", label: "Errors" },
+  { id: "faq", num: "11", label: "FAQ" },
 ];
 
 const apiEndpoints = [
@@ -34,7 +36,7 @@ const apiEndpoints = [
   { method: "POST", path: "/v1/ai/ask", desc: "Ask a question, get a sourced answer (edge AI)" },
   { method: "POST", path: "/v1/ai/search", desc: "Semantic search with edge embeddings" },
   { method: "GET", path: "/v1/ai/models", desc: "List available AI models" },
-  { method: "POST", path: "/v1/ai/analyze", desc: "Analyze text for bias, sentiment, claims" },
+  { method: "POST", path: "/v1/ai/analyze", desc: "Analyze a document/transcript for topics, entities, summary (Pro+)" },
   // Auth
   { method: "POST", path: "/v1/register", desc: "Create account and API key" },
   { method: "GET", path: "/v1/verify/:token", desc: "Verify email address" },
@@ -240,7 +242,7 @@ const mcpTools = [
   { cat: "Global Affairs", name: "search_lode", desc: "Open Database of Addresses: 10M+ civic addresses" },
   // ── AI (3) ──
   { cat: "AI", name: "ai_ask", desc: "Ask a natural language question, get a sourced answer" },
-  { cat: "AI", name: "ai_analyze", desc: "Analyze text for bias, sentiment, and claims" },
+  { cat: "AI", name: "ai_analyze", desc: "Analyze a document or transcript for topics, entities, and summary" },
   { cat: "AI", name: "ai_search_semantic", desc: "Semantic search with edge embeddings" },
   // ── Entity Resolution (5) ──
   { cat: "Entity", name: "resolve_entity", desc: "Resolve a person or organization name to canonical entity" },
@@ -471,10 +473,235 @@ const errorCodes = [
 
       <Separator class="mb-16" />
 
-      <!-- ═══ 04: TOKEN OPTIMIZATION ═══ -->
-      <section id="token-optimization" class="mb-16 scroll-mt-24">
+      <!-- ═══ 04: AI ENDPOINTS ═══ -->
+      <section id="ai-endpoints" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">04</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">AI Endpoints</span>
+          <Badge variant="default" class="text-[10px] px-1.5 py-0.5">EDGE</Badge>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Edge AI — ask, search, analyze</h2>
+        <p class="text-muted-foreground mb-6">AI endpoints run on the Cloudflare edge (Llama 3.3 70B) with automatic fallback to the homelab cluster (Qwen 3.5 27B). Tier-aware routing: free tier uses edge first, pro/business uses homelab first, enterprise uses BYOK if configured.</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/ask</h3>
+        <p class="text-sm text-muted-foreground mb-3">Ask a natural language question about Canadian government data. The response includes the answer, model used, inference source (edge/homelab/byok), and token usage.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/ask \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;-d <span class="text-[#D4A017]">&#39;&#123;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;question&quot;</span>: <span class="text-[#0891B2]">&quot;What did the ethics commissioner investigate in 2024?&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;model&quot;</span>: <span class="text-[#0891B2]">&quot;fast&quot;</span><br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&#39;&#125;</span> | jq .<br /><br />
+            <span class="text-muted-foreground">// Response</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;answer&quot;</span>: <span class="text-[#0891B2]">&quot;The Ethics Commissioner investigated...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;model&quot;</span>: <span class="text-[#0891B2]">&quot;@cf/meta/llama-3.1-8b-instruct&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source&quot;</span>: <span class="text-[#0891B2]">&quot;edge&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;tokens&quot;</span>: &#123; <span class="text-[#D4A017]">&quot;prompt&quot;</span>: 142, <span class="text-[#D4A017]">&quot;completion&quot;</span>: 89 &#125;,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;cached&quot;</span>: false<br />
+            &nbsp;&nbsp;&#125;,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;meta&quot;</span>: &#123; <span class="text-[#D4A017]">&quot;tier&quot;</span>: <span class="text-[#0891B2]">&quot;free&quot;</span>, <span class="text-[#D4A017]">&quot;rate_limit_remaining&quot;</span>: 9 &#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+        <p class="text-xs text-muted-foreground mb-6">Optional <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">context</code> field injects up to 2000 chars of MapleSpike data into the system prompt. Use <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">model: "fast"</code> for Llama 3.1 8B (lower latency), omit for Llama 3.3 70B (higher quality).</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/search</h3>
+        <p class="text-sm text-muted-foreground mb-3">Semantic search using edge-generated embeddings (BGE base) routed to the homelab Qdrant vector database. Falls back to keyword search if embedding generation fails.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/search \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;-d <span class="text-[#D4A017]">&#39;&#123;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;query&quot;</span>: <span class="text-[#0891B2]">&quot;regulatory impacts on small business&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;limit&quot;</span>: 10<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&#39;&#125;</span> | jq .<br /><br />
+            <span class="text-muted-foreground">// Response</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123; <span class="text-[#D4A017]">&quot;results&quot;</span>: [...] &#125;,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;meta&quot;</span>: &#123; <span class="text-[#D4A017]">&quot;source&quot;</span>: <span class="text-[#0891B2]">&quot;vector-edge-embedding&quot;</span> &#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+        <p class="text-xs text-muted-foreground mb-6">Max <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">limit</code> is 50. If the embedding service is unavailable, the API falls back to keyword search via <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">/v1/gov/search</code> and returns <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">meta.source: "keyword-fallback"</code>.</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/analyze <span class="text-xs font-normal text-muted-foreground">(Pro tier+)</span></h3>
+        <p class="text-sm text-muted-foreground mb-3">Submit a document or transcript for LLM-powered analysis. The model extracts key topics, notable entities, and an overall summary. Optionally specify a <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">mode</code> (e.g. <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"general"</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"legal"</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"financial"</code>) to hint the analysis focus. Defaults to <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"general"</code> if omitted.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/analyze \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;-d <span class="text-[#D4A017]">&#39;&#123;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;text&quot;</span>: <span class="text-[#0891B2]">&quot;Mr. Speaker, today I am pleased to table Bill C-59...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;mode&quot;</span>: <span class="text-[#0891B2]">&quot;general&quot;</span><br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&#39;&#125;</span> | jq .<br /><br />
+            <span class="text-muted-foreground">// Response</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;analysis&quot;</span>: <span class="text-[#0891B2]">&quot;Key Topics: 1) Budget implementation 2) Competition Act amendments...\n\nEntities: Bill C-59, Competition Bureau, Innovation Ministry...\n\nSummary: The speech introduces amendments to...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;model&quot;</span>: <span class="text-[#0891B2]">&quot;qwen3.5-4b-local&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;mode&quot;</span>: <span class="text-[#0891B2]">&quot;general&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+        <p class="text-xs text-muted-foreground mb-6">Unlike <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">/v1/ai/ask</code> and <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">/v1/ai/search</code> which run directly on the Cloudflare edge, this endpoint is proxied to the homelab API server (Qwen 3.5). Requires Pro tier or higher (returns <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">402 UPGRADE_REQUIRED</code> on Free). Max <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">text</code> length: 50,000 chars (first 8,000 chars are sent to the LLM). If the AI Gateway is unreachable, returns <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">503 AI_UNAVAILABLE</code>.</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">GET /v1/ai/models</h3>
+        <p class="text-sm text-muted-foreground mb-3">List available models and tier-aware routing rules. Public endpoint — no API key required.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">$</span> curl -s https://api.maplespike.ca/v1/ai/models | jq .<br /><br />
+            <span class="text-muted-foreground">// Response</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;edge&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;chat&quot;</span>: <span class="text-[#0891B2]">&quot;@cf/meta/llama-3.3-70b-instruct-fp8-fast&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;chatFast&quot;</span>: <span class="text-[#0891B2]">&quot;@cf/meta/llama-3.1-8b-instruct&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;embedding&quot;</span>: <span class="text-[#0891B2]">&quot;@cf/baai/bge-base-en-v1.5&quot;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&#125;,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;homelab&quot;</span>: <span class="text-[#0891B2]">&quot;qwen3.5-27b&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;routing&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;free&quot;</span>: <span class="text-[#0891B2]">&quot;edge (within budget) → homelab fallback&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;pro&quot;</span>: <span class="text-[#0891B2]">&quot;homelab primary → edge fallback&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;enterprise&quot;</span>: <span class="text-[#0891B2]">&quot;byok (if configured) → homelab fallback&quot;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&#125;<br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 05: BROWSER EXTRACTION ═══ -->
+      <section id="extraction" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span><span class="text-primary/80">05</span><span class="text-primary">]</span>
+          <span class="font-semibold text-foreground">Browser Extraction</span>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">Extract data from no-API government portals</h2>
+        <p class="text-muted-foreground mb-6">Some government portals (NWT, Nunavut) have no machine-readable API. The extraction system lets the portal client render pages in the user's browser, extract download links, and cache results server-side for MCP tools to use as fallback.</p>
+
+        <Card class="mb-6 border-primary/20 bg-primary/5">
+          <CardContent class="p-4 text-sm">
+            <strong class="text-primary">Flow:</strong>
+            <span class="text-muted-foreground"> 1. Client GETs extraction tasks → 2. Browser visits source URLs → 3. Client POSTs extracted results → 4. MCP tools GET cached results as fallback</span>
+          </CardContent>
+        </Card>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">GET /v1/extraction/tasks</h3>
+        <p class="text-sm text-muted-foreground mb-3">List extraction tasks for sources that need browser rendering. Optionally filter by jurisdiction via path param or query param.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground"># All extraction tasks</span><br />
+            <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/tasks | jq .<br /><br />
+            <span class="text-muted-foreground"># Filter by jurisdiction (path param)</span><br />
+            <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/tasks/nunavut | jq .<br /><br />
+            <span class="text-muted-foreground">// Response</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;tasks&quot;</span>: [&#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_id&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut-bureau-statistics&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;jurisdiction&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;name&quot;</span>: <span class="text-[#0891B2]">&quot;Nunavut Bureau of Statistics&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;url&quot;</span>: <span class="text-[#0891B2]">&quot;https://www.gov.nu.ca/en/...&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;extract_type&quot;</span>: <span class="text-[#0891B2]">&quot;link_list&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;selector&quot;</span>: <span class="text-[#0891B2]">&quot;a[href*='/sites/default/files/']&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;cached&quot;</span>: false,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;cache_ttl_hours&quot;</span>: 168<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&#125;]<br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/extraction/results</h3>
+        <p class="text-sm text-muted-foreground mb-3">Submit extracted data from the browser client. The server validates the source_id, blocks SSRF attempts (private IPs, localhost), and caches results with a timestamp.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/extraction/results \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;Content-Type: application/json&quot;</span> \<br />
+            &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;-d <span class="text-[#D4A017]">&#39;&#123;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_id&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut-bureau-statistics&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;results&quot;</span>: [&#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;title&quot;</span>: <span class="text-[#0891B2]">&quot;Population Estimates 2024&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;url&quot;</span>: <span class="text-[#0891B2]">&quot;https://www.gov.nu.ca/sites/default/files/pop-2024.xlsx&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;format&quot;</span>: <span class="text-[#0891B2]">&quot;xlsx&quot;</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&#125;]<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&#39;&#125;</span> | jq .<br /><br />
+            <span class="text-muted-foreground">// Response</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;stored&quot;</span>: true,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_id&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut-bureau-statistics&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;count&quot;</span>: 1,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;rejected&quot;</span>: 0,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;cached_at&quot;</span>: <span class="text-[#0891B2]">&quot;2026-07-01T12:00:00.000Z&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+        <p class="text-xs text-muted-foreground mb-6">SSRF protection: URLs pointing to <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">localhost</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">127.x</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">10.x</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">192.168.x</code>, or <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">172.16.x</code> are silently filtered. The <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">rejected</code> field shows how many were blocked.</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">GET /v1/extraction/cached/:source_id</h3>
+        <p class="text-sm text-muted-foreground mb-3">Retrieve cached extraction results if fresh (within <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">cache_ttl_hours</code>). MCP tools use this as fallback when live sources are unavailable.</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
+            &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/cached/nunavut-bureau-statistics | jq .<br /><br />
+            <span class="text-muted-foreground">// Response (fresh cache)</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_id&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut-bureau-statistics&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;results&quot;</span>: [...],<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;cached_at&quot;</span>: <span class="text-[#0891B2]">&quot;2026-07-01T12:00:00.000Z&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;age_hours&quot;</span>: 3.2,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;fresh&quot;</span>: true,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;source_name&quot;</span>: <span class="text-[#0891B2]">&quot;Nunavut Bureau of Statistics&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;jurisdiction&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;<br /><br />
+            <span class="text-muted-foreground">// Response (expired cache → 404)</span><br />
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: false,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;error&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;code&quot;</span>: <span class="text-[#0891B2]">&quot;STALE&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;message&quot;</span>: <span class="text-[#0891B2]">&quot;Cache expired (age: 172h, ttl: 168h)&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+
+        <Card class="border-primary/20 bg-primary/5">
+          <CardContent class="p-4 text-sm">
+            <strong class="text-primary">Currently tracked sources:</strong>
+            <span class="text-muted-foreground"> NWT Open Government Product, Nunavut Bureau of Statistics (3 sub-sources: demographics, economic, main). Cache TTL: 168 hours (7 days).</span>
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator class="mb-16" />
+
+      <!-- ═══ 06: TOKEN OPTIMIZATION ═══ -->
+      <section id="token-optimization" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+          <span class="text-primary">[</span>          <span class="text-primary/80">06</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">Token Optimization</span>
         </div>
         <h2 class="text-2xl font-bold mb-4">Trim responses for AI agents</h2>
@@ -516,7 +743,7 @@ const errorCodes = [
       <!-- ═══ 05: CITATION CONTRACT ═══ -->
       <section id="citation-contract" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span><span class="text-primary/80">05</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span>          <span class="text-primary/80">07</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">Citation Contract</span>
         </div>
         <h2 class="text-2xl font-bold mb-4">Every response. Every endpoint. Verifiable.</h2>
@@ -545,7 +772,7 @@ const errorCodes = [
       <!-- ═══ 06: MCP TOOLS ═══ -->
       <section id="mcp-tools" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span><span class="text-primary/80">06</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span>          <span class="text-primary/80">08</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">MCP Tools</span>
           <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">174 TOOLS</Badge>
         </div>
@@ -656,7 +883,7 @@ const errorCodes = [
       <!-- ═══ 07: RATE LIMITS ═══ -->
       <section id="rate-limits" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span><span class="text-primary/80">07</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span>          <span class="text-primary/80">09</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">Rate Limits</span>
         </div>
         <h2 class="text-2xl font-bold mb-4">Per-plan caps</h2>
@@ -693,7 +920,7 @@ const errorCodes = [
       <!-- ═══ 08: ERRORS ═══ -->
       <section id="errors" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span><span class="text-primary/80">08</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span>          <span class="text-primary/80">10</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">Errors</span>
         </div>
         <h2 class="text-2xl font-bold mb-4">One shape. Specific categories.</h2>
@@ -742,7 +969,7 @@ const errorCodes = [
       <!-- ═══ 09: FAQ ═══ -->
       <section id="faq" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-          <span class="text-primary">[</span><span class="text-primary/80">09</span><span class="text-primary">]</span>
+          <span class="text-primary">[</span>          <span class="text-primary/80">11</span><span class="text-primary">]</span>
           <span class="font-semibold text-foreground">FAQ</span>
         </div>
         <h2 class="text-2xl font-bold mb-6">Common questions</h2>
