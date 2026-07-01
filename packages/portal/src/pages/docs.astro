@@ -20,14 +20,38 @@ const sections = [
 ];
 
 const apiEndpoints = [
-  { method: "GET", path: "/v1/health", desc: "System status and usage" },
+  // Core
+  { method: "GET", path: "/v1/health", desc: "System status and usage stats" },
+  { method: "GET", path: "/v1/openapi.json", desc: "Full OpenAPI 3.1 specification" },
+  { method: "GET", path: "/v1/me", desc: "Current tenant info and API keys" },
+  { method: "GET", path: "/v1/usage", desc: "Current billing period usage" },
+  // Data
   { method: "GET", path: "/v1/gov/releases", desc: "Latest government data releases" },
-  { method: "GET", path: "/v1/gov/search?query=", desc: "Search across all sources" },
-  { method: "GET", path: "/v1/citation/:hash", desc: "Verify a data point by SHA-256 hash" },
-  { method: "GET", path: "/v1/usage", desc: "Usage and quota info" },
+  { method: "GET", path: "/v1/gov/search?query=", desc: "Full-text search across all sources" },
+  { method: "GET", path: "/v1/citation/:hash", desc: "Retrieve citation by SHA-256 hash" },
+  { method: "GET", path: "/v1/signals", desc: "Cross-reference signals (requires engine)" },
+  // AI (edge worker)
+  { method: "POST", path: "/v1/ai/ask", desc: "Ask a question, get a sourced answer (edge AI)" },
+  { method: "POST", path: "/v1/ai/search", desc: "Semantic search with edge embeddings" },
+  { method: "GET", path: "/v1/ai/models", desc: "List available AI models" },
+  { method: "POST", path: "/v1/ai/analyze", desc: "Analyze text for bias, sentiment, claims" },
+  // Auth
+  { method: "POST", path: "/v1/register", desc: "Create account and API key" },
+  { method: "GET", path: "/v1/verify/:token", desc: "Verify email address" },
+  { method: "POST", path: "/v1/auth/refresh", desc: "Refresh JWT token" },
+  { method: "POST", path: "/v1/auth/logout", desc: "Clear session" },
+  // Keys
   { method: "GET", path: "/v1/keys", desc: "List API keys" },
   { method: "POST", path: "/v1/keys", desc: "Create a new API key" },
-  { method: "GET", path: "/v1/auth/me", desc: "Current user profile" },
+  { method: "DELETE", path: "/v1/keys/:id", desc: "Delete an API key" },
+  { method: "POST", path: "/v1/keys/:id/rotate", desc: "Rotate an API key" },
+  // Billing
+  { method: "POST", path: "/v1/billing/checkout", desc: "Create checkout session" },
+  { method: "GET", path: "/v1/billing/plans", desc: "Available pricing plans" },
+  // Extraction (browser)
+  { method: "GET", path: "/v1/extraction/tasks", desc: "List browser extraction tasks for no-API portals" },
+  { method: "POST", path: "/v1/extraction/results", desc: "Submit extracted data from browser client" },
+  { method: "GET", path: "/v1/extraction/cached/:source_id", desc: "Get cached browser extraction results" },
 ];
 
 const mcpTools = [
@@ -242,6 +266,8 @@ const errorCodes = [
                       <span class={`font-mono text-xs font-semibold px-2 py-0.5 rounded ${
                         ep.method === "GET"
                           ? "text-emerald-500 bg-emerald-500/10"
+                          : ep.method === "DELETE"
+                          ? "text-red-500 bg-red-500/10"
                           : "text-blue-500 bg-blue-500/10"
                       }`}>{ep.method}</span>
                     </td>
