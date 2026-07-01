@@ -239,6 +239,8 @@ export interface MapleSpikeStorage {
 export interface MapleSpikeCache {
   get(key: string): Promise<string | null>;
   put(key: string, value: string, ttlSeconds?: number): Promise<void>;
+  /** Atomically remove a key. Used for single-use OAuth exchange codes. */
+  delete(key: string): Promise<void>;
 }
 
 export interface AuditEntry {
@@ -294,6 +296,7 @@ export interface Env {
   CACHE: {
     get(key: string): Promise<string | null>;
     put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+    delete(key: string): Promise<void>;
   };
   ENVIRONMENT?: string;
   MAPLESPIKE_VERSION?: string;
