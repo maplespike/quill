@@ -10,7 +10,6 @@
  */
 
 import type { NotificationConfig } from "./config.js";
-import { Mailer } from "./mailer.js";
 import { SubscriptionStore } from "./subscriptions.js";
 import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
@@ -25,7 +24,6 @@ export interface DataChangeEvent {
 export interface WatcherDeps {
   db: Database.Database;
   config: NotificationConfig;
-  mailer: Mailer;
   subscriptionStore: SubscriptionStore;
   /** Fetch recent changes from the API — override for testing */
   fetchChanges?: (since: string) => Promise<DataChangeEvent[]>;
@@ -34,7 +32,6 @@ export interface WatcherDeps {
 export class Watcher {
   private db: Database.Database;
   private config: NotificationConfig;
-  private mailer: Mailer;
   private subscriptionStore: SubscriptionStore;
   private fetchChangesFn: (since: string) => Promise<DataChangeEvent[]>;
   private intervalHandle: ReturnType<typeof setInterval> | null = null;
@@ -43,7 +40,6 @@ export class Watcher {
   constructor(deps: WatcherDeps) {
     this.db = deps.db;
     this.config = deps.config;
-    this.mailer = deps.mailer;
     this.subscriptionStore = deps.subscriptionStore;
     this.fetchChangesFn = deps.fetchChanges ?? this.defaultFetchChanges.bind(this);
     this.lastPollTimestamp = new Date().toISOString();
@@ -77,14 +73,14 @@ export class Watcher {
   }
 
   /** Execute a single poll cycle. Exposed for testing. */
-  async poll(): Promise<{ changes: number; notifications: number; delivered: number; failed: number }> {
+  async poll(): Promise<{ changes: number; notifications: number; queued: number; failed: number }> {
     const since = this.lastPollTimestamp;
     this.lastPollTimestamp = new Date().toISOString();
 
     // 1. Fetch recent changes
     const changes = await this.fetchChangesFn(since);
     if (changes.length === 0) {
-      return { changes: 0, notifications: 0, delivered: 0, failed: 0 };
+      return { changes: 0, notifications: 0, queued: 0, failed: 0 };
     }
 
     // 2. Match changes to subscriptions and create events
@@ -107,38 +103,30 @@ export class Watcher {
       }
     }
 
-    // 3. Deliver emails (capped by maxEmailsPerCycle)
+    // 3. Queue notifications for client-side delivery (Decision 0002)
+    //
+    // Decision 0002 removed plaintext email from subscriptions in favor of
+    // subjectHash (HMAC-SHA256). Direct SMTP delivery is no longer possible
+    // from the watcher — the Mailer requires a plaintext `to` address.
+    // Events are left as 'pending' in the DB; the user's client-side worker
+    // (web push or wallet attestation) picks them up via the unsubscribeToken.
     const toDeliver = pendingEvents.slice(0, this.config.maxEmailsPerCycle);
-    let delivered = 0;
-    let failed = 0;
+    let queued = 0;
 
     for (const event of toDeliver) {
       const sub = this.subscriptionStore.getById(event.subscriptionId);
       if (!sub) continue;
 
-      const result = await this.mailer.sendNotification({
-        email: sub.email,
-        label: sub.label,
-        sourceId: event.change.sourceId,
-        eventType: event.change.eventType,
-        summary: event.change.summary,
-      });
-
-      if (result.success) {
-        this.db.prepare(`
-          UPDATE notification_events SET status = 'delivered', delivered_at = datetime('now') WHERE id = ?
-        `).run(event.id);
-        delivered++;
-      } else {
-        this.db.prepare(`
-          UPDATE notification_events SET status = 'failed', error = ? WHERE id = ?
-        `).run(result.error ?? "unknown error", event.id);
-        failed++;
-      }
+      // Event is already 'pending' from the INSERT above — mark it as
+      // 'queued' so the delivery layer knows it's ready for client pickup.
+      this.db.prepare(`
+        UPDATE notification_events SET status = 'queued' WHERE id = ?
+      `).run(event.id);
+      queued++;
     }
 
-    console.log(`[watcher] Poll: ${changes.length} changes → ${notifications} notifications → ${delivered} delivered, ${failed} failed`);
-    return { changes: changes.length, notifications, delivered, failed };
+    console.log(`[watcher] Poll: ${changes.length} changes → ${notifications} notifications → ${queued} queued for client delivery`);
+    return { changes: changes.length, notifications, queued, failed: 0 };
   }
 
   /** Default implementation: fetch recent changes from MapleSpike API. */

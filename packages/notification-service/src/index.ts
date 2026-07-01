@@ -81,7 +81,6 @@ export class NotificationService {
     this.watcher = new Watcher({
       db: this.db,
       config: this.config,
-      mailer: this.mailer,
       subscriptionStore: this.subscriptionStore,
     });
   }
