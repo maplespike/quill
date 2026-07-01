@@ -100,14 +100,14 @@ const posts: BlogPost[] = [
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
-          <a href={`/blog/${post.slug}`} class="block group">
-            <Card class="h-full flex flex-col hover:border-primary/50 transition-colors duration-300">
+          <article class="block group">
+            <Card class="h-full flex flex-col transition-colors duration-300 hover:border-primary/50">
               <CardHeader>
                 <div class="flex items-center justify-between gap-2 mb-2">
                   <Badge variant="secondary">{post.category}</Badge>
                   <span class="text-xs text-muted-foreground">{post.date}</span>
                 </div>
-                <CardTitle class="text-lg group-hover:text-primary transition-colors">
+                <CardTitle class="text-lg transition-colors group-hover:text-primary">
                   {post.title}
                 </CardTitle>
               </CardHeader>
@@ -116,11 +116,18 @@ const posts: BlogPost[] = [
                   {post.excerpt}
                 </CardDescription>
               </CardContent>
-              <div class="px-6 pb-4">
+              <div class="px-6 pb-4 flex items-center justify-between gap-2">
                 <span class="text-xs text-muted-foreground">{post.author}</span>
+                <span
+                  class="inline-flex items-center gap-1 text-xs text-muted-foreground/70"
+                  title="Detail pages launching with the public RSS feed"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  Preview
+                </span>
               </div>
             </Card>
-          </a>
+          </article>
         ))}
       </div>
     </div>

@@ -15,6 +15,7 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { validateBody } from '../validate.js';
 import { resolveAIConfig } from './ai-settings.js';
+import { canAccess } from '../feature-gates.js';
 
 // ── AI Gateway ──────────────────────────────────────────────────────
 // Order: MAPLESPIKE_AI_ENDPOINT > MAPLESPIKE_GATEWAY_URL > AI_ENDPOINT > default
@@ -340,6 +341,13 @@ async function govSearch(query: string): Promise<{
 export const aiAskHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
 
+  // ── Feature gate: RAG-powered AI requires Pro tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'aiRag')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'AI queries with RAG require a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      bc), 402);
+  }
+
   try {
     const body = await request.json() as Record<string, unknown>;
     const errs = validateBody(body, {
@@ -507,6 +515,13 @@ Keep responses concise and factual.${ragContext}`;
  */
 export const aiAnalyzeHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+
+  // ── Feature gate: AI analysis requires Pro tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'aiAnalyze')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'AI document analysis requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      bc), 402);
+  }
 
   try {
     const body = await request.json() as Record<string, unknown>;

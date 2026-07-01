@@ -129,32 +129,17 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ se
   return sendEmail({ to: params.to, subject, html, text });
 }
 
-export interface ContactEmailParams {
-  to: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
+// Decision 0002: `sendContactEmail` is RETIRED. Retained as a
+// stub so legacy imports type-check during the migration window.
+export type ContactEmailParams = never;
 
-export async function sendContactEmail(params: ContactEmailParams): Promise<{ sent: boolean; provider: string }> {
-  const config = getEmailConfig();
-  const subject = `[Contact] ${params.subject}`;
-  const html = `
-    <h2>New Contact Form Submission</h2>
-    <table style="border-collapse:collapse;width:100%;">
-      <tr><td style="padding:8px;font-weight:600;border:1px solid #ddd;">Name</td><td style="padding:8px;border:1px solid #ddd;">${params.name}</td></tr>
-      <tr><td style="padding:8px;font-weight:600;border:1px solid #ddd;">Email</td><td style="padding:8px;border:1px solid #ddd;">${params.email}</td></tr>
-      <tr><td style="padding:8px;font-weight:600;border:1px solid #ddd;">Subject</td><td style="padding:8px;border:1px solid #ddd;">${params.subject}</td></tr>
-    </table>
-    <h3>Message</h3>
-    <p style="white-space:pre-wrap;">${params.message}</p>
-    <hr/>
-    <p><small>Sent from ${config.appName} contact form</small></p>
-  `;
-  const text = `New Contact Form Submission\n\nName: ${params.name}\nEmail: ${params.email}\nSubject: ${params.subject}\n\nMessage:\n${params.message}\n\n— ${config.appName} Contact Form`;
-
-  return sendEmail({ to: params.to, subject, html, text });
+export async function sendContactEmail(_params: never): Promise<{ sent: boolean; provider: string }> {
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[email] sendContactEmail is RETIRED under Decision 0002. ' +
+      'See /docs/decisions/0002-pii-avoidance.md for the new paths.',
+  );
+  return { sent: false, provider: 'retired' };
 }
 
 /**

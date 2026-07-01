@@ -1,0 +1,94 @@
+# =============================================================================
+# MapleSpike — Cloudflare Tunnel (K3s Deployment) — external routing for *.ca
+# =============================================================================
+# Exposes API + MCP servers to the public internet via maplespike.ca using a
+# Cloudflare Tunnel. Pairs with `15-ingress-lan.yaml` which handles the LAN
+# side (`*.maplespike.lan`) — both terminate at the same Services in-cluster.
+#
+# Pair with: `15-ingress-lan.yaml` (LAN Ingress), `ROUTING.md` (operator
+# guide), and decision `0004-split-hostname-routing.md`.
+#
+# Prerequisites:
+#   1. Create a tunnel in the Cloudflare dashboard (Zero Trust → Networks →
+#      Tunnels). Choose "Cloudflared" connector type.
+#   2. Copy the tunnel token from the dashboard.
+#   3. Create the secret (replaces the placeholder below):
+#        kubectl create secret generic cloudflared-token \
+#          --from-literal=TUNNEL_TOKEN=<your-token> -n maplespike
+#   4. Configure DNS in the Cloudflare dashboard:
+#        api.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
+#        mcp.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
+#   5. Configure tunnel routes (Cloudflare dashboard → Tunnel → Routes):
+#        api.maplespike.ca  →  http://maplespike-api.maplespike.svc.cluster.local:8082
+#        mcp.maplespike.ca  →  http://maplespike-mcp.maplespike.svc.cluster.local:3001
+#      Targeting the FQDN Service DNS (vs. shorthand `maplespike-api:8082`)
+#      makes the route unambiguous if you later add a second namespace.
+#   6. Apply: kubectl apply -f k8s/base/05-cloudflared.yaml
+#
+# Why no Service for cloudflared?
+#   cloudflared makes outbound TCP connections to Cloudflare and tunnels
+#   inbound HTTP through that — there is nothing inbound-side to Service-
+#   front. Cluster DNS resolution of Services is automatic inside the pod.
+#
+# Why replicas: 1?
+#   cloudflared is stateful per tunnel (single tunnel connection); multiple
+#   replicas would just thrash. For HA, run a 2nd tunnel from a separate
+#   cluster and configure Cloudflare to load-balance.
+# =============================================================================
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflared-token
+  namespace: maplespike
+type: Opaque
+# Replace with: kubectl create secret generic cloudflared-token \
+#   --from-literal=TUNNEL_TOKEN=<your-token> -n maplespike
+# This is a placeholder — the real token comes from the Cloudflare dashboard.
+stringData:
+  TUNNEL_TOKEN: "REPLACE_WITH_YOUR_TUNNEL_TOKEN"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: maplespike
+  labels:
+    app: cloudflared
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args:
+        - tunnel
+        - --no-autoupdate
+        - run
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflared-token
+              key: TUNNEL_TOKEN
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 25m
+            memory: 64Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 2000
+          initialDelaySeconds: 10
+          periodSeconds: 30

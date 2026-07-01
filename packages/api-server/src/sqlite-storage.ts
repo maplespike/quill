@@ -40,7 +40,10 @@ export class SqliteStorage implements MapleSpikeStorage {
       CREATE TABLE IF NOT EXISTS tenants (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        email TEXT,
+        -- Decision 0002: PII avoidance. Plaintext email NEVER lands here.
+        -- The HMAC-SHA256 of the email is stored; plaintext is consumed
+        -- in-flight by transactional mailers and discarded.
+        email_hash TEXT,
         email_verified INTEGER DEFAULT 0,
         verification_token TEXT,
         tier TEXT NOT NULL DEFAULT 'free',
@@ -146,7 +149,7 @@ export class SqliteStorage implements MapleSpikeStorage {
     const keyHash = await hashApiKey(rawKey);
 
     const row = this.db.prepare(`
-      SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,
+      SELECT t.id AS tenant_id, t.name, t.email_hash, t.email_verified, t.tier, t.is_active, t.journalism_mode,
              k.id AS key_id, k.is_active AS key_active, k.expires_at
       FROM api_keys k
       JOIN tenants t ON t.id = k.tenant_id
@@ -185,7 +188,7 @@ export class SqliteStorage implements MapleSpikeStorage {
       tenant: {
         id: row.tenant_id as string,
         name: row.name as string,
-        email: (row.email as string) || undefined,
+        emailHash: (row.email_hash as string) || undefined,
         emailVerified: Boolean(row.email_verified),
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),
@@ -289,13 +292,17 @@ export class SqliteStorage implements MapleSpikeStorage {
 
   /*  Registration Helpers (for SqliteStorage)                         */
 
-  /** Create a new tenant. */
+  /**
+   * Create a new tenant.
+   * Decision 0002: accepts `emailHash` (never plaintext). Caller
+   * is responsible for hashing before calling this method.
+   */
   createTenant(tenant: Tenant): void {
     this.db.prepare(`
-      INSERT INTO tenants (id, name, email, email_verified, verification_token, tier, is_active, journalism_mode)
+      INSERT INTO tenants (id, name, email_hash, email_verified, verification_token, tier, is_active, journalism_mode)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      tenant.id, tenant.name, tenant.email || null,
+      tenant.id, tenant.name, tenant.emailHash || null,
       tenant.emailVerified ? 1 : 0,
       tenant.verificationToken || null,
       tenant.tier, tenant.isActive ? 1 : 0, tenant.journalismMode ? 1 : 0,
@@ -335,7 +342,7 @@ export class SqliteStorage implements MapleSpikeStorage {
     return {
       id: row.id as string,
       name: row.name as string,
-      email: (row.email as string) || undefined,
+      emailHash: (row.email_hash as string) || undefined,
       emailVerified: Boolean(row.email_verified),
       verificationToken: (row.verification_token as string) || undefined,
       tier: row.tier as Tenant['tier'],

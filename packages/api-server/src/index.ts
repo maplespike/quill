@@ -63,7 +63,7 @@ import { openApiHandler } from './routes/openapi.js';
 import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
-import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingReconcileHandler, billingVerifyHandler, billingSeedPlansHandler } from './routes/billing.js';
+import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingReconcileHandler, billingVerifyHandler, billingSeedPlansHandler, getAssignedTier } from './routes/billing.js';
 import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
   deleteAnnotationHandler, exportAnnotationsHandler,
@@ -481,8 +481,17 @@ export async function handleRequest(
     return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.lan/signup', ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
   }
 
+  const baseTenant = tenant?.tenant || { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false };
+
+  // ── Billing tier assignment ──
+  // Override the DB tier with the most recent verified billing order, if any.
+  const billingTier = getAssignedTier(baseTenant.id);
+  const effectiveTenant = billingTier
+    ? { ...baseTenant, tier: billingTier }
+    : baseTenant;
+
   const ctx: RouteContext = {
-    tenant: tenant?.tenant || { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
+    tenant: effectiveTenant,
     apiKeyId: tenant?.apiKeyId || '',
     requestId,
     startTime,

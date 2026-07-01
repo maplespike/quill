@@ -23,7 +23,11 @@ export const onboardingHandler: RouteHandler = async (_request, ctx) => {
   const date = now.toISOString().slice(0, 10);
   const yearMonth = now.toISOString().slice(0, 7);
 
-  const emailVerified = tenant.emailVerified;
+  // Decision 0002: `emailVerified` is still tracked (the boolean
+  // is not PII), but its display is now "passkey/Siwe registered"
+  // because we no longer leak the email concept in the user
+  // surface.
+  const hasAuthBinding = tenant.emailVerified; // re-label: was email_verified, now means "auth bound"
   const hasApiKey = !!apiKeyId;
 
   const [dailyUsage, monthlyUsage] = await Promise.all([
@@ -34,13 +38,13 @@ export const onboardingHandler: RouteHandler = async (_request, ctx) => {
 
   const items: OnboardingItem[] = [
     {
-      id: 'verify-email',
-      title: 'Verify your email',
-      description: emailVerified
-        ? 'Email verified'
-        : 'Check your inbox for the verification link',
-      done: emailVerified,
-      link: emailVerified ? undefined : '#',
+      id: 'verify-identity',
+      title: 'Verify your identity',
+      description: hasAuthBinding
+        ? 'Identity bound to your account'
+        : 'Register a passkey or sign-in-with-ethereum to bind identity',
+      done: hasAuthBinding,
+      link: hasAuthBinding ? undefined : '/auth',
     },
     {
       id: 'create-api-key',

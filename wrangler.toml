@@ -7,8 +7,17 @@ routes = [
   { pattern = "https://maplespike.ca/*", zone_name = "maplespike.ca" }
 ]
 
+# After decision 0004 (2026-07-01), all external traffic to *.maplespike.ca
+# flows through the Cloudflare Tunnel (cloudflared pod in k3s) — NOT a
+# Cloudflare Worker. The Edge Worker routing layer that this file assumes
+# is thus moot; the entries below are kept only for compatibility with any
+# existing Worker deployment, with HOMELAB_API pointed at the .ca side so
+# the Worker can still self-fetch without trying to reach the private LAN.
+#
+# See maplespike/docs/ROUTING.md and decision 0004-split-hostname-routing.md.
+
 [vars]
-HOMELAB_API = "https://api.maplespike.lan"
+HOMELAB_API = "https://api.maplespike.ca"
 CACHE_TTL = "3600"
 
 # KV for rate limiting (optional, free tier)

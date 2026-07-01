@@ -30,19 +30,20 @@ cloudflared tunnel route dns maplespike mcp.maplespike.ca
 
 Then deploy via K3s: `kubectl apply -f k8s/manual/05-cloudflared.yaml`
 
-**Option B: Tailscale Funnel (Simpler, Already Running)**
-- Pros: You already have Tailscale on your cluster, zero config, direct
-- Cons: No DDoS protection, no caching, limited to Tailscale's infrastructure
-
-```bash
-# On your K3s node (requires Tailscale running):
-tailscale funnel --bg 8082   # exposes api.maplespike.ca
-tailscale funnel --bg 3001   # exposes mcp.maplespike.ca
-```
-
-**Option C: Both (Tailscale for dev, Cloudflare for prod)**
-- Use Tailscale Funnel for quick testing and internal access
-- Switch to Cloudflare Tunnel for production launch
+> **Note (2026-07-01):** **Only Option A (Cloudflare Tunnel) is supported
+> going forward — no other public-tunnel variants.** This is the single
+> canonical external-exposure mechanism for all `*.maplespike.ca` traffic
+> (per `docs/decisions/0004-split-hostname-routing.md`). The previous
+> "Option B: Tailscale Funnel" and "Option C: hybrid" variants are
+> **deprecated** — they create competing paths into the cluster, confuse
+> routing observability (two egress points, two secrets to rotate, two
+> DNS surfaces), and the cluster already terminates at exactly the three
+> K8s Services that cloudflared forwards to. If you need LAN-direct
+> access during development, use `*.maplespike.lan` (Traefik Ingress;
+> see `docs/ROUTING.md`) instead of a separate public tunnel. The
+> historical Cloudflare-Worker  alternative shapes
+> remain in `docs/ARCHITECTURE-EDGE.md` for reference but are
+> **superseded 2026-07-01** and are not part of the active routing path.
 
 ### 1c. DNS Records (Cloudflare)
 

@@ -113,13 +113,14 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
       }
     }
 
-    // Return JWT as JSON (frontend stores it)
-    // Also set as httpOnly cookie for browser clients
+    // Decision 0002: drop `email` from the OAuth callback
+    // response. The backend has already hashed the plaintext
+    // (see auth/users.ts.createUser); the frontend does not
+    // need it and must not store it.
     const response = jsonResponse(buildSuccess({
       token: result.token,
       provider: result.profile.provider,
       name: result.profile.name,
-      email: result.profile.email,
       avatarUrl: result.profile.avatarUrl,
       isNewUser: result.isNewUser,
       apiKey: apiKey ? { key: apiKey.key, message: 'Save this API key — it will not be shown again.' } : undefined,
