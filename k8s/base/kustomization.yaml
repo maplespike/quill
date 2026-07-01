@@ -5,14 +5,15 @@ namespace: maplespike
 
 resources:
   - namespace.yaml
-  - ../manual/10-api-deploy.yaml
-  - ../manual/11-mcp-deploy.yaml
-  - ../manual/20-cronjob.yaml
+  - 10-api-deploy.yaml
+  - 11-mcp-deploy.yaml
+  - 20-cronjob.yaml
   - health-check-cronjob.yaml
 
-commonLabels:
-  app.kubernetes.io/name: maplespike
-  app.kubernetes.io/part-of: maplespike
+labels:
+  - pairs:
+      app.kubernetes.io/name: maplespike
+      app.kubernetes.io/part-of: maplespike
 
 images:
   - name: maplespike-portal

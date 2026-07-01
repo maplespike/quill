@@ -1,0 +1,125 @@
+---
+# =============================================================================
+# MapleSpike — LAN-side Ingress (Traefik) for *.maplespike.lan
+# =============================================================================
+# LAN clients (dev laptops, phones on WiFi, homelab boxes) reach the cluster
+# directly via k3s's bundled Traefik ingress controller. No port forwarding,
+# no Cloudflare involvement. Paired with `05-cloudflared.yaml` for
+# `*.maplespike.ca` external traffic; both terminate at the SAME Services.
+#
+# Routing matrix (canonical, see docs/ROUTING.md and decision 0004):
+#
+#   .lan (LAN-direct) ─────────────────────────────────────────────
+#     maplespike.lan        → maplespike-portal:8080  (user-facing portal)
+#     portal.maplespike.lan → maplespike-portal:8080
+#     api.maplespike.lan    → maplespike-api:8082
+#     mcp.maplespike.lan    → maplespike-mcp:3001
+#     dev.maplespike.lan    → maplespike-portal:8080  (env=dev)
+#     dev-api.maplespike.lan → maplespike-api:8082
+#     dev-mcp.maplespike.lan → maplespike-mcp:3001
+#
+#   .ca (external, via Cloudflare Tunnel) ──────────────────────────
+#     api.maplespike.ca → cloudflared → maplespike-api:8082
+#     mcp.maplespike.ca → cloudflared → maplespike-mcp:3001
+#
+# TLS: cert-manager issues wildcard cert via step-ca Issuer
+#      (see 16-cert-issuer-lan.yaml, secret: maplespike-lan-tls).
+# DNS: *.maplespike.lan resolved by local Unbound —
+#      scripts/wire-lan-dns-unbound.sh writes the local-zone.
+# =============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maplespike-lan
+  namespace: maplespike
+  annotations:
+    # cert-manager picks up any Ingress with this annotation and requests
+    # a cert from the named ClusterIssuer.
+    cert-manager.io/cluster-issuer: stepca-lan
+    # SSL-only entrypoint: Traefik must already be listening on websecure (443).
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - maplespike.lan
+        - portal.maplespike.lan
+        - api.maplespike.lan
+        - mcp.maplespike.lan
+        - dev.maplespike.lan
+        - dev-api.maplespike.lan
+        - dev-mcp.maplespike.lan
+      secretName: maplespike-lan-tls
+  rules:
+    - host: maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-portal
+                port:
+                  number: 8080
+    - host: portal.maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-portal
+                port:
+                  number: 8080
+    - host: dev.maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-portal
+                port:
+                  number: 8080
+    - host: api.maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-api
+                port:
+                  number: 8082
+    - host: dev-api.maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-api
+                port:
+                  number: 8082
+    - host: mcp.maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-mcp
+                port:
+                  number: 3001
+    - host: dev-mcp.maplespike.lan
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maplespike-mcp
+                port:
+                  number: 3001

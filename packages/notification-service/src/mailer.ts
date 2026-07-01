@@ -42,16 +42,26 @@ export class Mailer {
     await this.transporter.verify();
   }
 
-  /** Send a notification email for a data change event. */
+  /**
+   * Send a notification email for a data change event.
+   *
+   * Decision 0002: caller passes plaintext `to` only for the
+   * SMTP transport; the Mailer hashes nothing, persists nothing.
+   * Subscription lookup is done by `unsubscribeToken` before
+   * this is reached, so we never round-trip through the
+   * `subjectHash` index in this method.
+   */
   async sendNotification(params: {
-    email: string;
+    to: string;
+    unsubscribeToken: string;
     label?: string;
     sourceId: string;
     eventType: string;
     summary: string;
   }): Promise<MailResult> {
     const payload = buildNotificationEmail({
-      email: params.email,
+      to: params.to,
+      unsubscribeToken: params.unsubscribeToken,
       label: params.label,
       sourceId: params.sourceId,
       eventType: params.eventType,

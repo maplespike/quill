@@ -438,15 +438,20 @@ export const charity_board_members = sqliteTable(
 
 // ─── Notification Subscriptions ────────────────────────────────────────────────────────────────────────────────────
 
+// Decision 0002: notification subscriptions never store plaintext.
+// `subject_hash` is HMAC-SHA256(email-or-wallet) used only for
+// lookup. Real delivery is performed by the user's client
+// (web-push worker or wallet-attested inbox).
 export const notification_subscriptions = sqliteTable(
   "notification_subscriptions",
   {
     id: text("id").primaryKey().notNull(),
-    email: text("email").notNull(),
+    subjectHash: text("subject_hash").notNull(),
     sourceFilter: text("source_filter", { mode: "json" }).notNull().$type<string[]>(),
     eventTypes: text("event_types", { mode: "json" }).notNull().$type<string[]>(),
     active: integer("active", { mode: "boolean" }).notNull().default(true),
     label: text("label"),
+    unsubscribeToken: text("unsubscribe_token").notNull().unique(),
     createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
     updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
   }
@@ -476,7 +481,8 @@ export const users = sqliteTable(
   "users",
   {
     tenantId: text("tenant_id").primaryKey().notNull(),
-    email: text("email").notNull().unique(),
+    // Decision 0002: PII avoidance — store HMAC-SHA256 only.
+    emailHash: text("email_hash").notNull().unique(),
     authProvider: text("auth_provider").notNull(), // passkey, web3, oauth
     apiKeyHash: text("api_key_hash").notNull().unique(),
     planId: text("plan_id").notNull().default("free"),
@@ -520,15 +526,18 @@ export const orders = sqliteTable(
   }
 );
 
+// Decision 0002: payment reconciliation never references a person.
+// `email_uid` is the bank's anonymous transaction id; senderEmail
+// is REMOVED.
 export const payment_reconciliations = sqliteTable(
   "payment_reconciliations",
   {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    emailUid: text("email_uid").notNull().unique(),
+    transactionUid: text("transaction_uid").notNull().unique(),
     orderId: text("order_id").references(() => orders.orderId),
-    senderEmail: text("sender_email"),
     amountCents: integer("amount_cents"),
     reference: text("reference"),
+    channel: text("channel").notNull().default("stripe"), // stripe, plaid_ca, interac_webhook
     processedAt: integer("processed_at").notNull().default(sql`(strftime('%s', 'now'))`),
   }
 );

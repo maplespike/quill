@@ -1,0 +1,150 @@
+---
+# =============================================================================
+# MapleSpike — in-cluster step-ca Deployment + Service
+# =============================================================================
+# Optional alternative to running step-ca on a homelab host: bring it inside
+# the k3s cluster so the cert-manager ClusterIssuer
+# (`stepca-lan` in 16-cert-issuer-lan.yaml) reaches it via cluster DNS at
+# `https://step-ca.maplespike.lan:8443`
+# (after `scripts/wire-lan-dns-unbound.sh` writes the matching local-data).
+#
+# Alternative: run step-ca on a homelab host (systemd unit) and let
+# `scripts/wire-lan-dns-unbound.sh` wire `step-ca.maplespike.lan → <homelab
+# IP>` via the `STEP_CA_IP` env var. Both are supported — pick one.
+#
+# Required Secret (one-time, after running `scripts/setup-stepca-lan.sh`):
+#
+#   kubectl create namespace cert-manager --dry-run=client -o yaml | kubectl apply -f -
+#   kubectl -n cert-manager create secret generic stepca-lan-data \
+#     --from-file=config/ca.json=/etc/step-ca/config/ca.json \
+#     --from-file=certs/root_ca.crt=/etc/step-ca/certs/root_ca.crt \
+#     --from-file=certs/intermediate_ca.crt=/etc/step-ca/certs/intermediate_ca.crt \
+#     --from-file=secrets/intermediate_ca_key=/etc/step-ca/secrets/intermediate_ca_key \
+#     --from-file=secrets/provisioner.json=/etc/step-ca/secrets/provisioner.json
+#
+#   # The password you entered at "step ca init" prompt goes here (NOT in
+#   # the data Secret).
+#   kubectl -n cert-manager create secret generic stepca-lan-password \
+#     --from-literal=password='<root-password>'
+#
+# After applying this manifest, the ClusterIssuer URL in
+# `16-cert-issuer-lan.yaml` should be one of:
+#   - https://step-ca.maplespike.lan:8443           (after wire-lan-dns-unbound.sh)
+#   - https://step-ca.cert-manager.svc.cluster.local:8443   (in-cluster DNS only)
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: step-ca
+  namespace: cert-manager
+  labels:
+    app: step-ca
+    app.kubernetes.io/name: step-ca
+spec:
+  replicas: 1
+  # step-ca writes to its DB; rolling updates risk data loss. Recreate
+  # strategy forces a sequential update with no overlap.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: step-ca
+  template:
+    metadata:
+      labels:
+        app: step-ca
+        app.kubernetes.io/name: step-ca
+    spec:
+      containers:
+        - name: step-ca
+          image: smallstep/step-ca:0.27.0
+          args:
+            - /home/step/config/ca.json
+          env:
+            - name: STEPPATH
+              value: /home/step
+          ports:
+            - name: https
+              containerPort: 8443
+          volumeMounts:
+            # step-ca PKI (config/ca.json + certs/* + secrets/*) — mounted
+            # from setup-stepca-lan.sh's kubectl create-secret snippet.
+            - name: stepca-pki
+              mountPath: /home/step
+            # step-ca reads the password from $STEPPATH/password.txt. With
+            # STEPPATH=/home/step above, this subPath mount drops the
+            # `stepca-lan-password` Secret's `password` key at exactly that
+            # path. (Do NOT mount the secret at a different directory —
+            # step-ca won't find the password and the pod will silently
+            # fail at runtime.)
+            - name: stepca-password
+              mountPath: /home/step/password.txt
+              subPath: password
+              readOnly: true
+          # step-ca uses a self-signed certificate by default, so readiness
+          # / liveness probes issue plain TCP-only checks rather than HTTPS.
+          readinessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          livenessProbe:
+            tcpSocket:
+              port: https
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+      volumes:
+        - name: stepca-pki
+          secret:
+            secretName: stepca-lan-data
+        - name: stepca-password
+          secret:
+            secretName: stepca-lan-password
+            defaultMode: 0400
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: step-ca
+  namespace: cert-manager
+  labels:
+    app: step-ca
+spec:
+  selector:
+    app: step-ca
+  ports:
+    - name: https
+      port: 8443
+      targetPort: https
+  type: ClusterIP
+---
+# If you want the in-k3s URL (`step-ca.cert-manager.svc.cluster.local`),
+# apply this SEPARATELY (do not bundle with this manifest):
+#
+#   apiVersion: v1
+#   kind: Service
+#   metadata:
+#     name: step-ca-local
+#     namespace: cert-manager
+#   spec:
+#     type: ExternalName
+#     externalName: step-ca.cert-manager.svc.cluster.local
+#     ports:
+#       - port: 8443
+#
+# Then update maplespike/k8s/base/16-cert-issuer-lan.yaml's ClusterIssuer
+# `url:` to `https://step-ca.cert-manager.svc.cluster.local:8443` and skip
+# the `step-ca.maplespike.lan` Unbound record entirely.
+#
+# WARNING: do NOT enable both this ExternalName AND the FQDN
+# `https://step-ca.maplespike.lan:8443` ClusterIssuer URL — they create
+# a DNS split-brain where cert-manager and k3s disagree on which
+# hostname points at the running pod.

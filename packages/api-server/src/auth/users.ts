@@ -7,14 +7,22 @@
 
 import type { Tenant, User, GitHubProfile, ApiKeyRecord } from '../types.js';
 import * as crypto from 'node:crypto';
+// Decision 0002: real top-level import of the PII hash helper.
+// Earlier draft used CommonJS `require()` inside ESM which threw
+// at runtime in any ESM-only loader. This fixed version lives
+// next to the storage adapters so every `emailHashIndex` lookup
+// uses the same HMAC secret policy.
+import { hashPii } from './pii-hash.js';
 
 /* ------------------------------------------------------------------ */
 /*  In-Memory Stores                                                   */
 /* ------------------------------------------------------------------ */
 
+// Decision 0002: removed `emailIndex`. We never build a reverse
+// lookup from a plaintext email — only `emailHash` joins exist.
 const userStore = new Map<string, User>();
 const githubIdIndex = new Map<string, string>();   // githubId -> userId
-const emailIndex = new Map<string, string>();       // email -> userId
+const emailHashIndex = new Map<string, string>();  // emailHash -> userId
 const userApiKeys = new Map<string, ApiKeyRecord[]>(); // userId -> keys[]
 const tenantStore = new Map<string, Tenant>();      // userId (as tenantId) -> Tenant
 
@@ -42,19 +50,23 @@ export function createUser(githubProfile: GitHubProfile): User {
     }
   }
 
-  // Check by email
+  // Decision 0002: lookup is by `emailHash`, not plaintext email.
+  // Caller is responsible for hashing the OAuth provider's email
+  // before this branch runs.
+  let emailHash: string | null = null;
   if (githubProfile.email) {
-    const emailExisting = emailIndex.get(githubProfile.email);
-    if (emailExisting) {
-      const existing = userStore.get(emailExisting);
-      if (existing) {
-        githubIdIndex.set(githubProfile.id.toString(), existing.id);
-        existing.githubId = githubProfile.id.toString();
-        existing.githubLogin = githubProfile.login;
-        existing.githubName = githubProfile.name || null;
-        existing.avatarUrl = githubProfile.avatar_url || null;
-        existing.updatedAt = new Date().toISOString();
-        return existing;
+    emailHash = hashPii(githubProfile.email);
+    const existing = emailHashIndex.get(emailHash);
+    if (existing) {
+      const user = userStore.get(existing);
+      if (user) {
+        githubIdIndex.set(githubProfile.id.toString(), user.id);
+        user.githubId = githubProfile.id.toString();
+        user.githubLogin = githubProfile.login;
+        user.githubName = githubProfile.name || null;
+        user.avatarUrl = githubProfile.avatar_url || null;
+        user.updatedAt = new Date().toISOString();
+        return user;
       }
     }
   }
@@ -65,7 +77,7 @@ export function createUser(githubProfile: GitHubProfile): User {
 
   const user: User = {
     id: userId,
-    email: githubProfile.email || null,
+    emailHash,
     githubId: githubProfile.id.toString(),
     githubLogin: githubProfile.login,
     githubName: githubProfile.name || null,
@@ -78,15 +90,15 @@ export function createUser(githubProfile: GitHubProfile): User {
 
   userStore.set(userId, user);
   githubIdIndex.set(githubProfile.id.toString(), userId);
-  if (githubProfile.email) {
-    emailIndex.set(githubProfile.email, userId);
+  if (emailHash) {
+    emailHashIndex.set(emailHash, userId);
   }
 
   // Also create a corresponding tenant in tenantStore
   tenantStore.set(userId, {
     id: userId,
     name: githubProfile.name || githubProfile.login,
-    email: githubProfile.email || undefined,
+    emailHash: emailHash || undefined,
     tier: 'free',
     emailVerified: false,
     isActive: true,
@@ -116,8 +128,13 @@ export function getUser(id: string): User | undefined {
   return userStore.get(id);
 }
 
+/**
+ * Decision 0002: lookup is by plaintext email but the runtime
+ * hashes with the server secret before consulting the index —
+ * the plaintext is never persisted in the returned user record.
+ */
 export function getUserByEmail(email: string): User | undefined {
-  const userId = emailIndex.get(email);
+  const userId = emailHashIndex.get(hashPii(email));
   if (!userId) return undefined;
   return userStore.get(userId);
 }

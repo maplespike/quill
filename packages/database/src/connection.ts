@@ -287,13 +287,16 @@ export function runMigrations(db?: DbClient): void {
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    -- Decision 0002: notification subscriptions no longer store
+    -- plaintext email. subject_hash + unsubscribe_token replace it.
     CREATE TABLE IF NOT EXISTS notification_subscriptions (
     id TEXT PRIMARY KEY NOT NULL,
-    email TEXT NOT NULL,
+    subject_hash TEXT NOT NULL,
     source_filter TEXT NOT NULL,
     event_types TEXT NOT NULL,
     active INTEGER NOT NULL DEFAULT 1,
     label TEXT,
+    unsubscribe_token TEXT NOT NULL UNIQUE,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );

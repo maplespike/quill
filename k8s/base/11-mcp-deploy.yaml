@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maplespike-mcp
+  namespace: maplespike
+  labels:
+    app: maplespike-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maplespike-mcp
+  template:
+    metadata:
+      labels:
+        app: maplespike-mcp
+    spec:
+      containers:
+      - name: mcp
+        image: localhost/maplespike-mcp:dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3001
+        env:
+        - name: PORT
+          value: "3001"
+        - name: NODE_ENV
+          value: "development"
+        - name: MAPLESPIKE_API_URL
+          value: "http://maplespike-api:8082"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maplespike-mcp
+  namespace: maplespike
+spec:
+  selector:
+    app: maplespike-mcp
+  ports:
+  - port: 3001
+    targetPort: 3001
+  type: NodePort

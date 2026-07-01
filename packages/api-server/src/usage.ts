@@ -3,18 +3,14 @@
  *
  * Tracks API requests per tenant and enforces tier-based quotas.
  * Uses in-memory sliding window counters (replace with DB for production).
+ *
+ * Canonical tier limits sourced from types.ts TIER_LIMITS.
+ * Internal tier bypasses all quotas.
  */
 import type { Tenant } from './types.js';
-
-const TIER_LIMITS: Record<string, { requestsPerMonth: number; requestsPerSec: number }> = {
-  free: { requestsPerMonth: 1_000, requestsPerSec: 2 },
-  pro: { requestsPerMonth: 100_000, requestsPerSec: 25 },
-  business: { requestsPerMonth: 500_000, requestsPerSec: 100 },
-  internal: { requestsPerMonth: Infinity, requestsPerSec: 1000 },
-};
+import { TIER_LIMITS } from './types.js';
 
 const monthCounters = new Map<string, { count: number; month: string }>();
-const secCounters = new Map<string, { count: number; windowStart: number }>();
 
 function currentMonth(): string {
   const d = new Date();
@@ -22,6 +18,11 @@ function currentMonth(): string {
 }
 
 export function checkQuota(tenant: Tenant): { allowed: boolean; remaining: number; resetTime: string } {
+  // Internal tier bypasses all quotas
+  if (tenant.tier === 'internal') {
+    return { allowed: true, remaining: Infinity, resetTime: new Date(Date.now() + 86400000).toISOString() };
+  }
+
   const limits = TIER_LIMITS[tenant.tier] || TIER_LIMITS.free;
   const month = currentMonth();
 
@@ -33,25 +34,16 @@ export function checkQuota(tenant: Tenant): { allowed: boolean; remaining: numbe
     monthCounters.set(mKey, mEntry);
   }
 
-  // Second window counter
-  const sKey = `sec:${tenant.id}`;
-  const now = Date.now();
-  let sEntry = secCounters.get(sKey);
-  if (!sEntry || now - sEntry.windowStart > 1000) {
-    sEntry = { count: 0, windowStart: now };
-    secCounters.set(sKey, sEntry);
-  }
-
-  const monthRemaining = Math.max(0, limits.requestsPerMonth - mEntry.count);
-  const allowed = mEntry.count < limits.requestsPerMonth && sEntry.count < limits.requestsPerSec;
+  // Hard cap: monthly limit from canonical TIER_LIMITS
+  const monthRemaining = Math.max(0, limits.monthly - mEntry.count);
+  const allowed = mEntry.count < limits.monthly;
 
   mEntry.count++;
-  sEntry.count++;
 
   return {
     allowed,
     remaining: monthRemaining - 1,
-    resetTime: new Date(now + 86400000).toISOString(),
+    resetTime: new Date(Date.now() + 86400000).toISOString(),
   };
 }
 
