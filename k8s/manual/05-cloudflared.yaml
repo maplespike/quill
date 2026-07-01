@@ -1,0 +1,77 @@
+# =============================================================================
+# MapleSpike — Cloudflare Tunnel (K3s Deployment)
+# =============================================================================
+# Exposes API + MCP servers to the public internet via maplespike.ca
+# using a Cloudflare Tunnel (no port-forwarding, TLS handled by Cloudflare).
+#
+# Prerequisites:
+#   1. Create a tunnel in the Cloudflare dashboard (Zero Trust → Networks → Tunnels)
+#   2. Copy the tunnel token from the dashboard
+#   3. Create the secret: kubectl create secret generic cloudflared-token \
+#        --from-literal=TUNNEL_TOKEN=<your-token> -n maplespike
+#   4. Configure DNS in Cloudflare:
+#        api.maplespike.ca  → tunnel (CNAME)
+#        mcp.maplespike.ca  → tunnel (CNAME)
+#   5. Apply: kubectl apply -f k8s/manual/05-cloudflared.yaml
+#
+# Tunnel routes (configured in Cloudflare dashboard):
+#   api.maplespike.ca  → http://maplespike-api:8082
+#   mcp.maplespike.ca  → http://maplespike-mcp:3001
+# =============================================================================
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflared-token
+  namespace: maplespike
+type: Opaque
+# Replace with: kubectl create secret generic cloudflared-token \
+#   --from-literal=TUNNEL_TOKEN=<your-token> -n maplespike
+# This is a placeholder — the real token comes from the Cloudflare dashboard.
+stringData:
+  TUNNEL_TOKEN: "REPLACE_WITH_YOUR_TUNNEL_TOKEN"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: maplespike
+  labels:
+    app: cloudflared
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args:
+        - tunnel
+        - --no-autoupdate
+        - run
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflared-token
+              key: TUNNEL_TOKEN
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 25m
+            memory: 64Mi
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 2000
+          initialDelaySeconds: 10
+          periodSeconds: 30
