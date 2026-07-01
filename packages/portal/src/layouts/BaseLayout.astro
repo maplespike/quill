@@ -357,6 +357,14 @@ const isActive = (match: string) =>
 
     <!-- Load auth state manager (runs before React hydration) -->
     <script src="/auth.js" is:inline></script>
+    <!-- Shared scroll-shrink utility (DRY with static landing page) -->
+    <script src="/nav-scroll.js" is:inline></script>
+    <script is:inline>
+      // Shrink sticky header on scroll (shared nav-scroll.js utility)
+      if (window.navScroll) {
+        window.navScroll.start({ selector: 'header', threshold: 40, className: 'scrolled' });
+      }
+    </script>
     <!-- Load script.js for pages that need it -->
     <script src="/script.js" is:inline></script>
   </body>
