@@ -5,7 +5,7 @@ function getApiBase(): string {
     if (window.MAPLESPIKE?.apiBase) return window.MAPLESPIKE.apiBase + '/v1';
     const host = window.location.hostname;
     const parts = host.split('.');
-    const base = parts.length > 2 && ['api','portal','www','dev'].includes(parts[0])
+    const base = parts.length > 2 && ['api','portal','www','mcp','dev','data'].includes(parts[0])
       ? parts.slice(1).join('.') : host;
     return `${window.location.protocol}//api.${base}/v1`;
   }

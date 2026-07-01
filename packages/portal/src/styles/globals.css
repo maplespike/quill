@@ -385,3 +385,22 @@ body {
     transform: scale(1.3);
   }
 }
+
+/* ── Scroll-Shrink Header (shared nav-scroll.js utility, DRY with static landing) ── */
+/* Wrapped in @layer utilities so Tailwind v4 cascade doesn't override these rules */
+@layer utilities {
+  header.scrolled {
+    height: 3.5rem; /* 56px — matches static landing nav.scrolled */
+  }
+  header.scrolled > div {
+    height: 3.5rem;
+  }
+}
+
+/* Smooth height transition so the shrink doesn't jump */
+header.sticky {
+  transition: height 0.2s ease;
+}
+header.sticky > div {
+  transition: height 0.2s ease;
+}
