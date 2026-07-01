@@ -210,11 +210,31 @@ export const extractionResultsHandler: RouteHandler = async (request, ctx) => {
       return jsonResponse(buildError('NOT_FOUND', `Unknown source_id: ${body.source_id}`, bc), 404);
     }
 
+    // SSRF protection: validate result URLs match expected government domains
+    const allowedDomains = ['.gov.nt.ca', '.gov.nu.ca', '.ece.gov.nt.ca', '.gov.pe.ca',
+      '.princeedwardisland.ca', '.yukon.ca', '.canada.ca', '.statcan.gc.ca'];
+    const validatedResults = body.results.filter((r) => {
+      try {
+        const u = new URL(r.url);
+        const host = u.hostname.toLowerCase();
+        // Block private/internal IPs and localhost (SSRF prevention)
+        if (host === 'localhost' || host.startsWith('127.') || host.startsWith('10.') ||
+            host.startsWith('192.168.') || host.startsWith('169.254.') ||
+            host.startsWith('172.16.') || host === '0.0.0.0') {
+          console.warn(`[extraction] SSRF blocked: ${r.url}`);
+          return false;
+        }
+        return true;
+      } catch {
+        return false;
+      }
+    });
+
     // Store in cache
     // Production: INSERT OR REPLACE INTO extraction_cache (source_id, results, cached_at) VALUES (...)
     const entry: CacheEntry = {
       source_id: body.source_id,
-      results: body.results,
+      results: validatedResults,
       cached_at: Date.now(),
     };
     extractionCache.set(body.source_id, entry);
@@ -222,7 +242,8 @@ export const extractionResultsHandler: RouteHandler = async (request, ctx) => {
     return jsonResponse(buildSuccess({
       stored: true,
       source_id: body.source_id,
-      count: body.results.length,
+      count: validatedResults.length,
+      rejected: body.results.length - validatedResults.length,
       cached_at: new Date(entry.cached_at).toISOString(),
     }, bc));
   } catch {
