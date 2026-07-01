@@ -1,0 +1,414 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+---
+
+<BaseLayout title="System Status" description="Real-time status of MapleSpike API, edge AI worker, MCP server, and data pipeline.">
+  <!-- Hero -->
+  <section class="border-b py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center gap-4 flex-wrap">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+            System <span class="text-gradient">Status</span>
+          </h1>
+          <p class="mt-2 text-muted-foreground">
+            Real-time health of MapleSpike services. Auto-refreshes every 30 seconds.
+          </p>
+        </div>
+        <Badge variant="outline" class="ml-auto text-xs font-mono" id="last-check">
+          Checking…
+        </Badge>
+      </div>
+    </div>
+  </section>
+
+  <!-- Overall Status Banner -->
+  <section class="py-6 md:py-8">
+    <div class="container mx-auto px-4">
+      <div id="overall-banner" class="rounded-xl border p-6 transition-colors">
+        <div class="flex items-center gap-4">
+          <div id="overall-spinner" class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"></div>
+          <div class="flex-1">
+            <div id="overall-text" class="text-lg font-semibold">Checking all services…</div>
+            <div id="overall-sub" class="text-sm text-muted-foreground mt-0.5">Fetching health from all endpoints</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Service Cards -->
+  <section class="pb-8 md:pb-12">
+    <div class="container mx-auto px-4">
+      <div class="grid gap-4 md:grid-cols-2">
+        <!-- API Server -->
+        <Card class="service-card" data-service="api">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="service-icon flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div>
+                  <CardTitle class="text-base">API Server</CardTitle>
+                  <CardDescription class="text-xs">api.maplespike.ca</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" class="service-status text-xs">Checking…</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-muted-foreground">Endpoint</span><code class="text-xs font-mono">GET /v1/health</code></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Latency</span><span class="service-latency font-mono text-xs">—</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Version</span><span class="service-version font-mono text-xs">—</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Dependencies</span><span class="service-deps text-xs">—</span></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Edge AI Worker -->
+        <Card class="service-card" data-service="edge">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="service-icon flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10 10 10 0 0 0-10-10z"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <div>
+                  <CardTitle class="text-base">Edge AI Worker</CardTitle>
+                  <CardDescription class="text-xs">Cloudflare Workers AI</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" class="service-status text-xs">Checking…</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-muted-foreground">Endpoint</span><code class="text-xs font-mono">GET /v1/health</code></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Latency</span><span class="service-latency font-mono text-xs">—</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Model</span><span class="service-version font-mono text-xs">—</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Neuron budget</span><span class="service-deps text-xs">—</span></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- MCP Server -->
+        <Card class="service-card" data-service="mcp">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="service-icon flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                </div>
+                <div>
+                  <CardTitle class="text-base">MCP Server</CardTitle>
+                  <CardDescription class="text-xs">mcp.maplespike.ca</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" class="service-status text-xs">Checking…</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-muted-foreground">Endpoint</span><code class="text-xs font-mono">TCP reachability</code></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Latency</span><span class="service-latency font-mono text-xs">—</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Tools</span><span class="service-version font-mono text-xs">174</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Protocol</span><span class="service-deps text-xs">SSE + stdio</span></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Portal / Pages -->
+        <Card class="service-card" data-service="portal">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="service-icon flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                </div>
+                <div>
+                  <CardTitle class="text-base">Portal</CardTitle>
+                  <CardDescription class="text-xs">maplespike.ca (Cloudflare Pages)</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" class="service-status text-xs">Checking…</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-muted-foreground">Endpoint</span><code class="text-xs font-mono">GET /</code></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Latency</span><span class="service-latency font-mono text-xs">—</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Pages</span><span class="service-version font-mono text-xs">22</span></div>
+              <div class="flex justify-between"><span class="text-muted-foreground">Hosting</span><span class="service-deps text-xs">CF Pages</span></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Dependency Detail Table -->
+      <Card class="mt-6">
+        <CardHeader>
+          <CardTitle class="text-base">API Dependency Breakdown</CardTitle>
+          <CardDescription class="text-xs">Storage, cache, and engine status from the API health endpoint</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div id="dep-table" class="space-y-2">
+            <p class="text-sm text-muted-foreground text-center py-4">Loading dependency details…</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Incident History (placeholder for future) -->
+      <Card class="mt-6">
+        <CardHeader>
+          <CardTitle class="text-base">Incident History</CardTitle>
+          <CardDescription class="text-xs">Recent service disruptions and maintenance windows</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div id="incident-list" class="space-y-3">
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
+              <span class="h-2 w-2 rounded-full bg-green-500 shrink-0"></span>
+              <div class="flex-1">
+                <div class="text-sm font-medium">No recent incidents</div>
+                <div class="text-xs text-muted-foreground">All systems operational</div>
+              </div>
+              <span class="text-xs text-muted-foreground font-mono">—</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Info note -->
+      <p class="mt-6 text-center text-xs text-muted-foreground">
+        Status checks run client-side from your browser. Results may differ from server-side monitoring.
+        For programmatic health checks, use <code class="font-mono">GET https://api.maplespike.ca/v1/health</code>.
+      </p>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      "use strict";
+
+      var cfg = window.MAPLESPIKE || {};
+      var apiBase = cfg.apiBase || "https://api.maplespike.ca";
+      var edgeBase = cfg.edgeUrl || "https://maplespike-ai.j-kroeker.workers.dev";
+      var portalBase = window.location.origin;
+      var mcpBase = "https://mcp.maplespike.ca";
+
+      function escapeHtml(str) {
+        var div = document.createElement("div");
+        div.textContent = String(str);
+        return div.innerHTML;
+      }
+
+      var lastCheckEl = document.getElementById("last-check");
+      var overallBanner = document.getElementById("overall-banner");
+      var overallText = document.getElementById("overall-text");
+      var overallSub = document.getElementById("overall-sub");
+      var overallSpinner = document.getElementById("overall-spinner");
+      var depTable = document.getElementById("dep-table");
+
+      function setStatusBadge(card, status, label) {
+        var badge = card.querySelector(".service-status");
+        badge.textContent = label || status;
+        badge.className = "service-status text-xs " + (
+          status === "ok" ? "bg-green-500/10 text-green-600 border-green-500/20" :
+          status === "degraded" ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20" :
+          status === "down" ? "bg-red-500/10 text-red-600 border-red-500/20" :
+          "bg-muted text-muted-foreground"
+        );
+      }
+
+      function setLatency(card, ms) {
+        card.querySelector(".service-latency").textContent = ms != null ? ms + "ms" : "—";
+      }
+
+      function setVersion(card, ver) {
+        var el = card.querySelector(".service-version");
+        if (ver) el.textContent = ver;
+      }
+
+      function setDeps(card, deps) {
+        var el = card.querySelector(".service-deps");
+        if (deps) el.textContent = deps;
+      }
+
+      async function checkApi() {
+        var card = document.querySelector('[data-service="api"]');
+        var start = performance.now();
+        try {
+          var resp = await fetch(apiBase + "/v1/health", { signal: AbortSignal.timeout(8000) });
+          var elapsed = Math.round(performance.now() - start);
+          if (resp.ok) {
+            var body = await resp.json();
+            var data = body.data || body;
+            setStatusBadge(card, "ok", "Operational");
+            setLatency(card, elapsed);
+            setVersion(card, data.version || "—");
+            var deps = data.dependencies || [];
+            var okCount = deps.filter(function (d) { return d.status === "ok"; }).length;
+            setDeps(card, okCount + "/" + deps.length + " healthy");
+
+            // Populate dependency table
+            if (depTable && deps.length > 0) {
+              depTable.innerHTML = deps.map(function (d) {
+                var color = d.status === "ok" ? "green" : d.status === "degraded" ? "yellow" : "red";
+                return '<div class="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30">' +
+                  '<span class="h-2 w-2 rounded-full bg-' + color + '-500 shrink-0"></span>' +
+                  '<span class="flex-1 text-sm font-medium">' + escapeHtml(d.name) + '</span>' +
+                  '<span class="text-xs font-mono text-muted-foreground">' + (d.latencyMs || 0) + 'ms</span>' +
+                  (d.error ? '<span class="text-xs text-red-500">' + escapeHtml(d.error) + '</span>' : "") +
+                  '</div>';
+              }).join("");
+            }
+            return "ok";
+          } else {
+            setStatusBadge(card, "down", "Error " + resp.status);
+            setLatency(card, Math.round(performance.now() - start));
+            return "down";
+          }
+        } catch (e) {
+          setStatusBadge(card, "down", "Unreachable");
+          setLatency(card, null);
+          return "down";
+        }
+      }
+
+      async function checkEdge() {
+        var card = document.querySelector('[data-service="edge"]');
+        var start = performance.now();
+        try {
+          var resp = await fetch(edgeBase + "/v1/health", { signal: AbortSignal.timeout(8000) });
+          var elapsed = Math.round(performance.now() - start);
+          if (resp.ok) {
+            var body = await resp.json();
+            var data = body.data || body;
+            setStatusBadge(card, "ok", "Operational");
+            setLatency(card, elapsed);
+            setVersion(card, data.homelab_model || "llama-3.3-70b");
+            var budget = data.neuron_budget || {};
+            setDeps(card, budget.used + "/" + budget.limit + " neurons used");
+            return "ok";
+          } else {
+            setStatusBadge(card, "down", "Error " + resp.status);
+            setLatency(card, elapsed);
+            return "down";
+          }
+        } catch (e) {
+          setStatusBadge(card, "down", "Unreachable");
+          setLatency(card, null);
+          return "down";
+        }
+      }
+
+      async function checkMcp() {
+        var card = document.querySelector('[data-service="mcp"]');
+        var start = performance.now();
+        try {
+          // MCP SSE endpoint — CORS will block reading the response, but if
+          // the server is up the fetch resolves (even with a CORS error we
+          // can detect via the opaque/redirect status). A network failure
+          // (server unreachable) throws.
+          //
+          // Note: no-cors can't distinguish 200 from 530, so we accept this
+          // is a reachability probe only — not a full health check.
+          await fetch(mcpBase + "/sse", {
+            method: "GET",
+            signal: AbortSignal.timeout(5000),
+            mode: "no-cors"
+          });
+          var elapsed = Math.round(performance.now() - start);
+          // With no-cors, any non-throwing response means the server is
+          // reachable. We can't verify HTTP status (opaque response), so
+          // we label this as "Reachable" rather than "Operational".
+          setStatusBadge(card, "ok", "Reachable");
+          setLatency(card, elapsed);
+          return "ok";
+        } catch (e) {
+          setStatusBadge(card, "down", "Unreachable");
+          setLatency(card, null);
+          return "down";
+        }
+      }
+
+      async function checkPortal() {
+        var card = document.querySelector('[data-service="portal"]');
+        var start = performance.now();
+        try {
+          var resp = await fetch(portalBase + "/", { signal: AbortSignal.timeout(8000) });
+          var elapsed = Math.round(performance.now() - start);
+          if (resp.ok) {
+            setStatusBadge(card, "ok", "Operational");
+            setLatency(card, elapsed);
+            return "ok";
+          } else {
+            setStatusBadge(card, "down", "Error " + resp.status);
+            setLatency(card, elapsed);
+            return "down";
+          }
+        } catch (e) {
+          setStatusBadge(card, "down", "Unreachable");
+          setLatency(card, null);
+          return "down";
+        }
+      }
+
+      async function runChecks() {
+        if (overallSpinner) overallSpinner.style.display = "block";
+        overallText.textContent = "Checking all services…";
+        overallSub.textContent = "Fetching health from all endpoints";
+
+        var results = await Promise.all([checkApi(), checkEdge(), checkMcp(), checkPortal()]);
+
+        var okCount = results.filter(function (r) { return r === "ok"; }).length;
+        var totalCount = results.length;
+
+        if (overallSpinner) overallSpinner.style.display = "none";
+
+        if (okCount === totalCount) {
+          overallBanner.className = "rounded-xl border p-6 transition-colors border-green-500/30 bg-green-500/5";
+          overallText.textContent = "All systems operational";
+          overallSub.textContent = okCount + "/" + totalCount + " services online";
+        } else if (okCount > 0) {
+          overallBanner.className = "rounded-xl border p-6 transition-colors border-yellow-500/30 bg-yellow-500/5";
+          overallText.textContent = "Partial service degradation";
+          overallSub.textContent = okCount + "/" + totalCount + " services online — some endpoints unreachable";
+        } else {
+          overallBanner.className = "rounded-xl border p-6 transition-colors border-red-500/30 bg-red-500/5";
+          overallText.textContent = "All services unreachable";
+          overallSub.textContent = "0/" + totalCount + " services online";
+        }
+
+        if (lastCheckEl) {
+          lastCheckEl.textContent = "Updated " + new Date().toLocaleTimeString("en-CA");
+        }
+      }
+
+      // Initial check
+      var statusInterval = null;
+
+      function startStatusPolling() {
+        runChecks();
+        if (statusInterval) clearInterval(statusInterval);
+        statusInterval = setInterval(runChecks, 30000);
+      }
+
+      function stopStatusPolling() {
+        if (statusInterval) {
+          clearInterval(statusInterval);
+          statusInterval = null;
+        }
+      }
+
+      // Handle Astro view transitions — clear and restart interval on navigation.
+      // astro:page-load fires on both initial load and view-transition navigations,
+      // so it covers all cases without needing a fallback.
+      document.addEventListener("astro:before-swap", stopStatusPolling);
+      document.addEventListener("astro:page-load", startStatusPolling);
+    })();
+  </script>
+</BaseLayout>
