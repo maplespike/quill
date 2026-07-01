@@ -7,7 +7,6 @@ import Overview from "@/components/dashboard/Overview";
 import BillingPlans from "@/components/dashboard/BillingPlans";
 import ApiKeysManager from "@/components/dashboard/ApiKeysManager";
 import AISettings from "@/components/dashboard/AISettings";
-import BrowserExtraction from "@/components/dashboard/BrowserExtraction";
 ---
 
 <BaseLayout title="Developer Dashboard" description="Live MapleSpike API dashboard with usage stats and billing">
@@ -98,14 +97,5 @@ import BrowserExtraction from "@/components/dashboard/BrowserExtraction";
       </CardContent>
     </Card>
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Browser Data Extraction</CardTitle>
-        <CardDescription>Extract data from government portals that have no API — your browser renders the page and we cache the results for all users.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <BrowserExtraction client:load />
-      </CardContent>
-    </Card>
   </section>
 </BaseLayout>

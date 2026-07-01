@@ -4,43 +4,121 @@
   <url>
     <loc>https://maplespike.ca/</loc>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/"/>
-    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/"/>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://maplespike.ca/explorer</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/explorer"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://maplespike.ca/dashboard</loc>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/dashboard"/>
-    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/dashboard"/>
     <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/dashboard/extraction</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/dashboard/extraction"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/dashboard/owasp</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/dashboard/owasp"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/pricing"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/signup</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/signup"/>
+    <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://maplespike.ca/docs</loc>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/docs"/>
-    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/docs"/>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://maplespike.ca/agents</loc>
-    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/agents"/>
-    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/agents"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://maplespike.ca/explorer</loc>
-    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/explorer"/>
-    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/explorer"/>
+    <loc>https://maplespike.ca/blog</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/blog"/>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://maplespike.ca/workspace</loc>
-    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace"/>
-    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://maplespike.ca/fr/workspace"/>
+    <loc>https://maplespike.ca/agents</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/agents"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/ask</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/ask"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/signal</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/signal"/>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/watcher</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/watcher"/>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/citation</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/citation"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/api-explorer</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/api-explorer"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/changelog</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/changelog"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/contact"/>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/workspace</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/workspace"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/privacy"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://maplespike.ca/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://maplespike.ca/terms"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

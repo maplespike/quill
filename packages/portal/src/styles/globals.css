@@ -279,7 +279,7 @@ body {
   to { transform: translateX(-50%); }
 }
 
-/* ── Convex Agent Chat styles ─────────────────────────────────────── */
+/* ── Agent Chat styles ─────────────────────────────────────────────── */
 
 .suggestion-chip {
   display: inline-flex;
