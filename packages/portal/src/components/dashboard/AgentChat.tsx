@@ -145,10 +145,10 @@ export default function AgentChat() {
   }
 
   return (
-    <Card className="flex-1 flex flex-col">
-      <CardContent className="flex-1 flex flex-col p-0">
+    <Card>
+      <CardContent className="p-0">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[320px] max-h-[480px]">
+        <div className="overflow-y-auto p-4 space-y-4 min-h-[320px] max-h-[480px]">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center text-center py-12">
               <div className="text-3xl mb-4 opacity-60">✦</div>
