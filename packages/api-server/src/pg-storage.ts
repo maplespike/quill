@@ -378,4 +378,8 @@ export class PgCache implements MapleSpikeCache {
     const expires = ttlSeconds ? Date.now() + ttlSeconds * 1000 : Infinity;
     this.store.set(key, { value, expires });
   }
+
+  async delete(key: string): Promise<void> {
+    this.store.delete(key);
+  }
 }
