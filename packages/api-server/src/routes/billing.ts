@@ -3,27 +3,25 @@
  *
  * Handles order creation, status checking, and payment reconciliation for
  * Interac e-Transfer payments.
- *
- * Uses NodeSqliteStorage (node:sqlite built-in) - no Drizzle ORM.
  */
 
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import type { RouteHandler } from '../types.js';
+import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { nanoid } from 'nanoid';
 import crypto from 'crypto';
 
-const billing = new Hono();
-
-// ─── Schemas ─────────────────────────────────────────────────────────────
-
-const createOrderSchema = z.object({
-  plan_id: z.enum(['free', 'pro']),
-});
-
 // ─── Plan Definitions ─────────────────────────────────────────────────────
 
-const PLANS = {
+type Plan = {
+  plan_id: string;
+  name: string;
+  price_cents: number;
+  credits_per_month: number;
+  rate_limit_per_min: number;
+  features: string[];
+};
+
+const PLANS: Record<string, Plan> = {
   free: {
     plan_id: 'free',
     name: 'Free',
@@ -40,7 +38,7 @@ const PLANS = {
     rate_limit_per_min: 60,
     features: ['All MCP tools', 'RAG', 'Entity resolution', 'API access'],
   },
-} as const;
+};
 
 // ─── Utilities ───────────────────────────────────────────────────────────
 
@@ -56,54 +54,51 @@ function signOrder(orderId: string, tenantId: string): string {
 
 // ─── Handlers ─────────────────────────────────────────────────────────────
 
-export const billingPlansHandler = billing.get('/plans', (c) => {
-  return c.json({
+export const billingPlansHandler: RouteHandler = async (_request, ctx) => {
+  const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+  return jsonResponse(buildSuccess({
     plans: Object.values(PLANS),
     currency: 'CAD',
-  });
-});
+  }, bc));
+};
 
-export const billingSeedPlansHandler = billing.post('/seed-plans', (c) => {
-  const secret = c.req.header('X-Billing-Secret');
+export const billingSeedPlansHandler: RouteHandler = async (request, ctx) => {
+  const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+  const secret = request.headers.get('X-Billing-Secret');
   if (secret !== process.env.MAPLESPIKE_BILLING_SECRET) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 
-  // In NodeSqliteStorage, plans are not persisted - they're defined in code
-  // This endpoint is for future migration to persistent plans
-  return c.json({
+  return jsonResponse(buildSuccess({
     message: 'Plans are defined in code (PLANS constant)',
     plans: Object.values(PLANS),
-  });
-});
+  }, bc));
+};
 
-export const billingOrderHandler = billing.post(
-  '/orders',
-  zValidator('json', createOrderSchema),
-  async (c) => {
-    const { plan_id } = c.req.valid('json');
-    const authHeader = c.req.header('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return c.json({ error: 'Missing Authorization header' }, 401);
+export const billingOrderHandler: RouteHandler = async (request, ctx) => {
+  const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return jsonResponse(buildError('UNAUTHORIZED', 'Missing Authorization header', bc), 401);
+  }
+
+  try {
+    const body = await request.json() as Record<string, unknown>;
+    const plan_id = String(body.plan_id);
+
+    if (plan_id !== 'free' && plan_id !== 'pro') {
+      return jsonResponse(buildError('BAD_REQUEST', 'Invalid plan', bc), 400);
     }
-
-    // Extract tenant_id from auth (simplified - in production, use full auth flow)
-    const token = authHeader.slice(7);
-    const tenantId = `tenant_${token.slice(0, 8)}`;
 
     const plan = PLANS[plan_id];
-    if (!plan) {
-      return c.json({ error: 'Invalid plan' }, 400);
-    }
-
+    const token = authHeader.slice(7);
+    const tenantId = `tenant_${token.slice(0, 8)}`;
     const orderId = generateOrderId();
     const signature = signOrder(orderId, tenantId);
     const now = Math.floor(Date.now() / 1000);
     const expiresAt = now + 15 * 60; // 15 minutes
 
-    // In-memory order storage (replace with database in production)
-    // For now, return order details without persistence
-    return c.json({
+    return jsonResponse(buildSuccess({
       order_id: orderId,
       tenant_id: tenantId,
       plan_id: plan.plan_id,
@@ -118,47 +113,51 @@ export const billingOrderHandler = billing.post(
         amount: (plan.price_cents / 100).toFixed(2),
         message: orderId,
       },
-    });
+    }, bc));
+  } catch {
+    return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body', bc), 400);
   }
-);
+};
 
-export const billingOrderStatusHandler = billing.get('/orders/:id', (c) => {
-  const orderId = c.req.param('id');
+export const billingOrderStatusHandler: RouteHandler = async (request, ctx, params) => {
+  const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+  const orderId = params?.[0];
+
   // In-memory mock - replace with database query
-  return c.json({
+  return jsonResponse(buildSuccess({
     order_id: orderId,
     status: 'pending',
     created_at: Math.floor(Date.now() / 1000),
-  });
-});
+  }, bc));
+};
 
-export const billingReconcileHandler = billing.post('/reconcile', (c) => {
-  const secret = c.req.header('X-Billing-Secret');
+export const billingReconcileHandler: RouteHandler = async (request, ctx) => {
+  const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+  const secret = request.headers.get('X-Billing-Secret');
   if (secret !== process.env.MAPLESPIKE_BILLING_SECRET) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 
   // IMAP poller will be added later with proper database integration
-  return c.json({
+  return jsonResponse(buildSuccess({
     processed: 0,
     credited: 0,
     failed: 0,
     errors: [],
     message: 'IMAP reconciliation not yet implemented',
-  });
-});
+  }, bc));
+};
 
-export const billingVerifyHandler = billing.post('/verify', (c) => {
-  const secret = c.req.header('X-Billing-Secret');
+export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
+  const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
+  const secret = request.headers.get('X-Billing-Secret');
   if (secret !== process.env.MAPLESPIKE_BILLING_SECRET) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 
   // Payment verification will be added later
-  return c.json({
+  return jsonResponse(buildSuccess({
     verified: false,
     message: 'Payment verification not yet implemented',
-  });
-});
-
-export default billing;
+  }, bc));
+};
