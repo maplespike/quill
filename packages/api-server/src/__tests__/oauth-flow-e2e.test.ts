@@ -106,11 +106,10 @@ test("oauthExchangeHandler rejects ALREADY_CONSUMED sentinel values", async () =
 test("oauthExchangeHandler rejects expired codes", async () => {
   const cache = new InMemoryCache();
   const ctx = makeCtx({ cache });
-  // Bypass the helper to insert a code that's already expired.
   const code = "expired-code";
   await cache.put(`oauth:exchange:${code}`, JSON.stringify({ token: "x", provider: "x", name: "x", isNewUser: false }), 60);
-  // Pre-expire by tampering with the in-memory expiry.
-  (cache as any).store.get(`oauth:exchange:${code}`).expires = Date.now() - 10;
+  // Backdate the TTL so the next read observes expiry without sleeping.
+  await cache.expireAt(`oauth:exchange:${code}`, Date.now() - 10);
   const res = await oauthExchangeHandler(
     new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
       method: "GET",

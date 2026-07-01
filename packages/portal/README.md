@@ -27,6 +27,18 @@ npx serve .
 npm run dev     # if configured
 ```
 
+## Environment Variables
+
+Astro loads `import.meta.env.PUBLIC_*` at build time. The portal reads:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `PUBLIC_BRAND_URL` | `https://brand.maplespike.lan` (dev) / `https://brand.maplespike.ca` (prod) | Cross-deployable link to the marketing/brand site. Pointer only — the portal does not proxy or render brand content. |
+| `PUBLIC_*` | — | Any other `PUBLIC_*` var exposed to the Astro frontmatter. |
+
+For a full env reference (API server, MCP, OAuth, etc.) see
+[`../../.env.example`](../../.env.example) at the repo root.
+
 ## Deployment
 
 The portal is a pure static site (HTML + CSS + JS). No build step required.
