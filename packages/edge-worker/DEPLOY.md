@@ -34,6 +34,11 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/
   -H "Content-Type: application/json" \
   -d '{"title":"maplespike-rate-limit"}'
 
+curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/kv/namespaces" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"maplespike-neuron-budget"}'
+
 # Create D1 database
 curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/d1/database" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
@@ -76,6 +81,9 @@ CREATE INDEX IF NOT EXISTS idx_ai_audit_timestamp ON ai_audit(timestamp);
 " --remote
 ```
 
+The `ai_audit_summary` table is created automatically by the scheduled
+retention handler on its first run — no manual DDL needed.
+
 ### 5. Set Secrets
 
 ```bash
@@ -96,6 +104,11 @@ openssl rand -hex 32 | npx wrangler secret put JWT_SIGNING_KEY
 openssl rand -hex 32 | npx wrangler secret put PII_HASH_SECRET
 ```
 
+**Non-secret vars** are set in `wrangler.toml` under `[vars]`:
+- `HOMELAB_MODEL` — model name that matches homelab's `/v1/models` (default: `qwen3.5-27b`)
+- `NEURON_DAILY_LIMIT` — stop using edge AI after this many requests/day (default: `8000`)
+- `AUDIT_RETENTION_DAYS` — raw audit rows older than this get rolled into summary (default: `30`)
+
 ### 6. Register an API Key in KV
 
 To seed a tenant API key for testing:
@@ -113,6 +126,21 @@ curl -X PUT "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/k
 
 echo "API Key: $KEY"
 echo "Stored hash: $KEY_HASH"
+```
+
+For enterprise tenants with BYOK, add the optional fields to the KV value:
+
+```json
+{
+  "id": "tenant_ent",
+  "name": "Enterprise Tenant",
+  "tier": "enterprise",
+  "rateLimitPerMin": 60,
+  "isActive": true,
+  "byokEndpoint": "https://api.openai.com/v1",
+  "byokApiKey": "sk-...",
+  "byokModel": "gpt-4o"
+}
 ```
 
 ### 7. Deploy
@@ -138,18 +166,55 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes
 The tunnel will continue handling `api.maplespike.ca/v1/*` (non-AI routes).
 The Worker intercepts `/v1/ai/*` before it reaches the tunnel.
 
+## Tier-Aware Model Routing
+
+The worker routes AI inference based on tenant tier:
+
+| Tier | Primary | Fallback | Rationale |
+|------|---------|----------|----------|
+| **free** | Workers AI (edge, free ~10K neurons/day) | Homelab (when budget exhausted) | Free tier uses CF free quota first; homelab absorbs overflow |
+| **pro** | Homelab (k3s Qwen3.5-27B, unlimited) | Workers AI (edge) | Pro tier pays for homelab scaling; edge is emergency fallback |
+| **business** | Homelab | Workers AI | Same as pro |
+| **enterprise** | BYOK (if configured in KV tenant record) | Homelab | Enterprise brings their own OpenAI-compatible endpoint |
+
+The **homelab is the horizontal scaler** — it has no per-day cap and handles
+all traffic once the CF free tier neuron budget is exhausted. A KV counter
+(`NEURON_BUDGET` namespace, key `neurons:YYYY-MM-DD`) tracks daily usage;
+when it exceeds `NEURON_DAILY_LIMIT`, all edge calls degrade to homelab.
+
+## D1 Audit Retention
+
+A scheduled handler runs daily at 01:00 UTC (`cron: "0 1 * * *"`) to keep
+the D1 free tier (5 GB) from filling up:
+
+1. **Roll up**: raw `ai_audit` rows older than `AUDIT_RETENTION_DAYS`
+   (default 30) are aggregated into `ai_audit_summary` (one row per
+   tenant per day, with request counts by source + token totals).
+2. **Delete**: the rolled-up raw rows are deleted.
+3. **Idempotent**: `INSERT OR REPLACE` + `CREATE TABLE IF NOT EXISTS`
+   make re-runs safe.
+
+The summary table (`ai_audit_summary`) is created automatically by the
+scheduled handler on first run — no manual DDL needed.
+
 ## Security Checklist
 
 - [x] API keys stored as SHA-256 hashes in KV (never plaintext)
 - [x] Per-tenant rate limiting (10/min free, 60/min pro)
 - [x] Full audit log in D1 (PII redacted before storage)
+- [x] D1 audit retention with daily rollup (30-day TTL + summary table)
 - [x] Input length validation (max 4000 chars per question)
-- [x] Prompt sanitization (system prompt constrains behavior)
-- [x] Timeout on homelab fallback (15s)
-- [x] No secrets in source code (all via wrangler secret)
-- [x] CORS restricted to authorized origins
+- [x] Prompt-injection guardrails (sanitizeUserInput + hardened system prompt)
+- [x] Tier-aware model routing (homelab scales past CF free tier)
+- [x] Neuron budget tracker (KV daily counter, auto-degrades to homelab)
+- [x] Configurable homelab model name (HOMELAB_MODEL var, default qwen3.5-27b)
+- [x] Timeout on homelab calls (30s)
+- [x] No secrets in source code (all via wrangler secret or [vars])
+- [x] CORS headers on all responses
 - [x] Cache-Control: no-store on all AI responses
 - [x] Request hash for dedup detection in audit log
+- [x] Scheduled handler for D1 retention (cron 0 1 * * *)
+- [ ] Deploy-only scoped CF token for CI (current token is full-scope)
 - [ ] IPv4/IPv6 allowlist for admin endpoints (TODO)
 - [ ] Web Application Firewall (WAF) rules (Cloudflare built-in)
 - [ ] Bot management challenge for POST endpoints (Cloudflare built-in)
