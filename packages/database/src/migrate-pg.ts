@@ -422,8 +422,8 @@ CREATE TABLE IF NOT EXISTS charity_board_members (
 CREATE INDEX IF NOT EXISTS idx_cbm_charity ON charity_board_members(charity_id);
 
 -- ─── Notification Subscriptions ───────────────────────────────────────────
--- Decision 0002: PII avoidance. `subject_hash` replaces `email`.
--- Real delivery happens via the user's client (web-push, wallet).
+-- Decision 0002: PII avoidance. subject_hash replaces email.
+-- Real delivery happens via the user client (web-push, wallet).
 CREATE TABLE IF NOT EXISTS notification_subscriptions (
   id TEXT PRIMARY KEY,
   subject_hash TEXT NOT NULL,
