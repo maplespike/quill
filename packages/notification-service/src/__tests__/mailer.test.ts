@@ -196,19 +196,17 @@ describe("SubscriptionStore", () => {
 describe("Watcher", () => {
   let db: Database.Database;
   let store: SubscriptionStore;
-  let mailer: Mailer;
 
   beforeEach(() => {
     db = makeDb();
     store = new SubscriptionStore(db);
-    mailer = new Mailer(testConfig, true);
   });
 
   afterEach(() => {
     db.close();
   });
 
-  it("poll detects changes and creates events", async () => {
+  it("poll detects changes and queues events for client delivery", async () => {
     store.create({
       plaintextContact: "user@example.com",
       sourceFilter: ["statcan-gdp"],
@@ -227,7 +225,6 @@ describe("Watcher", () => {
     const watcher = new Watcher({
       db,
       config: testConfig,
-      mailer,
       subscriptionStore: store,
       fetchChanges: async () => mockChanges,
     });
@@ -235,10 +232,12 @@ describe("Watcher", () => {
     const result = await watcher.poll();
     assert.equal(result.changes, 1);
     assert.equal(result.notifications, 1);
-    assert.equal(result.delivered, 1);
+    assert.equal(result.queued, 1);
     assert.equal(result.failed, 0);
 
-    const events = db.prepare("SELECT * FROM notification_events WHERE status = 'delivered'").all() as Record<string, unknown>[];
+    // Decision 0002: events are queued for client-side delivery, not
+    // delivered directly via SMTP.
+    const events = db.prepare("SELECT * FROM notification_events WHERE status = 'queued'").all() as Record<string, unknown>[];
     assert.equal(events.length, 1);
     assert.equal(events[0].source_id, "statcan-gdp");
   });
@@ -253,7 +252,6 @@ describe("Watcher", () => {
     const watcher = new Watcher({
       db,
       config: testConfig,
-      mailer,
       subscriptionStore: store,
       fetchChanges: async () => [
         {
@@ -274,7 +272,6 @@ describe("Watcher", () => {
     const watcher = new Watcher({
       db,
       config: testConfig,
-      mailer,
       subscriptionStore: store,
       fetchChanges: async () => [],
     });
@@ -282,23 +279,23 @@ describe("Watcher", () => {
     const result = await watcher.poll();
     assert.equal(result.changes, 0);
     assert.equal(result.notifications, 0);
-    assert.equal(result.delivered, 0);
+    assert.equal(result.queued, 0);
   });
 
-  it("poll records failed delivery", async () => {
+  // Decision 0002: SMTP delivery is no longer possible from the watcher.
+  // Events are always queued for client-side delivery (web push / wallet
+  // attestation). The "failed" count is always 0 — delivery failures are
+  // handled by the client-side layer, not the server-side watcher.
+  it("queues events for client delivery (was: records failed delivery)", async () => {
     store.create({
       plaintextContact: "user@example.com",
       sourceFilter: [],
       eventTypes: [],
     });
 
-    const failMailer = new Mailer(testConfig, true);
-    failMailer.sendNotification = async () => ({ success: false, error: "SMTP down" });
-
     const watcher = new Watcher({
       db,
       config: testConfig,
-      mailer: failMailer,
       subscriptionStore: store,
       fetchChanges: async () => [
         {
@@ -312,11 +309,10 @@ describe("Watcher", () => {
 
     const result = await watcher.poll();
     assert.equal(result.notifications, 1);
-    assert.equal(result.delivered, 0);
-    assert.equal(result.failed, 1);
+    assert.equal(result.queued, 1);
+    assert.equal(result.failed, 0);
 
-    const events = db.prepare("SELECT * FROM notification_events WHERE status = 'failed'").all() as Record<string, unknown>[];
+    const events = db.prepare("SELECT * FROM notification_events WHERE status = 'queued'").all() as Record<string, unknown>[];
     assert.equal(events.length, 1);
-    assert.equal(events[0].error, "SMTP down");
   });
 });
