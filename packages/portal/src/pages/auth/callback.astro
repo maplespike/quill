@@ -1,0 +1,135 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+if (Astro.url.searchParams.has("error")) {
+  const error = Astro.url.searchParams.get("error");
+}
+---
+
+<BaseLayout title="Completing sign-in" description="Finalizing authentication...">
+  <section class="container mx-auto px-4 py-24 min-h-[60vh] flex items-center justify-center">
+    <div class="text-center space-y-6 max-w-md">
+      <div class="mx-auto h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+
+      <h1 class="text-2xl font-bold tracking-tight">
+        Completing sign-in
+        <span class="text-gradient">…</span>
+      </h1>
+
+      <p class="text-muted-foreground" id="auth-status">
+        Exchanging one-time code for an authenticated session.
+      </p>
+
+      <p id="auth-error" class="hidden text-sm text-destructive"></p>
+
+      <a
+        href="/signup"
+        id="auth-retry"
+        class="hidden inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-input bg-background hover:bg-accent transition-colors"
+      >
+        Try a different sign-in method
+      </a>
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const statusEl = document.getElementById("auth-status");
+      const errorEl = document.getElementById("auth-error");
+      const retryEl = document.getElementById("auth-retry");
+
+      function setError(msg: string) {
+        if (statusEl) statusEl.textContent = "Authentication failed";
+        if (errorEl) {
+          errorEl.textContent = msg;
+          errorEl.classList.remove("hidden");
+        }
+        if (retryEl) retryEl.classList.remove("hidden");
+      }
+
+      // Handle error param (callback failure before reaching exchange)
+      const params = new URLSearchParams(window.location.search);
+      const errorParam = params.get("error");
+      if (errorParam) {
+        const map: Record<string, string> = {
+          invalid_state: "OAuth state mismatch — possible CSRF attack. Please retry.",
+          login_failed: "OAuth login failed. Please try again.",
+          access_denied: "You declined the OAuth provider's permissions.",
+        };
+        setError(map[errorParam] || `Authentication error: ${errorParam}`);
+        return;
+      }
+
+      const code = params.get("code");
+      if (!code) {
+        setError("Missing authentication code.");
+        return;
+      }
+
+      // Resolve API base (same logic as SignupForm and ConvexProvider)
+      const cfg =
+        typeof window !== "undefined" ? window.MAPLESPIKE || {} : {};
+      let apiBase = cfg.apiBase;
+      if (!apiBase && typeof window !== "undefined") {
+        const host = window.location.hostname;
+        const parts = host.split(".");
+        const base =
+          parts.length > 2 && ["api", "portal", "www", "dev"].includes(parts[0])
+            ? parts.slice(1).join(".")
+            : host;
+        apiBase = `${window.location.protocol}//api.${base}`;
+      }
+      if (!apiBase) apiBase = "https://api.maplespike.lan";
+
+      fetch(`${apiBase}/v1/auth/oauth/exchange?code=${encodeURIComponent(code)}`)
+        .then(async (res) => {
+          const data = await res.json();
+          if (!data.success) {
+            throw new Error(data.error?.message || "Exchange failed");
+          }
+          return data.data;
+        })
+        .then((payload) => {
+          // Store JWT as maplespike_token; ConvexProvider can exchange it for OIDC
+          const token = payload?.token;
+          if (!token) {
+            setError("No token in response.");
+            return;
+          }
+
+          const provider = payload?.provider || "oauth";
+          const userId = payload?.name || provider;
+
+          // Use the existing global auth manager
+          if (window.MapleSpikeAuth?.setAuth) {
+            window.MapleSpikeAuth.setAuth(token, userId, provider);
+          } else {
+            // Fallback: write directly to localStorage
+            localStorage.setItem("maplespike_token", token);
+            localStorage.setItem("maplespike_userId", userId);
+            localStorage.setItem("maplespike_method", provider);
+          }
+
+          // Also store API key if provided
+          if (payload?.apiKey?.key) {
+            localStorage.setItem("maplespike-api-key", payload.apiKey.key);
+          }
+
+          if (!statusEl) return;
+          statusEl.textContent = payload?.isNewUser
+            ? "Welcome to MapleSpike — redirecting to your dashboard…"
+            : "Signed in — redirecting to your dashboard…";
+
+          setTimeout(() => {
+            const dest = payload?.isNewUser ? "/workspace" : "/dashboard";
+            window.location.replace(dest);
+          }, 600);
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : "Unknown error");
+        });
+    })();
+  </script>
+</BaseLayout>

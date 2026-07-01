@@ -3,11 +3,14 @@
  *
  * GET  /v1/auth/oauth/:provider           — redirect to provider
  * GET  /v1/auth/oauth/:provider/callback   — handle callback → JWT
+ * GET  /v1/auth/oauth/exchange             — exchange one-time code for JWT
  * GET  /v1/auth/oauth/providers            — list configured providers
  *
- * Supports any OAuth 2.0 provider configured via env vars:
- *   MAPLESPIKE_OAUTH_{NAME}_CLIENT_ID
- *   MAPLESPIKE_OAUTH_{NAME}_CLIENT_SECRET
+ * Browser flow: user clicks OAuth button → callback returns a one-time
+ * exchange code in a 302 redirect to /auth/callback (portal page). The
+ * portal calls /v1/auth/oauth/exchange with the code to retrieve the
+ * JWT. This avoids putting the 7-day JWT in URL query strings, browser
+ * history, server logs, or referral headers.
  *
  * Built-in: GitHub (from GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET)
  */
@@ -20,8 +23,71 @@ import { generateApiKey } from '../auth.js';
 import { serializeCookie } from '../auth/github.js';
 
 /**
+ * In-memory store for OAuth one-time exchange codes.
+ * Each code is single-use and expires in 60 seconds.
+ * Map size is naturally bounded by traffic; we also do periodic cleanup.
+ */
+interface ExchangeEntry {
+  token: string;
+  provider: string;
+  name: string;
+  isNewUser: boolean;
+  apiKey?: { key: string };
+  expiresAt: number;
+}
+
+const EXCHANGE_TTL_MS = 60_000;
+const MAX_EXCHANGE_ENTRIES = 1000;
+const exchangeStore = new Map<string, ExchangeEntry>();
+
+function setExchange(code: string, entry: Omit<ExchangeEntry, 'expiresAt'>): void {
+  if (exchangeStore.size >= MAX_EXCHANGE_ENTRIES) {
+    // Drop oldest entries when at capacity
+    const oldestKey = exchangeStore.keys().next().value;
+    if (oldestKey) exchangeStore.delete(oldestKey);
+  }
+  exchangeStore.set(code, { ...entry, expiresAt: Date.now() + EXCHANGE_TTL_MS });
+}
+
+function consumeExchange(code: string): ExchangeEntry | null {
+  const entry = exchangeStore.get(code);
+  if (!entry) return null;
+  exchangeStore.delete(code);
+  if (Date.now() > entry.expiresAt) return null;
+  return entry;
+}
+
+/** Periodic cleanup of expired entries (every 5 minutes) */
+setInterval(() => {
+  const now = Date.now();
+  for (const [code, entry] of exchangeStore.entries()) {
+    if (entry.expiresAt < now) exchangeStore.delete(code);
+  }
+}, 5 * 60_000).unref?.();
+
+/** Returns true if this request came from a browser (HTML client) */
+function isBrowserRequest(request: Request): boolean {
+  const accept = request.headers.get('Accept') || '';
+  return accept.includes('text/html');
+}
+
+/** Redirect to portal auth/callback with optional error query param */
+function redirectToPortal(code: string, appUrl: string): Response {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: `${appUrl}/auth/callback?code=${encodeURIComponent(code)}`,
+      'Cache-Control': 'no-store',
+    },
+  });
+}
+
+function portalUrl(): string {
+  return process.env.PORTAL_URL || process.env.APP_URL || 'http://localhost:4321';
+}
+
+/**
  * GET /v1/auth/oauth/providers
- * List all configured OAuth providers (for frontend login buttons).
  */
 export const oauthProvidersHandler: RouteHandler = async (_request, ctx) => {
   const providers = listProviders();
@@ -55,7 +121,11 @@ export const oauthLoginHandler: RouteHandler = async (_request, ctx, params) => 
 
 /**
  * GET /v1/auth/oauth/:provider/callback
- * Handle the OAuth callback, exchange code for token, issue JWT.
+ *
+ * For browser requests (Accept: text/html), generates a one-time
+ * exchange code and redirects to /auth/callback.
+ *
+ * For API clients (Accept: application/json), returns the JWT directly.
  */
 export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) => {
   const provider = getProvider(params.provider);
@@ -72,16 +142,25 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
 
   if (!code) {
     const error = url.searchParams.get('error') || 'Unknown OAuth error';
-    return jsonResponse(
-      buildError('OAUTH_ERROR', `Provider returned: ${error}`, ctx),
-      400,
-    );
+    if (isBrowserRequest(request)) {
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `${portalUrl()}/auth/callback?error=${encodeURIComponent(error)}` },
+      });
+    }
+    return jsonResponse(buildError('OAUTH_ERROR', `Provider returned: ${error}`, ctx), 400);
   }
 
   // Verify state to prevent CSRF
   if (state) {
     const stored = consumeChallenge(`oauth:${params.provider}:${state}`);
     if (!stored) {
+      if (isBrowserRequest(request)) {
+        return new Response(null, {
+          status: 302,
+          headers: { Location: `${portalUrl()}/auth/callback?error=${encodeURIComponent('invalid_state')}` },
+        });
+      }
       return jsonResponse(
         buildError('OAUTH_INVALID_STATE', 'OAuth state mismatch. Possible CSRF attack.', ctx),
         403,
@@ -93,15 +172,14 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
     const result = await loginWithOAuth(provider, code);
 
     // Auto-provision API key for new OAuth users
-    let apiKey: { id: string; key: string } | undefined;
+    let apiKey: { key: string } | undefined;
     if (result.isNewUser) {
       const tenantId = `${result.profile.provider}:${result.profile.providerId}`;
       const keyId = `key_${crypto.randomUUID().replace(/-/g, '').slice(0, 24)}`;
       const generated = await generateApiKey();
-      apiKey = { id: keyId, key: generated.rawKey };
+      apiKey = { key: generated.rawKey };
 
       try {
-        // Try SqliteStorage-style createApiKey
         const db = ctx.db as any;
         if (typeof db.createApiKey === 'function') {
           db.createApiKey(keyId, tenantId, generated.keyHash, 'default');
@@ -113,10 +191,27 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
       }
     }
 
-    // Decision 0002: drop `email` from the OAuth callback
-    // response. The backend has already hashed the plaintext
-    // (see auth/users.ts.createUser); the frontend does not
-    // need it and must not store it.
+    // ── Browser path: redirect to portal with one-time code ────────
+    if (isBrowserRequest(request)) {
+      const exchangeCode = crypto.randomUUID();
+      setExchange(exchangeCode, {
+        token: result.token,
+        provider: result.profile.provider ?? '',
+        name: result.profile.name ?? '',
+        isNewUser: result.isNewUser,
+        apiKey,
+      });
+
+      // Also set the HttpOnly session cookie for server-side API auth
+      const redirectResponse = redirectToPortal(exchangeCode, portalUrl());
+      redirectResponse.headers.append(
+        'Set-Cookie',
+        serializeCookie('session', result.token, 604800),
+      );
+      return redirectResponse;
+    }
+
+    // ── API path: return JSON with JWT directly ───────────────────
     const response = jsonResponse(buildSuccess({
       token: result.token,
       provider: result.profile.provider,
@@ -126,9 +221,8 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
       apiKey: apiKey ? { key: apiKey.key, message: 'Save this API key — it will not be shown again.' } : undefined,
     }, ctx));
 
-    // Also set cookie for browser-based auth
     const headers = new Headers(response.headers);
-    headers.set(
+    headers.append(
       'Set-Cookie',
       serializeCookie('session', result.token, 604800),
     );
@@ -139,6 +233,42 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'OAuth login failed';
+    if (isBrowserRequest(request)) {
+      return new Response(null, {
+        status: 302,
+        headers: { Location: `${portalUrl()}/auth/callback?error=${encodeURIComponent('login_failed')}` },
+      });
+    }
     return jsonResponse(buildError('OAUTH_LOGIN_FAILED', message, ctx), 401);
   }
+};
+
+/**
+ * GET /v1/auth/oauth/exchange?code=<one-time-code>
+ *
+ * Exchanges a short-lived code for the user's JWT payload.
+ * The code is single-use and expires after 60 seconds.
+ *
+ * Returns: { token, provider, name, isNewUser, apiKey? }
+ */
+export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code');
+
+  if (!code) {
+    return jsonResponse(buildError('MISSING_CODE', 'Exchange code is required', ctx), 400);
+  }
+
+  const entry = consumeExchange(code);
+  if (!entry) {
+    return jsonResponse(buildError('INVALID_CODE', 'Exchange code is invalid, expired, or already used', ctx), 400);
+  }
+
+  return jsonResponse(buildSuccess({
+    token: entry.token,
+    provider: entry.provider,
+    name: entry.name,
+    isNewUser: entry.isNewUser,
+    apiKey: entry.apiKey ? { key: entry.apiKey.key, message: 'Save this API key — it will not be shown again.' } : undefined,
+  }, ctx));
 };

@@ -82,9 +82,10 @@ import {
   astralHealthHandler,
 } from './routes/astral-proxy.js';
 import {
+  oauthProvidersHandler,
   oauthLoginHandler,
   oauthCallbackHandler,
-  oauthProvidersHandler,
+  oauthExchangeHandler,
 } from './routes/auth-oauth.js';
 import {
   passkeyRegisterBeginHandler,
@@ -192,6 +193,7 @@ const ROUTES: Route[] = [
   // OAuth login/callback redirects — no cache (user-specific redirects)
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/?$/, method: 'GET', params: ['provider'], handler: oauthLoginHandler },
   { pattern: /^\/v1\/auth\/oauth\/([^/]+)\/callback\/?$/, method: 'GET', params: ['provider'], handler: oauthCallbackHandler },
+  { pattern: /^\/v1\/auth\/oauth\/exchange\/?$/, method: 'GET', params: [], handler: oauthExchangeHandler },
   // Legacy GitHub-specific (kept for backward compat)
   { pattern: /^\/v1\/auth\/github\/?$/, method: 'GET', params: [], handler: githubLoginHandler },
   { pattern: /^\/v1\/auth\/github\/callback\/?$/, method: 'GET', params: [], handler: githubCallbackHandler },
