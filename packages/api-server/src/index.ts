@@ -117,6 +117,11 @@ import {
   logoutHandler,
   meHandler as authMeHandler,
 } from './auth/github.js';
+import {
+  extractionTasksHandler,
+  extractionResultsHandler,
+  extractionCachedHandler,
+} from './routes/extraction.js';
 
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
@@ -143,6 +148,12 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/billing\/orders\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: billingOrderStatusHandler },
   { pattern: /^\/v1\/billing\/reconcile\/?$/, method: 'POST', params: [], handler: billingReconcileHandler },
   { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
+
+  // Extraction — client-side browser extraction system
+  { pattern: /^\/v1\/extraction\/tasks\/?$/, method: 'GET', params: [], handler: withRouteCache(extractionTasksHandler, 300) },
+  { pattern: /^\/v1\/extraction\/tasks\/([^/]+)\/?$/, method: 'GET', params: ['jurisdiction'], handler: withRouteCache(extractionTasksHandler, 300) },
+  { pattern: /^\/v1\/extraction\/results\/?$/, method: 'POST', params: [], handler: extractionResultsHandler },
+  { pattern: /^\/v1\/extraction\/cached\/([^/]+)\/?$/, method: 'GET', params: ['source_id'], handler: withRouteCache(extractionCachedHandler, 300) },
 
 
   // API Key Management

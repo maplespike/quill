@@ -398,8 +398,58 @@ export async function fetchProvincialData(province: string, query: string, limit
   const { searchCkan } = await import('./upstream-fetcher.js');
   try { return await searchCkan(query + ' ' + province, limit); } catch (err) {
     console.warn(`[upstream-fetcher] Federal CKAN fallback failed: ${(err as Error).message}`);
-    return { results: [], total: 0 };
   }
+  // Browser extraction cache fallback (for nt, nu — portals with no API)
+  try {
+    const r = await fetchExtractionCache(prov, query, limit);
+    if (r.total > 0) return r;
+  } catch (err) {
+    console.warn(`[upstream-fetcher] Extraction cache fallback failed: ${(err as Error).message}`);
+  }
+  return { results: [], total: 0 };
+}
+
+// ── Browser Extraction Cache ──────────────────────────────────────
+// For portals with no API (NWT, Nunavut), the portal client extracts
+// data via browser rendering and POSTs results to the extraction API.
+// This fetches those cached results so MCP tools have a fallback.
+
+const EXTRACTION_API_BASE = process.env.MAPLESPIKE_API_URL
+  ? `${process.env.MAPLESPIKE_API_URL.replace(/\/+$/, '')}`
+  : 'http://localhost:8082';
+
+const JURISDICTION_TO_SOURCE: Record<string, string[]> = {
+  nt: ['nwt-open-government'],
+  nu: ['nunavut-bureau-statistics', 'nunavut-demographics', 'nunavut-economic'],
+  nwt: ['nwt-open-government'],
+  nunavut: ['nunavut-bureau-statistics', 'nunavut-demographics', 'nunavut-economic'],
+};
+
+export async function fetchExtractionCache(jurisdiction: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('extraction_' + jurisdiction, { query, limit }, async () => {
+    const sourceIds = JURISDICTION_TO_SOURCE[jurisdiction.toLowerCase()];
+    if (!sourceIds) return { results: [], total: 0 };
+
+    const allResults: Record<string, unknown>[] = [];
+    for (const sourceId of sourceIds) {
+      try {
+        const resp = await fetchJson<{ success: boolean; data?: { results: Array<{ title: string; url: string; format: string }> } }>(
+          `${EXTRACTION_API_BASE}/v1/extraction/cached/${sourceId}`,
+          5000,
+        );
+        if (resp.success && resp.data?.results) {
+          for (const item of resp.data.results) {
+            if (query === '' || item.title.toLowerCase().includes(query.toLowerCase())) {
+              allResults.push({ ...item, source: 'browser-extraction', jurisdiction });
+            }
+          }
+        }
+      } catch {
+        // Cache miss or API unreachable — skip silently
+      }
+    }
+    return { results: allResults.slice(0, limit), total: allResults.length };
+  });
 }
 
 // ── Provincial CKAN endpoints ──────────────────────────────────────
@@ -411,8 +461,8 @@ const PROVINCIAL_CKAN: Record<string, string> = {
   on: 'https://data.ontario.ca/api/3/action/package_search?q=',
   ab: 'https://open.alberta.ca/api/3/action/package_search?q=',
   nl: 'https://opendata.gov.nl.ca/api/3/action/package_search?q=',
-  nt: 'https://opendata.gov.nt.ca/api/3/action/package_search?q=',
   ns: 'https://data.novascotia.ca/api/views?q=',
+  // nt, nu, sk, mb — no working CKAN API. Fallback to federal CKAN + browser extraction cache.
 };
 
 export async function fetchProvincialCkan(province: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
