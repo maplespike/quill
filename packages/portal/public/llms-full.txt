@@ -1,9 +1,10 @@
 # MapleSpike — Full Documentation Archive
 
-> Version: 0.2.0
-> Auto-generated: 2026-05-18
+> Version: 0.3.0
+> Auto-generated: 2026-07-01
 > License: AGPL-3.0 / MIT. Government data under OGL-C.
 > API Base URL: https://api.maplespike.ca/v1
+> MCP Server: https://mcp.maplespike.ca/sse
 > Source: https://github.com/reverb256/maplespike
 
 ## REST API
@@ -42,7 +43,13 @@ Create account and API key
 Verify email address
 
 #### POST /v1/ai/ask
-Ask a question, get a sourced answer
+Ask a question, get a sourced answer (edge AI)
+
+#### POST /v1/ai/search
+Semantic search with edge embeddings
+
+#### GET /v1/ai/models
+List available AI models
 
 #### POST /v1/ai/analyze
 Analyze text for bias, sentiment, claims
@@ -74,50 +81,240 @@ Rotate API key
 #### GET /v1/signals
 Cross-reference signals (requires engine)
 
-## MCP Tools (27 total)
+#### GET /v1/extraction/tasks
+List browser extraction tasks for no-API portals
+
+#### POST /v1/extraction/results
+Submit extracted data from browser client
+
+#### GET /v1/extraction/cached/:source_id
+Get cached browser extraction results
+
+## MCP Tools (174 total)
 
 The MCP server exposes the following tools for AI agent use:
 
-- `ai-analyze`
-- `ai-ask`
-- `ai-search-semantic`
-- `api-client`
-- `fact-check`
-- `get-citation`
-- `index`
-- `latest-releases`
-- `query-gov-data`
-- `search-canlii`
-- `search-committees`
-- `search-corporate`
-- `search-elections`
-- `search-gazette`
-- `search-gic`
-- `search-immigration`
-- `search-influence`
-- `search-lmia`
-- `search-lode`
-- `search-ngo-rss`
-- `search-oversight`
-- `search-provincial-lobbying`
-- `search-science`
-- `search-tribunals`
-- `search-veterans`
-- `system-health`
-- `types`
+- `query_gov_data`
+- `fact_check`
+- `get_citation`
+- `latest_releases`
+- `search_committees`
+- `search_corporate`
+- `search_influence`
+- `search_gazette`
+- `search_gic`
+- `search_elections`
+- `search_provincial_lobbying`
+- `search_oversight`
+- `search_canlii`
+- `search_lmia`
+- `search_immigration`
+- `search_indigenous_relations`
+- `search_criminal_justice`
+- `search_transport_safety`
+- `search_defence`
+- `search_science`
+- `search_tribunals`
+- `search_lode`
+- `search_veterans`
+- `search_ngo_rss`
+- `ngo_narrative_tracker`
+- `search_health`
+- `search_ilo`
+- `search_proactive_disclosure`
+- `search_ati`
+- `search_federal_budget`
+- `search_statcan`
+- `search_legislation`
+- `search_goc_spending`
+- `search_municipal`
+- `search_global_canada`
+- `search_health_canada`
+- `search_impact_assessment`
+- `search_species_at_risk`
+- `search_fisheries`
+- `search_agriculture`
+- `search_crown_corporations`
+- `search_charity_t3010`
+- `search_bank_of_canada`
+- `search_housing_cmhc`
+- `search_crtc_decisions`
+- `search_social_programs`
+- `search_education_research`
+- `search_a2aj`
+- `search_ab_data`
+- `search_arcgis_layers`
+- `search_bc_data`
+- `search_bills`
+- `search_cipo`
+- `search_cmhc`
+- `search_committees_op`
+- `search_corporate_filings`
+- `search_cra_charity`
+- `search_crtc`
+- `search_culture`
+- `search_debates`
+- `search_geospatial`
+- `search_ircc-citizenship`
+- `search_ircc_entry_exit`
+- `search_ircc_express_entry`
+- `search_ircc_family_sponsorship`
+- `search_ircc_pr_admissions`
+- `search_ircc_processing_times`
+- `search_ircc_study_permits`
+- `search_ircc_work_permits`
+- `search_knowledge_fabric`
+- `search_libraries`
+- `search_municipal_data`
+- `search_npri`
+- `search_nrcan`
+- `search_nunavut_data`
+- `search_on_data`
+- `search_yukon_data`
+- `search_parks`
+- `search_provincial_data`
+- `search_provincial_legislatures`
+- `search_provincial_regulators`
+- `search_qc_data`
+- `search_real_time_feeds`
+- `search_regional_authorities`
+- `search_sedi`
+- `search_un`
+- `search_unions`
+- `search_universities`
+- `search_energy_data`
+- `search_climate_data`
+- `search_public_safety`
+- `search_federal_contracts`
+- `search_federal_grants`
+- `search_gender_stats`
+- `search_housing_data`
+- `search_mining_data`
+- `search_official_languages`
+- `search_technology_data`
+- `search_patents`
+- `search_trademarks`
+- `search_pharmaceuticals`
+- `search_telecommunications`
+- `search_real_estate`
+- `search_emergency_management`
+- `search_indigenous_services_directory`
+- `search_policing_security`
+- `search_financial_regulation`
+- `search_media_broadcasting`
+- `search_municipal_long_tail`
+- `search_provincial_orgs`
+- `search_cross_reference`
+- `search_nrcan_renewable`
+- `search_nrcan_fires`
+- `search_nrcan_forests`
+- `search_nrcan_minerals`
+- `search_oecd_stat`
+- `search_undp_hdi`
+- `search_unhcr_refugees`
+- `search_us_cia`
+- `search_au_abs`
+- `search_nz_stats`
+- `search_uk_ons`
+- `search_who_gho`
+- `search_eurostat`
+- `search_utilities`
+- `cache_clear`
+- `cache_status`
+- `compare_regions`
+- `get_annotations`
+- `get_entity_profile`
+- `get_member_info`
+- `get_module_health`
+- `get_pipeline_health`
+- `get_politician_influence`
+- `qa_schema`
+- `qa_validate_module`
+- `query_bridges`
+- `query_cpi`
+- `query_gdp`
+- `query_labour`
+- `query_population`
+- `query_trade`
+- `search_votes`
+- `search_agriculture_data`
+- `search_citizenship_data`
+- `search_corporate_registry`
+- `search_culture_data`
+- `search_education_stats`
+- `search_gazette_part1`
+- `search_gazette_part2`
+- `search_gazette_part3`
+- `search_immigration_refugees`
+- `search_indigenous_stats`
+- `search_transportation_data`
+- `searxng_health`
+- `smart_search`
+- `track_bill`
+- `get_wdi_indicator`
+- `compare_wdi_countries`
+- `get_country_wdi_profile`
+- `analyze_indicator_trend`
+- `fetch_topic_indicators`
+- `get_indicator_metadata`
+- `get_comtrade_by_partner`
+- `get_comtrade_by_commodity`
+- `get_comtrade_trends`
+- `ai_ask`
+- `ai_analyze`
+- `ai_search_semantic`
+- `explore_catalog`
+- `signal_check`
+- `system_health`
+- `resolve_entity`
+- `find_connections`
 
 ## Data Categories
 
 - **committees**: House of Commons and Senate committee evidence
-- **lobbying**: Federal lobbying registry communications
+- **lobbying**: Federal and provincial lobbying registry communications
 - **procurement**: CanadaBuys contract awards and tenders
 - **gazette**: Canada Gazette Parts I, II, III
-- **elections**: Third-party advertiser registry, election data
+- **elections**: Third-party advertiser registry, election data, political donations
 - **oversight**: OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau
 - **courts**: Federal court decisions via CanLII
-- **influence**: Tracked IOs, NGOs, think tanks
-- **immigration**: IRCC permanent resident data, LMIA
+- **influence**: Tracked IOs, NGOs, think tanks, narrative tracking
+- **immigration**: IRCC permanent resident data, LMIA, express entry, study/work permits
 - **defence**: DND personnel, defence procurement
-- **health**: Health Canada datasets, drug products
-- **transport**: Transport Canada, infrastructure data
+- **health**: Health Canada datasets, drug products, pharmaceuticals
+- **transport**: Transport Canada, infrastructure, GTFS transit data
+- **indigenous**: Indigenous services, statistics, First Nations data
+- **provincial**: All 13 provinces and territories: ON, QC, BC, AB, SK, MB, NB, NS, NL, PE, NT, YT, NU
+- **municipal**: Municipal open data across Canadian cities
+- **economic**: StatCan CPI, GDP, labour, population, trade, Bank of Canada rates
+- **international**: World Bank WDI, UN Comtrade, OECD, Eurostat, WHO, UNDP, UNHCR
+- **environment**: NPRI, NRCAN, climate, fisheries, parks, species at risk
+- **corporate**: SEDI insider trades, SEDAR+ filings, corporate registry, CIPO patents/trademarks
+- **housing**: CMHC housing data, real estate, municipal housing
+- **extraction**: Browser-extracted data from no-API government portals (NWT, Nunavut)
+
+## Citation Contract
+
+Every response includes a citation block:
+- source_name: Official source name
+- source_url: Direct upstream URL
+- data_hash: SHA-256 content hash at fetch time
+- license: OGL-C or equivalent
+- retrieved_at: ISO 8601 timestamp
+
+Verify any citation by re-fetching the source_url and comparing the SHA-256 hash.
+
+## Authentication
+
+- API Key: Send as X-API-Key header (recommended for servers)
+- OAuth: GitHub, Google, Apple via /v1/auth/oauth/providers
+- Passkey: FIDO2/WebAuthn via /v1/auth/passkey/register/begin
+- Web3: SIWE (EIP-4361) via /v1/auth/web3/challenge
+All methods issue the same JWT format. Keys are SHA-256 hashed at rest.
+
+## Browser Extraction
+
+For government portals with no API (NWT, Nunavut), the portal client renders pages
+in the browser and extracts data file links. Results are cached server-side for 7 days.
+MCP tools fall back to the extraction cache when CKAN/API returns nothing.
 
