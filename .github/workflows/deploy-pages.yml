@@ -1,0 +1,62 @@
+# =============================================================================
+# MapleSpike — Deploy Portal to Cloudflare Pages
+#
+# Builds the portal (pnpm build → gen:all + astro build) and deploys
+# the static output to Cloudflare Pages (maplespike-brand).
+#
+# Required Secrets:
+#   MAPLESPIKE_CLOUDFLARE_TOKEN — CF API token with Pages:Edit scope
+#
+# Required Variables:
+#   CF_ACCOUNT_ID — Cloudflare Account ID
+# =============================================================================
+name: Deploy Portal to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - "packages/portal/**"
+      - "packages/mcp-server/**"
+      - "packages/sdk/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+# Ensure only one deployment runs at a time
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build Portal + Deploy to CF Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # Auto-detects version from package.json packageManager field
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build all workspace packages
+        run: pnpm build
+
+      - name: Deploy to Cloudflare Pages
+        run: |
+          npx wrangler pages deploy packages/portal/dist \
+            --project-name=maplespike-brand \
+            --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.MAPLESPIKE_CLOUDFLARE_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CF_ACCOUNT_ID }}

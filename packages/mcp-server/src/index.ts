@@ -55,6 +55,17 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
   const path = url.pathname;
 
+  // Root path: redirect to /sse for discoverability
+  if (path === '/' || path === '') {
+    res.writeHead(301, {
+      'Location': '/sse',
+      'Content-Type': 'text/plain',
+      'Access-Control-Allow-Origin': '*',
+    });
+    res.end('Redirecting to SSE endpoint: /sse');
+    return;
+  }
+
   if (path === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', tools: tools.length }));
