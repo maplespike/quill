@@ -136,11 +136,7 @@ const ROUTES: Route[] = [
   // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
   { pattern: /^\/v1\/security\/audit-summary\/?$/, method: 'GET', params: [], handler: withRouteCache(securityAuditSummaryHandler, 60) },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: withRouteCache(usageHandler, 60) },
-  // Billing
-  { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: withRouteCache(billingPlansHandler, 3600) },
-  { pattern: /^\/v1\/billing\/order\/?$/, method: 'POST', params: [], handler: billingOrderHandler },
-  { pattern: /^\/v1\/billing\/order\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: billingOrderStatusHandler },
-  { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
+
 
   // API Key Management
   { pattern: /^\/v1\/keys\/?$/, method: 'GET', params: [], handler: listKeysHandler },
