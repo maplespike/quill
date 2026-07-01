@@ -298,6 +298,7 @@ const ALLOWED_ORIGINS = [
   'https://maplespike.ca',
   'https://www.maplespike.ca',
   'https://api.maplespike.ca',
+  'https://api.data.maplespike.ca',
   'https://mcp.maplespike.ca',
   // Production (LAN)
   'https://maplespike.lan',
