@@ -1,95 +1,172 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-const agents = [
+const platforms = [
   {
-    name: "Data Explorer",
-    description:
-      "Query and analyze data across 206 government data modules spanning federal, provincial, and municipal sources. Supports natural language and SQL queries.",
-    capabilities: ["SQL Queries", "Cross-Reference", "Data Export", "Visualization"],
+    name: "Claude Desktop",
+    icon: "🤖",
+    description: "Anthropic's desktop app. Open Settings → Developer → Edit Config, paste the MCP snippet below.",
+    setup: "claude_desktop_config.json",
   },
   {
-    name: "Committee Monitor",
-    description:
-      "Track House of Commons and Senate committee proceedings, evidence submissions, and published reports with real-time updates and full-text search across 50 committees.",
-    capabilities: ["Real-time", "Hansard Search", "Committee Reports", "Witness Lists"],
+    name: "ChatGPT",
+    icon: "🧠",
+    description: "OpenAI's ChatGPT with MCP support. Add the server in Settings → MCP Servers.",
+    setup: "chatgpt_mcp.json",
   },
   {
-    name: "Corporate Influence",
-    description:
-      "Map corporate influence networks through lobbying registry, procurement contracts, SEDI insider trades, and SEDAR+ filings dating back to 1996.",
-    capabilities: ["Lobbying", "Procurement", "Insider Trades", "Corporate Registry"],
+    name: "Cursor",
+    icon: "🖊️",
+    description: "AI code editor. Add to .cursor/mcp.json in your project root.",
+    setup: ".cursor/mcp.json",
   },
   {
-    name: "Regulatory Intelligence",
-    description:
-      "Monitor regulatory changes from Canada Gazette, CRTC decisions, Competition Bureau actions, and provincial regulator feeds in a single dashboard.",
-    capabilities: ["Canada Gazette", "CRTC", "Compliance", "Regulatory Alerts"],
+    name: "Windsurf",
+    icon: "🌊",
+    description: "AI-powered IDE. Configure MCP servers in Settings → AI → MCP.",
+    setup: "windsurf_mcp.json",
   },
   {
-    name: "Policy Research",
-    description:
-      "Cross-reference policy data across legislation, committee evidence, federal budgets, OAG audits, and regulatory impact assessments for comprehensive analysis.",
-    capabilities: ["Legislation", "Budget Analysis", "Policy Briefs", "Impact Assessment"],
+    name: "Codebuff",
+    icon: "🦾",
+    description: "Terminal-based AI coding agent. Add to ~/.codebuff/mcp.json.",
+    setup: "~/.codebuff/mcp.json",
   },
   {
-    name: "Alert Engine",
-    description:
-      "Configure real-time notifications for data changes, new committee evidence, regulatory updates, procurement opportunities, and custom watchlists.",
-    capabilities: ["Custom Alerts", "Webhook", "Email Digest", "RSS Feeds"],
+    name: "OpenCode",
+    icon: "💻",
+    description: "Open-source AI coding agent. Configure in opencode.json in your project.",
+    setup: "opencode.json",
+  },
+  {
+    name: "Hermes",
+    icon: "🔮",
+    description: "Self-evolution AI agent framework. Add MCP server in agent config.",
+    setup: "hermes_config.json",
+  },
+  {
+    name: "OpenClaw",
+    icon: "🦅",
+    description: "Multi-agent framework. Configure MCP in claw.yaml.",
+    setup: "claw.yaml",
+  },
+  {
+    name: "Gemini",
+    icon: "💎",
+    description: "Google's Gemini. Use via MCP gateway or direct tool integration.",
+    setup: "gemini_mcp.json",
+  },
+  {
+    name: "Grok",
+    icon: "⚡",
+    description: "xAI's Grok. Connect via MCP for real-time Canadian data context.",
+    setup: "grok_mcp.json",
+  },
+  {
+    name: "LM Studio",
+    icon: "🖥️",
+    description: "Local LLM runner. Run @maplespike/mcp alongside your local models.",
+    setup: "lm_studio_mcp.json",
+  },
+  {
+    name: "Anything with MCP",
+    icon: "🔌",
+    description: "Any tool that speaks the Model Context Protocol can use MapleSpike. Same config, same tools.",
+    setup: "mcp_config.json",
   },
 ];
 ---
 <BaseLayout
-  title="AI Agents"
-  description="Explore MapleSpike's AI agents for Canadian government data intelligence and analysis."
+  title="Connect Your AI"
+  description="Connect any AI chatbot to MapleSpike's Canadian government data. One MCP config, 174 tools, every major AI platform supported."
 >
   <!-- Hero -->
-  <section class="aurora relative overflow-hidden border-b py-16 md:py-24"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
-    <div class="container mx-auto px-4">
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          AI <span class="text-gradient">Agents</span>
+          Connect your AI to<br /><span class="text-gradient">Canadian data</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          Specialized AI agents purpose-built for Canadian government data intelligence. Each agent combines
-          domain expertise with deep data integration across all 206 modules.
+          One config file. 174 tools. Your AI chatbot — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf,
+          Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, or anything that speaks MCP — instantly gains
+          access to all Canadian government data: committees, lobbying, court cases, regulations, budgets,
+          and more.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Agents grid -->
+  <!-- MCP Config Snippet -->
+  <section class="py-12 md:py-16 border-b border-border/60 bg-card/20">
+    <div class="container mx-auto px-4 max-w-3xl text-center">
+      <h2 class="text-2xl font-bold mb-4">One config snippet. Every AI.</h2>
+      <p class="text-muted-foreground mb-8">
+        Copy this into your AI's MCP settings. All 12 platforms above use the exact same config.
+      </p>
+      <Card class="text-left mx-auto border-primary/20 bg-primary/5 mb-6">
+        <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+          &#123;<br />
+          &nbsp;&nbsp;<span class="text-[#D4A017]">"mcpServers"</span>: &#123;<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">"maplespike"</span>: &#123;<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">"command"</span>: <span class="text-[#0891B2]">"npx"</span>,<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">"args"</span>: [<span class="text-[#0891B2]">"@maplespike/mcp"</span>],<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">"env"</span>: &#123; <span class="text-[#D4A017]">"MAPLESPIKE_API_KEY"</span>: <span class="text-[#0891B2]">"ms_live_..."</span> &#125;<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&#125;<br />
+          &nbsp;&nbsp;&#125;<br />
+          &#125;
+        </CardContent>
+      </Card>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <a href="/signup" class="btn-sheen inline-flex h-11 items-center rounded-full px-7 text-sm font-medium text-primary-foreground">Get your API key →</a>
+        <a href="/docs#mcp-tools" class="inline-flex h-11 items-center rounded-full border px-7 text-sm font-medium hover:bg-foreground/[0.04] transition-colors">Full docs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform grid -->
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {agents.map((agent) => (
-          <Card class="flex flex-col hover:border-primary/50 transition-colors duration-300">
-            <CardHeader>
-              <CardTitle class="text-xl">{agent.name}</CardTitle>
-              <CardDescription class="mt-2 text-sm leading-relaxed">
-                {agent.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent class="flex-1">
-              <div class="flex flex-wrap gap-2">
-                {agent.capabilities.map((cap) => (
-                  <Badge variant="secondary">{cap}</Badge>
-                ))}
+      <h2 class="text-2xl font-bold tracking-tight mb-2 text-center">Works with any AI chatbot</h2>
+      <p class="text-muted-foreground mb-10 text-center">Same config. Same 174 tools. Every platform.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        {platforms.map((p) => (
+          <Card class="card-hover flex flex-col border-border/60">
+            <CardHeader class="p-4 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl" aria-hidden="true">{p.icon}</span>
+                <CardTitle class="text-base">{p.name}</CardTitle>
               </div>
+              <CardDescription class="text-xs mt-2 leading-relaxed">{p.description}</CardDescription>
+            </CardHeader>
+            <CardContent class="p-4 pt-0 mt-auto">
+              <Badge variant="secondary" class="text-[10px] font-mono">{p.setup}</Badge>
             </CardContent>
-            <CardFooter>
-              <a
-                href={`/ask?agent=${agent.name.toLowerCase().replace(/\s+/g, "-")}`}
-                class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full"
-              >
-                Ask {agent.name}
-              </a>
-            </CardFooter>
           </Card>
         ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="aurora relative overflow-hidden border-t py-16 md:py-20">
+    <div class="absolute inset-0 bg-grid opacity-60" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <h2 class="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
+        Your AI is one line away from understanding Canada
+      </h2>
+      <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
+        Free tier includes access to all 174 MCP tools. No credit card required. Your chatbot will be answering
+        questions about Canadian government data in under 60 seconds.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="/signup" class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">Get a free API key</a>
+        <a href="/docs#mcp-tools" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Browse all 174 tools</a>
+        <a href="/ask" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Try asking a question</a>
       </div>
     </div>
   </section>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapleSpike — Canada's Government Data Pipeline</title>
-  <meta name="description" content="Canada's sovereign, AI-native government data pipeline. One API for all Canadian government data with verified citations.">
+  <title>MapleSpike — Canadian Government Data for your AI Chatbot</title>
+  <meta name="description" content="Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config. Works with Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, and anything with MCP.">
 
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/responsive-fixes.css">
@@ -32,6 +32,7 @@
     </a>
     <ul class="nav-links">
       <li><a href="/explorer.html"><span class="nav-bracket">[</span>DATA<span class="nav-bracket">]</span></a></li>
+      <li><a href="/agents.html"><span class="nav-bracket">[</span>AI SETUP<span class="nav-bracket">]</span></a></li>
       <li><a href="/docs/guide/what-is-maplespike.html"><span class="nav-bracket">[</span>DOCS<span class="nav-bracket">]</span></a></li>
       <li><a href="/pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li><a href="/workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
@@ -48,39 +49,41 @@
       Canadian Data
     </div>
     <div class="product-badge">
-      <span class="product-icon">✓</span>
-      126 Modules
+      <span class="product-icon">🔌</span>
+      174 MCP Tools
     </div>
     <div class="product-badge">
-      <span class="product-icon">⚡</span>
-      Real-time Updates
+      <span class="product-icon">🤖</span>
+      Works with any AI
     </div>
   </div>
 
   <h1>
-    <span class="highlight">Canada's</span> Government Data Pipeline
+    Give your AI <span class="highlight">superpowers</span><br>with Canadian data
   </h1>
 
   <p class="hero-subtitle">
-    One API for every federal, provincial, and municipal dataset. Verified citations, provenance tracking, and AI-native access for journalists, researchers, and developers.
+    Your chatbot can now answer questions about anything in Canada — committees, lobbying,
+    court cases, regulations, budgets, and more. One line of config, 174 ready-to-use tools.
+    Every answer cited and verifiable.
   </p>
 
   <div class="hero-stats-bar">
     <div class="hero-stat-item">
-      <span class="stat-num">126+</span>
+      <span class="stat-num">206</span>
       <span class="stat-label">Data Modules</span>
     </div>
     <div class="hero-stat-item">
-      <span class="stat-num">130</span>
+      <span class="stat-num">174</span>
       <span class="stat-label">MCP Tools</span>
     </div>
     <div class="hero-stat-item">
-      <span class="stat-num">1,141+</span>
-      <span class="stat-label">Data Sources</span>
+      <span class="stat-num">30+</span>
+      <span class="stat-label">AI Platforms</span>
     </div>
     <div class="hero-stat-item">
-      <span class="stat-num">3,490+</span>
-      <span class="stat-label">Municipalities</span>
+      <span class="stat-num">Free</span>
+      <span class="stat-label">to get started</span>
     </div>
   </div>
 
@@ -113,9 +116,53 @@
   </div>
 
   <div class="hero-actions">
-    <a href="/workspace.html" class="btn btn-primary">Get API Key</a>
-    <a href="/docs/guide/getting-started.html" class="btn btn-secondary">Read the Docs</a>
-    <a href="https://github.com/reverb256/maplespike" class="btn btn-ghost" target="_blank" rel="noopener">View on GitHub</a>
+    <a href="/workspace.html" class="btn btn-primary btn-hero">Get a free API key</a>
+    <a href="/agents.html" class="btn btn-secondary">AI Setup Guide</a>
+    <a href="/explorer.html" class="btn btn-ghost">Explore Data</a>
+  </div>
+</section>
+
+<!-- MCP Config — One line to connect -->
+<section class="section-alt">
+  <div class="section-alt-inner" style="text-align: center;">
+    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 12px;">
+      One line of config. Your AI now understands Canada.
+    </h2>
+    <p style="font-size: 1rem; color: var(--text-secondary); max-width: 640px; margin: 0 auto 32px;">
+      Paste this into your AI chatbot's MCP settings —
+      Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff,
+      OpenCode, Hermes, OpenClaw, LM Studio, or anything that speaks MCP.
+    </p>
+
+    <div class="code-demo" style="max-width: 600px;">
+      <div class="code-demo-header">
+        <div class="code-demo-dots">
+          <span class="code-demo-dot"></span>
+          <span class="code-demo-dot"></span>
+          <span class="code-demo-dot"></span>
+        </div>
+        <span class="code-demo-title">mcp_config.json</span>
+        <span class="code-demo-badge">
+          <span class="code-demo-live-dot"></span> universal
+        </span>
+      </div>
+      <div class="code-demo-body">
+        <pre><span class="json-bracket">{</span>
+  <span class="json-key">"mcpServers"</span>: <span class="json-bracket">{</span>
+    <span class="json-key">"maplespike"</span>: <span class="json-bracket">{</span>
+      <span class="json-key">"command"</span>: <span class="json-string">"npx"</span>,
+      <span class="json-key">"args"</span>: [<span class="json-string">"@maplespike/mcp"</span>],
+      <span class="json-key">"env"</span>: <span class="json-bracket">{</span> <span class="json-key">"MAPLESPIKE_API_KEY"</span>: <span class="json-string">"ms_live_..."</span> <span class="json-bracket">}</span>
+    <span class="json-bracket">}</span>
+  <span class="json-bracket">}</span>
+<span class="json-bracket">}</span></pre>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px;">
+      <a href="/workspace.html" class="btn btn-primary">Get your API key →</a>
+      <a href="/agents.html" class="btn btn-secondary">See all platforms</a>
+    </div>
   </div>
 </section>
 
@@ -126,7 +173,7 @@
         <span class="logo-icon" style="display:inline-flex;width:28px;height:28px;font-size:0.85rem;">C</span>
         MapleSpike
       </a>
-      <p>Canadian public data infrastructure — for journalists, researchers, and AI agents that cite.</p>
+      <p>Plug your AI chatbot into Canadian public data — 174 MCP tools, cited and verifiable. Works with Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, and anything with MCP.</p>
     </div>
     <div>
       <h4>Product</h4>
