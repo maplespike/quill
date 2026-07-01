@@ -43,6 +43,6 @@ export const eTransferStatusHandler: RouteHandler = async (_request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   return jsonResponse(
     { ...buildSuccess(DEPRECATION_REPLY, bc),
-      status: 410 } as unknown as Response,
+      status: 410 } as any,
   );
 };
