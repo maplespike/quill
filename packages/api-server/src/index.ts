@@ -27,9 +27,9 @@ import {
   jsonResponse,
   corsPreflight,
   addRateLimitHeaders,
+  applyCorsHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
-import { getAllowedOrigin } from './response.js';
 import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
@@ -400,11 +400,7 @@ function finalizeResponse(
 ): Response {
   const headers = new Headers(response.headers);
   applySecurityHeaders(headers, environment);
-  const allowedOrigin = getAllowedOrigin(requestOrigin);
-  headers.set('Access-Control-Allow-Origin', allowedOrigin);
-  headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode');
-  headers.set('Access-Control-Expose-Headers', 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice');
+  applyCorsHeaders(headers, requestOrigin);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
