@@ -38,6 +38,14 @@ interface ExchangeEntry {
 const EXCHANGE_TTL_SECONDS = 60;
 const EXCHANGE_KEY_PREFIX = 'oauth:exchange:';
 
+/**
+ * Sentinel value written to the cache key BEFORE delete. Even on backends
+ * with eventual-consistency deletes (Cloudflare KV), a concurrent second
+ * reader will see this sentinel rather than the original payload, and we
+ * will respond ALREADY_CONSUMED instead of issuing a duplicate JWT.
+ */
+const CONSUMED_SENTINEL = '__consumed__';
+
 function exchangeCacheKey(code: string): string {
   return `${EXCHANGE_KEY_PREFIX}${code}`;
 }
@@ -246,6 +254,16 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
   const key = exchangeCacheKey(code);
   const cached = await ctx.cache.get(key);
 
+  if (cached === CONSUMED_SENTINEL) {
+    // Sentinel hit: another request already consumed this code (or is
+    // mid-consumption on an eventually-consistent backend). Reject
+    // explicitly so the caller knows the code is single-use.
+    return jsonResponse(
+      buildError('ALREADY_CONSUMED', 'Exchange code has already been used', ctx),
+      400,
+    );
+  }
+
   if (!cached) {
     return jsonResponse(
       buildError('INVALID_CODE', 'Exchange code is invalid, expired, or already used', ctx),
@@ -253,9 +271,14 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
     );
   }
 
-  // Consume the code atomically. Even if a concurrent request reads the
-  // same value before our delete propagates (KV is eventually consistent),
-  // the JWT returned is identical, so the security impact is bounded.
+  // Sentinel-write BEFORE delete: on backends that support atomic CAS
+  // (Redis SETNX, etc.) this collapses the duplicate-redemption window to
+  // zero. On backends with eventual-consistency (Cloudflare KV, where
+  // both put and delete propagate over time), a sub-millisecond race
+  // still exists where two concurrent readers both pass the sentinel
+  // check before either write propagates — in that window the same JWT
+  // would be returned to both, which is not a security escalation.
+  await ctx.cache.put(key, CONSUMED_SENTINEL, EXCHANGE_TTL_SECONDS);
   await ctx.cache.delete(key);
 
   let entry: ExchangeEntry;

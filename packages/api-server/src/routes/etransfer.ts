@@ -24,14 +24,37 @@ const DEPRECATION_MESSAGE =
   '  POST /v1/billing/verify    → confirm an order\n' +
   'See /docs/decisions/0002-pii-avoidance.md for the full migration guide.';
 
+/**
+ * Structured replacement info exposed via the standard `error.details`
+ * envelope field so machine callers can read the migration target
+ * without parsing the human-readable message.
+ */
+const DEPRECATION_DETAILS = [
+  {
+    deprecated: true,
+    decision_doc: '/docs/decisions/0002-pii-avoidance.md',
+    replacement_endpoints: {
+      create_order: 'POST /v1/billing/orders',
+      reconcile: 'POST /v1/billing/reconcile',
+      verify: 'POST /v1/billing/verify',
+    },
+  },
+];
+
 /** POST /v1/billing/etransfer/notify — always returns 410 Gone. */
 export const eTransferNotifyHandler: RouteHandler = async (_request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
-  return jsonResponse(buildError('ETRANSFER_DEPRECATED', DEPRECATION_MESSAGE, bc), 410);
+  return jsonResponse(
+    buildError('ETRANSFER_DEPRECATED', DEPRECATION_MESSAGE, bc, 410, DEPRECATION_DETAILS),
+    410,
+  );
 };
 
 /** GET /v1/billing/etransfer/status — always returns 410 Gone. */
 export const eTransferStatusHandler: RouteHandler = async (_request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
-  return jsonResponse(buildError('ETRANSFER_DEPRECATED', DEPRECATION_MESSAGE, bc), 410);
+  return jsonResponse(
+    buildError('ETRANSFER_DEPRECATED', DEPRECATION_MESSAGE, bc, 410, DEPRECATION_DETAILS),
+    410,
+  );
 };
