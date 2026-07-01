@@ -1,0 +1,1108 @@
+{
+  "generatedAt": "2026-07-01T20:54:26.428Z",
+  "generatedBy": "generate-pipeline-data.mjs",
+  "sources": {
+    "hoc": {
+      "status": "error",
+      "records": 0,
+      "errors": 16,
+      "data": []
+    },
+    "senate": {
+      "status": "error",
+      "records": 0,
+      "errors": 5,
+      "data": []
+    },
+    "gazette": {
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
+    },
+    "gic": {
+      "status": "ok",
+      "records": 12,
+      "errors": 0,
+      "data": [
+        {
+          "packageTitle": "APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PROCESS OF STAFFING OR MAKING APPOINTMENTS TO KEY POSITIONS (OLLO) – FEBRUARY 29, 2024",
+          "packageId": "498fbc1d-0b6f-45f7-8a03-b404047a8274",
+          "resourceFormat": "PDF",
+          "resourceUrl": "/data/dataset/498fbc1d-0b6f-45f7-8a03-b404047a8274/resource/3456b351-7b9c-4128-a8cb-d4a2bfab2369/download/cartable-du-clo-lang-2024-02-29-col_s-binder-lang-2024-02-29.pdf",
+          "resourceDescription": "",
+          "lastModified": "2026-02-20T14:45:40.135039"
+        },
+        {
+          "packageTitle": "Mobility Provision - Former Minister’s Staff and Excluded Positions at the Office of the Governor General’s Secretary - Summary of Requests",
+          "packageId": "63417e91-5c16-48ce-b326-32ad3ab86fed",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/63417e91-5c16-48ce-b326-32ad3ab86fed/resource/ef364f4e-464e-4c1e-853b-030ff3bbabd3/download/2023-2024_opendata-political-activities-fms-granted.csv",
+          "resourceDescription": "",
+          "lastModified": "2024-06-03T18:22:14.828745"
+        },
+        {
+          "packageTitle": "Mobility Provision - Former Minister’s Staff and Excluded Positions at the Office of the Governor General’s Secretary - Summary of Requests",
+          "packageId": "63417e91-5c16-48ce-b326-32ad3ab86fed",
+          "resourceFormat": "PDF",
+          "resourceUrl": "https://www.canada.ca/content/dam/psc-cfp/documents/data-donnees/mp-dm/mp-dm-documentation-eng.pdf",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "Mobility Provision - Former Minister’s Staff and Excluded Positions at the Office of the Governor General’s Secretary - Summary of Requests",
+          "packageId": "63417e91-5c16-48ce-b326-32ad3ab86fed",
+          "resourceFormat": "PDF",
+          "resourceUrl": "https://www.canada.ca/content/dam/psc-cfp/documents/data-donnees/mp-dm/mp-dm-documentation-fra.pdf",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "2017-18 Departmental Results Report - 1.3 Payments to Tribunal Chairs and Members",
+          "packageId": "8bacf7b0-e5a9-4436-8b87-0f2317867e40",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/8bacf7b0-e5a9-4436-8b87-0f2317867e40/resource/8a61025b-c5d0-4a15-aa10-f6df05c89911/download/1.3-results-achieved-eng.csv",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "2017-18 Departmental Results Report - 1.3 Payments to Tribunal Chairs and Members",
+          "packageId": "8bacf7b0-e5a9-4436-8b87-0f2317867e40",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/8bacf7b0-e5a9-4436-8b87-0f2317867e40/resource/9b00b79d-4c0c-486b-8c5c-345ebdbac0f1/download/1.3-results-achieved-fr.csv",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "2017-18 Departmental Results Report - 1.3 Payments to Tribunal Chairs and Members",
+          "packageId": "8bacf7b0-e5a9-4436-8b87-0f2317867e40",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/8bacf7b0-e5a9-4436-8b87-0f2317867e40/resource/362bcdb0-00ab-43a5-901d-55da976141cc/download/1.3-bsf-eng.csv",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "2016-2017 Departmental Results Report - Program 1.3: Payments to Tribunal Chairs and Members",
+          "packageId": "e9c699e1-5bd0-4af1-ba69-2ec89d315b14",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/e9c699e1-5bd0-4af1-ba69-2ec89d315b14/resource/6c6827c6-c82e-4378-b999-a6aac7f520e1/download/program-1.3-payments-to-tribunal-chairs-and-members-budgetary-financial-resources-dollars-englis.csv",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "2016-2017 Departmental Results Report - Program 1.3: Payments to Tribunal Chairs and Members",
+          "packageId": "e9c699e1-5bd0-4af1-ba69-2ec89d315b14",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/e9c699e1-5bd0-4af1-ba69-2ec89d315b14/resource/19089770-bb18-4f54-8294-1fff3b2d18bb/download/program-1.3-payments-to-tribunal-chairs-and-members-budgetary-financial-resources-dollars-french.csv",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "2016-2017 Departmental Results Report - Program 1.3: Payments to Tribunal Chairs and Members",
+          "packageId": "e9c699e1-5bd0-4af1-ba69-2ec89d315b14",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/e9c699e1-5bd0-4af1-ba69-2ec89d315b14/resource/988147a9-966c-40f8-9e35-5cabe8f6980e/download/program-1.3-payments-to-tribunal-chairs-and-members-human-resources-full-time-equivalents-englis.csv",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "Directions for Avoiding Complicity in Mistreatment by Foreign Entities (Deputy Minister of Foreign Affairs)",
+          "packageId": "74f0635c-4fb7-4929-8450-b8aa2e77db1f",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://webarchiveweb.wayback.bac-lac.canada.ca/web/20250611114657/https://www.international.gc.ca/transparency-transparence/accountability-responsabilite/oc-foreign-entities-entites-etrangeres-dc.aspx?lang=eng",
+          "resourceDescription": "",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "Directions for Avoiding Complicity in Mistreatment by Foreign Entities (Deputy Minister of Foreign Affairs)",
+          "packageId": "74f0635c-4fb7-4929-8450-b8aa2e77db1f",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://webarchiveweb.wayback.bac-lac.canada.ca/web/20250611114657/https://www.international.gc.ca/transparency-transparence/accountability-responsabilite/oc-foreign-entities-entites-etrangeres-dc.aspx?lang=fra",
+          "resourceDescription": "",
+          "lastModified": ""
+        }
+      ]
+    },
+    "lmia": {
+      "status": "ok",
+      "records": 10,
+      "errors": 0,
+      "data": [
+        {
+          "outcome": "positive",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/bd5dab03-02dc-4542-8e01-c04dca9a0337/download/positive_employers_en.csv",
+          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a positive LMIA between June 20 and December 31, 2014 inclusively, by business location",
+          "resourceId": "bd5dab03-02dc-4542-8e01-c04dca9a0337",
+          "lastModified": "2022-02-10T22:41:03.377530",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "positive",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/7dee6510-9b98-4512-bfbd-f475f214cee6/download/positive_employers_fr.csv",
+          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a positive LMIA between June 20 and December 31, 2014 inclusively, by business location",
+          "resourceId": "7dee6510-9b98-4512-bfbd-f475f214cee6",
+          "lastModified": "2022-02-10T22:41:06.806257",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "positive",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/5b9c1873-dc36-456d-a308-2819d4e25309/download/2015_positive_employers_en.csv",
+          "resourceName": "2015-Employers who were issued a positive Labour Market Impact Assessment (LMIA) in 2015, by business location",
+          "resourceId": "5b9c1873-dc36-456d-a308-2819d4e25309",
+          "lastModified": "2022-02-10T22:41:09.943715",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "positive",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/c3611a4c-e1f0-47e8-8354-760df6340e83/download/2015_positive_employers_fr.csv",
+          "resourceName": "2015-Employers who were issued a positive Labour Market Impact Assessment (LMIA) in 2015, by business location",
+          "resourceId": "c3611a4c-e1f0-47e8-8354-760df6340e83",
+          "lastModified": "2022-02-10T22:41:12.934565",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "positive",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Positive Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/90fed587-1364-4f33-a9ee-208181dc0b97/resource/68a48c73-39a1-4049-a7ae-044f9c6c87b3/download/2016_positive_employer_en.csv",
+          "resourceName": "2016-Employers who were issued a positive Labour Market Impact Assessment (LMIA) in 2016, by National Occupational Classification (NOC) 2011 and business location ",
+          "resourceId": "68a48c73-39a1-4049-a7ae-044f9c6c87b3",
+          "lastModified": "2022-02-10T22:41:16.283946",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "negative",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/251619ca-6541-499f-87c0-6860bf8b04fe/download/negative_employers_en.csv",
+          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a negative LMIA between June 20 and December 31, 2014 inclusively, by business location",
+          "resourceId": "251619ca-6541-499f-87c0-6860bf8b04fe",
+          "lastModified": "2022-02-10T23:01:48.787758",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "negative",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/69c13dca-23ac-4efc-bc84-6c165b9e396e/download/negative_employers_fr.csv",
+          "resourceName": "2014-Employers who have requested a Labour Market Impact Assessment (LMIA) and were issued a negative LMIA between June 20 and December 31, 2014 inclusively, by business location",
+          "resourceId": "69c13dca-23ac-4efc-bc84-6c165b9e396e",
+          "lastModified": "2022-02-10T23:01:53.967523",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "negative",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/52977cb7-c0c5-4312-afe2-9d383e6d2903/download/2015_negative_employers_en.csv",
+          "resourceName": "2015-Employers who were issued a negative Labour Market Impact Assessment (LMIA) in 2015, by business location",
+          "resourceId": "52977cb7-c0c5-4312-afe2-9d383e6d2903",
+          "lastModified": "2022-02-10T23:01:56.558799",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "negative",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/01e88f4d-6d4a-412d-804b-776119d5b2ca/download/2015_negative_employers_fr.csv",
+          "resourceName": "2015-Employers who were issued a negative Labour Market Impact Assessment (LMIA) in 2015, by business location",
+          "resourceId": "01e88f4d-6d4a-412d-804b-776119d5b2ca",
+          "lastModified": "2022-02-10T23:01:59.214424",
+          "quarter": "unknown"
+        },
+        {
+          "outcome": "negative",
+          "packageTitle": "Temporary Foreign Worker Program (TFWP): Negative Labour Market Impact Assessment (LMIA) Employers List",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://open.canada.ca/data/dataset/f82f66f2-a22b-4511-bccf-e1d74db39ae5/resource/34c79af7-7f98-45e7-9eb3-511b78225625/download/2016_negative_employer_en.csv",
+          "resourceName": "2016-Employers who were issued a negative Labour Market Impact Assessment (LMIA) in 2016, by National Occupational Classification (NOC) 2011 and business location ",
+          "resourceId": "34c79af7-7f98-45e7-9eb3-511b78225625",
+          "lastModified": "2022-02-10T23:02:01.915411",
+          "quarter": "unknown"
+        }
+      ]
+    },
+    "oversight": {
+      "status": "ok",
+      "records": 15,
+      "errors": 2,
+      "data": [
+        {
+          "body": "OAG",
+          "title": "Home",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "About us",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/about-us.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "The Organization",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/about-us/the-organization.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Our work",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/our-work.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Publications",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/our-work/audit-reports.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Corporate reports",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/transparency.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Other reports",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/our-work/audit-reports.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Update on past audits",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/our-work/update-on-past-audits.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Sustainable development",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/sustainable-development.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Environmental petitions",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/environmental-petitions.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Other resources",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/our-work/other-resources.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Media room",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/media-room.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Careers",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/careers.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Students and recent graduates",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/careers/students-and-recent-graduates.html",
+          "source": "canada.ca"
+        },
+        {
+          "body": "OAG",
+          "title": "Staffing, classification and promotion",
+          "url": "https://www.canada.ca/content/canadasite/en/auditor-general/careers/staffing-classification-and-promotion.html",
+          "source": "canada.ca"
+        }
+      ]
+    },
+    "elections": {
+      "status": "ok",
+      "records": 15,
+      "errors": 0,
+      "data": [
+        {
+          "packageTitle": "2021 Municipal Election — Sections (polling day offices)",
+          "packageId": "f0d6a32c-cc97-4f09-bf22-d9bf1e1d3c7c",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/f0d6a32c-cc97-4f09-bf22-d9bf1e1d3c7c",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "2021 Municipal Election — Sections (polling day offices)",
+          "packageId": "f0d6a32c-cc97-4f09-bf22-d9bf1e1d3c7c",
+          "resourceFormat": "KML",
+          "resourceUrl": "https://www.gatineau.ca/upload/donneesouvertes/election_municipale_2021_sections_bvo.kml",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "2021 Municipal Election — Sections (polling day offices)",
+          "packageId": "f0d6a32c-cc97-4f09-bf22-d9bf1e1d3c7c",
+          "resourceFormat": "PDF",
+          "resourceUrl": "https://www.gatineau.ca/upload/donneesouvertes/election_municipale_2021_sections_bvo.pdf",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "2021 Municipal Election — Bassins (polling day offices)",
+          "packageId": "c96ab120-1f16-4943-9203-5ed240c67d85",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/c96ab120-1f16-4943-9203-5ed240c67d85",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "2021 Municipal Election — Bassins (polling day offices)",
+          "packageId": "c96ab120-1f16-4943-9203-5ed240c67d85",
+          "resourceFormat": "KML",
+          "resourceUrl": "https://www.gatineau.ca/upload/donneesouvertes/election_municipale_2021_bassins_bvo.kml",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "2021 Municipal Election — Bassins (polling day offices)",
+          "packageId": "c96ab120-1f16-4943-9203-5ed240c67d85",
+          "resourceFormat": "PDF",
+          "resourceUrl": "https://www.gatineau.ca/upload/donneesouvertes/election_municipale_2021_bassins_bvo.pdf",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/118fa92a-4368-4767-a34d-460fd6746508/download/bureaux-vote-2021.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "GEOJSON",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/79c44bf6-a247-47a2-890a-ded0c35c2fde/download/bureaux-vote-2021.geojson",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Electoral areas",
+          "packageId": "c4a55dcc-531d-4f5c-b3c2-de73fac021f5",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/c4a55dcc-531d-4f5c-b3c2-de73fac021f5/resource/7f70ab85-332a-4b71-b178-606b6e988039/download/bassins-electoraux-2021.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Electoral areas",
+          "packageId": "c4a55dcc-531d-4f5c-b3c2-de73fac021f5",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/c4a55dcc-531d-4f5c-b3c2-de73fac021f5/resource/dae484b6-1faf-493e-991d-3ec3691305c1/download/bassins-electoraux-2017.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Electoral areas",
+          "packageId": "c4a55dcc-531d-4f5c-b3c2-de73fac021f5",
+          "resourceFormat": "GEOJSON",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/c4a55dcc-531d-4f5c-b3c2-de73fac021f5/resource/af77dffd-cbba-430a-b526-ada16485a658/download/bassins-electoraux-2021.geojson",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Boundaries of polling divisions from the last municipal elections",
+          "packageId": "7ff4b7d8-bdab-4292-a161-4edb426ff53c",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/dataset/7ff4b7d8-bdab-4292-a161-4edb426ff53c/resource/d4e82c23-7b19-4c6f-90bf-d63a91b1f555/download/limite-section-de-vote.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Boundaries of polling divisions from the last municipal elections",
+          "packageId": "7ff4b7d8-bdab-4292-a161-4edb426ff53c",
+          "resourceFormat": "GEOJSON",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/dataset/7ff4b7d8-bdab-4292-a161-4edb426ff53c/resource/a646ec7d-d040-48ac-9871-a4c63fac3ea4/download/limite-section-de-vote.geojson",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Boundaries of polling divisions from the last municipal elections",
+          "packageId": "7ff4b7d8-bdab-4292-a161-4edb426ff53c",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/7ff4b7d8-bdab-4292-a161-4edb426ff53c",
+          "resourceDescription": ""
+        }
+      ]
+    },
+    "canlii": {
+      "status": "error",
+      "records": 0,
+      "errors": 4,
+      "data": []
+    },
+    "corporate": {
+      "status": "ok",
+      "records": 3,
+      "errors": 1,
+      "data": [
+        {
+          "dataset": "Proactive Publication - Contracts",
+          "type": "proactive-disclosure",
+          "packageId": "d8f85d91-7dec-4fd1-8055-483b77225d8b",
+          "resourceCount": 11
+        },
+        {
+          "dataset": "Disclosure of Contracts for Legal Services",
+          "type": "proactive-disclosure",
+          "packageId": "bdb15246-6350-4cba-a16b-5b2226aeec0d",
+          "resourceCount": 2
+        },
+        {
+          "dataset": "Proactive Disclosure - Position Reclassification",
+          "type": "proactive-disclosure",
+          "packageId": "f132b8a6-abad-43d6-b6ad-2301e778b1b6",
+          "resourceCount": 6
+        }
+      ]
+    },
+    "lobbying": {
+      "status": "ok",
+      "records": 2,
+      "errors": 1,
+      "data": [
+        {
+          "packageTitle": "Lobbying Registrations",
+          "format": "CSV",
+          "url": "https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip",
+          "name": "Lobbying Registrations",
+          "lastModified": ""
+        },
+        {
+          "packageTitle": "Lobbying Registrations",
+          "format": "XLS",
+          "url": "https://lobbycanada.gc.ca/media/hcvmsu4e/dictionary_registrations_dictionnaire_enregistrements.xlsx",
+          "name": "Data Dictionary for Lobbying Registrations",
+          "lastModified": ""
+        }
+      ]
+    },
+    "procurement": {
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
+    },
+    "influence": {
+      "status": "ok",
+      "records": 5,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Proactive Disclosure - Grants and Contributions",
+          "packageId": "432527ab-7aac-45b5-81d6-7597107a7013",
+          "resourceCount": 6,
+          "notes": "Grants and Contributions: All institutions subject to the Policy on Transfer Payments are required to publish reports on Grants and Contributions within the Government of Canada. This dataset consolid"
+        },
+        {
+          "dataset": "Evaluation of the Class Grant and Contribution Program",
+          "packageId": "3648d7fe-d98b-4af0-805f-8e94d3621e9e",
+          "resourceCount": 8,
+          "notes": "the Canadian Space Agency's Class Grant and Contribution Program promotes space-related research and development to support knowledge development and innovation to address Canada's space priorities.\r\n"
+        },
+        {
+          "dataset": "Audit of Grants and Contributions - Oversight and Monitoring",
+          "packageId": "c9625a8e-df06-435d-bc64-0380bd4a97d4",
+          "resourceCount": 2,
+          "notes": "Global Affairs Canada uses the audit process as an important way to ensure the efficient use of public funds. The Office of the Chief Audit Executive leads this work by reviewing and assessing managem"
+        },
+        {
+          "dataset": "Review of Evidence of the Effectiveness of CIDA's Grants and Contributions",
+          "packageId": "43bd4ff6-6218-4a2f-9890-e4feba8d14e4",
+          "resourceCount": 2,
+          "notes": "Evaluation reports\r\nThe department periodically conducts evaluations of Global Affairs Canada priorities, programs and projects. Evaluation serves as a practical management tool for reviewing performa"
+        },
+        {
+          "dataset": "Audit of the Harmonization of Grant and Contribution Program Administration at Global Affairs Canada",
+          "packageId": "f5ba40f7-b248-46d9-897c-3e61d6f8bc70",
+          "resourceCount": 2,
+          "notes": "Global Affairs Canada uses the audit process as an important way to ensure the efficient use of public funds. The Office of the Chief Audit Executive leads this work by reviewing and assessing managem"
+        }
+      ]
+    },
+    "provincialLobbying": {
+      "status": "ok",
+      "records": 1,
+      "errors": 0,
+      "data": [
+        {
+          "type": "registration",
+          "title": "Lobbyists Registry",
+          "url": "http://www.oico.on.ca/home/lobbyists-registration",
+          "province": "ON"
+        }
+      ]
+    },
+    "immigration": {
+      "status": "ok",
+      "records": 4,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Permanent Residents – Monthly IRCC Updates",
+          "resources": 52,
+          "source": "Perm Residents"
+        },
+        {
+          "dataset": "Temporary Residents: Study Permit Holders – Monthly IRCC Updates",
+          "resources": 30,
+          "source": "Study Permits"
+        },
+        {
+          "dataset": "Temporary Residents: Temporary Foreign Worker Program (TFWP) and International Mobility Program (IMP) Work Permit Holders – Monthly IRCC Updates",
+          "resources": 51,
+          "source": "Work Permits"
+        },
+        {
+          "dataset": "Refugee Protection Division (RPD) Decisions",
+          "resources": 29,
+          "source": "RPD Decisions"
+        }
+      ]
+    },
+    "indigenous": {
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
+    },
+    "transport": {
+      "status": "ok",
+      "records": 5,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Transport, Infrastructure and Communities – December 2024",
+          "resources": 17,
+          "url": "https://open.canada.ca/data/dataset/d751e21e-6dc4-4aaa-980b-46c6504a739e"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Transport, Infrastructure and Communities – February 2022",
+          "resources": 49,
+          "url": "https://open.canada.ca/data/dataset/87062e0c-e2b8-4c94-879b-9a4ae4de0e6f"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Transport, Infrastructure and Communities – March 2020",
+          "resources": 56,
+          "url": "https://open.canada.ca/data/dataset/cc1a3be8-ae7c-4f1d-b1cf-70f928361135"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Fisheries and Oceans – April 2022",
+          "resources": 28,
+          "url": "https://open.canada.ca/data/dataset/8a59f5b5-1d94-46b8-bca8-f3fa92e040bc"
+        },
+        {
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Government Operations and Estimates – February 2026",
+          "resources": 5,
+          "url": "https://open.canada.ca/data/dataset/8ff62354-7e7c-440f-91a4-4953c0576e48"
+        }
+      ]
+    },
+    "defence": {
+      "status": "ok",
+      "records": 1,
+      "errors": 1,
+      "data": [
+        {
+          "dataset": "Canadian Armed Forces Regular Force Members by Rank",
+          "resources": 2
+        }
+      ]
+    },
+    "health": {
+      "status": "error",
+      "records": 0,
+      "errors": 2,
+      "data": []
+    },
+    "education": {
+      "status": "ok",
+      "records": 5,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Canada Gazette: COMMISSIONS - Permission and leave granted ",
+          "resources": 22
+        },
+        {
+          "dataset": "CIHR Grants and Awards",
+          "resources": 28
+        },
+        {
+          "dataset": "Key Funding Data on Canada Council for the Arts Grant Recipients",
+          "resources": 2
+        },
+        {
+          "dataset": "Canada Gazette: COMMISSIONS - PUBLIC SERVICE COMMISSION PUBLIC SERVICE EMPLOYMENT ACT Permission granted ",
+          "resources": 4
+        },
+        {
+          "dataset": "Conditional Release Grant Rate",
+          "resources": 50
+        }
+      ]
+    },
+    "science": {
+      "status": "ok",
+      "records": 6,
+      "errors": 0,
+      "data": [
+        {
+          "dataset": "Canadian Space Agency Fees Report",
+          "source": "Space"
+        },
+        {
+          "dataset": "Evaluation of the European Space Agency Contribution Program of the Canadian Space Agency",
+          "source": "Space"
+        },
+        {
+          "dataset": "Canadian Space Agency’s 2019-2020 Quarterly Financial Reports",
+          "source": "Space"
+        },
+        {
+          "dataset": "Meteorological Observations",
+          "source": "Ocean"
+        },
+        {
+          "dataset": "Earth Observation Imagery - Canada - NOAA AVHRR Composite",
+          "source": "Ocean"
+        },
+        {
+          "dataset": "Groundwater observation wells",
+          "source": "Ocean"
+        }
+      ]
+    }
+  },
+  "stats": {
+    "totalRecords": 84,
+    "hoc": 0,
+    "senate": 0,
+    "gazette": 0,
+    "gic": 12,
+    "lmia": 10,
+    "oversight": 15,
+    "elections": 15,
+    "canlii": 0,
+    "corporate": 3,
+    "lobbying": 2,
+    "procurement": 0,
+    "influence": 5,
+    "provincialLobbying": 1,
+    "immigration": 4,
+    "indigenous": 0,
+    "transport": 5,
+    "defence": 1,
+    "health": 0,
+    "education": 5,
+    "science": 6
+  },
+  "activity": [
+    {
+      "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
+      "type": "gic",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 12
+    },
+    {
+      "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
+      "type": "lmia",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 10
+    },
+    {
+      "action": "Oversight: \"Home\" + 14 more",
+      "type": "oversight",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 15
+    },
+    {
+      "action": "Elections: \"2021 Municipal Election — Sections (polling day offices)\" — 15 resources",
+      "type": "elections",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 15
+    },
+    {
+      "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
+      "type": "corporate",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 3
+    },
+    {
+      "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
+      "type": "lobbying",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 2
+    },
+    {
+      "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
+      "type": "influence",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 5
+    },
+    {
+      "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
+      "type": "provincialLobbying",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 1
+    },
+    {
+      "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
+      "type": "immigration",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 4
+    },
+    {
+      "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
+      "type": "transport",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 5
+    },
+    {
+      "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
+      "type": "defence",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 1
+    },
+    {
+      "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
+      "type": "education",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 5
+    },
+    {
+      "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
+      "type": "science",
+      "time": "2026-07-01T20:54:26.422Z",
+      "count": 6
+    }
+  ],
+  "pipeline": {
+    "hoc": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 0,
+      "errors": 16
+    },
+    "senate": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 0,
+      "errors": 5
+    },
+    "gazette": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 0,
+      "errors": 2
+    },
+    "gic": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 12,
+      "errors": 0
+    },
+    "lmia": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 10,
+      "errors": 0
+    },
+    "oversight": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 15,
+      "errors": 2
+    },
+    "elections": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 15,
+      "errors": 0
+    },
+    "canlii": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 0,
+      "errors": 4
+    },
+    "corporate": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 3,
+      "errors": 1
+    },
+    "lobbying": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 2,
+      "errors": 1
+    },
+    "procurement": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 0,
+      "errors": 2
+    },
+    "influence": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 5,
+      "errors": 0
+    },
+    "provincialLobbying": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 1,
+      "errors": 0
+    },
+    "immigration": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 4,
+      "errors": 0
+    },
+    "indigenous": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 0,
+      "errors": 2
+    },
+    "transport": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 5,
+      "errors": 0
+    },
+    "defence": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.428Z",
+      "records": 1,
+      "errors": 1
+    },
+    "health": {
+      "status": "error",
+      "lastRun": "2026-07-01T20:54:26.429Z",
+      "records": 0,
+      "errors": 2
+    },
+    "education": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.429Z",
+      "records": 5,
+      "errors": 0
+    },
+    "science": {
+      "status": "ok",
+      "lastRun": "2026-07-01T20:54:26.429Z",
+      "records": 6,
+      "errors": 0
+    }
+  },
+  "crossReference": {
+    "entity": "Brookfield Asset Management",
+    "entityType": "organization",
+    "matches": [
+      {
+        "module": "lobbying",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management",
+        "date": "2025-11-14",
+        "title": "In-house lobbying registration — Brookfield Asset Management Inc.",
+        "description": "Designated public office holders contacted on pension reform, infrastructure investment, and tax treaty matters.",
+        "relevance": "direct"
+      },
+      {
+        "module": "lobbying",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management",
+        "date": "2025-06-03",
+        "title": "Consultant lobby registration — Brookfield Renewable Partners",
+        "description": "Arranged meeting with Minister of Natural Resources regarding renewable energy regulatory framework.",
+        "relevance": "direct"
+      },
+      {
+        "module": "lobbying",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management",
+        "date": "2024-09-20",
+        "title": "In-house lobbying registration — Brookfield Business Partners",
+        "description": "Communication with Innovation, Science and Industry Canada on competition policy.",
+        "relevance": "direct"
+      },
+      {
+        "module": "gic",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/1691db07-7620-4535-9cb0-e5a0512ba35d",
+        "date": "2025-08-22",
+        "title": "GIC Appointment — Canada Infrastructure Bank Board",
+        "description": "Governor in Council appointment of nominee affiliated with Brookfield Asset Management to the Canada Infrastructure Bank board of directors.",
+        "relevance": "indirect"
+      },
+      {
+        "module": "gic",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/d63a5c6d-fd93-4442-ac28-561f4dac90c6",
+        "date": "2024-03-15",
+        "title": "GIC Appointment — PPP Canada Board",
+        "description": "Senior executive from Brookfield named to Public-Private Partnership Canada selection committee.",
+        "relevance": "indirect"
+      },
+      {
+        "module": "committees",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/FINA/meeting-120/evidence",
+        "date": "2025-10-02",
+        "title": "FINA — Standing Committee on Finance: Pension Reform Study",
+        "description": "Witness testimony referenced Brookfield Asset Management’s role in Canadian pension fund infrastructure investments.",
+        "relevance": "direct"
+      },
+      {
+        "module": "committees",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/INDU/meeting-95/evidence",
+        "date": "2025-04-18",
+        "title": "INDU — Standing Committee on Industry: Foreign Investment Review",
+        "description": "Committee discussed Brookfield’s acquisition of domestic infrastructure assets and implications under the Investment Canada Act.",
+        "relevance": "direct"
+      },
+      {
+        "module": "committees",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/ENVI/meeting-80/evidence",
+        "date": "2024-11-25",
+        "title": "ENVI — Standing Committee on Environment: Clean Energy Transition",
+        "description": "Brookfield Renewable Partners mentioned in context of clean energy investment targets and carbon reduction commitments.",
+        "relevance": "indirect"
+      },
+      {
+        "module": "proactive-disclosure",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948",
+        "date": "2025-09-10",
+        "title": "Contract 2025-BAM-0042 — Infrastructure Advisory Services",
+        "description": "Government contract valued at C$2,850,000 to Brookfield Asset Management Inc. for infrastructure portfolio advisory services.",
+        "relevance": "direct"
+      },
+      {
+        "module": "proactive-disclosure",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948",
+        "date": "2024-12-01",
+        "title": "Contract 2024-DND-8911 — Renewable Energy Feasibility Study",
+        "description": "Department of National Defence contract with Brookfield Renewable for feasibility study on base energy transition (C$475,000).",
+        "relevance": "indirect"
+      },
+      {
+        "module": "proactive-disclosure",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948",
+        "date": "2024-06-17",
+        "title": "Contract 2024-PSPC-3307 — Asset Management Software Licensing",
+        "description": "PSPC awarded contract to Brookfield’s technology division for asset management platform licensing (C$1,200,000).",
+        "relevance": "indirect"
+      },
+      {
+        "module": "elections",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e",
+        "date": "2025-03-28",
+        "title": "Third-party election advertising — Brookfield Asset Management Inc.",
+        "description": "Registered third-party sponsor under the Canada Elections Act; incurred advertising expenses of C$215,000 during the 2025 federal election period.",
+        "relevance": "direct"
+      },
+      {
+        "module": "elections",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e",
+        "date": "2024-02-14",
+        "title": "Political contribution reporting — Brookfield executives",
+        "description": "Aggregate political contributions by Brookfield Asset Management directors and senior officers reported to Elections Canada for 2023 calendar year.",
+        "relevance": "indirect"
+      }
+    ],
+    "totalMatches": 13,
+    "timeline": [
+      {
+        "date": "2025-11-14",
+        "module": "lobbying",
+        "event": "In-house lobbying registration — Brookfield Asset Management Inc.",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management"
+      },
+      {
+        "date": "2025-10-02",
+        "module": "committees",
+        "event": "FINA — Standing Committee on Finance: Pension Reform Study",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/FINA/meeting-120/evidence"
+      },
+      {
+        "date": "2025-09-10",
+        "module": "proactive-disclosure",
+        "event": "Contract 2025-BAM-0042 — Infrastructure Advisory Services",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948"
+      },
+      {
+        "date": "2025-08-22",
+        "module": "gic",
+        "event": "GIC Appointment — Canada Infrastructure Bank Board",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/1691db07-7620-4535-9cb0-e5a0512ba35d"
+      },
+      {
+        "date": "2025-06-03",
+        "module": "lobbying",
+        "event": "Consultant lobby registration — Brookfield Renewable Partners",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management"
+      },
+      {
+        "date": "2025-04-18",
+        "module": "committees",
+        "event": "INDU — Standing Committee on Industry: Foreign Investment Review",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/INDU/meeting-95/evidence"
+      },
+      {
+        "date": "2025-03-28",
+        "module": "elections",
+        "event": "Third-party election advertising — Brookfield Asset Management Inc.",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
+      },
+      {
+        "date": "2024-12-01",
+        "module": "proactive-disclosure",
+        "event": "Contract 2024-DND-8911 — Renewable Energy Feasibility Study",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948"
+      },
+      {
+        "date": "2024-11-25",
+        "module": "committees",
+        "event": "ENVI — Standing Committee on Environment: Clean Energy Transition",
+        "sourceUrl": "https://www.ourcommons.ca/DocumentViewer/en/44-1/ENVI/meeting-80/evidence"
+      },
+      {
+        "date": "2024-09-20",
+        "module": "lobbying",
+        "event": "In-house lobbying registration — Brookfield Business Partners",
+        "sourceUrl": "https://lobbycanada.gc.ca/app/secure/ocr/lobbyistsregistry/registrationsearch.shtml?search=brookfield+asset+management"
+      },
+      {
+        "date": "2024-06-17",
+        "module": "proactive-disclosure",
+        "event": "Contract 2024-PSPC-3307 — Asset Management Software Licensing",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/833f4425-c97d-4bf0-9445-5c3e7dfa4948"
+      },
+      {
+        "date": "2024-03-15",
+        "module": "gic",
+        "event": "GIC Appointment — PPP Canada Board",
+        "sourceUrl": "https://open.canada.ca/data/en/dataset/d63a5c6d-fd93-4442-ac28-561f4dac90c6"
+      },
+      {
+        "date": "2024-02-14",
+        "module": "elections",
+        "event": "Political contribution reporting — Brookfield executives",
+        "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
+      }
+    ],
+    "ingestedAt": "2026-07-01T20:54:26.428Z"
+  }
+}
