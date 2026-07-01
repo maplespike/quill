@@ -469,3 +469,78 @@ export const notification_events = sqliteTable(
     createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
   }
 );
+
+// ─── Billing ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export const users = sqliteTable(
+  "users",
+  {
+    tenantId: text("tenant_id").primaryKey().notNull(),
+    email: text("email").notNull().unique(),
+    authProvider: text("auth_provider").notNull(), // passkey, web3, oauth
+    apiKeyHash: text("api_key_hash").notNull().unique(),
+    planId: text("plan_id").notNull().default("free"),
+    quotaCredits: integer("quota_credits").notNull().default(1000),
+    quotaResetAt: integer("quota_reset_at").notNull().default(sql`(strftime('%s', 'now'))`),
+    subscriptionStatus: text("subscription_status").notNull().default("active"), // active, cancelled, past_due
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+export const plans = sqliteTable(
+  "plans",
+  {
+    planId: text("plan_id").primaryKey().notNull(),
+    name: text("name").notNull(),
+    priceCents: integer("price_cents").notNull(),
+    currency: text("currency").notNull().default("CAD"),
+    creditsPerMonth: integer("credits_per_month").notNull(),
+    rateLimitPerMin: integer("rate_limit_per_min").notNull(),
+    features: text("features", { mode: "json" }).$type<string[]>().notNull(),
+    active: integer("active", { mode: "boolean" }).notNull().default(true),
+    createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+    updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+  }
+);
+
+export const orders = sqliteTable(
+  "orders",
+  {
+    orderId: text("order_id").primaryKey().notNull(),
+    tenantId: text("tenant_id").notNull().references(() => users.tenantId),
+    planId: text("plan_id").notNull(),
+    amountCents: integer("amount_cents").notNull(),
+    currency: text("currency").notNull().default("CAD"),
+    paymentMethod: text("payment_method").notNull().default("etransfer"), // etransfer, crypto
+    status: text("status").notNull().default("pending"), // pending, paid, expired, cancelled
+    expiresAt: integer("expires_at").notNull(),
+    createdAt: integer("created_at").notNull().default(sql`(strftime('%s', 'now'))`),
+    paidAt: integer("paid_at"),
+  }
+);
+
+export const payment_reconciliations = sqliteTable(
+  "payment_reconciliations",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    emailUid: text("email_uid").notNull().unique(),
+    orderId: text("order_id").references(() => orders.orderId),
+    senderEmail: text("sender_email"),
+    amountCents: integer("amount_cents"),
+    reference: text("reference"),
+    processedAt: integer("processed_at").notNull().default(sql`(strftime('%s', 'now'))`),
+  }
+);
+
+export const audit_log = sqliteTable(
+  "audit_log",
+  {
+    id: text("id").primaryKey().notNull(),
+    tenantId: text("tenant_id").references(() => users.tenantId),
+    requestId: text("request_id").notNull(),
+    endpoint: text("endpoint").notNull(),
+    creditsConsumed: integer("credits_consumed").notNull(),
+    timestamp: integer("timestamp").notNull().default(sql`(strftime('%s', 'now'))`),
+  }
+);
