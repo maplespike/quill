@@ -1,23 +1,26 @@
 /**
- * MapleSpike Edge Worker
+ * MapleSpike Edge Worker (Proxy)
  *
- * Routes requests between Cloudflare edge and homelab cluster.
- * Architecture:
- *   maplespike.ca/              -> Cloudflare Pages (brand SPA) — not handled here
- *   maplespike.ca/datafabric/*  -> Homelab k3s MapleSpike (portal + API + MCP)
- *   maplespike.ca/datafabric/v1/* -> Homelab API server
- *   maplespike.ca/datafabric/mcp  -> Homelab MCP server
+ * Routes data-fabric requests between Cloudflare edge and homelab cluster.
+ * Architecture (subdomain-based, supersedes the old /datafabric prefix path):
+ *   maplespike.ca              -> Cloudflare Pages (brand SPA) — not handled here
+ *   api.maplespike.ca/v1/*     -> Homelab API server (via tunnel, not this worker)
+ *   mcp.maplespike.ca          -> Homelab MCP server (via tunnel, not this worker)
+ *   datafabric.maplespike.ca   -> Homelab portal (via tunnel, not this worker)
+ *
+ * This worker handles cacheable GET proxying and IP-based rate limiting
+ * for write operations. The Cloudflare Tunnel handles the actual k3s
+ * routing — this worker is an optional caching/RL layer in front of it.
+ * The AI endpoints (/v1/ai/*) are handled by ai-worker.ts, a separate
+ * worker deployed on the api.maplespike.ca/v1/ai/* route.
  */
 
 interface Env {
   HOMELAB_API: string;
-  HOMELAB_PORTAL: string;
   CACHE_TTL: string;
   RATE_LIMIT: KVNamespace;
   CACHE_DB: D1Database;
 }
-
-const DATAFABRIC_PREFIX = '/datafabric';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -30,15 +33,6 @@ export default {
       return Response.json({ status: 'ok', source: 'edge-worker' });
     }
 
-    // Only handle /datafabric/* routes — everything else falls through to Pages
-    if (!pathname.startsWith(DATAFABRIC_PREFIX)) {
-      // Let Cloudflare Pages handle the brand SPA
-      return fetch(request);
-    }
-
-    // Strip /datafabric prefix to get the homelab path
-    const homelabPath = pathname.slice(DATAFABRIC_PREFIX.length) || '/';
-
     // CORS preflight
     if (method === 'OPTIONS') {
       return new Response(null, {
@@ -50,8 +44,8 @@ export default {
       });
     }
 
-    // Cacheable GET requests (API health, billing plans)
-    if (method === 'GET' && isCacheable(homelabPath)) {
+    // Cacheable GET requests (API health, billing plans, extraction tasks)
+    if (method === 'GET' && isCacheable(pathname)) {
       const cache = caches.default;
       const cacheKey = new Request(url.toString());
       const cached = await cache.match(cacheKey);
@@ -60,7 +54,7 @@ export default {
         return cached;
       }
 
-      const response = await proxyToHomelab(request, env, homelabPath, url.search);
+      const response = await proxyToHomelab(request, env, pathname, url.search);
       if (response.ok) {
         const cacheResponse = response.clone();
         await cache.put(cacheKey, cacheResponse);
@@ -100,7 +94,7 @@ export default {
     }
 
     // Route to homelab
-    return proxyToHomelab(request, env, homelabPath, url.search);
+    return proxyToHomelab(request, env, pathname, url.search);
   },
 };
 
