@@ -6,7 +6,7 @@
 (function() {
   'use strict';
 
-  const LS_THEME = 'maplespike-theme';
+  const LS_THEME = 'data-theme';
   const LS_INIT = 'maplespike-initialized';
   const LS_LOCALE = 'maplespike-locale';
 
@@ -117,12 +117,14 @@
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = saved || (prefersDark ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }
 
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
     localStorage.setItem(LS_THEME, next);
 
     document.querySelectorAll('.theme-toggle').forEach(btn => {
@@ -133,7 +135,11 @@
   function setupThemeToggle() {
     const theme = document.documentElement.getAttribute('data-theme') || 'dark';
     document.querySelectorAll('.theme-toggle').forEach(btn => {
-      btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+      // Only set emoji text on empty buttons (static pages).
+      // Astro pages use SVG icons toggled by the dark class on <html>.
+      if (!btn.children.length) {
+        btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
+      }
       btn.addEventListener('click', toggleTheme);
     });
   }
@@ -344,22 +350,51 @@
   // ── Shrink Nav on Scroll ─────────────────────────────────────
 
   function setupNavScroll() {
+    // Static pages: shrink nav on scroll
     const nav = document.querySelector('nav');
-    if (!nav) return;
-    let ticking = false;
-
-    function onScroll() {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          nav.classList.toggle('scrolled', window.scrollY > 40);
-          ticking = false;
-        });
-        ticking = true;
+    if (nav) {
+      let ticking = false;
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            nav.classList.toggle('scrolled', window.scrollY > 40);
+            ticking = false;
+          });
+          ticking = true;
+        }
       }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      if (window.scrollY > 40) nav.classList.add('scrolled');
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    if (window.scrollY > 40) nav.classList.add('scrolled');
+    // Astro pages: shrink sticky header on scroll
+    const header = document.querySelector('header.sticky');
+    if (header) {
+      const centerNav = header.querySelector('nav .rounded-full');
+      let ticking = false;
+      function onHeaderScroll() {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            const scrolled = window.scrollY > 40;
+            header.classList.toggle('header-scrolled', scrolled);
+            if (centerNav) {
+              centerNav.classList.toggle('opacity-0', scrolled);
+              centerNav.classList.toggle('-translate-y-2', scrolled);
+              centerNav.classList.toggle('pointer-events-none', scrolled);
+            }
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }
+      window.addEventListener('scroll', onHeaderScroll, { passive: true });
+      if (window.scrollY > 40) {
+        header.classList.add('header-scrolled');
+        if (centerNav) {
+          centerNav.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
+        }
+      }
+    }
   }
 
   // ── Usage Chart (dashboard) ─────────────────────────────────
