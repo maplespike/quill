@@ -16,8 +16,7 @@ const {
   ogImage = '/og-image.svg',
   lang = "en",
 } = Astro.props;
-const langPrefix = lang === "fr" ? "/fr" : "";
-const canonical = `${Astro.site?.href ?? "https://maplespike.lan"}${langPrefix}${Astro.url.pathname}`;
+const canonical = `${Astro.site?.href ?? "https://maplespike.lan"}${Astro.url.pathname}`;
 const pathname = Astro.url.pathname;
 const navLinks = [
   { href: "/", label: "Home", match: "/" },
@@ -39,12 +38,7 @@ const isActive = (match: string) =>
     <title>{title} | MapleSpike</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" href={canonical} hreflang={lang === "fr" ? "fr" : "en"} />
-    <link
-      rel="alternate"
-      href={`https://maplespike.lan${lang === "fr" ? "" : "/fr"}${Astro.url.pathname}`}
-      hreflang={lang === "fr" ? "en" : "fr"}
-    />
+    <link rel="alternate" href={canonical} hreflang="en-CA" />
     <meta property="og:title" content={`${title} | MapleSpike`} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
@@ -264,7 +258,6 @@ const isActive = (match: string) =>
             <h3 class="mb-3 text-sm font-semibold">Company</h3>
             <ul class="space-y-2 text-sm text-muted-foreground">
               <li>
-                {/* Cross-deployable link. Override brand hostname via PUBLIC_BRAND_URL at build time. */}
                 <a
                   href={(import.meta.env.PUBLIC_BRAND_URL ?? "https://brand.maplespike.lan").replace(/\/$/, "")}
                   target="_blank"
@@ -279,13 +272,17 @@ const isActive = (match: string) =>
                 </a>
               </li>
               <li><a href="/blog" class="transition-colors hover:text-foreground">Blog</a></li>
+              <li><a href="/contact" class="transition-colors hover:text-foreground">Contact</a></li>
+              <li><a href="/citation" class="transition-colors hover:text-foreground">Citations</a></li>
+              <li><a href="/ask" class="transition-colors hover:text-foreground">Ask AI</a></li>
             </ul>
           </div>
           <div>
             <h3 class="mb-3 text-sm font-semibold">Legal</h3>
             <ul class="space-y-2 text-sm text-muted-foreground">
+              <li><a href="/privacy" class="transition-colors hover:text-foreground">Privacy Policy</a></li>
+              <li><a href="/terms" class="transition-colors hover:text-foreground">Terms of Service</a></li>
               <li><a href="/llms.txt" class="transition-colors hover:text-foreground">llms.txt</a></li>
-              <li><a href="/llms-full.txt" class="transition-colors hover:text-foreground">llms-full.txt</a></li>
               <li><a href="/robots.txt" class="transition-colors hover:text-foreground">robots.txt</a></li>
             </ul>
           </div>
