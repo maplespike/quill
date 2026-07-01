@@ -2,15 +2,22 @@
  * MapleSpike Edge Worker
  *
  * Routes requests between Cloudflare edge and homelab cluster.
- * Serves cached GET requests from edge, routes heavy compute to homelab.
+ * Architecture:
+ *   maplespike.ca/              -> Cloudflare Pages (brand SPA) — not handled here
+ *   maplespike.ca/datafabric/*  -> Homelab k3s MapleSpike (portal + API + MCP)
+ *   maplespike.ca/datafabric/v1/* -> Homelab API server
+ *   maplespike.ca/datafabric/mcp  -> Homelab MCP server
  */
 
 interface Env {
   HOMELAB_API: string;
+  HOMELAB_PORTAL: string;
   CACHE_TTL: string;
   RATE_LIMIT: KVNamespace;
   CACHE_DB: D1Database;
 }
+
+const DATAFABRIC_PREFIX = '/datafabric';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -23,6 +30,15 @@ export default {
       return Response.json({ status: 'ok', source: 'edge-worker' });
     }
 
+    // Only handle /datafabric/* routes — everything else falls through to Pages
+    if (!pathname.startsWith(DATAFABRIC_PREFIX)) {
+      // Let Cloudflare Pages handle the brand SPA
+      return fetch(request);
+    }
+
+    // Strip /datafabric prefix to get the homelab path
+    const homelabPath = pathname.slice(DATAFABRIC_PREFIX.length) || '/';
+
     // CORS preflight
     if (method === 'OPTIONS') {
       return new Response(null, {
@@ -34,23 +50,17 @@ export default {
       });
     }
 
-    // Static pages (serve from Cloudflare Pages when deployed)
-    if (method === 'GET' && (pathname === '/' || pathname === '/docs/')) {
-      // TODO: Point to Cloudflare Pages once deployed
-      return Response.json({ message: 'Portal will be served from Cloudflare Pages' });
-    }
-
-    // Cacheable GET requests
-    if (method === 'GET' && CACHEABLE_PATHS.has(pathname)) {
+    // Cacheable GET requests (API health, billing plans)
+    if (method === 'GET' && isCacheable(homelabPath)) {
       const cache = caches.default;
-      const cacheKey = new Request(request.url);
+      const cacheKey = new Request(url.toString());
       const cached = await cache.match(cacheKey);
 
       if (cached) {
         return cached;
       }
 
-      const response = await fetch(`${env.HOMELAB_API}${pathname}${url.search}`);
+      const response = await proxyToHomelab(request, env, homelabPath, url.search);
       if (response.ok) {
         const cacheResponse = response.clone();
         await cache.put(cacheKey, cacheResponse);
@@ -59,7 +69,7 @@ export default {
       return response;
     }
 
-    // Rate limit check (KV-based, free tier)
+    // Rate limit check for write operations (KV-based, free tier)
     const clientIP = request.headers.get('CF-Connecting-IP');
     if (clientIP && ['POST', 'PUT', 'DELETE'].includes(method)) {
       const rateLimitKey = `ip:${clientIP}`;
@@ -89,21 +99,26 @@ export default {
       }
     }
 
-    // Route all other requests to homelab
-    return routeToHomelab(request, env);
+    // Route to homelab
+    return proxyToHomelab(request, env, homelabPath, url.search);
   },
 };
 
-// Cacheable GET paths
-const CACHEABLE_PATHS = new Set([
-  '/v1/billing/plans',
-  '/v1/health',
-  '/v1/openapi.json',
-]);
+function isCacheable(path: string): boolean {
+  return path === '/v1/billing/plans' ||
+         path === '/v1/health' ||
+         path === '/v1/openapi.json' ||
+         path === '/v1/extraction/tasks';
+}
 
-async function routeToHomelab(request: Request, env: Env): Promise<Response> {
-  const url = new URL(request.url);
-  const homelabUrl = `${env.HOMELAB_API}${url.pathname}${url.search}`;
+async function proxyToHomelab(
+  request: Request,
+  env: Env,
+  path: string,
+  search: string,
+): Promise<Response> {
+  const base = env.HOMELAB_API || 'https://maplespike.lan';
+  const homelabUrl = `${base}${path}${search}`;
 
   const response = await fetch(homelabUrl, {
     method: request.method,
@@ -115,6 +130,7 @@ async function routeToHomelab(request: Request, env: Env): Promise<Response> {
   const responseHeaders = new Headers(response.headers);
   responseHeaders.set('X-Edge-Worker', 'maplespike-edge');
   responseHeaders.set('X-Edge-Time', new Date().toISOString());
+  responseHeaders.set('X-Homelab-Path', path);
 
   return new Response(response.body, {
     status: response.status,

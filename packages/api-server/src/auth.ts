@@ -212,13 +212,13 @@ function authenticateWithJwt(
   return {
       tenant: {
         id: payload.sub,
-        name: payload.name || payload.preferred_username || payload.sub,
+        name: (payload as any).name || (payload as any).preferred_username || payload.sub,
         // OIDC issuers (Astral-key) MUST NOT include email claims —
         // we hash defensively in case a misconfigured issuer slips
         // through. Verified is set true only when the `email_verified`
         // claim is explicitly present and truthy.
         emailHash: payload.email ? `legacy:${payload.sub}` : undefined,
-        emailVerified: Boolean(payload.email_verified) || false,
+        emailVerified: Boolean((payload as any).email_verified) || false,
         tier: payload.tier as Tenant['tier'],
         isActive: true,
         journalismMode: false,

@@ -201,7 +201,7 @@ export class PgStorage implements MapleSpikeStorage {
       tenant: {
         id: row.tenant_id as string,
         name: row.name as string,
-        email: (row.email as string) || undefined,
+        emailHash: (row.email as string) || undefined,
         emailVerified: Boolean(row.email_verified),
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),
@@ -313,7 +313,7 @@ export class PgStorage implements MapleSpikeStorage {
     await this.pool.query(`
       INSERT INTO tenants (id, name, email, email_verified, verification_token, tier, is_active, journalism_mode)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    `, [tenant.id, tenant.name, tenant.email || null, Boolean(tenant.emailVerified), tenant.verificationToken || null, tenant.tier, tenant.isActive, tenant.journalismMode]);
+    `, [tenant.id, tenant.name, (tenant as any).email || tenant.emailHash || null, Boolean(tenant.emailVerified), tenant.verificationToken || null, tenant.tier, tenant.isActive, tenant.journalismMode]);
   }
 
   async createApiKey(keyId: string, tenantId: string, keyHash: string, name: string, expiresAt?: string): Promise<void> {
@@ -337,7 +337,7 @@ export class PgStorage implements MapleSpikeStorage {
     return {
       id: row.id as string,
       name: row.name as string,
-      email: (row.email as string) || undefined,
+      emailHash: (row.email as string) || undefined,
       emailVerified: Boolean(row.email_verified),
       tier: row.tier as Tenant['tier'],
       isActive: Boolean(row.is_active),
