@@ -244,12 +244,13 @@ export function buildError(
   message: string,
   ctx: BuildContext,
   statusCode?: number,
+  details?: unknown[],
 ): ApiResponse<null> {
   return {
     success: false,
     data: null,
     text: null,
-    error: { code, message },
+    error: { code, message, ...(details ? { details } : {}) },
     meta: buildResponseMeta(ctx, ctx.metaOverrides),
     quality: buildQualityMeta(ctx),
     citation: OGL_C_CITATION,
