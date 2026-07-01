@@ -13,16 +13,12 @@ window.MAPLESPIKE = window.MAPLESPIKE || {};
   var proto = window.location.protocol;
   var port = window.location.port ? ':' + window.location.port : '';
 
-  // Strip any known service subdomain, or the first subdomain on any 3+ part hostname.
-  // Examples: portal.maplespike.ca → api.maplespike.ca, data.maplespike.ca → api.maplespike.ca
+  // If we're on a subdomain like api.X, portal.X, or www.X,
+  // strip it to get the base domain
   var parts = host.split('.');
-  var knownSubdomains = ['api', 'portal', 'www', 'mcp', 'dev', 'data'];
   var baseDomain;
-  if (parts.length > 2 && knownSubdomains.includes(parts[0])) {
+  if (parts.length > 2 && ['api', 'portal', 'www', 'mcp', 'dev', 'data'].includes(parts[0])) {
     baseDomain = parts.slice(1).join('.');
-  } else if (parts.length > 2) {
-    // Unrecognized subdomain — strip it anyway to avoid api.X.Y.Z chains
-    baseDomain = parts.slice(-2).join('.');
   } else {
     baseDomain = host;
   }
