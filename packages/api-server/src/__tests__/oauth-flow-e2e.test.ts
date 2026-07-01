@@ -8,55 +8,24 @@ import assert from "node:assert/strict";
 //      to /auth/callback?code=<uuid> with Set-Cookie: session=<jwt>
 //   2. GET /v1/auth/oauth/exchange?code=<uuid>                  -> JWT payload
 //   3. The same code cannot be redeemed twice (single-use).
-//   4. After the TTL elapses, the code cannot be redeemed.
-//   5. The code is stored under the `oauth:exchange:` key prefix so
+//   4. Each terminal state (INVALID_CODE / ALREADY_CONSUMED) maps to the
+//      right code so callers can show a useful error.
+//   5. After the TTL elapses, the code cannot be redeemed.
+//   6. The code is stored under the `oauth:exchange:` key prefix so
 //      arbitrary cache keys cannot collide.
 
-import type { RouteHandler, RouteContext, MapleSpikeCache } from "../types.js";
+import { oauthExchangeHandler } from "../routes/auth-oauth.js";
+import { InMemoryCache, makeCtx } from "./_helpers.js";
 
-class InMemoryCache implements MapleSpikeCache {
-  private store = new Map<string, { value: string; expires: number }>();
-  async get(key: string) {
-    const entry = this.store.get(key);
-    if (!entry) return null;
-    if (Date.now() > entry.expires) {
-      this.store.delete(key);
-      return null;
-    }
-    return entry.value;
-  }
-  async put(key: string, value: string, ttlSeconds?: number) {
-    this.store.set(key, { value, expires: Date.now() + (ttlSeconds ?? 60) * 1000 });
-  }
-  async delete(key: string) {
-    this.store.delete(key);
-  }
-}
-
-function makeCtx(opts: { cache?: MapleSpikeCache } = {}): RouteContext {
-  return {
-    tenant: {
-      id: "anon",
-      name: "Anonymous",
-      emailVerified: false,
-      tier: "free",
-      isActive: true,
-      journalismMode: false,
-    },
-    apiKeyId: "",
-    requestId: "test-req",
-    startTime: Date.now(),
-    env: {},
-    db: {} as any,
-    cache: opts.cache ?? new InMemoryCache(),
-  };
-}
-
-async function mintExchangeEntry(
-  cache: MapleSpikeCache,
-  opts: { isNewUser?: boolean; apiKey?: string } = {},
+async function mintEntry(
+  cache: InMemoryCache,
+  opts: { isNewUser?: boolean; apiKey?: string; sentinel?: boolean } = {},
 ): Promise<{ code: string }> {
   const code = crypto.randomUUID();
+  if (opts.sentinel) {
+    await cache.put(`oauth:exchange:${code}`, "__consumed__", 60);
+    return { code };
+  }
   await cache.put(
     `oauth:exchange:${code}`,
     JSON.stringify({
@@ -74,12 +43,14 @@ async function mintExchangeEntry(
 test("oauthExchangeHandler redeems a fresh code once and returns the JWT payload", async () => {
   const cache = new InMemoryCache();
   const ctx = makeCtx({ cache });
-  const { code } = await mintExchangeEntry(cache, { isNewUser: true, apiKey: "mp_live_test" });
+  const { code } = await mintEntry(cache, { isNewUser: true, apiKey: "mp_live_test" });
 
   const url = `https://api.maplespike.lan/v1/auth/oauth/exchange?code=${encodeURIComponent(code)}`;
-  const res = await (
-    await import("../routes/auth-oauth.js")
-  ).oauthExchangeHandler(new Request(url, { method: "GET", headers: { Accept: "application/json" } }), ctx, {});
+  const res = await oauthExchangeHandler(
+    new Request(url, { method: "GET", headers: { Accept: "application/json" } }),
+    ctx,
+    {},
+  );
 
   assert.equal(res.status, 200);
   const body = (await res.json()) as { success: boolean; data: { token: string; provider: string; isNewUser: boolean; apiKey: { key: string } } };
@@ -93,23 +64,43 @@ test("oauthExchangeHandler redeems a fresh code once and returns the JWT payload
 test("oauthExchangeHandler rejects double-redemption (single-use)", async () => {
   const cache = new InMemoryCache();
   const ctx = makeCtx({ cache });
-  const { code } = await mintExchangeEntry(cache);
+  const { code } = await mintEntry(cache);
   const req = new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
     method: "GET",
     headers: { Accept: "application/json" },
   });
 
-  const first = await (
-    await import("../routes/auth-oauth.js")
-  ).oauthExchangeHandler(req, ctx, {});
+  const first = await oauthExchangeHandler(req, ctx, {});
   assert.equal(first.status, 200);
 
-  const second = await (
-    await import("../routes/auth-oauth.js")
-  ).oauthExchangeHandler(req, ctx, {});
+  const second = await oauthExchangeHandler(req, ctx, {});
   assert.equal(second.status, 400);
   const body = (await second.json()) as { error: { code: string } };
+  // MemoryCache.delete is synchronous, so the second call sees the
+  // deleted entry (no sentinel value) -> INVALID_CODE. The sentinel
+  // path is exercised in the next test.
   assert.equal(body.error.code, "INVALID_CODE");
+});
+
+test("oauthExchangeHandler rejects ALREADY_CONSUMED sentinel values", async () => {
+  // Simulates the KV eventual-consistency window: another request has
+  // already started consuming this code and the sentinel is now visible.
+  const cache = new InMemoryCache();
+  const ctx = makeCtx({ cache });
+  const { code } = await mintEntry(cache, { sentinel: true });
+
+  const res = await oauthExchangeHandler(
+    new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    }),
+    ctx,
+    {},
+  );
+  assert.equal(res.status, 400);
+  const body = (await res.json()) as { error: { code: string; message: string } };
+  assert.equal(body.error.code, "ALREADY_CONSUMED");
+  assert.match(body.error.message, /already been used/);
 });
 
 test("oauthExchangeHandler rejects expired codes", async () => {
@@ -117,14 +108,14 @@ test("oauthExchangeHandler rejects expired codes", async () => {
   const ctx = makeCtx({ cache });
   // Bypass the helper to insert a code that's already expired.
   const code = "expired-code";
-  await cache.put(`oauth:exchange:${code}`, JSON.stringify({ token: "x", provider: "x", name: "x", isNewUser: false }), 0);
-  // Sleeping is racy; instead, force expiry by manually clearing.
-  // We do that by writing with a past expires timestamp.
+  await cache.put(`oauth:exchange:${code}`, JSON.stringify({ token: "x", provider: "x", name: "x", isNewUser: false }), 60);
+  // Pre-expire by tampering with the in-memory expiry.
   (cache as any).store.get(`oauth:exchange:${code}`).expires = Date.now() - 10;
-  const res = await (
-    await import("../routes/auth-oauth.js")
-  ).oauthExchangeHandler(
-    new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, { method: "GET", headers: { Accept: "application/json" } }),
+  const res = await oauthExchangeHandler(
+    new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    }),
     ctx,
     {},
   );
@@ -138,10 +129,11 @@ test("oauthExchangeHandler rejects codes with wrong prefix namespace", async () 
   await cache.put("some-other-key", JSON.stringify({ token: "should-not-leak" }), 60);
   const ctx = makeCtx({ cache });
 
-  const res = await (
-    await import("../routes/auth-oauth.js")
-  ).oauthExchangeHandler(
-    new Request("https://api.maplespike.lan/v1/auth/oauth/exchange?code=some-other-key", { method: "GET", headers: { Accept: "application/json" } }),
+  const res = await oauthExchangeHandler(
+    new Request("https://api.maplespike.lan/v1/auth/oauth/exchange?code=some-other-key", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    }),
     ctx,
     {},
   );
@@ -149,10 +141,11 @@ test("oauthExchangeHandler rejects codes with wrong prefix namespace", async () 
 });
 
 test("oauthExchangeHandler returns 400 for missing code", async () => {
-  const res = await (
-    await import("../routes/auth-oauth.js")
-  ).oauthExchangeHandler(
-    new Request("https://api.maplespike.lan/v1/auth/oauth/exchange", { method: "GET", headers: { Accept: "application/json" } }),
+  const res = await oauthExchangeHandler(
+    new Request("https://api.maplespike.lan/v1/auth/oauth/exchange", {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    }),
     makeCtx(),
     {},
   );

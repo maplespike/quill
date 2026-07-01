@@ -6,45 +6,7 @@ import assert from "node:assert/strict";
 // `oauth:exchange:` key prefix to avoid arbitrary cache-key collisions.
 
 import { oauthExchangeHandler } from "../routes/auth-oauth.js";
-import type { RouteContext, MapleSpikeCache } from "../types.js";
-
-class InMemoryCache implements MapleSpikeCache {
-  private store = new Map<string, { value: string; expires: number }>();
-  async get(key: string) {
-    const entry = this.store.get(key);
-    if (!entry) return null;
-    if (Date.now() > entry.expires) {
-      this.store.delete(key);
-      return null;
-    }
-    return entry.value;
-  }
-  async put(key: string, value: string, ttlSeconds?: number) {
-    this.store.set(key, { value, expires: Date.now() + (ttlSeconds ?? 60) * 1000 });
-  }
-  async delete(key: string) {
-    this.store.delete(key);
-  }
-}
-
-function makeCtx(): RouteContext {
-  return {
-    tenant: {
-      id: "anon",
-      name: "Anonymous",
-      emailVerified: false,
-      tier: "free",
-      isActive: true,
-      journalismMode: false,
-    },
-    apiKeyId: "",
-    requestId: "test-req",
-    startTime: Date.now(),
-    env: {},
-    db: {} as any,
-    cache: new InMemoryCache(),
-  };
-}
+import { makeCtx } from "./_helpers.js";
 
 test("oauthExchangeHandler returns 400 for missing code", async () => {
   const url = "https://api.maplespike.lan/v1/auth/oauth/exchange";
