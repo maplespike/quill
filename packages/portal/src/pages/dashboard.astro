@@ -7,6 +7,7 @@ import Overview from "@/components/dashboard/Overview";
 import BillingPlans from "@/components/dashboard/BillingPlans";
 import ApiKeysManager from "@/components/dashboard/ApiKeysManager";
 import AISettings from "@/components/dashboard/AISettings";
+import BrowserExtraction from "@/components/dashboard/BrowserExtraction";
 ---
 
 <BaseLayout title="Developer Dashboard" description="Live MapleSpike API dashboard with usage stats and billing">
@@ -38,6 +39,17 @@ import AISettings from "@/components/dashboard/AISettings";
         ]}
       >
         Overview
+      </a>
+      <a
+        href="/dashboard/extraction"
+        class:list={[
+          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+          Astro.url.pathname === "/dashboard/extraction"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-accent",
+        ]}
+      >
+        Browser Extraction
       </a>
       <a
         href="/dashboard/owasp"
@@ -83,6 +95,16 @@ import AISettings from "@/components/dashboard/AISettings";
       </CardHeader>
       <CardContent>
         <ApiKeysManager client:load />
+      </CardContent>
+    </Card>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Browser Data Extraction</CardTitle>
+        <CardDescription>Extract data from government portals that have no API — your browser renders the page and we cache the results for all users.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <BrowserExtraction client:load />
       </CardContent>
     </Card>
   </section>
