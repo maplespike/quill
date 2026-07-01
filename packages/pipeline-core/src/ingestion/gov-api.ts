@@ -341,24 +341,24 @@ export const GOV_DATA_SOURCES = [
   { name: 'Statistics Canada', jurisdiction: 'federal', api: 'WDS', endpoint: STATCAN_WDS_BASE },
   { name: 'Open Government Portal', jurisdiction: 'federal', api: 'CKAN', endpoint: 'https://open.canada.ca/data/en' },
 
-  // --- Provincial CKAN portals ---
+  // --- Provincial CKAN portals (verified 2026-07-01) ---
   { name: 'Ontario Data Catalogue', jurisdiction: 'ontario', api: 'CKAN', endpoint: 'https://data.ontario.ca' },
   { name: 'BC Data Catalogue', jurisdiction: 'bc', api: 'CKAN', endpoint: 'https://catalogue.data.gov.bc.ca' },
   { name: 'Alberta Open Data', jurisdiction: 'alberta', api: 'CKAN', endpoint: 'https://open.alberta.ca' },
   { name: 'Québec Données', jurisdiction: 'quebec', api: 'CKAN', endpoint: 'https://donneesquebec.ca' },
-  { name: 'Saskatchewan Open Data', jurisdiction: 'saskatchewan', api: 'CKAN', endpoint: 'https://dashboard.saskatchewan.ca', notes: 'Provincial CKAN portal' },
-  { name: 'Manitoba Open Data', jurisdiction: 'manitoba', api: 'CKAN', endpoint: 'https://data.gov.mb.ca', notes: 'Provincial CKAN portal' },
+  { name: 'Saskatchewan Open Data', jurisdiction: 'saskatchewan', api: 'NONE', endpoint: null, notes: 'DOMAIN DECOMMISSIONED — data.saskatchewan.ca and dashboard.saskatchewan.ca have no CKAN API. Use federal CKAN cross-reference.' },
+  { name: 'Manitoba Open Data', jurisdiction: 'manitoba', api: 'NONE', endpoint: null, notes: 'DOMAIN DECOMMISSIONED — opendata.manitoba.ca and data.gov.mb.ca DNS removed. Use federal CKAN cross-reference.' },
   { name: 'Newfoundland & Labrador Open Data', jurisdiction: 'newfoundland', api: 'CKAN', endpoint: 'https://opendata.gov.nl.ca', notes: 'Provincial CKAN portal' },
 
-  // --- Territorial CKAN portals ---
-  { name: 'Yukon Open Data', jurisdiction: 'yukon', api: 'CKAN', endpoint: 'https://data.yukon.ca', notes: 'Territorial CKAN portal' },
+  // --- Territorial portals (verified 2026-07-01) ---
+  { name: 'Yukon Open Data', jurisdiction: 'yukon', api: 'CKAN', endpoint: 'https://open.yukon.ca', notes: 'CKAN 2.11.5 — 3785 datasets. yukon.ca is Cloudflare-protected but open.yukon.ca API is open.' },
 
-  // --- Provincial CKAN portals (converted from Socrata / ArcGIS / other) ---
-  { name: 'Nova Scotia Open Data', jurisdiction: 'nova-scotia', api: 'CKAN', endpoint: 'https://data.novascotia.ca', notes: 'Provincial CKAN portal' },
-  { name: 'Prince Edward Island Open Data', jurisdiction: 'pei', api: 'CKAN', endpoint: 'https://data.princeedwardisland.ca', notes: 'Provincial CKAN portal' },
-  { name: 'New Brunswick Open Data', jurisdiction: 'new-brunswick', api: 'CKAN', endpoint: 'https://data.snb.ca', notes: 'Provincial CKAN portal' },
+  // --- Provincial portals (non-CKAN) ---
+  { name: 'Nova Scotia Open Data', jurisdiction: 'nova-scotia', api: 'SOCRATA', endpoint: 'https://data.novascotia.ca', notes: 'Socrata/SODA API' },
+  { name: 'Prince Edward Island Open Data', jurisdiction: 'pei', api: 'ARCGIS', endpoint: 'https://data.princeedwardisland.ca', notes: 'ArcGIS Hub — 92 datasets. Org: peigov, Group: 3f3e0df042854ea59560465cde7987cc' },
+  { name: 'New Brunswick Open Data', jurisdiction: 'new-brunswick', api: 'SOCRATA', endpoint: 'https://gnb.socrata.com', notes: 'Socrata/SODA API' },
 
-  // --- Territorial CKAN portals (converted from OTHER / NONE) ---
-  { name: 'NWT Open Data', jurisdiction: 'northwest-territories', api: 'CKAN', endpoint: 'https://opendata.gov.nt.ca', notes: 'Territorial CKAN portal' },
-  { name: 'Nunavut Open Data', jurisdiction: 'nunavut', api: 'CKAN', endpoint: 'https://data.gov.nu.ca', notes: 'Territorial CKAN portal' },
+  // --- Territorial portals (no standard API) ---
+  { name: 'NWT Open Data', jurisdiction: 'northwest-territories', api: 'OTHER', endpoint: 'https://www.ece.gov.nt.ca/en/services/open-government-product', notes: 'No CKAN/API — HTML pages only. data files on department sites.' },
+  { name: 'Nunavut Open Data', jurisdiction: 'nunavut', api: 'OTHER', endpoint: 'https://www.gov.nu.ca/en/nunavummit-kiglisiniartiit-nunavut-bureau-statistics', notes: 'Cloudflare on HTML pages but data files at /sites/default/files/ are open. Bureau of Statistics: statsbureau@gov.nu.ca' },
 ];
