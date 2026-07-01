@@ -34,6 +34,17 @@ export class InMemoryCache implements MapleSpikeCache {
   async delete(key: string): Promise<void> {
     this.store.delete(key);
   }
+
+  /**
+   * Force a key's expiry to a specific epoch-ms timestamp (test-only).
+   * Used to deterministically test TTL behaviour without sleeping.
+   * No-op if the key does not exist.
+   */
+  async expireAt(key: string, epochMs: number): Promise<void> {
+    const entry = this.store.get(key);
+    if (!entry) return;
+    entry.expires = epochMs;
+  }
 }
 
 /**
