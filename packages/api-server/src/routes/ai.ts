@@ -179,6 +179,25 @@ interface QdrantScoredPoint {
   version?: number;
 }
 
+/**
+ * Structural type for the Qdrant `/collections/:name` endpoint response.
+ * We only read the fields used by qdrantVectorSearch; unknown fields are
+ * preserved to avoid surprises if Qdrant adds new top-level keys later.
+ */
+interface QdrantCollectionInfoResponse {
+  result?: {
+    points_count?: number;
+    config?: {
+      params?: {
+        vectors?: {
+          size?: number;
+          distance?: string;
+        };
+      };
+    };
+  };
+}
+
 interface QdrantSearchResult {
   results: Array<{
     id: string | number;
@@ -229,14 +248,14 @@ async function qdrantVectorSearch(vector: number[], limit = 10): Promise<QdrantS
         signal: AbortSignal.timeout(5000),
       });
       if (infoResp.ok) {
-        const infoData = await infoResp.json() as any;
-        const r = infoData?.result;
+        const infoData = await infoResp.json() as QdrantCollectionInfoResponse;
+        const r = infoData.result;
         if (r) {
-          const params = (r.config as any)?.params || {};
+          const vectors = r.config?.params?.vectors;
           collectionInfo = {
-            pointsCount: (r.points_count as number) ?? 0,
-            vectorSize: (params.vectors as any)?.size ?? 0,
-            distance: (params.vectors as any)?.distance ?? 'Unknown',
+            pointsCount: r.points_count ?? 0,
+            vectorSize: vectors?.size ?? 0,
+            distance: vectors?.distance ?? 'Unknown',
           };
         }
       }

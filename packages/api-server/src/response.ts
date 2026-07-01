@@ -260,6 +260,27 @@ export function buildError(
 /*  HTTP Response Helpers                                              */
 /* ------------------------------------------------------------------ */
 
+const CORS_METHODS = 'GET, POST, PATCH, DELETE, OPTIONS';
+const CORS_ALLOWED_HEADERS = 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode';
+const CORS_EXPOSE_HEADERS =
+  'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice';
+
+/**
+ * Apply the standard MapleSpike CORS headers to a response Headers instance.
+ * Pulls the allowed origin from getAllowedOrigin() so dev/IP/prod origins all
+ * stay in one place. Used by jsonResponse, corsPreflight, and finalizeResponse
+ * to keep header drift out of the API surface.
+ */
+export function applyCorsHeaders(
+  headers: Headers,
+  requestOrigin: string | null | undefined,
+): void {
+  headers.set('Access-Control-Allow-Origin', getAllowedOrigin(requestOrigin));
+  headers.set('Access-Control-Allow-Methods', CORS_METHODS);
+  headers.set('Access-Control-Allow-Headers', CORS_ALLOWED_HEADERS);
+  headers.set('Access-Control-Expose-Headers', CORS_EXPOSE_HEADERS);
+}
+
 const ALLOWED_ORIGINS = [
   // Dev
   'http://localhost:4321',
@@ -272,7 +293,12 @@ const ALLOWED_ORIGINS = [
   'http://127.0.0.1:3000',
   'http://10.1.1.120:4321',
   'http://10.1.1.100:4321',
-  // Production (always included for backward compat)
+  // Production (maplespike.ca via Cloudflare)
+  'https://maplespike.ca',
+  'https://www.maplespike.ca',
+  'https://api.maplespike.ca',
+  'https://mcp.maplespike.ca',
+  // Production (LAN)
   'https://maplespike.lan',
   'https://www.maplespike.lan',
   'https://api.maplespike.lan',
@@ -299,6 +325,16 @@ const ALLOWED_ORIGINS = [
       `https://dev-mcp.${d}`,
     ];
   })(),
+  // Operator-supplied extra origins — comma-separated env var.
+  // Use for self-hosters running on custom domains not covered by the
+  // hardcoded list or MAPLESPIKE_DOMAIN. Example:
+  //   ALLOWED_ORIGINS_OVERRIDE="https://portal.foo.com,https://api.foo.com"
+  ...(process.env.ALLOWED_ORIGINS_OVERRIDE
+    ? process.env.ALLOWED_ORIGINS_OVERRIDE
+        .split(',')
+        .map((s) => s.trim().replace(/\/$/, ''))
+        .filter(Boolean)
+    : []),
 ];
 
 export function getAllowedOrigin(requestOrigin: string | null | undefined): string {
@@ -320,10 +356,6 @@ export function jsonResponse<T>(
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'X-MapleSpike-Version': '0.1.0',
     'X-MapleSpike-Trace-Id': extraHeaders['X-MapleSpike-Trace-Id'] ?? randomUUID(),
-    'Access-Control-Allow-Origin': getAllowedOrigin(requestOrigin ?? null),
-    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode',
-    'Access-Control-Expose-Headers': 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice',
     ...extraHeaders,
   };
 
@@ -363,10 +395,7 @@ export function addRateLimitHeaders(
 
 export function corsPreflight(requestOrigin?: string | null, environment?: string): Response {
   const headers = new Headers();
-  headers.set('Access-Control-Allow-Origin', getAllowedOrigin(requestOrigin ?? null));
-  headers.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key, X-MapleSpike-Mode');
-  headers.set('Access-Control-Expose-Headers', 'X-MapleSpike-Version, X-MapleSpike-Trace-Id, X-RateLimit-Remaining, X-RateLimit-Reset, X-Attribution-Notice');
+  applyCorsHeaders(headers, requestOrigin ?? null);
   headers.set('Access-Control-Max-Age', '86400');
   applySecurityHeaders(headers, environment);
   return new Response(null, { status: 204, headers });
