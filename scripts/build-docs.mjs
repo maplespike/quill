@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const DOCS_SRC = join(ROOT, 'packages/docs');
-const DOCS_OUT = join(ROOT, 'packages/portal/docs');
+const DOCS_OUT = join(ROOT, 'packages/portal/dist/docs');
 
 // ── Sidebar definition ──────────────────────────────────────
 const SECTIONS = [
