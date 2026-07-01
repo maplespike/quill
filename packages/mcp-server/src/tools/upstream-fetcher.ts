@@ -5,7 +5,7 @@ import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-async function fetchJson<T>(url: string, timeoutMs = 10_000, extraHeaders: Record<string, string> = {}): Promise<T> {
+export async function fetchJson<T>(url: string, timeoutMs = 10_000, extraHeaders: Record<string, string> = {}): Promise<T> {
   const start = Date.now();
   try {
     const resp = await fetch(url, {
@@ -54,7 +54,7 @@ async function fetchText(url: string, timeoutMs = 10_000): Promise<string> {
   }
 }
 
-function cached<T>(tool: string, params: Record<string, unknown>, fn: () => Promise<T>): Promise<T> {
+export function cached<T>(tool: string, params: Record<string, unknown>, fn: () => Promise<T>): Promise<T> {
   const key = cacheKey(tool, params);
   const cached = cacheGet<T>(key);
   if (cached) return Promise.resolve(cached);

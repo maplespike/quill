@@ -4,13 +4,16 @@ import { ReactNode, useMemo, useEffect } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 /**
- * Token bridge: Astral Key HMAC token -> Convex OIDC token.
+ * Token bridge: Astral Key HMAC token → Convex OIDC token.
  *
  * Astral Key issues HMAC (HS256) tokens for API auth.
  * Convex requires RS256 OIDC tokens with `aud` claim.
  *
- * This bridge calls Astral Key's /oidc/token endpoint to exchange
- * the HMAC token for an RS256 token that Convex can verify.
+ * Auth methods supported:
+ * - Web3 (SIWE): JWT stored in localStorage → exchanged for OIDC
+ * - Passkey login: JWT stored in localStorage → exchanged for OIDC
+ * - Passkey register: API key → second passkey prompt → JWT → OIDC
+ * - OAuth (GitHub/Google): JWT in `session` cookie → exchanged for OIDC
  *
  * Uses Convex v1.42.1 API: `client.setAuth(fetchToken)`.
  */
@@ -19,7 +22,6 @@ async function exchangeTokenForOidc(
 ): Promise<string | null> {
   try {
     const base = getAstralKeyBase();
-    // Pass client_id=convex so Astral Key sets the `aud` claim
     const url = `${base}/oidc/token?client_id=convex`;
     const resp = await fetch(url, {
       headers: {
@@ -47,13 +49,21 @@ function getAstralKeyBase(): string {
   return "https://auth.maplespike.lan";
 }
 
+/** Get the best available token from localStorage */
 function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  return (
-    localStorage.getItem("maplespike_token") ||
-    localStorage.getItem("maplespike-api-key") ||
-    null
-  );
+
+  // 1. localStorage token (Web3, passkey login)
+  const localToken = localStorage.getItem("maplespike_token");
+  if (localToken) return localToken;
+
+  // 2. API key (passkey register without login chain, or workspace page)
+  //    API keys start with "mp_" — these can't be exchanged for OIDC,
+  //    but we return them so Convex can try (it will fail gracefully).
+  const apiKey = localStorage.getItem("maplespike-api-key");
+  if (apiKey) return apiKey;
+
+  return null;
 }
 
 interface Props {
@@ -67,27 +77,32 @@ export default function MapleSpikeConvexProvider({
 }: Props) {
   const client = useMemo(() => new ConvexReactClient(convexUrl), [convexUrl]);
 
-  // Wire custom auth via client.setAuth() (Convex v1.42.1 API)
   useEffect(() => {
     client.setAuth(async (): Promise<string | null> => {
       const storedToken = getStoredToken();
       if (!storedToken) return null;
 
+      // If it's an API key (starts with mp_), we can't exchange it for
+      // OIDC via Astral Key. Return null — Convex will show unauthenticated.
+      // The user needs to sign in with passkey/Web3 to get a JWT.
+      if (storedToken.startsWith("mp_") || storedToken.startsWith("maplespike_")) {
+        return null;
+      }
+
       // Heuristic: RS256 JWT signature segment is ~456 chars base64url.
-      // If the third segment (signature) is long, it's likely OIDC.
       const parts = storedToken.split(".");
       if (parts.length === 3 && parts[2].length > 300) {
         return storedToken;
       }
 
-      // Exchange HMAC token for OIDC token
+      // Exchange HMAC token for OIDC token via Astral Key
       const oidcToken = await exchangeTokenForOidc(storedToken);
       if (oidcToken) {
         localStorage.setItem("maplespike_oidc_token", oidcToken);
         return oidcToken;
       }
 
-      // Fallback: try cached OIDC token
+      // Fallback: cached OIDC token
       return localStorage.getItem("maplespike_oidc_token") || null;
     });
   }, [client]);
