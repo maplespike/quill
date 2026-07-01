@@ -83,6 +83,7 @@ import * as searchNpri from './search-npri.js';
 import * as searchNrcan from './search-nrcan.js';
 import * as searchNunavutData from './search-nunavut-data.js';
 import * as searchOnData from './search-on-data.js';
+import * as searchYukonData from './search-yukon-data.js';
 import * as searchParks from './search-parks.js';
 import * as searchProvincialData from './search-provincial-data.js';
 import * as searchProvincialLegislatures from './search-provincial-legislatures.js';
@@ -322,6 +323,7 @@ export function getAllTools(): ToolModule[] {
     searchNrcan,
     searchNunavutData,
     searchOnData,
+    searchYukonData,
     searchParks,
     searchProvincialData,
     searchProvincialLegislatures,
