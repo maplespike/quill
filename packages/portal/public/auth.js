@@ -10,6 +10,8 @@
   const TOKEN_KEY = "maplespike_token";
   const USER_KEY = "maplespike_userId";
   const METHOD_KEY = "maplespike_method";
+  const API_KEY = "maplespike-api-key";
+  const OIDC_KEY = "maplespike_oidc_token";
 
   function getAuth() {
     const token = localStorage.getItem(TOKEN_KEY);
@@ -22,6 +24,8 @@
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(METHOD_KEY);
+    localStorage.removeItem(API_KEY);
+    localStorage.removeItem(OIDC_KEY);
   }
 
   function updateNav() {
