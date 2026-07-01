@@ -10,7 +10,24 @@ import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescri
 ---
 
 <BaseLayout title="Workspace" description="Manage your MapleSpike API keys, monitor usage, view billing, and configure MCP connections.">
-  <!-- Header -->
+  <!-- Welcome Banner (first-time OAuth users only, shown once) -->
+<div id="welcome-banner" class="hidden border-b border-primary/30 bg-primary/5">
+  <div class="container mx-auto px-4 py-4 flex items-start gap-3">
+    <span class="text-2xl mt-1">🎉</span>
+    <div class="flex-1 min-w-0">
+      <div class="font-semibold text-sm">Welcome to MapleSpike</div>
+      <div class="text-xs text-muted-foreground mt-1">
+        You&rsquo;re signed in. Your API key has been provisioned automatically.
+        Next steps: review the checklist below, try a quick API call, and explore the data catalog.
+      </div>
+    </div>
+    <button id="welcome-banner-close" type="button"
+      class="text-muted-foreground hover:text-foreground text-sm leading-none"
+      aria-label="Dismiss welcome banner">×</button>
+  </div>
+</div>
+
+<!-- Header -->
   <section class="border-b py-12 md:py-16">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between flex-wrap gap-4">
@@ -552,6 +569,33 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       keysBtn?.addEventListener("click", openKeysPanel);
       keysClose?.addEventListener("click", closeKeysPanel);
       keysOverlay?.addEventListener("click", closeKeysPanel);
+
+      // ── Welcome banner (first-time OAuth only, shown once) ──
+      // The ?new=1 query param is added by /auth/callback when
+      // isNewUser=true. We display the banner, then strip the param
+      // from the URL with history.replaceState so a page reload or
+      // back-nav into the same URL won't re-trigger it.
+      (function maybeShowWelcomeBanner() {
+        const banner = document.getElementById("welcome-banner");
+        if (!banner) return;
+        const url = new URL(window.location.href);
+        if (url.searchParams.get("new") !== "1") return;
+
+        banner.classList.remove("hidden");
+
+        // Strip the query param so reload/back doesn't re-fire.
+        url.searchParams.delete("new");
+        const cleaned =
+          url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "") + url.hash;
+        try { window.history.replaceState(window.history.state, "", cleaned); } catch (_) { /* ignore */ }
+      })();
+
+      document
+        .getElementById("welcome-banner-close")
+        ?.addEventListener("click", () => {
+          const banner = document.getElementById("welcome-banner");
+          if (banner) banner.classList.add("hidden");
+        });
 
       // ── Init ──
       fetchUsage();

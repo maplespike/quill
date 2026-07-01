@@ -123,7 +123,10 @@ if (Astro.url.searchParams.has("error")) {
             : "Signed in — redirecting to your dashboard…";
 
           setTimeout(() => {
-            const dest = payload?.isNewUser ? "/workspace" : "/dashboard";
+            // For first-time OAuth users include ?new=1 so /workspace
+            // can show a one-time welcome banner. The flag is cleared
+            // from the URL right after the banner renders.
+            const dest = payload?.isNewUser ? "/workspace?new=1" : "/dashboard";
             window.location.replace(dest);
           }, 600);
         })
