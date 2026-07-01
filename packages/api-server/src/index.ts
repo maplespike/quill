@@ -63,7 +63,7 @@ import { openApiHandler } from './routes/openapi.js';
 import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
-import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingVerifyHandler } from './routes/billing.js';
+import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingReconcileHandler, billingVerifyHandler, billingSeedPlansHandler } from './routes/billing.js';
 import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
   deleteAnnotationHandler, exportAnnotationsHandler,
@@ -136,6 +136,13 @@ const ROUTES: Route[] = [
   // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
   { pattern: /^\/v1\/security\/audit-summary\/?$/, method: 'GET', params: [], handler: withRouteCache(securityAuditSummaryHandler, 60) },
   { pattern: /^\/v1\/usage\/?$/, method: 'GET', params: [], handler: withRouteCache(usageHandler, 60) },
+  // Billing
+  { pattern: /^\/v1\/billing\/plans\/?$/, method: 'GET', params: [], handler: withRouteCache(billingPlansHandler, 3600) },
+  { pattern: /^\/v1\/billing\/seed-plans\/?$/, method: 'POST', params: [], handler: billingSeedPlansHandler },
+  { pattern: /^\/v1\/billing\/orders\/?$/, method: 'POST', params: [], handler: billingOrderHandler },
+  { pattern: /^\/v1\/billing\/orders\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: billingOrderStatusHandler },
+  { pattern: /^\/v1\/billing\/reconcile\/?$/, method: 'POST', params: [], handler: billingReconcileHandler },
+  { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
 
 
   // API Key Management
