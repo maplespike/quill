@@ -14,6 +14,9 @@ export type { z } from 'zod';
 /*  Auth & Registration                                                */
 /* ------------------------------------------------------------------ */
 
+// Decision 0002: registration still accepts plaintext `email`
+// for the verification-mail send, but downstream code MUST hash
+// immediately and never store the plaintext.
 export const registerSchema = z.object({
   name: z.string().trim().min(1).max(200),
   email: z.string().trim().email(),
@@ -81,17 +84,12 @@ export const createKeySchema = z.object({
 export type CreateKeyInput = z.infer<typeof createKeySchema>;
 
 /* ------------------------------------------------------------------ */
-/*  Contact Form                                                       */
+/*  Contact Form (Decision 0002 — RETIRED)                              */
 /* ------------------------------------------------------------------ */
-
-export const contactSchema = z.object({
-  name: z.string().trim().min(1).max(200),
-  email: z.string().trim().email(),
-  subject: z.string().trim().min(1).max(500),
-  message: z.string().trim().min(10).max(5000),
-});
-
-export type ContactInput = z.infer<typeof contactSchema>;
+// The contact form used to ask for { name, email, subject, message }
+// and email them to ops — direct PII retention. Now retired; the
+// route returns 410 Gone. Schema kept exported as a deprecated
+// vacuum so legacy imports type-check during the migration window.
 
 /* ------------------------------------------------------------------ */
 /*  Validation Helpers                                                 */

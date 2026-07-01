@@ -5,10 +5,12 @@
 -- ═══════════════════════════════════════════════════════════════
 -- TENANTS — Organizations / users with API access
 -- ═══════════════════════════════════════════════════════════════
+-- Decision 0002: PII avoidance. `email_hash` replaces `email`.
 CREATE TABLE IF NOT EXISTS tenants (
-  id TEXT PRIMARY KEY,                          -- UUID
-  name TEXT NOT NULL,                           -- Organization or user name
-  email TEXT,                                   -- Contact email
+  id TEXT PRIMARY KEY,                          -- opaque UUID
+  name TEXT NOT NULL,                           -- Organization or user label
+  email_hash TEXT,                              -- HMAC-SHA256(secret, plaintext-email); never plaintext
+  email_verified INTEGER DEFAULT 0,
   tier TEXT NOT NULL DEFAULT 'free',            -- free | pro | business | enterprise | internal
   is_active INTEGER DEFAULT 1,
   journalism_mode INTEGER DEFAULT 0,            -- 1 = can bypass curation thresholds

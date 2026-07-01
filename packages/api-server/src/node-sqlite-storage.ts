@@ -37,7 +37,9 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
       CREATE TABLE IF NOT EXISTS tenants (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        email TEXT,
+        -- Decision 0002: PII avoidance. email_hash only; plaintext
+        -- is consumed in-flight.
+        email_hash TEXT,
         email_verified INTEGER DEFAULT 0,
         verification_token TEXT,
         tier TEXT DEFAULT 'free',
@@ -94,13 +96,13 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
     const keyHash = hashApiKeySync(rawKey);
     const row = this.db.prepare(`
-      SELECT k.id as key_id, k.tenant_id, t.name, t.email, t.email_verified,
+      SELECT k.id as key_id, k.tenant_id, t.name, t.email_hash, t.email_verified,
              t.tier, t.is_active, t.journalism_mode
       FROM api_keys k
       JOIN tenants t ON k.tenant_id = t.id
       WHERE k.key_hash = ? AND k.is_active = 1 AND t.is_active = 1
     `).get(keyHash) as {
-      key_id: string; tenant_id: string; name: string; email: string;
+      key_id: string; tenant_id: string; name: string; email_hash: string;
       email_verified: number; tier: string; is_active: number; journalism_mode: number;
     } | undefined;
 
@@ -113,7 +115,7 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
       tenant: {
         id: row.tenant_id,
         name: row.name,
-        email: row.email,
+        emailHash: row.email_hash,
         emailVerified: Boolean(row.email_verified),
         tier: row.tier as 'free' | 'pro' | 'business' | 'enterprise' | 'internal',
         isActive: Boolean(row.is_active),
@@ -249,12 +251,16 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
     ).run(keyId, tenantId, keyHash, name, expiresAt || null);
   }
 
+  /**
+   * Decision 0002: persists `emailHash` only.
+   * Caller must hash before calling.
+   */
   createTenant(tenant: Tenant): void {
     this.db.prepare(`
-      INSERT INTO tenants (id, name, email, email_verified, verification_token, tier, is_active, journalism_mode)
+      INSERT INTO tenants (id, name, email_hash, email_verified, verification_token, tier, is_active, journalism_mode)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      tenant.id, tenant.name, tenant.email || '',
+      tenant.id, tenant.name, tenant.emailHash || null,
       tenant.emailVerified ? 1 : 0,
       (tenant as any).verificationToken || null,
       tenant.tier, tenant.isActive ? 1 : 0,
@@ -268,15 +274,19 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
     ).run(keyId, tenantId);
   }
 
-  verifyEmail(token: string): { id: string; name: string; email: string } | null {
+  /**
+   * Mark a tenant's email_verified flag by verification token.
+   * Decision 0002: returns opaque hash pair only — never plaintext.
+   */
+  verifyEmail(token: string): { id: string; name: string; emailHash: string } | null {
     const row = this.db.prepare(
-      'SELECT id, name, email FROM tenants WHERE verification_token = ?'
-    ).get(token) as { id: string; name: string; email: string } | undefined;
+      'SELECT id, name, email_hash FROM tenants WHERE verification_token = ?'
+    ).get(token) as { id: string; name: string; email_hash: string | null } | undefined;
     if (!row) return null;
     this.db.prepare(
       'UPDATE tenants SET email_verified = 1, verification_token = NULL WHERE id = ?'
     ).run(row.id);
-    return row;
+    return { id: row.id, name: row.name, emailHash: row.email_hash ?? '' };
   }
 }
 

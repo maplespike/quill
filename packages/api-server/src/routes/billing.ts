@@ -19,26 +19,143 @@ type Plan = {
   credits_per_month: number;
   rate_limit_per_min: number;
   features: string[];
+  tier: 'free' | 'pro' | 'business' | 'enterprise';
+  /** Human-readable description for the billing page */
+  description: string;
 };
 
 const PLANS: Record<string, Plan> = {
+  community: {
+    plan_id: 'community',
+    tier: 'free',
+    name: 'Community',
+    description: 'Self-hosted — git clone + docker compose up. Full pipeline, all 198 modules, all 164 MCP tools. You run the infra.',
+    price_cents: 0,
+    credits_per_month: Infinity,
+    rate_limit_per_min: Infinity,
+    features: [
+      'All 198 data modules',
+      'All 164 MCP tools',
+      'Entity resolution engine',
+      'Cross-reference queries',
+      'SQLite-backed local database',
+      'API key auth (single-tenant)',
+      'Docker Compose deployment',
+      'Community support (GitHub Issues)',
+    ],
+  },
   free: {
     plan_id: 'free',
+    tier: 'free',
     name: 'Free',
+    description: 'Hosted API — try MapleSpike with no credit card. 1,000 calls/month, public data modules only.',
     price_cents: 0,
     credits_per_month: 1000,
     rate_limit_per_min: 10,
-    features: ['Basic MCP tools', 'Public data'],
+    features: [
+      'Public data modules',
+      'Basic MCP tools',
+      'Citation + provenance',
+      'Community support',
+    ],
   },
   pro: {
     plan_id: 'pro',
+    tier: 'pro',
     name: 'Pro',
+    description: 'For independent researchers, journalists, and small teams. RAG-powered AI queries, full tool access.',
     price_cents: 5000,
     credits_per_month: 50000,
     rate_limit_per_min: 60,
-    features: ['All MCP tools', 'RAG', 'Entity resolution', 'API access'],
+    features: [
+      'All MCP tools (164)',
+      'RAG-powered AI queries',
+      'Entity resolution',
+      'Full REST API access',
+      'Developer console',
+      'Email support (< 48h)',
+      '30-day data freshness SLA',
+    ],
+  },
+  business: {
+    plan_id: 'business',
+    tier: 'business',
+    name: 'Business',
+    description: 'For think tanks, NGOs, newsrooms, and lobbying firms. SSO, team seats, journalism mode, cross-reference reports.',
+    price_cents: 20000,
+    credits_per_month: 250000,
+    rate_limit_per_min: 300,
+    features: [
+      'Everything in Pro',
+      'SSO (GitHub, Google OAuth)',
+      '5 team seats',
+      'Journalism mode (verified press)',
+      'Cross-reference reports',
+      'Usage analytics dashboard',
+      'Priority support (< 8h)',
+      '7-day data freshness SLA',
+    ],
+  },
+  enterprise: {
+    plan_id: 'enterprise',
+    tier: 'enterprise',
+    name: 'Enterprise',
+    description: 'For government agencies, large news organizations, financial compliance teams. Dedicated infra, SAML, SOC2, custom modules.',
+    price_cents: 0, // custom pricing — contact sales
+    credits_per_month: 1000000,
+    rate_limit_per_min: 1000,
+    features: [
+      'Everything in Business',
+      'SAML/OIDC SSO',
+      'RBAC + audit logs',
+      'SOC2 compliance package',
+      'Dedicated infrastructure (single-tenant K3s)',
+      'Custom data modules',
+      'White-label portal',
+      'On-premise deployment option',
+      'Commercial license (bypass AGPL)',
+      'SLA (99.9% uptime, < 1h response)',
+    ],
   },
 };
+
+// ─── Verified Order Store (in-memory — replace with DB) ────────────────────
+
+interface VerifiedOrder {
+  order_id: string;
+  tenant_id: string;
+  plan_id: string;
+  tier: 'free' | 'pro' | 'business' | 'enterprise';
+  verified_at: number;
+}
+
+const verifiedOrders = new Map<string, VerifiedOrder>();
+/** Latest assigned tier per tenant (ordered by verification time). */
+const tenantTiers = new Map<string, 'free' | 'pro' | 'business' | 'enterprise'>();
+
+/** Look up a verified order by order_id. Returns null if not found or expired. */
+export function getVerifiedOrder(orderId: string): VerifiedOrder | null {
+  const order = verifiedOrders.get(orderId);
+  if (!order) return null;
+  // Orders expire after 24 hours
+  if (Date.now() / 1000 - order.verified_at > 86400) {
+    verifiedOrders.delete(orderId);
+    // Clean up tenantTiers if this was their only verified order
+    const hasOtherOrders = [...verifiedOrders.values()].some(
+      (o) => o.tenant_id === order.tenant_id,
+    );
+    if (!hasOtherOrders) {
+      tenantTiers.delete(order.tenant_id);
+    }
+    return null;
+  }
+  return order;
+}
+
+/** Assign a tier to a tenant based on their most recent verified order. */
+export function getAssignedTier(tenantId: string): 'free' | 'pro' | 'business' | 'enterprise' | null {
+  return tenantTiers.get(tenantId) || null;
+}
 
 // ─── Utilities ───────────────────────────────────────────────────────────
 
@@ -86,7 +203,10 @@ export const billingOrderHandler: RouteHandler = async (request, ctx) => {
     const body = await request.json() as Record<string, unknown>;
     const plan_id = String(body.plan_id);
 
-    if (plan_id !== 'free' && plan_id !== 'pro') {
+    if (!['free', 'pro', 'business'].includes(plan_id)) {
+      if (plan_id === 'enterprise') {
+        return jsonResponse(buildError('CONTACT_SALES', 'Enterprise plans require a custom contract. Contact billing@maplespike.lan.', bc), 400);
+      }
       return jsonResponse(buildError('BAD_REQUEST', 'Invalid plan', bc), 400);
     }
 
@@ -123,11 +243,13 @@ export const billingOrderStatusHandler: RouteHandler = async (request, ctx, para
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   const orderId = params?.[0];
 
-  // In-memory mock - replace with database query
+  const verified = getVerifiedOrder(orderId || '');
   return jsonResponse(buildSuccess({
     order_id: orderId,
-    status: 'pending',
-    created_at: Math.floor(Date.now() / 1000),
+    status: verified ? 'completed' : 'pending',
+    tier: verified?.tier || null,
+    plan_id: verified?.plan_id || null,
+    created_at: verified?.verified_at || Math.floor(Date.now() / 1000),
   }, bc));
 };
 
@@ -155,9 +277,40 @@ export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
     return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 
-  // Payment verification will be added later
-  return jsonResponse(buildSuccess({
-    verified: false,
-    message: 'Payment verification not yet implemented',
-  }, bc));
+  try {
+    const body = await request.json() as Record<string, unknown>;
+    const orderId = String(body.order_id || '');
+    const tenantId = String(body.tenant_id || '');
+    const planId = String(body.plan_id || '');
+
+    if (!orderId || !tenantId || !planId) {
+      return jsonResponse(buildError('BAD_REQUEST', 'order_id, tenant_id, and plan_id are required', bc), 400);
+    }
+
+    const plan = PLANS[planId];
+    if (!plan) {
+      return jsonResponse(buildError('BAD_REQUEST', `Unknown plan: ${planId}`, bc), 400);
+    }
+
+    const verified: VerifiedOrder = {
+      order_id: orderId,
+      tenant_id: tenantId,
+      plan_id: planId,
+      tier: plan.tier,
+      verified_at: Math.floor(Date.now() / 1000),
+    };
+    verifiedOrders.set(orderId, verified);
+    tenantTiers.set(tenantId, plan.tier);
+
+    return jsonResponse(buildSuccess({
+      verified: true,
+      order_id: orderId,
+      tenant_id: tenantId,
+      plan_id: planId,
+      tier: plan.tier,
+      message: `Payment verified. Tenant ${tenantId} upgraded to ${plan.tier} tier.`,
+    }, bc));
+  } catch {
+    return jsonResponse(buildError('BAD_REQUEST', 'Invalid request body', bc), 400);
+  }
 };

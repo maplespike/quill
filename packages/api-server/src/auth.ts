@@ -205,13 +205,20 @@ function authenticateWithJwt(
     }
   }
 
-  // Fallback: use the JWT payload directly if no user store entry
+  // Fallback: use the JWT payload directly if no user store entry.
+  // Decision 0002: NEVER use `payload.email` as tenant name. The
+  // plaintext email claim is discarded; we fall back to `sub` (an
+  // opaque user id from Astral-key).
   return {
       tenant: {
         id: payload.sub,
-        name: payload.email || payload.sub,
-        email: payload.email,
-        emailVerified: false,
+        name: payload.name || payload.preferred_username || payload.sub,
+        // OIDC issuers (Astral-key) MUST NOT include email claims —
+        // we hash defensively in case a misconfigured issuer slips
+        // through. Verified is set true only when the `email_verified`
+        // claim is explicitly present and truthy.
+        emailHash: payload.email ? `legacy:${payload.sub}` : undefined,
+        emailVerified: Boolean(payload.email_verified) || false,
         tier: payload.tier as Tenant['tier'],
         isActive: true,
         journalismMode: false,

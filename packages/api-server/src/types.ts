@@ -14,7 +14,13 @@ export type Tier = 'free' | 'pro' | 'business' | 'enterprise' | 'internal';
 export interface Tenant {
   id: string;
   name: string;
-  email?: string;
+  /**
+   * HMAC-SHA256(`MAPLESPIKE_PII_HASH_SECRET`, plaintext-email).
+   * Decision 0002: Maplespike never retains plaintext PII.
+   * The plaintext is consumed in-flight by the transactional
+   * mailer; only the hash is persisted.
+   */
+  emailHash?: string;
   emailVerified: boolean;
   verificationToken?: string;
   tier: Tier;
@@ -38,6 +44,7 @@ export interface GitHubProfile {
   id: number;
   login: string;
   name: string | null;
+  /** Plaintext at the OAuth provider — must be hashed before storage. */
   email: string | null;
   avatar_url: string | null;
   [key: string]: unknown;
@@ -45,7 +52,8 @@ export interface GitHubProfile {
 
 export interface User {
   id: string;
-  email: string | null;
+  /** HMAC-SHA256 of plaintext email — never the plaintext (Decision 0002). */
+  emailHash: string | null;
   githubId: string;
   githubLogin: string;
   githubName: string | null;

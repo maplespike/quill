@@ -1,5 +1,11 @@
 /**
  * Plain-text and HTML email templates for notification events.
+ *
+ * Decision 0002 (PII Avoidance): templates no longer accept or
+ * embed plaintext email. We render against an `unsubscribeToken`
+ * that's embedded in the verification mail; the user keeps that
+ * token offline to update preferences without our backend ever
+ * remembering the plaintext destination.
  */
 
 export interface EmailPayload {
@@ -11,19 +17,27 @@ export interface EmailPayload {
 
 /**
  * Build a notification email for a data change event.
+ *
+ * The caller passes the plaintext `to` for the actual SMTP
+ * delivery; once the mailer sends, the plaintext is gone from
+ * our process. The template references `unsubscribeToken` in
+ * place of the email in the unsubscribe link.
  */
 export function buildNotificationEmail(params: {
-  email: string;
+  to: string;
+  unsubscribeToken: string;
   label?: string;
   sourceId: string;
   eventType: string;
   summary: string;
   apiBaseUrl: string;
 }): EmailPayload {
-  const { email, label, sourceId, eventType, summary, apiBaseUrl } = params;
-  const displayName = label ?? email;
+  const { to, unsubscribeToken, label, sourceId, eventType, summary, apiBaseUrl } = params;
+  const displayName = label ?? to.split("@")[0] ?? "subscriber";
 
   const subject = `[MapleSpike] ${eventType}: ${sourceId}`;
+
+  const unsubUrl = `${apiBaseUrl}/v1/notifications/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
 
   const text = [
     `Hello ${displayName},`,
@@ -37,7 +51,7 @@ export function buildNotificationEmail(params: {
     `View details at ${apiBaseUrl}`,
     ``,
     `— MapleSpike Alerts`,
-    `Unsubscribe: ${apiBaseUrl}/v1/notifications/unsubscribe?email=${encodeURIComponent(email)}`,
+    `Unsubscribe: ${unsubUrl}`,
   ].join("\n");
 
   const html = [
@@ -55,12 +69,12 @@ export function buildNotificationEmail(params: {
     `  <p><a href="${escapeHtml(apiBaseUrl)}">View details →</a></p>`,
     `  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">`,
     `  <p style="font-size: 12px; color: #6b7280;">`,
-    `    MapleSpike Alerts — <a href="${escapeHtml(apiBaseUrl)}/v1/notifications/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a>`,
+    `    MapleSpike Alerts — <a href="${escapeHtml(unsubUrl)}">Unsubscribe</a>`,
     `  </p>`,
     `</div>`,
   ].join("\n");
 
-  return { to: email, subject, text, html };
+  return { to, subject, text, html };
 }
 
 function escapeHtml(str: string): string {
