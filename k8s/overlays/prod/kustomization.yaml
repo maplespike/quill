@@ -14,6 +14,11 @@ namespace: maplespike-prod
 
 resources:
   - ../../base
+  - postgres-init.yaml
+  - postgres-secret.yaml
+  - postgres-statefulset.yaml
+  - postgres-service.yaml
+  - configmap.yaml
 
 images:
   - name: maplespike-portal
