@@ -263,9 +263,22 @@ const isActive = (match: string) =>
           <div>
             <h3 class="mb-3 text-sm font-semibold">Company</h3>
             <ul class="space-y-2 text-sm text-muted-foreground">
+              <li>
+                {/* Cross-deployable link. Override brand hostname via PUBLIC_BRAND_URL at build time. */}
+                <a
+                  href={(import.meta.env.PUBLIC_BRAND_URL ?? "https://brand.maplespike.lan").replace(/\/$/, "")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="transition-colors hover:text-foreground inline-flex items-center gap-1.5"
+                >
+                  Brand story
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 17 17 7" />
+                    <path d="M7 7h10v10" />
+                  </svg>
+                </a>
+              </li>
               <li><a href="/blog" class="transition-colors hover:text-foreground">Blog</a></li>
-              <li><a href="/contact" class="transition-colors hover:text-foreground">Contact</a></li>
-              <li><a href="/citation" class="transition-colors hover:text-foreground">Citations</a></li>
             </ul>
           </div>
           <div>
@@ -274,7 +287,6 @@ const isActive = (match: string) =>
               <li><a href="/llms.txt" class="transition-colors hover:text-foreground">llms.txt</a></li>
               <li><a href="/llms-full.txt" class="transition-colors hover:text-foreground">llms-full.txt</a></li>
               <li><a href="/robots.txt" class="transition-colors hover:text-foreground">robots.txt</a></li>
-              <li><a href="/readme" class="transition-colors hover:text-foreground">README</a></li>
             </ul>
           </div>
         </div>

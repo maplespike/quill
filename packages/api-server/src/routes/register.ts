@@ -22,6 +22,11 @@ const log = pino({
 });
 
 
+// Decision 0002: registration accepts `email` but only the
+// `emailHash` is persisted. The plaintext is consumed once for
+// sending the verification mail and immediately discarded. We
+// never echo `email` back in the response.
+
 interface RegisterBody {
   name?: string;
   email?: string;
@@ -69,6 +74,11 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
       return jsonResponse(buildError('VALIDATION_ERROR', 'Invalid email format', ctx), 400);
     }
 
+    // Hash the plaintext email immediately. After this line,
+    // `emailHash` is the only durable artifact on our side.
+    const { hashPii } = await import('../auth/pii-hash.js');
+    const emailHash = hashPii(email);
+
     // Generate IDs
     const tenantId = generateId('tn');
     const keyId = generateId('key');
@@ -80,7 +90,7 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
     const tenant: Tenant = {
       id: tenantId,
       name,
-      email,
+      emailHash,
       emailVerified: false,
       verificationToken,
       tier: 'free',
@@ -90,16 +100,18 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
 
     await persistRegistration(ctx.db, tenant, keyHash, keyId);
 
-    // Send verification email (async, non-blocking)
+    // Send verification email (async, non-blocking). The
+    // plaintext email leaves us here and never returns.
     sendVerificationEmail({ to: email, name, token: verificationToken }).catch(err =>
       log.error({ requestId: ctx.requestId }, `Failed to send verification email: ${err}`)
     );
 
+    // Decision 0002: response echoes `emailVerified: false` but
+    // never the plaintext email. The hash is internal-only.
     return jsonResponse(buildSuccess({
       tenant: {
         id: tenant.id,
         name: tenant.name,
-        email: tenant.email,
         emailVerified: false,
         tier: tenant.tier,
       },
@@ -137,13 +149,11 @@ export const verifyHandler: RouteHandler = async (request, ctx, params) => {
       if (!result) {
         return jsonResponse(buildError('INVALID_TOKEN', 'Verification token not found or expired', ctx), 404);
       }
-      // Send welcome email after successful verification using the verified tenant
-      if (result.email) {
-        sendWelcomeEmail({
-          to: result.email,
-          name: result.name,
-        }).catch(err => log.error({ requestId: ctx.requestId }, `Failed to send welcome email: ${err}`));
-      }
+      // Decision 0002: result contains `emailHash` only. The
+      // original plaintext never returns from the verify path,
+      // so we cannot re-send a welcome email here. The user
+      // authenticates via Astral-key on next request and the
+      // verification flag is enough.
       return jsonResponse(buildSuccess({ verified: true, message: 'Email verified successfully.' }, ctx));
     }
 
@@ -169,11 +179,12 @@ export const meHandler: RouteHandler = async (_request, ctx) => {
 
     const limits = TIER_LIMITS[ctx.tenant.tier] || TIER_LIMITS.free;
 
+    // Decision 0002: response shape now omits `email`. The hash is
+    // internal-only and never leaks to API callers.
     return jsonResponse(buildSuccess({
       tenant: {
         id: ctx.tenant.id,
         name: ctx.tenant.name,
-        email: ctx.tenant.email,
         emailVerified: ctx.tenant.emailVerified,
         tier: ctx.tenant.tier,
         journalismMode: ctx.tenant.journalismMode,

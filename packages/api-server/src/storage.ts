@@ -24,7 +24,7 @@ export class D1Storage implements MapleSpikeStorage {
     const keyHash = await hashApiKey(rawKey);
 
     const row = await this.db.prepare(`
-      SELECT t.id AS tenant_id, t.name, t.email, t.tier, t.is_active, t.journalism_mode,
+      SELECT t.id AS tenant_id, t.name, t.email_hash, t.email_verified, t.tier, t.is_active, t.journalism_mode,
              k.id AS key_id, k.is_active AS key_active, k.expires_at
       FROM api_keys k
       JOIN tenants t ON t.id = k.tenant_id
@@ -47,7 +47,7 @@ export class D1Storage implements MapleSpikeStorage {
       tenant: {
         id: row.tenant_id as string,
         name: row.name as string,
-        email: row.email as string || undefined,
+        emailHash: row.email_hash as string || undefined,
         emailVerified: Boolean(row.email_verified),
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),

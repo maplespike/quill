@@ -1,109 +1,40 @@
+/**
+ * MapleSpike — Contact Form (Decision 0002 — DEPRECATED)
+ *
+ * The contact form used to collect `{ name, email, subject, message }`
+ * and email them to ops. That's a direct PII retention violation.
+ *
+ * All contact-form requests return 410 Gone. New paths forward
+ * the user to a public status page:
+ *
+ *   - GitHub issues (public, no email): https://github.com/...
+ *   - Public status: https://status.maplespike.ca
+ *   - Community chat: https://discord.gg/...
+ *
+ * Operators who genuinely need to reach a customer find them
+ * via their Astral-key JWT `sub` — never via an email channel.
+ *
+ * This module is kept to honour generic routers that import
+ * `contactHandler` and would otherwise 500 on a missing export.
+ */
+
 import type { RouteHandler } from '../types.js';
-import { buildSuccess, buildError, jsonResponse } from '../response.js';
-import { contactSchema, validateBody, validationError } from '../validation.js';
-import { sendContactEmail } from '../email.js';
-import pino from 'pino';
+import { buildError, jsonResponse } from '../response.js';
 
-const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
-});
+const DEPRECATION_BODY = {
+  deprecated: true,
+  decision_doc: '/docs/decisions/0002-pii-avoidance.md',
+  replacement_paths: {
+    github_issues: 'https://github.com/reverb256/maplespike/issues',
+    status:       'https://status.maplespike.ca',
+  },
+  message:
+    'MapleSpike never collects contact-form PII. Decision 0002 retired ' +
+    'POST /v1/contact. Open a GitHub issue or check the public status page.',
+};
 
-interface RateEntry {
-  timestamps: number[];
-}
-
-const ipRateMap = new Map<string, RateEntry>();
-const RATE_LIMIT = 5;
-const WINDOW_MS = 60 * 60 * 1000;
-const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
-const MAX_TRACKED_IPS = 10_000;
-
-function pruneOldEntries(): void {
-  const now = Date.now();
-  for (const [ip, entry] of ipRateMap) {
-    entry.timestamps = entry.timestamps.filter(t => now - t < WINDOW_MS);
-    if (entry.timestamps.length === 0) {
-      ipRateMap.delete(ip);
-    }
-  }
-}
-
-const cleanupTimer = setInterval(pruneOldEntries, CLEANUP_INTERVAL_MS);
-if (cleanupTimer.unref) {
-  cleanupTimer.unref();
-}
-
-function checkContactRate(ip: string): boolean {
-  const now = Date.now();
-  // Hard cap on tracked IPs to prevent unbounded memory growth
-  if (!ipRateMap.has(ip) && ipRateMap.size >= MAX_TRACKED_IPS) {
-    // Evict oldest entry when at capacity
-    let oldestIp: string | null = null;
-    let oldestTime = Infinity;
-    for (const [trackedIp, entry] of ipRateMap) {
-      const minTime = entry.timestamps.length > 0 ? Math.min(...entry.timestamps) : now;
-      if (minTime < oldestTime) {
-        oldestTime = minTime;
-        oldestIp = trackedIp;
-      }
-    }
-    if (oldestIp) ipRateMap.delete(oldestIp);
-  }
-  let entry = ipRateMap.get(ip);
-  if (!entry) {
-    entry = { timestamps: [] };
-    ipRateMap.set(ip, entry);
-  }
-  entry.timestamps = entry.timestamps.filter(t => now - t < WINDOW_MS);
-  if (entry.timestamps.length >= RATE_LIMIT) {
-    return false;
-  }
-  entry.timestamps.push(now);
-  return true;
-}
-
-export const contactHandler: RouteHandler = async (request, ctx) => {
-  try {
-    const ip = request.headers.get('cf-connecting-ip')
-      || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-      || 'unknown';
-
-    if (!checkContactRate(ip)) {
-      return jsonResponse(buildError('RATE_LIMITED', 'Too many contact submissions. Try again later.', ctx), 429);
-    }
-
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return jsonResponse(buildError('INVALID_BODY', 'Request body must be valid JSON', ctx), 400);
-    }
-
-    const parsed = validateBody(contactSchema, body);
-    if (!parsed.success) {
-      return validationError(parsed.error, ctx, parsed.issues);
-    }
-
-    const { name, email, subject, message } = parsed.data;
-
-    const config = ctx.env;
-    const contactTo = config.CONTACT_EMAIL || 'maplespike@reverb256.ca';
-
-    sendContactEmail({ to: contactTo, name, email, subject, message }).catch(err =>
-      log.error({ requestId: ctx.requestId }, `Failed to send email: ${err}`)
-    );
-
-    return jsonResponse(buildSuccess({
-      message: 'Thank you for your message. We will respond within one business day.',
-    }, ctx));
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Contact form submission failed';
-    log.error({ requestId: ctx.requestId }, `Contact error: ${message}`);
-    return jsonResponse(buildError('CONTACT_FAILED', message, ctx), 500);
-  }
+export const contactHandler: RouteHandler = async (_request, ctx) => {
+  return jsonResponse(buildError('CONTACT_DEPRECATED', DEPRECATION_BODY.message, ctx), 410);
 };
 
 export default contactHandler;

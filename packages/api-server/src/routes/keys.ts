@@ -9,6 +9,7 @@
 import type { RouteHandler, MapleSpikeStorage, Tenant } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
+import { canAccess } from '../feature-gates.js';
 
 /**
  * Extended storage with optional key management methods.
@@ -22,6 +23,13 @@ interface ExtendedStorage extends MapleSpikeStorage {
 }
 
 export const listKeysHandler: RouteHandler = async (_request, ctx) => {
+  // ── Feature gate: API key management requires Pro tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'API key management requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      ctx), 402);
+  }
+
   const keys = await ctx.db.listApiKeys(ctx.tenant.id);
   return jsonResponse(buildSuccess({
     keys,
@@ -30,6 +38,13 @@ export const listKeysHandler: RouteHandler = async (_request, ctx) => {
 };
 
 export const createKeyHandler: RouteHandler = async (_request, ctx) => {
+  // ── Feature gate: API key creation requires Pro tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'API key creation requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      ctx), 402);
+  }
+
   try {
     const { rawKey, keyHash } = await generateApiKey();
     const keyId = 'key_' + Array.from(new Uint8Array(16))
@@ -58,6 +73,13 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
 };
 
 export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
+  // ── Feature gate: API key revocation requires Pro tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'API key revocation requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      ctx), 402);
+  }
+
   const keyId = params.id;
   if (!keyId) {
     return jsonResponse(buildError('MISSING_KEY_ID', 'Key ID is required', ctx), 400);
@@ -86,6 +108,13 @@ export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
  * Returns the new key — shown once only (zero-knowledge)
  */
 export const rotateKeyHandler: RouteHandler = async (_request, ctx, params) => {
+  // ── Feature gate: key rotation requires Pro tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'Key rotation requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      ctx), 402);
+  }
+
   const keyId = params.id;
   if (!keyId) {
     return jsonResponse(buildError('MISSING_KEY_ID', 'Key ID is required', ctx), 400);

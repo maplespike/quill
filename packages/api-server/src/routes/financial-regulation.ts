@@ -1,5 +1,6 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
+import { canAccess } from '../feature-gates.js';
 
 const SAMPLE_FINREG = [
   { source: 'osfi', title: 'OSFI Regulatory Data', description: 'Financial institution regulatory filings and capital adequacy', regulator: 'OSFI', jurisdiction: 'federal', category: 'banking' },
@@ -20,6 +21,13 @@ export const finRegDataHandler: RouteHandler = async (request, ctx) => {
 };
 
 export const finRegCrossRefHandler: RouteHandler = async (request, ctx) => {
+  // ── Feature gate: cross-reference reports require Business tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'crossReferenceReports')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'Cross-reference reports require a Business plan or higher. Upgrade at maplespike.lan/billing.',
+      ctx), 402);
+  }
+
   const url = new URL(request.url);
   const institution = url.searchParams.get('institution');
   return jsonResponse(buildSuccess({

@@ -1,3 +1,11 @@
+/**
+ * Mailer + SubscriptionStore + Watcher tests (Decision 0002)
+ *
+ * Test fixtures updated to the new PII-free `Subscription`
+ * interface: `plaintextContact` (consumed in-flight), `subjectHash`
+ * (persisted), and `unsubscribeToken` (user-held opaque).
+ */
+
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import Database from "better-sqlite3";
@@ -25,12 +33,13 @@ function makeDb(): Database.Database {
   const db = new Database(":memory:");
   db.exec(`
     CREATE TABLE IF NOT EXISTS notification_subscriptions (
-      id TEXT PRIMARY KEY,
-      email TEXT NOT NULL,
+      id TEXT PRIMARY KEY NOT NULL,
+      subject_hash TEXT NOT NULL,
       source_filter TEXT NOT NULL DEFAULT '[]',
       event_types TEXT NOT NULL DEFAULT '[]',
       active INTEGER NOT NULL DEFAULT 1,
       label TEXT,
+      unsubscribe_token TEXT NOT NULL UNIQUE,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -53,12 +62,13 @@ describe("Mailer (dry-run)", () => {
   let mailer: Mailer;
 
   beforeEach(() => {
-    mailer = new Mailer(testConfig, true); // dry-run mode
+    mailer = new Mailer(testConfig, true);
   });
 
   it("sends notification in dry-run mode without SMTP", async () => {
     const result = await mailer.sendNotification({
-      email: "test@example.com",
+      to: "test@example.com",
+      unsubscribeToken: "tok-test-1",
       label: "Test User",
       sourceId: "statcan-gdp",
       eventType: "data_update",
@@ -68,15 +78,17 @@ describe("Mailer (dry-run)", () => {
     assert.ok(result.messageId?.startsWith("dry-run-"));
   });
 
-  it("returns success for empty email", async () => {
+  it("rejects empty `to` even in dry-run mode", async () => {
     const result = await mailer.sendNotification({
-      email: "",
+      to: "",
+      unsubscribeToken: "tok-test-2",
       sourceId: "test",
       eventType: "update",
       summary: "test",
     });
-    // dry-run always succeeds
-    assert.ok(result.success);
+    // Even in dry-run mode, an empty destination is rejected
+    // (no notification should leak from upstream).
+    assert.equal(result.success, false);
   });
 });
 
@@ -95,46 +107,52 @@ describe("SubscriptionStore", () => {
 
   it("creates a subscription and retrieves it", () => {
     const sub = store.create({
-      email: "user@example.com",
+      plaintextContact: "user@example.com",
       sourceFilter: ["statcan-gdp", "cer-monthly"],
       eventTypes: ["data_update"],
       label: "Econ Watcher",
     });
 
     assert.ok(sub.id);
-    assert.equal(sub.email, "user@example.com");
+    // Decision 0002: subjectHash is exposed, plaintext is not.
+    assert.match(sub.subjectHash, /^[0-9a-f]{64}$/);
     assert.deepEqual(sub.sourceFilter, ["statcan-gdp", "cer-monthly"]);
     assert.deepEqual(sub.eventTypes, ["data_update"]);
     assert.equal(sub.active, true);
     assert.equal(sub.label, "Econ Watcher");
+    assert.match(sub.unsubscribeToken, /^[0-9a-f]{48}$/);
 
     const fetched = store.getById(sub.id);
     assert.ok(fetched);
-    assert.equal(fetched!.email, "user@example.com");
+    assert.equal(fetched!.subjectHash, sub.subjectHash);
+  });
+
+  it("generates a unique unsubscribe token per subscription", () => {
+    const a = store.create({ plaintextContact: "a@example.com", sourceFilter: [], eventTypes: [] });
+    const b = store.create({ plaintextContact: "b@example.com", sourceFilter: [], eventTypes: [] });
+    assert.notEqual(a.unsubscribeToken, b.unsubscribeToken);
   });
 
   it("lists active subscriptions", () => {
-    store.create({ email: "a@example.com", sourceFilter: [], eventTypes: [] });
-    store.create({ email: "b@example.com", sourceFilter: ["statcan-gdp"], eventTypes: [] });
+    store.create({ plaintextContact: "a@example.com", sourceFilter: [], eventTypes: [] });
+    store.create({ plaintextContact: "b@example.com", sourceFilter: ["statcan-gdp"], eventTypes: [] });
 
     const all = store.listActive();
     assert.equal(all.length, 2);
   });
 
   it("filters by source ID", () => {
-    store.create({ email: "a@example.com", sourceFilter: ["statcan-gdp"], eventTypes: [] });
-    store.create({ email: "b@example.com", sourceFilter: ["cer-monthly"], eventTypes: [] });
-    store.create({ email: "c@example.com", sourceFilter: [], eventTypes: [] }); // wildcard
+    store.create({ plaintextContact: "a@example.com", sourceFilter: ["statcan-gdp"], eventTypes: [] });
+    store.create({ plaintextContact: "b@example.com", sourceFilter: ["cer-monthly"], eventTypes: [] });
+    store.create({ plaintextContact: "c@example.com", sourceFilter: [], eventTypes: [] });
 
     const matches = store.listActive("statcan-gdp");
-    // SQLite json_array_contains may not exist; this test may return all if function unsupported
-    // At minimum, wildcard subscription should match
     assert.ok(matches.length >= 1);
   });
 
   it("updates a subscription", () => {
     const sub = store.create({
-      email: "user@example.com",
+      plaintextContact: "user@example.com",
       sourceFilter: [],
       eventTypes: [],
     });
@@ -146,7 +164,7 @@ describe("SubscriptionStore", () => {
   });
 
   it("deletes a subscription", () => {
-    const sub = store.create({ email: "user@example.com", sourceFilter: [], eventTypes: [] });
+    const sub = store.create({ plaintextContact: "user@example.com", sourceFilter: [], eventTypes: [] });
     const deleted = store.delete(sub.id);
     assert.equal(deleted, true);
     assert.equal(store.getById(sub.id), undefined);
@@ -154,7 +172,7 @@ describe("SubscriptionStore", () => {
 
   it("matches subscription by source and event type", () => {
     const sub = store.create({
-      email: "user@example.com",
+      plaintextContact: "user@example.com",
       sourceFilter: ["statcan-gdp"],
       eventTypes: ["data_update"],
     });
@@ -166,7 +184,7 @@ describe("SubscriptionStore", () => {
 
   it("wildcard subscription matches all sources and events", () => {
     const sub = store.create({
-      email: "wild@example.com",
+      plaintextContact: "wild@example.com",
       sourceFilter: [],
       eventTypes: [],
     });
@@ -192,7 +210,7 @@ describe("Watcher", () => {
 
   it("poll detects changes and creates events", async () => {
     store.create({
-      email: "user@example.com",
+      plaintextContact: "user@example.com",
       sourceFilter: ["statcan-gdp"],
       eventTypes: ["data_update"],
     });
@@ -220,7 +238,6 @@ describe("Watcher", () => {
     assert.equal(result.delivered, 1);
     assert.equal(result.failed, 0);
 
-    // Verify event was recorded in DB
     const events = db.prepare("SELECT * FROM notification_events WHERE status = 'delivered'").all() as Record<string, unknown>[];
     assert.equal(events.length, 1);
     assert.equal(events[0].source_id, "statcan-gdp");
@@ -228,7 +245,7 @@ describe("Watcher", () => {
 
   it("poll with no matching subscriptions creates no events", async () => {
     store.create({
-      email: "user@example.com",
+      plaintextContact: "user@example.com",
       sourceFilter: ["other-source"],
       eventTypes: [],
     });
@@ -270,12 +287,11 @@ describe("Watcher", () => {
 
   it("poll records failed delivery", async () => {
     store.create({
-      email: "user@example.com",
+      plaintextContact: "user@example.com",
       sourceFilter: [],
       eventTypes: [],
     });
 
-    // Create a mailer that always fails
     const failMailer = new Mailer(testConfig, true);
     failMailer.sendNotification = async () => ({ success: false, error: "SMTP down" });
 

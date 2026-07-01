@@ -7,8 +7,16 @@
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { TIER_LIMITS } from '../types.js';
+import { canAccess } from '../feature-gates.js';
 
 export const usageHandler: RouteHandler = async (_request, ctx) => {
+  // ── Feature gate: usage analytics require Business tier or higher ──
+  if (!canAccess(ctx.tenant.tier, 'usageAnalytics')) {
+    return jsonResponse(buildError('UPGRADE_REQUIRED',
+      'Usage analytics require a Business plan or higher. Upgrade at maplespike.lan/billing.',
+      ctx), 402);
+  }
+
   try {
     const now = new Date();
     const date = now.toISOString().slice(0, 10);
