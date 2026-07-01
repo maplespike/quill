@@ -31,11 +31,9 @@ interface AuthState {
 
 function getApiBase(): string {
   if (typeof window !== "undefined") {
-    // Prefer explicit config
     if (window.MAPLESPIKE?.apiBase) {
       return window.MAPLESPIKE.apiBase;
     }
-    // Derive from hostname: api.<domain>
     const host = window.location.hostname;
     const parts = host.split(".");
     let baseDomain;
@@ -62,7 +60,6 @@ function setAuthState(token: string, userId: string, method: string) {
   localStorage.setItem("maplespike_token", token);
   localStorage.setItem("maplespike_userId", userId);
   localStorage.setItem("maplespike_method", method);
-  // Sync global nav
   if (typeof window !== "undefined" && window.MapleSpikeAuth) {
     window.MapleSpikeAuth.setAuth(token, userId, method);
   }
@@ -72,6 +69,8 @@ function clearAuthState() {
   localStorage.removeItem("maplespike_token");
   localStorage.removeItem("maplespike_userId");
   localStorage.removeItem("maplespike_method");
+  localStorage.removeItem("maplespike-api-key");
+  localStorage.removeItem("maplespike_oidc_token");
   if (typeof window !== "undefined" && window.MapleSpikeAuth) {
     window.MapleSpikeAuth.logout();
   }
@@ -163,12 +162,47 @@ export default function SignupForm() {
       if (!completeData.success) throw new Error(completeData.error?.message || "Registration failed");
 
       const { apiKey } = completeData.data;
-      if (apiKey) {
-        setAuthState(apiKey.key, userId, "passkey");
-        setAuth({ token: apiKey.key, userId, method: "passkey" });
-      } else {
-        setAuthState("", userId, "passkey");
-        setAuth({ token: null, userId, method: "passkey" });
+
+      // Store API key for API calls
+      if (apiKey?.key) {
+        localStorage.setItem("maplespike-api-key", apiKey.key);
+      }
+
+      // Immediately log in with the passkey to get a JWT for Convex auth.
+      setBusy("passkey-login");
+      try {
+        const loginBeginResp = await fetch(`${base}/v1/auth/passkey/login/begin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+        const loginBeginData = await loginBeginResp.json();
+        if (!loginBeginData.success) throw new Error(loginBeginData.error?.message || "Login begin failed");
+
+        const { options: loginOptions, loginId } = loginBeginData.data;
+
+        // Step 2: Authenticate with the newly created passkey
+        const authCredential = await startAuthentication({ optionsJSON: loginOptions as PublicKeyCredentialRequestJSON });
+
+        // Step 3: Complete login → get JWT
+        const loginCompleteResp = await fetch(`${base}/v1/auth/passkey/login/complete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ loginId, credential: authCredential }),
+        });
+        const loginCompleteData = await loginCompleteResp.json();
+        if (!loginCompleteData.success) throw new Error(loginCompleteData.error?.message || "Login after registration failed");
+
+        const { token } = loginCompleteData.data;
+        // Store JWT as maplespike_token for ConvexProvider OIDC exchange
+        setAuthState(token, userId, "passkey");
+        setAuth({ token, userId, method: "passkey" });
+      } catch {
+        // Login after registration failed — store API key as fallback.
+        // Convex features won't work until the user signs in with their passkey.
+        const fallbackToken = apiKey?.key || "";
+        setAuthState(fallbackToken, userId, "passkey");
+        setAuth({ token: fallbackToken, userId, method: "passkey" });
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Passkey registration failed");
@@ -185,7 +219,6 @@ export default function SignupForm() {
     try {
       const base = getApiBase();
 
-      // Step 1: Begin login
       const beginResp = await fetch(`${base}/v1/auth/passkey/login/begin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -196,10 +229,8 @@ export default function SignupForm() {
 
       const { options, loginId } = beginData.data;
 
-      // Step 2: Browser authenticates
       const credential = await startAuthentication({ optionsJSON: options as PublicKeyCredentialRequestJSON });
 
-      // Step 3: Complete login
       const completeResp = await fetch(`${base}/v1/auth/passkey/login/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -228,7 +259,6 @@ export default function SignupForm() {
 
       const base = getApiBase();
 
-      // Connect wallet
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       const address = accounts[0];
       if (!address) throw new Error("No account returned from wallet");
@@ -236,7 +266,6 @@ export default function SignupForm() {
       const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
       const chainId = parseInt(chainIdHex, 16);
 
-      // Step 1: Get challenge
       const challengeResp = await fetch(`${base}/v1/auth/web3/challenge`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -247,13 +276,11 @@ export default function SignupForm() {
 
       const { message } = challengeData.data;
 
-      // Step 2: Sign with wallet
       const signature = await window.ethereum.request({
         method: "personal_sign",
         params: [message, address],
       });
 
-      // Step 3: Verify and login
       const loginResp = await fetch(`${base}/v1/auth/web3/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -288,7 +315,6 @@ export default function SignupForm() {
   /*  Render                                                            */
   /* ------------------------------------------------------------------ */
 
-  // Logged-in state
   if (authState.token || authState.method === "passkey") {
     return (
       <Card>
@@ -340,7 +366,6 @@ export default function SignupForm() {
     );
   }
 
-  // Auth form
   return (
     <Card>
       <CardHeader>
@@ -358,7 +383,6 @@ export default function SignupForm() {
           </div>
         )}
 
-        {/* Passkey section */}
         {webAuthnSupported && (
           <div className="space-y-3">
             <Button
@@ -366,9 +390,9 @@ export default function SignupForm() {
               disabled={busy !== null}
               onClick={handlePasskeyRegister}
             >
-              {busy === "passkey-register" ? (
+              {busy !== null ? (
                 <span className="flex items-center gap-2">
-                  <Spinner /> Creating passkey...
+                  <Spinner /> {busy === "passkey-register" ? "Creating passkey..." : "Completing setup..."}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
@@ -396,7 +420,6 @@ export default function SignupForm() {
           </div>
         )}
 
-        {/* Divider */}
         {(webAuthnSupported || hasWallet) && providers.length > 0 && (
           <div className="flex items-center gap-3 py-4">
             <Separator className="flex-1" />
@@ -405,7 +428,6 @@ export default function SignupForm() {
           </div>
         )}
 
-        {/* Web3 section */}
         {hasWallet && (
           <div className="space-y-3">
             <Button
@@ -427,7 +449,6 @@ export default function SignupForm() {
           </div>
         )}
 
-        {/* OAuth section */}
         {!loading && providers.length > 0 && (
           <>
             {(webAuthnSupported || hasWallet) && (
@@ -453,7 +474,6 @@ export default function SignupForm() {
           </>
         )}
 
-        {/* Loading / error states */}
         {loading && (
           <div className="py-8 text-center text-sm text-muted-foreground">
             Loading sign-in options...
