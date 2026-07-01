@@ -1,0 +1,98 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  ci:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  build-push-images:
+    name: Build & Push Docker Images
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/prod'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build portal image
+        run: |
+          docker build -t ghcr.io/reverb256/maplespike-portal:stable -f Dockerfile.portal .
+          docker push ghcr.io/reverb256/maplespike-portal:stable
+
+      - name: Build API image
+        run: |
+          docker build -t ghcr.io/reverb256/maplespike-api:stable -f Dockerfile.api .
+          docker push ghcr.io/reverb256/maplespike-api:stable
+
+  deploy-prod:
+    name: Deploy to maplespike-prod
+    needs: build-push-images
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/prod'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
+
+      - name: Create PostgreSQL deployment
+        run: |
+          kubectl apply -f k8s/overlays/prod/postgres.yaml -n maplespike-prod
+
+      - name: Apply prod overlay
+        run: |
+          kubectl apply -k k8s/overlays/prod/
+
+      - name: Wait for PostgreSQL
+        run: |
+          kubectl rollout status statefulset/postgres -n maplespike-prod --timeout=5m
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/maplespike-api -n maplespike-prod --timeout=5m
+          kubectl rollout status deployment/maplespike-portal -n maplespike-prod --timeout=5m
+
+      - name: Smoke test
+        run: |
+          # Wait a bit for services to be ready
+          sleep 30
+          kubectl run smoke-test --image=curlimages/curl:latest --rm -i --restart=Never -- \
+            curl -f http://maplespike-api.maplespike-prod.svc.cluster.local:8082/v1/health
