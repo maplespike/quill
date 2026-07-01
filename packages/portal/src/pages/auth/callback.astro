@@ -75,10 +75,16 @@ if (Astro.url.searchParams.has("error")) {
       if (!apiBase && typeof window !== "undefined") {
         const host = window.location.hostname;
         const parts = host.split(".");
-        const base =
-          parts.length > 2 && ["api", "portal", "www", "dev"].includes(parts[0])
-            ? parts.slice(1).join(".")
-            : host;
+        const knownSubdomains = ["api", "portal", "www", "dev", "mcp", "data"];
+        let base: string;
+        if (parts.length > 2 && knownSubdomains.includes(parts[0])) {
+          base = parts.slice(1).join(".");
+        } else if (parts.length > 2) {
+          // Unrecognized subdomain — strip it anyway
+          base = parts.slice(-2).join(".");
+        } else {
+          base = host;
+        }
         apiBase = `${window.location.protocol}//api.${base}`;
       }
       if (!apiBase) apiBase = "https://api.maplespike.lan";

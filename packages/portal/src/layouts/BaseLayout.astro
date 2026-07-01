@@ -11,7 +11,7 @@ export interface Props {
 
 const {
   title,
-  description = "MapleSpike — Canada's Government Data Intelligence Layer",
+  description = "Give your AI chatbot superpowers with Canadian government data — committees, lobbying, court cases, regulations, and more. 174 MCP tools, free tier available.",
   // Default social card image
   ogImage = '/og-image.svg',
   lang = "en",
@@ -20,11 +20,11 @@ const canonical = `${Astro.site?.href ?? "https://maplespike.lan"}${Astro.url.pa
 const pathname = Astro.url.pathname;
 const navLinks = [
   { href: "/", label: "Home", match: "/" },
-  { href: "/explorer", label: "Explore", match: "/explorer" },
+  { href: "/explorer", label: "Data Explorer", match: "/explorer" },
+  { href: "/agents", label: "AI Setup", match: "/agents" },
   { href: "/dashboard", label: "Dashboard", match: "/dashboard" },
   { href: "/pricing", label: "Pricing", match: "/pricing" },
   { href: "/docs", label: "Docs", match: "/docs" },
-  { href: "/blog", label: "Blog", match: "/blog" },
 ];
 const isActive = (match: string) =>
   match === "/" ? pathname === "/" : pathname.startsWith(match);
@@ -232,7 +232,7 @@ const isActive = (match: string) =>
               <span class="text-lg font-bold tracking-tight">MapleSpike</span>
             </a>
             <p class="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Canada's government data intelligence layer — unified, cited, and verifiable.
+              Give your AI chatbot access to all Canadian government data — 174 MCP tools, cited and verifiable.
             </p>
           </div>
           <div>
