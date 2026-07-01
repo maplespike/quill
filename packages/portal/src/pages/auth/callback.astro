@@ -68,7 +68,7 @@ if (Astro.url.searchParams.has("error")) {
         return;
       }
 
-      // Resolve API base (same logic as SignupForm and ConvexProvider)
+      // Resolve API base (same logic as SignupForm)
       const cfg =
         typeof window !== "undefined" ? window.MAPLESPIKE || {} : {};
       let apiBase = cfg.apiBase;
@@ -92,7 +92,7 @@ if (Astro.url.searchParams.has("error")) {
           return data.data;
         })
         .then((payload) => {
-          // Store JWT as maplespike_token; ConvexProvider can exchange it for OIDC
+          // Store JWT as maplespike_token
           const token = payload?.token;
           if (!token) {
             setError("No token in response.");

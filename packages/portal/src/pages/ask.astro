@@ -2,8 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import MapleSpikeConvexProvider from "@/components/ConvexProvider";
-import ConvexAgentChat from "@/components/dashboard/ConvexChat";
+import AgentChat from "@/components/dashboard/AgentChat";
 ---
 
 <BaseLayout title="Ask" description="Ask natural language questions about Canadian government data. AI-powered answers with verified citations.">
@@ -15,7 +14,7 @@ import ConvexAgentChat from "@/components/dashboard/ConvexChat";
         Ask&nbsp;<span class="text-gradient">MapleSpike</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-        Natural language queries across 144 government data modules. Every answer includes
+        Natural language queries across 206 government data modules. Every answer includes
         verified citations and SHA-256 source hashes.
       </p>
     </div>
@@ -30,10 +29,8 @@ import ConvexAgentChat from "@/components/dashboard/ConvexChat";
           <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground hover:text-foreground" data-asktab="history">History</button>
         </div>
         <div class="ask-tab-panel" data-asktab="ask">
-          <!-- Convex-powered agent chat with persistent thread memory -->
-          <MapleSpikeConvexProvider client:load>
-            <ConvexAgentChat client:load />
-          </MapleSpikeConvexProvider>
+          <!-- Edge AI worker chat — direct fetch to /v1/ai/ask -->
+          <AgentChat client:load />
         </div>
         <div class="ask-tab-panel hidden" data-asktab="history">
           <Card>
@@ -44,7 +41,7 @@ import ConvexAgentChat from "@/components/dashboard/ConvexChat";
             <CardContent>
               <div id="history-list" class="space-y-3">
                 <p class="text-sm text-muted-foreground text-center py-8">
-                  Thread history is now managed via Convex. Sign in to view your past conversations.
+                  Chat history is stored locally in your browser. Sign in to start a conversation.
                 </p>
               </div>
             </CardContent>
