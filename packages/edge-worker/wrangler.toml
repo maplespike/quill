@@ -1,0 +1,55 @@
+# MapleSpike Edge AI Worker
+# Deploy with: npx wrangler deploy --config packages/edge-worker/wrangler.toml
+#
+# Architecture:
+#   Workers AI (free ~10K neurons/day) -> primary inference on Cloudflare edge
+#   Homelab k3s (Qwen3.5-4B)           -> fallback when Workers AI fails
+#   KV (api-keys)                      -> hashed API key -> tenant lookup
+#   KV (rate-limit)                    -> sliding window per-tenant throttling
+#   D1 (audit)                         -> full request audit log with PII redaction
+#   AI Gateway                         -> response caching + usage analytics
+#
+# Free tier limits (all within Cloudflare free plan):
+#   Workers AI:   ~10,000 neurons/day (covers ~5K small chat queries)
+#   KV:           100K reads/day, 1K writes/day
+#   D1:           5M reads/day, 100K writes/day (audit logging)
+#   Workers:      100K requests/day
+
+name = "maplespike-ai"
+main = "src/ai-worker.ts"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── AI Binding (Workers AI) ─────────────────────────────────────────────
+[ai]
+binding = "AI"
+
+# ── AI Gateway (caching + analytics) ────────────────────────────────────
+[ai_gateway]
+gateway_id = "maplespike"
+
+# ── KV Namespaces ───────────────────────────────────────────────────────
+[[kv_namespaces]]
+binding = "API_KEYS"
+id = "REPLACE_WITH_KV_ID"  # maplespike-api-keys namespace
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_KV_ID"  # maplespike-rate-limit namespace
+
+# ── D1 Database ─────────────────────────────────────────────────────────
+[[d1_databases]]
+binding = "AUDIT_DB"
+database_name = "maplespike-audit"
+database_id = "REPLACE_WITH_D1_ID"
+
+# ── Routes ──────────────────────────────────────────────────────────────
+# Routes on maplespike.ca zone:
+#   api.maplespike.ca/v1/ai/*  -> this worker (AI endpoints)
+#   api.maplespike.ca/v1/*     -> homelab tunnel (data endpoints)
+
+# ── Secrets (set via: npx wrangler secret put) ──────────────────────────
+# HOMELAB_API_URL    — https://api.maplespike.ca (tunnel URL for homelab)
+# HOMELAB_API_KEY    — MapleSpike API key for homelab auth
+# JWT_SIGNING_KEY    — HMAC key for signing tenant context
+# PII_HASH_SECRET    — Salt for hashing PII in audit logs

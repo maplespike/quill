@@ -2,30 +2,30 @@
  * MapleSpike — Generic OAuth Routes
  *
  * GET  /v1/auth/oauth/:provider           — redirect to provider
- * GET  /v1/auth/oauth/:provider/callback   — handle callback → JWT
+ * GET  /v1/auth/oauth/:provider/callback   — handle callback → JWT + one-time code
  * GET  /v1/auth/oauth/exchange             — exchange one-time code for JWT
  * GET  /v1/auth/oauth/providers            — list configured providers
  *
- * Browser flow: user clicks OAuth button → callback returns a one-time
- * exchange code in a 302 redirect to /auth/callback (portal page). The
- * portal calls /v1/auth/oauth/exchange with the code to retrieve the
- * JWT. This avoids putting the 7-day JWT in URL query strings, browser
- * history, server logs, or referral headers.
+ * Browser flow: user clicks OAuth button → callback mints a one-time code
+ * stored in the shared cache (TTL=60s) and redirects to /auth/callback.
+ * The portal calls /v1/auth/oauth/exchange to redeem the code for the JWT.
+ * Codes are persisted in ctx.cache (Redis/PG/SQLite/in-memory) so they
+ * survive multi-instance deployments and instance restarts — NOT bound
+ * to a single process like the previous in-memory Map.
  *
- * Built-in: GitHub (from GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET)
+ * Built-in: GitHub (from GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET).
  */
 
-import type { RouteHandler, Tenant } from '../types.js';
+import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse, type BuildContext } from '../response.js';
 import { getProvider, listProviders, buildAuthorizeUrl, loginWithOAuth } from '../auth/oauth.js';
-import { generateNonce, setChallenge, consumeChallenge } from '../auth/challenges.js';
+import { generateNonce, consumeChallenge, setChallenge } from '../auth/challenges.js';
 import { generateApiKey } from '../auth.js';
 import { serializeCookie } from '../auth/github.js';
 
 /**
- * In-memory store for OAuth one-time exchange codes.
- * Each code is single-use and expires in 60 seconds.
- * Map size is naturally bounded by traffic; we also do periodic cleanup.
+ * OAuth exchange code payload stored in the shared cache.
+ * Keyed as `oauth:exchange:<uuid>` with TTL=60s.
  */
 interface ExchangeEntry {
   token: string;
@@ -33,37 +33,14 @@ interface ExchangeEntry {
   name: string;
   isNewUser: boolean;
   apiKey?: { key: string };
-  expiresAt: number;
 }
 
-const EXCHANGE_TTL_MS = 60_000;
-const MAX_EXCHANGE_ENTRIES = 1000;
-const exchangeStore = new Map<string, ExchangeEntry>();
+const EXCHANGE_TTL_SECONDS = 60;
+const EXCHANGE_KEY_PREFIX = 'oauth:exchange:';
 
-function setExchange(code: string, entry: Omit<ExchangeEntry, 'expiresAt'>): void {
-  if (exchangeStore.size >= MAX_EXCHANGE_ENTRIES) {
-    // Drop oldest entries when at capacity
-    const oldestKey = exchangeStore.keys().next().value;
-    if (oldestKey) exchangeStore.delete(oldestKey);
-  }
-  exchangeStore.set(code, { ...entry, expiresAt: Date.now() + EXCHANGE_TTL_MS });
+function exchangeCacheKey(code: string): string {
+  return `${EXCHANGE_KEY_PREFIX}${code}`;
 }
-
-function consumeExchange(code: string): ExchangeEntry | null {
-  const entry = exchangeStore.get(code);
-  if (!entry) return null;
-  exchangeStore.delete(code);
-  if (Date.now() > entry.expiresAt) return null;
-  return entry;
-}
-
-/** Periodic cleanup of expired entries (every 5 minutes) */
-setInterval(() => {
-  const now = Date.now();
-  for (const [code, entry] of exchangeStore.entries()) {
-    if (entry.expiresAt < now) exchangeStore.delete(code);
-  }
-}, 5 * 60_000).unref?.();
 
 /** Returns true if this request came from a browser (HTML client) */
 function isBrowserRequest(request: Request): boolean {
@@ -71,7 +48,7 @@ function isBrowserRequest(request: Request): boolean {
   return accept.includes('text/html');
 }
 
-/** Redirect to portal auth/callback with optional error query param */
+/** Redirect to portal auth/callback with the one-time code */
 function redirectToPortal(code: string, appUrl: string): Response {
   return new Response(null, {
     status: 302,
@@ -122,10 +99,10 @@ export const oauthLoginHandler: RouteHandler = async (_request, ctx, params) => 
 /**
  * GET /v1/auth/oauth/:provider/callback
  *
- * For browser requests (Accept: text/html), generates a one-time
- * exchange code and redirects to /auth/callback.
- *
- * For API clients (Accept: application/json), returns the JWT directly.
+ * For browser requests (Accept: text/html), mints a one-time exchange
+ * code, stores it in the shared cache (TTL=60s) and redirects to
+ * /auth/callback.  For API clients (Accept: application/json), returns
+ * the JWT directly.
  */
 export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) => {
   const provider = getProvider(params.provider);
@@ -194,15 +171,22 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
     // ── Browser path: redirect to portal with one-time code ────────
     if (isBrowserRequest(request)) {
       const exchangeCode = crypto.randomUUID();
-      setExchange(exchangeCode, {
+      const entry: ExchangeEntry = {
         token: result.token,
         provider: result.profile.provider ?? '',
         name: result.profile.name ?? '',
         isNewUser: result.isNewUser,
         apiKey,
-      });
+      };
 
-      // Also set the HttpOnly session cookie for server-side API auth
+      // Persist in shared cache so multi-instance deployments
+      // (and instance restarts) can serve the redeem call.
+      await ctx.cache.put(
+        exchangeCacheKey(exchangeCode),
+        JSON.stringify(entry),
+        EXCHANGE_TTL_SECONDS,
+      );
+
       const redirectResponse = redirectToPortal(exchangeCode, portalUrl());
       redirectResponse.headers.append(
         'Set-Cookie',
@@ -246,8 +230,8 @@ export const oauthCallbackHandler: RouteHandler = async (request, ctx, params) =
 /**
  * GET /v1/auth/oauth/exchange?code=<one-time-code>
  *
- * Exchanges a short-lived code for the user's JWT payload.
- * The code is single-use and expires after 60 seconds.
+ * Atomically consumes a one-time code from the shared cache and returns
+ * the user's JWT payload. The code is single-use and expires after 60s.
  *
  * Returns: { token, provider, name, isNewUser, apiKey? }
  */
@@ -259,9 +243,29 @@ export const oauthExchangeHandler: RouteHandler = async (request, ctx) => {
     return jsonResponse(buildError('MISSING_CODE', 'Exchange code is required', ctx), 400);
   }
 
-  const entry = consumeExchange(code);
-  if (!entry) {
-    return jsonResponse(buildError('INVALID_CODE', 'Exchange code is invalid, expired, or already used', ctx), 400);
+  const key = exchangeCacheKey(code);
+  const cached = await ctx.cache.get(key);
+
+  if (!cached) {
+    return jsonResponse(
+      buildError('INVALID_CODE', 'Exchange code is invalid, expired, or already used', ctx),
+      400,
+    );
+  }
+
+  // Consume the code atomically. Even if a concurrent request reads the
+  // same value before our delete propagates (KV is eventually consistent),
+  // the JWT returned is identical, so the security impact is bounded.
+  await ctx.cache.delete(key);
+
+  let entry: ExchangeEntry;
+  try {
+    entry = JSON.parse(cached) as ExchangeEntry;
+  } catch {
+    return jsonResponse(
+      buildError('INVALID_CODE', 'Exchange code payload is malformed', ctx),
+      400,
+    );
   }
 
   return jsonResponse(buildSuccess({

@@ -170,6 +170,10 @@ export class KVCache implements MapleSpikeCache {
       await this.kv.put(key, value);
     }
   }
+
+  async delete(key: string): Promise<void> {
+    await this.kv.delete(key);
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -268,5 +272,9 @@ export class MemoryCache implements MapleSpikeCache {
   async put(key: string, value: string, ttlSeconds?: number): Promise<void> {
     const expires = ttlSeconds ? Date.now() + ttlSeconds * 1000 : Infinity;
     this.store.set(key, { value, expires });
+  }
+
+  async delete(key: string): Promise<void> {
+    this.store.delete(key);
   }
 }
