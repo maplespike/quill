@@ -44,7 +44,7 @@ export function createUser(githubProfile: GitHubProfile): User {
       existing.githubLogin = githubProfile.login;
       existing.githubName = githubProfile.name || null;
       existing.avatarUrl = githubProfile.avatar_url || null;
-      existing.email = githubProfile.email || existing.email;
+      (existing as any).email = githubProfile.email || existing.emailHash;
       existing.updatedAt = new Date().toISOString();
       return existing;
     }

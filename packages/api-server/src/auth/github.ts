@@ -121,7 +121,7 @@ export const githubCallbackHandler: RouteHandler = async (request, ctx) => {
   // Generate JWT
   const token = generateToken({
     sub: user.id,
-    email: user.email || undefined,
+    email: (user as any).email || user.emailHash || undefined,
     tier: user.tier,
   });
 
@@ -143,7 +143,7 @@ export const githubCallbackHandler: RouteHandler = async (request, ctx) => {
   return jsonResponse(buildSuccess({
     user: {
       id: user.id,
-      email: user.email,
+      email: (user as any).email || user.emailHash || '',
       githubLogin: user.githubLogin,
       githubName: user.githubName,
       avatarUrl: user.avatarUrl,
@@ -240,7 +240,7 @@ export const meHandler: RouteHandler = async (_request, ctx) => {
   return jsonResponse(buildSuccess({
     user: user ? {
       id: user.id,
-      email: user.email,
+      email: (user as any).email || user.emailHash || '',
       githubLogin: user.githubLogin,
       githubName: user.githubName,
       avatarUrl: user.avatarUrl,
@@ -249,13 +249,13 @@ export const meHandler: RouteHandler = async (_request, ctx) => {
     } : {
       id: ctx.tenant.id,
       name: ctx.tenant.name,
-      email: ctx.tenant.email,
+      email: (ctx.tenant as any).email || ctx.tenant.emailHash || '',
       tier: ctx.tenant.tier,
     },
     tenant: {
       id: ctx.tenant.id,
       name: ctx.tenant.name,
-      email: ctx.tenant.email,
+      email: (ctx.tenant as any).email || ctx.tenant.emailHash || '',
       tier: ctx.tenant.tier,
       journalismMode: ctx.tenant.journalismMode,
     },
