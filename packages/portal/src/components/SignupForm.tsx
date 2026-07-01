@@ -36,9 +36,15 @@ function getApiBase(): string {
     }
     const host = window.location.hostname;
     const parts = host.split(".");
-    let baseDomain;
-    if (parts.length > 2 && ["api", "portal", "www", "dev"].includes(parts[0])) {
+    // Strip any known service subdomain, or the first subdomain on any 3+ part hostname.
+    // Examples: portal.maplespike.ca → api.maplespike.ca, data.maplespike.ca → api.maplespike.ca
+    const knownSubdomains = ["api", "portal", "www", "dev", "mcp", "data"];
+    let baseDomain: string;
+    if (parts.length > 2 && knownSubdomains.includes(parts[0])) {
       baseDomain = parts.slice(1).join(".");
+    } else if (parts.length > 2) {
+      // Unrecognized subdomain — strip it anyway to avoid api.X.Y.Z chains
+      baseDomain = parts.slice(-2).join(".");
     } else {
       baseDomain = host;
     }
