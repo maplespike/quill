@@ -1,0 +1,103 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+---
+
+<BaseLayout title="Privacy Policy" description="MapleSpike privacy policy — how we handle your data.">
+  <section class="border-b py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+        Privacy <span class="text-gradient">Policy</span>
+      </h1>
+      <p class="mt-2 text-muted-foreground">Last updated: July 1, 2026</p>
+    </div>
+  </section>
+
+  <section class="container mx-auto px-4 py-12 md:py-16 max-w-3xl">
+    <div class="max-w-none space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">1. Overview</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>MapleSpike ("we", "us", "our") provides a government data intelligence platform that aggregates, processes, and serves Canadian public-sector data via REST API, MCP tools, and a web portal. This policy explains what data we collect, how we use it, and your rights.</p>
+          <p>We are committed to transparency. Our core product is <strong>publicly licensed government data</strong> — we do not sell user data to third parties.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">2. Data We Collect</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p><strong>Account data:</strong> Email address, OAuth provider ID (GitHub, Google, Apple), wallet address (if Web3 auth), and tenant tier. We store the minimum required to authenticate you.</p>
+          <p><strong>API usage data:</strong> Request count, endpoint accessed, timestamp, and response status. Used for rate limiting, billing, and abuse prevention. Audit logs are retained for 30 days, then aggregated into daily summaries.</p>
+          <p><strong>AI query data:</strong> Questions submitted to the /v1/ai/ask endpoint are processed in real-time and not stored permanently. PII (emails, phone numbers, SINs) is redacted before any audit logging.</p>
+          <p><strong>Payment data:</strong> We do not store credit card numbers. Crypto payments are processed on-chain. Interac e-Transfer details are handled by our payment processor.</p>
+          <p><strong>We do NOT collect:</strong> Browser fingerprints, tracking cookies for advertising, personal browsing history, or location data beyond IP-based rate limiting.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">3. How We Use Your Data</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <ul class="list-disc pl-5 space-y-1.5">
+            <li>Authenticate you and manage your account</li>
+            <li>Enforce rate limits and API quotas per your plan tier</li>
+            <li>Process payments and manage billing</li>
+            <li>Detect and prevent abuse, fraud, and unauthorized access</li>
+            <li>Improve our data quality, coverage, and service reliability</li>
+            <li>Comply with legal obligations under Canadian law</li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">4. Data Storage & Security</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>API keys are stored as SHA-256 hashes — we cannot recover your plaintext key after issuance. Authentication uses JWT tokens with short-lived refresh cycles.</p>
+          <p>Government data is cached in our database with provenance metadata (source URL, retrieval timestamp, SHA-256 content hash). All data is licensed under the Open Government Licence – Canada or equivalent provincial licenses.</p>
+          <p>AI inference requests to the edge worker are processed via Cloudflare Workers AI or our self-hosted homelab cluster. No query content is stored beyond the 30-day audit window.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">5. Your Rights</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <ul class="list-disc pl-5 space-y-1.5">
+            <li><strong>Access:</strong> Request a copy of your account data</li>
+            <li><strong>Deletion:</strong> Request permanent deletion of your account and associated data</li>
+            <li><strong>Portability:</strong> Export your API usage history in JSON format</li>
+            <li><strong>Rectification:</strong> Correct inaccurate account information</li>
+            <li><strong>Withdrawal:</strong> Revoke OAuth grants at any time from your provider</li>
+          </ul>
+          <p>To exercise any of these rights, contact <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a>. We respond within 30 days.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">6. Cookies</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>We use a single session cookie for authentication (JWT) and localStorage for UI preferences (dark/light theme). We do not use third-party tracking cookies, advertising pixels, or analytics scripts that profile individual users.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="text-lg">7. Contact</CardTitle>
+        </CardHeader>
+        <CardContent class="text-sm text-muted-foreground space-y-3">
+          <p>Questions about this policy? Email <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a> or write to us at Ottawa, Ontario, Canada.</p>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+</BaseLayout>

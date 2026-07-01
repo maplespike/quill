@@ -1,0 +1,72 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import BrowserExtraction from "@/components/dashboard/BrowserExtraction";
+---
+
+<BaseLayout title="Browser Extraction" description="Extract data from government portals that have no API — your browser renders the page and we cache the results for all users.">
+  <section class="container mx-auto px-4 py-16 md:py-20">
+    <div class="mb-8">
+      <a href="/dashboard" class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Dashboard
+      </a>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          Browser <span class="text-gradient">Extraction</span>
+        </h1>
+        <p class="mt-2 text-muted-foreground max-w-2xl">
+          Extract data from government portals that have no API — your browser renders the page
+          and we cache the results for all users.
+        </p>
+      </div>
+    </div>
+
+    <!-- Dashboard Tabs -->
+    <div class="mb-8 flex gap-1 rounded-lg border bg-card/50 p-1">
+      <a
+        href="/dashboard"
+        class:list={[
+          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+          "text-muted-foreground hover:text-foreground hover:bg-accent",
+        ]}
+      >
+        Overview
+      </a>
+      <a
+        href="/dashboard/extraction"
+        class:list={[
+          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+          "bg-primary text-primary-foreground",
+        ]}
+      >
+        Browser Extraction
+      </a>
+      <a
+        href="/dashboard/owasp"
+        class:list={[
+          "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+          "text-muted-foreground hover:text-foreground hover:bg-accent",
+        ]}
+      >
+        OWASP Compliance
+      </a>
+    </div>
+
+    <Card>
+      <CardHeader>
+        <CardTitle>Browser Data Extraction</CardTitle>
+        <CardDescription>
+          Your browser renders government pages locally and extracts data file links.
+          Results are cached server-side for 7 days for all subsequent users.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <BrowserExtraction client:load />
+      </CardContent>
+    </Card>
+  </section>
+</BaseLayout>
