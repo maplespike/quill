@@ -16,11 +16,22 @@ interface Citation {
   hash?: string;
 }
 
+/** Detect if the stored token looks like an API key (not a JWT) */
+function isApiKeyToken(token: string | null | undefined): boolean {
+  if (!token) return false;
+  return (
+    token.startsWith("mp_") ||
+    token.startsWith("maplespike_") ||
+    !token.includes(".")
+  );
+}
+
 export default function ConvexAgentChat() {
   const [threadId, setThreadId] = useState<Id<"threads"> | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [storedToken, setStoredToken] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Convex queries & mutations
@@ -34,12 +45,30 @@ export default function ConvexAgentChat() {
   const deleteThread = useMutation(api.threads.remove);
   const chatAction = useAction(api.agents.chat);
 
+  // Read stored token to determine whether to show the upgrade prompt.
+  // Reads on mount and any time the value changes via storage events.
+  useEffect(() => {
+    const readToken = () => {
+      try {
+        const t =
+          localStorage.getItem("maplespike_token") ||
+          localStorage.getItem("maplespike-api-key") ||
+          null;
+        setStoredToken(t);
+      } catch {
+        setStoredToken(null);
+      }
+    };
+    readToken();
+    window.addEventListener("storage", readToken);
+    return () => window.removeEventListener("storage", readToken);
+  }, []);
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Create thread on first message if none selected
   const ensureThread = useCallback(async () => {
     if (threadId) return threadId;
     const id = await createThread({});
@@ -75,18 +104,66 @@ export default function ConvexAgentChat() {
     [handleSend],
   );
 
-  // Not authenticated state
-  const isAuthenticated = !!threads;
+  // Loading state — not yet hydrated
   if (threads === undefined) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
           <div className="py-8">
+            <p className="mb-2">Connecting to agent layer…</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Not authenticated (no token at all)
+  if (!storedToken) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          <div className="py-8 space-y-3">
             <p className="mb-2">Sign in to access the AI agent.</p>
-            <a href="/signup" className="text-primary hover:underline text-sm">
+            <a
+              href="/signup"
+              className="text-primary hover:underline text-sm font-medium"
+            >
               Sign up or sign in →
             </a>
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // API-key auth — show upgrade prompt
+  if (isApiKeyToken(storedToken)) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center space-y-4">
+          <div className="text-3xl">🔑</div>
+          <h3 className="text-lg font-semibold">
+            Sign in to use the AI agent
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Your account is authenticated with an API key. The agent layer
+            runs on Convex with persistent thread memory and requires a
+            signed-in session.
+          </p>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Sign in with your <strong>passkey</strong>,{" "}
+            <strong>Web3 wallet</strong>, or <strong>OAuth</strong> to unlock
+            the agent. Your API key will continue to work for the REST API.
+          </p>
+          <div className="flex justify-center gap-3 pt-2">
+            <Button asChild className="btn-sheen">
+              <a href="/signup">Sign in to enable agent</a>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4">
+            Going to <code className="font-mono">/signup</code> will keep
+            your API key intact.
+          </p>
         </CardContent>
       </Card>
     );
