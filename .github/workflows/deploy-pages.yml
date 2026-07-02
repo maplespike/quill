@@ -5,15 +5,22 @@
 # (maplespike.ca). It does NOT manage DNS, custom domains, or any
 # *.maplespike.ca subdomain.
 #
-# Per docs/ROUTING.md, all subdomains route via the Cloudflare Tunnel
-# to the homelab k3s cluster (not via Pages):
-#   - api.maplespike.ca         → cloudflared → maplespike-api:8082
-#   - mcp.maplespike.ca         → cloudflared → maplespike-mcp:3001
-#   - data.maplespike.ca        → cloudflared → maplespike-portal:8080
-#   - datafabric.maplespike.ca  → cloudflared → maplespike-portal:8080
-# Tunnel/Pod configuration lives in k8s/base/05-cloudflared.yaml and
-# the Cloudflare dashboard; do not add Pages custom-domain attach logic
-# for any of these subdomains here.
+# Per docs/ROUTING.md (rationale: docs/decisions/0004-split-hostname-routing.md),
+# all subdomains route via the Cloudflare Tunnel to the homelab k3s cluster —
+# NOT via Pages:
+#   - api.maplespike.ca         → tunnel → maplespike-api:8082
+#   - mcp.maplespike.ca         → tunnel → maplespike-mcp:3001
+#   - data.maplespike.ca        → tunnel → maplespike-portal:8080
+#   - datafabric.maplespike.ca  → tunnel → maplespike-portal:8080
+#
+# IMPORTANT: hostname→service ingress rules for the tunnel are configured
+# in the Cloudflare Zero Trust Dashboard (Networks → Tunnels → Routes),
+# NOT in this repo. The yaml in k8s/base/05-cloudflared.yaml only sets
+# up the Deployment + the TUNNEL_TOKEN Secret; it does NOT contain
+# per-hostname routing logic. To add a new *.maplespike.ca subdomain,
+# edit the route list in the Dashboard, then add the matching DNS CNAME
+# pointing to <tunnel-id>.cfargotunnel.com. Do NOT add Pages custom-domain
+# attach logic for any *.maplespike.ca subdomain in this workflow.
 #
 # Required Secrets:
 #   MAPLESPIKE_CLOUDFLARE_TOKEN — CF API token with Pages:Edit scope
