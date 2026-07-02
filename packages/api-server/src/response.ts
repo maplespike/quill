@@ -297,6 +297,7 @@ const ALLOWED_ORIGINS = [
   // Production (maplespike.ca via Cloudflare)
   'https://maplespike.ca',
   'https://www.maplespike.ca',
+  'https://data.maplespike.ca',
   'https://api.maplespike.ca',
   'https://api.data.maplespike.ca',
   'https://mcp.maplespike.ca',
