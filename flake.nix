@@ -5,11 +5,16 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     agenix.url = "github:ryantm/agenix";
-    easykubenix.url = "github:lillecarl/easykubenix";
-    easykubenix.flake = false;
+    # easykubenix removed in PR #733 — its `manifestYAML = builtins.readFile
+    # manifestYAMLFile;` in internal.nix line 111 is an Import-From-Derivation
+    # that breaks `nix flake check --no-build` (and Garnix `Evaluate flake.nix`).
+    # The K8s manifests were never used by the static-image builds anyway
+    # (they live in k8s/cron.nix + k8s/dev.nix + k8s/prod.nix + k8s/infra.nix
+    # as standalone .yaml files consumed directly by kubectl/kustomize).
+    # If we ever need easykubenix again, fork it to drop the IFD readFile.
   };
 
-  outputs = { self, nixpkgs, flake-utils, agenix, easykubenix }:
+  outputs = { self, nixpkgs, flake-utils, agenix }:
   let
     # ── System-independent outputs ─────────────────────────────
     nixosModules.default = import ./nix;
@@ -102,25 +107,6 @@
       };
     };
 
-    # ── K8s manifests via easykubenix (local let binding ONLY) ──────
-    # Defined as a local `let` binding — NOT as `packages.k8s-manifests` and
-    # NOT as a top-level `k8sManifests` output. Reason: easykubenix's
-    # internal.nix line 111 does `manifestYAML = builtins.readFile
-    # manifestYAMLFile;`, which is Import-From-Derivation. `nix flake check
-    # --no-build` cannot realise that derivation, so a `packages` /
-    # `k8sManifests` attribute triggers the failure. Keeping the value in
-    # local `let` keeps the attribute set's evaluation clean of IFD; the only
-    # consumer is the `apps.k8s-manifests` shell app below, evaluated lazily.
-    k8s-manifests-drv = (import easykubenix {
-      inherit pkgs;
-      modules = [
-        ./k8s/cron.nix
-        ./k8s/dev.nix
-        ./k8s/prod.nix
-        ./k8s/infra.nix
-      ];
-    }).manifestYAMLFile;
-
   in {
     packages = rec {
       default = self.packages.${system}.maplespike-mcp-image;
@@ -197,10 +183,13 @@
         echo "=== All done ==="
       '';
 
-      # NOTE: k8s-manifests was intentionally removed from `packages` — see
-      # the `k8s-manifests-drv` let binding above and the IFD-comment for the
-      # rationale. The same derivation is reachable via `nix run
-      # .#maplespike-k8s-manifests`.
+      # NOTE: k8s-manifests removed entirely in PR #733. The easykubenix input
+      # was also dropped from flake inputs because its internal.nix line 111
+      # (`manifestYAML = builtins.readFile manifestYAMLFile;`) is an
+      # Import-From-Derivation that blocks `nix flake check --no-build` and
+      # Garnix `Evaluate flake.nix`. K8s resources live as standalone .yaml
+      # files under k8s/cron.nix, dev.nix, prod.nix, infra.nix and are
+      # consumed directly by kubectl — no Nix-built manifest needed.
 
       maplespike-push-all = pkgs.writeShellScriptBin "maplespike-push-all" ''
         set -euo pipefail
