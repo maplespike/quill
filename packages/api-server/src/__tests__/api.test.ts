@@ -81,7 +81,7 @@ describe('API Server Routes', () => {
 
   it('usage endpoint returns data', async () => {
     const { usageHandler } = await import('../routes/usage.js');
-    const ctx = makeCtx();
+    const ctx = makeCtx({ tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'business' as const, isActive: true, journalismMode: false } });
     const resp = await usageHandler(new Request('http://localhost/v1/usage'), ctx as any, {});
     assert.equal(resp.status, 200);
   });
