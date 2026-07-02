@@ -16,7 +16,7 @@ const {
   ogImage = '/og-image.svg',
   lang = "en",
 } = Astro.props;
-const canonical = `${Astro.site?.href ?? "https://maplespike.lan"}${Astro.url.pathname}`;
+const canonical = `${Astro.site?.href ?? "https://maplespike.ca"}${Astro.url.pathname}`;
 const pathname = Astro.url.pathname;
 const navLinks = [
   { href: "/", label: "Home", match: "/" },
@@ -271,7 +271,7 @@ const isActive = (match: string) =>
             <ul class="space-y-2 text-sm text-muted-foreground">
               <li>
                 <a
-                  href={(import.meta.env.PUBLIC_BRAND_URL ?? "https://brand.maplespike.lan").replace(/\/$/, "")}
+                  href={(import.meta.env.PUBLIC_BRAND_URL ?? "https://maplespike.ca").replace(/\/$/, "")}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="transition-colors hover:text-foreground inline-flex items-center gap-1.5"
