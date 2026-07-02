@@ -59,3 +59,7 @@ packages/portal/public/data/security/
 # Local-dev stack artifacts
 .env
 .env.deployment
+
+# Experimental nested-git subdirectory (own .git/.gitignore inside).
+# Excluded from upstream workspace to keep build clean; treat as local-only.
+packages/flywheel-agent/

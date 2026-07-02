@@ -1,6 +1,7 @@
 packages:
   - "packages/*"
   - "!packages/dashboard"
+  - "!packages/flywheel-agent"
 
 # Workspace-wide dependency overrides for security patching
 # (pnpm 10+ reads these from pnpm-workspace.yaml, not package.json)
