@@ -3,13 +3,15 @@ last-reviewed: 2026-05-25
 status: active
 ---
 
-# MapleSpike MCP Server
+# MapleSpike Quill (data-layer MCP server)
 
-Model Context Protocol server for Canadian government data. **129 tools** for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
+> **Product:** Quill is the canonical product name for this server. See the full product brief: [`docs/products/quill.md`](../../docs/products/quill.md) and the naming decision: [ADR 0005](../../docs/decisions/0005-quill-product-name.md).
+
+Model Context Protocol server for Canadian government data. **129+ tools** (canonical count: see [docs/metrics.json](../../docs/metrics.json)) for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
 
 > **Status:** All tools standalone. Zero config. `npx @reverb256/mcp-server` and it just works.
 
-- **Package:** `@reverb256/mcp-server`
+- **Package:** `@maplespike/quill-mcp` *(npm scope correction tracked as a separate topology change; current package is still authored under @reverb256 — see Phase C of ADR 0005)*
 - **Transport:** stdio (local) for Claude Desktop / Cursor / any MCP host
 - **No dependencies:** no SQLite, no API server, no environment variables needed
 
@@ -24,9 +26,9 @@ Add to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "maplespike-canada": {
+    "maplespike-quill": {
       "command": "npx",
-      "args": ["@reverb256/mcp-server"]
+      "args": ["@maplespike/quill-mcp"]
     }
   }
 }
@@ -39,8 +41,8 @@ No API key, no config file, no database. Just `npx`.
 ```bash
  cd packages/mcp-server
  pnpm start
- # → 🍁 MapleSpike MCP Server ready
- # → Tools: 129 registered
+ # → 🍁 MapleSpike Quill ready
+ # → Tools: 129+ registered (see docs/metrics.json for canonical count)
  # → Mode: standalone (no API server needed)
  # → Cache: in-memory (5 min TTL)
 ```
@@ -126,7 +128,7 @@ PORT=3001 pnpm start:sse
 AI Agent (Claude/Cursor/etc.)
         │
         ▼
-  MapleSpike MCP Server (stdio/SSE)
+  MapleSpike Quill (stdio/SSE)  = packages/mcp-server
         │
         ├── upstream-fetcher.ts ──► ouvert.canada.ca (CKAN)
         │                        ──► api.openparliament.ca
