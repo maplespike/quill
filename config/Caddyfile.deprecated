@@ -1,3 +1,16 @@
+# Caddyfile.deprecated — legacy host-side proxy.
+#
+# This file accepted LAN traffic on host :443 and forwarded to k3s
+# NodePort :32481 / :3001 BEFORE the rollout referenced in
+# docs/ROUTING.md. It is kept for one migration cycle as historical
+# reference and is superseded by k3s Traefik Ingress (see
+# docs/ROUTING.md) plus the Quill hostname aliases documented in
+# docs/decisions/0006-quill-hostname-alias.md.
+#
+# The `mcp.maplespike.lan` block below is the LEGACY alias for what is
+# now `quill.maplespike.lan` (Phase D). The canonical block replaces
+# it; both are kept here so operators can diff pre/post Phase D.
+
 maplespike.lan {
     tls internal
     bind 127.0.0.1 10.1.1.110 100.102.39.25
@@ -10,8 +23,17 @@ api.maplespike.lan {
     reverse_proxy 10.1.1.120:32481
 }
 
+# Phase D legacy alias — 301 redirect to canonical quill.maplespike.lan
 mcp.maplespike.lan {
+    tls internal
+    bind 127.0.0.1 10.1.1.110 100.102.39.25
+    redir https://quill.maplespike.lan{uri} permanent
+}
+
+# Phase D canonical — terminate here, forward to maplespike-quill Service
+quill.maplespike.lan {
     tls internal
     bind 127.0.0.1 10.1.1.110 100.102.39.25
     reverse_proxy 10.42.0.68:3001
 }
+
