@@ -12,13 +12,16 @@ resources:
   - ../../base
 
 # Patch images for local registry
+# Current build contains CORS allowlist (data.maplespike.ca) + subdomain parser fix.
+# Bump newTag to roll that image out via kustomize (more durable than kubectl patch
+# against a reconciling control plane).
 images:
   - name: maplespike-portal
     newName: localhost/maplespike-portal
-    newTag: latest
+    newTag: v2-corsfix-20260701-2049
   - name: maplespike-api
     newName: localhost/maplespike-api
-    newTag: latest
+    newTag: v2-corsfix-20260701-2049
 
 # Environment-specific config
 patches:
@@ -27,13 +30,10 @@ patches:
       name: maplespike-api
     patch: |-
       - op: add
-        path: /spec/template/spec/nodeName
-        value: nexus
-      - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
           name: MAPLESPIKE_DOMAIN
-          value: "maplespike.lan"
+          value: "maplespike.ca"
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
@@ -54,11 +54,3 @@ patches:
         value:
           name: MAPLESPIKE_AI_MODEL
           value: "glm-5.2"
-
-  - target:
-      kind: Deployment
-      name: maplespike-portal
-    patch: |-
-      - op: add
-        path: /spec/template/spec/nodeName
-        value: nexus
