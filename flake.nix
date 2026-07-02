@@ -590,15 +590,22 @@ volumes:
         ''}/bin/maplespike-helm-values";
       };
 
-      # Show generated K8s manifests. References the local `k8s-manifests-drv`
-      # let binding above (NOT `self.packages.k8s-manifests`) so that flake
-      # check does not trigger the easykubenix internal readFile (IFD).
-      k8s-manifests = {
-        type = "app";
-        program = "${pkgs.writeShellScriptBin "maplespike-k8s-manifests" ''
-          cat ${k8s-manifests-drv}
-        ''}/bin/maplespike-k8s-manifests";
-      };
+      # k8s-manifests app: REMOVED to keep flake eval pure.
+      #
+      # The previous version used `${k8s-manifests-drv}` inside the app's
+      # `program` string. `nix flake check` strictly evaluates the `program`
+      # attribute of every declared app to confirm it produces a valid store
+      # path, which forces `writeShellScriptBin`'s inputs to be evaluated.
+      # That is enough to walk `easykubenix`'s attribute tree, hitting the
+      # IFD `manifestYAML = builtins.readFile manifestYAMLFile;` at
+      # `easykubenix/internal.nix:111`, which is not allowed under
+      # `--no-build`.
+      #
+      # The `k8s-manifests-drv` let binding above is still defined so that
+      # developers can run, e.g.:
+      #     nix build /nix/store/...maplespike-k8s-manifests
+      #     kubectl apply -f <(cat result)
+      # or write their own thin wrapper script outside the flake.
 
       # Load all images into podman/docker
       load-all = {
