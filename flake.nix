@@ -102,6 +102,25 @@
       };
     };
 
+    # ── K8s manifests via easykubenix (local let binding ONLY) ──────
+    # Defined as a local `let` binding — NOT as `packages.k8s-manifests` and
+    # NOT as a top-level `k8sManifests` output. Reason: easykubenix's
+    # internal.nix line 111 does `manifestYAML = builtins.readFile
+    # manifestYAMLFile;`, which is Import-From-Derivation. `nix flake check
+    # --no-build` cannot realise that derivation, so a `packages` /
+    # `k8sManifests` attribute triggers the failure. Keeping the value in
+    # local `let` keeps the attribute set's evaluation clean of IFD; the only
+    # consumer is the `apps.k8s-manifests` shell app below, evaluated lazily.
+    k8s-manifests-drv = (import easykubenix {
+      inherit pkgs;
+      modules = [
+        ./k8s/cron.nix
+        ./k8s/dev.nix
+        ./k8s/prod.nix
+        ./k8s/infra.nix
+      ];
+    }).manifestYAMLFile;
+
   in {
     packages = rec {
       default = self.packages.${system}.maplespike-mcp-image;
@@ -178,19 +197,10 @@
         echo "=== All done ==="
       '';
 
-      # ── K8s manifests via easykubenix ────────────────────────────
-      # easykubenix is a flake=false input, so import returns the default.nix
-      # which IS the easykubenix function: { pkgs, modules, ... } -> attrset
-      # Output: .manifestYAMLFile (derivation producing multi-doc YAML)
-      k8s-manifests = (import easykubenix {
-        inherit pkgs;
-        modules = [
-          ./k8s/cron.nix
-          ./k8s/dev.nix
-          ./k8s/prod.nix
-          ./k8s/infra.nix
-        ];
-      }).manifestYAMLFile;
+      # NOTE: k8s-manifests was intentionally removed from `packages` — see
+      # the `k8s-manifests-drv` let binding above and the IFD-comment for the
+      # rationale. The same derivation is reachable via `nix run
+      # .#maplespike-k8s-manifests`.
 
       maplespike-push-all = pkgs.writeShellScriptBin "maplespike-push-all" ''
         set -euo pipefail
@@ -512,8 +522,11 @@ volumes:
       '';
     };
 
-    # ── Convenience: k8sManifests as top-level flake output ──────
-    k8sManifests = self.packages.${system}.k8s-manifests;
+    # NOTE: top-level `k8sManifests` was intentionally removed. The single
+    # consumer (the `k8s-manifests` app) now references `k8s-manifests-drv`
+    # directly. Putting this attribute on a flake output forced `nix flake
+    # check` to walk the easykubenix manifest structure, which contains an
+    # IFD readFile that is not allowed during --no-build.
 
     apps = {
       default = {
@@ -577,11 +590,13 @@ volumes:
         ''}/bin/maplespike-helm-values";
       };
 
-      # Show generated K8s manifests
+      # Show generated K8s manifests. References the local `k8s-manifests-drv`
+      # let binding above (NOT `self.packages.k8s-manifests`) so that flake
+      # check does not trigger the easykubenix internal readFile (IFD).
       k8s-manifests = {
         type = "app";
         program = "${pkgs.writeShellScriptBin "maplespike-k8s-manifests" ''
-          cat ${self.packages.${system}.k8s-manifests}
+          cat ${k8s-manifests-drv}
         ''}/bin/maplespike-k8s-manifests";
       };
 
