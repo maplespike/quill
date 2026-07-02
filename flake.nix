@@ -619,7 +619,10 @@ volumes:
       shellHook = ''
         # Decrypt GitHub PAT via agenix
         if [ -f "$HOME/.ssh/id_ed25519" ]; then
-          export GITHUB_TOKEN=$(age --decrypt -i "$HOME/.ssh/id_ed25519" "${./secrets/github-pat.age}" 2>/dev/null || echo "")
+          # NOTE: passed as a relative path string so flake pure-eval does not
+          # force the (gitignored) .age file into the Nix store. The shellHook
+          # resolves the path at shell-startup time.
+          export GITHUB_TOKEN=$(age --decrypt -i "$HOME/.ssh/id_ed25519" "./secrets/github-pat.age" 2>/dev/null || echo "")
           if [ -n "$GITHUB_TOKEN" ]; then
             echo "✓ GITHUB_TOKEN loaded from agenix secret"
           else
