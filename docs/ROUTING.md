@@ -11,7 +11,7 @@ Operator-facing quick reference. The rationale lives in [decisions/0004-split-ho
 
 | Host family | Entry point | Backends |
 |---|---|---|
-| `*.maplespike.lan` | k3s Traefik Ingress on the LAN | `maplespike-portal:8080`, `maplespike-api:8082`, `maplespike-mcp:3001` |
+| `*.maplespike.lan` | k3s Traefik Ingress on the LAN | `maplespike-portal:8080`, `maplespike-api:8082`, `maplespike-quill:3001` |
 | `*.maplespike.ca` | Cloudflare Edge → Tunnel → `cloudflared` pod in k3s | same three Services |
 
 Both entry points terminate at the SAME three k3s Services — there is one upstream to maintain.
@@ -24,17 +24,27 @@ Both entry points terminate at the SAME three k3s Services — there is one upst
 | `portal.maplespike.lan` | `maplespike-portal:8080` |
 | `dev.maplespike.lan` | `maplespike-portal:8080` (dev layout) |
 | `api.maplespike.lan`, `dev-api.maplespike.lan` | `maplespike-api:8082` |
-| `mcp.maplespike.lan`, `dev-mcp.maplespike.lan` | `maplespike-mcp:3001` |
+| `mcp.maplespike.lan`, `dev-mcp.maplespike.lan` | `maplespike-quill:3001` *(Phase D: 301 redirect to `quill.maplespike.lan`; keep for backward compat)* |
+| `quill.maplespike.lan` | `maplespike-quill:3001` *(canonical LAN hostname; Phase D)* |
 | `maplespike.ca` | Cloudflare Pages (landing — out of cluster scope) |
 | `api.maplespike.ca` | `cloudflared` → `maplespike-api:8082` |
-| `mcp.maplespike.ca` | `cloudflared` → `maplespike-mcp:3001` |
-| `data.maplespike.ca` | `cloudflared` → `maplespike-portal:8080` *(inferred from `datafabric` alias; not directly documented in source)* |
-| `datafabric.maplespike.ca` | `cloudflared` → `maplespike-portal:8080` |
+| `mcp.maplespike.ca` | `cloudflared` → `maplespike-quill:3001` *(Phase D: 301 redirect to `quill.maplespike.ca`; keep for backward compat)* |
+| `data.maplespike.ca` | `cloudflared` → `maplespike-portal:8080` *(Phase D: 301 redirect to `quill.maplespike.ca`; legacy alias)* |
+| `quill.maplespike.ca` | `cloudflared` → `maplespike-quill:3001` *(canonical public hostname; see [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md))* |
 
 ## TLS strategy
 
 - **`.lan`** — cert-manager + step-issuer plugin issues a 90d wildcard `*.maplespike.lan` cert signed by a **local step-ca**. Same trusted root as the rest of the LAN. Auto-renewed at 30d.
 - **`.ca`** — issued and rotated by Cloudflare itself (Cloudflare Universal SSL). No cluster-side cert work.
+
+## Hostname aliases (Phase D)
+
+The legacy `mcp.maplespike.{ca,lan}` and `data.maplespike.ca` hostnames 301-redirect to the canonical `quill.maplespike.{ca,lan}` to preserve bookmarks and external integrations while completing the Quill rename (ADR 0005, Phase D). Drop-in configs are in [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md).
+
+| Status | Hostname pattern | Behavior |
+|---|---|---|
+| **Canonical · Live** | `quill.maplespike.ca` · `quill.maplespike.lan` | All real traffic |
+| **Alias · Live (Phase D)** | `mcp.maplespike.ca` · `mcp.maplespike.lan` · `data.maplespike.ca` | 301 redirect → canonical |
 
 ## One-time bootstrap order
 
