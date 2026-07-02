@@ -128,7 +128,7 @@ describe('API Server Routes', () => {
 
   it('keys CRUD flow works correctly', async () => {
     const { createKeyHandler, listKeysHandler, deleteKeyHandler } = await import('../routes/keys.js');
-    const ctx = makeCtx();
+    const ctx = makeCtx({ tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'pro' as const, isActive: true, journalismMode: false } });
 
     const createResp = await createKeyHandler(new Request('http://localhost/v1/keys', {
       method: 'POST',
