@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects — SPA fallback for docs
+# All /docs/* paths that don't match a static file fall back to /docs.html
+/docs/*  /docs  200
