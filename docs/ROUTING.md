@@ -5,7 +5,7 @@ status: active
 
 # MapleSpike — Routing matrix
 
-Operator-facing quick reference. The rationale lives in [decisions/0004-split-hostname-routing.md](./decisions/0004-split-hostname-routing.md).
+Operator-facing quick reference. The rationale lives in [decisions/0004-split-hostname-routing.md](./decisions/0004-split-hostname-routing.md). The data-layer MCP product name is **Quill** — see [products/quill.md](./products/quill.md) and [decisions/0005-quill-product-name.md](./decisions/0005-quill-product-name.md).
 
 ## The split at a glance
 

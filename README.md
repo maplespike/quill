@@ -7,7 +7,9 @@ status: active
 
 > **Canada's sovereign, AI-native government data pipeline** — one unified layer for government data, corporate influence tracking, committee surveillance, regulatory intelligence, and policy actor tracking. Built with zero external cloud spend, deployed on a K3s cluster.
 
-**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal)
+> **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
+
+**Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 > **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 198 modules, 164 MCP tools, ~191K lines TS, 14 packages.
 
 ---
@@ -46,7 +48,7 @@ maplespike/
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── portal/           # Developer portal & landing page (Astro + React + Tailwind)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── mcp-server/       # MCP protocol server (✅ 164 tools, all live)
+│   ├── mcp-server/       # Quill — data-layer MCP server (✅ 164 tools, all live). Rename to `quill-mcp/` planned, see ADR 0005.
 │   ├── sdk/              # TypeScript client library
 │   ├── sdk-python/       # Python client library
 │   ├── legal-core/       # Legal data SDK
