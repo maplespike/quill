@@ -39,10 +39,12 @@ COPY . .
 # Build packages needed for all targets
 RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database --filter=@maplespike/mcp-server --filter=@maplespike/engine
 
-# Fix ESM imports in dist/ (Node.js requires .js extensions for local imports)
-RUN node scripts/fix-esm-imports.ts packages/database/dist && \
-    node scripts/fix-esm-imports.ts packages/mcp-server/dist && \
-    node scripts/fix-esm-imports.ts packages/pipeline-core/dist || true
+# Fix ESM imports in dist/ (Node.js requires .js extensions for local imports).
+# Use `npx tsx` — Node 22 does not natively execute .ts files, and `pnpm install`
+# already installs `tsx` as a devDependency, so it's on PATH inside the build stage.
+RUN npx tsx scripts/fix-esm-imports.ts packages/database/dist && \
+    npx tsx scripts/fix-esm-imports.ts packages/mcp-server/dist && \
+    npx tsx scripts/fix-esm-imports.ts packages/pipeline-core/dist || true
 
 # Fix package.json exports to point to dist/ for production
 COPY scripts/fix-package-exports.js /tmp/
