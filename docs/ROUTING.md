@@ -28,6 +28,8 @@ Both entry points terminate at the SAME three k3s Services — there is one upst
 | `maplespike.ca` | Cloudflare Pages (landing — out of cluster scope) |
 | `api.maplespike.ca` | `cloudflared` → `maplespike-api:8082` |
 | `mcp.maplespike.ca` | `cloudflared` → `maplespike-mcp:3001` |
+| `data.maplespike.ca` | `cloudflared` → `maplespike-portal:8080` |
+| `datafabric.maplespike.ca` | `cloudflared` → `maplespike-portal:8080` |
 
 ## TLS strategy
 
