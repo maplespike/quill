@@ -5,6 +5,7 @@ namespace: maplespike
 
 resources:
   - namespace.yaml
+  - 05-cloudflared.yaml
   - 10-api-deploy.yaml
   - 11-mcp-deploy.yaml
   - 20-cronjob.yaml
@@ -16,9 +17,9 @@ labels:
       app.kubernetes.io/part-of: maplespike
 
 images:
-  - name: maplespike-portal
-    newName: localhost/maplespike-portal
+  - name: quill-portal
+    newName: localhost/quill-portal
     newTag: latest
-  - name: maplespike-api
-    newName: localhost/maplespike-api
+  - name: quill-api
+    newName: localhost/quill-api
     newTag: latest

@@ -26,12 +26,13 @@
 curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
 chmod +x /usr/local/bin/cloudflared
 cloudflared tunnel login
-cloudflared tunnel create maplespike
-cloudflared tunnel route dns maplespike api.maplespike.ca
-cloudflared tunnel route dns maplespike mcp.maplespike.ca
+cloudflared tunnel create maplespike-k8s
+cloudflared tunnel route dns maplespike-k8s api.maplespike.ca
+cloudflared tunnel route dns maplespike-k8s mcp.maplespike.ca
+cloudflared tunnel route dns maplespike-k8s maplespike.ca
 ```
 
-Then deploy via K3s: `kubectl apply -f k8s/manual/05-cloudflared.yaml`
+Then deploy via K3s: `kubectl apply -k k8s/base/` (canonical kustomize path; includes `05-cloudflared.yaml` since the 2026-07-04 kustomization.yaml fix — previously the kustomization omitted it, so cloudflared was silently dropped from the deploy)
 
 > **Note (2026-07-01):** **Only Option A (Cloudflare Tunnel) is supported
 > going forward — no other public-tunnel variants.** This is the single
@@ -75,8 +76,10 @@ Both options deploy the `packages/portal` Astro build as a static site.
 ## Step 2: Deploy to K3s
 
 ```bash
-# 1. Create namespace (if not exists)
-kubectl apply -f k8s/manual/00-namespace.yaml
+# 1. Create namespace
+#    (auto-created by `kubectl apply -k k8s/base/` via the kustomization
+#     `namespace: maplespike` field — the explicit apply was removed
+#     2026-07-04 when `k8s/manual/00-namespace.yaml` was deleted)
 
 # 2. Build and load Docker images
 docker build --target api-server -t quill-api:prod .
@@ -91,14 +94,12 @@ kubectl create secret generic maplespike-secrets \
   --from-literal=QUILL_BILLING_SECRET=$(openssl rand -hex 32) \
   -n maplespike
 
-kubectl create secret generic cloudflared-token \
-  --from-literal=TUNNEL_TOKEN=<your-tunnel-token> \
+kubectl create secret generic cloudflared-creds \
+  --from-file=credentials.json=<path-to-tunnel-credentials-json> \
   -n maplespike
 
-# 4. Deploy
-kubectl apply -f k8s/manual/05-cloudflared.yaml
-kubectl apply -f k8s/manual/10-api-deploy.yaml
-kubectl apply -f k8s/manual/11-mcp-deploy.yaml
+# 4. Deploy (canonical kustomize path; includes 05-cloudflared.yaml + 11-mcp-deploy.yaml)
+kubectl apply -k k8s/base/
 
 # 5. Verify pods
 kubectl get pods -n maplespike

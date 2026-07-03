@@ -55,15 +55,15 @@ data:
     credentials-file: /etc/cloudflared/credentials.json
     ingress:
       - hostname: api.maplespike.ca
-        service: http://quill-api.maplespike.svc.cluster.local:8082
+        service: http://maplespike-api.maplespike.svc.cluster.local:8082
       - hostname: mcp.maplespike.ca
-        service: http://quill-mcp.maplespike.svc.cluster.local:3001
+        service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
       - hostname: quill.maplespike.ca
-        service: http://quill-mcp.maplespike.svc.cluster.local:3001
+        service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
       - hostname: datafabric.maplespike.ca
-        service: http://quill-portal.maplespike.svc.cluster.local:8080
+        service: http://maplespike-portal.maplespike.svc.cluster.local:8080
       - hostname: data.maplespike.ca
-        service: http://quill-portal.maplespike.svc.cluster.local:8080
+        service: http://maplespike-portal.maplespike.svc.cluster.local:8080
       - service: http_status:404
 
 ---
