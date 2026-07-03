@@ -59,8 +59,13 @@ if [[ "$DO_BUILD" == true ]]; then
   echo "── Building Docker images ──"
   cd "$PROJECT_ROOT"
 
-  echo "  Building portal..."
-  docker build -t "${IMAGE_REGISTRY}/maplespike-portal:${IMAGE_TAG}" --target=portal .
+  echo "  Building portal (--target=portal)..."
+  if ! docker build -t "${IMAGE_REGISTRY}/maplespike-portal:${IMAGE_TAG}" --target=portal .; then
+    echo "  ⚠ Portal build failed. If Docker is unavailable on this host,"
+    echo "    build on nexus manually:"
+    echo "    ssh nexus 'docker build -t nexus:5000/maplespike-portal:TAG --target=portal ...'"
+    exit 1
+  fi
 
   echo "  Building API..."
   docker build -t "${IMAGE_REGISTRY}/maplespike-api:${IMAGE_TAG}" --target=api-server .
@@ -106,11 +111,21 @@ fi
 echo "  ✓ Manifests applied"
 
 # ── Wait for rollout ─────────────────────────────────────────────
-echo "── Waiting for rollout ──"
+# ── Verify ──────────────────────────────────────────────────────
+echo "── Rolling out deployment ──"
 kubectl rollout status deployment -n "$NAMESPACE" maplespike-api --timeout=120s || true
 kubectl rollout status deployment -n "$NAMESPACE" maplespike-portal --timeout=120s || true
+kubectl rollout status deployment -n "$NAMESPACE" cloudflared --timeout=120s || true
 
-# ── Verify ───────────────────────────────────────────────────────
+echo "── Post-deploy verification ──"
+echo "  Portal process:"
+kubectl exec -n "$NAMESPACE" deploy/maplespike-portal -- cat /proc/1/cmdline 2>/dev/null | tr '\0' ' ' || echo "  (unable to verify)"
+echo ""
+echo "  API health:"
+curl -sf "https://api.${MAPLESPIKE_DOMAIN}/v1/health" | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'  Status: {d[\"data\"][\"status\"]}')" 2>/dev/null || echo "  (health check unavailable)"
+echo ""
+
+echo "✓ Deployment complete"
 echo ""
 echo "── Verification ──"
 
