@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { createI18n } from "@maplespike/i18n";
 
 const citationExamples = [
   {
@@ -29,18 +30,22 @@ const citationExamples = [
     source: "canlii.org",
   },
 ];
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
 <BaseLayout
-  title="Citation Verification"
+  title={i18n.t('citation.title')}
   description="MapleSpike citation policy — SHA-256 verified citations for every data record. Learn how to verify and cite Canadian government data with cryptographic assurance."
+  lang={lang}
 >
   <!-- Hero -->
   <section class="border-b py-16 md:py-24">
     <div class="container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          <span class="text-gradient">Citations</span>
+          <span class="text-gradient">{i18n.t('citation.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           Every data point in MapleSpike includes a verified citation chain — SHA-256 hashed, source-linked,
@@ -164,7 +169,7 @@ const citationExamples = [
       </Card>
 
       <!-- Example Citations -->
-      <h2 class="text-2xl font-bold tracking-tight mb-6">Example Citations</h2>
+      <h2 class="text-2xl font-bold tracking-tight mb-6">{i18n.t('citation.title')}</h2>
       <div class="space-y-6">
         {citationExamples.map((example) => (
           <Card key={example.label}>
@@ -185,10 +190,10 @@ const citationExamples = [
       </div>
 
       <!-- API Usage -->
-      <h2 class="text-2xl font-bold tracking-tight mt-16 mb-6">Citation API</h2>
+      <h2 class="text-2xl font-bold tracking-tight mt-16 mb-6">{i18n.t('citation.source')}</h2>
       <Card>
         <CardHeader>
-          <CardTitle class="text-base">REST Endpoint</CardTitle>
+          <CardTitle class="text-base">{i18n.t('api_explorer.title')}</CardTitle>
           <CardDescription>
             Look up any citation by its SHA-256 hash using the API endpoint.
           </CardDescription>

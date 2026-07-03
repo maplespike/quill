@@ -12,9 +12,13 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="Data Explorer" description="Browse and search Canadian government data across all 206 modules">
+<BaseLayout title={i18n.t('explorer.title')} description="Browse and search Canadian government data across all 206 modules" lang={lang}>
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4">
