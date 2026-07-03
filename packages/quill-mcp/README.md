@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-05-25
+last-reviewed: 2026-07-04
 status: active
 ---
 
@@ -7,26 +7,61 @@ status: active
 
 > **Product:** Quill is the canonical product name for this server. See the full product brief: [`docs/products/quill.md`](../../docs/products/quill.md) and the naming decision: [ADR 0005](../../docs/decisions/0005-quill-product-name.md).
 
-Model Context Protocol server for Canadian government data. **129+ tools** (canonical count: see [docs/metrics.json](../../docs/metrics.json)) for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
+Model Context Protocol server for Canadian government data. **164 tools** (canonical count: [docs/metrics.json](../../docs/metrics.json)) and **198 data modules** for AI agents to search, query, monitor, and cross-reference Canadian government information. Tools fetch directly from upstream APIs — no database required.
 
-> **Status:** All tools standalone. Zero config. `npx @maplespike/quill-mcp` and it just works.
+> **Quickstart:** `npx @maplespike/quill-mcp` and it just works. The first **1,000 calls/month are free**, regardless of which tool you use. After that, paid tools charge per-call via x402 (Solana USDC) — see [Pricing](#pricing) below.
 
-- **Package:** `@maplespike/quill-mcp` *(npm scope correction tracked as a separate topology change; current package is still authored under @reverb256 — see Phase C of ADR 0005)*
-- **Transport:** stdio (local) for Claude Desktop / Cursor / any MCP host
-- **No dependencies:** no SQLite, no API server, no environment variables needed
+- **Package:** `@maplespike/quill-mcp`
+- **Transports:** stdio (local — Claude Desktop / Cursor / any MCP host) and HTTP/SSE (hosted)
+- **Stand-alone:** no SQLite, no API server needed for the free tier
+
+---
+
+## Pricing
+
+Quill uses a **freemium** model (canonical in [ADR 0005](../../docs/decisions/0005-quill-product-name.md) and enforced by [`src/quota.ts`](./src/quota.ts)):
+
+| Tier | Calls/month | Cost per paid call | Notes |
+|------|-------------|--------------------|-------|
+| **Free** (default, stdio + hosted) | 1,000 / month / identity | $0 — flat | All tools, all sources. Resets on the 1st of each month (UTC). |
+| **After free quota** (auto) | unlimited | $0.001 / $0.01 / $0.10 / $1.00 per tier | Falls through to x402 USDC payment via `X402_ENABLED=true` + MCPay proxy. |
+| **Pro** (planned — see `maplespike/api-server`) | 50,000 / month | $0 backend, $50/mo e-Transfer | Self-serve via `/v1/billing` on the hosted API surface. |
+| **Business / Enterprise** (planned) | 250K – 1M / month | custom | Contact billing@maplespike.lan. |
+
+**Tiered per-call pricing (x402, in USDC):**
+
+| Tier | Price | Examples |
+|------|-------|----------|
+| `free` | $0.00 | `system_health`, `cache_status`, `explore_catalog` |
+| `micro` | $0.001 | `get_member_info`, `resolve_entity`, `get_citation` |
+| `standard` | $0.01 | `search_canlii`, `search_statcan`, `search_gazette`, `query_population` |
+| `premium` | $0.10 | `ai_ask`, `smart_search`, `fact_check`, `compare_regions` |
+| `enterprise` | $1.00 | `track_bill`, `signal_check` |
+
+The full price map lives in [`src/pricing.ts`](./src/pricing.ts).
+
+**Identity model** (how we count calls per caller — see [`src/quota.ts`](./src/quota.ts)):
+
+| Mode | When | Quota |
+|------|------|--------|
+| `self-hosted:<session>` | stdio / `npx` | **No quota** — you run the server. |
+| `api-key:<sha256>` | SSE with `Authorization: Bearer` | **1,000/mo, then x402** |
+| `anonymous-ip:<sha256>` | SSE without Bearer (dev mode) | **1,000/mo, then x402** — IP-keyed, easily rotated, dev-only. |
+
+Free tools (`priceUsd === 0`) always pass even after the 1,000-call free quota is exhausted — they're discovery/heath/cache-management, low abuse risk, and bounded separately by per-domain token buckets in pipeline-core.
 
 ---
 
 ## Quick Start
 
-### Claude Desktop
+### Claude Desktop (zero-config stdio)
 
 Add to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
-    "maplespike-quill": {
+    "quill": {
       "command": "npx",
       "args": ["@maplespike/quill-mcp"]
     }
@@ -34,137 +69,107 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
-No API key, no config file, no database. Just `npx`.
+No API key, no config file. Just `npx`. (Stdio calls are tagged `self-hosted` and not counted against the 1,000-call quota.)
 
-### Local development
-
-```bash
- cd packages/quill-mcp
- pnpm start
- # → 🍁 MapleSpike Quill ready
- # → Tools: 129+ registered (see docs/metrics.json for canonical count)
- # → Mode: standalone (no API server needed)
- # → Cache: in-memory (5 min TTL)
-```
-
-### Hosted / SSE mode
+### Local dev with quota tracking
 
 ```bash
-PORT=3001 pnpm start:sse
-# → http://localhost:3001/sse
+cd packages/quill-mcp
+QUOTA_ENABLED=true QUILL_FREE_QUOTA=1000 QUOTA_PERSIST_PATH=./.quota-state.json pnpm start
+# → 🍁 MapleSpike MCP Server ready
+# → Tools: 164 registered
+# → Mode:  standalone (no API server needed)
+# → Cache: in-memory (5 min TTL)
+# → Quota: enabled (1000/mo/identity then x402)
 ```
 
-## Tools — 129 Total
+### Hosted / SSE mode (with auth)
 
-### Cross-source & Semantic (new)
-| Tool | Description | Sources |
-|------|-------------|---------|
-| `smart_search` | Intent-aware search across 17 sources with synonym expansion, time-series detection, auto-citations. `mode: "trends"` summarizes recent changes. | All |
-| `track_bill` | Track a federal bill end-to-end: status, debates, votes, regulatory impact | openparliament.ca (bills + debates + votes) |
-| `get_politician_influence` | Politician influence profile: MP info + lobbying records + GIC appointments | openparliament.ca + CKAN |
-| `compare_regions` | Compare provinces on economic indicators + federal spending | StatCan + CKAN |
-| `get_entity_profile` | Cross-reference a person's MP, lobbying, and GIC records | openparliament.ca + CKAN |
+```bash
+PORT=3001 \
+QUILL_API_KEY=sk_your_real_key \
+QUOTA_ENABLED=true \
+X402_ENABLED=true X402_RECIPIENT=<solana-wallet> \
+pnpm start
+# → http://localhost:3001/sse  (requires Bearer token)
+# → http://localhost:3001/health
+# → http://localhost:3001/metrics
+```
 
-### Parliament (openparliament.ca)
-| Tool | Description |
-|------|-------------|
-| `search_debates` | House of Commons debates with dates, frequent words, URLs |
-| `search_bills` | Federal bills with numbers, names, sessions, LEGISinfo IDs |
-| `search_votes` | Voting records with yea/nay counts, dates, results |
-| `get_member_info` | MP details: name, party, riding, photo |
-| `search_committees_op` | Structured committee names and slugs |
+Every successful tool call increments the per-identity counter. Quota state is snapshotted to `QUOTA_PERSIST_PATH` every 5 seconds (atomic write + rename). Every response carries `X-Quota-Limit`, `X-Quota-Used`, `X-Quota-Remaining`, `X-Quota-Reset`, and `X-Quota-Period` headers.
 
-### Government Data (CKAN)
-| Tool | Description |
-|------|-------------|
-| `search_committees` | HoC + Senate committee evidence and transcripts |
-| `search_gazette` | Canada Gazette regulations (Parts I, II, III) |
-| `search_corporate` | Lobbying registry, procurement |
-| `search_gic` | Governor-in-Council appointments |
-| `search_elections` | Elections Canada third-party data |
-| `search_canlii` | Court decisions via CanLII |
-| `search_lmia` | LMIA quarterly data |
-| `search_oversight` | OAG, PBO, Ethics, CRTC, Competition Bureau |
-| `search_immigration` | IRCC immigration data |
-| `search_cra_charity` | CRA registered charity data |
-| `search_health` | Health Canada, CIHI, PHAC data |
-| `search_defence` | DND and veterans data |
-| `search_criminal_justice` | CSC, RCMP crime data |
-| `search_influence` | NGO/think tank publications |
-| `search_provincial_lobbying` | Provincial lobbying registries |
-| `search_federal_budget` | Federal budget documents |
-| `search_bank_of_canada` | Bank of Canada data |
-| `search_statcan` | Statistics Canada data |
-| `search_indigenous_relations` | ISC, CIRNAC data |
-| *(+ 30+ more domain-specific search tools)* | |
+---
 
-### Utility
-| Tool | Description |
-|------|-------------|
-| `explore_catalog` | Browse all 126 tools by category |
-| `signal_check` | Change detection across committees, Gazette, lobbying, procurement, oversight |
-| `ai_ask` | Natural language Q&A with search-only fallback |
-| `qa_validate_module` | Validate data records against schema |
-| `qa_schema` | Extract TypeScript schema documentation |
-| `cache_status` | In-memory cache hit/miss stats |
-| `cache_clear` | Clear the in-memory cache |
+## Tools — 164 Total
 
-### Health & Monitoring
-| Tool | Description |
-|------|-------------|
-| `system_health` | MCP server health and metrics |
-| `get_module_health` | Per-module ingestion health |
-| `get_pipeline_health` | Pipeline-wide health summary |
-| `searxng_health` | SearXNG engine health |
+Source of truth: [`docs/metrics.json`](../../docs/metrics.json) → `mcpTools.count`.
 
-### Infrastructure
-| Tool | Description |
-|------|-------------|
-| `query_bridges` | Bridge conditions by province (StatCan) |
+### Cross-source & Semantic
+| Tool | Tier | Description |
+|------|------|-------------|
+| `smart_search` | premium | Intent-aware search across 17 sources with synonym expansion and time-series detection. |
+| `track_bill` | enterprise | Track a federal bill end-to-end: status, debates, votes, regulatory impact. |
+| `get_politician_influence` | micro | MP profile + lobbying records + GIC appointments. |
+| `compare_regions` | premium | Compare provinces on economic indicators + federal spending. |
+| `get_entity_profile` | micro | Cross-reference a person's MP, lobbying, and GIC records. |
+| `find_connections` | premium | Entity graph traversal across data sources. |
+| `fact_check` | premium | Source-grounded fact verification with citations. |
+| `ai_ask` | premium | Natural-language Q&A. |
+| `ai_analyze` | premium | Multi-document analysis with synthesis. |
+| `ai_search_semantic` | premium | Semantic similarity search. |
+
+> + ~140 more — see `src/tools/` for the full list (every entry in `src/tools/index.ts` is registered automatically).
+
+### Utility / Health (free)
+* `system_health` — health + local quota + cache stats
+* `cache_status` / `cache_clear` — in-memory cache management
+* `explore_catalog` — browse all 164 tools by category
+* `searxng_health`, `get_module_health`, `get_pipeline_health` — pipeline diagnostics
+* `qa_validate_module`, `qa_schema` — schema QA
+
+---
 
 ## Architecture
 
 ```
-AI Agent (Claude/Cursor/etc.)
+AI Agent (Claude / Cursor / any MCP host)
         │
         ▼
-  MapleSpike Quill (stdio/SSE)  = packages/quill-mcp
+  MapleSpike Quill  = packages/quill-mcp
+        │
+        ├── quota.ts        ──► 1000-free/month gate, then x402
+        ├── x402-middleware ──► Solana USDC payment verification (stub)
+        ├── pricing.ts      ──► per-tool tier prices (free/micro/standard/premium/enterprise)
         │
         ├── upstream-fetcher.ts ──► ouvert.canada.ca (CKAN)
-        │                        ──► api.openparliament.ca
-        │                        ──► www.gazette.gc.ca/rss/
-        │                        ──► www150.statcan.gc.ca (WDS)
-        │
-        ├── memory-store.ts ──► in-memory data (signals, briefs, entities)
-        │
-        ├── cache.ts ──► in-memory LRU (5 min TTL)
-        │
-        └── api-client.ts ──► Optional: MAPLESPIKE_API_URL (if API server available)
+        │                         ──► api.openparliament.ca
+        │                         ──► www.gazette.gc.ca/rss/
+        │                         ──► www150.statcan.gc.ca (WDS)
+        ├── cache.ts        ──► in-memory LRU (5 min TTL)
+        └── api-client.ts   ──► Optional: QUILL_API_URL (if API server available)
 ```
 
-All tools are standalone. No database, no API server, no configuration required.
+The quota tracker is **off by default** so the public `npx` experience stays zero-friction; opt in with `QUOTA_ENABLED=true`.
 
-## Data Sources
-
-| Source | Endpoint | License |
-|--------|----------|---------|
-| Federal Open Data | `ouvert.canada.ca/data/api/3/action` | OGL-Canada |
-| Open Parliament | `api.openparliament.ca` | CC attribution |
-| Canada Gazette | `www.gazette.gc.ca/rss/` | OGL-Canada |
-| Statistics Canada | `www150.statcan.gc.ca` | OGL-Canada |
-| Provincial CKANs | `data.ontario.ca`, `catalogue.data.gov.bc.ca`, `open.alberta.ca`, `www.donneesquebec.ca`, +more | OGL-province |
+---
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MAPLESPIKE_API_URL` | *(empty)* | Optional: API server URL for advanced features |
-| `MAPLESPIKE_API_KEY` | *(empty)* | API key (only needed if using API server) |
-| `PORT` | *(stdio)* | HTTP port for SSE mode |
-| `MAPLESPIKE_GATEWAY_URL` | *(empty)* | AI inference gateway for `ai_ask` synthesis |
+| `QUOTA_ENABLED` | `false` | Turn on the 1000-free/month gate (typically set in hosted K8s). |
+| `QUILL_FREE_QUOTA` | `1000` | Override the free quota per identity / month. |
+| `QUOTA_PERSIST_PATH` | *(none)* | Atomic JSON snapshot path (single-node persistence). |
+| `QUILL_API_URL` | *(empty)* | Optional: REST API server for advanced features. |
+| `QUILL_API_KEY` | *(empty)* | API key (only needed if using API server). |
+| `PORT` | *(stdio)* | HTTP port for SSE mode. |
+| `X402_ENABLED` | `false` | Enable Solana USDC per-call payment. |
+| `X402_RECIPIENT` | *(empty)* | Solana wallet address receiving payments. |
+| `QUILL_LOCALE` | `en-CA` | `en-CA` or `fr-CA` for tool descriptions. |
+| `QUILL_HANDLER_TIMEOUT_MS` | `55000` | Max handler runtime before gateway kills the connection. |
 
-No variables required for basic operation.
+---
 
 ## License
 
-MIT
+Apache-2.0
