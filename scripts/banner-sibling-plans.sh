@@ -2,11 +2,9 @@
 # Banner sibling plan files to point readers at ROADMAP.md as canonical.
 # Idempotent: skips files that already contain the banner marker.
 #
-# Defensive: the frontmatter probe tolerates a leading UTF-8 BOM byte
-# (U+FEFF) and stray whitespace on line 1 — both have caused the script
-# to misclassify a file as "no frontmatter" and prepend the banner above
-# a YAML `---` block in the past (see commit 2114c40 manual sed fix on
-# KANBAN-{AUTOMATION,SETUP}.md).
+# Auto-discovers `.sisyphus/plans/*.md` so any future plan added to that
+# directory is picked up on the next run, and combines with a short
+# static list of top-level Kanban/deploy/strategic-assessment files.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -16,24 +14,11 @@ BANNER='> ⚠️ **Historical artifact** — This document is preserved for cont
 
 MARKER='single source of truth for the active backlog'
 
-FILES=(
-  .sisyphus/plans/issue-130-email-notifications.md
-  .sisyphus/plans/issue-137-sedar-module.md
-  .sisyphus/plans/issue-138-journalism-mode.md
-  .sisyphus/plans/issue-194-195-live-tests.md
-  .sisyphus/plans/issue-199-portal-qa.md
-  .sisyphus/plans/issue-200-k3s-kubeconfig.md
-  .sisyphus/plans/issue-83-portal-refactor.md
-  .sisyphus/plans/gap-addressal-plan.md
-  .sisyphus/plans/git-cleanup-execution.md
-  .sisyphus/plans/git-maintenance-plan.md
-  .sisyphus/plans/implement-missing-modules.md
-  .sisyphus/plans/legal-compliance-audit.md
-  .sisyphus/plans/quality-issue-plan.md
-  DEPLOY-CHECKLIST.md
-  STRATEGIC-ASSESSMENT-STATUS.md
-  KANBAN-AUTOMATION.md
-  KANBAN-SETUP.md
+mapfile -t FILES < <(
+  {
+    find .sisyphus/plans -maxdepth 1 -name '*.md' | sort
+    printf '%s\n' DEPLOY-CHECKLIST.md STRATEGIC-ASSESSMENT-STATUS.md KANBAN-AUTOMATION.md KANBAN-SETUP.md
+  } | sort
 )
 
 updated=0
@@ -48,19 +33,29 @@ for f in "${FILES[@]}"; do
     continue
   fi
 
-  # Strip a leading UTF-8 BOM (U+FEFF) and any stray whitespace before
-  # testing equality to `---`. `xargs` (with no flags) trims and collapses
-  # internal whitespace runs on line 1.
+  # Frontmatter probe: `head -1` returns the first line. `tr -d $'\ufeff'`
+  # strips the UTF-8 BOM (U+FEFF → 3 bytes EF BB BF). `xargs` (no flags)
+  # trims leading/trailing whitespace as a side effect.
   if [[ "$(head -1 "$f" | tr -d $'\ufeff' | xargs)" == "---" ]]; then
-    # YAML frontmatter: find closing ---, insert banner after it
-    awk -v banner="$BANNER" '
-      NR==1 && /^---$/ { in_fm=1; print; next }
-      in_fm && /^---$/ { print; print ""; print banner; in_fm=0; next }
-      { print }
-    ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+    # YAML frontmatter: find the closing `---` within the first 10 lines and
+    # insert the banner after it. The `NR<=10` lookahead keeps a later
+    # thematic-break `---` from re-triggering. Wrapped in a subshell so a
+    # `trap EXIT` cleans up `*.tmp` on success or failure.
+    (
+      trap 'rm -f "$f.tmp"' EXIT
+      awk -v banner="$BANNER" '
+        NR==1 && /^---$/ { in_fm=1; print; next }
+        NR<=10 && in_fm && /^---$/ { print; print ""; print banner; in_fm=0; next }
+        { print }
+      ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+    )
   else
-    # No frontmatter: prepend banner + blank line
-    printf '%s\n\n' "$BANNER" | cat - "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+    # No frontmatter: prepend the banner + blank line. Subshell + trap
+    # so `*.tmp` is cleaned up if `cat`/`mv` errors mid-write.
+    (
+      trap 'rm -f "$f.tmp"' EXIT
+      printf '%s\n\n' "$BANNER" | cat - "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+    )
   fi
   updated=$((updated+1))
   echo "UPDATED: $f"
