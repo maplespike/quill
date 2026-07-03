@@ -3,15 +3,19 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import AgentChat from "@/components/dashboard/AgentChat";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="Ask" description="Ask natural language questions about Canadian government data. AI-powered answers with verified citations.">
+<BaseLayout title={i18n.t('ask.title')} description="Ask natural language questions about Canadian government data. AI-powered answers with verified citations." lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-20"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
     <div class="container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">AI-powered queries</Badge>
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">{i18n.t('ask.title')}</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        Ask&nbsp;<span class="text-gradient">MapleSpike</span>
+        {i18n.t('ask.title')}
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         Natural language queries across 206 government data modules. Every answer includes
@@ -25,18 +29,18 @@ import AgentChat from "@/components/dashboard/AgentChat";
     <div class="container mx-auto px-4 max-w-4xl">
       <div class="w-full ask-page-tabs" id="ask-tabs-root">
         <div class="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground mb-6">
-          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground shadow-sm" data-asktab="ask">Ask</button>
-          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground hover:text-foreground" data-asktab="history">History</button>
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground shadow-sm" data-asktab="ask">{i18n.t('ask.title')}</button>
+          <button class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-muted-foreground hover:text-foreground" data-asktab="history">{i18n.t('common.search')}</button>
         </div>
         <div class="ask-tab-panel" data-asktab="ask">
           <!-- Edge AI worker chat — direct fetch to /v1/ai/ask -->
-          <AgentChat client:load />
+          <AgentChat client:load lang={lang} />
         </div>
         <div class="ask-tab-panel hidden" data-asktab="history">
           <Card>
             <CardHeader>
-              <CardTitle>Query History</CardTitle>
-              <CardDescription>Your previous AI queries</CardDescription>
+              <CardTitle>{i18n.t('ask.title')}</CardTitle>
+              <CardDescription>{i18n.t('ask.placeholder')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div id="history-list" class="space-y-3">

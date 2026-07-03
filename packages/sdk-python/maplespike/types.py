@@ -88,16 +88,19 @@ class MapleSpikeApiError:
     status: int = 0
     code: str = ''
     message: str = ''
+    message_fr: str = ''
     request_id: Optional[str] = None
 
 
 class MapleSpikeError(Exception):
     """Exception raised for API errors."""
 
-    def __init__(self, err: MapleSpikeApiError):
+    def __init__(self, err: 'MapleSpikeApiError'):
         self.status = err.status
         self.code = err.code
         self.request_id = err.request_id
+        self.message_en = err.message
+        self.message_fr = err.message_fr or ''
         super().__init__(err.message)
 
 

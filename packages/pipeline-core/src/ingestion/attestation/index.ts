@@ -29,6 +29,8 @@ export interface Citation {
   retrievedAt: string;
   /** Expected update cadence (e.g. "monthly", "daily", "realtime") */
   updateFrequency: string;
+  /** Language of the source data: 'en', 'fr', or 'both' */
+  lang?: string;
   /** Merkle tree root hash for this pipeline run (optional) */
   merkleRoot?: string;
   /** Ed25519 signature over `dataHash + sourceUrl + retrievedAt` (optional) */

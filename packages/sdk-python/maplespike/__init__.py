@@ -37,6 +37,7 @@ from .client import (
     build_headers,
     parse_response,
     _make_request,
+    get_bilingual_error,
 )
 from .auth import get_api_key, set_api_key, get_jwt_token, set_jwt_token, clear_auth, is_authenticated
 from .agents import AGENTS, get_agent, list_agents, list_actions
@@ -140,6 +141,7 @@ class MapleSpike:
         api_key: MapleSpike API key.
         base_url: Base URL of the API. Defaults to https://api.maplespike.ca.
         jwt_token: JWT token for authentication (alternative to api_key).
+        lang: Language for error messages: 'en' (default) or 'fr'.
     """
 
     def __init__(
@@ -147,10 +149,12 @@ class MapleSpike:
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         jwt_token: Optional[str] = None,
+        lang: str = 'en',
     ):
         self._api_key: Optional[str] = api_key
         self._jwt_token: Optional[str] = jwt_token
         self._base_url: str = resolve_base_url(base_url)
+        self._lang: str = lang
 
         # Sync to auth module
         if api_key:
@@ -185,6 +189,14 @@ class MapleSpike:
     @base_url.setter
     def base_url(self, url: str) -> None:
         self._base_url = resolve_base_url(url)
+
+    @property
+    def lang(self) -> str:
+        return self._lang
+
+    @lang.setter
+    def lang(self, l: str) -> None:
+        self._lang = l
 
     # ─── Auth helpers ──────────────────────────────────────────────────────
 
@@ -264,9 +276,12 @@ class MapleSpike:
 
         url = build_url(self._base_url, agent, action, params, options)
         headers = build_headers(self._api_key, self._jwt_token)
+        # Pass language preference via header
+        if self._lang and self._lang != 'en':
+            headers['Accept-Language'] = self._lang
 
         status, body, resp_headers = _make_request(url, headers)
-        return parse_response(status, body, agent, action)
+        return parse_response(status, body, agent, action, self._lang)
 
     # ─── Chained API ───────────────────────────────────────────────────────
 

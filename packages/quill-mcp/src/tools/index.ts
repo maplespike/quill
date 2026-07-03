@@ -3,6 +3,7 @@
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
+import { getFrDescription } from './bilingual-descriptions.js';
 import * as queryGovData from './query-gov-data.js';
 import * as factCheck from './fact-check.js';
 import * as getCitation from './get-citation.js';
@@ -231,13 +232,21 @@ function wrapHandler(name: string, handler: ToolHandler): ToolHandler {
 }
 
 /**
- * Wrap all tool modules so their handlers never throw.
+ * Wrap all tool modules so their handlers never throw and inject bilingual descriptions.
  */
 function wrapTools(modules: ToolModule[]): ToolModule[] {
-  return modules.map(m => ({
-    definition: m.definition,
-    handler: wrapHandler(m.definition.name, m.handler),
-  }));
+  return modules.map(m => {
+    // Inject French description if available
+    const frDesc = getFrDescription(m.definition.name);
+    let descriptions = m.definition.descriptions ?? {};
+    if (frDesc) {
+      descriptions = { ...descriptions, 'fr-CA': frDesc };
+    }
+    return {
+      definition: { ...m.definition, descriptions },
+      handler: wrapHandler(m.definition.name, m.handler),
+    };
+  });
 }
 
 export function getAllTools(): ToolModule[] {

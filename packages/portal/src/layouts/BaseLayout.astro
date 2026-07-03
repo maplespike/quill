@@ -396,6 +396,10 @@ const isActive = (match: string) =>
     <!-- Shared scroll-shrink utility (DRY with static landing page) -->
     <script src="/nav-scroll.js" is:inline></script>
     <script is:inline>
+      // Expose current language for client-side React components
+      window.__LANG = "{lang}";
+    </script>
+    <script is:inline>
       // Shrink sticky header on scroll (shared nav-scroll.js utility)
       if (window.navScroll) {
         window.navScroll.start({ selector: 'header', threshold: 40, className: 'scrolled' });
