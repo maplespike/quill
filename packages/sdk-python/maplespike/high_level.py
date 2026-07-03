@@ -172,6 +172,7 @@ class MapleSpikeClient:
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         jwt_token: Optional[str] = None,
+        lang: str = 'en',
     ) -> None:
         # Lazy import to avoid circular dependency
         from . import MapleSpike  # noqa: PLC0415
@@ -180,6 +181,7 @@ class MapleSpikeClient:
             api_key=api_key,
             base_url=base_url,
             jwt_token=jwt_token,
+            lang=lang,
         )
 
     # ── Convenience accessors ──────────────────────────────────────────

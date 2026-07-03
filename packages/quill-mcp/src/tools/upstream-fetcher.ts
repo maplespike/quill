@@ -89,10 +89,17 @@ const GAZETTE_RSS_URLS = [
   { part: 'Part III', url: 'https://www.gazette.gc.ca/rss/en-ls-eng.xml' },
 ];
 
-export async function fetchGazette(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
-  return cached('gazette', { query, limit }, async () => {
+const GAZETTE_FR_RSS_URLS = [
+  { part: 'Partie I', url: 'https://www.gazette.gc.ca/rss/p1-fra.xml' },
+  { part: 'Partie II', url: 'https://www.gazette.gc.ca/rss/p2-fra.xml' },
+  { part: 'Partie III', url: 'https://www.gazette.gc.ca/rss/fr-ls-fra.xml' },
+];
+
+export async function fetchGazette(query: string, limit = 10, lang?: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('gazette', { query, limit, lang }, async () => {
     const items: Record<string, unknown>[] = [];
-    for (const feed of GAZETTE_RSS_URLS) {
+    const feeds = lang === 'fr' ? GAZETTE_FR_RSS_URLS : GAZETTE_RSS_URLS;
+    for (const feed of feeds) {
       try {
         const text = await fetchText(feed.url);
         const titles: string[] = []; const links: string[] = [];

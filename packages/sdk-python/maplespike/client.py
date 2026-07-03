@@ -13,6 +13,23 @@ from .auth import get_api_key, get_jwt_token
 
 DEFAULT_BASE_URL = 'https://api.maplespike.ca'
 
+# Bilingual error message map for SDK-generated errors
+BILINGUAL_ERRORS: dict[str, dict[str, str]] = {
+    'HTTP_ERROR': {
+        'en': 'The server returned an unexpected response',
+        'fr': 'Le serveur a renvoyé une réponse inattendue',
+    },
+    'NETWORK_ERROR': {
+        'en': 'A network error occurred. Please check your connection.',
+        'fr': 'Une erreur réseau est survenue. Vérifiez votre connexion.',
+    },
+}
+
+
+def get_bilingual_error(code: str, lang: str = 'en') -> str:
+    """Resolve a bilingual error message by code."""
+    return BILINGUAL_ERRORS.get(code, BILINGUAL_ERRORS['HTTP_ERROR']).get(lang, BILINGUAL_ERRORS['HTTP_ERROR']['en'])
+
 
 def resolve_base_url(custom_base_url: Optional[str] = None) -> str:
     """Determine the base URL."""
@@ -103,6 +120,7 @@ def parse_response(
     body: Any,
     agent: str = '',
     action: str = '',
+    lang: str = 'en',
 ) -> MapleSpikeResponse:
     """Parse an API response into a MapleSpikeResponse."""
     if status == 0:
@@ -122,6 +140,7 @@ def parse_response(
             status=status,
             code=body.get('code', 'HTTP_ERROR') if isinstance(body, dict) else 'HTTP_ERROR',
             message=body.get('message', str(status)) if isinstance(body, dict) else str(status),
+            message_fr=body.get('messageFr', '') if isinstance(body, dict) else '',
             request_id=body.get('requestId') if isinstance(body, dict) else None,
         )
         raise MapleSpikeError(api_error)

@@ -5,16 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="Contact Us" description="Get in touch with the MapleSpike team">
+<BaseLayout title={i18n.t('contact.title')} description="Get in touch with the MapleSpike team" lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">We are here to help</Badge>
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">{i18n.t('lang.switch')}</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        Contact <span class="text-gradient">Us</span>
+        {i18n.t('contact.title')}
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         Have questions about our government data intelligence platform? We are here to help.

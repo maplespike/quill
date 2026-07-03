@@ -2,6 +2,7 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { createI18n } from "@maplespike/i18n";
 
 interface BlogPost {
   title: string;
@@ -68,17 +69,21 @@ const posts: BlogPost[] = [
     author: "Engineering",
   },
 ];
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 <BaseLayout
-  title="Blog"
+  title={i18n.t('blog.title')}
   description="MapleSpike blog — updates, technical deep-dives, and announcements about Canadian government data intelligence."
+  lang={lang}
 >
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
     <div class="container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          <span class="text-primary">Blog</span>
+          <span class="text-primary">{i18n.t('blog.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           Updates, technical deep-dives, and announcements from the MapleSpike team. Follow along as we
@@ -123,7 +128,7 @@ const posts: BlogPost[] = [
                   title="Detail pages launching with the public RSS feed"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                  Preview
+                  {i18n.t('blog.read_more')}
                 </span>
               </div>
             </Card>

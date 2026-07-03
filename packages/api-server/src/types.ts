@@ -145,7 +145,10 @@ export function parseQueryOptions(url: URL): QueryOptions {
 
 export interface ApiError {
   code: string;
+  /** English message (always present) */
   message: string;
+  /** French message (always present for bilingual support) */
+  message_fr?: string;
   details?: unknown[];
 }
 

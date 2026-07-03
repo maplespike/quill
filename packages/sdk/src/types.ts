@@ -82,6 +82,8 @@ export interface AuthConfig {
 
 export interface SdkConfig extends AuthConfig {
   baseUrl?: string;
+  /** Language for error messages: 'en' (default) or 'fr' */
+  lang?: 'en' | 'fr';
 }
 
 // ─── Error types ────────────────────────────────────────────────────────────
@@ -91,6 +93,8 @@ export interface MapleSpikeApiError {
   code: string;
   message: string;
   requestId?: string;
+  /** Bilingual messages: English and French */
+  messageFr?: string;
 }
 
 export class MapleSpikeError extends Error {

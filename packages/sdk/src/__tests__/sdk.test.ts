@@ -63,6 +63,23 @@ describe('MapleSpike SDK', () => {
     assert.equal(typeof mod.buildUrl, 'function');
     assert.equal(typeof mod.buildHeaders, 'function');
     assert.equal(typeof mod.parseResponse, 'function');
+    assert.equal(typeof mod.getBilingualError, 'function');
+  });
+
+  it('getBilingualError returns correct language', async () => {
+    const { getBilingualError } = await import('../query.js');
+    assert.equal(getBilingualError('HTTP_ERROR', 'en'), 'The server returned an unexpected response');
+    assert.equal(getBilingualError('HTTP_ERROR', 'fr'), 'Le serveur a renvoyé une réponse inattendue');
+    assert.equal(getBilingualError('NETWORK_ERROR', 'en'), 'A network error occurred. Please check your connection.');
+    assert.equal(getBilingualError('NETWORK_ERROR', 'fr'), 'Une erreur réseau est survenue. Vérifiez votre connexion.');
+  });
+
+  it('MapleSpike client supports lang option', () => {
+    const { MapleSpike } = require('../index.js');
+    const clientEn = new MapleSpike({ lang: 'en' });
+    const clientFr = new MapleSpike({ lang: 'fr' });
+    assert.equal(clientEn.lang, 'en');
+    assert.equal(clientFr.lang, 'fr');
   });
 
   it('exports agent action definitions', async () => {
