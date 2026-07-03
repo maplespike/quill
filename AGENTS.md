@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-19
+last-reviewed: 2026-07-04
 status: active
 ---
 
@@ -7,7 +7,7 @@ status: active
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
 > **Data-layer MCP product:** [Quill](./docs/products/quill.md) (see ADR [0005](./docs/decisions/0005-quill-product-name.md)).
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 208 modules, 164 MCP tools, ~191K lines TS, 13 packages.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 208 modules, 165 MCP tools, ~199K lines TS, 14 packages.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
@@ -20,7 +20,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | Type | pnpm monorepo (pnpm@10.32.1) |
 | Orchestrator | Turbo (workspace config in `turbo.json`) |
 | Node | ≥18 (CI uses 22) |
-| Packages | 13 in pnpm workspace (incl. `sdk-python` with `python -m build`) + dashboard (workspace-excluded, OWASP integrated into portal) = 14 directories in `packages/`. See [docs/metrics.json](./docs/metrics.json) `packages.names` for the authoritative list. |
+| Packages | 14 in pnpm workspace (incl. `sdk-python` with `python -m build` and the new `i18n` package) = 14 directories in `packages/`. See [docs/metrics.json](./docs/metrics.json) `packages.names` for the authoritative list. |
 | TS | strict mode, ES2022 target, ESNext modules (bundler resolution) |
 | No ESLint/Prettier | Match existing code style |
 | npm scope | `@maplespike/` |
@@ -47,7 +47,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | `notification-service` | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
 | `create-module` | `dist/cli.js` (bin) | `tsc -b` | — | No |
 | `docs` | `src/index.md` | VitePress | — | No |
-| `dashboard` | — | Excluded from workspace (OWASP integrated into portal) | — | No |
+
 
 ---
 
@@ -181,7 +181,7 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 
 ## Known Issues
 
-- `packages/dashboard` build fails (excluded from workspace — OWASP dashboard is in portal)
+- (removed) OWASP dashboard merged into `packages/portal`; no dedicated dashboard directory remains
 - `packages/pretext-civic` directory has been removed (was orphaned React component library after the Next.js → Astro portal migration)
 - Sentry node occasionally goes NotReady (k3s etcd flapping)
 - Forge node status Unknown (mining workload — non-critical for MapleSpike)
