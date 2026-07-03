@@ -13,7 +13,7 @@ Comprehensive architecture documentation for the MapleSpike monorepo — a sover
 
 MapleSpike is a unified data pipeline that ingests, verifies, and surfaces Canadian public-domain government data across federal, provincial, territorial, and municipal levels. The system provides three primary access patterns: Model Context Protocol (MCP) for AI agents, REST API for developers, and client SDKs for programmatic integration. All data records include SHA-256 citation hashes, source provenance, and audit trails for independent verification.
 
-The platform currently maintains 164 registered MCP tools, 208 modules in the registry (191 ingestion directories), and approximately 191,000 lines of TypeScript code across 14 packages (13 in the pnpm workspace including sdk-python; `dashboard` is workspace-excluded; the older `pretext-civic` directory was orphaned and has been removed). Authoritative breakdown: [docs/metrics.json](./metrics.json) `packages.names`. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
+The platform currently maintains 164 registered MCP tools, 208 modules in the registry (203 ingestion directories), and approximately 191,000 lines of TypeScript code across 14 packages (13 in the pnpm workspace including sdk-python; `dashboard` is workspace-excluded; the older `pretext-civic` directory was orphaned and has been removed). Authoritative breakdown: [docs/metrics.json](./metrics.json) `packages.names`. Data flows from upstream government APIs and open data portals through ingestion pipelines into a SQLite database, which is then consumed by the MCP server, API server, and cross-reference engine.
 
 ```
                            Upstream Government APIs
@@ -69,7 +69,7 @@ The monorepo follows a standard pnpm workspace structure. `packages/` contains 1
 | `api-server` | Server | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
 | `engine` | Library | `src/index.ts` | `tsc` | `vitest` | No |
 | `sdk` | Library | `dist/index.js` | `tsup` | `tsx --test` | Yes (npm) |
-| `sdk-python` | Library | `maplespike/__init__.py` | `python -m build` | — | Yes (PyPI) |
+| `sdk-python` | Library | `quill/__init__.py` | `python -m build` | — | Yes (PyPI) |
 | `legal-core` | Library | `dist/index.js` | `tsup` | — | Yes (npm) |
 | `legislation` | Library | `dist/index.js` | `tsup` | — | Yes (npm) |
 | `database` | Library | `src/index.ts` | `tsc -b` (node:sqlite at runtime) | `node --test` (tsx) | No |
@@ -86,7 +86,7 @@ Data flows through a multi-stage pipeline from upstream sources to end consumers
 
 ### Ingestion Stage
 
-The `pipeline-core` package contains 191 ingestion directories, each implementing a standalone `fetch → parse → persist` pipeline. Modules pull data from 1,240+ unique external endpoints across:
+The `pipeline-core` package contains 203 ingestion directories, each implementing a standalone `fetch → parse → persist` pipeline. Modules pull data from 1,240+ unique external endpoints across:
 
 - **Federal sources**: IRCC immigration, StatCan WDS (CPI/GDP/labour/population/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI requests, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
 - **Parliamentary sources**: House and Senate committee evidence via XML, Hansard transcripts, Canada Gazette RSS feeds, LEGISinfo bills
@@ -113,7 +113,7 @@ Data is surfaced through three primary access patterns:
 
 2. **API Server**: The `@maplespike/api-server` package provides a REST API gateway with Bearer authentication, rate limiting, and usage tracking. Multi-tenant architecture supports API keys and JWT tokens. The server wraps pipeline-core and engine functionality for programmatic access.
 
-3. **SDK Clients**: The `@maplespike/sdk` (TypeScript) and `maplespike-sdk` (Python) packages provide typed client libraries that simplify API access with domain-specific methods and full TypeScript type safety.
+3. **SDK Clients**: The `@maplespike/sdk` (TypeScript) and `quill-sdk` (Python) packages provide typed client libraries that simplify API access with domain-specific methods and full TypeScript type safety.
 
 ### Analysis Stage
 
@@ -242,8 +242,8 @@ A Caddy ingress controller routes both `.lan` domains to the correct services an
 ### Development Endpoints
 
 - Portal: https://dev.maplespike.lan
-- API: https://dev-maplespike-api.lan
-- MCP: https://dev-maplespike-quill.lan
+- API: https://dev-quill-api.lan
+- MCP: https://dev-quill-mcp.lan
 
 ### CI/CD Pipeline
 
@@ -253,7 +253,7 @@ GitHub Actions drives the two-environment deployment model:
 |--------|----------|--------|
 | `main` | CI (ci.yml) | Run tests on every push |
 | `main` | Deploy Dev (deploy-dev.yml) | Build + deploy to `maplespike-dev` namespace |
-| `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `maplespike-prod` namespace |
+| `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `quill-prod` namespace |
 
 Container images are tagged `:dev` for development builds and `:latest` for production. Each workflow builds the application, pushes to the container registry, and applies the corresponding Kubernetes manifests.
 
@@ -409,7 +409,7 @@ The repository uses a mixed licensing strategy: `pipeline-core` is AGPL-3.0 (str
 
 ### Ingestion Module Architecture
 
-Each of the 191 ingestion modules (per [docs/metrics.json](./metrics.json)) implements a consistent `fetch → parse → persist` pattern with independent module isolation. This architecture enables incremental onboarding of new data sources without touching core code, source-specific error handling and retry logic, module-level health monitoring and metrics, and testable units with clear boundaries. The trade-off is some code duplication across modules, but consistency and maintainability are prioritized.
+Each of the 203 ingestion modules (per [docs/metrics.json](./metrics.json)) implements a consistent `fetch → parse → persist` pattern with independent module isolation. This architecture enables incremental onboarding of new data sources without touching core code, source-specific error handling and retry logic, module-level health monitoring and metrics, and testable units with clear boundaries. The trade-off is some code duplication across modules, but consistency and maintainability are prioritized.
 
 ### No External Cloud Spend
 
@@ -449,7 +449,7 @@ The `pretext-civic` package is orphaned because the portal migrated from Next.js
 
 ### pipeline-core
 
-The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 191 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. The package is licensed under AGPL-3.0 to ensure modifications to the core pipeline remain open-source.
+The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 203 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. The package is licensed under AGPL-3.0 to ensure modifications to the core pipeline remain open-source.
 
 ### quill-mcp
 
@@ -469,7 +469,7 @@ The `@maplespike/sdk` package is the TypeScript client library providing a typed
 
 ### sdk-python
 
-The `maplespike-sdk` package is the Python client library providing the same functionality as the TypeScript SDK for Python developers. It mirrors the TypeScript SDK's API design with domain-specific methods and full type hints. The package uses `setuptools` for building with optional `langchain` and `pydantic` dependencies for LangChain integration. It is published to PyPI, supports Python 3.8+, and is licensed under MIT. The Python SDK enables MapleSpike integration in data science workflows, Jupyter notebooks, and Python-based applications.
+The `quill-sdk` package is the Python client library providing the same functionality as the TypeScript SDK for Python developers. It mirrors the TypeScript SDK's API design with domain-specific methods and full type hints. The package uses `setuptools` for building with optional `langchain` and `pydantic` dependencies for LangChain integration. It is published to PyPI, supports Python 3.8+, and is licensed under MIT. The Python SDK enables MapleSpike integration in data science workflows, Jupyter notebooks, and Python-based applications.
 
 ### legal-core
 
@@ -501,4 +501,4 @@ The `pretext-civic` package is an orphaned React component library that was prev
 
 MapleSpike represents a comprehensive approach to Canadian government data aggregation and distribution, balancing technical sophistication with practical deployment constraints. The architecture prioritizes data sovereignty, ease of AI integration, and developer experience while maintaining zero external cloud spend. The monorepo structure with pnpm and Turbo enables efficient development and deployment across 13 packages, while the separation of concerns between ingestion, storage, access, and analysis ensures maintainability and scalability.
 
-The system currently processes 198 data modules across federal, provincial, territorial, and municipal sources, exposing 164 registered MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.
+The system currently processes 208 data modules across federal, provincial, territorial, and municipal sources, exposing 164 registered MCP tools and supporting TypeScript and Python SDKs. Future development will focus on expanding module coverage toward the 150+ module target, enhancing the cross-reference engine's capabilities, and adding billing infrastructure for public API access.

@@ -164,7 +164,7 @@ function generateOrderId(): string {
 }
 
 function signOrder(orderId: string, tenantId: string): string {
-  const secret = process.env.MAPLESPIKE_BILLING_SECRET || 'dev-secret';
+  const secret = process.env.QUILL_BILLING_SECRET || 'dev-secret';
   const payload = `${orderId}:${tenantId}`;
   return crypto.createHmac('sha256', secret).update(payload).digest('hex');
 }
@@ -182,7 +182,7 @@ export const billingPlansHandler: RouteHandler = async (_request, ctx) => {
 export const billingSeedPlansHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   const secret = request.headers.get('X-Billing-Secret');
-  if (secret !== process.env.MAPLESPIKE_BILLING_SECRET) {
+  if (secret !== process.env.QUILL_BILLING_SECRET) {
     return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 
@@ -256,7 +256,7 @@ export const billingOrderStatusHandler: RouteHandler = async (request, ctx, para
 export const billingReconcileHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   const secret = request.headers.get('X-Billing-Secret');
-  if (secret !== process.env.MAPLESPIKE_BILLING_SECRET) {
+  if (secret !== process.env.QUILL_BILLING_SECRET) {
     return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 
@@ -273,7 +273,7 @@ export const billingReconcileHandler: RouteHandler = async (request, ctx) => {
 export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   const secret = request.headers.get('X-Billing-Secret');
-  if (secret !== process.env.MAPLESPIKE_BILLING_SECRET) {
+  if (secret !== process.env.QUILL_BILLING_SECRET) {
     return jsonResponse(buildError('UNAUTHORIZED', 'Unauthorized', bc), 401);
   }
 

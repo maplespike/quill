@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — Mock module (removed)
+# Quill SDK — Mock module (removed)
 # ---------------------------------------------------------------------------
 #
 # The hardcoded mock data previously in this module has been removed.
@@ -7,7 +7,7 @@
 #
 # Provide an API key or JWT token to the MapleSpike client:
 #
-#     from maplespike import MapleSpike
+#     from quill import MapleSpike
 #     ms = MapleSpike(api_key='ms_live_...')
 #     result = ms.query('committees', 'committee-membership', {'parliament': 44})
 #
@@ -21,9 +21,9 @@ from .types import MapleSpikeResponse, ResponseMeta, ResponseQuality, Citation
 
 NO_MOCK_MESSAGE = (
     'Hardcoded mock data has been removed. '
-    'To use the MapleSpike SDK, connect to the live API by providing an '
-    'api_key or jwt_token to the MapleSpike() constructor, or set the '
-    'MAPLESPIKE_API_KEY environment variable.\n\n'
+    'To use the Quill SDK, connect to the live MapleSpike API by providing '
+    'an api_key or jwt_token to the MapleSpike() constructor, or set the '
+    'QUILL_API_KEY environment variable.\n\n'
     '    ms = MapleSpike(api_key="ms_live_...")\n'
     '    result = ms.query("committees", "committee-membership", {"parliament": 44})\n\n'
     'See https://maplespike.ca/docs for an API key.'

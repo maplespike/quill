@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — High-level client with convenience methods
+# Quill SDK — High-level client with convenience methods
 # ---------------------------------------------------------------------------
 """
 High-level client for the MapleSpike API.
@@ -11,7 +11,7 @@ inspection, plus standalone ``Search``, ``EntityResolution``, and
 
 Usage::
 
-    from maplespike import MapleSpikeClient
+    from quill import MapleSpikeClient
 
     client = MapleSpikeClient(api_key="msk_live_...")
 
@@ -157,10 +157,9 @@ class MapleSpikeClient:
     methods for common tasks.
 
     Parameters
-    ----------
-    api_key:
-        MapleSpike API key.  Falls back to the
-        :func:`maplespike.auth.get_api_key` module-level value.
+    ----------        api_key:
+            MapleSpike API key.  Falls back to the
+            :func:`quill.auth.get_api_key` module-level value.
     base_url:
         Base URL of the API (default: ``https://api.maplespike.ca``).
     jwt_token:
