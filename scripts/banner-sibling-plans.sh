@@ -42,10 +42,11 @@ for f in "${FILES[@]}"; do
     # thematic-break `---` from re-triggering. Wrapped in a subshell so a
     # `trap EXIT` cleans up `*.tmp` on success or failure.
     (
-      trap 'rm -f "$f.tmp"' EXIT
+      trap 'rm -f "$f.tmp"' ERR EXIT
       awk -v banner="$BANNER" '
         NR==1 && /^---$/ { in_fm=1; print; next }
-        NR<=10 && in_fm && /^---$/ { print; print ""; print banner; in_fm=0; next }
+        # TODO: raise NR<=50 (or remove entirely) once a future plan file ships with >50-line YAML frontmatter; the current bound is ~12x the KANBAN-{AUTOMATION,SETUP}.md schema and breaks silently if exceeded.
+        NR<=50 && in_fm && /^---$/ { print; print ""; print banner; in_fm=0; next }
         { print }
       ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
     )
@@ -53,7 +54,7 @@ for f in "${FILES[@]}"; do
     # No frontmatter: prepend the banner + blank line. Subshell + trap
     # so `*.tmp` is cleaned up if `cat`/`mv` errors mid-write.
     (
-      trap 'rm -f "$f.tmp"' EXIT
+      trap 'rm -f "$f.tmp"' ERR EXIT
       printf '%s\n\n' "$BANNER" | cat - "$f" > "$f.tmp" && mv "$f.tmp" "$f"
     )
   fi
