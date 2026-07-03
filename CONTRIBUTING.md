@@ -46,7 +46,9 @@ git config --local core.hooksPath .githooks
 ```
 
 > **Note for new contributors:** `.git/config` is per-clone, not tracked in git.
-> Each fresh clone (including new worktrees) requires re-activation.
+> Each fresh clone requires re-activation. Worktrees share `.git/` with the
+> parent checkout, so they automatically inherit the parent clone's
+> `core.hooksPath` setting (no re-activation needed per-worktree).
 > The hooks are not auto-installed by `pnpm install` or any other tool.
 
 To verify:

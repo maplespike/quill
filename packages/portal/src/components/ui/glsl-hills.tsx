@@ -10,9 +10,9 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
     // Phase 6 ROADMAP row: "prefers-reduced-motion fallback for AnimatedShaderBackground".
     // We still mount the WebGL canvas (so the visual layout is preserved) but skip
     // the requestAnimationFrame loop entirely.
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // The component is mounted as client:only="react" in Astro (per Phase 2 lessons),
+    // so `window` is always defined here — no SSR guard needed.
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     class Plane {
       uniforms: { time: { type: string; value: number } };
