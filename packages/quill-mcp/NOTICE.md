@@ -10,6 +10,14 @@ Copyright 2026 MapleSpike contributors
 This product includes software developed at
 MapleSpike (https://maplespike.ca).
 
+> **Licensing interaction:** When this package (Apache-2.0) is statically
+> or dynamically linked to `@maplespike/database` or `@maplespike/pipeline-core`
+> (both AGPL-3.0-or-later per `LICENSE.md` three-tier model), the combined
+> work inherits AGPL network-copyleft obligations. Apache-2.0 §3 (patent
+> grant) does NOT override the AGPL §13 network clause. Downstream
+> republishers must comply with AGPL-3.0-or-later or purchase a
+> commercial license — see `LICENSE.md` §"Commercial License".
+
 ## Upstream Data Sources
 
 This product fetches data from **203 upstream data modules** spanning
