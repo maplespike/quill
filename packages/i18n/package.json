@@ -1,0 +1,26 @@
+{
+  "name": "@maplespike/i18n",
+  "version": "0.1.0",
+  "description": "Shared bilingual EN/FR localization for MapleSpike",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "test": "tsx --test src/__tests__/*.test.ts"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./en": "./dist/en.js",
+    "./fr": "./dist/fr.js",
+    "./detect": "./dist/detect.js",
+    "./formatters": "./dist/formatters.js",
+    "./types": "./dist/types.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^4.22.5"
+  }
+}
