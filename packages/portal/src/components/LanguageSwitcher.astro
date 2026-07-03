@@ -1,0 +1,29 @@
+---
+import { createI18n } from '@maplespike/i18n';
+import { localeUrl } from '../utils/localeUrl';
+
+export interface Props {
+  currentLang: 'en' | 'fr';
+  currentPath: string;
+}
+
+const { currentLang, currentPath } = Astro.props;
+const i18n = createI18n(currentLang);
+
+const targetLang = currentLang === 'en' ? 'fr' : 'en';
+const targetUrl = localeUrl(currentPath, targetLang);
+---
+
+<a
+  href={targetUrl}
+  class="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
+  aria-label={i18n.t(targetLang === 'fr' ? 'lang.fr_label' : 'lang.en_label')}
+  title={i18n.t(targetLang === 'fr' ? 'lang.fr_label' : 'lang.en_label')}
+>
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M2 12h20"/>
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+  </svg>
+  <span>{currentLang === 'en' ? 'FR' : 'EN'}</span>
+</a>
