@@ -20,6 +20,8 @@ import { TIER_LIMITS } from './types.js';
 import { normalizeFields, convertUnits } from './utils/normalize.js';
 import { randomUUID } from 'node:crypto';
 import { applySecurityHeaders } from './middleware/security-headers.js';
+import { buildBilingualError, detectLocale } from './error-codes.js';
+import type { BilingualError } from './error-codes.js';
 
 export type { CitationMeta, QualityMeta };
 
@@ -246,11 +248,18 @@ export function buildError(
   statusCode?: number,
   details?: unknown[],
 ): ApiResponse<null> {
+  // Look up bilingual error for this code
+  const bilingual = buildBilingualError(code);
   return {
     success: false,
     data: null,
     text: null,
-    error: { code, message, ...(details ? { details } : {}) },
+    error: {
+      code,
+      message,
+      message_fr: bilingual.fr,
+      ...(details ? { details } : {}),
+    },
     meta: buildResponseMeta(ctx, ctx.metaOverrides),
     quality: buildQualityMeta(ctx),
     citation: OGL_C_CITATION,

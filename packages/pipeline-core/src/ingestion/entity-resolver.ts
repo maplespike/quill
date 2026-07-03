@@ -55,14 +55,19 @@ export function registerEntity(entity: ResolvedEntity): void {
 export function seedKnownEntities(): void {
   const seedData: ResolvedEntity[] = [
     { id: 'org-lobbycanada', name: 'LobbyCanada', type: 'organization', source: 'registry', confidence: 1, aliases: ['lobbycanada.gc.ca', 'OCL'] },
-    { id: 'org-opencanada', name: 'open.canada.ca', type: 'organization', source: 'registry', confidence: 1, aliases: ['ouvert.canada.ca', 'Open Data Portal'] },
-    { id: 'org-canadabuys', name: 'CanadaBuys', type: 'organization', source: 'registry', confidence: 1, aliases: ['canadabuys.canada.ca', 'BuyAndSell'] },
-    { id: 'org-statcan', name: 'Statistics Canada', type: 'organization', source: 'registry', confidence: 1, aliases: ['StatCan', 'statcan.gc.ca'] },
-    { id: 'org-ourcommons', name: 'House of Commons', type: 'organization', source: 'registry', confidence: 1, aliases: ['ourcommons.ca', 'Parliament'] },
-    { id: 'org-sencanada', name: 'Senate of Canada', type: 'organization', source: 'registry', confidence: 1, aliases: ['sencanada.ca', 'Senate'] },
-    { id: 'org-canlii', name: 'CanLII', type: 'organization', source: 'registry', confidence: 1, aliases: ['canlii.org', 'Canadian Legal Information Institute'] },
-    { id: 'org-gazette', name: 'Canada Gazette', type: 'organization', source: 'registry', confidence: 1, aliases: ['gazette.gc.ca'] },
-    { id: 'person-pm', name: 'Prime Minister of Canada', type: 'person', source: 'registry', confidence: 1, aliases: ['PM', 'Premier ministre'] },
+    { id: 'org-opencanada', name: 'open.canada.ca', type: 'organization', source: 'registry', confidence: 1, aliases: ['ouvert.canada.ca', 'Open Data Portal', 'Portail de données ouvertes'] },
+    { id: 'org-canadabuys', name: 'CanadaBuys', type: 'organization', source: 'registry', confidence: 1, aliases: ['canadabuys.canada.ca', 'BuyAndSell', 'AchatsCanada'] },
+    { id: 'org-statcan', name: 'Statistics Canada', type: 'organization', source: 'registry', confidence: 1, aliases: ['StatCan', 'statcan.gc.ca', 'Statistique Canada'] },
+    { id: 'org-ourcommons', name: 'House of Commons', type: 'organization', source: 'registry', confidence: 1, aliases: ['ourcommons.ca', 'Parliament', 'Chambre des communes', 'noscommunes.ca'] },
+    { id: 'org-sencanada', name: 'Senate of Canada', type: 'organization', source: 'registry', confidence: 1, aliases: ['sencanada.ca', 'Senate', 'Sénat du Canada'] },
+    { id: 'org-canlii', name: 'CanLII', type: 'organization', source: 'registry', confidence: 1, aliases: ['canlii.org', 'Canadian Legal Information Institute', 'Institut canadien d\'information juridique'] },
+    { id: 'org-canlii-fr', name: 'CanLII (FR)', type: 'organization', source: 'registry', confidence: 1, aliases: ['rechercher.canlii.org', 'CanLII français'] },
+    { id: 'org-gazette', name: 'Canada Gazette', type: 'organization', source: 'registry', confidence: 1, aliases: ['gazette.gc.ca', 'Gazette du Canada'] },
+    { id: 'org-gazette-fr', name: 'Gazette du Canada (FR)', type: 'organization', source: 'registry', confidence: 1, aliases: ['gazette.gc.ca', 'Gazette du Canada', 'gazette.gc.ca/...-fra.html'] },
+    { id: 'org-legisquebec', name: 'Québec Legislation', type: 'organization', source: 'registry', confidence: 1, aliases: ['legisquebec.gouv.qc.ca', 'Législation Québec', 'Lois et règlements du Québec'] },
+    { id: 'org-villequebec', name: 'Ville de Québec', type: 'organization', source: 'registry', confidence: 1, aliases: ['donnees.ville.quebec.qc.ca', 'Québec City Data', 'Données Québec'] },
+    { id: 'org-montreal', name: 'Ville de Montréal', type: 'organization', source: 'registry', confidence: 1, aliases: ['donnees.montreal.ca', 'Montreal Data', 'Données Montréal'] },
+    { id: 'person-pm', name: 'Prime Minister of Canada', type: 'person', source: 'registry', confidence: 1, aliases: ['PM', 'Premier ministre', 'Premier ministre du Canada'] },
   ];
   for (const e of seedData) registerEntity(e);
 }

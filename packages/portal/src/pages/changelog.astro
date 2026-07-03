@@ -1,18 +1,23 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ChangelogAccordion from "@/components/ChangelogAccordion";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
 <BaseLayout
-  title="Changelog"
+  title={i18n.t('changelog.title')}
   description="Complete changelog for MapleSpike — 267 commits, 5 releases, 206 ingestion modules, 174 MCP tools. Every change tracked from April 2026."
+  lang={lang}
 >
   <!-- Hero -->
   <section class="border-b py-16 md:py-24">
     <div class="container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          <span class="text-gradient">Changelog</span>
+          <span class="text-gradient">{i18n.t('changelog.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           267 commits across 5 releases — 318K lines of TypeScript added, 68K removed. Built by 3

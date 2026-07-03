@@ -14,6 +14,8 @@ import { computeHash } from '../verification/hashing.js';
 export interface EntityMatch {
   entityId: string;
   entityName: string;
+  /** French name for the entity (if available) */
+  entityNameFr?: string;
   entityType: 'person' | 'organization' | 'location' | 'other';
   entityNormalized: string;
   confidenceScore: number;

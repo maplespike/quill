@@ -10,6 +10,26 @@ const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 export const DEFAULT_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
 const DEV_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
 
+/**
+ * Bilingual error message map for SDK-generated errors
+ * (i.e. network-level errors not returned by the API server)
+ */
+const BILINGUAL_ERRORS: Record<string, { en: string; fr: string }> = {
+  HTTP_ERROR: {
+    en: 'The server returned an unexpected response',
+    fr: 'Le serveur a renvoyé une réponse inattendue',
+  },
+  NETWORK_ERROR: {
+    en: 'A network error occurred. Please check your connection.',
+    fr: 'Une erreur réseau est survenue. Vérifiez votre connexion.',
+  },
+};
+
+/** Resolve a bilingual error message by code */
+export function getBilingualError(code: string, lang: 'en' | 'fr'): string {
+  return BILINGUAL_ERRORS[code]?.[lang] ?? BILINGUAL_ERRORS.HTTP_ERROR[lang];
+}
+
 /** Determine the base URL. Auto-detects dev environment. */
 export function resolveBaseUrl(customBaseUrl?: string): string {
   if (customBaseUrl) return customBaseUrl.replace(/\/+$/, '');
@@ -48,7 +68,7 @@ export function buildUrl(
     }
   }
 
-  // Options that map to query params (excluding _mock, _format etc that are handled differently)
+  // Options that map to query params
   if (options) {
     if (options._fields) allParams._fields = options._fields;
     if (options._format) allParams._format = options._format;
@@ -88,7 +108,10 @@ export function buildHeaders(apiKey?: string, jwtToken?: string): Record<string,
 }
 
 /** Parse a fetch Response into a MapleSpikeResponse, throwing on errors */
-export async function parseResponse<T = unknown>(response: Response): Promise<MapleSpikeResponse<T>> {
+export async function parseResponse<T = unknown>(
+  response: Response,
+  lang: 'en' | 'fr' = 'en',
+): Promise<MapleSpikeResponse<T>> {
   if (!response.ok) {
     let apiError: MapleSpikeApiError;
     try {
@@ -98,12 +121,14 @@ export async function parseResponse<T = unknown>(response: Response): Promise<Ma
         code: (body.code as string) ?? 'UNKNOWN',
         message: (body.message as string) ?? response.statusText,
         requestId: body.requestId as string | undefined,
+        messageFr: body.messageFr as string | undefined,
       };
     } catch {
       apiError = {
         status: response.status,
         code: 'HTTP_ERROR',
-        message: response.statusText,
+        message: getBilingualError('HTTP_ERROR', lang),
+        messageFr: getBilingualError('HTTP_ERROR', 'fr'),
       };
     }
     throw new MapleSpikeError(apiError);

@@ -20,7 +20,7 @@
  */
 
 import type { SdkConfig, MapleSpikeResponse, QueryOptions } from './types.js';
-import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse } from './query.js';
+import { resolveBaseUrl, buildUrl, buildHeaders, parseResponse, getBilingualError } from './query.js';
 import { setApiKey, setJwtToken, clearAuth } from './auth.js';
 import { SearchClient, type SearchQuery, type SearchResult } from './search.js';
 import { IngestionClient, type IngestionRequest, type IngestionJob, type IngestionJobStatus, type IngestionResult } from './ingestion.js';
@@ -198,11 +198,13 @@ export class MapleSpike {
   private _apiKey?: string;
   private _jwtToken?: string;
   private _baseUrl: string;
+  private _lang: 'en' | 'fr';
 
   constructor(config: SdkConfig = {}) {
     this._apiKey = config.apiKey;
     this._jwtToken = config.jwtToken;
     this._baseUrl = resolveBaseUrl(config.baseUrl);
+    this._lang = config.lang ?? 'en';
     if (config.apiKey) setApiKey(config.apiKey);
     if (config.jwtToken) setJwtToken(config.jwtToken);
 
@@ -233,6 +235,9 @@ export class MapleSpike {
   get baseUrl(): string { return this._baseUrl; }
   set baseUrl(url: string) { this._baseUrl = resolveBaseUrl(url); }
 
+  get lang(): 'en' | 'fr' { return this._lang; }
+  set lang(l: 'en' | 'fr') { this._lang = l; }
+
   clearAuth(): void { this._apiKey = undefined; this._jwtToken = undefined; clearAuth(); }
   isAuthenticated(): boolean { return !!(this._apiKey || this._jwtToken); }
 
@@ -247,7 +252,7 @@ export class MapleSpike {
     const url = buildUrl(this._baseUrl, agent, action, params, options);
     const headers = buildHeaders(this._apiKey, this._jwtToken);
     const response = await fetch(url, { headers });
-    return parseResponse<T>(response);
+    return parseResponse<T>(response, this._lang);
   }
 
   /** Begin a chained query: `ms.agent('committees').action('membership', {...})` */

@@ -7,93 +7,94 @@ import Overview from "@/components/dashboard/Overview";
 import BillingPlans from "@/components/dashboard/BillingPlans";
 import ApiKeysManager from "@/components/dashboard/ApiKeysManager";
 import AISettings from "@/components/dashboard/AISettings";
+import { createI18n } from "@maplespike/i18n";
+import { localeUrl } from "@/utils/localeUrl";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="Developer Dashboard" description="Live MapleSpike API dashboard with usage stats and billing">
+<BaseLayout title={i18n.t('dashboard.title')} description="Live MapleSpike API dashboard with usage stats and billing" lang={lang}>
   <section class="container mx-auto px-4 py-16 md:py-20">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-          Developer <span class="text-gradient">Dashboard</span>
+          Developer <span class="text-gradient">{i18n.t('dashboard.title')}</span>
         </h1>
         <p class="mt-1.5 text-muted-foreground">
-          Live API usage, billing, and key management — powered by MapleSpike.
+          {i18n.t('dashboard.overview')}
         </p>
       </div>
       <div class="flex gap-3">
-        <Button variant="outline" asChild><a href="/docs">Documentation</a></Button>
-        <Button asChild class="btn-sheen"><a href="/signup">Get API Key</a></Button>
+        <Button variant="outline" asChild><a href={localeUrl('/docs', lang)}>{i18n.t('nav.docs')}</a></Button>
+        <Button asChild class="btn-sheen"><a href={localeUrl('/signup', lang)}>{i18n.t('api_key.create')}</a></Button>
       </div>
     </div>
 
     <!-- Dashboard Tabs -->
     <div class="mb-8 flex gap-1 rounded-lg border bg-card/50 p-1">
       <a
-        href="/dashboard"
+        href={localeUrl('/dashboard', lang)}
         class:list={[
           "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-          Astro.url.pathname === "/dashboard"
+          Astro.url.pathname === "/dashboard" || Astro.url.pathname.startsWith('/en/dashboard')
             ? "bg-primary text-primary-foreground"
             : "text-muted-foreground hover:text-foreground hover:bg-accent",
         ]}
       >
-        Overview
+        {i18n.t('dashboard.tab.overview')}
       </a>
       <a
-        href="/dashboard/extraction"
+        href={localeUrl('/dashboard/extraction', lang)}
         class:list={[
           "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-          Astro.url.pathname === "/dashboard/extraction"
-            ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent",
+          "text-muted-foreground hover:text-foreground hover:bg-accent",
         ]}
       >
-        Browser Extraction
+        {i18n.t('dashboard.tab.extraction')}
       </a>
       <a
-        href="/dashboard/owasp"
+        href={localeUrl('/dashboard/owasp', lang)}
         class:list={[
           "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-          Astro.url.pathname === "/dashboard/owasp"
-            ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:text-foreground hover:bg-accent",
+          "text-muted-foreground hover:text-foreground hover:bg-accent",
         ]}
       >
-        OWASP Compliance
+        {i18n.t('dashboard.tab.owasp')}
       </a>
     </div>
 
-    <Overview client:load />
+    <Overview client:load lang={lang} />
 
     <div class="mb-8">
       <Card>
         <CardHeader>
-          <CardTitle>Billing & Plans</CardTitle>
-          <CardDescription>Choose a plan and pay with crypto (Solana, Ethereum, Base, Polygon, BNB, Tron, Bitcoin)</CardDescription>
+          <CardTitle>{i18n.t('dashboard.tab.billing')}</CardTitle>
+          <CardDescription>{i18n.t('billing.feature.api_access')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <BillingPlans client:load />
+          <BillingPlans client:load lang={lang} />
         </CardContent>
       </Card>
     </div>
 
     <Card>
       <CardHeader>
-        <CardTitle>AI Settings</CardTitle>
+        <CardTitle>{i18n.t('settings.ai.title')}</CardTitle>
         <CardDescription>Bring your own AI key or use the cluster's hosted model</CardDescription>
       </CardHeader>
       <CardContent>
-        <AISettings client:load />
+        <AISettings client:load lang={lang} />
       </CardContent>
     </Card>
 
     <Card>
       <CardHeader>
-        <CardTitle>API Keys</CardTitle>
-        <CardDescription>Manage your API keys — create, list, and revoke.</CardDescription>
+        <CardTitle>{i18n.t('api_key.title')}</CardTitle>
+        <CardDescription>{i18n.t('api_key.create')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ApiKeysManager client:load />
+        <ApiKeysManager client:load lang={lang} />
       </CardContent>
     </Card>
 
