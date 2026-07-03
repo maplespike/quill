@@ -39,10 +39,11 @@
   },
   "files": [],
   "references": [
+    { "path": "packages/i18n" },
     { "path": "packages/database" },
     { "path": "packages/pipeline-core" },
     { "path": "packages/engine" },
-    { "path": "packages/mcp-server" },
+    { "path": "packages/quill-mcp" },
     { "path": "packages/api-server" }
   ],
   "exclude": ["node_modules", "dist"]
