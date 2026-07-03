@@ -23,6 +23,7 @@ import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { createInterface } from 'readline';
 import * as http from 'http';
+import { parsePaymentHeader } from './x402-middleware.js';
 
 const server = new McpServer();
 
@@ -47,6 +48,13 @@ process.stderr.write(`  Explore: signal_check | explore_catalog | ai_ask\n`);
 process.stderr.write(`\n`);
 
 const CLI_LOCALE = process.env.MAPLESPIKE_LOCALE === 'fr-CA' ? 'fr-CA' : 'en-CA';
+const X402_ENABLED = process.env.X402_ENABLED === 'true';
+const X402_RECIPIENT = process.env.X402_RECIPIENT || '';
+
+// Startup banner — show x402 status if enabled
+if (X402_ENABLED) {
+  process.stderr.write(`  ⚡ x402 micropayments enabled (recipient: ${X402_RECIPIENT || 'not configured'})\n`);
+}
 
 // ── Lightweight metrics counters ──────────────────────────────────
 const metricsCounters: Record<string, number> = {
@@ -157,8 +165,14 @@ if (PORT > 0) {
           const toolName = parsed?.params?.name || 'unknown';
           toolInvocations[toolName] = (toolInvocations[toolName] || 0) + 1;
           metricsCounters.tool_invocations_total++;
+
+          // Extract x402 payment proof from header if enabled
+          const paymentProof = X402_ENABLED
+            ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
+            : undefined;
+
           const response = await new Promise<any>((resolve) => {
-            server.handleMessage(parsed, CLI_LOCALE, (resp) => resolve(resp));
+            server.handleMessage(parsed, CLI_LOCALE, (resp) => resolve(resp), paymentProof);
           });
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify(response));
