@@ -47,13 +47,13 @@ services:
       retries: 12
       start_period: 30s
 
-  mcp:
+  quill:
     build:
       context: .
       dockerfile: Dockerfile
-      target: mcp-server
-    image: maplespike-mcp:local
-    container_name: maplespike-mcp
+      target: quill-mcp
+    image: maplespike-quill:local
+    container_name: maplespike-quill
     restart: unless-stopped
     ports:
       - "3001:3001"

@@ -81,7 +81,7 @@ if (Astro.url.searchParams.has("error")) {
             : host;
         apiBase = `${window.location.protocol}//api.${base}`;
       }
-      if (!apiBase) apiBase = "https://api.maplespike.lan";
+      if (!apiBase) apiBase = "https://api.maplespike.ca";
 
       fetch(`${apiBase}/v1/auth/oauth/exchange?code=${encodeURIComponent(code)}`)
         .then(async (res) => {

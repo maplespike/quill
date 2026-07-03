@@ -9,9 +9,9 @@ scrape_configs:
     metrics_path: '/v1/metrics'
     scheme: 'http'
 
-  - job_name: 'maplespike-mcp'
+  - job_name: 'maplespike-quill'
     static_configs:
-      - targets: ['maplespike-mcp.maplespike:3001']
+      - targets: ['maplespike-quill.maplespike:3001']
     metrics_path: '/metrics'
     scheme: 'http'
 

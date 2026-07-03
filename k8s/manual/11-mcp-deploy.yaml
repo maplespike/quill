@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maplespike-mcp
+  name: maplespike-quill
   namespace: maplespike
   labels:
-    app: maplespike-mcp
+    app: maplespike-quill
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: maplespike-mcp
+      app: maplespike-quill
   template:
     metadata:
       labels:
-        app: maplespike-mcp
+        app: maplespike-quill
     spec:
       containers:
       - name: mcp
-        image: localhost/maplespike-mcp:dev
+        image: localhost/maplespike-quill:dev
         imagePullPolicy: Never
         ports:
         - containerPort: 3001
@@ -39,11 +39,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-mcp
+  name: maplespike-quill
   namespace: maplespike
 spec:
   selector:
-    app: maplespike-mcp
+    app: maplespike-quill
   ports:
   - port: 3001
     targetPort: 3001

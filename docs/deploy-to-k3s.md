@@ -82,7 +82,7 @@ MapleSpike's Dockerfile produces **four** runtime targets from a single multi-st
 | Target       | Description                          | Port |
 |-------------|--------------------------------------|------|
 | `api-server` | REST API gateway (auth, rate limits) | 8082 |
-| `mcp-server` | MCP protocol server (SSE transport)  | 3001 |
+| `quill-mcp` | MCP protocol server (SSE transport)  | 3001 |
 | `portal`     | Static developer portal              | 8080 |
 | `ingestion`  | Pipeline runner (CronJob)            | —    |
 
@@ -100,7 +100,7 @@ cd maplespike
 docker build --target api-server -t maplespike-api:latest .
 
 # MCP Server
-docker build --target mcp-server -t maplespike-mcp:latest .
+docker build --target quill-mcp -t maplespike-quill:latest .
 
 # Portal (static HTML)
 docker build --target portal -t maplespike-portal:latest .
@@ -119,7 +119,7 @@ docker tag maplespike-api:latest registry.example.com/maplespike-api:latest
 
 # Push
 docker push registry.example.com/maplespike-api:latest
-# ... repeat for mcp-server, portal, ingestion
+# ... repeat for quill-mcp, portal, ingestion
 ```
 
 ---
@@ -194,14 +194,14 @@ helm upgrade --install maplespike ./charts/maplespike \
 | Resource                    | Kind         | Notes                            |
 |-----------------------------|--------------|----------------------------------|
 | `maplespike-api`             | Deployment   | REST API gateway                 |
-| `maplespike-mcp`             | Deployment   | MCP protocol server              |
+| `maplespike-quill`             | Deployment   | MCP protocol server              |
 | `maplespike-portal`          | Deployment   | Developer portal (static site)   |
 | `maplespike-db`              | StatefulSet  | PostgreSQL 17 (Alpine)           |
 | `maplespike-ingest-<name>`   | CronJob × 22 | One CronJob per pipeline         |
 | `maplespike-secrets`         | Secret       | API key, JWT secret              |
 | `maplespike-db-secret`       | Secret       | DB user, password, database name |
 | `maplespike-api` (svc)       | Service      | ClusterIP / NodePort 31283       |
-| `maplespike-mcp` (svc)       | Service      | ClusterIP / NodePort 31745       |
+| `maplespike-quill` (svc)       | Service      | ClusterIP / NodePort 31745       |
 | `maplespike-portal` (svc)    | Service      | ClusterIP / NodePort 30964       |
 | `maplespike-db` (svc)        | Service      | ClusterIP :5432                  |
 
@@ -333,7 +333,7 @@ kubectl port-forward -n maplespike svc/maplespike-api 8082:8082 &
 curl http://localhost:8082/v1/health
 
 # MCP health
-kubectl port-forward -n maplespike svc/maplespike-mcp 3001:3001 &
+kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001 &
 curl http://localhost:3001/health
 ```
 
@@ -344,7 +344,7 @@ curl http://localhost:3001/health
 kubectl logs -n maplespike -l app=maplespike-api --tail=50
 
 # MCP server
-kubectl logs -n maplespike -l app=maplespike-mcp --tail=50
+kubectl logs -n maplespike -l app=maplespike-quill --tail=50
 
 # A specific ingestion job
 kubectl logs -n maplespike job/maplespike-ingest-committees-<job-id> --tail=50
@@ -405,7 +405,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: maplespike-mcp
+            name: maplespike-quill
             port:
               number: 3001
   - host: maplespike.example
@@ -437,7 +437,7 @@ The Helm chart creates NodePort services by default:
 | Service            | NodePort |
 |-------------------|----------|
 | `maplespike-api`  | 31283    |
-| `maplespike-mcp`  | 31745    |
+| `maplespike-quill`  | 31745    |
 | `maplespike-portal` | 30964  |
 
 Access services at `http://<node-ip>:<nodeport>`.
@@ -485,7 +485,7 @@ helm install pushgateway prometheus-community/prometheus-pushgateway \
 ```bash
 # Build new images
 docker build --target api-server -t maplespike-api:new-tag .
-docker build --target mcp-server -t maplespike-mcp:new-tag .
+docker build --target quill-mcp -t maplespike-quill:new-tag .
 docker build --target portal -t maplespike-portal:new-tag .
 docker build --target ingestion -t maplespike-ingest:new-tag .
 
@@ -521,7 +521,7 @@ stern -n maplespike .
 
 # Specific deployments
 kubectl logs -n maplespike -l app=maplespike-api -f
-kubectl logs -n maplespike -l app=maplespike-mcp -f
+kubectl logs -n maplespike -l app=maplespike-quill -f
 ```
 
 ---

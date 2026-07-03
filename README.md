@@ -48,7 +48,7 @@ maplespike/
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── portal/           # Developer portal & landing page (Astro + React + Tailwind)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── mcp-server/       # Quill — data-layer MCP server (✅ 164 tools, all live). Rename to `quill-mcp/` planned, see ADR 0005.
+│   ├── quill-mcp/       # Quill — data-layer MCP server (✅ 164 tools, all live). Rename to `quill-mcp/` planned, see ADR 0005.
 │   ├── sdk/              # TypeScript client library
 │   ├── sdk-python/       # Python client library
 │   ├── legal-core/       # Legal data SDK
@@ -98,7 +98,7 @@ pnpm install
 pnpm run build
 
 # Start MCP server (local stdio)
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm start
 ```
 
@@ -266,7 +266,7 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 ## License
 
 **Core library** (`packages/pipeline-core`): AGPL-3.0
-**MCP server** (`packages/mcp-server`): MIT
+**MCP server** (`packages/quill-mcp`): MIT
 **Engine** (`packages/engine`): MIT
 **Portal** (`packages/portal`): MIT
 

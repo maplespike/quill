@@ -8,5 +8,5 @@ api.maplespike.lan {
 }
 mcp.maplespike.lan {
     tls internal
-    reverse_proxy maplespike-mcp:3001
+    reverse_proxy maplespike-quill:3001
 }

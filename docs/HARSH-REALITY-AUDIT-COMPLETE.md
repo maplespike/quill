@@ -128,7 +128,7 @@
 - `packages/docs/guide/getting-started.md` — Tool count fixed
 - `packages/docs/guide/billing.md` — Implementation status added
 - `packages/docs/guide/authentication.md` — Implementation status added
-- `packages/mcp-server/README.md` — Metrics updated
+- `packages/quill-mcp/README.md` — Metrics updated
 
 ### API Documentation (10 files)
 - `packages/docs/api/ai-ask.md` — Fixed domain references

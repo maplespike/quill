@@ -1,7 +1,7 @@
 ---
 version: alpha
-name: MapleSpike
-description: Dark-theme data intelligence dashboard for Canadian government data — Pretext-native
+name: Quill
+description: Sovereign MCP server + REST API for Canada's public record — 198 modules, 164 tools, dark-theme React + Tailwind dashboard
 colors:
   primary: "#e84545"
   secondary: "#06b6d4"
@@ -158,12 +158,38 @@ components:
     backgroundSize: "200% 100%"
     animation: "shimmer {motion.shimmer-duration} infinite"
 ---
-> Wait for `document.fonts.ready` before calling Pretext `prepare()`.
-> Always use `font-variant-numeric: tabular-nums` on data displays.
 
 ## Overview
 
-Data intelligence pipeline tracking Canadian government influence, lobbying, committees, and procurement. Dark theme with red/cyan accent. High information density. The UI evokes a command center feed — dark foundation, high-contrast data, color only for signal and severity. Pretext handles all text layout.
+**Quill** is the first product shipped under the MapleSpike brand — an MCP server + REST API exposing 164 tools across 198 modules of Canada's public record. Parliamentary debates, federal open data, regulatory filings, corporate lobbying records, provincial datasets, and CanLII case law — all queryable through a single endpoint. The product page at `quill.maplespike.ca` and the in-app dashboard share this design system.
+
+The UI evokes a command center: dark foundation, high-contrast data, color only for signal and severity. Tailwind handles all styling. Every number is tabular, every ID is mono, every transition is 200ms.
+
+## Quill Page Layout
+
+The product landing page at `quill.maplespike.ca` follows a single-scroll narrative:
+
+### Section Sequence
+1. **TopBar** — JetBrains Mono nav links, GitHub + Sign-in CTAs
+2. **QuillHero** — Product name, one-line value prop, terminal-style install snippet
+3. **McpServerBlock** — Claude Desktop config JSON snippet, MCP SSE endpoint, REST base URL
+4. **ToolGrid** — 6-column responsive grid of module categories (Parliamentary, Federal open data, Oversight, Corporate + influence, Provincial + municipal, Justice + CanLII)
+5. **Sovereignty** — Tech stack badges: Nix, Cloudflare Pages, AGPL-3.0, SHA-256 provenance
+6. **QuillFooter** — Repo link, license, MapleSpike brand attribution
+
+### Terminal Snippet Design
+```
+$ curl -H "Authorization: Bearer $QUILL_KEY" \
+       https://quill.maplespike.ca/v1/search?q=lobbying+registrations
+```
+Mono font, surface-elevated background, 8px radius, copy-to-clipboard button on hover.
+
+### Module Category Cards
+Each ToolGrid card:
+- Icon + title (Inter 600, 1rem)
+- Bullet list of tool names (Inter, 0.78rem, text-secondary)
+- Surface background, hover → border brightens
+- Entrance: stagger 50ms per card
 
 ## Color System & Tokens
 
@@ -209,7 +235,7 @@ All numbers use `font-variant-numeric: tabular-nums`.
 
 **Inputs:** Elevated surface, 1px border, 8px radius. Focus: cyan border + 3px glow ring.
 
-**Badges:** Full radius pill. 11px, uppercase, mono. Pretext for label centering.
+**Badges:** Full radius pill. 11px, uppercase, mono. Tailwind utility classes for label centering.
 
 **Tables:** 28-32px rows, sticky header, right-aligned numbers, mono IDs.
 
@@ -251,16 +277,17 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 
 ## Do's and Don'ts
 
-- DO use Pretext for ALL text layout.
-- DO use JetBrains Mono for nav.
-- DO use tabular numerals in data displays.
+- DO use Tailwind utility classes for ALL text layout.
+- DO use JetBrains Mono for nav, code, and module identifiers.
+- DO use tabular numerals in data displays and tool counts.
 - DO right-align numeric columns.
 - DO use shimmer for loading.
+- DO display install snippets in mono on elevated surface.
 - DON'T use pure white backgrounds.
 - DON'T add decorative illustrations.
 - DON'T use serif fonts.
 - DON'T center numeric data.
-- DON'T hardcode CSS heights — Pretext computes them.
+- DON'T hardcode CSS heights — Tailwind handles layout.
 
 ## Accessibility
 
@@ -268,7 +295,7 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 - Color never sole indicator — use icons + labels.
 - WCAG AA contrast minimum.
 - Keyboard-navigable.
-- Pretext respects WCAG resize.
+- Tailwind-based layouts respect WCAG resize.
 
 ## Responsive
 
@@ -279,18 +306,15 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 
 ## Code Snippets
 
-### Pretext Setup
-```html
-<script type="module">
-import { prepare, layout } from 'https://esm.sh/@chenglou/pretext'
-await document.fonts.ready
-const h = prepare('42,891', '24px Inter')
-const { height } = layout(h, 200, 32)
-</script>
-```
-
-### CSS Variables
 ```css
+@theme {
+  --color-primary: #e84545;
+  --color-secondary: #06b6d4;
+  --color-surface: #111827;
+  --color-surface-elevated: #1a2332;
+  --color-border: #1e2d45;
+  --color-text: #e2e8f0;
+```
 :root {
   --color-primary: #e84545;
   --color-secondary: #06b6d4;
@@ -317,8 +341,10 @@ const { height } = layout(h, 200, 32)
 
 ## Agent Prompt Guide
 
-Bias: dark canvas, tabular numerals, JetBrains Mono for code/IDs, red accent, dense tables, shimmer.
+**Context:** Quill — a sovereign MCP server + REST API for Canadian public record data. 164 tools, 198 modules. Product page at `quill.maplespike.ca`. Repo: `github.com/reverb256/maplespike`.
 
-Reject: light backgrounds, serif fonts, hero illustrations, spinners, center-aligned numbers, shadows on cards, hardcoded CSS heights.
+**Bias:** dark canvas, tabular numerals, JetBrains Mono for code/IDs, red accent, dense tables, shimmer. Terminal snippets on elevated surface with copy button. Tool counts as stat cards.
 
-Pretext: use `prepare()` + `layout()` for all text. Call after `document.fonts.ready`. Never hardcode heights. Use stagger 50ms for card grid entrances.
+**Reject:** light backgrounds, serif fonts, hero illustrations, spinners, center-aligned numbers, shadows on cards, hardcoded CSS heights.
+
+**Tailwind:** use utility classes for all styling. Use framer-motion for entrance animations (stagger 50ms). Never use inline styles for layout.

@@ -9,7 +9,7 @@ status: active
 
 Model Context Protocol server for Canadian government data. **129+ tools** (canonical count: see [docs/metrics.json](../../docs/metrics.json)) for AI agents to search, query, monitor, and cross-reference Canadian government information. All tools fetch directly from upstream APIs — no database, no API server required.
 
-> **Status:** All tools standalone. Zero config. `npx @reverb256/mcp-server` and it just works.
+> **Status:** All tools standalone. Zero config. `npx @maplespike/quill-mcp` and it just works.
 
 - **Package:** `@maplespike/quill-mcp` *(npm scope correction tracked as a separate topology change; current package is still authored under @reverb256 — see Phase C of ADR 0005)*
 - **Transport:** stdio (local) for Claude Desktop / Cursor / any MCP host
@@ -39,7 +39,7 @@ No API key, no config file, no database. Just `npx`.
 ### Local development
 
 ```bash
- cd packages/mcp-server
+ cd packages/quill-mcp
  pnpm start
  # → 🍁 MapleSpike Quill ready
  # → Tools: 129+ registered (see docs/metrics.json for canonical count)
@@ -128,7 +128,7 @@ PORT=3001 pnpm start:sse
 AI Agent (Claude/Cursor/etc.)
         │
         ▼
-  MapleSpike Quill (stdio/SSE)  = packages/mcp-server
+  MapleSpike Quill (stdio/SSE)  = packages/quill-mcp
         │
         ├── upstream-fetcher.ts ──► ouvert.canada.ca (CKAN)
         │                        ──► api.openparliament.ca

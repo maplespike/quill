@@ -36,7 +36,7 @@ The dev shell provides:
 nix run .#apps.build-all
 
 # Or build individually
-nix build .#maplespike-mcp-image
+nix build .#maplespike-quill-image
 nix build .#maplespike-api-image
 nix build .#maplespike-portal-image
 
@@ -69,7 +69,7 @@ sudo cp result/systemd-services/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 # Start services
-sudo systemctl enable --now maplespike-mcp
+sudo systemctl enable --now maplespike-quill
 sudo systemctl enable --now maplespike-api
 sudo systemctl enable --now maplespike-portal
 
@@ -86,7 +86,7 @@ pnpm install
 pnpm build
 
 # Run services directly (with hot reload where available)
-cd packages/mcp-server && pnpm start:sse    # SSE mode on :3001
+cd packages/quill-mcp && pnpm start:sse    # SSE mode on :3001
 cd packages/api-server && pnpm run dev      # Dev mode on :8082
 cd packages/portal && python3 server.py      # Python simple HTTP
 ```
@@ -112,10 +112,10 @@ kubectl apply -n maplespike-prod -f k8s/prod/
 REGISTRY=ghcr.io/reverb256 TAG=dev nix run .#maplespike-push-all
 
 # Or manually
-nix build .#maplespike-mcp-image
+nix build .#maplespike-quill-image
 podman load < result
-podman tag maplespike-mcp:latest ghcr.io/reverb256/maplespike-mcp:dev
-podman push ghcr.io/reverb256/maplespike-mcp:dev
+podman tag maplespike-quill:latest ghcr.io/reverb256/maplespike-quill:dev
+podman push ghcr.io/reverb256/maplespike-quill:dev
 ```
 
 #### Verify Deployment
@@ -124,10 +124,10 @@ podman push ghcr.io/reverb256/maplespike-mcp:dev
 kubectl get pods -n maplespike
 
 # Check logs
-kubectl logs -n maplespike deployment/maplespike-mcp
+kubectl logs -n maplespike deployment/maplespike-quill
 
 # Port-forward for local testing
-kubectl port-forward -n maplespike svc/maplespike-mcp 3001:3001
+kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
 curl http://localhost:3001/health
 ```
 
@@ -136,14 +136,14 @@ curl http://localhost:3001/health
 #### Local Testing (Hermes Integration)
 ```bash
 # Start MCP server (local)
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm start:sse &
 
 # Add to Hermes
 hermes mcp add maplespike --url http://localhost:3001/sse
 
 # Or using cluster deployment
-kubectl port-forward -n maplespike svc/maplespike-mcp 3001:3001
+kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
 hermes mcp add maplespike --url http://localhost:3001/sse
 ```
 
@@ -168,9 +168,9 @@ The `.github/workflows/deploy-dev.yml` and `.github/workflows/deploy-prod.yml` w
 ```yaml
 steps:
   - uses: cachix/install-nix-action@v25
-  - run: nix build .#maplespike-mcp-image -L
+  - run: nix build .#maplespike-quill-image -L
   - run: podman load < result
-  - run: podman push ghcr.io/reverb256/maplespike-mcp:${{ github.sha }}
+  - run: podman push ghcr.io/reverb256/maplespike-quill:${{ github.sha }}
 ```
 
 ### Image Builds
@@ -217,7 +217,7 @@ k8s-manifests = (import easykubenix {
 ```bash
 # Clean and rebuild
 rm -rf result
-nix build .#maplespike-mcp-image --rebuild
+nix build .#maplespike-quill-image --rebuild
 ```
 
 **Problem**: "pnpm install fails"
@@ -237,7 +237,7 @@ pnpm install --frozen-lockfile=false
 
 **Solution**: Set dev mode API key:
 ```bash
-kubectl set env -n maplespike deployment/maplespike-mcp MAPLESPIKE_API_KEY=***
+kubectl set env -n maplespike deployment/maplespike-quill MAPLESPIKE_API_KEY=***
 ```
 
 **Problem**: Pods in CrashLoopBackOff
@@ -262,13 +262,13 @@ kubectl get events -n maplespike --sort-by=.metadata.creationTimestamp
 
 **Solution**: Use port-forward:
 ```bash
-kubectl port-forward -n maplespike svc/maplespike-mcp 3001:3001
+kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
 ```
 
 Or configure NodePort:
 ```nix
 # In k8s/dev.nix
-services.maplespike-mcp = {
+services.maplespike-quill = {
   type = "NodePort";
   ports = [{
     port = 3001;
@@ -311,7 +311,7 @@ For running MapleSpike directly on NixOS hosts (no containers):
 { config, pkgs, ... }: {
   imports = [ (import ~/Projects/maplespike/nix) ];
 
-  services.maplespike-mcp = {
+  services.maplespike-quill = {
     enable = true;
     port = 3001;
   };
@@ -328,7 +328,7 @@ The flake supports all systems that nixpkgs supports:
 
 ```bash
 # Build for specific system
-nix build .#maplespike-mcp-image --system aarch64-linux
+nix build .#maplespike-quill-image --system aarch64-linux
 ```
 
 ## Migration Path (Legacy → Nix-First)

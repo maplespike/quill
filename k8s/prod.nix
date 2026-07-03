@@ -322,9 +322,9 @@ in {
     };
 
     # ── MCP Deployment ──────────────────────────────────────────
-    maplespike-prod.Deployment.maplespike-mcp = {
+    maplespike-prod.Deployment.maplespike-quill = {
       metadata.labels = {
-        app = "maplespike-mcp";
+        app = "maplespike-quill";
         component = "mcp";
         tier = "backend";
       };
@@ -334,10 +334,10 @@ in {
           type = "RollingUpdate";
           rollingUpdate = { maxUnavailable = 0; maxSurge = 1; };
         };
-        selector.matchLabels.app = "maplespike-mcp";
+        selector.matchLabels.app = "maplespike-quill";
         template = {
           metadata.labels = {
-            app = "maplespike-mcp";
+            app = "maplespike-quill";
             component = "mcp";
             tier = "backend";
           };
@@ -350,7 +350,7 @@ in {
               mcp = {
                 name = "mcp";
                 securityContext = prodSecurityContext;
-                image = "ghcr.io/reverb256/maplespike/maplespike-mcp:stable";
+                image = "ghcr.io/reverb256/maplespike/maplespike-quill:stable";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 3001; }; };
                 env = {
@@ -384,15 +384,15 @@ in {
     };
 
     # ── MCP Service ─────────────────────────────────────────────
-    maplespike-prod.Service.maplespike-mcp = {
+    maplespike-prod.Service.maplespike-quill = {
       metadata.labels = {
-        app = "maplespike-mcp";
+        app = "maplespike-quill";
         component = "mcp";
         tier = "backend";
       };
       spec = {
         type = "NodePort";
-        selector.app = "maplespike-mcp";
+        selector.app = "maplespike-quill";
         ports = {
           _namedlist = true;
           http = { name = "http"; port = 3001; targetPort = 3001; nodePort = 31745; };
@@ -401,10 +401,10 @@ in {
     };
 
     # ── MCP Ingress (Tailscale funnel) ──────────────────────────
-    maplespike-prod.Ingress.maplespike-mcp = {
+    maplespike-prod.Ingress.maplespike-quill = {
       metadata = {
         labels = {
-          app = "maplespike-mcp";
+          app = "maplespike-quill";
           "app.kubernetes.io/managed-by" = "easykubenix";
         };
         annotations = tailscaleFunnelAnnotations;
@@ -416,7 +416,7 @@ in {
             path = "/";
             pathType = "Prefix";
             backend.service = {
-              name = "maplespike-mcp";
+              name = "maplespike-quill";
               port.number = 3001;
             };
           }];

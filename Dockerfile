@@ -11,9 +11,9 @@ RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
 # Copy dependency manifests first (for layer caching)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json turbo.json ./
-RUN mkdir -p packages/api-server packages/mcp-server packages/database packages/pipeline-core packages/engine packages/create-module packages/notification-service packages/legal-core packages/legislation packages/sdk packages/docs packages/portal
+RUN mkdir -p packages/api-server packages/quill-mcp packages/database packages/pipeline-core packages/engine packages/create-module packages/notification-service packages/legal-core packages/legislation packages/sdk packages/docs packages/portal
 COPY packages/api-server/package.json packages/api-server/
-COPY packages/mcp-server/package.json packages/mcp-server/
+COPY packages/quill-mcp/package.json packages/quill-mcp/
 COPY packages/database/package.json packages/database/
 COPY packages/pipeline-core/package.json packages/pipeline-core/
 COPY packages/engine/package.json packages/engine/
@@ -37,13 +37,13 @@ RUN apt-get update -qq && apt-get install -y -qq python3 make g++ && \
 COPY . .
 
 # Build packages needed for all targets
-RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database --filter=@maplespike/mcp-server --filter=@maplespike/engine
+RUN pnpm build --filter=@maplespike/pipeline-core --filter=@maplespike/api-server --filter=@maplespike/database --filter=@maplespike/quill-mcp --filter=@maplespike/engine
 
 # Fix ESM imports in dist/ (Node.js requires .js extensions for local imports).
 # Use `npx tsx` — Node 22 does not natively execute .ts files, and `pnpm install`
 # already installs `tsx` as a devDependency, so it's on PATH inside the build stage.
 RUN npx tsx scripts/fix-esm-imports.ts packages/database/dist && \
-    npx tsx scripts/fix-esm-imports.ts packages/mcp-server/dist && \
+    npx tsx scripts/fix-esm-imports.ts packages/quill-mcp/dist && \
     npx tsx scripts/fix-esm-imports.ts packages/pipeline-core/dist || true
 
 # Fix package.json exports to point to dist/ for production
@@ -65,14 +65,14 @@ CMD ["node", "packages/api-server/dist/dev-server.js"]
 # =============================================================================
 # Runtime: MCP Server
 # =============================================================================
-FROM docker.io/node:22-bookworm-slim AS mcp-server
+FROM docker.io/node:22-bookworm-slim AS quill-mcp
 
 WORKDIR /app
 COPY --from=build /app /app
 
 EXPOSE 3001
 ENV NODE_ENV=production
-CMD ["node", "packages/mcp-server/dist/index.js"]
+CMD ["node", "packages/quill-mcp/dist/index.js"]
 
 # =============================================================================
 # Runtime: Portal (static file server via Python)

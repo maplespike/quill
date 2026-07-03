@@ -111,7 +111,7 @@ When Dependabot or `pnpm audit` flags a vulnerability, we apply patches in the f
 ## License
 
 - Core (pipeline-core, engine): AGPL-3.0-or-later
-- Interface (api-server, mcp-server, portal): Apache-2.0
+- Interface (api-server, quill-mcp, portal): Apache-2.0
 - Client (sdk, sdk-python): MIT
 
 See [LICENSE.md](./LICENSE.md) for full details.

@@ -227,9 +227,9 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Deployment ──────────────────────────────────────────
-    maplespike.Deployment.maplespike-mcp = {
+    maplespike.Deployment.maplespike-quill = {
       metadata.labels = {
-        app = "maplespike-mcp";
+        app = "maplespike-quill";
         component = "mcp";
         tier = "backend";
       };
@@ -239,10 +239,10 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
           type = "RollingUpdate";
           rollingUpdate = { maxUnavailable = 0; maxSurge = 1; };
         };
-        selector.matchLabels.app = "maplespike-mcp";
+        selector.matchLabels.app = "maplespike-quill";
         template = {
           metadata.labels = {
-            app = "maplespike-mcp";
+            app = "maplespike-quill";
             component = "mcp";
             tier = "backend";
           };
@@ -255,7 +255,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
               mcp = {
                 name = "mcp";
                 securityContext = devSecurityContext;
-                image = "ghcr.io/reverb256/maplespike/maplespike-mcp:dev";
+                image = "ghcr.io/reverb256/maplespike/maplespike-quill:dev";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 3001; }; };
                 env = {
@@ -314,15 +314,15 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Service ─────────────────────────────────────────────
-    maplespike.Service.maplespike-mcp = {
+    maplespike.Service.maplespike-quill = {
       metadata.labels = {
-        app = "maplespike-mcp";
+        app = "maplespike-quill";
         component = "mcp";
         tier = "backend";
       };
       spec = {
         type = "NodePort";
-        selector.app = "maplespike-mcp";
+        selector.app = "maplespike-quill";
         ports = {
           _namedlist = true;
           http = { name = "http"; port = 3001; targetPort = 3001; nodePort = 31746; };

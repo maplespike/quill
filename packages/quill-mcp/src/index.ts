@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * MapleSpike MCP Server — SSE transport (hosted)
+ * MapleSpike Quill — SSE transport (hosted)
  *
  * Serves the MCP protocol over HTTP Server-Sent Events.
  * Clients connect to /sse for events and POST to /messages for commands.
@@ -29,7 +29,7 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
-console.error(`[maplespike-mcp] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
+console.error(`[maplespike-quill] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
 
 interface SseClient {
   id: string;
@@ -95,7 +95,7 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
 
     clients.set(clientId, { id: clientId, res, locale });
 
-    console.error(`[maplespike-mcp] SSE client connected: ${clientId} (total: ${clients.size})`);
+    console.error(`[maplespike-quill] SSE client connected: ${clientId} (total: ${clients.size})`);
 
     // Heartbeat every 30s to keep connection alive
     const heartbeat = setInterval(() => {
@@ -109,7 +109,7 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
     req.on('close', () => {
       clearInterval(heartbeat);
       clients.delete(clientId);
-      console.error(`[maplespike-mcp] SSE client disconnected: ${clientId} (total: ${clients.size})`);
+      console.error(`[maplespike-quill] SSE client disconnected: ${clientId} (total: ${clients.size})`);
     });
 
     return;
@@ -143,7 +143,7 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       server.handleMessage(parsed, client.locale, (response) => {
         // Responses with an id go to the specific client
         sendSse(client.res, 'message', response);
-      }).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
+      }).catch((err: unknown) => console.error('[maplespike-quill] Error handling message:', err));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
@@ -157,14 +157,14 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`[maplespike-mcp] Hosted SSE server running on http://0.0.0.0:${PORT}`);
-  console.log(`[maplespike-mcp] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
-  console.log(`[maplespike-mcp] Health check: http://0.0.0.0:${PORT}/health`);
-  console.log(`[maplespike-mcp] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
+  console.log(`[maplespike-quill] Hosted SSE server running on http://0.0.0.0:${PORT}`);
+  console.log(`[maplespike-quill] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
+  console.log(`[maplespike-quill] Health check: http://0.0.0.0:${PORT}/health`);
+  console.log(`[maplespike-quill] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
 });
 
 process.on('SIGINT', () => {
-  console.error('[maplespike-mcp] SIGINT received, closing SSE connections');
+  console.error('[maplespike-quill] SIGINT received, closing SSE connections');
   for (const { res } of clients.values()) {
     res.end();
   }
@@ -172,6 +172,6 @@ process.on('SIGINT', () => {
 });
 
 process.on('SIGTERM', () => {
-  console.error('[maplespike-mcp] SIGTERM received, shutting down');
+  console.error('[maplespike-quill] SIGTERM received, shutting down');
   httpServer.close(() => process.exit(0));
 });

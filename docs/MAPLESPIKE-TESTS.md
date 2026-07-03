@@ -18,7 +18,7 @@ MapleSpike MCP server infrastructure is **operational** with 132 tools properly 
 ### Local Tests (All Passing ✓)
 
 ```bash
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm test
 # Result: 117/117 tests passed
 ```
@@ -28,7 +28,7 @@ pnpm test
 |------|-------|----------|
 | smoke.test.ts | 26 | Tool schemas + basic handlers |
 | e2e.test.ts | 12 | End-to-end with real upstream data |
-| mcp-server.test.ts | 38 | MCP protocol validation |
+| quill-mcp.test.ts | 38 | MCP protocol validation |
 | upstream.test.ts | 8 | Upstream reachability (StatCan, CanLII, Gazette, CKAN) |
 | tools.test.ts | 6 | General tool logic |
 | get-annotations.test.ts | 9 | Tool metadata |
@@ -48,7 +48,7 @@ pnpm test
 
 **Status**: SSE protocol tests created but not yet run in cluster.
 
-Test file: `packages/mcp-server/src/sse-protocol.test.ts`
+Test file: `packages/quill-mcp/src/sse-protocol.test.ts`
 
 **Test Coverage**:
 - ✓ SSE connection establishment
@@ -69,17 +69,17 @@ Test file: `packages/mcp-server/src/sse-protocol.test.ts`
 
 ### Server-Side (Correct ✓)
 
-**File**: `packages/mcp-server/src/server.ts`
+**File**: `packages/quill-mcp/src/server.ts`
 
 ```typescript
 // Line 132-135: Response handling
 server.handleMessage(parsed, client.locale, (response) => {
   // Responses with an id go to the specific client
   sendSse(client.res, 'message', response);
-}).catch((err: unknown) => console.error('[maplespike-mcp] Error handling message:', err));
+}).catch((err: unknown) => console.error('[maplespike-quill] Error handling message:', err));
 ```
 
-**File**: `packages/mcp-server/src/index.ts`
+**File**: `packages/quill-mcp/src/index.ts`
 
 ```typescript
 // Line 107-142: POST handler
@@ -155,16 +155,16 @@ Add logging to track tool execution:
 
 ```typescript
 // In index.ts handleToolCall before line 254:
-console.error(`[maplespike-mcp] Calling tool: ${toolName}`);
-console.error(`[maplespike-mcp] Arguments:`, args);
+console.error(`[maplespike-quill] Calling tool: ${toolName}`);
+console.error(`[maplespike-quill] Arguments:`, args);
 
 // After sendSse() at line 135:
-console.error(`[maplespike-mcp] Sent SSE 'message' event for request ${id}`);
+console.error(`[maplespike-quill] Sent SSE 'message' event for request ${id}`);
 ```
 
 ### 3. Add SSE Event Verification Tests
 
-Test file created: `packages/mcp-server/src/sse-protocol.test.ts`
+Test file created: `packages/quill-mcp/src/sse-protocol.test.ts`
 
 Tests:
 - SSE connection establishment ✓
@@ -192,15 +192,15 @@ Tests:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: maplespike-mcp-test
+  name: maplespike-quill-test
   namespace: maplespike-dev
 spec:
   template:
     spec:
       containers:
       - name: tester
-        image: ghcr.io/reverb256/maplespike-mcp:dev
-        command: ["node", "--test", "packages/mcp-server/src/sse-protocol.test.ts"]
+        image: ghcr.io/reverb256/maplespike-quill:dev
+        command: ["node", "--test", "packages/quill-mcp/src/sse-protocol.test.ts"]
         env:
         - name: PORT
           value: "3001"
@@ -256,7 +256,7 @@ wsServer.on('connection', (ws, req) => {
 
 ### SSE Protocol Tests (Not Yet Run)
 
-Created `packages/mcp-server/src/sse-protocol.test.ts` with 5 tests:
+Created `packages/quill-mcp/src/sse-protocol.test.ts` with 5 tests:
 
 1. ✓ Health endpoint
 2. ✓ SSE connection acceptance

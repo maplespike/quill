@@ -9,7 +9,7 @@ function getApiBase(): string {
       ? parts.slice(1).join('.') : host;
     return `${window.location.protocol}//api.${base}/v1`;
   }
-  return 'https://api.maplespike.lan/v1';
+  return 'https://api.maplespike.ca/v1';
 }
 const API_BASE = getApiBase();
 

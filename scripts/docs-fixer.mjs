@@ -48,7 +48,7 @@ const DOCS_FILES = [
   'docs/ARCHITECTURE.md',
   'packages/docs/guide/what-is-maplespike.md',
   'packages/docs/guide/getting-started.md',
-  'packages/mcp-server/README.md',
+  'packages/quill-mcp/README.md',
 ];
 
 console.log('🔍 Documentation Metrics Fixer');

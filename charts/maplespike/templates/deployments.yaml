@@ -81,23 +81,23 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-mcp
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-mcp
+    app: maplespike-quill
     component: mcp
 spec:
   replicas: {{ .Values.mcp.replicas }}
   selector:
     matchLabels:
-      app: maplespike-mcp
+      app: maplespike-quill
   template:
     metadata:
       labels:
-        app: maplespike-mcp
+        app: maplespike-quill
     spec:
       securityContext:
         runAsNonRoot: true
       containers:
       - name: mcp
-        image: "{{ .Values.image.registry }}/maplespike-mcp:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.registry }}/maplespike-quill:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.mcp.port }}

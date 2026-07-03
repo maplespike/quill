@@ -1,6 +1,6 @@
 # MapleSpike Codebase Audit Report
 **Date:** 2026-06-29
-**Scope:** Full monorepo — api-server, mcp-server, pipeline-core, engine, portal, SDK, infrastructure
+**Scope:** Full monorepo — api-server, quill-mcp, pipeline-core, engine, portal, SDK, infrastructure
 **Auditor:** Codebuff AI Agent
 
 ---
@@ -209,7 +209,7 @@ The comment claims CORS enforces access, but `frame-ancestors` is a CSP directiv
 ---
 
 ### H5. 168+ `as any` Casts Bypass Type Safety
-**Files:** Throughout the codebase (engine, api-server, mcp-server, sdk)
+**Files:** Throughout the codebase (engine, api-server, quill-mcp, sdk)
 
 Examples:
 - `packages/api-server/src/routes/ai.ts`: `await resp.json() as any` (lines 89, 114, 136, etc.)
@@ -297,7 +297,7 @@ if (!LOCAL_ENDPOINT) {
 ---
 
 ### M4. `console.log` / `console.error` in Production Code Paths
-**Files:** Throughout (mcp-server, pipeline-core, api-server)
+**Files:** Throughout (quill-mcp, pipeline-core, api-server)
 
 The MCP server was recently changed to `silent` in dev, but `packages/api-server/src/dev-server.ts`, `packages/pipeline-core/src/utils/http.ts`, and many ingestion modules still use `console.*`. These bypass structured logging, make log aggregation difficult, and can leak sensitive data.
 

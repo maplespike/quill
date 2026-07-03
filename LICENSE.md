@@ -16,7 +16,7 @@ MapleSpike uses different licenses for different layers of the stack. This is in
 | Tier | Packages | License | Rationale |
 |------|----------|---------|-----------|
 | **Core** | `pipeline-core`, `engine` | **AGPL-3.0-or-later** | The moat. Protects the ingestion, verification, and trust-scoring engine. The AGPL network clause ensures anyone hosting a modified version must share their source code. |
-| **Interface** | `api-server`, `mcp-server`, `portal`, `docs` | **Apache-2.0** | The gateway. Permissive enough for self-hosters, researchers, and tinkerers. The patent grant protects against patent aggression. |
+| **Interface** | `api-server`, `quill-mcp`, `portal`, `docs` | **Apache-2.0** | The gateway. Permissive enough for self-hosters, researchers, and tinkerers. The patent grant protects against patent aggression. |
 | **Client** | `sdk`, `sdk-python`, `legal-core`, `legislation` | **MIT** | The on-ramp. Zero-friction adoption — `npm install` or `pip install` with no legal review needed. |
 
 Each package contains its own `LICENSE` file. The root `LICENSE` file is AGPL-3.0 for the monorepo as a whole.
