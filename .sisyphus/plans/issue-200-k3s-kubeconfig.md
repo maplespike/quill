@@ -1,9 +1,12 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Issue #200 — Fix Multi-Machine K3s Access (Missing kubeconfig)
 
 **Status**: Draft
 **Created**: 2026-05-18
 **Owner**: Sisyphus
-**Issue**: https://github.com/reverb256/maplespike/issues/200
+**Issue**: https://github.com/reverb256/quill/issues/200
 **Labels**: `bug`, `p1`, `k8s`
 
 ---
@@ -96,7 +99,7 @@ Update the multi-host worktree section in AGENTS.md with verification checklist.
 ## Related Issues Found During Survey
 
 ### Namespace mismatch (prod)
-`k8s/prod/namespace.yaml` declares `name: maplespike` but all prod manifests and CI/CD use `maplespike-prod`. Fix: change namespace.yaml to `name: maplespike-prod`. Low urgency since `kubectl apply -f` with existing namespace doesn't fail.
+`k8s/prod/namespace.yaml` declares `name: maplespike` but all prod manifests and CI/CD use `quill-prod`. Fix: change namespace.yaml to `name: quill-prod`. Low urgency since `kubectl apply -f` with existing namespace doesn't fail.
 
 ### Single-node pinning (HA risk)
 All prod deployments and 22 CronJobs use `nodeName: nexus`. If nexus goes down, everything stops. Long-term fix: convert to `nodeAffinity preferredDuringScheduling` with multi-node host list (like dev pattern but include all nodes). Out of scope for this issue.

@@ -1,3 +1,6 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Git Branch Consolidation & Rebase Plan: MapleSpike
 
 ## 1. Objective

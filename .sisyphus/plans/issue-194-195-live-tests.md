@@ -1,10 +1,13 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Issues #194/#195 — NT/NU Live End-to-End Tests
 
 **Status**: Draft
 **Created**: 2026-05-18
 **Owner**: Sisyphus
-**Issue #194**: https://github.com/reverb256/maplespike/issues/194
-**Issue #195**: https://github.com/reverb256/maplespike/issues/195
+**Issue #194**: https://github.com/reverb256/quill/issues/194
+**Issue #195**: https://github.com/reverb256/quill/issues/195
 **Labels**: `bug`, `p2`, `module`
 
 ---
