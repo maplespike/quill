@@ -10,13 +10,16 @@ status: active
 > **Data-layer MCP product:** [MapleSpike Quill](./docs/products/quill.md) — *Quill reads Canada so your AI doesn't have to lie about it.*
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 198 modules, 164 MCP tools, ~191K lines TS, 14 packages.
+
+> **Repo rename note (2026-07):** This repository was formerly `reverb256/maplespike`. Product-level identifiers (container images, K8s resources, Nix outputs) are now `quill-*`. Brand-level identifiers — `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
+>
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 208 modules, 164 MCP tools, ~191K lines TS, 14 packages.
 
 ---
 
 ## What it is
 
-MapleSpike ingests, verifies, and surfaces **198 data modules** of Canadian public-domain government data across every sector.
+MapleSpike ingests, verifies, and surfaces **208 data modules** of Canadian public-domain government data across every sector.
 
 **Coverage:**
 - **Federal core**: IRCC immigration, StatCan WDS (CPI/GDP/labour/pop/trade), Health Canada, CRA Charity, Federal Budget, Proactive Disclosure, ATI, NPRI, Species at Risk, Impact Assessment, CIPO, CMHC
@@ -42,15 +45,15 @@ Every record includes SHA-256 citation hashes, source provenance, and audit trai
 ## Repository structure
 
 ```
-maplespike/
+quill/
 ├── packages/
 │   ├── pipeline-core/    # Ingestion, verification, audit (shared library)
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── portal/           # Developer portal & landing page (Astro + React + Tailwind)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── quill-mcp/       # Quill — data-layer MCP server (✅ 164 tools, all live). Rename to `quill-mcp/` planned, see ADR 0005.
-│   ├── sdk/              # TypeScript client library
-│   ├── sdk-python/       # Python client library
+│   ├── quill-mcp/        # Quill — data-layer MCP server (✅ 164 tools, all live)
+│   ├── sdk/              # TypeScript client library (@maplespike/sdk)
+│   ├── sdk-python/       # Python client library (`quill-sdk` on PyPI)
 │   ├── legal-core/       # Legal data SDK
 │   └── legislation/      # Legislation XML parser
 ├── docs/                 # Architecture docs, roadmap, gap analysis
@@ -91,6 +94,10 @@ See [ROADMAP.md](./ROADMAP.md) for the full phased plan. Detailed architecture: 
 ## Quick start
 
 ```bash
+# Clone (repo name is now `quill` — formerly `maplespike`)
+git clone git@github.com:reverb256/quill.git
+cd quill
+
 # Install dependencies
 pnpm install
 
@@ -147,7 +154,7 @@ port-mapping and fallback behaviour drift across v1 and v2.
 ```
 
 The wrapper auto-copies `.env.example` → `.env` on the first run so the
-API and MCP have non-empty `JWT_SECRET` / `MAPLESPIKE_API_KEY` defaults.
+API and MCP have non-empty `JWT_SECRET` / `QUILL_API_KEY` defaults.
 Edit `.env` to override any of: API storage backend (`memory` /
 `sqlite` / `postgres`), ports, CORS origins, AI gateway URL, or
 Postgres connection settings. Re-run `./scripts/dev-up.sh --down && ./scripts/dev-up.sh`
@@ -228,6 +235,8 @@ Stop the entire stack with `./scripts/dev-up.sh --down`.
 > **Current Deployment:** Docker Compose for local development via `./scripts/dev-up.sh` (API: :8082, MCP: :3001, Portal: :8080)
 >
 > **Planned:** K8s deployment in ROADMAP.md Phase 3
+>
+> **Container images:** `ghcr.io/reverb256/quill/quill-mcp:dev`, `ghcr.io/reverb256/quill/quill-api:dev`, `ghcr.io/reverb256/quill/quill-portal:dev` (formerly under `reverb256/maplespike/`).
 
 The authoritative contributor recipe is **[Running the local development stack & smoke test](#running-the-local-development-stack--smoke-test)** above — use `scripts/dev-up.sh` and `scripts/e2e-smoke.sh` instead of raw `docker-compose up -d` (the v1 binary is not installed on hosts that ship only the `docker compose` plugin).
 
@@ -250,7 +259,7 @@ GitHub Actions drives the two-environment deployment model:
 |--------|----------|--------|
 | `main` | CI (ci.yml) | Run tests on every push |
 | `main` | Deploy Dev (deploy-dev.yml) | Build + deploy to `maplespike-dev` namespace |
-| `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `maplespike-prod` namespace |
+| `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `quill-prod` namespace |
 
 Container images are tagged `:dev` for dev builds and `:latest` for production. Each workflow builds, pushes to the registry, and applies the corresponding `k8s/dev/` or `k8s/prod/` Kubernetes manifests.
 
@@ -270,4 +279,4 @@ Container images are tagged `:dev` for dev builds and `:latest` for production. 
 **Engine** (`packages/engine`): MIT
 **Portal** (`packages/portal`): MIT
 
-Government data retains its original license (primarily [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada)).
+Copyright © MapleSpike / reverb256. The `@maplespike/*` npm scope is the organizational scope; the product name is Quill. Government data retains its original license (primarily [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada)).
