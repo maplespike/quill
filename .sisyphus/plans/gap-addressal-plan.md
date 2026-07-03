@@ -1,3 +1,6 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # MapleSpike Gap Addressal Plan — 103→150 Modules
 
 > **Goal**: Address all identified gaps to hit 150 modules across federal, provincial, territorial, and municipal Canadian public data.
