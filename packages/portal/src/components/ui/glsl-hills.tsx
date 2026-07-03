@@ -6,6 +6,14 @@ const GLSLHills = ({ width = '100vw', height = '100vh', cameraZ = 125, planeSize
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Honor prefers-reduced-motion: render a single static frame instead of animating.
+    // Phase 6 ROADMAP row: "prefers-reduced-motion fallback for AnimatedShaderBackground".
+    // We still mount the WebGL canvas (so the visual layout is preserved) but skip
+    // the requestAnimationFrame loop entirely.
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     class Plane {
       uniforms: { time: { type: string; value: number } };
       mesh: THREE.Mesh;
@@ -126,6 +134,14 @@ void main(void){
     camera.position.set(0, 16, cameraZ);
     camera.lookAt(new THREE.Vector3(0, 28, 0));
     scene.add(plane.mesh);
+    if (prefersReducedMotion) {
+      // Single static frame; no animation, no resize listener needed.
+      resize();
+      plane.render(0);
+      renderer.render(scene, camera);
+      return () => {};
+    }
+
     window.addEventListener('resize', resize);
     resize();
     renderLoop();
