@@ -93,7 +93,7 @@ Automatically set in dev shells:
 
 ```bash
 NODE_ENV=development
-MAPLESPIKE_STORAGE=sqlite
+QUILL_STORAGE=sqlite
 MAPLESPIKE_DEBUG=true
 ```
 
@@ -102,7 +102,7 @@ MAPLESPIKE_DEBUG=true
 MCP server in dev mode bypasses auth when:
 
 ```bash
-MAPLESPIKE_API_KEY=***  # Three asterisks enables dev bypass
+QUILL_API_KEY=***  # Three asterisks enables dev bypass
 NODE_ENV=development     # Must not be "production"
 ```
 
@@ -160,9 +160,9 @@ cd packages/portal && python3 server.py
 
 ### Build Container Images
 ```bash
-nix build .#maplespike-quill-image
-nix build .#maplespike-api-image
-nix build .#maplespike-portal-image
+nix build .#quill-mcp-image
+nix build .#quill-api-image
+nix build .#quill-portal-image
 
 # Load into Podman
 podman load < result
@@ -180,7 +180,7 @@ nix develop .#devShells.x86_64-linux.mcp
 test-mcp  # Starts MCP server + runs health check
 
 # In another terminal
-hermes mcp add maplespike --url http://localhost:3001/sse
+hermes mcp add quill --url http://localhost:3001/sse
 ```
 
 ## IDE Integration
@@ -341,7 +341,7 @@ pnpm test --filter=./packages/quill-mcp
 
 Use `--no-link` to avoid symlinking to `/nix/store`:
 ```bash
-nix build .#maplespike-quill-image --no-link
+nix build .#quill-mcp-image --no-link
 ```
 
 Use binary cache (Cachix):
@@ -421,10 +421,10 @@ maplespike-new-package = mkImage {
 };
 ```
 
-3. Update `maplespike-all` symlinkJoin:
+3. Update `quill-all` symlinkJoin:
 ```nix
-maplespike-all = pkgs.symlinkJoin {
-  name = "maplespike-all-images";
+quill-all = pkgs.symlinkJoin {
+  name = "quill-all-images";
   paths = [
     # ... existing
     self.packages.${system}.maplespike-new-package
@@ -442,7 +442,7 @@ nodejs = pkgs.nodejs_22;  # Change to pkgs.nodejs_20, etc.
 Then rebuild:
 ```bash
 nix flake lock --update-input nixpkgs
-nix build .#maplespike-build
+nix build .#quill-build
 ```
 
 ## References

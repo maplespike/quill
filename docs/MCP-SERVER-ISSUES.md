@@ -8,10 +8,10 @@
 **Evidence**:
 - Pod returns `{"error":"Unauthorized"}` when accessing `/sse` without auth header
 - Code checks `authenticate()` function which requires `Authorization: Bearer ***` header
-- Dev mode bypasses auth if `MAPLESPIKE_API_KEY=***` and `NODE_ENV !== 'production'`
+- Dev mode bypasses auth if `QUILL_API_KEY=***` and `NODE_ENV !== 'production'`
 
 **Fix Applied**:
-- Set `MAPLESPIKE_API_KEY=***` on deployment to enable dev mode auth bypass
+- Set `QUILL_API_KEY=***` on deployment to enable dev mode auth bypass
 - This allows connections without Bearer token during testing
 
 **Long-term Solution**:
@@ -53,11 +53,11 @@
 ### For Development
 ```bash
 # Option 1: Port-forward (recommended for local dev)
-kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
-hermes mcp add maplespike --url http://localhost:3001/sse
+kubectl port-forward -n maplespike svc/quill-mcp 3001:3001
+hermes mcp add quill --url http://localhost:3001/sse
 
 # Option 2: Use NodePort
-kubectl get svc -n maplespike maplespike-quill
+kubectl get svc -n maplespike quill-mcp
 # Note: NodePort not currently exposed in service spec
 # Would need to change service type to NodePort
 ```
@@ -65,7 +65,7 @@ kubectl get svc -n maplespike maplespike-quill
 ### For Production
 ```nix
 # Add NodePort to service definition in k8s/dev.nix
-services.maplespike-quill = {
+services.quill-mcp = {
   type = "NodePort";
   ports = [{
     port = 3001;
@@ -74,12 +74,12 @@ services.maplespike-quill = {
 };
 
 # OR add ingress
-ingress.maplespike-quill = {
+ingress.quill-mcp = {
   hosts = [{
     host = "mcp.maplespike.lan";
     paths = [{
       path = "/sse";
-      backend = "maplespike-quill:3001";
+      backend = "quill-mcp:3001";
     }];
   }];
 };
@@ -95,7 +95,7 @@ mcp.auth = {
 # prod.nix - Production: proper secret
 mcp.auth = {
   enabled = true;
-  secret = "maplespike-quill-api-key";  # k8s Secret
+  secret = "quill-mcp-api-key";  # k8s Secret
 };
 ```
 
@@ -109,7 +109,7 @@ mcp.auth = {
 **Known Limitations**:
 - Requires manual `kubectl port-forward` for dev
 - NodePort/Ingress not configured
-- Auth disabled via `MAPLESPIKE_API_KEY=***`
+- Auth disabled via `QUILL_API_KEY=***`
 
 **Next Steps**:
 1. Add NodePort service to k8s/dev.nix

@@ -1,31 +1,31 @@
-# MapleSpike Python SDK
+# Quill Python SDK (`quill-sdk`)
 
-> **`maplespike-sdk`** — Typed Python client for Canadian government data:
+> **Typed Python client for Canadian government data:**
 > Parliament, lobbying, immigration, courts, regulations, oversight, and more.
 
-[![PyPI version](https://img.shields.io/pypi/v/maplespike-sdk)](https://pypi.org/project/maplespike-sdk/)
-[![Python versions](https://img.shields.io/pypi/pyversions/maplespike-sdk)](https://pypi.org/project/maplespike-sdk/)
-[![License: MIT](https://img.shields.io/pypi/l/maplespike-sdk)](LICENSE)
+[![PyPI version](https://img.shields.io/pypi/v/quill-sdk)](https://pypi.org/project/quill-sdk/)
+[![Python versions](https://img.shields.io/pypi/pyversions/quill-sdk)](https://pypi.org/project/quill-sdk/)
+[![License: MIT](https://img.shields.io/pypi/l/quill-sdk)](LICENSE)
 
 ---
 
 ## Install
 
 ```bash
-pip install maplespike-sdk
+pip install quill-sdk
 ```
 
 Optional extras:
 
 ```bash
-pip install 'maplespike-sdk[langchain]'   # LangChain agent tools
-pip install 'maplespike-sdk[dev]'         # development tooling
+pip install 'quill-sdk[langchain]'   # LangChain agent tools
+pip install 'quill-sdk[dev]'         # development tooling
 ```
 
 ## Quick Start
 
 ```python
-from maplespike import MapleSpike
+from quill import MapleSpike
 
 ms = MapleSpike(api_key="msk_live_...")
 
@@ -40,7 +40,7 @@ result = ms.agent("corporate").action("lobbying-activities", subject="healthcare
 ### High-level client
 
 ```python
-from maplespike import MapleSpikeClient
+from quill import MapleSpikeClient
 
 client = MapleSpikeClient(api_key="msk_live_...")
 
@@ -75,7 +75,7 @@ quality = client.data_quality("corporate", "corporation-profile")
 ## LangChain Integration
 
 ```python
-from maplespike import get_maplespike_tools
+from quill import get_maplespike_tools
 
 tools = get_maplespike_tools(api_key="msk_live_...")
 # Pass tools to any LangChain agent
@@ -88,8 +88,8 @@ Full API reference: [https://maplespike.ca/docs](https://maplespike.ca/docs)
 ## Development
 
 ```bash
-git clone https://github.com/reverb256/maplespike.git
-cd maplespike/packages/sdk-python
+git clone https://github.com/reverb256/quill.git
+cd packages/sdk-python
 pip install -e ".[dev]"
 pytest
 ```

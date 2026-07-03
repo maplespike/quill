@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — Core type definitions
+# Quill SDK — Core type definitions
 # ---------------------------------------------------------------------------
 
 from dataclasses import dataclass, field
