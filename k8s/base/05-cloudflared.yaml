@@ -28,8 +28,8 @@
 #      the ConfigMap will be overwritten on next apply.
 #
 # Why Service FQDNs in route targets?
-#   Using the full FQDN (maplespike-api.maplespike.svc.cluster.local:8082) vs.
-#   shorthand (maplespike-api:8082) makes the route unambiguous when you later
+#   Using the full FQDN (quill-api.maplespike.svc.cluster.local:8082) vs.
+#   shorthand (quill-api:8082) makes the route unambiguous when you later
 #   add a second namespace.
 #
 # Why no Service for cloudflared?
@@ -51,19 +51,19 @@ metadata:
   namespace: maplespike
 data:
   config.yaml: |
-    tunnel: cec1b070-796f-4524-b43e-9b05c32af906
+    tunnel: 66d76492-036b-4177-8fac-8682e0eda37e
     credentials-file: /etc/cloudflared/credentials.json
     ingress:
       - hostname: api.maplespike.ca
-        service: http://maplespike-api.maplespike.svc.cluster.local:8082
+        service: http://quill-api.maplespike.svc.cluster.local:8082
       - hostname: mcp.maplespike.ca
-        service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+        service: http://quill-mcp.maplespike.svc.cluster.local:3001
       - hostname: quill.maplespike.ca
-        service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+        service: http://quill-mcp.maplespike.svc.cluster.local:3001
       - hostname: datafabric.maplespike.ca
-        service: http://maplespike-portal.maplespike.svc.cluster.local:8080
+        service: http://quill-portal.maplespike.svc.cluster.local:8080
       - hostname: data.maplespike.ca
-        service: http://maplespike-portal.maplespike.svc.cluster.local:8080
+        service: http://quill-portal.maplespike.svc.cluster.local:8080
       - service: http_status:404
 
 ---
