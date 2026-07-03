@@ -118,7 +118,7 @@ jobs:
             exit 0
           fi
 
-          # Count MCP tools from mcp-server package
+          # Count MCP tools from quill-mcp package
           MCP_TOOLS_CLAIMED=$(jq -r '.mcpTools.count // "?"' docs/metrics.json 2>/dev/null || echo "?")
           echo "📌 Claimed MCP tools: $MCP_TOOLS_CLAIMED" >> $GITHUB_STEP_SUMMARY
 

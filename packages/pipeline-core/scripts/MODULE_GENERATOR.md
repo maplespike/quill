@@ -81,7 +81,7 @@ Also prints copy-paste snippets for:
 
 ### If adding MCP tools
 
-Create `packages/mcp-server/src/tools/search-<module>.ts`:
+Create `packages/quill-mcp/src/tools/search-<module>.ts`:
 
 ```typescript
 import { searchMyModuleRecords } from '@maplespike/pipeline-core';

@@ -8,7 +8,7 @@
 
 ## API & MCP servers
 /packages/api-server/ @reverb256
-/packages/mcp-server/ @reverb256
+/packages/quill-mcp/ @reverb256
 
 ## Engine
 /packages/engine/ @reverb256

@@ -1,12 +1,12 @@
 /**
  * MapleSpike Edge Worker (Proxy)
  *
- * Routes data-fabric requests between Cloudflare edge and homelab cluster.
- * Architecture (subdomain-based, supersedes the old /datafabric prefix path):
+ * Routes Quill (data-layer MCP) requests between Cloudflare edge and homelab cluster.
+ * Architecture (subdomain-based; `quill` was the previous alias — retired in ADR 0005 Phase C):
  *   maplespike.ca              -> Cloudflare Pages (brand SPA) — not handled here
  *   api.maplespike.ca/v1/*     -> Homelab API server (via tunnel, not this worker)
- *   mcp.maplespike.ca          -> Homelab MCP server (via tunnel, not this worker)
- *   datafabric.maplespike.ca   -> Homelab portal (via tunnel, not this worker)
+ *   mcp.maplespike.ca          -> Homelab Quill MCP server `maplespike-quill:3001` (via tunnel, not this worker)
+ *   data.maplespike.ca         -> Homelab portal serving the Quill surface (via tunnel) — Phase D alias: quill.maplespike.ca
  *
  * This worker handles cacheable GET proxying and IP-based rate limiting
  * for write operations. The Cloudflare Tunnel handles the actual k3s

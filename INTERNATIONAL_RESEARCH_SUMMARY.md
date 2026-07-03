@@ -795,7 +795,7 @@ packages/pipeline-core/src/ingestion/
 ### C. MCP Tool Names (Proposed)
 
 ```
-packages/mcp-server/src/tools/
+packages/quill-mcp/src/tools/
 ├── un_stats_sdg_indicator.ts
 ├── un_undp_hdi_country.ts
 ├── un_comtrade_trade_flow.ts

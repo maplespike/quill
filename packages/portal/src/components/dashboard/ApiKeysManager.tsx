@@ -13,7 +13,7 @@ function getApiBase(): string {
       ? parts.slice(1).join(".") : host;
     return `${window.location.protocol}//api.${base}`;
   }
-  return "https://api.maplespike.lan";
+  return "https://api.maplespike.ca";
 }
 
 function getToken(): string | null {

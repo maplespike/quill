@@ -111,7 +111,7 @@ Configure your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-mcp.lan:3001/sse"  <!-- internal for local dev; use public MCP endpoint when available -->
+      "url": "http://maplespike-quill.lan:3001/sse"  <!-- internal for local dev; use public MCP endpoint when available -->
     }
   }
 }

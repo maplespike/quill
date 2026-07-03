@@ -53,11 +53,11 @@
 ### For Development
 ```bash
 # Option 1: Port-forward (recommended for local dev)
-kubectl port-forward -n maplespike svc/maplespike-mcp 3001:3001
+kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
 hermes mcp add maplespike --url http://localhost:3001/sse
 
 # Option 2: Use NodePort
-kubectl get svc -n maplespike maplespike-mcp
+kubectl get svc -n maplespike maplespike-quill
 # Note: NodePort not currently exposed in service spec
 # Would need to change service type to NodePort
 ```
@@ -65,7 +65,7 @@ kubectl get svc -n maplespike maplespike-mcp
 ### For Production
 ```nix
 # Add NodePort to service definition in k8s/dev.nix
-services.maplespike-mcp = {
+services.maplespike-quill = {
   type = "NodePort";
   ports = [{
     port = 3001;
@@ -74,12 +74,12 @@ services.maplespike-mcp = {
 };
 
 # OR add ingress
-ingress.maplespike-mcp = {
+ingress.maplespike-quill = {
   hosts = [{
     host = "mcp.maplespike.lan";
     paths = [{
       path = "/sse";
-      backend = "maplespike-mcp:3001";
+      backend = "maplespike-quill:3001";
     }];
   }];
 };
@@ -95,7 +95,7 @@ mcp.auth = {
 # prod.nix - Production: proper secret
 mcp.auth = {
   enabled = true;
-  secret = "maplespike-mcp-api-key";  # k8s Secret
+  secret = "maplespike-quill-api-key";  # k8s Secret
 };
 ```
 

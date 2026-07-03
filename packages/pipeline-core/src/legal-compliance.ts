@@ -1,5 +1,5 @@
 // pipeline-core: AGPL-3.0-or-later, engine: MIT, api-server: Apache-2.0,
-// mcp-server: MIT, sdk: MIT, sdk-python: MIT, legal-core: MIT, legislation: MIT
+// quill-mcp: MIT, sdk: MIT, sdk-python: MIT, legal-core: MIT, legislation: MIT
 
 import { ConsoleAuditLogger } from './audit/logger.js';
 import type { AuditEntry, AuditLogger } from './audit/logger.js';
@@ -34,7 +34,7 @@ const PACKAGE_LICENSES: Record<string, { license: string; attributionRequired: b
   'pipeline-core': { license: 'AGPL-3.0-or-later', attributionRequired: true },
   engine: { license: 'MIT', attributionRequired: false },
   'api-server': { license: 'Apache-2.0', attributionRequired: true },
-  'mcp-server': { license: 'MIT', attributionRequired: false },
+  'quill-mcp': { license: 'MIT', attributionRequired: false },
   sdk: { license: 'MIT', attributionRequired: false },
   'sdk-python': { license: 'MIT', attributionRequired: false },
   'legal-core': { license: 'MIT', attributionRequired: false },

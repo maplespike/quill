@@ -109,11 +109,11 @@
 
   in {
     packages = rec {
-      default = self.packages.${system}.maplespike-mcp-image;
+      default = self.packages.${system}.maplespike-quill-image;
 
-      maplespike-mcp-image = mkImage {
-        name = "maplespike-mcp";
-        cmd = [ "node" "packages/mcp-server/dist/index.js" ];
+      maplespike-quill-image = mkImage {
+        name = "maplespike-quill";
+        cmd = [ "node" "packages/quill-mcp/dist/index.js" ];
         port = 3001;
         extraEnv = [];
       };
@@ -166,7 +166,7 @@
       maplespike-all = pkgs.symlinkJoin {
         name = "maplespike-all-images";
         paths = [
-          self.packages.${system}.maplespike-mcp-image
+          self.packages.${system}.maplespike-quill-image
           self.packages.${system}.maplespike-api-image
           self.packages.${system}.maplespike-ingest-image
           self.packages.${system}.maplespike-engine-image
@@ -176,7 +176,7 @@
 
       maplespike-build-all = pkgs.writeShellScriptBin "maplespike-build-all" ''
         set -euo pipefail
-        for pkg in maplespike-mcp maplespike-api maplespike-portal; do
+        for pkg in maplespike-quill maplespike-api maplespike-portal; do
           echo "=== Building $pkg ==="
           nix build ".#$pkg-image" --print-out-paths -L
         done
@@ -197,7 +197,7 @@
         TAG="''${TAG:-stable}"
         COMMIT="''${COMMIT:-$(git rev-parse --short HEAD)}"
 
-        for img in maplespike-mcp maplespike-api maplespike-portal; do
+        for img in maplespike-quill maplespike-api maplespike-portal; do
           echo "=== $img ==="
           path=$(nix build ".#$img-image" --print-out-paths --no-link -L)
           docker load < "$path"
@@ -213,24 +213,24 @@
       systemd-services = pkgs.symlinkJoin {
         name = "maplespike-systemd-services";
         paths = [
-          (pkgs.writeText "maplespike-mcp.container" ''
+          (pkgs.writeText "maplespike-quill.container" ''
 [Container]
-Image=ghcr.io/reverb256/maplespike/maplespike-mcp:${self.shortRev or "stable"}
-ContainerName=maplespike-mcp
+Image=ghcr.io/reverb256/maplespike/maplespike-quill:${self.shortRev or "stable"}
+ContainerName=maplespike-quill
 Environment=PORT=3001,NODE_ENV=production
 PodmanArgs=--network=host
 '')
-          (pkgs.writeText "maplespike-mcp.service" ''
+          (pkgs.writeText "maplespike-quill.service" ''
 [Unit]
-Description=Maplespike MCP Server
+Description=MapleSpike Quill (data-layer MCP server)
 After=network-online.target
 Wants=network-online.target
-Requires=maplespike-mcp.container
+Requires=maplespike-quill.container
 
 [Service]
 Restart=on-failure
-ExecStart=/usr/bin/podman start maplespike-mcp
-ExecStop=/usr/bin/podman stop -t 10 maplespike-mcp
+ExecStart=/usr/bin/podman start maplespike-quill
+ExecStop=/usr/bin/podman stop -t 10 maplespike-quill
 
 [Install]
 WantedBy=default.target
@@ -288,7 +288,7 @@ WantedBy=default.target
         set -euo pipefail
         RUNTIME=''${RUNTIME:-docker}
 
-        for img in maplespike-mcp maplespike-api maplespike-portal; do
+        for img in maplespike-quill maplespike-api maplespike-portal; do
           echo "=== Loading $img ==="
           path=$(nix build ".#$img-image" --print-out-paths --no-link -L)
           $RUNTIME load < "$path"
@@ -462,13 +462,13 @@ services:
     networks:
       - maplespike
 
-  maplespike-mcp:
-    image: maplespike-mcp:latest
+  maplespike-quill:
+    image: maplespike-quill:latest
     build:
       context: .
       dockerfile: Dockerfile
-      target: mcp-server
-    container_name: maplespike-mcp
+      target: quill-mcp
+    container_name: maplespike-quill
     ports:
       - "3001:3001"
     environment:
@@ -544,7 +544,7 @@ volumes:
         program = "${pkgs.writeShellScriptBin "maplespike-deploy-dev" ''
           set -euo pipefail
           TAG=''${TAG:-dev}
-          for img in maplespike-mcp-image maplespike-api-image maplespike-portal-image; do
+          for img in maplespike-quill-image maplespike-api-image maplespike-portal-image; do
             nix build ".#$img" --print-out-paths -L
           done
           echo "✅ Dev images built. Deploy via kubectl apply -f k8s/dev/"
@@ -556,7 +556,7 @@ volumes:
         program = "${pkgs.writeShellScriptBin "maplespike-deploy-prod" ''
           set -euo pipefail
           TAG=''${TAG:-stable}
-          for img in maplespike-mcp-image maplespike-api-image maplespike-portal-image; do
+          for img in maplespike-quill-image maplespike-api-image maplespike-portal-image; do
             nix build ".#$img" --print-out-paths -L
           done
           echo "✅ Prod images built. Deploy via kubectl apply -f k8s/prod/"
@@ -613,7 +613,7 @@ volumes:
       images-exist = pkgs.runCommand "check-images-exist" { } ''
         mkdir -p $out
         echo "✅ ${builtins.toString (builtins.attrNames {
-          mcp = self.packages.${system}.maplespike-mcp-image;
+          quill = self.packages.${system}.maplespike-quill-image;
           api = self.packages.${system}.maplespike-api-image;
           ingest = self.packages.${system}.maplespike-ingest-image;
           engine = self.packages.${system}.maplespike-engine-image;

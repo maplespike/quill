@@ -7,7 +7,7 @@ status: active
 
 > **Current version:** v0.3.0 (unreleased — see [CHANGELOG.md](./CHANGELOG.md) `[Unreleased]` for items in flight; will publish to `prod` on the next changeset batch)
 > **Build:** ✅ `pnpm build` passes (13/13 packages)
-> **Tests:** 696 passing (pipeline-core 339, mcp-server 215, api-server 66, engine 56, sdk 7, notification-service 13)
+> **Tests:** 696 passing (pipeline-core 339, quill-mcp 215, api-server 66, engine 56, sdk 7, notification-service 13)
 > **Modules:** 198 registry entries (9 marked placeholder)
 > **MCP tools:** 164 registered in tools/index.ts
 > **MVP tracker:** [#665](https://github.com/reverb256/maplespike/issues/665) — Real readiness: ~30%
@@ -19,7 +19,7 @@ status: active
 
 | Task | Status |
 |------|--------|
-| Fix mcp-server build (4 missing tool files) | ✅ |
+| Fix quill-mcp build (4 missing tool files) | ✅ |
 | Add `.github/workflows/ci.yml` | ✅ |
 | Archive 3 fiction docs (PIPELINE-ARCHITECTURE, SELF-HEALING, K8S-NIX-MANIFESTS) | ✅ |
 | Fix kanban docs (empty board, no cronjobs) | ✅ |

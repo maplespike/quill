@@ -126,7 +126,7 @@ Features:
 - **Audit logging**: All operations logged to SQLite with request IDs
 - **Response envelope**: Standardized `success/data/error/meta/quality/citation` format
 
-### MCP Server (`@reverb256/mcp-server`)
+### MCP Server (`@maplespike/quill-mcp`)
 
 Model Context Protocol server with 34 tools. Transport:
 - **stdio** — For local development / desktop apps

@@ -77,10 +77,10 @@ kubectl apply -f k8s/manual/00-namespace.yaml
 
 # 2. Build and load Docker images
 docker build --target api-server -t maplespike-api:prod .
-docker build --target mcp-server -t maplespike-mcp:prod .
+docker build --target quill-mcp -t maplespike-quill:prod .
 # If using local images on K3s (no registry):
 # docker save maplespike-api:prod | ssh nexus docker load
-# docker save maplespike-mcp:prod | ssh nexus docker load
+# docker save maplespike-quill:prod | ssh nexus docker load
 
 # 3. Create production secrets
 kubectl create secret generic maplespike-secrets \
@@ -209,7 +209,7 @@ kubectl get pods -n maplespike
 kubectl logs -f deployment/maplespike-api -n maplespike
 
 # View MCP logs
-kubectl logs -f deployment/maplespike-mcp -n maplespike
+kubectl logs -f deployment/maplespike-quill -n maplespike
 
 # Check Cloudflare tunnel status
 kubectl logs -f deployment/cloudflared -n maplespike

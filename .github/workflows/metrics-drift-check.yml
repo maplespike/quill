@@ -4,14 +4,14 @@ on:
   pull_request:
     branches: [main, prod]
     paths:
-      - 'packages/mcp-server/src/tools/**'
+      - 'packages/quill-mcp/src/tools/**'
       - 'packages/pipeline-core/src/ingestion/**'
       - 'docs/metrics.json'
       - 'scripts/generate-metrics.mjs'
   push:
     branches: [main, prod]
     paths:
-      - 'packages/mcp-server/src/tools/**'
+      - 'packages/quill-mcp/src/tools/**'
       - 'packages/pipeline-core/src/ingestion/**'
       - 'docs/metrics.json'
       - 'scripts/generate-metrics.mjs'

@@ -32,13 +32,13 @@ const ingestionDirs = readdirSync(ingestionDir, { withFileTypes: true })
   .length;
 
 // ── 3. MCP tool definitions ──────────────────────────────────
-const toolsGlob = 'packages/mcp-server/src/tools/*.ts';
+const toolsGlob = 'packages/quill-mcp/src/tools/*.ts';
 const mcpToolResult = run(
   `grep -rl 'export const.*definition' ${toolsGlob} | grep -v 'index.ts\\|types.ts\\|api-client.ts' | wc -l`
 );
 const mcpToolCount = parseInt(mcpToolResult, 10);
 
-const toolsIndexPath = join(ROOT, 'packages/mcp-server/src/tools/index.ts');
+const toolsIndexPath = join(ROOT, 'packages/quill-mcp/src/tools/index.ts');
 const toolsIndexContent = readFileSync(toolsIndexPath, 'utf-8');
 const toolImports = [...toolsIndexContent.matchAll(/from '\.\/([^']+)'/g)]
   .map(m => m[1])

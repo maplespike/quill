@@ -35,7 +35,7 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | Package | Entry point | Build | Test (framework) | Published? |
 |---------|-------------|-------|------------------|------------|
 | `pipeline-core` | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
-| `mcp-server` *(Quill, ADR 0005)* | `dist/cli.js` (bin: `maplespike-mcp`) | `tsc -b` | `node --test` (tsx) | No |
+| `quill-mcp` *(Quill, ADR 0005)* | `dist/cli.js` (bin: `maplespike-quill`) | `tsc -b` | `node --test` (tsx) | No |
 | `api-server` | `dist/dev-server.js` | `tsc -b` | `node --test` (tsx) | No |
 | `engine` | `src/index.ts` | `tsc` | `vitest` (no config file) | No |
 | `sdk` | `dist/index.js` (tsup, CJS+ESM) | `tsup` | `pnpm build && tsx --test` | Yes (npm) |
@@ -112,7 +112,7 @@ Browser → maplespike.lan (Caddy TLS)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ MCP    (:31746) — [Quill](./docs/products/quill.md) data-layer MCP server (164 tools)
+  └→ Quill  (:31746) — [Quill](./docs/products/quill.md) data-layer MCP server (164 tools)
 ```
 
 ### Auth Chain

@@ -33,18 +33,18 @@ The MCP server is deployed on the K3s cluster with the following service configu
 apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-mcp
+  name: maplespike-quill
   namespace: ai-inference
 spec:
   selector:
-    app: maplespike-mcp
+    app: maplespike-quill
   ports:
     - protocol: TCP
       port: 3001
       targetPort: 3001
 ```
 
-**Cluster endpoint:** `http://maplespike-mcp.ai-inference.svc.lan:3001/sse`
+**Cluster endpoint:** `http://maplespike-quill.ai-inference.svc.lan:3001/sse`
 
 ## Configuration
 
@@ -68,7 +68,7 @@ Configure any MCP client to use the SSE URL:
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-mcp.ai-inference.svc.lan:3001/sse"
+      "url": "http://maplespike-quill.ai-inference.svc.lan:3001/sse"
     }
   }
 }
@@ -78,7 +78,7 @@ Configure any MCP client to use the SSE URL:
 
 Add MCP Server:
 - **Type:** `url`
-- **URL:** `http://maplespike-mcp.ai-inference.svc.lan:3001/sse`
+- **URL:** `http://maplespike-quill.ai-inference.svc.lan:3001/sse`
 
 ## Request Flow
 
@@ -120,7 +120,7 @@ Add MCP Server:
 The SSE server exposes a health endpoint:
 
 ```bash
-curl http://maplespike-mcp.ai-inference.svc.lan:3001/health
+curl http://maplespike-quill.ai-inference.svc.lan:3001/health
 ```
 
 ## Troubleshooting
@@ -129,11 +129,11 @@ curl http://maplespike-mcp.ai-inference.svc.lan:3001/health
 
 ```bash
 # Verify the server is reachable
-curl -v http://maplespike-mcp.ai-inference.svc.lan:3001/health
+curl -v http://maplespike-quill.ai-inference.svc.lan:3001/health
 
 # Check for firewall or network policies
-kubectl -n ai-inference get pods -l app=maplespike-mcp
-kubectl -n ai-inference logs deployment/maplespike-mcp
+kubectl -n ai-inference get pods -l app=maplespike-quill
+kubectl -n ai-inference logs deployment/maplespike-quill
 ```
 
 ### Connection Drops
