@@ -1,13 +1,19 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — Main entry point
+# Quill SDK — Main entry point
 # ---------------------------------------------------------------------------
 
 """
-MapleSpike Python SDK — typed client for the MapleSpike civilian intelligence API.
+Quill Python SDK (pyproject: `quill-sdk`, import path: `quill`) — typed
+client for the MapleSpike civilian intelligence API.
+
+> Renamed 2026-07-03 — the module directory was previously `maplespike/`.
+> `MapleSpike` (and `MapleSpikeClient`, `MapleSpikeResponse`, etc.) remain
+> as the public class names because they're brand-level identifiers per
+> ADR 0007's product-vs-brand split — only the *import path* moved.
 
 Usage:
 
-    from maplespike import MapleSpike
+    from quill import MapleSpike
 
     ms = MapleSpike(api_key='ms_live_...')
     result = ms.query('committees', 'committee-membership', {'parliament': 44})

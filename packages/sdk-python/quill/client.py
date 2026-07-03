@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — URL builder, headers, response parsing
+# Quill SDK — URL builder, headers, response parsing
 # ---------------------------------------------------------------------------
 
 import json

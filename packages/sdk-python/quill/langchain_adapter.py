@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — LangChain adapter
+# Quill SDK — LangChain adapter
 # ---------------------------------------------------------------------------
 """
 LangChain adapter for MapleSpike.
@@ -9,7 +9,7 @@ objects (one per agent action) for use with LangChain agents/chains.
 
 Usage::
 
-    from maplespike import get_maplespike_tools
+    from quill import get_maplespike_tools
 
     tools = get_maplespike_tools(api_key='ms_live_...')
     # tools is a list of StructuredTool — hand it to any LangChain agent.
@@ -104,7 +104,7 @@ def _build_tools(
         except ImportError:
             raise ImportError(
                 "LangChain is required to build MapleSpike tools. "
-                "Install it with: pip install 'maplespike-sdk[langchain]'"
+                "Install it with: pip install 'quill-sdk[langchain]'"
             ) from None
 
     # Lazy import to avoid circular dependency (MapleSpike lives in __init__)
@@ -145,7 +145,7 @@ def get_maplespike_tools(
     """Return a list of LangChain ``StructuredTool`` objects.
 
     One tool is created for **every** agent action defined in the
-    :data:`~maplespike.agents.AGENTS` catalogue.  Each tool:
+    :data:`~quill.agents.AGENTS` catalogue.  Each tool:
 
     * Has a ``name`` of the form ``<agent>.<action>`` (e.g.
       ``committees.committee-membership``).
@@ -158,7 +158,7 @@ def get_maplespike_tools(
     ----------
     api_key : str, optional
         MapleSpike API key.  If omitted the client falls back to the
-        :mod:`maplespike.auth` module and eventually to mock data.
+        :mod:`quill.auth` module and eventually to mock data.
     base_url : str, optional
         Override the default API base URL.
 

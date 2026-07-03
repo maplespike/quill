@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "maplespike-sdk"
-version = "0.3.0"
-description = "MapleSpike Python SDK — typed client for Canadian government data: Parliament, lobbying, immigration, courts, regulations, oversight, and more"
+name = "quill-sdk"
+version = "0.4.0"
+description = "Quill (PyPI: quill-sdk) — typed Python client for the MapleSpike public-data API: Parliament, lobbying, immigration, courts, regulations, oversight, and more. Brand-level MapleSpike class names are preserved per ADR 0007."
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
@@ -34,9 +34,9 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://maplespike.ca"
-Repository = "https://github.com/reverb256/maplespike"
-Source = "https://github.com/reverb256/maplespike/tree/main/packages/sdk-python"
-Tracker = "https://github.com/reverb256/maplespike/issues"
+Repository = "https://github.com/reverb256/quill"
+Source = "https://github.com/reverb256/quill/tree/main/packages/sdk-python"
+Tracker = "https://github.com/reverb256/quill/issues"
 Documentation = "https://maplespike.ca/docs"
 
 [project.optional-dependencies]
@@ -53,4 +53,4 @@ langchain = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["maplespike*"]
+include = ["quill*"]

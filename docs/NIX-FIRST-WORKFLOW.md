@@ -36,9 +36,9 @@ The dev shell provides:
 nix run .#apps.build-all
 
 # Or build individually
-nix build .#maplespike-quill-image
-nix build .#maplespike-api-image
-nix build .#maplespike-portal-image
+nix build .#quill-mcp-image
+nix build .#quill-api-image
+nix build .#quill-portal-image
 
 # View build outputs
 ls -la result/
@@ -69,9 +69,9 @@ sudo cp result/systemd-services/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 # Start services
-sudo systemctl enable --now maplespike-quill
-sudo systemctl enable --now maplespike-api
-sudo systemctl enable --now maplespike-portal
+sudo systemctl enable --now quill-mcp
+sudo systemctl enable --now quill-api
+sudo systemctl enable --now quill-portal
 
 # Verify
 curl http://localhost:3001/health
@@ -103,19 +103,19 @@ kubectl apply -f result/manifest.yaml -n maplespike
 
 # Or use generated dev/prod manifests
 kubectl apply -n maplespike-dev -f k8s/dev/
-kubectl apply -n maplespike-prod -f k8s/prod/
+kubectl apply -n quill-prod -f k8s/prod/
 ```
 
 #### Push to Container Registry
 ```bash
 # Build and push all images
-REGISTRY=ghcr.io/reverb256 TAG=dev nix run .#maplespike-push-all
+REGISTRY=ghcr.io/reverb256 TAG=dev nix run .#quill-push-all
 
 # Or manually
-nix build .#maplespike-quill-image
+nix build .#quill-mcp-image
 podman load < result
-podman tag maplespike-quill:latest ghcr.io/reverb256/maplespike-quill:dev
-podman push ghcr.io/reverb256/maplespike-quill:dev
+podman tag quill-mcp:latest ghcr.io/reverb256/quill-mcp:dev
+podman push ghcr.io/reverb256/quill-mcp:dev
 ```
 
 #### Verify Deployment
@@ -124,10 +124,10 @@ podman push ghcr.io/reverb256/maplespike-quill:dev
 kubectl get pods -n maplespike
 
 # Check logs
-kubectl logs -n maplespike deployment/maplespike-quill
+kubectl logs -n maplespike deployment/quill-mcp
 
 # Port-forward for local testing
-kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
+kubectl port-forward -n maplespike svc/quill-mcp 3001:3001
 curl http://localhost:3001/health
 ```
 
@@ -140,17 +140,17 @@ cd packages/quill-mcp
 pnpm start:sse &
 
 # Add to Hermes
-hermes mcp add maplespike --url http://localhost:3001/sse
+hermes mcp add quill --url http://localhost:3001/sse
 
 # Or using cluster deployment
-kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
-hermes mcp add maplespike --url http://localhost:3001/sse
+kubectl port-forward -n maplespike svc/quill-mcp 3001:3001
+hermes mcp add quill --url http://localhost:3001/sse
 ```
 
 #### Verify Tools Available
 ```bash
 # Test MCP connection
-hermes mcp test maplespike
+hermes mcp test quill
 
 # List MCP tools
 hermes mcp list
@@ -168,9 +168,9 @@ The `.github/workflows/deploy-dev.yml` and `.github/workflows/deploy-prod.yml` w
 ```yaml
 steps:
   - uses: cachix/install-nix-action@v25
-  - run: nix build .#maplespike-quill-image -L
+  - run: nix build .#quill-mcp-image -L
   - run: podman load < result
-  - run: podman push ghcr.io/reverb256/maplespike-quill:${{ github.sha }}
+  - run: podman push ghcr.io/reverb256/quill-mcp:${{ github.sha }}
 ```
 
 ### Image Builds
@@ -182,7 +182,7 @@ mkImage = { name, cmd, port, extraEnv }: pkgs.dockerTools.buildLayeredImage {
   inherit name;
   tag = "latest";
   created = "now";
-  contents = with pkgs; [ maplespike-build nodejs bash coreutils dumb-init ];
+  contents = with pkgs; [ quill-build nodejs bash coreutils dumb-init ];
   config = {
     Env = [ "NODE_ENV=production" "PORT=${toString port}" ] ++ extraEnv;
     Cmd = cmd;
@@ -217,7 +217,7 @@ k8s-manifests = (import easykubenix {
 ```bash
 # Clean and rebuild
 rm -rf result
-nix build .#maplespike-quill-image --rebuild
+nix build .#quill-mcp-image --rebuild
 ```
 
 **Problem**: "pnpm install fails"
@@ -237,7 +237,7 @@ pnpm install --frozen-lockfile=false
 
 **Solution**: Set dev mode API key:
 ```bash
-kubectl set env -n maplespike deployment/maplespike-quill MAPLESPIKE_API_KEY=***
+kubectl set env -n maplespike deployment/quill-mcp QUILL_API_KEY=***
 ```
 
 **Problem**: Pods in CrashLoopBackOff
@@ -262,13 +262,13 @@ kubectl get events -n maplespike --sort-by=.metadata.creationTimestamp
 
 **Solution**: Use port-forward:
 ```bash
-kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001
+kubectl port-forward -n maplespike svc/quill-mcp 3001:3001
 ```
 
 Or configure NodePort:
 ```nix
 # In k8s/dev.nix
-services.maplespike-quill = {
+services.quill-mcp = {
   type = "NodePort";
   ports = [{
     port = 3001;
@@ -309,9 +309,9 @@ For running MapleSpike directly on NixOS hosts (no containers):
 ```nix
 # In /etc/nixos/configuration.nix
 { config, pkgs, ... }: {
-  imports = [ (import ~/Projects/maplespike/nix) ];
+  imports = [ (import ~/Projects/quill/nix) ];
 
-  services.maplespike-quill = {
+  services.quill-mcp = {
     enable = true;
     port = 3001;
   };
@@ -328,7 +328,7 @@ The flake supports all systems that nixpkgs supports:
 
 ```bash
 # Build for specific system
-nix build .#maplespike-quill-image --system aarch64-linux
+nix build .#quill-mcp-image --system aarch64-linux
 ```
 
 ## Migration Path (Legacy → Nix-First)
@@ -354,7 +354,7 @@ If coming from legacy Dockerfile/docker-compose setup:
 For Nix-specific issues:
 - Check NixOS wiki: https://nixos.wiki
 - Check easykubenix docs: https://github.com/lillecarl/easykubenix
-- Search issues: https://github.com/reverb256/maplespike/issues
+- Search issues: https://github.com/reverb256/quill/issues
 
 For MapleSpike-specific issues:
 - Check `docs/` directory for component-specific docs

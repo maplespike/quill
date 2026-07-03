@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Configuration
+ * Quill — Configuration
  *
  * Central config derived from environment / wrangler vars.
  */
@@ -8,7 +8,7 @@ import type { Env } from './types.js';
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,
@@ -64,8 +64,8 @@ export function validateConfig(env: Record<string, string | undefined>): void {
 export function loadConfig(env: Env | Record<string, string | undefined>): AppConfig {
   const jwtSecret = env.JWT_SECRET as string;
   return {
-    version: env.MAPLESPIKE_VERSION as string || '0.1.0',
-    name: env.MAPLESPIKE_NAME as string || 'MapleSpike',
+    version: env.QUILL_VERSION as string || '0.1.0',
+    name: env.QUILL_NAME as string || 'Quill',
     environment: (env.ENVIRONMENT as 'development' | 'production') || 'development',
     aiEndpoint: env.AI_ENDPOINT as string || 'http://127.0.0.1:8080/v1',
     aiModel: env.AI_MODEL as string || 'qwen3.5-27b',
