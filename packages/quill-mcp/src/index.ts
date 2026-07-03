@@ -17,9 +17,12 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
+import { parsePaymentHeader } from './x402-middleware.js';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 const API_KEY = process.env.MAPLESPIKE_API_KEY ?? 'dev-key';
+const X402_ENABLED = process.env.X402_ENABLED === 'true';
+const X402_RECIPIENT = process.env.X402_RECIPIENT || '';
 
 const server = new McpServer();
 
@@ -159,11 +162,16 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
         return;
       }
 
+      // Extract x402 payment proof from header if enabled
+      const paymentProof = X402_ENABLED
+        ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
+        : undefined;
+
       // Send response back through the client's SSE stream
       server.handleMessage(parsed, client.locale, (response) => {
         // Responses with an id go to the specific client
         sendSse(client.res, 'message', response);
-      }).catch((err: unknown) => console.error('[maplespike-quill] Error handling message:', err));
+      }, paymentProof).catch((err: unknown) => console.error('[maplespike-quill] Error handling message:', err));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
