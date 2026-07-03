@@ -62,6 +62,10 @@ export interface EntityResolutionQuery {
   minConfidence?: MatchConfidence;
   /** Search within specific domains */
   domains?: string[];
+  /** Language for results: 'en' (default), 'fr', or 'both' */
+  lang?: 'en' | 'fr' | 'both';
+  /** French name to resolve */
+  nameFr?: string;
   [key: string]: unknown;
 }
 

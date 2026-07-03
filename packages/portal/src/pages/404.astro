@@ -1,24 +1,28 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Button } from "@/components/ui/button";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="404 — Page Not Found" description="This page doesn't exist in our dataset.">
+<BaseLayout title={i18n.t('404.title')} description="This page doesn't exist in our dataset." lang={lang}>
   <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 py-20">
     <div class="text-8xl font-mono font-extrabold text-primary/30 leading-none">404</div>
-    <h1 class="text-2xl font-semibold mt-6 mb-2">This page doesn't exist in our dataset.</h1>
+    <h1 class="text-2xl font-semibold mt-6 mb-2">{i18n.t('404.message')}</h1>
     <p class="text-sm text-muted-foreground font-mono mb-8">
       // The requested resource was not found in any of our 206 data modules
     </p>
     <div class="flex gap-3 flex-wrap justify-center">
       <a href="/">
-        <Button variant="default">← Back to Home</Button>
+        <Button variant="default">← {i18n.t('404.go_home')}</Button>
       </a>
       <a href="/explorer">
-        <Button variant="secondary">Browse Data Sources</Button>
+        <Button variant="secondary">{i18n.t('nav.explorer')}</Button>
       </a>
       <a href="/dashboard">
-        <Button variant="ghost">Console</Button>
+        <Button variant="ghost">{i18n.t('nav.dashboard')}</Button>
       </a>
     </div>
   </div>

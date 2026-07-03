@@ -3,6 +3,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { createI18n } from "@maplespike/i18n";
+import { localeUrl } from "@/utils/localeUrl";
 
 const platforms = [
   {
@@ -78,10 +80,14 @@ const platforms = [
     setup: "mcp_config.json",
   },
 ];
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 <BaseLayout
-  title="Connect Your AI"
+  title={i18n.t('agents.title')}
   description="Connect any AI chatbot to MapleSpike's Canadian government data. One MCP config, 174 tools, every major AI platform supported."
+  lang={lang}
 >
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
@@ -89,7 +95,7 @@ const platforms = [
     <div class="relative z-10 container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          Connect your AI to<br /><span class="text-gradient">Canadian data</span>
+          Connect your AI to<br /><span class="text-gradient">{i18n.t('agents.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
           One config file. 174 tools. Your AI chatbot — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf,
@@ -122,8 +128,8 @@ const platforms = [
         </CardContent>
       </Card>
       <div class="flex flex-wrap items-center justify-center gap-3">
-        <a href="/signup" class="btn-sheen inline-flex h-11 items-center rounded-full px-7 text-sm font-medium text-primary-foreground">Get your API key →</a>
-        <a href="/docs#mcp-tools" class="inline-flex h-11 items-center rounded-full border px-7 text-sm font-medium hover:bg-foreground/[0.04] transition-colors">Full docs</a>
+        <a href={localeUrl('/signup', lang)} class="btn-sheen inline-flex h-11 items-center rounded-full px-7 text-sm font-medium text-primary-foreground">{i18n.t('auth.api_key')} →</a>
+        <a href={localeUrl('/docs', lang) + '#mcp-tools'} class="inline-flex h-11 items-center rounded-full border px-7 text-sm font-medium hover:bg-foreground/[0.04] transition-colors">{i18n.t('nav.docs')}</a>
       </div>
     </div>
   </section>
@@ -131,8 +137,8 @@ const platforms = [
   <!-- Platform grid -->
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4">
-      <h2 class="text-2xl font-bold tracking-tight mb-2 text-center">Works with any AI chatbot</h2>
-      <p class="text-muted-foreground mb-10 text-center">Same config. Same 174 tools. Every platform.</p>
+      <h2 class="text-2xl font-bold tracking-tight mb-2 text-center">{i18n.t('agents.title')}</h2>
+      <p class="text-muted-foreground mb-10 text-center">{i18n.t('nav.signup')}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl mx-auto">
         {platforms.map((p) => (
           <Card class="card-hover flex flex-col border-border/60">
@@ -164,9 +170,9 @@ const platforms = [
         questions about Canadian government data in under 60 seconds.
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="/signup" class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">Get a free API key</a>
-        <a href="/docs#mcp-tools" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Browse all 174 tools</a>
-        <a href="/ask" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Try asking a question</a>
+        <a href={localeUrl('/signup', lang)} class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">{i18n.t('billing.cta.get_started')}</a>
+        <a href={localeUrl('/docs', lang) + '#mcp-tools'} class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">{i18n.t('nav.docs')}</a>
+        <a href={localeUrl('/ask', lang)} class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">{i18n.t('ask.title')}</a>
       </div>
     </div>
   </section>

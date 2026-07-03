@@ -30,6 +30,7 @@ import {
   applyCorsHeaders,
 } from './response.js';
 import type { BuildContext } from './response.js';
+import { detectLocale, buildBilingualError } from './error-codes.js';
 import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
 import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
@@ -276,9 +277,10 @@ ROUTES.push({
       const mod = await import('./loaders/signals.js');
       return mod.signalsHandler(req, ctx, params);
     } catch {
+      const bilingual = buildBilingualError('NOT_AVAILABLE');
       return new Response(JSON.stringify({
         success: false,
-        error: { code: 'NOT_AVAILABLE', message: 'Signals not available (engine not built)' },
+        error: { code: 'NOT_AVAILABLE', message: bilingual.en, message_fr: bilingual.fr },
       }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     }
   }) as unknown as RouteHandler,
@@ -294,9 +296,10 @@ ROUTES.push({
       const mod = await import('./loaders/graph.js');
       return mod.graphHandler(req, ctx, params);
     } catch {
+      const bilingual = buildBilingualError('NOT_AVAILABLE');
       return new Response(JSON.stringify({
         success: false,
-        error: { code: 'NOT_AVAILABLE', message: 'Graph not available (engine not built)' },
+        error: { code: 'NOT_AVAILABLE', message: bilingual.en, message_fr: bilingual.fr },
       }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     }
   }) as unknown as RouteHandler,
@@ -312,9 +315,10 @@ ROUTES.push({
       const mod = await import('./loaders/briefs.js');
       return mod.briefsHandler(req, ctx, params);
     } catch {
+      const bilingual = buildBilingualError('NOT_AVAILABLE');
       return new Response(JSON.stringify({
         success: false,
-        error: { code: 'NOT_AVAILABLE', message: 'Briefs not available (engine not built)' },
+        error: { code: 'NOT_AVAILABLE', message: bilingual.en, message_fr: bilingual.fr },
       }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     }
   }) as unknown as RouteHandler,
@@ -330,9 +334,10 @@ ROUTES.push({
       const mod = await import('./loaders/entities.js');
       return mod.entitiesHandler(req, ctx, params);
     } catch {
+      const bilingual = buildBilingualError('NOT_AVAILABLE');
       return new Response(JSON.stringify({
         success: false,
-        error: { code: 'NOT_AVAILABLE', message: 'Entities not available (engine not built)' },
+        error: { code: 'NOT_AVAILABLE', message: bilingual.en, message_fr: bilingual.fr },
       }), { status: 503, headers: { 'Content-Type': 'application/json' } });
     }
   }) as unknown as RouteHandler,
@@ -637,7 +642,8 @@ export default {
       validateConfig(envVars);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Invalid configuration';
-      return finalizeResponse(new Response(JSON.stringify({ success: false, error: { code: 'CONFIG_ERROR', message: msg } }), {
+      const bilingual = buildBilingualError('CONFIG_ERROR');
+      return finalizeResponse(new Response(JSON.stringify({ success: false, error: { code: 'CONFIG_ERROR', message: msg, message_fr: bilingual.fr } }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       }), env.ENVIRONMENT || process.env.ENVIRONMENT, request.headers.get('Origin'));
