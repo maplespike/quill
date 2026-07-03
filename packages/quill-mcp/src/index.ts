@@ -45,13 +45,33 @@ function sendSse(res: ServerResponse, event: string, data: unknown): void {
   res.write(body);
 }
 
-function authenticate(req: IncomingMessage): boolean {
+async function authenticate(req: IncomingMessage): Promise<boolean> {
   if (API_KEY === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
+
   const auth = req.headers.authorization ?? '';
+
+  // If ASTRAL_KEY_URL is set, delegate token validation to astral-key
+  const astralKeyUrl = process.env.ASTRAL_KEY_URL;
+  if (astralKeyUrl) {
+    const match = auth.match(/^Bearer\s+(.+)$/i);
+    if (!match) return false;
+    try {
+      const res = await fetch(`${astralKeyUrl}/auth/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: match[1] }),
+      });
+      const data = await res.json() as { valid: boolean };
+      return data.valid === true;
+    } catch {
+      return false;
+    }
+  }
+
   return auth === `Bearer ${API_KEY}` || auth === `Bearer ${Buffer.from(API_KEY).toString('base64')}`;
 }
 
-const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
   const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
   const path = url.pathname;
 
@@ -73,7 +93,7 @@ const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
   }
 
   if (path === '/sse' && req.method === 'GET') {
-    if (!authenticate(req)) {
+    if (!await authenticate(req)) {
       res.writeHead(401, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Unauthorized' }));
       return;
