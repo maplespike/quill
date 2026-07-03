@@ -23,7 +23,7 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-mcp
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-mcp
+    app: maplespike-quill
 spec:
   type: NodePort
   ports:
@@ -31,4 +31,4 @@ spec:
     targetPort: {{ .Values.mcp.port }}
     nodePort: 31745
   selector:
-    app: maplespike-mcp
+    app: maplespike-quill

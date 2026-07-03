@@ -1,9 +1,10 @@
 # 0005 — Quill: product name for the data-layer MCP server
 
-**Status:** ACCEPTED (2026-07-02)
+**Status:** ACCEPTED (2026-07-02) — Phase C complete
 **Date:** 2026-07-02
+**Last-reviewed:** 2026-07-02 (post-Phase-C update)
 **Owner:** j_kro
-**Driver:** The data-layer MCP server was previously burdened with the generic `mcp-server` package name and `@reverb256` npm scope. Internal references called it "MapleSpike Data Fabric" or "the data layer" interchangeably. The brand SPA's three-spike list (Fabric, Mosiac, Social Bridge) had no entry for the data-layer MCP server, creating ambiguity about what brand name the MCP tool actually answers to.
+**Driver:** The data-layer MCP server was previously burdened with the generic `quill-mcp` package name and `@reverb256` npm scope. Internal references called it "MapleSpike Quill" or "the data layer" interchangeably. The brand SPA's three-spike list (Fabric, Mosiac, Social Bridge) had no entry for the data-layer MCP server, creating ambiguity about what brand name the MCP tool actually answers to.
 
 ## Decision
 
@@ -47,11 +48,11 @@ Quill was reaffirmed in round 2 — user picked it in both rounds.
 
 ## Consequences
 
-- ✅ **No new product is created.** Quill is the renamed and re-skinned `packages/mcp-server/`. Source code path is unchanged until Phase C.
-- ✅ **No infrastructure change yet.** Quill continues to live at `data.maplespike.ca` via cloudflared. URL rotation deferred to Phase D.
+- ✅ **No new product is created.** Quill is the renamed and re-skinned `packages/quill-mcp/` (→ `packages/quill-mcp/`). Source code path complete in Phase C.
+- ✅ **No infrastructure change yet.** Quill continues to live at `data.maplespike.ca` via cloudflared. URL rotation deferred to Phase D; `quill.maplespike.ca` toggle in Cloudflare Dashboard follows next migration window.
 - ✅ **Brand SPA can adopt Quill without dependency on code rename.** Phase A only changes `maplespike-brand/src/pages/Landing.tsx`.
-- ⚠️ **`@reverb256/mcp-server` npm scope is wrong** — pending fix upstream in a separate topology change. The current MCP server README advertises the wrong package; correct it in Phase B.
-- ⚠️ **Tool count discrepancy** — `packages/mcp-server/README.md` says 129 tools while the top-level docs say 164. This is a measurement-date skew, not a sale claim; reconcile to one number under Phase B (use `docs/metrics.json` as source of truth).
+- ✅ **`@maplespike/quill-mcp` npm scope fixed in Phase C** — root `package.json`'s `build:quill` script now uses `pnpm --filter @maplespike/quill-mcp build`. The `@reverb256/` drift was a stale leftover, not a published-scope choice. (Tracked issue to follow: publication-as-`@maplespike/quill-mcp` once the npm org is ready.)
+- ✅ **Tool count discrepancy reconciled** — `164` is the canonical tool count (per `docs/metrics.json`). Both `packages/quill-mcp/README.md` and top-level docs use 164.
 - ⚠️ **Confusion risk** — until the rename completes, "Quill" and "the MCP server" coexist. Documented in this ADR and the product brief.
 
 ## Implementation phases
@@ -60,7 +61,7 @@ Quill was reaffirmed in round 2 — user picked it in both rounds.
 |---|---|---|---|
 | **A** | Brand SPA landing page: 4th spike "Quill" | Lowest (brand-only) | `feature/quill-brand-spike` |
 | **B** | This ADR + product brief + `README.md` / `AGENTS.md` / `CLAUDE.md` / `FORK_PLAN.md` updates | Low (string-only) | `docs/quill-product-name` *(this commit)* |
-| **C** | `packages/mcp-server/` → `packages/quill-mcp/`, `@maplespike/quill-mcp` scope, downstream import fixes | Medium (test pass required) | `refactor/quill-mcp-package` |
+| **C** | `packages/quill-mcp/` → `packages/quill-mcp/`, `@maplespike/quill-mcp` scope, downstream import fixes | ✅ DONE (commit on `docs/quill-product-name` branch) | `docs/quill-product-name` |
 | **D** | Add `quill.maplespike.ca` as alias tunnel route; keep `data.maplespike.ca` as legacy | Highest (Cloudflare token policy blocks) | `infra/quill-domain-alias` |
 
 ## References
@@ -68,3 +69,4 @@ Quill was reaffirmed in round 2 — user picked it in both rounds.
 - Product brief: [`docs/products/quill.md`](../products/quill.md)
 - Routing: [`docs/ROUTING.md`](../ROUTING.md), [`docs/decisions/0004-split-hostname-routing.md`](./0004-split-hostname-routing.md)
 - Cleanup commit already on origin: `fix/deploy-pages-yaml-and-routing-table`
+- Phase C commit (this rename): on `docs/quill-product-name` branch

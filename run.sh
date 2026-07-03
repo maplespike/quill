@@ -149,13 +149,13 @@ if [ "$SKIP_BUILD" = false ]; then
       pnpm build --filter=@maplespike/api-server 2>&1 | tail -1
       ;;
     mcp)
-      pnpm build --filter=@maplespike/database --filter=@maplespike/mcp-server 2>&1 | tail -1
+      pnpm build --filter=@maplespike/database --filter=@maplespike/quill-mcp 2>&1 | tail -1
       ;;
     portal)
       pnpm build --filter=@maplespike/portal 2>&1 | tail -1
       ;;
     api,mcp|mcp,api)
-      pnpm build --filter=@maplespike/database --filter=@maplespike/api-server --filter=@maplespike/mcp-server 2>&1 | tail -1
+      pnpm build --filter=@maplespike/database --filter=@maplespike/api-server --filter=@maplespike/quill-mcp 2>&1 | tail -1
       ;;
     *)
       pnpm build 2>&1 | tail -3
@@ -203,7 +203,7 @@ start_service() {
       cmd="node packages/api-server/dist/dev-server.js"
       ;;
     mcp)
-      cmd="MAPLESPIKE_LOCALE=${MAPLESPIKE_LOCALE:-en-CA} PORT=${MCP_PORT:-3001} node packages/mcp-server/dist/cli.js"
+      cmd="MAPLESPIKE_LOCALE=${MAPLESPIKE_LOCALE:-en-CA} PORT=${MCP_PORT:-3001} node packages/quill-mcp/dist/cli.js"
       ;;
     portal)
       cmd="cd packages/portal && npx astro dev --port ${PORTAL_PORT:-4321}"

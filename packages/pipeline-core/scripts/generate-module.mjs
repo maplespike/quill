@@ -962,7 +962,7 @@ if (!flags['no-status']) {
   const pipelineKey = moduleName.replace(/_/g, '-');
   console.log(`  '${pipelineKey}': '${moduleName}',`);
 
-  console.log(`\n── MCP tool reference (add to packages/mcp-server/src/tools/) ──`);
+  console.log(`\n── MCP tool reference (add to packages/quill-mcp/src/tools/) ──`);
   console.log(`  import { search${pascal}Records } from '@maplespike/pipeline-core';`);
   console.log(`  Tool name: search_${snake}`);
   console.log(`  Function:  search${pascal}Records(db, query, options)`);

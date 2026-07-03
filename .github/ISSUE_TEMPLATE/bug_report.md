@@ -16,7 +16,7 @@ Steps to reproduce.
 What should happen vs what actually happens.
 
 ## Environment
-- **Package:** [pipeline-core / mcp-server / api-server / portal / engine / sdk / other]
+- **Package:** [pipeline-core / quill-mcp / api-server / portal / engine / sdk / other]
 - **Working node:** [zephyr / nexus / forge / sentry]
 - **Worktree path:** `/data/projects/own/maplespike-<NNN>`
 - **Branch:** `issue-NNN-short-description`

@@ -90,7 +90,7 @@ check_endpoint() {
       # Container runtimes — use localhost with well-known ports
       case "$service" in
         maplespike-api)  url="http://localhost:8082${endpoint}" ;;
-        maplespike-mcp)  url="http://localhost:3001${endpoint}" ;;
+        maplespike-quill)  url="http://localhost:3001${endpoint}" ;;
         maplespike-portal) url="http://localhost:8080${endpoint:-/}" ;;
         *) url="http://localhost${endpoint}" ;;
       esac
@@ -99,7 +99,7 @@ check_endpoint() {
       # Direct node processes — use dev ports
       case "$service" in
         maplespike-api)  url="http://localhost:8082${endpoint}" ;;
-        maplespike-mcp)  url="http://localhost:3001${endpoint}" ;;
+        maplespike-quill)  url="http://localhost:3001${endpoint}" ;;
         maplespike-portal) url="http://localhost:4321${endpoint:-/}" ;;
         *) url="http://localhost${endpoint}" ;;
       esac
@@ -220,20 +220,20 @@ generate_report() {
   local services
   case "$RUNTIME" in
     k8s)
-      services="maplespike-api maplespike-mcp maplespike-portal"
+      services="maplespike-api maplespike-quill maplespike-portal"
       ;;
     podman|docker)
-      services="maplespike-api maplespike-mcp maplespike-portal"
+      services="maplespike-api maplespike-quill maplespike-portal"
       ;;
     dev|nix|cicd|unknown)
-      services="maplespike-api maplespike-mcp maplespike-portal"
+      services="maplespike-api maplespike-quill maplespike-portal"
       ;;
   esac
 
   # Build service endpoints map
   declare -A endpoints
   endpoints[maplespike-api]="/v1/health"
-  endpoints[maplespike-mcp]="/health"
+  endpoints[maplespike-quill]="/health"
   endpoints[maplespike-portal]="/"
 
   # Collect health data

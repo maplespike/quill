@@ -44,7 +44,7 @@ function getApiBase(): string {
     }
     return `${window.location.protocol}//api.${baseDomain}`;
   }
-  return "https://api.maplespike.lan";
+  return "https://api.maplespike.ca";
 }
 
 function getAuthState(): AuthState {

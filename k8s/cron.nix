@@ -83,7 +83,7 @@ let
   # SearXNG health check — special CronJob (different image, command, namespace)
   searxngHealth = {
     metadata.labels = {
-      app = "maplespike-mcp";
+      app = "maplespike-quill";
       component = "monitoring";
     };
     spec = {
@@ -101,7 +101,7 @@ let
             _namedlist = true;
             health-check = {
               name = "health-check";
-              image = "ghcr.io/reverb256/maplespike/maplespike-mcp:dev";
+              image = "ghcr.io/reverb256/maplespike/maplespike-quill:dev";
               imagePullPolicy = "Always";
               command = [
                 "/bin/sh" "-c"

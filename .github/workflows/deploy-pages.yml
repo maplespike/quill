@@ -9,9 +9,9 @@
 # all subdomains route via the Cloudflare Tunnel to the homelab k3s cluster —
 # NOT via Pages:
 #   - api.maplespike.ca         → tunnel → maplespike-api:8082
-#   - mcp.maplespike.ca         → tunnel → maplespike-mcp:3001
-#   - data.maplespike.ca        → tunnel → maplespike-portal:8080
-#   - datafabric.maplespike.ca  → tunnel → maplespike-portal:8080
+#   - mcp.maplespike.ca         → tunnel → maplespike-quill:3001
+#   - data.maplespike.ca        → tunnel → maplespike-portal:8080 (Quill surface)
+#   - quill.maplespike.ca       → tunnel → maplespike-portal:8080 (Phase D planned)
 #
 # IMPORTANT: hostname→service ingress rules for the tunnel are configured
 # in the Cloudflare Zero Trust Dashboard (Networks → Tunnels → Routes),
@@ -36,7 +36,7 @@ on:
       - prod
     paths:
       - "packages/portal/**"
-      - "packages/mcp-server/**"
+      - "packages/quill-mcp/**"
       - "packages/sdk/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:

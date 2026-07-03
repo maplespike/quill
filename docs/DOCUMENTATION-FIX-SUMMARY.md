@@ -20,7 +20,7 @@
 - docs/ARCHITECTURE.md: Multiple outdated counts fixed
 - packages/docs/guide/what-is-maplespike.md: 126→144 modules, 135→129 tools
 - packages/docs/guide/getting-started.md: 22→129 tools
-- packages/mcp-server/README.md: 126→129 tools, 94→129 tools
+- packages/quill-mcp/README.md: 126→129 tools, 94→129 tools
 
 ### 2. K8s Deployment Fiction
 **Problem**: README and ARCHITECTURE.md described full K3s production deployment that doesn't exist.

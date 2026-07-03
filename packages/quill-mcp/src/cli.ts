@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * MapleSpike MCP Server — stdio transport (CLI)
+ * MapleSpike Quill — stdio transport (CLI)
  *
- * Usage: npx maplespike-mcp
+ * Usage: npx maplespike-quill
  *        # or directly: node dist/cli.js
  *
  * For Claude Desktop configuration:
@@ -11,7 +11,7 @@
  *   "mcpServers": {
  *     "maplespike-canada": {
  *       "command": "npx",
- *       "args": ["@reverb256/mcp-server"]
+ *       "args": ["@maplespike/quill-mcp"]
  *     }
  *   }
  * }
@@ -180,18 +180,18 @@ if (PORT > 0) {
   });
 
   srv.listen(PORT, '0.0.0.0', () => {
-    console.error(`[maplespike-mcp] SSE transport — ${server.getToolCount()} tools registered, listening on port ${PORT} (locale: ${CLI_LOCALE})`);
+    console.error(`[maplespike-quill] SSE transport — ${server.getToolCount()} tools registered, listening on port ${PORT} (locale: ${CLI_LOCALE})`);
   });
 
   // Graceful shutdown
-  process.on('SIGINT', () => { console.error('[maplespike-mcp] SIGINT received, shutting down'); srv.close(() => process.exit(0)); });
-  process.on('SIGTERM', () => { console.error('[maplespike-mcp] SIGTERM received, shutting down'); srv.close(() => process.exit(0)); });
+  process.on('SIGINT', () => { console.error('[maplespike-quill] SIGINT received, shutting down'); srv.close(() => process.exit(0)); });
+  process.on('SIGTERM', () => { console.error('[maplespike-quill] SIGTERM received, shutting down'); srv.close(() => process.exit(0)); });
 
 } else {
   // ─── stdio transport ───────────────────────────────────────────────────
-  console.error(`[maplespike-mcp] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
+  console.error(`[maplespike-quill] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
   const gwTimeout = parseInt(process.env['MAPLESPIKE_HANDLER_TIMEOUT_MS'] ?? '', 10) || 55_000;
-  console.error(`[maplespike-mcp] Handler timeout: ${gwTimeout}ms (MAPLESPIKE_HANDLER_TIMEOUT_MS)`);
+  console.error(`[maplespike-quill] Handler timeout: ${gwTimeout}ms (MAPLESPIKE_HANDLER_TIMEOUT_MS)`);
 
 // Read JSON-RPC messages from stdin, write responses to stdout
 
@@ -218,22 +218,22 @@ rl.on('line', async (line: string) => {
 
   server.handleMessage(parsed, CLI_LOCALE, (response) => {
     process.stdout.write(JSON.stringify(response) + '\n');
-  }).catch((err: unknown) => console.error('[maplespike-mcp] Error:', err));
+  }).catch((err: unknown) => console.error('[maplespike-quill] Error:', err));
 });
 
 rl.on('close', () => {
-  console.error('[maplespike-mcp] stdin closed, waiting for pending operations...');
+  console.error('[maplespike-quill] stdin closed, waiting for pending operations...');
   // Process exits naturally once all async ops complete and no active handles remain
 });
 
 // Handle SIGINT/SIGTERM gracefully
 process.on('SIGINT', () => {
-  console.error('[maplespike-mcp] SIGINT received, shutting down');
+  console.error('[maplespike-quill] SIGINT received, shutting down');
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  console.error('[maplespike-mcp] SIGTERM received, shutting down');
+  console.error('[maplespike-quill] SIGTERM received, shutting down');
   process.exit(0);
 });
 }

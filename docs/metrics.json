@@ -44,7 +44,7 @@
         "files": 3,
         "lines": 41
       },
-      "mcp-server": {
+      "quill-mcp": {
         "files": 201,
         "lines": 16164
       },
@@ -78,7 +78,7 @@
       "engine",
       "legal-core",
       "legislation",
-      "mcp-server",
+      "quill-mcp",
       "notification-service",
       "pipeline-core",
       "portal",

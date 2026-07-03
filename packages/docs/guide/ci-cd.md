@@ -39,7 +39,7 @@ MapleSpike uses **GitHub Actions** for all CI/CD, running on a **self-hosted Nix
 10. **Start API server** (background with JWT secret)
 11. **Run tests:**
     - `packages/pipeline-core` (232+ tests)
-    - `packages/mcp-server` (70 tests)
+    - `packages/quill-mcp` (70 tests)
     - `packages/engine` (50 tests)
     - `packages/sdk`
 12. **Docs rot check** (PR only) — compares TODO/FIXME count vs base branch

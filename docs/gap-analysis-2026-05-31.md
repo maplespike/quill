@@ -179,8 +179,8 @@ Still needs verification against full requirements.
 - `packages/pipeline-core/src/ingestion/watcher.ts`
 - `packages/pipeline-core/src/ingestion/energy/types.ts`, `constants.ts`
 - `packages/pipeline-core/src/ingestion/registry.ts`
-- `packages/mcp-server/src/tools/get-annotations.ts`
-- `packages/mcp-server/src/__tests__/get-annotations.test.ts`
+- `packages/quill-mcp/src/tools/get-annotations.ts`
+- `packages/quill-mcp/src/__tests__/get-annotations.test.ts`
 
 ### Build & Test
 ```

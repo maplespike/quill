@@ -1,7 +1,7 @@
 /**
  * Mock upstream fetch — intercepts all HTTP calls for unit tests.
  *
- * Intercepts both globalThis.fetch (used by mcp-server upstream-fetcher)
+ * Intercepts both globalThis.fetch (used by quill-mcp upstream-fetcher)
  * and undici.request (used by pipeline-core utils/http.ts) so tool handlers
  * can be exercised without hitting real government APIs.
  *
@@ -65,7 +65,7 @@ export function mockUpstream(): MockUpstream {
     start() {
       // Enable mock flag for pipeline-core's httpGet (which uses undici directly)
       (globalThis as { __MAPLESPIKE_MOCK_FETCH?: boolean }).__MAPLESPIKE_MOCK_FETCH = true;
-      // Intercept globalThis.fetch (used by mcp-server upstream-fetcher)
+      // Intercept globalThis.fetch (used by quill-mcp upstream-fetcher)
       globalThis.fetch = ((input: string | URL | Request, init?: RequestInit) => {
         const url = typeof input === 'string' ? input : input.toString();
         const method = init?.method ?? 'GET';

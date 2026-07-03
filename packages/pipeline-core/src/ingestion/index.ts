@@ -5,7 +5,7 @@
  * for discoverable access to all 61 ingestion modules.
  *
  * **Backward-compat** individual exports are maintained for the specific
- * functions consumed by api-server, mcp-server, and sdk.
+ * functions consumed by api-server, quill-mcp, and sdk.
  */
 
 // ── Module Registry (the new public API) ─────────────────────────
@@ -70,7 +70,7 @@ export type {
   DispatchResult,
 } from './webhooks.js';
 
-// ── Core Utilities (consumed by api-server, mcp-server, sdk) ─────
+// ── Core Utilities (consumed by api-server, quill-mcp, sdk) ─────
 export {
   parseRSS,
   hashString,
@@ -201,7 +201,7 @@ export {
   CANLII_COURT_IDS,
 } from './gc-standards/index.js';
 
-// ── Backward-compat: consumed by mcp-server ──────────────────────
+// ── Backward-compat: consumed by quill-mcp ──────────────────────
 export {
   searchScience,
 } from './science-research/index.js';

@@ -201,7 +201,7 @@ MapleSpike's three-tier licensing structure maps cleanly to the SaaS tiers:
 | License | Packages | Applies To |
 |---|---|---|
 | **AGPL-3.0** | pipeline-core, engine | Community self-hosted (source-sharing obligation if modified) |
-| **Apache-2.0** | api-server, mcp-server, portal | All tiers — permissive self-hosting |
+| **Apache-2.0** | api-server, quill-mcp, portal | All tiers — permissive self-hosting |
 | **MIT** | sdk, sdk-python, legal-core, legislation | All tiers — zero-friction adoption |
 | **Commercial** | pipeline-core, engine | Enterprise tier only — bypass AGPL for proprietary embedding |
 

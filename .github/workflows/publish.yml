@@ -32,7 +32,7 @@ jobs:
       - name: Version and Publish
         run: |
           pnpm changeset version
-          pnpm --filter @reverb256/mcp-server publish --access public
+          pnpm --filter @maplespike/quill-mcp publish --access public
         env:
           NPM_CONFIG_PROVENANCE: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
