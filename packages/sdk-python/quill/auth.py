@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# MapleSpike SDK — Authentication helpers
+# Quill SDK — Authentication helpers
 # ---------------------------------------------------------------------------
 
 from typing import Optional

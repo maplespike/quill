@@ -1,5 +1,5 @@
 /**
- * MapleSpike — API Server Types
+ * Quill — API Server Types
  *
  * Shared types for the multi-tenant API gateway.
  * MapleSpike-quality response envelope with quality, citation, and token optimization.
@@ -15,7 +15,7 @@ export interface Tenant {
   id: string;
   name: string;
   /**
-   * HMAC-SHA256(`MAPLESPIKE_PII_HASH_SECRET`, plaintext-email).
+   * HMAC-SHA256(`QUILL_PII_HASH_SECRET`, plaintext-email).
    * Decision 0002: Maplespike never retains plaintext PII.
    * The plaintext is consumed in-flight by the transactional
    * mailer; only the hash is persisted.
@@ -214,15 +214,15 @@ export interface RouteContext {
   requestId: string;
   startTime: number;
   env: Record<string, string | undefined>;
-  db: MapleSpikeStorage;
-  cache: MapleSpikeCache;
+  db: QuillStorage;
+  cache: QuillCache;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Storage Abstraction (D1 / local)                                   */
 /* ------------------------------------------------------------------ */
 
-export interface MapleSpikeStorage {
+export interface QuillStorage {
   /** Look up tenant + API key by raw key value. Returns null if invalid. */
   authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null>;
   /** Get current daily call count for a tenant. */
@@ -239,7 +239,7 @@ export interface MapleSpikeStorage {
   listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>>;
 }
 
-export interface MapleSpikeCache {
+export interface QuillCache {
   get(key: string): Promise<string | null>;
   put(key: string, value: string, ttlSeconds?: number): Promise<void>;
   /** Atomically remove a key. Used for single-use OAuth exchange codes. */
@@ -302,11 +302,12 @@ export interface Env {
     delete(key: string): Promise<void>;
   };
   ENVIRONMENT?: string;
-  MAPLESPIKE_VERSION?: string;
-  MAPLESPIKE_NAME?: string;
-  MAPLESPIKE_STORAGE?: string;
+  QUILL_VERSION?: string;
+  /** Display name used in logs/responses. Was MAPLESPIKE_NAME pre-2026-07-04 (ADR 0007). */
+  QUILL_NAME?: string;
+  QUILL_STORAGE?: string;
   DATABASE_URL?: string;
-  MAPLESPIKE_DB_HOST?: string;
+  QUILL_DB_HOST?: string;
   FREE_LIMIT?: string;
   PRO_LIMIT?: string;
   BUSINESS_LIMIT?: string;

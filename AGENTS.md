@@ -35,13 +35,13 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 | Package | Entry point | Build | Test (framework) | Published? |
 |---------|-------------|-------|------------------|------------|
 | `pipeline-core` | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
-| `quill-mcp` *(Quill, ADR 0005)* | `dist/cli.js` (bin: `maplespike-quill`) | `tsc -b` | `node --test` (tsx) | No |
+| `quill-mcp` *(Quill, ADR 0005)* | `dist/cli.js` (bin: `quill-mcp`) | `tsc -b` | `node --test` (tsx) | No |
 | `api-server` | `dist/dev-server.js` | `tsc -b` | `node --test` (tsx) | No |
 | `engine` | `src/index.ts` | `tsc` | `vitest` (no config file) | No |
 | `sdk` | `dist/index.js` (tsup, CJS+ESM) | `tsup` | `pnpm build && tsx --test` | Yes (npm) |
 | `legal-core` | `dist/index.js` (tsup) | `tsup` | — | Yes (npm) |
 | `legislation` | `dist/index.js` (tsup) | `tsup` | — | Yes (npm) |
-| `sdk-python` | `maplespike/__init__.py` | `python -m build` | — | Yes (PyPI) |
+| `sdk-python` | `quill/__init__.py` | `python -m build` | — | Yes (PyPI) |
 | `portal` | `.` (Astro static + `server.py` runtime) | `astro build` | — | No |
 | `database` | `dist/index.js` | `tsc -b` (better-sqlite3 via `node:sqlite` BUILTIN at runtime) | `node --test` (tsx) | No |
 | `notification-service` | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
