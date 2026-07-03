@@ -33,6 +33,11 @@ export const definition: ToolDefinition = {
         maximum: 50,
         description: 'Maximum results to return (default: 10)',
       },
+      lang: {
+        type: 'string',
+        enum: ['en', 'fr'],
+        description: 'Language for Gazette feed (uses French -fra.xml RSS when fr). Default: en',
+      },
     },
     required: ['query'],
   },
@@ -53,9 +58,10 @@ export const handler: ToolHandler = async (args) => {
 
   const part = (args.part as string) ?? 'all';
   const limit = Math.min((args.limit as number) ?? 10, 50);
+  const lang = (args.lang as string) ?? 'en';
 
   // Live search via API server
-  const result = await fetchGazette(query, limit);
+  const result = await fetchGazette(query, limit, lang);
   let results = result.results;
   let total = result.total;
 

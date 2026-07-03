@@ -159,8 +159,8 @@ export async function fetchElections(query: string, limit = 10): Promise<{ resul
 
 // ── CanLII Court Decisions ─────────────────────────────────────────
 
-export async function fetchCanlii(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
-  return cached('canlii', { query, limit }, async () => {
+export async function fetchCanlii(query: string, limit = 10, lang?: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('canlii', { query, limit, lang }, async () => {
     // Try CKAN as primary search — indexes court decisions with full metadata
     try {
       const ckan = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
@@ -174,12 +174,27 @@ export async function fetchCanlii(query: string, limit = 10): Promise<{ results:
       console.warn(`[upstream-fetcher] CanLII CKAN fallback failed: ${(err as Error).message}`);
     }
 
-    // Fallback: CanLII API with api_key query param (free key from https://www.canlii.org/en/feedback/feedback.html)
+    // Fallback: CanLII API — use French endpoint when lang=fr
     const apiKey = process.env['CANLII_API_KEY'];
     if (!apiKey) return { results: [], total: 0 };
     try {
+      const langPath = lang === 'fr' ? 'fr' : 'en';
+      // When lang=fr, also try the French domain
+      if (lang === 'fr') {
+        try {
+          const frResult = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
+            `https://rechercher.canlii.org/api/v1/search/fr?q=${encodeURIComponent(query)}&limit=${limit}&type=decision&api_key=${encodeURIComponent(apiKey)}`,
+            8000,
+          );
+          if (frResult?.results?.length) {
+            return { results: frResult.results, total: frResult.total ?? 0 };
+          }
+        } catch {
+          // Fall through to English API
+        }
+      }
       const json = await fetchJson<{ results: Record<string, unknown>[]; total: number }>(
-        `https://api.canlii.org/v1/search/en?q=${encodeURIComponent(query)}&limit=${limit}&type=decision&api_key=${encodeURIComponent(apiKey)}`,
+        `https://api.canlii.org/v1/search/${langPath}?q=${encodeURIComponent(query)}&limit=${limit}&type=decision&api_key=${encodeURIComponent(apiKey)}`,
         8000,
       );
       return { results: json.results ?? [], total: json.total ?? 0 };
@@ -214,10 +229,14 @@ export async function fetchOversight(query: string, limit = 10): Promise<{ resul
 
 // ── Generic CKAN Search ────────────────────────────────────────────
 
-export async function searchCkan(query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
-  return cached('ckan', { query, limit }, async () => {
+export async function searchCkan(query: string, limit = 10, lang?: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
+  return cached('ckan', { query, limit, lang }, async () => {
+    // When lang=fr, use the French CKAN portal
+    const baseUrl = lang === 'fr'
+      ? 'https://ouvert.canada.ca/fr/data/api/3/action/package_search'
+      : 'https://ouvert.canada.ca/data/api/3/action/package_search';
     const json = await fetchJson<{ result: { results: Record<string, unknown>[]; total: number } }>(
-      `https://ouvert.canada.ca/data/api/3/action/package_search?q=${encodeURIComponent(query)}&rows=${limit}`,
+      `${baseUrl}?q=${encodeURIComponent(query)}&rows=${limit}`,
     );
     return { results: json.result?.results ?? [], total: json.result?.total ?? 0 };
   });
@@ -381,7 +400,7 @@ export async function fetchSocrataDataset(domain: string, datasetId: string, lim
 
 // ── Provincial Data: Socrata + CKAN unified ──────────────────────
 
-export async function fetchProvincialData(province: string, query: string, limit = 10): Promise<{ results: Record<string, unknown>[]; total: number }> {
+export async function fetchProvincialData(province: string, query: string, limit = 10, lang?: string): Promise<{ results: Record<string, unknown>[]; total: number }> {
   const prov = province.toLowerCase();
   // Socrata provinces
   if (prov === 'ns' || prov === 'novascotia') {
@@ -390,6 +409,7 @@ export async function fetchProvincialData(province: string, query: string, limit
     }
   }
   if (prov === 'nb' || prov === 'newbrunswick') {
+    // When lang=fr, prioritize French portal (GNB Socrata)
     try { const r = await searchSocrata('newbrunswick', query, limit); if (r.total > 0) return r; } catch (err) {
       console.warn(`[upstream-fetcher] New Brunswick Socrata search failed: ${(err as Error).message}`);
     }
@@ -401,9 +421,9 @@ export async function fetchProvincialData(province: string, query: string, limit
   } catch (err) {
     console.warn(`[upstream-fetcher] Provincial CKAN search failed for ${prov}: ${(err as Error).message}`);
   }
-  // Federal CKAN fallback
+  // Federal CKAN fallback — use French portal when lang=fr
   const { searchCkan } = await import('./upstream-fetcher.js');
-  try { return await searchCkan(query + ' ' + province, limit); } catch (err) {
+  try { return await searchCkan(query + ' ' + province, limit, lang); } catch (err) {
     console.warn(`[upstream-fetcher] Federal CKAN fallback failed: ${(err as Error).message}`);
   }
   // Browser extraction cache fallback (for nt, nu — portals with no API)

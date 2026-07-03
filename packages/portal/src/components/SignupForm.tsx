@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { createI18n } from "@maplespike/i18n";
+import type { Locale } from "@maplespike/i18n";
 import {
   startRegistration,
   startAuthentication,

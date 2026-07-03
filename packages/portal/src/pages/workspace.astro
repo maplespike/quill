@@ -7,9 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { createI18n } from "@maplespike/i18n";
+import { localeUrl } from "@/utils/localeUrl";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="Workspace" description="Manage your MapleSpike API keys, monitor usage, view billing, and configure MCP connections.">
+<BaseLayout title={i18n.t('workspace.title')} description={i18n.t('workspace.description')} lang={lang}>
   <!-- Welcome Banner (first-time OAuth users only, shown once) -->
 <div id="welcome-banner"
      class="hidden border-b border-primary/30 bg-primary/5"

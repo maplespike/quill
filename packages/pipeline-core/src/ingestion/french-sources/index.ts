@@ -120,13 +120,14 @@ export function buildFrenchCitation(
   dataHash: string,
 ): Citation {
   const url = recordUrl.includes('?') ? `${recordUrl}&lang=fr` : `${recordUrl}?lang=fr`;
-  return buildCitation({
+  const citation = buildCitation({
     sourceName: source.name,
     sourceUrl: url,
     dataHash,
     updateFrequency: source.updateFrequency,
     license: source.license,
   });
+  return { ...citation, lang: 'fr' };
 }
 
 /**
@@ -143,11 +144,12 @@ export async function fetchFrenchSource(
     'Accept-Language': 'fr-CA,fr;q=0.9,en;q=0.8',
   };
 
-  const data = await httpGet(url, { headers, timeout: 15000 });
-  const hash = await import('../../verification/hashing.js').then(m => m.computeHash(data, 'sha256'));
+  const resp = await httpGet(url, { headers, timeoutMs: 15000 });
+  const { computeHash } = await import('../../verification/hashing.js');
+  const hash = await computeHash(resp.body, 'sha256');
   const citation = buildFrenchCitation(source, url, hash);
 
-  return { status: 200, body: data, citation };
+  return { status: resp.statusCode, body: resp.body, citation };
 }
 
 /**

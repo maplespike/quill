@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FR_TOOLS_PATH = path.resolve(__dirname, '../../i18n/fr-tools.json');
 
-let frDescriptions: Record<string, string> | null = null;
+let frDescriptions: Record<string, string> = {};
 
 function loadFrDescriptions(): Record<string, string> {
   if (frDescriptions) return frDescriptions;

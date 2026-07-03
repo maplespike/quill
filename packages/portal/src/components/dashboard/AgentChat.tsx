@@ -24,7 +24,12 @@ interface ChatMessage {
  * Replaces the Convex-based ConvexAgentChat. No external dependency required.
  * Sends questions to /v1/ai/ask (edge worker) and renders responses with citations.
  */
-export default function AgentChat() {
+import { createI18n } from "@maplespike/i18n";
+import type { Locale } from "@maplespike/i18n";
+
+export default function AgentChat({ lang: propLang }: { lang?: Locale }) {
+  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const i18n = createI18n(lang);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

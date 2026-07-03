@@ -3,6 +3,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import SignupForm from "@/components/SignupForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 
 const features = [
   {
@@ -48,8 +52,9 @@ const iconPaths: Record<string, string> = {
 ---
 
 <BaseLayout
-  title="Sign Up for API Access"
+  title={i18n.t('signup.title')}
   description="Get your free MapleSpike API key. Access all Canadian government data through a single API. 1,000 calls/month free, no credit card required."
+  lang={lang}
 >
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
