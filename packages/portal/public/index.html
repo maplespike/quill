@@ -17,6 +17,9 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="msapplication-config" content="/browserconfig.xml">
   <link rel="canonical" href="https://maplespike.ca/">
+  <link rel="alternate" href="https://maplespike.ca/" hreflang="en-CA">
+  <link rel="alternate" href="https://maplespike.ca/fr" hreflang="fr-CA">
+  <link rel="alternate" href="https://maplespike.ca/" hreflang="x-default">
   <meta name="theme-color" content="#C23030">
   <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <script defer data-domain="__MAPLESPIKE_ANALYTICS_DOMAIN__" src="https://plausible.io/js/script.js"></script>
@@ -37,6 +40,11 @@
       <li><a href="/pricing.html"><span class="nav-bracket">[</span>PRICING<span class="nav-bracket">]</span></a></li>
       <li><a href="/workspace.html" class="btn btn-sm btn-primary">Get API Key</a></li>
       <li><button class="theme-toggle" aria-label="Toggle theme"></button></li>
+      <li class="nav-lang-item">
+        <a href="/" class="nav-lang-link active" aria-label="Switch to English">EN</a>
+        <span class="nav-lang-sep">|</span>
+        <a href="/fr" class="nav-lang-link" aria-label="Passer en français" lang="fr">FR</a>
+      </li>
     </ul>
     <button class="nav-mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
   </div>
