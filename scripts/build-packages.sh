@@ -11,7 +11,7 @@ pnpm --filter @maplespike/legislation build
 pnpm --filter @maplespike/sdk build
 
 # Layer 1: tsc -b packages — built via root tsconfig project references.
-# tsc -b handles the dependency graph automatically (database → pipeline-core → mcp-server/api-server).
+# tsc -b handles the dependency graph automatically (database → pipeline-core → quill-mcp/api-server).
 tsc -b
 
 # Layer 2: standalone builds

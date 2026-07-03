@@ -14,14 +14,14 @@ pnpm run build
 ## Dev workflow
 ```bash
 pnpm --filter @maplespike/pipeline-core run build
-cd packages/mcp-server && pnpm start           # Quill (MCP server) stdio mode — see docs/products/quill.md
+cd packages/quill-mcp && pnpm start           # Quill (MCP server) stdio mode — see docs/products/quill.md
 cd packages/api-server && pnpm run dev          # API on :8082
 cd packages/dashboard && pnpm dev               # Dashboard on :4322
 ```
 
 ## Key files
 - `packages/pipeline-core/src/ingestion/registry.ts` — All 198 modules registered here
-- `packages/mcp-server/src/tools/index.ts` — All Quill (MCP) tools (see docs/products/quill.md for product brief)
+- `packages/quill-mcp/src/tools/index.ts` — All Quill (MCP) tools (see docs/products/quill.md for product brief)
 - `packages/api-server/src/index.ts` — API routes
 - `docs/metrics.json` — Auto-generated module/tool counts
 

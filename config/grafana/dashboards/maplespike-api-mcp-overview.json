@@ -51,7 +51,7 @@
       "id": 2,
       "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
       "pluginVersion": "11.5.2",
-      "targets": [{ "expr": "up{job='maplespike-mcp'}", "legendFormat": "MCP Server", "refId": "A" }],
+      "targets": [{ "expr": "up{job='maplespike-quill'}", "legendFormat": "MCP Server", "refId": "A" }],
       "title": "MCP Server",
       "type": "stat"
     },

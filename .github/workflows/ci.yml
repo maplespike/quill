@@ -113,8 +113,8 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          target: mcp-server
+          target: quill-mcp
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-mcp:latest
-            ghcr.io/reverb256/maplespike-mcp:${{ github.sha }}
+            ghcr.io/reverb256/maplespike-quill:latest
+            ghcr.io/reverb256/maplespike-quill:${{ github.sha }}

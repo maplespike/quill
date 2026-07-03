@@ -17,7 +17,7 @@
 All 87 MCP tools use input/output schemas that work with government data (committees, legislation, lobbyists, charities, etc.) and do **not** expose individual PII fields (email, phone, SIN, passport, address) in responses.
 
 ### Input Validation — ✅ Clean
-All 87 registered tools have Zod input schemas in `tools/index.ts`. The test suite at `mcp-server.test.ts` validates that each tool:
+All 87 registered tools have Zod input schemas in `tools/index.ts`. The test suite at `quill-mcp.test.ts` validates that each tool:
 - Returns expected shape from handler
 - Handles empty/missing queries gracefully
 - Returns errors for invalid inputs
@@ -27,7 +27,7 @@ All 87 registered tools have Zod input schemas in `tools/index.ts`. The test sui
 
 **Recommendation:** Add rate limiting middleware to the MCP server:
 ```typescript
-// Add to packages/mcp-server/src/middleware/rate-limit.ts
+// Add to packages/quill-mcp/src/middleware/rate-limit.ts
 // - 10 req/min per IP for ai-ask and ai-analyze
 // - 100 req/min per IP for search tools
 ```

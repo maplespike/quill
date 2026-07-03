@@ -1,12 +1,12 @@
 {
-  "name": "@maplespike/mcp-server",
-  "version": "0.2.0",
-  "description": "MapleSpike MCP Server - tools wrapping pipeline-core for AI agent consumption",
+  "name": "@maplespike/quill-mcp",
+  "version": "0.4.0",
+  "description": "MapleSpike Quill — data-layer MCP server for AI agent consumption of Canadian public records (ADR 0005)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "maplespike-mcp": "dist/cli.js"
+    "maplespike-quill": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",

@@ -139,7 +139,7 @@ nix develop
 pnpm test
 
 # Or run specific package tests
-cd packages/mcp-server && pnpm test
+cd packages/quill-mcp && pnpm test
 cd packages/api-server && pnpm test
 ```
 
@@ -149,7 +149,7 @@ cd packages/api-server && pnpm test
 nix develop
 
 # MCP server (SSE mode on :3001)
-cd packages/mcp-server && pnpm start:sse
+cd packages/quill-mcp && pnpm start:sse
 
 # API server (dev mode on :8082)
 cd packages/api-server && pnpm run dev
@@ -160,7 +160,7 @@ cd packages/portal && python3 server.py
 
 ### Build Container Images
 ```bash
-nix build .#maplespike-mcp-image
+nix build .#maplespike-quill-image
 nix build .#maplespike-api-image
 nix build .#maplespike-portal-image
 
@@ -334,14 +334,14 @@ pnpm -r test --parallel
 
 Run only changed packages:
 ```bash
-pnpm test --filter=./packages/mcp-server
+pnpm test --filter=./packages/quill-mcp
 ```
 
 ### Faster Container Images
 
 Use `--no-link` to avoid symlinking to `/nix/store`:
 ```bash
-nix build .#maplespike-mcp-image --no-link
+nix build .#maplespike-quill-image --no-link
 ```
 
 Use binary cache (Cachix):

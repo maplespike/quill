@@ -13,14 +13,14 @@
 #     maplespike.lan        → maplespike-portal:8080  (user-facing portal)
 #     portal.maplespike.lan → maplespike-portal:8080
 #     api.maplespike.lan    → maplespike-api:8082
-#     mcp.maplespike.lan    → maplespike-mcp:3001
+#     mcp.maplespike.lan    → maplespike-quill:3001
 #     dev.maplespike.lan    → maplespike-portal:8080  (env=dev)
 #     dev-api.maplespike.lan → maplespike-api:8082
-#     dev-mcp.maplespike.lan → maplespike-mcp:3001
+#     dev-mcp.maplespike.lan → maplespike-quill:3001
 #
 #   .ca (external, via Cloudflare Tunnel) ──────────────────────────
 #     api.maplespike.ca → cloudflared → maplespike-api:8082
-#     mcp.maplespike.ca → cloudflared → maplespike-mcp:3001
+#     mcp.maplespike.ca → cloudflared → maplespike-quill:3001
 #
 # TLS: cert-manager issues wildcard cert via step-ca Issuer
 #      (see 16-cert-issuer-lan.yaml, secret: maplespike-lan-tls).
@@ -110,7 +110,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-mcp
+                name: maplespike-quill
                 port:
                   number: 3001
     - host: dev-mcp.maplespike.lan
@@ -120,6 +120,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-mcp
+                name: maplespike-quill
                 port:
                   number: 3001

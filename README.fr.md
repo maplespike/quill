@@ -34,7 +34,7 @@ maplespike/
 │   ├── pretext-civic/    # Bibliothèque de composants React (graphiques, géo) — orphelin
 │   ├── portal/           # Portail développeur et page d'accueil (HTML statique)
 │   ├── api-server/       # Passerelle API REST (auth, limites de débit, usage)
-│   ├── mcp-server/       # Serveur de protocole MCP (✅ 22 outils réels)
+│   ├── quill-mcp/       # Serveur de protocole MCP (✅ 22 outils réels)
 │   ├── sdk/              # Client TypeScript
 │   ├── sdk-python/       # Client Python
 │   ├── legal-core/       # SDK de données juridiques
@@ -67,7 +67,7 @@ Toutes les données backend sur un cluster K3s canadien. Aucun fournisseur de nu
 ```bash
 pnpm install
 pnpm run build
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm start
 ```
 

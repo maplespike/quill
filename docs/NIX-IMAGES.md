@@ -11,7 +11,7 @@ All MapleSpike container images are built via **Nix** (`flake.nix`) using `pkgs.
 
 | Nix attribute | Image name | Port | Entry point |
 |---|---|---|---|
-| `maplespike-mcp-image` | `maplespike-mcp` | 3001 | `node packages/mcp-server/dist/index.js` |
+| `maplespike-quill-image` | `maplespike-quill` | 3001 | `node packages/quill-mcp/dist/index.js` |
 | `maplespike-api-image` | `maplespike-api` | 8082 | `node packages/api-server/dist/dev-server.js` |
 | `maplespike-portal-image` | `maplespike-portal` | 8080 | `python3 /app/server.py` |
 | `maplespike-ingest-image` | `maplespike-ingest` | CLI | `node packages/pipeline-core/dist/cli/ingest.js` |
@@ -21,7 +21,7 @@ All MapleSpike container images are built via **Nix** (`flake.nix`) using `pkgs.
 
 ```bash
 # Build a single image
-nix build .#maplespike-mcp-image -L
+nix build .#maplespike-quill-image -L
 
 # Load into podman/docker
 podman load < result

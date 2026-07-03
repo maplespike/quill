@@ -23,7 +23,7 @@ Add to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-mcp.ai-inference.svc.lan:3001/sse"
+      "url": "http://maplespike-quill.ai-inference.svc.lan:3001/sse"
     }
   }
 }
@@ -41,7 +41,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "maplespike-canada": {
       "command": "npx",
-      "args": ["@reverb256/mcp-server"],
+      "args": ["@maplespike/quill-mcp"],
       "env": {
         "MAPLESPIKE_API_KEY": "your-api-key-here"
       }
@@ -57,7 +57,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "maplespike": {
       "command": "node",
-      "args": ["/path/to/maplespike/packages/mcp-server/dist/index.js"],
+      "args": ["/path/to/maplespike/packages/quill-mcp/dist/index.js"],
       "env": {
         "MAPLESPIKE_API_KEY": "maplespike-dev-key",
         "NODE_PATH": "/path/to/maplespike/node_modules"
@@ -74,7 +74,7 @@ In Cursor, navigate to **Settings > MCP** and add a new server:
 ```
 Name: MapleSpike
 Type: url
-URL: http://maplespike-mcp.ai-inference.svc.lan:3001/sse
+URL: http://maplespike-quill.ai-inference.svc.lan:3001/sse
 ```
 
 Or for local mode:
@@ -82,7 +82,7 @@ Or for local mode:
 ```
 Name: MapleSpike
 Type: command
-Command: npx @reverb256/mcp-server
+Command: npx @maplespike/quill-mcp
 Environment: MAPLESPIKE_API_KEY=your-api-key
 ```
 
@@ -94,7 +94,7 @@ For VS Code MCP extensions, add to your config:
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-mcp.ai-inference.svc.lan:3001/sse"
+      "url": "http://maplespike-quill.ai-inference.svc.lan:3001/sse"
     }
   }
 }
@@ -116,7 +116,7 @@ pnpm install
 pnpm run build
 
 # Start MCP server in stdio mode
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm start
 ```
 
@@ -173,7 +173,7 @@ Once configured, ask your AI agent:
 
 | Issue | Solution |
 |-------|----------|
-| "Could not connect to MCP server" | Check network access to the cluster. Try `curl http://maplespike-mcp.ai-inference.svc.lan:3001/health` |
+| "Could not connect to MCP server" | Check network access to the cluster. Try `curl http://maplespike-quill.ai-inference.svc.lan:3001/health` |
 | "API key not found" | Ensure `MAPLESPIKE_API_KEY` is set in the environment or config |
 | "Tool returned empty results" | The pipeline data may not be fully ingested yet. Try `system_health` first |
 | "Connection refused" | The MCP server may not be running. Contact the cluster admin |

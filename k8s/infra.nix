@@ -170,9 +170,9 @@
         - job_name: 'maplespike-api'
           static_configs:
             - targets: ['maplespike-api.ai-inference:8084']
-        - job_name: 'maplespike-mcp'
+        - job_name: 'maplespike-quill'
           static_configs:
-            - targets: ['maplespike-mcp.ai-inference:3001']
+            - targets: ['maplespike-quill.ai-inference:3001']
         - job_name: 'kubernetes-pods'
           kubernetes_sd_configs:
             - role: pod
@@ -497,21 +497,21 @@
     };
 
     # ── MCP Deployment (dev — ai-inference namespace) ───────────
-    ai-inference.Deployment.maplespike-mcp = {
-      metadata.labels = { app = "maplespike-mcp"; component = "mcp-server"; tier = "backend"; };
+    ai-inference.Deployment.maplespike-quill = {
+      metadata.labels = { app = "maplespike-quill"; component = "quill-mcp"; tier = "backend"; };
       spec = {
         replicas = 1;
         strategy = { type = "RollingUpdate"; rollingUpdate = { maxUnavailable = 0; maxSurge = 1; }; };
-        selector.matchLabels.app = "maplespike-mcp";
+        selector.matchLabels.app = "maplespike-quill";
         template = {
-          metadata.labels = { app = "maplespike-mcp"; component = "mcp-server"; tier = "backend"; };
+          metadata.labels = { app = "maplespike-quill"; component = "quill-mcp"; tier = "backend"; };
           spec = {
             nodeName = "nexus";
             containers = {
               _namedlist = true;
               mcp = {
-                name = "maplespike-mcp";
-                image = "ghcr.io/reverb256/maplespike/maplespike-mcp:dev";
+                name = "maplespike-quill";
+                image = "ghcr.io/reverb256/maplespike/maplespike-quill:dev";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 3001; protocol = "TCP"; }; };
                 env = {

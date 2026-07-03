@@ -5,7 +5,7 @@
  * and the ToolModule interface contract.
  *
  * NOTE: Full tool definition validation (name, description, schema)
- * and handler contract tests live in mcp-server.test.ts.
+ * and handler contract tests live in quill-mcp.test.ts.
  * This file tests the registry module's own logic and edge cases.
  */
 

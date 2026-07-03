@@ -36,7 +36,7 @@ The platform currently maintains 164 registered MCP tools, 198 modules in the re
             │                             │                             │
             ▼                             ▼                             ▼
   ┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
-  │    mcp-server     │    │    api-server     │    │      engine       │
+  │   quill-mcp       │    │    api-server     │    │      engine       │
   │  (164 MCP tools)  │    │  (REST gateway)   │    │  (entity res +    │
   │  stdio/SSE modes  │    │  auth + rate      │    │   signal gen)     │
   └────────┬──────────┘    └────────┬──────────┘    └───────────────────┘
@@ -58,14 +58,14 @@ The platform currently maintains 164 registered MCP tools, 198 modules in the re
 
 ## Repository Structure
 
-The monorepo follows a standard pnpm workspace structure. `packages/` contains 14 subdirectories: 13 in the active pnpm workspace (`api-server`, `create-module`, `database`, `docs`, `engine`, `legal-core`, `legislation`, `mcp-server`, `notification-service`, `pipeline-core`, `portal`, `sdk`, `sdk-python`), plus `dashboard` which is workspace-excluded (the OWASP dashboard is now integrated into `packages/portal`). The previously referenced `pretext-civic` directory has been removed. The root contains shared configuration files including `turbo.json` for build orchestration, `tsconfig.json` for TypeScript project references, and infrastructure manifests in `k8s/` for Kubernetes deployments.
+The monorepo follows a standard pnpm workspace structure. `packages/` contains 14 subdirectories: 13 in the active pnpm workspace (`api-server`, `create-module`, `database`, `docs`, `engine`, `legal-core`, `legislation`, `quill-mcp`, `notification-service`, `pipeline-core`, `portal`, `sdk`, `sdk-python`), plus `dashboard` which is workspace-excluded (the OWASP dashboard is now integrated into `packages/portal`). The previously referenced `pretext-civic` directory has been removed. The root contains shared configuration files including `turbo.json` for build orchestration, `tsconfig.json` for TypeScript project references, and infrastructure manifests in `k8s/` for Kubernetes deployments.
 
 ### Package Overview
 
 | Package | Type | Entry Point | Build Command | Test Framework | Published? |
 |---------|------|-------------|---------------|----------------|------------|
 | `pipeline-core` | Library | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
-| `mcp-server` | Server | `dist/cli.js` | `tsc -b` | `node --test` (tsx) | No |
+| `quill-mcp` *(Quill, ADR 0005)* | Server | `dist/cli.js` | `tsc -b` | `node --test` (tsx) | No |
 | `api-server` | Server | `dist/index.js` | `tsc -b` | `node --test` (tsx) | No |
 | `engine` | Library | `src/index.ts` | `tsc` | `vitest` | No |
 | `sdk` | Library | `dist/index.js` | `tsup` | `tsx --test` | Yes (npm) |
@@ -109,7 +109,7 @@ The `database` package provides a SQLite-based storage layer using `better-sqlit
 
 Data is surfaced through three primary access patterns:
 
-1. **MCP Server**: The `@reverb256/mcp-server` package exposes 164 tools via the Model Context Protocol. Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
+1. **Quill (MCP Server)**: The `@maplespike/quill-mcp` package exposes 164 tools via the Model Context Protocol (see [products/quill.md](./products/quill.md)). Tools operate in standalone mode (direct upstream fetch) or integrated mode (database queries). The server supports stdio transport for local AI agents and SSE transport for remote access.
 
 2. **API Server**: The `@maplespike/api-server` package provides a REST API gateway with Bearer authentication, rate limiting, and usage tracking. Multi-tenant architecture supports API keys and JWT tokens. The server wraps pipeline-core and engine functionality for programmatic access.
 
@@ -128,7 +128,7 @@ The following diagram shows the dependency relationships between packages:
 ```
 pipeline-core ──► database
       │
-      ├──► mcp-server ──► pipeline-core
+      ├──► quill-mcp ──► pipeline-core
       │
       ├──► api-server ──► pipeline-core
       │                 ├──► engine ──► database
@@ -147,7 +147,7 @@ pretext-civic (orphaned)
 ### Dependency Details
 
 - **pipeline-core**: Depends on `@maplespike/database` for data persistence. Uses `amqplib` for message queuing, `fast-xml-parser` for XML parsing, and `undici` for HTTP requests.
-- **mcp-server**: Depends on `@maplespike/pipeline-core` for data access. Lightweight with only `pino` for logging. No database dependency in standalone mode.
+- **quill-mcp** (Quill): Depends on `@maplespike/pipeline-core` for data access. Lightweight with only `pino` for logging. No database dependency in standalone mode.
 - **api-server**: Depends on `@maplespike/pipeline-core` and `@maplespike/engine`. Uses `@simplewebauthn/server` for authentication, `viem` for cryptocurrency support, and `zod` for schema validation.
 - **engine**: Depends on `@maplespike/database` for storage. Uses `better-sqlite3`, `drizzle-orm`, `fuse.js` for fuzzy search, and `zod` for validation.
 - **sdk**: No internal dependencies. Standalone client library using `zod` for runtime validation.
@@ -181,7 +181,7 @@ The root `tsconfig.json` defines shared compiler options:
 - **Target**: ES2022
 - **Module**: ESNext with bundler resolution
 - **Strict mode**: Enabled
-- **Project references**: `packages/database`, `packages/pipeline-core`, `packages/engine`, `packages/mcp-server`, `packages/api-server`
+- **Project references**: `packages/database`, `packages/pipeline-core`, `packages/engine`, `packages/quill-mcp`, `packages/api-server`
 
 Path aliases are configured for all internal packages and for selective ingestion modules within pipeline-core (e.g., `@maplespike/pipeline-core/ontario-provincial`).
 
@@ -197,7 +197,7 @@ pnpm -r test           # Run tests without Turbo
 pnpm run clean         # Remove dist/ and tsconfig.tsbuildinfo
 
 # Per-package commands
-cd packages/mcp-server && pnpm build && pnpm start
+cd packages/quill-mcp && pnpm build && pnpm start
 cd packages/api-server && pnpm build && pnpm run dev
 cd packages/engine && pnpm build && pnpm run migrate
 cd packages/sdk && pnpm build && pnpm test
@@ -205,7 +205,7 @@ cd packages/sdk && pnpm build && pnpm test
 
 ### Package-Specific Build Tools
 
-- **TypeScript packages** (`tsc -b`): pipeline-core, mcp-server, api-server, engine, database
+- **TypeScript packages** (`tsc -b`): pipeline-core, quill-mcp (Quill), api-server, engine, database
 - **tsup packages**: sdk, legal-core, legislation (dual CJS/ESM output with TypeScript declarations)
 - **Python package** (`python -m build`): sdk-python (uses setuptools)
 - **Static sites**: portal (Astro), docs (VitePress)
@@ -232,7 +232,7 @@ MapleSpike is designed to run on a K3s cluster with two environments isolated by
 |---------|----------|-------|------|
 | Portal | K3s (nginx) | Static HTML/CSS/JS | NodePort 30965 |
 | API Server | K3s | Node.js, Bearer auth | NodePort 31284 |
-| MCP Server | K3s | Node.js, SSE transport | NodePort 31746 |
+| Quill (MCP Server) | K3s | Node.js, SSE transport | NodePort 31746 |
 | Engine/CronJobs | K3s | Node.js, scheduled pipelines | — |
 
 ### Ingress
@@ -243,7 +243,7 @@ A Caddy ingress controller routes both `.lan` domains to the correct services an
 
 - Portal: https://dev.maplespike.lan
 - API: https://dev-maplespike-api.lan
-- MCP: https://dev-maplespike-mcp.lan
+- MCP: https://dev-maplespike-quill.lan
 
 ### CI/CD Pipeline
 
@@ -401,7 +401,7 @@ Deployment targets K3s (lightweight Kubernetes) rather than serverless or VM-bas
 
 ### Dual Publish Strategy
 
-Three packages (`sdk`, `legal-core`, `legislation`) are published to npm while other packages remain private. SDKs are published to enable external developer adoption, legal packages are published as standalone utilities for legal tech applications, and core infrastructure (pipeline-core, engine, mcp-server, api-server) remains private to control the data pipeline and prevent unauthorized access. The Python SDK is published to PyPI for Python ecosystem coverage.
+Three packages (`sdk`, `legal-core`, `legislation`) are published to npm while other packages remain private. SDKs are published to enable external developer adoption, legal packages are published as standalone utilities for legal tech applications, and core infrastructure (pipeline-core, engine, quill-mcp, api-server) remains private to control the data pipeline and prevent unauthorized access. The Python SDK is published to PyPI for Python ecosystem coverage.
 
 ### License Stratification
 
@@ -433,7 +433,7 @@ Every record includes SHA-256 hash, source URL, timestamp, and schema validation
 
 ### Separation of Ingestion and Access
 
-Ingestion (pipeline-core) and access (mcp-server, api-server, engine) are separate packages with different deployment cycles. Ingestion runs on scheduled batch processes, access servers run as long-lived services, and changes can be deployed independently. This separation allows scaling access servers without affecting ingestion, isolates failures in either component, and enables different authentication and rate limiting strategies.
+Ingestion (pipeline-core) and access (quill-mcp, api-server, engine) are separate packages with different deployment cycles. Ingestion runs on scheduled batch processes, access servers run as long-lived services, and changes can be deployed independently. This separation allows scaling access servers without affecting ingestion, isolates failures in either component, and enables different authentication and rate limiting strategies.
 
 ### Zero-Config MCP Server
 
@@ -451,9 +451,9 @@ The `pretext-civic` package is orphaned because the portal migrated from Next.js
 
 The `@maplespike/pipeline-core` package is the core data pipeline library providing ingestion, curation, verification, and audit functionality for Canadian civic data. It contains 191 ingestion directories across federal, provincial, and municipal sources, each implementing a standalone `fetch → parse → persist` pipeline. The package exports 50+ subpath imports for domain-specific ingestion modules (e.g., `@maplespike/pipeline-core/ontario-provincial`, `@maplespike/pipeline-core/worldbank-wdi`). It uses `better-sqlite3` for storage, `fast-xml-parser` for parsing government XML feeds, and `amqplib` for message queuing integration. The package is licensed under AGPL-3.0 to ensure modifications to the core pipeline remain open-source.
 
-### mcp-server
+### quill-mcp
 
-The `@reverb256/mcp-server` package implements a Model Context Protocol server exposing 129 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
+The `@maplespike/quill-mcp` package (Quill) implements a Model Context Protocol server exposing 164 tools for AI agent consumption of Canadian government data. The server operates in two modes: standalone (direct upstream API fetch with in-memory caching) and integrated (queries the shared database via API server). It supports both stdio transport for local AI agents like Claude Desktop and Cursor, and SSE transport for remote HTTP access. The server includes semantic search with intent awareness, cross-reference tools connecting lobbying, committees, GIC appointments, and procurement, and health monitoring endpoints. All tools require zero configuration for basic operation, making the package immediately useful without setup.
 
 ### api-server
 

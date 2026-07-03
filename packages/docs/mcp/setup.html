@@ -116,7 +116,7 @@ li {
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
-      &quot;url&quot;: &quot;http://maplespike-mcp.ai-inference.svc.lan:3001/sse&quot;
+      &quot;url&quot;: &quot;http://maplespike-quill.ai-inference.svc.lan:3001/sse&quot;
     }
   }
 }
@@ -132,7 +132,7 @@ li {
   &quot;mcpServers&quot;: {
     &quot;maplespike-canada&quot;: {
       &quot;command&quot;: &quot;npx&quot;,
-      &quot;args&quot;: [&quot;@maplespike/mcp-server&quot;],
+      &quot;args&quot;: [&quot;@maplespike/quill-mcp&quot;],
       &quot;env&quot;: {
         &quot;MAPLESPIKE_API_KEY&quot;: &quot;your-api-key-here&quot;
       }
@@ -145,7 +145,7 @@ li {
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
       &quot;command&quot;: &quot;node&quot;,
-      &quot;args&quot;: [&quot;/path/to/maplespike/packages/mcp-server/dist/index.js&quot;],
+      &quot;args&quot;: [&quot;/path/to/maplespike/packages/quill-mcp/dist/index.js&quot;],
       &quot;env&quot;: {
         &quot;MAPLESPIKE_API_KEY&quot;: &quot;maplespike-dev-key&quot;,
         &quot;NODE_PATH&quot;: &quot;/path/to/maplespike/node_modules&quot;
@@ -158,12 +158,12 @@ li {
 <p>In Cursor, navigate to <strong>Settings &gt; MCP</strong> and add a new server:</p>
 <pre><code>Name: MapleSpike
 Type: url
-URL: http://maplespike-mcp.ai-inference.svc.lan:3001/sse
+URL: http://maplespike-quill.ai-inference.svc.lan:3001/sse
 </code></pre>
 <p>Or for local mode:</p>
 <pre><code>Name: MapleSpike
 Type: command
-Command: npx @maplespike/mcp-server
+Command: npx @maplespike/quill-mcp
 Environment: MAPLESPIKE_API_KEY=your-api-key
 </code></pre>
 <h2>VS Code Extension (claude-dev / Continue)</h2>
@@ -171,7 +171,7 @@ Environment: MAPLESPIKE_API_KEY=your-api-key
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
-      &quot;url&quot;: &quot;http://maplespike-mcp.ai-inference.svc.lan:3001/sse&quot;
+      &quot;url&quot;: &quot;http://maplespike-quill.ai-inference.svc.lan:3001/sse&quot;
     }
   }
 }
@@ -189,7 +189,7 @@ pnpm install
 pnpm run build
 
 # Start MCP server in stdio mode
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm start
 </code></pre>
 <h3>Environment Variables</h3>
@@ -255,7 +255,7 @@ echo &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quo
 </thead>
 <tbody><tr>
 <td>&quot;Could not connect to MCP server&quot;</td>
-<td>Check network access to the cluster. Try <code>curl http://maplespike-mcp.ai-inference.svc.lan:3001/health</code></td>
+<td>Check network access to the cluster. Try <code>curl http://maplespike-quill.ai-inference.svc.lan:3001/health</code></td>
 </tr>
 <tr>
 <td>&quot;API key not found&quot;</td>

@@ -28,7 +28,7 @@ MapleSpike MCP server is **operational** with 132 tools properly registered and 
 
 **3. Local Testing**
 ```bash
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm test
 # Result: 117/117 tests passed
 ```
@@ -106,13 +106,13 @@ The issue is **client-side timing** - Hermes (or any MCP client) is disconnectin
 
 ### Existing Tests (117 passed)
 
-**File**: `packages/mcp-server/src/` (8 test files)
+**File**: `packages/quill-mcp/src/` (8 test files)
 
 | Test File | Coverage | Tests | Status |
 |----------|----------|--------|--------|
 | smoke.test.ts | Tool schemas + basic handlers | 26 | ✓ Pass |
 | e2e.test.ts | End-to-end with real data | 12 | ✓ Pass |
-| mcp-server.test.ts | MCP protocol | 38 | ✓ Pass |
+| quill-mcp.test.ts | MCP protocol | 38 | ✓ Pass |
 | upstream.test.ts | Upstream reachability | 8 | ✓ Pass |
 | tools.test.ts | General tool logic | 6 | ✓ Pass |
 | get-annotations.test.ts | Tool metadata | 9 | ✓ Pass |
@@ -150,15 +150,15 @@ Add logging and keepalive to verify server sends responses:
 
 ```typescript
 // In index.ts handleToolCall, before response:
-console.error(`[maplespike-mcp] Calling tool: ${toolName}`);
-console.error(`[maplespike-mcp] Arguments:`, args);
+console.error(`[maplespike-quill] Calling tool: ${toolName}`);
+console.error(`[maplespike-quill] Arguments:`, args);
 ```
 
 Then verify in logs that "Calling tool:" and "message received:" appear.
 
 ### Option 3: Add SSE Handler Tests
 
-Create `packages/mcp-server/src/sse-handler.test.ts`:
+Create `packages/quill-mcp/src/sse-handler.test.ts`:
 
 ```typescript
 import { describe, it, beforeAll, afterAll, beforeEach, afterEach } from 'node:test';

@@ -212,7 +212,7 @@ const releases: Release[] = [
       "K8s rename: civint → maplespike across all deployment manifests, namespaces, and service configs",
       "Auto-merge CI/CD: main → prod auto-merge after tests pass, pnpm cache upgraded, deploy workflow consolidated",
       "Prometheus monitoring: Alerting rules (CronJob failures, stale ingestion, no pipeline data), Pushgateway heartbeat script, Grafana dashboard wiring",
-      "Observability: Uptime Kuma deployed (status.maplespike.lan), Prometheus Pushgateway for CronJob heartbeat alerts",
+      "Observability: Uptime Kuma deployed (status.maplespike.lan) — later moved to status.maplespike.ca, Prometheus Pushgateway for CronJob heartbeat alerts",
       "Tests added: Pipeline-core test suite (46 tests — registry, constants, RSS, CKAN, citations), MCP tool tests, API server tests, SDK tests. Fixed pre-existing bugs found during testing",
       "CI harmonization: 3 workflows (ci, deploy, publish), all 5 testable packages (pipeline-core, sdk, mcp-server, engine, api-server) with type-checking before build, pnpm lock sync",
       "OpenAPI spec: 79 endpoints, 27 agents — full auto-generated specification",

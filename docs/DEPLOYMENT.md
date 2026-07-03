@@ -71,7 +71,7 @@ curl -H "Authorization: Bearer maplespike-dev-key" \
 #### MCP Server
 ```bash
 # Run MCP server (stdio mode)
-cd packages/mcp-server
+cd packages/quill-mcp
 pnpm start
 
 # Run MCP server (SSE mode for HTTP access)
@@ -84,7 +84,7 @@ PORT=3001 pnpm start:sse
 #   "mcpServers": {
 #     "maplespike-canada": {
 #       "command": "npx",
-#       "args": ["@reverb256/mcp-server"]
+#       "args": ["@maplespike/quill-mcp"]
 #     }
 #   }
 # }
