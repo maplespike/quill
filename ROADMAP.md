@@ -112,12 +112,12 @@ Clean local/remote graph, license disclosure loop, and active cron/kanban before
 | Rebase `issue-194` (~90 commits behind `origin/main`) | P0 | 1-2h | 🟡 TODO |
 | Re-track `issue-195`/`200`/`206`/`207` from `bare/main` → `origin/main` + rebase | P0 | 2h | 🟡 TODO |
 | Rename `feat/`/`fix/`/`pr-NNN`/`kelos-task-` branches to `issue-NNN-...` | P2 | 1h | 🟡 TODO |
-| Add `.githooks/prepare-commit-msg` enforcing issue reference | P2 | 30m | 🟡 TODO |
-| Update `CONTRIBUTING.md` with branch/PR discipline section | P2 | 30m | 🟡 TODO |
-| Resolve `mcp-server` license discrepancy (`package.json` Apache-2.0 vs README MIT) | P0 | 30m | 🟡 TODO |
+| Add `.githooks/prepare-commit-msg` enforcing issue reference | P2 | 30m | ✅ DONE (2026-07-04 — `.githooks/prepare-commit-msg` exists; warns on missing `#NNN`; activation via `git config --local core.hooksPath .githooks` documented in `CONTRIBUTING.md` §Local Setup) |
+| Update `CONTRIBUTING.md` with branch/PR discipline section | P2 | 30m | ✅ DONE (2026-07-04 — `Workflow`, `PR Checklist`, and `Local Setup` sections in tree) |
+| Resolve `mcp-server` license discrepancy (`package.json` Apache-2.0 vs README MIT) | P0 | 30m | ✅ DONE (2026-07-04 — `packages/quill-mcp/package.json` and `packages/quill-mcp/README.md` both state Apache-2.0) |
 | Run license-checker on `pnpm-lock.yaml`; verify no GPL deps in commercial tier | P1 | 1-2h | 🟡 TODO |
 | Verify OGL-CA attribution on all upstream data sources | P1 | 1h | 🟡 TODO |
-| Generate `NOTICE` files per package's third-party dependencies (SBOM) | P2 | 1h | 🟡 TODO |
+| Generate `NOTICE` files per package's third-party dependencies (SBOM) | P2 | 1h | 🟡 Partial (2026-07-04 — `packages/quill-mcp/NOTICE.md` added; **13 of 14** workspace packages still need NOTICE.md — see `docs/metrics.json` `packages.names` for the deferred set; full CycloneDX/SPDX SBOM tracked under "Run license-checker on `pnpm-lock.yaml`") |
 | Install/configure `hermes` gateway + systemd unit | P0 | 30m | 🟡 TODO |
 | Activate Kelos `.kelos/workflows/docs-maintenance.yml` (metadata / TODO / metrics scans) | P1 | 30m | 🟡 TODO |
 | `git tag backup/<branch>` safety protocol before any `-D` or rebase | P1 | policy | 🟡 TODO |
@@ -230,10 +230,10 @@ Each batch follows the SEDI template (`constants.ts` + `types.ts` + `fetcher.ts`
 |------|----------|--------|--------|
 | Portal visual QA across 16 pages × 4 viewports (320/768/1024/1440) × 2 themes (dark/light) | P2 | 8h | 🟡 TODO (parent of Phase 2 portal work) |
 | Playwright smoke suite for `pnpm build` portal: all 16 pages → 200, no console errors | P2 | 4h | 🟡 TODO |
-| `prefers-reduced-motion` fallback for AnimatedShaderBackground (low-end mobile) | P2 | 1h | 🟡 TODO |
+| `prefers-reduced-motion` fallback for AnimatedShaderBackground (low-end mobile) | P2 | 1h | 🟡 Partial (2026-07-04 — `packages/portal/src/components/ui/glsl-hills.tsx` checks `matchMedia('(prefers-reduced-motion: reduce)')` and renders a single static frame. **Deferred**: low-end-mobile device detection (no `navigator.deviceMemory` / `hardwareConcurrency` probe); runtime `change` listener for OS-level toggle mid-session) |
 | Sweep inline `<N> modules` / `<N> MCP tools` references to match `docs/metrics.json` | P2 | 1h | 🟡 TODO (Kelos §3) |
 | Sweep TODO/FIXME density in `docs/owasp-*.md` to <5% | P2 | 1h | 🟡 TODO (Kelos §2) |
-| Sweep `last-reviewed` frontmatter on `.md` files (Kelos §1, 30-day threshold) | P2 | 1h | 🟡 TODO |
+| Sweep `last-reviewed` frontmatter on `.md` files (Kelos §1, 30-day threshold) | P2 | 1h | 🟡 Partial (2026-07-04 — `LICENSE.md` 2026-05-17 → 2026-07-04, `packages/quill-mcp/README.md` 2026-07-03 → 2026-07-04; full sweep across 25+ files in `packages/docs/**` deferred to dedicated pass) |
 
 ---
 
