@@ -20,7 +20,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 | **Supabase** | Full Postgres engine (Docker); community support | Backups, PITR, branching, SSO, SLA |
 | **Airbyte** | Full pipeline engine (MIT); all connectors | RBAC, SSO, PII masking, enterprise connectors |
 | **dbt Labs** | Full transformation engine (CLI) | IDE, scheduler, CI/CD, governance, collaboration |
-| **MapleSpike** | Full pipeline + 198 modules + 164 MCP tools (AGPL/Apache/MIT) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
+| **MapleSpike** | Full pipeline + 208 modules + 164 MCP tools (AGPL/Apache/MIT) | Hosting, SSO, RBAC, audit, SLA, team seats, custom modules |
 
 **The pattern:** The community version is the full engine — never crippled. The SaaS version removes operational toil and adds governance features that organizations need for compliance.
 
@@ -32,7 +32,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 ┌─────────────────────────────────────────────────────────────┐
 │  COMMUNITY (self-hosted)          │  MAPLESPIKE SaaS        │
 │  ──────────────────────────────── │  ─────────────────────  │
-│  ✓ All 198 data modules           │  ✓ Everything in        │
+│  ✓ All 208 data modules           │  ✓ Everything in        │
 │  ✓ All 164 MCP tools              │    Community            │
 │  ✓ Entity resolution engine       │  + Managed hosting      │
 │  ✓ Cross-reference queries        │  + Multi-tenant         │
@@ -71,7 +71,7 @@ MapleSpike follows the established **open-core** model used by Grafana, Elastic,
 ### Tier 0: Community / Self-Hosted
 
 ```
-git clone https://github.com/reverb256/maplespike
+git clone https://github.com/reverb256/quill
 cd maplespike
 docker compose up
 ```
@@ -253,7 +253,7 @@ An Enterprise customer who wants to embed MapleSpike's ingestion engine in a pro
 ## FAQ
 
 **Q: Can I run the full platform without ever paying MapleSpike?**
-A: Yes. `git clone` + `docker compose up` gives you everything — 198 modules, 164 MCP tools, entity resolution, cross-reference queries. You run the infrastructure. The AGPL license applies to any modifications you distribute.
+A: Yes. `git clone` + `docker compose up` gives you everything — 208 modules, 164 MCP tools, entity resolution, cross-reference queries. You run the infrastructure. The AGPL license applies to any modifications you distribute.
 
 **Q: What happens if I hit my API limit?**
 A: Requests return `429 Rate Limited` until the next billing period. You can upgrade instantly in the developer console — no downtime.
