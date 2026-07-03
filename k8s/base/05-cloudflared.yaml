@@ -13,17 +13,24 @@
 #      Tunnels). Choose "Cloudflared" connector type.
 #   2. Copy the tunnel token from the dashboard.
 #   3. Create the secret (replaces the placeholder below):
-#        kubectl create secret generic cloudflared-token \
-#          --from-literal=TUNNEL_TOKEN=<your-token> -n maplespike
+#        kubectl create secret generic cloudflared-creds \
+#          --from-file=credentials.json=<(echo '{"AccountTag":"...","TunnelSecret":"...","TunnelID":"..."}')
+#        kubectl create configmap cloudflared-config \
+#          --from-file=config.yaml=<(echo '...')
 #   4. Configure DNS in the Cloudflare dashboard:
 #        api.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
+#        quill.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
+#        datafabric.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
+#        data.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
 #        mcp.maplespike.ca  →  CNAME <tunnel-id>.cfargotunnel.com
-#   5. Configure tunnel routes (Cloudflare dashboard → Tunnel → Routes):
-#        api.maplespike.ca  →  http://maplespike-api.maplespike.svc.cluster.local:8082
-#        mcp.maplespike.ca  →  http://maplespike-mcp.maplespike.svc.cluster.local:3001
-#      Targeting the FQDN Service DNS (vs. shorthand `maplespike-api:8082`)
-#      makes the route unambiguous if you later add a second namespace.
-#   6. Apply: kubectl apply -f k8s/base/05-cloudflared.yaml
+#   5. Configure tunnel routes in the ConfigMap (see below) — NOT via Dashboard.
+#      The ConfigMap is the source of truth. If you edit routes in the Dashboard,
+#      the ConfigMap will be overwritten on next apply.
+#
+# Why Service FQDNs in route targets?
+#   Using the full FQDN (maplespike-api.maplespike.svc.cluster.local:8082) vs.
+#   shorthand (maplespike-api:8082) makes the route unambiguous when you later
+#   add a second namespace.
 #
 # Why no Service for cloudflared?
 #   cloudflared makes outbound TCP connections to Cloudflare and tunnels
@@ -36,17 +43,28 @@
 #   cluster and configure Cloudflare to load-balance.
 # =============================================================================
 
+---
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
-  name: cloudflared-token
+  name: cloudflared-config
   namespace: maplespike
-type: Opaque
-# Replace with: kubectl create secret generic cloudflared-token \
-#   --from-literal=TUNNEL_TOKEN=<your-token> -n maplespike
-# This is a placeholder — the real token comes from the Cloudflare dashboard.
-stringData:
-  TUNNEL_TOKEN: "REPLACE_WITH_YOUR_TUNNEL_TOKEN"
+data:
+  config.yaml: |
+    tunnel: cec1b070-796f-4524-b43e-9b05c32af906
+    credentials-file: /etc/cloudflared/credentials.json
+    ingress:
+      - hostname: api.maplespike.ca
+        service: http://maplespike-api.maplespike.svc.cluster.local:8082
+      - hostname: mcp.maplespike.ca
+        service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+      - hostname: quill.maplespike.ca
+        service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+      - hostname: datafabric.maplespike.ca
+        service: http://maplespike-portal.maplespike.svc.cluster.local:8080
+      - hostname: data.maplespike.ca
+        service: http://maplespike-portal.maplespike.svc.cluster.local:8080
+      - service: http_status:404
 
 ---
 apiVersion: apps/v1
@@ -72,13 +90,15 @@ spec:
         args:
         - tunnel
         - --no-autoupdate
+        - --config
+        - /etc/cloudflared/config.yaml
         - run
-        env:
-        - name: TUNNEL_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: cloudflared-token
-              key: TUNNEL_TOKEN
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 15
+          periodSeconds: 30
         resources:
           limits:
             cpu: 100m
@@ -86,9 +106,17 @@ spec:
           requests:
             cpu: 25m
             memory: 64Mi
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 2000
-          initialDelaySeconds: 10
-          periodSeconds: 30
+        volumeMounts:
+        - name: creds
+          mountPath: /etc/cloudflared/credentials.json
+          subPath: credentials.json
+        - name: config
+          mountPath: /etc/cloudflared/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: creds
+        secret:
+          secretName: cloudflared-creds
+      - name: config
+        configMap:
+          name: cloudflared-config
