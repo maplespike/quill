@@ -29,7 +29,11 @@ cloudflared tunnel login
 cloudflared tunnel create maplespike-k8s
 cloudflared tunnel route dns maplespike-k8s api.maplespike.ca
 cloudflared tunnel route dns maplespike-k8s mcp.maplespike.ca
-cloudflared tunnel route dns maplespike-k8s maplespike.ca
+# Note: maplespike.ca (root) is intentionally NOT routed via the tunnel.
+# It's served by Cloudflare Pages (per Step 1c). Adding a tunnel route
+# here would create a CNAME pointing at the tunnel, but the tunnel's
+# ingress has no service for the root domain (only api/mcp/quill/
+# datafabric/data maplespike.ca), so traffic would hit the catch-all 404.
 ```
 
 Then deploy via K3s: `kubectl apply -k k8s/base/` (canonical kustomize path; includes `05-cloudflared.yaml` since the 2026-07-04 kustomization.yaml fix — previously the kustomization omitted it, so cloudflared was silently dropped from the deploy)
@@ -94,8 +98,11 @@ kubectl create secret generic maplespike-secrets \
   --from-literal=QUILL_BILLING_SECRET=$(openssl rand -hex 32) \
   -n maplespike
 
+# credentials.json is written to ~/.cloudflared/<TUNNEL_ID>.json by the
+# `cloudflared tunnel create maplespike-k8s` command in Step 1b above.
+# Tunnel ID is verifiable via `wrangler tunnel info maplespike-k8s`.
 kubectl create secret generic cloudflared-creds \
-  --from-file=credentials.json=<path-to-tunnel-credentials-json> \
+  --from-file=credentials.json=$HOME/.cloudflared/66d76492-036b-4177-8fac-8682e0eda37e.json \
   -n maplespike
 
 # 4. Deploy (canonical kustomize path; includes 05-cloudflared.yaml + 11-mcp-deploy.yaml)
