@@ -76,6 +76,12 @@ export const UPDATE_FREQUENCIES: Record<string, string> = {
 
   // Weekly
   'canlii': 'weekly',
+  'canlii-fr': 'weekly',
+  'legisquebec': 'event-driven',
+  'gazette-fr': 'daily',
+  'statcan-fr': 'monthly',
+  'quebec-city-data': 'monthly',
+  'montreal-data': 'monthly',
   'a2aj': 'weekly',
 
   // Monthly

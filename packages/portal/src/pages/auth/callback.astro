@@ -1,12 +1,16 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 
 if (Astro.url.searchParams.has("error")) {
   const error = Astro.url.searchParams.get("error");
 }
 ---
 
-<BaseLayout title="Completing sign-in" description="Finalizing authentication...">
+<BaseLayout title="Completing sign-in" description="Finalizing authentication..." lang={lang}>
   <section class="container mx-auto px-4 py-24 min-h-[60vh] flex items-center justify-center">
     <div class="text-center space-y-6 max-w-md">
       <div class="mx-auto h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>

@@ -33,6 +33,11 @@ export const definition: ToolDefinition = {
         maximum: 50,
         description: 'Maximum results to return (default: 10)',
       },
+      lang: {
+        type: 'string',
+        enum: ['en', 'fr'],
+        description: 'Language for search results and French Court endpoint (rechercher.canlii.org). Default: en',
+      },
     },
     required: ['query'],
   },
@@ -53,8 +58,9 @@ export const handler: ToolHandler = async (args) => {
 
   const court = (args.court as string) ?? '';
   const limit = Math.min((args.limit as number) ?? 10, 50);
+  const lang = (args.lang as string) ?? 'en';
 
-  const result = await fetchCanlii(query, limit);
+  const result = await fetchCanlii(query, limit, lang);
   let results = result.results;
   let total = result.total;
 

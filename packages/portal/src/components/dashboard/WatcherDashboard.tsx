@@ -4,7 +4,12 @@ import type { WatcherStatus, WatcherEvent, WebhookConfig } from "../../lib/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 
-export default function WatcherDashboard() {
+import { createI18n } from "@maplespike/i18n";
+import type { Locale } from "@maplespike/i18n";
+
+export default function WatcherDashboard({ lang: propLang }: { lang?: Locale }) {
+  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const i18n = createI18n(lang);
   const [status, setStatus] = useState<WatcherStatus | null>(null);
   const [events, setEvents] = useState<WatcherEvent[]>([]);
   const [webhooks, setWebhooks] = useState<WebhookConfig[]>([]);

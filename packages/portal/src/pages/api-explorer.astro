@@ -4,9 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 ---
 
-<BaseLayout title="API Explorer" description="Test MapleSpike API endpoints, view OpenAPI spec, and run live queries against Canadian government data.">
+<BaseLayout title={i18n.t('api_explorer.title')} description="Test MapleSpike API endpoints, view OpenAPI spec, and run live queries against Canadian government data." lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-20">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>

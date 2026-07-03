@@ -7,11 +7,12 @@ const CITIES = ['toronto','vancouver','montreal','calgary','ottawa','edmonton','
 
 export const definition: ToolDefinition = {
   name: 'search_municipal_data',
-  description: 'Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. Returns datasets from each city\'s open data portal.',
+  description: 'Search municipal open data across Canadian cities. Covers Toronto, Vancouver, Montreal, Calgary, Ottawa, Edmonton, Winnipeg, Quebec City, Hamilton, Mississauga. When lang=fr, prioritizes French-language portals (donnees.montreal.ca, donnees.ville.quebec.qc.ca).',
   inputSchema: { type: 'object', properties: {
     query: { type: 'string', description: 'Search terms (e.g., "budget", "transit", "crime", "permits")' },
     city: { type: 'string', enum: CITIES, description: 'City to search (omit for all)' },
     limit: { type: 'number', minimum: 1, maximum: 30, description: 'Results per city' },
+    lang: { type: 'string', enum: ['en', 'fr'], description: 'Language. When fr, prioritizes French municipal portals. Default: en' },
   }, required: ['query'] },
 };
 

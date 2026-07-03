@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createI18n } from "@maplespike/i18n";
+import type { Locale } from "@maplespike/i18n";
 
 function getApiBase(): string {
   if (typeof window !== "undefined") {
@@ -35,7 +37,9 @@ declare global {
   }
 }
 
-export default function ApiKeysManager() {
+export default function ApiKeysManager({ lang: propLang }: { lang?: Locale }) {
+  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const i18n = createI18n(lang);
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
