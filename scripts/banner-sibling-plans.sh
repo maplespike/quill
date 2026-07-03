@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Banner sibling plan files to point readers at ROADMAP.md as canonical.
 # Idempotent: skips files that already contain the banner marker.
+#
+# Defensive: the frontmatter probe tolerates a leading UTF-8 BOM byte
+# (U+FEFF) and stray whitespace on line 1 — both have caused the script
+# to misclassify a file as "no frontmatter" and prepend the banner above
+# a YAML `---` block in the past (see commit 2114c40 manual sed fix on
+# KANBAN-{AUTOMATION,SETUP}.md).
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -42,7 +48,10 @@ for f in "${FILES[@]}"; do
     continue
   fi
 
-  if [[ "$(head -1 "$f")" == "---" ]]; then
+  # Strip a leading UTF-8 BOM (U+FEFF) and any stray whitespace before
+  # testing equality to `---`. `xargs` (with no flags) trims and collapses
+  # internal whitespace runs on line 1.
+  if [[ "$(head -1 "$f" | tr -d $'\ufeff' | xargs)" == "---" ]]; then
     # YAML frontmatter: find closing ---, insert banner after it
     awk -v banner="$BANNER" '
       NR==1 && /^---$/ { in_fm=1; print; next }
