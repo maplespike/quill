@@ -1,9 +1,12 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Issue #199 — Portal Astro Pages Visual QA (16 Pages)
 
 **Status**: Draft
 **Created**: 2026-05-18
 **Owner**: Sisyphus
-**Issue**: https://github.com/reverb256/maplespike/issues/199
+**Issue**: https://github.com/reverb256/quill/issues/199
 **Labels**: `bug`, `p2`, `frontend`
 
 ---

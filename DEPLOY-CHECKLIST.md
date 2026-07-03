@@ -1,3 +1,6 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # MapleSpike — maplespike.ca Deployment Checklist
 
 > **Goal:** Get Core MCP live and accepting paying customers.
@@ -76,16 +79,16 @@ Both options deploy the `packages/portal` Astro build as a static site.
 kubectl apply -f k8s/manual/00-namespace.yaml
 
 # 2. Build and load Docker images
-docker build --target api-server -t maplespike-api:prod .
-docker build --target quill-mcp -t maplespike-quill:prod .
+docker build --target api-server -t quill-api:prod .
+docker build --target quill-mcp -t quill-mcp:prod .
 # If using local images on K3s (no registry):
-# docker save maplespike-api:prod | ssh nexus docker load
-# docker save maplespike-quill:prod | ssh nexus docker load
+# docker save quill-api:prod | ssh nexus docker load
+# docker save quill-mcp:prod | ssh nexus docker load
 
 # 3. Create production secrets
 kubectl create secret generic maplespike-secrets \
   --from-literal=JWT_SECRET=$(openssl rand -hex 64) \
-  --from-literal=MAPLESPIKE_BILLING_SECRET=$(openssl rand -hex 32) \
+  --from-literal=QUILL_BILLING_SECRET=$(openssl rand -hex 32) \
   -n maplespike
 
 kubectl create secret generic cloudflared-token \
@@ -206,10 +209,10 @@ Questions? Reply to this email.
 kubectl get pods -n maplespike
 
 # View API logs
-kubectl logs -f deployment/maplespike-api -n maplespike
+kubectl logs -f deployment/quill-api -n maplespike
 
 # View MCP logs
-kubectl logs -f deployment/maplespike-quill -n maplespike
+kubectl logs -f deployment/quill-mcp -n maplespike
 
 # Check Cloudflare tunnel status
 kubectl logs -f deployment/cloudflared -n maplespike

@@ -1,9 +1,12 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Issue #130 — Email Notifications and Alerting System
 
 **Status**: Draft
 **Created**: 2026-05-18
 **Owner**: Sisyphus
-**Issue**: https://github.com/reverb256/maplespike/issues/130
+**Issue**: https://github.com/reverb256/quill/issues/130
 **Labels**: `enhancement`, `p2`
 
 ---
@@ -72,7 +75,7 @@ CREATE TABLE alert_history (
 
 ### Phase 2: Storage Interface Methods
 
-Add to `MapleSpikeStorage`:
+Add to `QuillStorage`:
 - `createSubscription(params)` → create subscription
 - `getSubscriptions(tenantId)` → list active subscriptions
 - `deleteSubscription(id)` → remove subscription
@@ -130,7 +133,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: alert-engine
-  namespace: maplespike-prod
+  namespace: quill-prod
 spec:
   schedule: "*/15 * * * *"   # Every 15 min for realtime
   jobTemplate:
@@ -139,7 +142,7 @@ spec:
         spec:
           containers:
           - name: alert-engine
-            image: ghcr.io/reverb256/maplespike/maplespike-api-server:latest
+            image: ghcr.io/reverb256/quill/quill-api-server:latest
             command: ["node", "dist/alert-engine.js"]
             env:
             - name: SENDGRID_API_KEY
