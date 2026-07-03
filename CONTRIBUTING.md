@@ -29,6 +29,47 @@ Remote nodes have fish/devenv startup noise. Use:
 ssh nexus 'bash --norc --noprofile -c "your command here"'
 ```
 
+## Local Setup
+
+### Activate Git Hooks
+
+This repo ships with git hooks in `.githooks/`:
+
+- `prepare-commit-msg` — warns if a commit message lacks an issue reference (`#NNN`)
+- `pre-commit` — blocks direct commits to the `prod` branch
+
+Activate them once per clone (the setting is per-clone local config, not
+committed to the repo):
+
+```bash
+git config --local core.hooksPath .githooks
+```
+
+> **Note for new contributors:** `.git/config` is per-clone, not tracked in git.
+> Each fresh clone (including new worktrees) requires re-activation.
+> The hooks are not auto-installed by `pnpm install` or any other tool.
+
+To verify:
+
+```bash
+git config --get core.hooksPath
+# → .githooks
+```
+
+To skip hooks for a single commit (e.g., backports, reverts, bulk
+cherry-picks):
+
+```bash
+git commit --no-verify
+```
+
+The hooks are intentionally non-blocking on missing `#NNN` (warn-and-allow)
+because the prepare-commit-msg fires before the user has finished editing
+the message in many editors. Use `git commit --amend` or the
+`commit-msg` hook chain if your team wants hard enforcement.
+
+---
+
 ## Code Standards
 
 ### TypeScript
