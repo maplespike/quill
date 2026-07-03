@@ -6,6 +6,8 @@
  */
 
 import type { ToolDefinition, ToolHandler, ToolResponse } from './tools/types.js';
+import { validatePayment, extractPaymentFromArgs } from './x402-middleware.js';
+import type { PaymentProof } from './x402-middleware.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -129,6 +131,7 @@ export class McpServer {
     raw: unknown,
     locale: string,
     send: (response: JsonRpcResponse) => void,
+    paymentProof?: PaymentProof,
   ): Promise<void> {
     const msg = this.parseMessage(raw, send);
     if (!msg) return;
@@ -148,7 +151,7 @@ export class McpServer {
         this.handleToolsList(id, locale, send);
         break;
       case 'tools/call':
-        await this.handleToolCall(id, params, send);
+        await this.handleToolCall(id, params, send, paymentProof);
         break;
       default:
         if (id != null) {
@@ -232,6 +235,7 @@ export class McpServer {
     id: string | number | undefined,
     params: Record<string, unknown> | undefined,
     send: (r: JsonRpcResponse) => void,
+    paymentProof?: PaymentProof,
   ): Promise<void> {
     const toolName = params?.name as string | undefined;
     const args = (params?.arguments as Record<string, unknown>) ?? {};
@@ -244,6 +248,21 @@ export class McpServer {
     const tool = this.tools.get(toolName);
     if (!tool) {
       send(this.error(id ?? null, -32602, `Unknown tool: ${toolName}`));
+      return;
+    }
+
+    // ── x402 payment check (gated by X402_ENABLED) ─────────────────
+    // Extract payment proof from args (for stdio) or use provided proof
+    const resolvedProof = paymentProof ?? extractPaymentFromArgs(args);
+    const paymentCheck = validatePayment(toolName, resolvedProof);
+    if (!paymentCheck.allowed) {
+      send(this.error(id ?? null, -402, 'Payment Required', {
+        ...paymentCheck.paymentRequired,
+        tool: toolName,
+        price: paymentCheck.price,
+        tier: paymentCheck.tier,
+        message: paymentCheck.error,
+      }));
       return;
     }
 
