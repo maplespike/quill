@@ -1,3 +1,6 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Implement 22 Missing Modules (Registry → Disk)
 
 **Problem**: 22 modules are registered in `registry.ts` but their source directories don't exist on disk. These are planned modules that were registered but never implemented.

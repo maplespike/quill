@@ -1,3 +1,6 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # MapleSpike — Strategic Assessment Follow-up
 *Assessment completed: 2025-06-11*
 *Version: 0.2.0 → 0.3.0 (recommended bump for new features)
@@ -12,7 +15,7 @@
 | P1: Parser implementation | ✅ 32 modules implemented | `packages/pipeline-core/MODULE_IMPLEMENTATION_STATUS.md` |
 | P2: SDK expansion | ✅ 7 tests, entity resolution client | `packages/sdk/examples/` |
 | P2: Engine expansion | ✅ 56 tests, cross-module linking | `packages/engine/CROSS_MODULE_LINKING.md` |
-| P0: CronJob manifests | ✅ 17 CronJobs defined | `/etc/nixos/kubernetes/modules/maplespike-cronjobs.nix` |
+| P0: CronJob manifests | ✅ 17 CronJobs defined | `/etc/nixos/kubernetes/modules/quill-cronjobs.nix` |
 | Build verification | ✅ 12/12 packages passing | `pnpm build && pnpm test` |
 
 **Test Coverage: 856 tests total passing**
@@ -51,7 +54,7 @@
 **Status:** CronJob manifests written, not deployed
 
 **What's done:**
-- 17 CronJob schedules defined in `/etc/nixos/kubernetes/modules/maplespike-cronjobs.nix`
+- 17 CronJob schedules defined in `/etc/nixos/kubernetes/modules/quill-cronjobs.nix`
 - Each CronJob defines container image, schedules, resource limits
 
 **What's missing:**
@@ -60,8 +63,8 @@
 - Need to verify DATABASE_URL and secrets are configured
 
 **Action items:**
-- [ ] Integrate maplespike-cronjobs.nix into host configuration
-- [ ] Build and push ingestion container: `docker build -t ghcr.io/reverb256/maplespike-ingest:2026-06-11`
+- [ ] Integrate quill-cronjobs.nix into host configuration
+- [ ] Build and push ingestion container: `docker build -t ghcr.io/reverb256/quill-ingest:2026-06-11`
 - [ ] Deploy with: `colmena apply --on <k3s-host>`
 - [ ] Verify CronJobs are running: `kubectl get cronjobs -n maplespike-...`
 

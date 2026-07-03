@@ -1,9 +1,12 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Issue #138 — Journalism Mode with Editorial Overrides
 
 **Status**: Draft
 **Created**: 2026-05-18
 **Owner**: Sisyphus
-**Issue**: https://github.com/reverb256/maplespike/issues/138
+**Issue**: https://github.com/reverb256/quill/issues/138
 **Labels**: `enhancement`, `p2`
 
 ---
@@ -60,7 +63,7 @@ CREATE TABLE annotations (
 
 #### 1b. Storage Interface Methods
 
-Add to `MapleSpikeStorage`:
+Add to `QuillStorage`:
 - `createAnnotation(params)` → upsert annotation
 - `getAnnotations(targetType, targetId)` → list annotations for a target
 - `getAnnotationsByTenant(tenantId, limit, offset)` → all tenant annotations

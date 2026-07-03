@@ -1,9 +1,12 @@
+> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
+
+
 # Plan: Issue #83 — Portal → Astro + shadcn/ui with Hero Background
 
 **Status**: Draft → **Reviewed** (Momus audit complete)
 **Created**: 2026-05-18
 **Owner**: Sisyphus
-**Issue**: https://github.com/reverb256/maplespike/issues/83
+**Issue**: https://github.com/reverb256/quill/issues/83
 **Momus blockers resolved**: ✅ Dockerfile.portal mismatch — CI/CD builds from root `Dockerfile.portal`, NOT `packages/portal/Dockerfile`. Plan updated to target correct file.
 **Momus blockers resolved**: ✅ Docs build sequencing — Added explicit task ensuring docs built into `public/docs/` before Astro build.
 
@@ -474,8 +477,8 @@ echo "Doc pages: $docs_pages"
 ### 5.2 Docker build verification
 ```bash
 # Build from repo root (matching CI/CD)
-docker build -f Dockerfile.portal -t maplespike-portal:test .
-docker run -d -p 8080:8080 --name portal-test maplespike-portal:test
+docker build -f Dockerfile.portal -t quill-portal:test .
+docker run -d -p 8080:8080 --name portal-test quill-portal:test
 
 # Test page serving
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/        # Should be 200
