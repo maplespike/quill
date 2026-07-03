@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { getPlans, Plan, Chain } from "../../lib/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
+import { createI18n } from "@maplespike/i18n";
+import type { Locale } from "@maplespike/i18n";
 
-export default function BillingPlans() {
+export default function BillingPlans({ lang: propLang }: { lang?: Locale }) {
+  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const i18n = createI18n(lang);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [chains, setChains] = useState<Chain[]>([]);
   const [selectedPlan, setSelectedPlan] = useState("");

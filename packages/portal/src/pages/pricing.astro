@@ -11,6 +11,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 
 const tiers = [
   {
@@ -99,7 +103,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
 };
 ---
 
-<BaseLayout title="Pricing">
+<BaseLayout title={i18n.t('pricing.page_title')} lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>

@@ -5,6 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
 
 const sections = [
   { id: "quickstart", num: "00", label: "Quickstart", badge: "LIVE" },
@@ -280,7 +284,7 @@ const errorCodes = [
 ];
 ---
 
-<BaseLayout title="API Documentation" description="Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, and SDK usage.">
+<BaseLayout title={i18n.t('docs.title')} description="Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, and SDK usage." lang={lang}>
   <div class="flex">
     <!-- Sidebar -->
     <aside class="hidden lg:block w-64 shrink-0 border-r min-h-[calc(100vh-4rem)] sticky top-16 self-start">

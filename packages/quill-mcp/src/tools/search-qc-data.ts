@@ -14,6 +14,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: { type: 'string', description: 'Search terms / termes de recherche (e.g., "santé", "immigration", "éducation", "environnement")' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Maximum results to return (default: 10)' },
+      lang: { type: 'string', enum: ['en', 'fr'], description: 'Language hint. When fr, prioritizes French portal (donneesquebec.ca). Default: en' },
     },
     required: ['query'],
   },
@@ -22,15 +23,17 @@ export const definition: ToolDefinition = {
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '').trim();
   const limit = Math.min((args.limit as number) ?? 10, 50);
+  const lang = (args.lang as string) ?? 'en';
   if (!query) return { content: { tool: 'search_qc_data', error: 'No query' }, isError: true };
 
   try {
-    const result = await fetchProvincialData('qc', query, limit);
+    const result = await fetchProvincialData('qc', query, limit, lang);
     return {
       content: {
         tool: 'search_qc_data',
         query,
         limit,
+        lang,
         results: result.results,
         totalCount: result.total,
         province: 'Quebec',
