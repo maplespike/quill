@@ -18,13 +18,15 @@ import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { parsePaymentHeader } from './x402-middleware.js';
+import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from './quota.js';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
-const API_KEY = process.env.MAPLESPIKE_API_KEY ?? 'dev-key';
+const API_KEY = process.env.QUILL_API_KEY ?? 'dev-key';
 const X402_ENABLED = process.env.X402_ENABLED === 'true';
 const X402_RECIPIENT = process.env.X402_RECIPIENT || '';
 
 const server = new McpServer();
+server.setQuota(getQuotaTracker());
 
 // Register all tools (dynamically loaded from tools/index.ts)
 const tools = getAllTools();
@@ -32,7 +34,7 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
-console.error(`[maplespike-quill] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
+console.error(`[quill] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
 
 interface SseClient {
   id: string;
@@ -118,7 +120,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 
     clients.set(clientId, { id: clientId, res, locale });
 
-    console.error(`[maplespike-quill] SSE client connected: ${clientId} (total: ${clients.size})`);
+    console.error(`[quill] SSE client connected: ${clientId} (total: ${clients.size})`);
 
     // Heartbeat every 30s to keep connection alive
     const heartbeat = setInterval(() => {
@@ -132,7 +134,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     req.on('close', () => {
       clearInterval(heartbeat);
       clients.delete(clientId);
-      console.error(`[maplespike-quill] SSE client disconnected: ${clientId} (total: ${clients.size})`);
+      console.error(`[quill] SSE client disconnected: ${clientId} (total: ${clients.size})`);
     });
 
     return;
@@ -167,11 +169,46 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
         ? parsePaymentHeader(req.headers['x-payment'] as string | undefined)
         : undefined;
 
+      // Build identity for the SSE caller.
+      // NOTE: in `index.ts` (hosted) the auth path requires Authorization
+      // (see authenticate()), so we expect a Bearer token to be present on
+      // every authenticated SSE call. If somehow no token slipped through, fall
+      // back to IP — BUT we only honor X-Forwarded-For when TRUST_PROXY=true,
+      // otherwise any client can rotate the IP key and bypass quota.
+      let identity: QuotaIdentity;
+      { // scope to keep the warning logs readable
+        const auth = req.headers.authorization;
+        if (typeof auth === 'string' && auth.toLowerCase().startsWith('bearer ')) {
+          identity = buildIdentity('api-key', auth.slice(7).trim());
+        } else {
+          const trustProxy = process.env.TRUST_PROXY === 'true';
+          const fwd = req.headers['x-forwarded-for'];
+          const ip = trustProxy
+            ? (Array.isArray(fwd)
+                ? fwd[0]
+                : (typeof fwd === 'string' ? fwd.split(',')[0].trim() : req.socket.remoteAddress || 'unknown'))
+            : (req.socket.remoteAddress || 'unknown');
+          identity = buildIdentity('anonymous-ip', ip);
+          if (process.env.NODE_ENV === 'production') {
+            if (typeof fwd === 'string') {
+              console.error(`[quill] WARN: SSE without Bearer, X-Forwarded-For present, TRUST_PROXY=${trustProxy ? 'true' : 'false'} — using ${trustProxy ? 'XFF' : 'socket'} remoteAddress for IP-keyed quota.`);
+            } else {
+              console.error(`[quill] WARN: SSE without Bearer — quota keyed by IP (${identity.hashed}). Set TRUST_PROXY=true only behind a known proxy envelope.`);
+            }
+          }
+        }
+      }
+
+      const quotaStatus = getQuotaTracker().getStatus(identity);
+
       // Send response back through the client's SSE stream
       server.handleMessage(parsed, client.locale, (response) => {
-        // Responses with an id go to the specific client
+        // Attach quota status to each tool response so SSE clients can see pressure.
+        if (response.result && typeof response.result === 'object') {
+          (response.result as Record<string, unknown>)._quota = quotaStatus;
+        }
         sendSse(client.res, 'message', response);
-      }, paymentProof).catch((err: unknown) => console.error('[maplespike-quill] Error handling message:', err));
+      }, paymentProof, identity).catch((err: unknown) => console.error('[quill] Error handling message:', err));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
@@ -185,14 +222,15 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`[maplespike-quill] Hosted SSE server running on http://0.0.0.0:${PORT}`);
-  console.log(`[maplespike-quill] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
-  console.log(`[maplespike-quill] Health check: http://0.0.0.0:${PORT}/health`);
-  console.log(`[maplespike-quill] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
+  console.log(`[quill] Hosted SSE server running on http://0.0.0.0:${PORT}`);
+  console.log(`[quill] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
+  console.log(`[quill] Health check: http://0.0.0.0:${PORT}/health`);
+  console.log(`[quill] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
 });
 
 process.on('SIGINT', () => {
-  console.error('[maplespike-quill] SIGINT received, closing SSE connections');
+  console.error('[quill] SIGINT received, closing SSE connections');
+  getQuotaTracker().flushSync();
   for (const { res } of clients.values()) {
     res.end();
   }
@@ -200,6 +238,7 @@ process.on('SIGINT', () => {
 });
 
 process.on('SIGTERM', () => {
-  console.error('[maplespike-quill] SIGTERM received, shutting down');
+  console.error('[quill] SIGTERM received, shutting down');
+  getQuotaTracker().flushSync();
   httpServer.close(() => process.exit(0));
 });

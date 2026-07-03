@@ -1,0 +1,26 @@
+# security.txt — RFC 9116
+# MapleSpike Quill (quill.maplespike.ca) — responsible disclosure policy.
+#
+# This file lives at maplespike-brand/public/.well-known/security.txt so
+# Astro's static build copies it to dist/ at the canonical path. It is also
+# mirrored in packages/quill-mcp/.well-known/security.txt so anyone inspecting
+# the package source finds it immediately.
+#
+# To rotate the disclosure channel or expiry, edit both paths and replay deploy.
+
+Contact: mailto:security@maplespike.ca
+Contact: https://github.com/maplespike/maplespike/security/advisories/new
+Expires: 2027-07-01T00:00:00.000Z
+Preferred-Languages: en, fr
+Canonical: https://quill.maplespike.ca/.well-known/security.txt
+Encryption: https://maplespike.ca/.well-known/pgp-key.asc
+
+# Scope: any vulnerability in packages/quill-mcp, packages/api-server (when
+# proxying for Quill), packages/edge-worker (when routing Quill), and the
+# quill.maplespike.ca hostname.
+
+# Out-of-scope: upstream-source rate limits, denial-of-service from third
+# parties, theoretical vulnerabilities without a working PoC.
+
+# Acknowledgement target: 72 hours. Fix timeline graded by severity:
+#   Critical: 7 days,   High: 30 days,   Medium: 90 days,   Low: best effort.

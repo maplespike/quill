@@ -8,6 +8,9 @@
 import type { ToolDefinition, ToolHandler, ToolResponse } from './tools/types.js';
 import { validatePayment, extractPaymentFromArgs } from './x402-middleware.js';
 import type { PaymentProof } from './x402-middleware.js';
+import { getToolPrice } from './pricing.js';
+import { getQuotaTracker, type QuotaIdentity, type QuotaTracker } from './quota.js';
+import { runWithIdentity } from './context.js';
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -37,7 +40,7 @@ interface ServerCapabilities {
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'silent'),
+  level: process.env.QUILL_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'silent'),
   redact: ['req.headers.authorization', 'req.headers.cookie'],
 });
 
@@ -107,6 +110,13 @@ export class McpServer {
   private clientCapabilities: Record<string, unknown> = {};
   private serverVersion = '0.1.0';
   private serverName = 'maplespike-canada-mcp';
+  /** Optional quota tracker — when present, gates calls after the free tier. */
+  private quota: QuotaTracker | null = null;
+
+  /** Inject a quota tracker (typically via getQuotaTracker() singleton). */
+  setQuota(tracker: QuotaTracker): void {
+    this.quota = tracker;
+  }
 
   // ── Timeout handling ──────────────────────────────────────────────────
 
@@ -114,7 +124,7 @@ export class McpServer {
   // times out after 60s, so stay safely under that so we can return a clean
   // JSON-RPC error instead of letting the gateway kill the connection.
   private handlerTimeoutMs = parseInt(
-    process.env['MAPLESPIKE_HANDLER_TIMEOUT_MS'] ?? '',
+    process.env['QUILL_HANDLER_TIMEOUT_MS'] ?? '',
     10,
   ) || 55_000;
 
@@ -132,6 +142,7 @@ export class McpServer {
     locale: string,
     send: (response: JsonRpcResponse) => void,
     paymentProof?: PaymentProof,
+    identity?: QuotaIdentity,
   ): Promise<void> {
     const msg = this.parseMessage(raw, send);
     if (!msg) return;
@@ -151,7 +162,7 @@ export class McpServer {
         this.handleToolsList(id, locale, send);
         break;
       case 'tools/call':
-        await this.handleToolCall(id, params, send, paymentProof);
+        await this.handleToolCall(id, params, send, paymentProof, identity);
         break;
       default:
         if (id != null) {
@@ -236,6 +247,7 @@ export class McpServer {
     params: Record<string, unknown> | undefined,
     send: (r: JsonRpcResponse) => void,
     paymentProof?: PaymentProof,
+    identity?: QuotaIdentity,
   ): Promise<void> {
     const toolName = params?.name as string | undefined;
     const args = (params?.arguments as Record<string, unknown>) ?? {};
@@ -251,9 +263,38 @@ export class McpServer {
       return;
     }
 
-    // ── x402 payment check (gated by X402_ENABLED) ─────────────────
-    // Extract payment proof from args (for stdio) or use provided proof
+    // ── x402 payment proof extraction (needed before quota gate) ─────
+    // We extract the proof first because the quota gate needs to know
+    // whether the caller has already graduated to a paying tier.
     const resolvedProof = paymentProof ?? extractPaymentFromArgs(args);
+    const callerIsPaying = Boolean(resolvedProof) && process.env.X402_ENABLED === 'true';
+
+    // ── Quota preflight (when an identity is provided and tracker enabled) ─
+    // Free-tier policy: 1000 calls/month per identity, then x402 per-call.
+    // Free tools (priceUsd === 0) always pass — see pricing.ts.
+    //
+    // Spec: paying customers graduate out of the free quota. If the caller
+    // provides a valid x402 payment proof AND X402_ENABLED is on, skip the
+    // gate entirely and let x402-middleware bill them per call. This is the
+    // "1000 free then charge" intent.
+    if (this.quota && identity && !callerIsPaying) {
+      const price = getToolPrice(toolName).priceUsd;
+      const gate = this.quota.preflight(identity, toolName, price);
+      if (gate.allowed === false) {
+        // gate is narrowed to the denied variant — toFixed works on toolPriceUsd.
+        const cost = gate.toolPriceUsd;
+        send(this.error(id ?? null, -402, 'Payment Required', {
+          ...this.quota.getStatus(identity),
+          tool: toolName,
+          toolPriceUsd: cost,
+          reason: 'free_quota_exceeded',
+          message: `Free 1000-call monthly quota exceeded. Tool "${toolName}" requires x402 payment ($${cost.toFixed(3)} USDC).`,
+        }));
+        return;
+      }
+    }
+
+    // ── x402 payment check (gated by X402_ENABLED) ─────────────────
     const paymentCheck = validatePayment(toolName, resolvedProof);
     if (!paymentCheck.allowed) {
       send(this.error(id ?? null, -402, 'Payment Required', {
@@ -276,10 +317,16 @@ export class McpServer {
       return;
     }
 
-    // Run handler with timeout; catch sync and async errors
+    // Run handler with timeout; catch sync and async errors.
+    // The handler runs inside an AsyncLocalStorage.run() context so that
+    // system_health (and any future tool that reads getCurrentIdentity())
+    // sees the correct per-request identity even when two SSE clients post
+    // tools/call concurrently and their handlers interleave on `await`.
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const resultPromise = tool.handler(args);
+      const resultPromise = identity
+        ? runWithIdentity(identity, () => tool.handler(args))
+        : tool.handler(args);
       const timeoutPromise = new Promise<never>((_, reject) => {
         timer = setTimeout(() => {
           const msg = `Tool "${toolName}" timed out after ${this.handlerTimeoutMs}ms`;
@@ -290,6 +337,14 @@ export class McpServer {
       const rawResult: ToolResponse = await Promise.race([resultPromise, timeoutPromise]);
       clearTimeout(timer);
       const result: ToolResponse = sanitizeOutput(rawResult);
+
+      // Quota accounting happens on successful calls only — errors and
+      // timeouts do not consume the user's monthly budget. Underspending is
+      // a feature; we don't want charger anxiety from retries.
+      if (this.quota && identity && !result.isError) {
+        this.quota.recordCall(identity);
+      }
+
       send(this.result(id ?? null, {
         content: [
           {
