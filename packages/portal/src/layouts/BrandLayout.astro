@@ -1,0 +1,49 @@
+---
+import "@/styles/globals.css";
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "MapleSpike — Open source. Self-sovereign. For Canada's public record.",
+  description = "MapleSpike: open-source self-sovereign infrastructure for Canada's public record. 208 modules · 165 MCP tools. Forkable. Reproducible end to end. Sub-product: Quill.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0e17" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="font-sans min-h-screen bg-background text-foreground antialiased selection:bg-maple/30">
+    <slot />
+    <script is:inline>
+      // 2026-07-06: preserve prior BaseLayout i18n redirect behaviour —
+      // pushes bare `/` to `/en` (or `/fr` per stored / navigator lang).
+      // Landing.tsx paths don't use locale prefixes so this is safe.
+      (function () {
+        var path = window.location.pathname;
+        if (!path.startsWith('/en/') && !path.startsWith('/fr/') && path !== '/en' && path !== '/fr') {
+          var stored = localStorage.getItem('maplespike_lang') || navigator.language || 'en';
+          var lang = stored.startsWith('fr') ? 'fr' : 'en';
+          var clean = path.replace(/\/$/, '') || '';
+          window.location.href = '/' + lang + (clean || '');
+        }
+      })();
+    </script>
+  </body>
+</html>
