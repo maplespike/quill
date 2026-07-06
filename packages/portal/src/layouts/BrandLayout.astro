@@ -4,16 +4,18 @@ import "@/styles/globals.css";
 export interface Props {
   title?: string;
   description?: string;
+  lang?: string;
 }
 
 const {
   title = "MapleSpike — Open source. Self-sovereign. For Canada's public record.",
   description = "MapleSpike: open-source self-sovereign infrastructure for Canada's public record. 208 modules · 165 MCP tools. Forkable. Reproducible end to end. Sub-product: Quill.",
+  lang = "en",
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang={lang} class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -31,19 +33,13 @@ const {
   </head>
   <body class="font-sans min-h-screen bg-background text-foreground antialiased selection:bg-maple/30">
     <slot />
-    <script is:inline>
-      // 2026-07-06: preserve prior BaseLayout i18n redirect behaviour —
-      // pushes bare `/` to `/en` (or `/fr` per stored / navigator lang).
-      // Landing.tsx paths don't use locale prefixes so this is safe.
-      (function () {
-        var path = window.location.pathname;
-        if (!path.startsWith('/en/') && !path.startsWith('/fr/') && path !== '/en' && path !== '/fr') {
-          var stored = localStorage.getItem('maplespike_lang') || navigator.language || 'en';
-          var lang = stored.startsWith('fr') ? 'fr' : 'en';
-          var clean = path.replace(/\/$/, '') || '';
-          window.location.href = '/' + lang + (clean || '');
-        }
-      })();
-    </script>
+    {/*
+      2026-07-06: removed client-side i18n redirect script. It mapped
+      bare `/` → /en|/fr, but ALSO hijacked inner paths (e.g. /pricing
+      → /en/pricing → 404) because the eligibility check was
+      over-broad. Language switching should be handled explicitly via
+      UI links pointing to /[locale]. The dynamic [locale].astro route
+      serves /en and /fr with the same brand-shell.
+    */}
   </body>
 </html>
