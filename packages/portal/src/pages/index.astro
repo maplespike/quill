@@ -12,11 +12,9 @@
  */
 import BrandLayout from "@/layouts/BrandLayout.astro";
 import Island from "@/islands/Island.tsx";
+import { LANDING_TITLE, LANDING_DESCRIPTION } from "@/lib/landing-meta";
 ---
 
-<BrandLayout
-  title="Quill · Canada's open data, on tap for any AI"
-  description="Quill — MapleSpike's MCP server + REST API for Canada's public record. 165 live tools, every record cited and verifiable. Open source under MIT. Free while in beta."
->
+<BrandLayout title={LANDING_TITLE} description={LANDING_DESCRIPTION}>
   <Island client:only="react" />
 </BrandLayout>
