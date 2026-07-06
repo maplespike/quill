@@ -386,6 +386,76 @@ body {
   }
 }
 
+/* ── 2026-07-06: brand landing tokens (Landing.tsx ships from /islands) ────────
+   Maplespike-brand live at maplespike.ca uses these tokens. Landing.tsx is
+   the source-of-truth canonical Landing for the MapleSpike brand experience;
+   the Tailwind v4 `@theme` declarations below add ONLY brand-unique accents.
+   Tokens that overlap with the shadcn-style `--color-background`,
+   `--color-foreground`, `--color-primary`, etc. above are intentionally NOT
+   re-declared here — the existing `@theme inline { --color-X: hsl(var(--X)) }`
+   block already provides them and must remain authoritative for existing
+   portal pages (pricing, agents, dashboard, etc.) so the dark/light toggle
+   keeps working. Landing.tsx uses ONLY brand-unique tokens (`text-maple`,
+   `bg-[var(--maple)]`, etc.) so introducing these additions carries zero
+   collision risk for the existing pages. */
+@theme {
+  --color-maple: #e84545;
+  --color-moss: #22c55e;
+  --color-mosiac: #fbbf24;
+  --color-parliament: #06b6d4;
+  --color-parliament-foreground: #ffffff;
+  --color-social: #a855f7;
+  --color-flame: #f97316;
+  --color-ink: #334155;
+  --color-parchment: #f8fafc;
+  --color-parchment-foreground: #0a0e17;
+}
+
+:root {
+  /* Landing.tsx uses BOTH Tailwind utilities (text-maple from @theme) and
+     arbitrary-value utilities (bg-[var(--maple)]). The :root vars below
+     resolve the second pattern; sync with --color-maple etc. above. */
+  --maple: #e84545;
+  --moss: #22c55e;
+  --parliament: #06b6d4;
+  --flame: #f97316;
+  --ink: #334155;
+  --parchment: #f8fafc;
+  --parchment-foreground: #0a0e17;
+  --hero-min-height: 100vh;
+}
+
+@layer base {
+  html, body {
+    background-image:
+      radial-gradient(ellipse 60% 50% at 50% -10%, rgba(232, 69, 69, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 30%, rgba(56, 189, 248, 0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 70%, rgba(168, 85, 247, 0.10) 0%, transparent 60%);
+  }
+}
+
+@layer utilities {
+  .hairline {
+    @apply border-border;
+  }
+  .font-mono-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .label-cap {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .tape-moss {
+    background: rgb(34 197 94 / 0.10);
+  }
+  .glass {
+    @apply bg-card/60 backdrop-blur-sm border border-border;
+  }
+}
+
 /* ── Scroll-Shrink Header (shared nav-scroll.js utility, DRY with static landing) ── */
 /* Wrapped in @layer utilities so Tailwind v4 cascade doesn't override these rules */
 @layer utilities {

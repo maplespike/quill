@@ -10,7 +10,7 @@
   const TOKEN_KEY = "maplespike_token";
   const USER_KEY = "maplespike_userId";
   const METHOD_KEY = "maplespike_method";
-  const API_KEY = "maplespike-api-key";
+  const API_KEY = "quill-api-key";
   const OIDC_KEY = "maplespike_oidc_token";
 
   function getAuth() {
