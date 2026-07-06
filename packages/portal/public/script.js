@@ -593,7 +593,7 @@
   console.log('%c  ⡇ Canadian public data infrastructure ⡇  ', 'color:#D4A017;font-size:10px;');
   console.log('%c  ⢸⠉⠉⠉⠉⠉⠉⠉⠉⠉⡇  ', 'color:#C23030;font-size:10px;');
   console.log('%c  Open source · Self-hosted · AGPL-3.0', 'color:#0891B2;font-size:11px;');
-  console.log('%c  https://github.com/reverb256/maplespike', 'color:#6B7280;font-size:11px;');
+  console.log('%c  https://github.com/reverb256/quill', 'color:#6B7280;font-size:11px;');
 
   // ── SDK Tabstrip: multi-language code tabs ──────────────────
   function setupSdkTabs() {

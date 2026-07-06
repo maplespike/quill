@@ -12,9 +12,12 @@ export interface Props {
   lang?: "en" | "fr";
 }
 
+// 2026-07-06: harmonization baseline — default description now matches the
+// Landing.tsx brand voice. Pages that pass `:title=...` but rely on the
+// default `description` get a brand-aligned meta description automatically.
 const {
   title,
-  description = "Give your AI chatbot superpowers with Canadian government data — committees, lobbying, court cases, regulations, and more. 174 MCP tools, free tier available.",
+  description = "MapleSpike: open-source self-sovereign infrastructure for Canada's public record. 208 modules · 165 MCP tools. Forkable. Reproducible end to end.",
   ogImage = '/og-image.svg',
   lang = "en",
 } = Astro.props;
@@ -86,7 +89,7 @@ const isActive = (match: string) =>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <script is:inline>
@@ -108,7 +111,13 @@ const isActive = (match: string) =>
       })();
     </script>
   </head>
-  <body class="min-h-screen bg-background text-foreground font-sans antialiased">
+  <!-- Phase-1 Brand Harmonization Baseline (2026-07-06):
+       22 existing portal pages still use this layout. The 5 chrome-level
+       changes below (font weight range, default meta description, body
+       selection-accent, active-nav maple accent, footer brand-rule) bring
+       the legacy BaseLayout into the same visual language as the new
+       BrandLayout+Island landing without touching page-level content. -->
+  <body class="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-maple/30">
 
     <!-- Navigation -->
     <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 transition-all duration-300 ease-out">
@@ -134,7 +143,7 @@ const isActive = (match: string) =>
                   class:list={[
                     "relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200",
                     isActive(link.match)
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                      ? "bg-[var(--maple)] text-white shadow-sm shadow-maple/20"
                       : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
                   ]}
                 >
@@ -334,6 +343,13 @@ const isActive = (match: string) =>
           </div>
         </div>
         <div class="mt-8 border-t border-border/40 pt-8 text-center text-sm text-muted-foreground">
+          {/* 4-bar brand rule — matches Landing.tsx SiteFooter */}
+          <div class="flex h-[2px] w-44 gap-1 mb-6 mx-auto" aria-hidden="true">
+            <span class="flex-1 rounded-sm bg-[var(--maple)]"></span>
+            <span class="flex-1 rounded-sm bg-[var(--parliament)]"></span>
+            <span class="flex-1 rounded-sm bg-[var(--moss)]"></span>
+            <span class="flex-1 rounded-sm bg-[var(--flame)]"></span>
+          </div>
           <p>&copy; {new Date().getFullYear()} MapleSpike. {lang === 'fr' ? 'Tous droits réservés.' : 'All rights reserved.'}</p>
           <p class="mt-1">{lang === 'fr'
             ? 'Contient de l\'information sous licence de la Licence du gouvernement ouvert – Canada.'

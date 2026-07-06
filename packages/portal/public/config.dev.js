@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────
 window.MAPLESPIKE = window.MAPLESPIKE || {};
 
-// ── API (dev: via dev-maplespike-api.lan with dev key) ──────────
+// ── API (dev: via dev-quill-api.lan with dev key) ──────────
 MAPLESPIKE.apiBase   = 'https://api.maplespike.lan';
 MAPLESPIKE.apiKey    = '';  // User enters their own key via workspace
 
