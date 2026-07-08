@@ -33,6 +33,12 @@ data:
         service: {{ .service | quote }}
       {{- end }}
       - service: http_status:404
+# NOTE: Ingress service names in .Values.cloudflared.ingress must match
+# the actual K8s Service names. Services are named via
+# {{ include "maplespike.fullname" . }}-<component>, so the Helm release
+# name MUST be "maplespike" for the default ingress rules to work.
+# If using a different release name, override cloudflared.ingress in your
+# values file with the correct service names.
 ---
 apiVersion: apps/v1
 kind: Deployment

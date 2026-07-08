@@ -1,0 +1,30 @@
+# CoreDNS High Availability — Standalone Manifest
+#
+# Scales CoreDNS to 2 replicas with pod anti-affinity so one CoreDNS pod
+# runs on each node. Fixes cross-node DNS resolution failures in K3s
+# multi-node clusters where pods on one node can't reach CoreDNS on another.
+#
+# This is intentionally OUTSIDE the Helm chart so that `helm uninstall`
+# does NOT delete CoreDNS from kube-system (which would break the entire
+# cluster's DNS).
+#
+# Apply: kubectl apply -f manifests/coredns-ha.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  replicas: 2
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: k8s-app
+                operator: In
+                values:
+                - kube-dns
+            topologyKey: kubernetes.io/hostname
