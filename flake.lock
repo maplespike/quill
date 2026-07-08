@@ -43,22 +43,6 @@
         "type": "github"
       }
     },
-    "easykubenix": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1771374020,
-        "narHash": "sha256-JTweNo2EimlhVUQcXUJD/2g+ZTumPcAbIp4EKuSERq0=",
-        "owner": "lillecarl",
-        "repo": "easykubenix",
-        "rev": "88a025fc04889f25b702f79030c6220c3ec48f9b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "lillecarl",
-        "repo": "easykubenix",
-        "type": "github"
-      }
-    },
     "flake-utils": {
       "inputs": {
         "systems": "systems_2"
@@ -133,7 +117,6 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
-        "easykubenix": "easykubenix",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs_2"
       }

@@ -33,7 +33,7 @@ k8s/
 ├── cron.nix          # 24 CronJobs (23 pipeline + searxng-health)
 ├── default.nix       # Module import list
 ├── dev.nix           # maplespike-dev namespace, deployments, services, configmaps
-├── prod.nix          # maplespike-prod namespace, statefulset, deployments, services, ingresses
+├── prod.nix          # quill-prod namespace, statefulset, deployments, services, ingresses
 ├── infra.nix         # Observability (Prometheus, Alertmanager, Loki, Promtail, Pushgateway)
 ├── grafana-dashboard.json
 └── prod/

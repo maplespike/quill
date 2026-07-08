@@ -1,5 +1,5 @@
 /**
- * MapleSpike — e-Transfer Billing Route (DEPRECATED — Decision 0002)
+ * Quill — e-Transfer Billing Route (DEPRECATED — Decision 0002)
  *
  * The IMAP-based reconciliation flow was retired because IMAP polling pulls
  * full email bodies into Maplespike memory — a direct PII retention violation.

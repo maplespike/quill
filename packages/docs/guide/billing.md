@@ -116,5 +116,5 @@ See ROADMAP.md Phase 6 for current billing development status. Basic authenticat
 
 For local development, use the dev key:
 ```
-MAPLESPIKE_API_KEY=maplespike-dev-key
+QUILL_API_KEY=maplespike-dev-key
 ```

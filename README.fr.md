@@ -9,6 +9,8 @@ status: active
 
 **Statut :** Développement actif · **Licence :** AGPL-3.0/MIT · **Stack :** TypeScript + Python + NixOS/K3s
 
+> **Note (2026-07) :** Ce dépôt a été renommé de `reverb256/maplespike` → `reverb256/quill`. Les identifiants au niveau produit (images conteneurs, ressources K8s, sorties Nix) sont désormais `quill-*`. Les identifiants au niveau marque — domaine `maplespike.ca`, DNS `*.maplespike.lan`, espace de noms K8s `maplespike` — sont préservés.
+>
 > [Version anglaise](README.md) · English version available
 > **Métriques actuelles:** Voir [docs/metrics.json](docs/metrics.json) pour les nombres de modules, outils MCP et lignes de code.
 
@@ -27,15 +29,15 @@ Chaque enregistrement comprend des hachages de citation SHA-256, une provenance 
 ## Structure du dépôt
 
 ```
-maplespike/
+quill/
 ├── packages/
 │   ├── pipeline-core/    # Ingestion, vérification, audit (bibliothèque partagée)
 │   ├── engine/           # Résolution d'entités, construction de graphes, signaux, briefs
 │   ├── pretext-civic/    # Bibliothèque de composants React (graphiques, géo) — orphelin
 │   ├── portal/           # Portail développeur et page d'accueil (HTML statique)
 │   ├── api-server/       # Passerelle API REST (auth, limites de débit, usage)
-│   ├── quill-mcp/       # Serveur de protocole MCP (✅ 22 outils réels)
-│   ├── sdk/              # Client TypeScript
+│   ├── quill-mcp/        # Serveur de protocole MCP (✅ 164 outils)
+│   ├── sdk/              # Client TypeScript (@maplespike/sdk)
 │   ├── sdk-python/       # Client Python
 │   ├── legal-core/       # SDK de données juridiques
 │   └── legislation/      # Analyseur XML de lois

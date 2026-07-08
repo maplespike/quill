@@ -47,10 +47,10 @@
   "homepage": "https://maplespike.ca",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reverb256/maplespike.git",
+    "url": "https://github.com/reverb256/quill.git",
     "directory": "packages/sdk"
   },
-  "bugs": "https://github.com/reverb256/maplespike/issues",
+  "bugs": "https://github.com/reverb256/quill/issues",
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsup": "^8.5.1",

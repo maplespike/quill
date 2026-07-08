@@ -10,30 +10,30 @@
 # helm-based install; this manifest is for manual `kubectl apply`
 # deployments that don't go through Helm.
 #
-# Image: ghcr.io/reverb256/maplespike/portal:dev — built via:
-#   docker build --target portal -t maplespike-portal:dev .
+# Image: ghcr.io/reverb256/quill/portal:dev — built via:
+#   docker build --target portal -t quill-portal:dev .
 # =============================================================================
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maplespike-portal
+  name: quill-portal
   namespace: maplespike
   labels:
-    app: maplespike-portal
+    app: quill-portal
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: maplespike-portal
+      app: quill-portal
   template:
     metadata:
       labels:
-        app: maplespike-portal
+        app: quill-portal
     spec:
       containers:
         - name: portal
-          image: ghcr.io/reverb256/maplespike/portal:dev
+          image: ghcr.io/reverb256/quill/portal:dev
           imagePullPolicy: Always
           ports:
             - name: http
@@ -69,14 +69,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-portal
+  name: quill-portal
   namespace: maplespike
   labels:
-    app: maplespike-portal
+    app: quill-portal
 spec:
   type: ClusterIP
   selector:
-    app: maplespike-portal
+    app: quill-portal
   ports:
     - name: http
       port: 8080

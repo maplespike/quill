@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Astral Key Proxy
+ * Quill — Astral Key Proxy
  *
  * Proxies authentication requests to the Astral Key microservice.
  * Allows the browser to use passkey/Web3 auth without needing a separate domain.

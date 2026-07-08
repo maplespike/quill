@@ -1,5 +1,5 @@
 /**
- * MapleSpike — AI Routes
+ * Quill — AI Routes
  *
  * Proxies to the cluster's AI Inference Gateway for chat completion,
  * analysis, and semantic search. Uses Qdrant vector DB for RAG context
@@ -18,32 +18,32 @@ import { resolveAIConfig } from './ai-settings.js';
 import { canAccess } from '../feature-gates.js';
 
 // ── AI Gateway ──────────────────────────────────────────────────────
-// Order: MAPLESPIKE_AI_ENDPOINT > MAPLESPIKE_GATEWAY_URL > AI_ENDPOINT > default
-const GATEWAY_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT
-  || process.env.MAPLESPIKE_GATEWAY_URL
+// Order: QUILL_AI_ENDPOINT > QUILL_GATEWAY_URL > AI_ENDPOINT > default
+const GATEWAY_ENDPOINT = process.env.QUILL_AI_ENDPOINT
+  || process.env.QUILL_GATEWAY_URL
   || process.env.AI_ENDPOINT
   || 'http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1';
-const GATEWAY_API_KEY = process.env.MAPLESPIKE_GATEWAY_API_KEY || '';
-// Model: check MAPLESPIKE_AI_MODEL > MAPLESPIKE_CHAT_MODEL > AI_MODEL > default
-const CHAT_MODEL = process.env.MAPLESPIKE_AI_MODEL
-  || process.env.MAPLESPIKE_CHAT_MODEL
+const GATEWAY_API_KEY = process.env.QUILL_GATEWAY_API_KEY || '';
+// Model: check QUILL_AI_MODEL > QUILL_CHAT_MODEL > AI_MODEL > default
+const CHAT_MODEL = process.env.QUILL_AI_MODEL
+  || process.env.QUILL_CHAT_MODEL
   || process.env.AI_MODEL
   || 'qwen3.5-4b-local';
-const LOCAL_MODEL = process.env.MAPLESPIKE_LOCAL_MODEL || 'Qwen3.5-4B-Q4_K_M.gguf';
+const LOCAL_MODEL = process.env.QUILL_LOCAL_MODEL || 'Qwen3.5-4B-Q4_K_M.gguf';
 // Embedding model
-const EMBED_MODEL = process.env.MAPLESPIKE_EMBED_MODEL
+const EMBED_MODEL = process.env.QUILL_EMBED_MODEL
   || 'nvidia/llama-3.2-nv-embedqa-1b-v2';
 
 // ── Qdrant Vector DB ───────────────────────────────────────────────
-// Override via MAPLESPIKE_QDRANT_ENDPOINT; default matches cluster DNS
-const QDRANT_ENDPOINT = process.env.MAPLESPIKE_QDRANT_ENDPOINT
+// Override via QUILL_QDRANT_ENDPOINT; default matches cluster DNS
+const QDRANT_ENDPOINT = process.env.QUILL_QDRANT_ENDPOINT
   || 'http://qdrant.ai-inference.svc.cluster.local:6333';
-const QDRANT_COLLECTION = process.env.MAPLESPIKE_QDRANT_COLLECTION
+const QDRANT_COLLECTION = process.env.QUILL_QDRANT_COLLECTION
   || 'brain_wiki';
 
 // ── Gov/Keyword Search Fallback ────────────────────────────────────
-const GOV_SEARCH_ENDPOINT = process.env.MAPLESPIKE_API_URL
-  ? `${process.env.MAPLESPIKE_API_URL.replace(/\/+$/, '')}/v1/gov/search`
+const GOV_SEARCH_ENDPOINT = process.env.QUILL_API_URL
+  ? `${process.env.QUILL_API_URL.replace(/\/+$/, '')}/v1/gov/search`
   : 'http://localhost:8082/v1/gov/search';
 
 
@@ -64,8 +64,8 @@ async function gatewayChat(
 
     if (isLocalModel) {
       // Local llama.cpp models: use completions endpoint with Qwen chat format
-      const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://localhost:8001/v1';
-      const localModel = process.env.MAPLESPIKE_LOCAL_MODEL || requestedModel;
+      const localUrl = process.env.QUILL_LOCAL_ENDPOINT || 'http://localhost:8001/v1';
+      const localModel = process.env.QUILL_LOCAL_MODEL || requestedModel;
 
       // Build Qwen-style chat prompt with actual newlines
       const prompt = messages.map(m => {
@@ -125,7 +125,7 @@ async function gatewayChat(
 async function embedQuery(text: string): Promise<number[] | null> {
   // Try local llama.cpp embeddings endpoint first (fast, on sentry)
   try {
-    const localUrl = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://localhost:8001/v1';
+    const localUrl = process.env.QUILL_LOCAL_ENDPOINT || 'http://localhost:8001/v1';
     const resp = await fetch(`${localUrl}/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

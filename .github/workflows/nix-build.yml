@@ -55,12 +55,12 @@ jobs:
           # `flake show --json` keys systems with a DASH (e.g. `x86_64-linux`),
           # not an underscore. The previous `.packages.x86_64_linux` selector
           # silently evaluated to `null`, producing an empty targets file and
-          # failing the loop with `missing target: maplespike-api-image`.
+          # failing the loop with `missing target: quill-api-image`.
           # Use bracket syntax for the dash-delimited key.
           nix --extra-experimental-features 'nix-command flakes' \
               flake show --json | jq -r '.packages["x86_64-linux"] // {} | keys[]' | tee /tmp/targets.txt
           # All three runtime targets must be declared
-          for t in maplespike-api-image maplespike-quill-image maplespike-portal-image; do
+          for t in quill-api-image quill-mcp-image quill-portal-image; do
             grep -q "$t" /tmp/targets.txt || { echo "missing target: $t"; exit 1; }
           done
           echo "✓ all expected image targets declared"
@@ -74,9 +74,9 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - maplespike-api-image
-          - maplespike-quill-image
-          - maplespike-portal-image
+          - quill-api-image
+          - quill-mcp-image
+          - quill-portal-image
 
     steps:
       - uses: actions/checkout@v4

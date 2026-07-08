@@ -33,7 +33,7 @@ Options:
   -h, --help                  Show this help message
 
 Examples:
-  $(basename "$0") --namespace maplespike-prod
+  $(basename "$0") --namespace quill-prod
   $(basename "$0") --namespace maplespike-dev --log /var/log/rollback.json
 
 NOTE: This script is ARCHIVED. K8s deployment does not exist.

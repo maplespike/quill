@@ -27,7 +27,7 @@ export CLOUDFLARE_API_TOKEN="your-new-account-level-token"
 curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/kv/namespaces" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"title":"maplespike-api-keys"}'
+  -d '{"title":"quill-api-keys"}'
 
 curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/kv/namespaces" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
@@ -43,7 +43,7 @@ curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/
 curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/d1/database" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name":"maplespike-audit"}'
+  -d '{"name":"quill-audit"}'
 
 # Create AI Gateway
 curl -X POST "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/ai-gateways" \
@@ -60,7 +60,7 @@ Replace `REPLACE_WITH_KV_ID` and `REPLACE_WITH_D1_ID` with the actual IDs from s
 
 ```bash
 # Run via D1 query API or wrangler
-npx wrangler d1 execute maplespike-audit --command "
+npx wrangler d1 execute quill-audit --command "
 CREATE TABLE IF NOT EXISTS ai_audit (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   timestamp TEXT NOT NULL DEFAULT (datetime('now')),
@@ -153,14 +153,14 @@ npx wrangler deploy --config wrangler.toml
 ### 8. Add Worker Route
 
 In Cloudflare dashboard → Workers → Routes:
-- `api.maplespike.ca/v1/ai/*` → `maplespike-ai`
+- `api.maplespike.ca/v1/ai/*` → `quill-ai`
 
 Or via API:
 ```bash
 curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/workers/routes" \
   -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"pattern":"api.maplespike.ca/v1/ai/*","script":"maplespike-ai"}'
+  -d '{"pattern":"api.maplespike.ca/v1/ai/*","script":"quill-ai"}'
 ```
 
 The tunnel will continue handling `api.maplespike.ca/v1/*` (non-AI routes).

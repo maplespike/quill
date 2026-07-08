@@ -15,8 +15,8 @@
 #   5. Apply: kubectl apply -f k8s/manual/05-cloudflared.yaml
 #
 # Tunnel routes (configured in Cloudflare dashboard):
-#   api.maplespike.ca  → http://maplespike-api:8082
-#   mcp.maplespike.ca  → http://maplespike-quill:3001
+#   api.maplespike.ca  → http://quill-api:8082
+#   mcp.maplespike.ca  → http://quill-mcp:3001
 # =============================================================================
 
 apiVersion: v1

@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Web3 Auth Routes
+ * Quill — Web3 Auth Routes
  *
  * POST /v1/auth/web3/challenge — Get a message to sign with your wallet
  * POST /v1/auth/web3/login — Verify signed message and receive JWT

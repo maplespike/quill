@@ -1,17 +1,17 @@
 /**
- * MapleSpike — Test Helpers
+ * Quill — Test Helpers
  *
  * Shared stubs for build-free tsx tests. Importing from this file keeps
  * test setup DRY across the OAuth/auth suite.
  */
 
-import type { RouteContext, MapleSpikeCache } from '../types.js';
+import type { RouteContext, QuillCache } from '../types.js';
 
 /**
- * In-memory implementation of MapleSpikeCache for tests.
+ * In-memory implementation of QuillCache for tests.
  * Mirrors MemoryCache semantics (TTL honoured on read, delete is sync).
  */
-export class InMemoryCache implements MapleSpikeCache {
+export class InMemoryCache implements QuillCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {
@@ -53,7 +53,7 @@ export class InMemoryCache implements MapleSpikeCache {
  * cache don't actually touch db. Callers that need a real db should
  * pass it via the second argument.
  */
-export function makeCtx(opts: { cache?: MapleSpikeCache; db?: unknown } = {}): RouteContext {
+export function makeCtx(opts: { cache?: QuillCache; db?: unknown } = {}): RouteContext {
   return {
     tenant: {
       id: 'anon',

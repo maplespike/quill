@@ -76,7 +76,7 @@ Test file: `packages/quill-mcp/src/sse-protocol.test.ts`
 server.handleMessage(parsed, client.locale, (response) => {
   // Responses with an id go to the specific client
   sendSse(client.res, 'message', response);
-}).catch((err: unknown) => console.error('[maplespike-quill] Error handling message:', err));
+}).catch((err: unknown) => console.error('[quill] Error handling message:', err));
 ```
 
 **File**: `packages/quill-mcp/src/index.ts`
@@ -155,11 +155,11 @@ Add logging to track tool execution:
 
 ```typescript
 // In index.ts handleToolCall before line 254:
-console.error(`[maplespike-quill] Calling tool: ${toolName}`);
-console.error(`[maplespike-quill] Arguments:`, args);
+console.error(`[quill] Calling tool: ${toolName}`);
+console.error(`[quill] Arguments:`, args);
 
 // After sendSse() at line 135:
-console.error(`[maplespike-quill] Sent SSE 'message' event for request ${id}`);
+console.error(`[quill] Sent SSE 'message' event for request ${id}`);
 ```
 
 ### 3. Add SSE Event Verification Tests
@@ -192,14 +192,14 @@ Tests:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: maplespike-quill-test
+  name: quill-mcp-test
   namespace: maplespike-dev
 spec:
   template:
     spec:
       containers:
       - name: tester
-        image: ghcr.io/reverb256/maplespike-quill:dev
+        image: ghcr.io/reverb256/quill-mcp:dev
         command: ["node", "--test", "packages/quill-mcp/src/sse-protocol.test.ts"]
         env:
         - name: PORT

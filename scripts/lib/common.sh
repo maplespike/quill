@@ -63,38 +63,38 @@ get_health_endpoints() {
   case "$runtime" in
     k8s)
       cat <<ENDPOINTS
-maplespike-api=http://maplespike-api.${NAMESPACE:-maplespike-dev}.svc.cluster.local/v1/health
-maplespike-quill=http://maplespike-quill.${NAMESPACE:-maplespike-dev}.svc.cluster.local/health
-maplespike-portal=http://maplespike-portal.${NAMESPACE:-maplespike-dev}.svc.cluster.local/
+quill-api=http://quill-api.${NAMESPACE:-maplespike-dev}.svc.cluster.local/v1/health
+quill-mcp=http://quill-mcp.${NAMESPACE:-maplespike-dev}.svc.cluster.local/health
+quill-portal=http://quill-portal.${NAMESPACE:-maplespike-dev}.svc.cluster.local/
 ENDPOINTS
       ;;
     cicd|nix)
       # CI/CD with Nix: can't reach cluster, but can reference generated ports
       cat <<ENDPOINTS
-maplespike-api=http://localhost:8082/v1/health
-maplespike-quill=http://localhost:3001/health
-maplespike-portal=http://localhost:4321/
+quill-api=http://localhost:8082/v1/health
+quill-mcp=http://localhost:3001/health
+quill-portal=http://localhost:4321/
 ENDPOINTS
       ;;
     podman)
       cat <<ENDPOINTS
-maplespike-api=http://localhost:8082/v1/health
-maplespike-quill=http://localhost:3001/health
-maplespike-portal=http://localhost:8080/
+quill-api=http://localhost:8082/v1/health
+quill-mcp=http://localhost:3001/health
+quill-portal=http://localhost:8080/
 ENDPOINTS
       ;;
     docker)
       cat <<ENDPOINTS
-maplespike-api=http://localhost:8082/v1/health
-maplespike-quill=http://localhost:3001/health
-maplespike-portal=http://localhost:8080/
+quill-api=http://localhost:8082/v1/health
+quill-mcp=http://localhost:3001/health
+quill-portal=http://localhost:8080/
 ENDPOINTS
       ;;
     dev|unknown)
       cat <<ENDPOINTS
-maplespike-api=http://localhost:8082/v1/health
-maplespike-quill=http://localhost:3001/health
-maplespike-portal=http://localhost:4321/
+quill-api=http://localhost:8082/v1/health
+quill-mcp=http://localhost:3001/health
+quill-portal=http://localhost:4321/
 ENDPOINTS
       ;;
   esac

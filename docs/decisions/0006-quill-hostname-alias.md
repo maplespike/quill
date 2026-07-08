@@ -32,7 +32,7 @@ Two layers of redirect, by design — defense in depth:
 
 1. **DNS-layer (CNAME):** `mcp.maplespike.ca` already resolves into the same Cloudflare zone as `quill.maplespike.ca`; same Tunnel UUID. Reuse the existing route.
 2. **Tunnel-layer (cloudflared ingress):** rewrite `mcp.maplespike.{ca,lan}` to `quill.maplespike.{ca,lan}` with a 301. Cloudflare Tunnel v2 supports per-hostname rewrites.
-3. **Edge-Worker fallback (optional):** for `data.maplespike.ca` which previously routed to the portal surface (`maplespike-portal:8080`), keep a Cloudflare Worker that 301s to `quill.maplespike.ca` — the Worker is the only layer that knows the cross-Service history. (See `maplespike-brand/public/_redirects` for the brand SPA's local comment block.)
+3. **Edge-Worker fallback (optional):** for `data.maplespike.ca` which previously routed to the portal surface (`quill-portal:8080`), keep a Cloudflare Worker that 301s to `quill.maplespike.ca` — the Worker is the only layer that knows the cross-Service history. (See `maplespike-brand/public/_redirects` for the brand SPA's local comment block.)
 4. **LAN-side (k3s Traefik):** wildcard `*.maplespike.lan` Ingress handles both `mcp` (legacy) and `quill` (canonical) hostnames; the legacy one uses `permanent-redirect` annotation.
 
 ## Drop-in configurations
@@ -86,13 +86,13 @@ ingress:
   - hostname: quill.maplespike.ca
     service: http_status:301
     originRequest:
-      httpHostHeader: maplespike-quill.maplespike.svc.cluster.local
+      httpHostHeader: quill-mcp.maplespike.svc.cluster.local
     # Tags the request so the cluster-side Ingress (Traefik)
     # recognizes the rewritten Host header.
   - hostname: quill.maplespike.lan
     service: http_status:301
     originRequest:
-      httpHostHeader: maplespike-quill.maplespike.svc.cluster.local
+      httpHostHeader: quill-mcp.maplespike.svc.cluster.local
 
   # --- Legacy aliases: 301 → canonical ----------------------
   - hostname: mcp.maplespike.ca
@@ -162,7 +162,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-quill
+                name: quill-mcp
                 port:
                   number: 3001
   tls:
@@ -190,7 +190,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-quill
+                name: quill-mcp
                 port:
                   number: 3001
   tls:

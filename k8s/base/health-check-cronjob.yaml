@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: maplespike-health-check
+  name: quill-health-check
   namespace: maplespike
 spec:
   schedule: "*/10 * * * *"
@@ -16,7 +16,7 @@ spec:
       ttlSecondsAfterFinished: 3600
       template:
         spec:
-          serviceAccountName: maplespike-health-check
+          serviceAccountName: quill-health-check
           restartPolicy: OnFailure
           containers:
           - name: health-check
@@ -56,7 +56,7 @@ spec:
               }
               check_logs() {
                 echo "  Checking logs (24h)..."
-                API_ERRORS=$(kubectl logs -n "$NAMESPACE" -l app=maplespike-api --since=24h 2>/dev/null | grep -iE "error|fail" | tail -2 || true)
+                API_ERRORS=$(kubectl logs -n "$NAMESPACE" -l app=quill-api --since=24h 2>/dev/null | grep -iE "error|fail" | tail -2 || true)
                 [ -n "$API_ERRORS" ] && warning "API errors: $API_ERRORS"
               }
               check_ai() {
@@ -125,13 +125,13 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: maplespike-health-check
+  name: quill-health-check
   namespace: maplespike
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: maplespike-health-check
+  name: quill-health-check
   namespace: maplespike
 rules:
 - apiGroups: [""]
@@ -141,13 +141,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: maplespike-health-check
+  name: quill-health-check
   namespace: maplespike
 subjects:
 - kind: ServiceAccount
-  name: maplespike-health-check
+  name: quill-health-check
   namespace: maplespike
 roleRef:
   kind: Role
-  name: maplespike-health-check
+  name: quill-health-check
   apiGroup: rbac.authorization.k8s.io

@@ -25,10 +25,10 @@ export interface GatewayConfig {
 }
 
 const DEFAULT_CONFIG: GatewayConfig = {
-  endpoint: process.env.MAPLESPIKE_GATEWAY_URL || 'http://nexus:30880/v1',
-  chatModel: process.env.MAPLESPIKE_CHAT_MODEL || 'qwen/qwen3-coder-30b-a3b-instruct',
-  embedModel: process.env.MAPLESPIKE_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2',
-  apiKey: process.env.MAPLESPIKE_GATEWAY_API_KEY || undefined,
+  endpoint: process.env.QUILL_GATEWAY_URL || 'http://nexus:30880/v1',
+  chatModel: process.env.QUILL_CHAT_MODEL || 'qwen/qwen3-coder-30b-a3b-instruct',
+  embedModel: process.env.QUILL_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2',
+  apiKey: process.env.QUILL_GATEWAY_API_KEY || undefined,
   maxRetries: 2,
   retryDelay: 1_000,
 };

@@ -16,7 +16,7 @@ import { httpGet } from '../../utils/http.js';
 
 const SEC_API_BASE = 'https://data.sec.gov';
 const SEC_TIMEOUT_MS = 15_000;
-const SEC_USER_AGENT = 'MapleSpike-SEC/1.0 (+https://github.com/reverb256/maplespike)';
+const SEC_USER_AGENT = 'MapleSpike-SEC/1.0 (+https://github.com/reverb256/quill)';
 
 interface SECCompanyInfo {
   cik: string;

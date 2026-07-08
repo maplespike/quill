@@ -17,7 +17,7 @@ framework.
 ```bash
 # 1. Extract real training data from the running API
 python scripts/extract_dataset.py \
-  --api http://maplespike-api:8082 \
+  --api http://quill-api:8082 \
   --sources committees,lobbying,budget,regulatory \
   --limit 500 \
   --output data/maplespike-training.jsonl
@@ -65,7 +65,7 @@ Three task types:
 | Procurement | `/v1/search/corporate?dataset=procurement` | QA pairs from contract data |
 | GIC/Regulatory | `/v1/search/corporate?dataset=gic` | Entity extraction from appointments |
 
-Run against the internal API (`maplespike-api:8082`) from within the cluster.
+Run against the internal API (`quill-api:8082`) from within the cluster.
 
 ## Fine-tuning (Optional — requires GPU)
 
@@ -124,6 +124,6 @@ training/
 
 ## References
 
-- Issue [#318](https://github.com/reverb256/maplespike/issues/318)
+- Issue [#318](https://github.com/reverb256/quill/issues/318)
 - AI Inference Gateway: internal cluster service
 - Unsloth: https://unsloth.ai

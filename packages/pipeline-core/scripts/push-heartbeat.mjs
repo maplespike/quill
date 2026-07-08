@@ -38,7 +38,7 @@ const metrics = [
   `pipeline_data_generated_at_seconds{pipeline="${pipeline}"} ${Math.floor(Date.now() / 1000)}`,
 ].join('\n');
 
-const url = `${PUSHGATEWAY}/metrics/job/maplespike-ingest/instance/${INSTANCE}/pipeline/${pipeline}`;
+const url = `${PUSHGATEWAY}/metrics/job/quill-ingest/instance/${INSTANCE}/pipeline/${pipeline}`;
 
 try {
   const resp = await fetch(url, {

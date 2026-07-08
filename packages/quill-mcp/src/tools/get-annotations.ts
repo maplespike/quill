@@ -7,7 +7,7 @@ export const definition: ToolDefinition = {
     'Retrieve annotations for a specific entity from the journalism annotation system. ' +
     'Returns all notes, flags, overrides, and context annotations for the given entity type and ID. ' +
     'Optionally filter by user ID to get annotations from a specific user. ' +
-    'When an API server is configured (MAPLESPIKE_API_URL), queries it for persistent storage; ' +
+    'When an API server is configured (QUILL_API_URL), queries it for persistent storage; ' +
     'otherwise uses an in-memory store (annotations created through the API server will not be visible).',
   inputSchema: {
     type: 'object',
@@ -83,7 +83,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     }
 
     // Try API server first
-    if (process.env.MAPLESPIKE_API_URL) {
+    if (process.env.QUILL_API_URL) {
       try {
         const params: Record<string, string | number> = { entity_type, entity_id };
         if (userId) params.userId = userId;

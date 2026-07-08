@@ -5,7 +5,7 @@
 # Depends on: curl, jq (both available in virtually any *nix env)
 set -euf
 
-MAPLESPIKE_API_BASE="${MAPLESPIKE_API_BASE:-https://api.maplespike.ca/v1}"
+QUILL_API_BASE="${QUILL_API_BASE:-https://api.maplespike.ca/v1}"
 MAPLESPIKE_API_KEY="${MAPLESPIKE_API_KEY:-}"
 
 usage() {
@@ -43,7 +43,7 @@ JSON_OUTPUT=0
 while [ $# -gt 0 ]; do
   case "$1" in
     -k|--api-key) MAPLESPIKE_API_KEY="$2"; shift 2 ;;
-    -b|--base-url) MAPLESPIKE_API_BASE="$2"; shift 2 ;;
+    -b|--base-url) QUILL_API_BASE="$2"; shift 2 ;;
     -j|--json) JSON_OUTPUT=1; shift ;;
     --help) usage ;;
     *) break ;;
@@ -57,7 +57,7 @@ done
 
 api_call() {
   local method="$1" path="$2" body="${3:-}"
-  local url="${MAPLESPIKE_API_BASE}${path}"
+  local url="${QUILL_API_BASE}${path}"
   local args=(-s -X "$method" -H "Authorization: Bearer ${MAPLESPIKE_API_KEY}" -H "Accept: application/json")
   [ -n "$body" ] && args+=(-H "Content-Type: application/json" -d "$body")
   curl "${args[@]}" "$url"
@@ -184,7 +184,7 @@ case "$CMD" in
           "Registered:  \(.data.tenant.name // "?")\n" +
           "Email:       \(.data.tenant.email // "?")\n" +
           "API Key:     \(.data.apiKey.key // "see response")\n" +
-          "Verify:      \(MAPLESPIKE_API_BASE)\(.data.verificationUrl // "")\n\n" +
+          "Verify:      \(QUILL_API_BASE)\(.data.verificationUrl // "")\n\n" +
           "Save your API key — it will not be shown again."
         else "Error: \(.error.message)" end'
     fi

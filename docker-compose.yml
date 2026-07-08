@@ -20,24 +20,24 @@ services:
       context: .
       dockerfile: Dockerfile
       target: api-server
-    image: maplespike-api:local
-    container_name: maplespike-api
+    image: quill-api:local
+    container_name: quill-api
     restart: unless-stopped
     ports:
       - "8082:8082"
     environment:
       NODE_ENV: production
       PORT: "8082"
-      MAPLESPIKE_STORAGE: sqlite
-      MAPLESPIKE_API_KEY: ${MAPLESPIKE_API_KEY}
+      QUILL_STORAGE: sqlite
+      QUILL_API_KEY: ${QUILL_API_KEY}
       JWT_SECRET: ${JWT_SECRET}
-      MAPLESPIKE_DB_PATH: /data/maplespike.db
-      MAPLESPIKE_LOG_LEVEL: ${MAPLESPIKE_LOG_LEVEL:-info}
+      QUILL_DB_PATH: /data/maplespike.db
+      QUILL_LOG_LEVEL: ${QUILL_LOG_LEVEL:-info}
       APP_URL: http://localhost:8082
       MAPLESPIKE_DOMAIN: ${MAPLESPIKE_DOMAIN:-localhost}
       MAPLESPIKE_ORIGIN: ${MAPLESPIKE_ORIGIN:-http://localhost:8082}
     volumes:
-      - maplespike-api-data:/data
+      - quill-api-data:/data
     networks:
       - maplespike
     healthcheck:
@@ -52,16 +52,16 @@ services:
       context: .
       dockerfile: Dockerfile
       target: quill-mcp
-    image: maplespike-quill:local
-    container_name: maplespike-quill
+    image: quill-mcp:local
+    container_name: quill-mcp
     restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
       NODE_ENV: production
       PORT: "3001"
-      MAPLESPIKE_API_URL: http://api:8082/v1
-      MAPLESPIKE_LOCALE: ${MAPLESPIKE_LOCALE:-en-CA}
+      QUILL_API_URL: http://api:8082/v1
+      QUILL_LOCALE: ${QUILL_LOCALE:-en-CA}
     depends_on:
       api:
         condition: service_healthy
@@ -79,8 +79,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: portal
-    image: maplespike-portal:local
-    container_name: maplespike-portal
+    image: quill-portal:local
+    container_name: quill-portal
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -106,5 +106,5 @@ networks:
     name: maplespike
 
 volumes:
-  maplespike-api-data:
-    name: maplespike-api-data
+  quill-api-data:
+    name: quill-api-data

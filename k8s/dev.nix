@@ -65,27 +65,27 @@ in {
     # ── BYOK: User-Provided API Keys ───────────────────────────
     # Users provide their own keys (CanLII, AI, etc.) - no hardcoded secrets
     # Secret must exist before deployment:
-    #   kubectl create secret generic maplespike-api-keys \
+    #   kubectl create secret generic quill-api-keys \
     #     --from-literal=MAPLESPIKE_CANLII_API_KEY=your_key_here \
-    #     --from-literal=MAPLESPIKE_AI_ENDPOINT=your_endpoint_here \
+    #     --from-literal=QUILL_AI_ENDPOINT=your_endpoint_here \
     #     --from-literal=MAPLESPIKE_AI_API_KEY=your_ai_key_here \
-    #     --from-literal=MAPLESPIKE_AI_MODEL=your_model_here \
+    #     --from-literal=QUILL_AI_MODEL=your_model_here \
     #     -n maplespike
-    maplespike.Secret.maplespike-api-keys = {
+    maplespike.Secret.quill-api-keys = {
       type = "Opaque";
       stringData = {
         # User must provide keys (can be empty string if not using feature)
         MAPLESPIKE_CANLII_API_KEY = "";
-        MAPLESPIKE_AI_ENDPOINT = "";
+        QUILL_AI_ENDPOINT = "";
         MAPLESPIKE_AI_API_KEY = "";
-        MAPLESPIKE_AI_MODEL = "";
+        QUILL_AI_MODEL = "";
       };
     };
 
     # ── Portal ConfigMap ────────────────────────────────────────
     maplespike.ConfigMap.portal-config = {
       metadata.labels = {
-        app = "maplespike-portal";
+        app = "quill-portal";
         component = "portal";
       };
   data = {
@@ -101,9 +101,9 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── API Deployment ──────────────────────────────────────────
-    maplespike.Deployment.maplespike-api = {
+    maplespike.Deployment.quill-api = {
       metadata.labels = {
-        app = "maplespike-api";
+        app = "quill-api";
         component = "api";
         tier = "backend";
       };
@@ -113,10 +113,10 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
           type = "RollingUpdate";
           rollingUpdate = { maxUnavailable = 0; maxSurge = 1; };
         };
-        selector.matchLabels.app = "maplespike-api";
+        selector.matchLabels.app = "quill-api";
         template = {
           metadata.labels = {
-            app = "maplespike-api";
+            app = "quill-api";
             component = "api";
             tier = "backend";
           };
@@ -129,38 +129,38 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
               api = {
                 name = "api";
                 securityContext = devSecurityContext;
-                image = "ghcr.io/reverb256/maplespike/maplespike-api:dev";
+                image = "ghcr.io/reverb256/quill/quill-api:dev";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 8082; }; };
                 env = {
                   _namedlist = true;
                   PORT = { name = "PORT"; value = "8082"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
-                  STORAGE = { name = "MAPLESPIKE_STORAGE"; value = "memory"; };
+                  STORAGE = { name = "QUILL_STORAGE"; value = "memory"; };
                   # BYOK: User-provided CanLII API Key (optional)
                   CANLII_API_KEY = {
                     name = "MAPLESPIKE_CANLII_API_KEY";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
+                      name = "quill-api-keys";
                       key = "MAPLESPIKE_CANLII_API_KEY";
                       optional = true;
                     };
                   };
                   # BYOK: User-provided AI config (optional, with fallbacks)
                   AI_ENDPOINT = {
-                    name = "MAPLESPIKE_AI_ENDPOINT";
+                    name = "QUILL_AI_ENDPOINT";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
-                      key = "MAPLESPIKE_AI_ENDPOINT";
+                      name = "quill-api-keys";
+                      key = "QUILL_AI_ENDPOINT";
                       optional = true;
                     };
                     default = "http://ai-inference-gateway.ai-inference:8080/v1";
                   };
                   AI_MODEL = {
-                    name = "MAPLESPIKE_AI_MODEL";
+                    name = "QUILL_AI_MODEL";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
-                      key = "MAPLESPIKE_AI_MODEL";
+                      name = "quill-api-keys";
+                      key = "QUILL_AI_MODEL";
                       optional = true;
                     };
                     default = "qwen3.5-27b";
@@ -168,7 +168,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   AI_API_KEY = {
                     name = "MAPLESPIKE_AI_API_KEY";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
+                      name = "quill-api-keys";
                       key = "MAPLESPIKE_AI_API_KEY";
                       optional = true;
                     };
@@ -176,15 +176,15 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   };
                   # Qdrant vector DB for semantic RAG
                   QDRANT_ENDPOINT = {
-                    name = "MAPLESPIKE_QDRANT_ENDPOINT";
+                    name = "QUILL_QDRANT_ENDPOINT";
                     value = "http://qdrant:6333";
                   };
                   QDRANT_COLLECTION = {
-                    name = "MAPLESPIKE_QDRANT_COLLECTION";
+                    name = "QUILL_QDRANT_COLLECTION";
                     value = "maplespike";
                   };
                   EMBED_MODEL = {
-                    name = "MAPLESPIKE_EMBED_MODEL";
+                    name = "QUILL_EMBED_MODEL";
                     value = "nvidia/llama-3.2-nv-embedqa-1b-v2";
                   };
                 };
@@ -210,15 +210,15 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── API Service ─────────────────────────────────────────────
-    maplespike.Service.maplespike-api = {
+    maplespike.Service.quill-api = {
       metadata.labels = {
-        app = "maplespike-api";
+        app = "quill-api";
         component = "api";
         tier = "backend";
       };
       spec = {
         type = "NodePort";
-        selector.app = "maplespike-api";
+        selector.app = "quill-api";
         ports = {
           _namedlist = true;
           http = { name = "http"; port = 8082; targetPort = 8082; nodePort = 31284; };
@@ -227,9 +227,9 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Deployment ──────────────────────────────────────────
-    maplespike.Deployment.maplespike-quill = {
+    maplespike.Deployment.quill-mcp = {
       metadata.labels = {
-        app = "maplespike-quill";
+        app = "quill-mcp";
         component = "mcp";
         tier = "backend";
       };
@@ -239,10 +239,10 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
           type = "RollingUpdate";
           rollingUpdate = { maxUnavailable = 0; maxSurge = 1; };
         };
-        selector.matchLabels.app = "maplespike-quill";
+        selector.matchLabels.app = "quill-mcp";
         template = {
           metadata.labels = {
-            app = "maplespike-quill";
+            app = "quill-mcp";
             component = "mcp";
             tier = "backend";
           };
@@ -255,29 +255,29 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
               mcp = {
                 name = "mcp";
                 securityContext = devSecurityContext;
-                image = "ghcr.io/reverb256/maplespike/maplespike-quill:dev";
+                image = "ghcr.io/reverb256/quill/quill-mcp:dev";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 3001; }; };
                 env = {
                   _namedlist = true;
                   PORT = { name = "PORT"; value = "3001"; };
                   NODE_ENV = { name = "NODE_ENV"; value = "development"; };
-                  API_URL = { name = "MAPLESPIKE_API_URL"; value = "http://maplespike-api.maplespike-dev.svc.cluster.local:8082/v1"; };
+                  API_URL = { name = "QUILL_API_URL"; value = "http://quill-api.maplespike-dev.svc.cluster.local:8082/v1"; };
                   # BYOK: User-provided AI config (optional, with fallbacks)
                   AI_ENDPOINT = {
-                    name = "MAPLESPIKE_AI_ENDPOINT";
+                    name = "QUILL_AI_ENDPOINT";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
-                      key = "MAPLESPIKE_AI_ENDPOINT";
+                      name = "quill-api-keys";
+                      key = "QUILL_AI_ENDPOINT";
                       optional = true;
                     };
                     default = "http://ai-inference-gateway.ai-inference:8080/v1";
                   };
                   AI_MODEL = {
-                    name = "MAPLESPIKE_AI_MODEL";
+                    name = "QUILL_AI_MODEL";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
-                      key = "MAPLESPIKE_AI_MODEL";
+                      name = "quill-api-keys";
+                      key = "QUILL_AI_MODEL";
                       optional = true;
                     };
                     default = "qwen3.5-27b";
@@ -285,7 +285,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
                   AI_API_KEY = {
                     name = "MAPLESPIKE_AI_API_KEY";
                     valueFrom.secretKeyRef = {
-                      name = "maplespike-api-keys";
+                      name = "quill-api-keys";
                       key = "MAPLESPIKE_AI_API_KEY";
                       optional = true;
                     };
@@ -314,15 +314,15 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── MCP Service ─────────────────────────────────────────────
-    maplespike.Service.maplespike-quill = {
+    maplespike.Service.quill-mcp = {
       metadata.labels = {
-        app = "maplespike-quill";
+        app = "quill-mcp";
         component = "mcp";
         tier = "backend";
       };
       spec = {
         type = "NodePort";
-        selector.app = "maplespike-quill";
+        selector.app = "quill-mcp";
         ports = {
           _namedlist = true;
           http = { name = "http"; port = 3001; targetPort = 3001; nodePort = 31746; };
@@ -331,9 +331,9 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Portal Deployment ───────────────────────────────────────
-    maplespike.Deployment.maplespike-portal = {
+    maplespike.Deployment.quill-portal = {
       metadata.labels = {
-        app = "maplespike-portal";
+        app = "quill-portal";
         component = "portal";
         tier = "frontend";
       };
@@ -343,10 +343,10 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
           type = "RollingUpdate";
           rollingUpdate = { maxUnavailable = 0; maxSurge = 1; };
         };
-        selector.matchLabels.app = "maplespike-portal";
+        selector.matchLabels.app = "quill-portal";
         template = {
           metadata.labels = {
-            app = "maplespike-portal";
+            app = "quill-portal";
             component = "portal";
             tier = "frontend";
           };
@@ -359,13 +359,13 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
               portal = {
                 name = "portal";
                 securityContext = devSecurityContext;
-                image = "ghcr.io/reverb256/maplespike/maplespike-portal:dev";
+                image = "ghcr.io/reverb256/quill/quill-portal:dev";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 8080; }; };
                 env = {
                   _namedlist = true;
                   PORT = { name = "PORT"; value = "8080"; };
-                  API_URL = { name = "API_URL"; value = "http://maplespike-api.maplespike-dev.svc.cluster.local:8082/v1"; };
+                  API_URL = { name = "API_URL"; value = "http://quill-api.maplespike-dev.svc.cluster.local:8082/v1"; };
                 };
                 volumeMounts = {
                   _namedlist = true;
@@ -410,15 +410,15 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
     };
 
     # ── Portal Service ──────────────────────────────────────────
-    maplespike.Service.maplespike-portal = {
+    maplespike.Service.quill-portal = {
       metadata.labels = {
-        app = "maplespike-portal";
+        app = "quill-portal";
         component = "portal";
         tier = "frontend";
       };
       spec = {
         type = "NodePort";
-        selector.app = "maplespike-portal";
+        selector.app = "quill-portal";
         ports = {
           _namedlist = true;
           http = { name = "http"; port = 8080; targetPort = 8080; nodePort = 30965; };
@@ -455,7 +455,7 @@ MAPLESPIKE.timeout = { health: 3000, quick: 5000, default: 8000 };
               dashboard = {
                 name = "dashboard";
                 securityContext = devSecurityContext;
-                image = "ghcr.io/reverb256/maplespike/maplespike-dashboard:dev";
+                image = "ghcr.io/reverb256/quill/maplespike-dashboard:dev";
                 imagePullPolicy = "Always";
                 ports = { _namedlist = true; http = { containerPort = 4322; }; };
                 env = {

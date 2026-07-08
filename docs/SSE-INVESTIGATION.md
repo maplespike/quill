@@ -150,8 +150,8 @@ Add logging and keepalive to verify server sends responses:
 
 ```typescript
 // In index.ts handleToolCall, before response:
-console.error(`[maplespike-quill] Calling tool: ${toolName}`);
-console.error(`[maplespike-quill] Arguments:`, args);
+console.error(`[quill] Calling tool: ${toolName}`);
+console.error(`[quill] Arguments:`, args);
 ```
 
 Then verify in logs that "Calling tool:" and "message received:" appear.

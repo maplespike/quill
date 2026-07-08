@@ -35,7 +35,7 @@
     pnpm = pkgs.pnpm.override { nodejs = nodejs; };
 
     # Source tree — clean out irrelevant files to avoid unnecessary rebuilds
-    maplespike-src = pkgs.lib.cleanSourceWith {
+    quill-src = pkgs.lib.cleanSourceWith {
       src = ./.;
       filter = path: type:
       let bn = baseNameOf path; in
@@ -47,9 +47,9 @@
 
     # ── Build all packages ──────────────────────────────────────────
     # pnpm install (network access) + pnpm build (tsc -b across workspaces)
-    maplespike-build = pkgs.stdenv.mkDerivation {
-      name = "maplespike-build";
-      src = maplespike-src;
+    quill-build = pkgs.stdenv.mkDerivation {
+      name = "quill-build";
+      src = quill-src;
       buildInputs = [ nodejs pnpm pkgs.python3 pkgs.gcc pkgs.cacert ];
       # Sandbox must be off for pnpm to reach npm registry
       __noChroot = true;
@@ -73,10 +73,10 @@
 
     # ── Portal source: lightweight static files (no Node build) ────
     portal-src = pkgs.stdenv.mkDerivation {
-      name = "maplespike-portal-src";
+      name = "quill-portal-src";
       src = builtins.path {
         path = ./packages/portal;
-        name = "maplespike-portal-files";
+        name = "quill-portal-files";
       };
       installPhase = ''
         mkdir -p $out/app
@@ -89,7 +89,7 @@
       inherit name;
       tag = "latest";
       created = "now";
-      contents = with pkgs; [ maplespike-build nodejs bash coreutils dumb-init ];
+      contents = with pkgs; [ quill-build nodejs bash coreutils dumb-init ];
       config = {
         Env = [
           "NODE_ENV=production"
@@ -101,7 +101,7 @@
         Labels = {
           "org.opencontainers.image.title" = "MapleSpike ${name}";
           "org.opencontainers.image.description" = "Canadian sovereign data pipeline — ${name} service";
-          "org.opencontainers.image.source" = "https://github.com/reverb256/maplespike";
+          "org.opencontainers.image.source" = "https://github.com/reverb256/quill";
           "org.opencontainers.image.version" = "${self.shortRev or "dirty"}";
         };
       };
@@ -109,39 +109,39 @@
 
   in {
     packages = rec {
-      default = self.packages.${system}.maplespike-quill-image;
+      default = self.packages.${system}.quill-mcp-image;
 
-      maplespike-quill-image = mkImage {
-        name = "maplespike-quill";
+      quill-mcp-image = mkImage {
+        name = "quill-mcp";
         cmd = [ "node" "packages/quill-mcp/dist/index.js" ];
         port = 3001;
         extraEnv = [];
       };
 
-      maplespike-api-image = mkImage {
-        name = "maplespike-api";
+      quill-api-image = mkImage {
+        name = "quill-api";
         cmd = [ "node" "packages/api-server/dist/dev-server.js" ];
         port = 8082;
-        extraEnv = [ "MAPLESPIKE_STORAGE=sqlite" ];
+        extraEnv = [ "QUILL_STORAGE=sqlite" ];
       };
 
-      maplespike-ingest-image = mkImage {
-        name = "maplespike-ingest";
+      quill-ingest-image = mkImage {
+        name = "quill-ingest";
         cmd = [ "node" "packages/pipeline-core/dist/cli/ingest.js" ];
         port = 0;
         extraEnv = [];
       };
 
-      maplespike-engine-image = mkImage {
-        name = "maplespike-engine";
+      quill-engine-image = mkImage {
+        name = "quill-engine";
         cmd = [ "node" "packages/engine/dist/sweep/run.js" ];
         port = 0;
         extraEnv = [];
       };
 
       # ── Portal image: lightweight Python-based static server ──────────
-      maplespike-portal-image = pkgs.dockerTools.buildLayeredImage {
-        name = "maplespike-portal";
+      quill-portal-image = pkgs.dockerTools.buildLayeredImage {
+        name = "quill-portal";
         tag = "latest";
         created = "now";
         contents = with pkgs; [ portal-src python3 bash coreutils ];
@@ -157,26 +157,26 @@
           Labels = {
             "org.opencontainers.image.title" = "MapleSpike Portal";
             "org.opencontainers.image.description" = "Canadian government data portal";
-            "org.opencontainers.image.source" = "https://github.com/reverb256/maplespike";
+            "org.opencontainers.image.source" = "https://github.com/reverb256/quill";
             "org.opencontainers.image.version" = "${self.shortRev or "dirty"}";
           };
         };
       };
 
-      maplespike-all = pkgs.symlinkJoin {
-        name = "maplespike-all-images";
+      quill-all = pkgs.symlinkJoin {
+        name = "quill-all-images";
         paths = [
-          self.packages.${system}.maplespike-quill-image
-          self.packages.${system}.maplespike-api-image
-          self.packages.${system}.maplespike-ingest-image
-          self.packages.${system}.maplespike-engine-image
-          self.packages.${system}.maplespike-portal-image
+          self.packages.${system}.quill-mcp-image
+          self.packages.${system}.quill-api-image
+          self.packages.${system}.quill-ingest-image
+          self.packages.${system}.quill-engine-image
+          self.packages.${system}.quill-portal-image
         ];
       };
 
-      maplespike-build-all = pkgs.writeShellScriptBin "maplespike-build-all" ''
+      quill-build-all = pkgs.writeShellScriptBin "quill-build-all" ''
         set -euo pipefail
-        for pkg in maplespike-quill maplespike-api maplespike-portal; do
+        for pkg in quill-mcp quill-api quill-portal; do
           echo "=== Building $pkg ==="
           nix build ".#$pkg-image" --print-out-paths -L
         done
@@ -191,13 +191,13 @@
       # files under k8s/cron.nix, dev.nix, prod.nix, infra.nix and are
       # consumed directly by kubectl — no Nix-built manifest needed.
 
-      maplespike-push-all = pkgs.writeShellScriptBin "maplespike-push-all" ''
+      quill-push-all = pkgs.writeShellScriptBin "quill-push-all" ''
         set -euo pipefail
         REGISTRY="ghcr.io/reverb256"
         TAG="''${TAG:-stable}"
         COMMIT="''${COMMIT:-$(git rev-parse --short HEAD)}"
 
-        for img in maplespike-quill maplespike-api maplespike-portal; do
+        for img in quill-mcp quill-api quill-portal; do
           echo "=== $img ==="
           path=$(nix build ".#$img-image" --print-out-paths --no-link -L)
           docker load < "$path"
@@ -213,69 +213,69 @@
       systemd-services = pkgs.symlinkJoin {
         name = "maplespike-systemd-services";
         paths = [
-          (pkgs.writeText "maplespike-quill.container" ''
+          (pkgs.writeText "quill-mcp.container" ''
 [Container]
-Image=ghcr.io/reverb256/maplespike/maplespike-quill:${self.shortRev or "stable"}
-ContainerName=maplespike-quill
+Image=ghcr.io/reverb256/quill/quill-mcp:${self.shortRev or "stable"}
+ContainerName=quill-mcp
 Environment=PORT=3001,NODE_ENV=production
 PodmanArgs=--network=host
 '')
-          (pkgs.writeText "maplespike-quill.service" ''
+          (pkgs.writeText "quill-mcp.service" ''
 [Unit]
 Description=MapleSpike Quill (data-layer MCP server)
 After=network-online.target
 Wants=network-online.target
-Requires=maplespike-quill.container
+Requires=quill-mcp.container
 
 [Service]
 Restart=on-failure
-ExecStart=/usr/bin/podman start maplespike-quill
-ExecStop=/usr/bin/podman stop -t 10 maplespike-quill
+ExecStart=/usr/bin/podman start quill-mcp
+ExecStop=/usr/bin/podman stop -t 10 quill-mcp
 
 [Install]
 WantedBy=default.target
 '')
-          (pkgs.writeText "maplespike-api.container" ''
+          (pkgs.writeText "quill-api.container" ''
 [Container]
-Image=ghcr.io/reverb256/maplespike/maplespike-api:${self.shortRev or "stable"}
-ContainerName=maplespike-api
-Environment=PORT=8082,NODE_ENV=production,MAPLESPIKE_STORAGE=sqlite
-Volumes=maplespike-api-data:/data
+Image=ghcr.io/reverb256/quill/quill-api:${self.shortRev or "stable"}
+ContainerName=quill-api
+Environment=PORT=8082,NODE_ENV=production,QUILL_STORAGE=sqlite
+Volumes=quill-api-data:/data
 PodmanArgs=--network=host
 '')
-          (pkgs.writeText "maplespike-api.service" ''
+          (pkgs.writeText "quill-api.service" ''
 [Unit]
 Description=Maplespike API Server
 After=network-online.target
 Wants=network-online.target
-Requires=maplespike-api.container
+Requires=quill-api.container
 
 [Service]
 Restart=on-failure
-ExecStart=/usr/bin/podman start maplespike-api
-ExecStop=/usr/bin/podman stop -t 10 maplespike-api
+ExecStart=/usr/bin/podman start quill-api
+ExecStop=/usr/bin/podman stop -t 10 quill-api
 
 [Install]
 WantedBy=default.target
 '')
-          (pkgs.writeText "maplespike-portal.container" ''
+          (pkgs.writeText "quill-portal.container" ''
 [Container]
-Image=ghcr.io/reverb256/maplespike/maplespike-portal:${self.shortRev or "stable"}
-ContainerName=maplespike-portal
+Image=ghcr.io/reverb256/quill/quill-portal:${self.shortRev or "stable"}
+ContainerName=quill-portal
 Environment=PORT=8080,HOME=/tmp
 PodmanArgs=--network=host
 '')
-          (pkgs.writeText "maplespike-portal.service" ''
+          (pkgs.writeText "quill-portal.service" ''
 [Unit]
 Description=Maplespike Portal
 After=network-online.target
 Wants=network-online.target
-Requires=maplespike-portal.container
+Requires=quill-portal.container
 
 [Service]
 Restart=on-failure
-ExecStart=/usr/bin/podman start maplespike-portal
-ExecStop=/usr/bin/podman stop -t 10 maplespike-portal
+ExecStart=/usr/bin/podman start quill-portal
+ExecStop=/usr/bin/podman stop -t 10 quill-portal
 
 [Install]
 WantedBy=default.target
@@ -288,7 +288,7 @@ WantedBy=default.target
         set -euo pipefail
         RUNTIME=''${RUNTIME:-docker}
 
-        for img in maplespike-quill maplespike-api maplespike-portal; do
+        for img in quill-mcp quill-api quill-portal; do
           echo "=== Loading $img ==="
           path=$(nix build ".#$img-image" --print-out-paths --no-link -L)
           $RUNTIME load < "$path"
@@ -320,7 +320,7 @@ api:
       cpu: 500m
       memory: 512Mi
   env:
-    MAPLESPIKE_STORAGE: "sqlite"
+    QUILL_STORAGE: "sqlite"
     NODE_ENV: "production"
   volumeMounts:
     - name: api-data
@@ -363,16 +363,16 @@ byok:
     enabled: true
     canlii:
       create: true
-      name: maplespike-api-keys
+      name: quill-api-keys
       keys:
-        - MAPLESPIKE_CANLII_API_KEY
+        - QUILL_CANLII_API_KEY
     ai:
       create: true
-      name: maplespike-ai-keys
+      name: quill-ai-keys
       keys:
-        - MAPLESPIKE_AI_ENDPOINT  # Custom AI endpoint URL
-        - MAPLESPIKE_AI_API_KEY   # API key for external provider (OpenAI, Anthropic, etc.)
-        - MAPLESPIKE_AI_MODEL      # Model name (e.g., gpt-4, claude-3-opus-20240229)
+        - QUILL_AI_ENDPOINT  # Custom AI endpoint URL
+        - QUILL_AI_API_KEY   # API key for external provider (OpenAI, Anthropic, etc.)
+        - QUILL_AI_MODEL      # Model name (e.g., gpt-4, claude-3-opus-20240229)
 
   # Mode 2: External Secret Manager (AWS Secrets Manager, Azure Key Vault, etc.)
   externalSecretManager:
@@ -388,10 +388,10 @@ byok:
   envInjection:
     enabled: false
     # Keys must be provided as environment variables (not in values.yaml)
-    # MAPLESPIKE_CANLII_API_KEY (from CI/CD or user environment)
-    # MAPLESPIKE_AI_ENDPOINT (e.g., https://api.openai.com/v1, http://local-ai:8080)
-    # MAPLESPIKE_AI_API_KEY (e.g., sk-ant-..., sk-or-...)
-    # MAPLESPIKE_AI_MODEL (e.g., gpt-4, claude-3-opus-20240229)
+    # QUILL_CANLII_API_KEY (from CI/CD or user environment)
+    # QUILL_AI_ENDPOINT (e.g., https://api.openai.com/v1, http://local-ai:8080)
+    # QUILL_AI_API_KEY (e.g., sk-ant-..., sk-or-...)
+    # QUILL_AI_MODEL (e.g., gpt-4, claude-3-opus-20240229)
 
 # Persistence
 persistence:
@@ -443,56 +443,56 @@ ingress:
 version: "3.8"
 
 services:
-  maplespike-api:
-    image: maplespike-api:latest
+  quill-api:
+    image: quill-api:latest
     build:
       context: .
       dockerfile: Dockerfile
       target: api-server
-    container_name: maplespike-api
+    container_name: quill-api
     ports:
       - "8082:8082"
     environment:
       - NODE_ENV=production
-      - MAPLESPIKE_STORAGE=sqlite
+      - QUILL_STORAGE=sqlite
       - PORT=8082
       - JWT_SECRET=change-me-in-production
     volumes:
-      - maplespike-api-data:/data
+      - quill-api-data:/data
     networks:
       - maplespike
 
-  maplespike-quill:
-    image: maplespike-quill:latest
+  quill-mcp:
+    image: quill-mcp:latest
     build:
       context: .
       dockerfile: Dockerfile
       target: quill-mcp
-    container_name: maplespike-quill
+    container_name: quill-mcp
     ports:
       - "3001:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
     depends_on:
-      - maplespike-api
+      - quill-api
     networks:
       - maplespike
 
-  maplespike-portal:
-    image: maplespike-portal:latest
+  quill-portal:
+    image: quill-portal:latest
     build:
       context: .
       dockerfile: Dockerfile
       target: portal
-    container_name: maplespike-portal
+    container_name: quill-portal
     ports:
       - "8080:8080"
     environment:
       - PORT=8080
       - HOME=/tmp
     depends_on:
-      - maplespike-api
+      - quill-api
     networks:
       - maplespike
 
@@ -501,7 +501,7 @@ networks:
     driver: bridge
 
 volumes:
-  maplespike-api-data:
+  quill-api-data:
 '';
 
       docker-manifests = pkgs.runCommand "maplespike-docker-manifests" {} ''
@@ -525,10 +525,10 @@ volumes:
 
       build = {
         type = "app";
-        program = "${pkgs.writeShellScriptBin "maplespike-build" ''
+        program = "${pkgs.writeShellScriptBin "quill-build" ''
           set -euo pipefail
           pnpm build
-        ''}/bin/maplespike-build";
+        ''}/bin/quill-build";
       };
 
       test = {
@@ -544,7 +544,7 @@ volumes:
         program = "${pkgs.writeShellScriptBin "maplespike-deploy-dev" ''
           set -euo pipefail
           TAG=''${TAG:-dev}
-          for img in maplespike-quill-image maplespike-api-image maplespike-portal-image; do
+          for img in quill-mcp-image quill-api-image quill-portal-image; do
             nix build ".#$img" --print-out-paths -L
           done
           echo "✅ Dev images built. Deploy via kubectl apply -f k8s/dev/"
@@ -556,7 +556,7 @@ volumes:
         program = "${pkgs.writeShellScriptBin "maplespike-deploy-prod" ''
           set -euo pipefail
           TAG=''${TAG:-stable}
-          for img in maplespike-quill-image maplespike-api-image maplespike-portal-image; do
+          for img in quill-mcp-image quill-api-image quill-portal-image; do
             nix build ".#$img" --print-out-paths -L
           done
           echo "✅ Prod images built. Deploy via kubectl apply -f k8s/prod/"
@@ -605,7 +605,7 @@ volumes:
       # Build all images
       build-all = {
         type = "app";
-        program = "${self.packages.${system}.maplespike-build-all}/bin/maplespike-build-all";
+        program = "${self.packages.${system}.quill-build-all}/bin/quill-build-all";
       };
     };
 
@@ -613,11 +613,11 @@ volumes:
       images-exist = pkgs.runCommand "check-images-exist" { } ''
         mkdir -p $out
         echo "✅ ${builtins.toString (builtins.attrNames {
-          quill = self.packages.${system}.maplespike-quill-image;
-          api = self.packages.${system}.maplespike-api-image;
-          ingest = self.packages.${system}.maplespike-ingest-image;
-          engine = self.packages.${system}.maplespike-engine-image;
-          portal = self.packages.${system}.maplespike-portal-image;
+          quill = self.packages.${system}.quill-mcp-image;
+          api = self.packages.${system}.quill-api-image;
+          ingest = self.packages.${system}.quill-ingest-image;
+          engine = self.packages.${system}.quill-engine-image;
+          portal = self.packages.${system}.quill-portal-image;
         })}" > $out/result
       '';
     };

@@ -1,6 +1,6 @@
 /**
 export { parseLandClaim, parseLandClaims } from './parser.js';
- * MapleSpike — Indigenous Relations Data Ingestion Orchestration
+ * Quill — Indigenous Relations Data Ingestion Orchestration
  *
  * Coordinates CIRNAC land claims, ISC community spending, First Nations
  * financial transparency, TRC Calls to Action, and cross-referencing

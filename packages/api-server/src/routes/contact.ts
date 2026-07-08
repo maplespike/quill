@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Contact Form (Decision 0002 — DEPRECATED)
+ * Quill — Contact Form (Decision 0002 — DEPRECATED)
  *
  * The contact form used to collect `{ name, email, subject, message }`
  * and email them to ops. That's a direct PII retention violation.
@@ -25,7 +25,7 @@ const DEPRECATION_BODY = {
   deprecated: true,
   decision_doc: '/docs/decisions/0002-pii-avoidance.md',
   replacement_paths: {
-    github_issues: 'https://github.com/reverb256/maplespike/issues',
+    github_issues: 'https://github.com/reverb256/quill/issues',
     status:       'https://status.maplespike.ca',
   },
   message:

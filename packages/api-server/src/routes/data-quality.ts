@@ -1,5 +1,5 @@
 /**
- * MapleSpike — GET /v1/data/quality
+ * Quill — GET /v1/data/quality
  *
  * Data quality monitoring endpoint that feeds the Grafana dashboard.
  * Returns module health probes, freshness tracking, and error aggregation

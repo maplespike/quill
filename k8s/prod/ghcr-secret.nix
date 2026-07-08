@@ -7,14 +7,14 @@
   pkgs,
   ...
 }: let
-  cfg = config.services.maplespike-ghcr-secret;
+  cfg = config.services.quill-ghcr-secret;
 in {
-  options.services.maplespike-ghcr-secret = {
+  options.services.quill-ghcr-secret = {
     enable = lib.mkEnableOption "MapleSpike GHCR image pull secret";
 
     namespace = lib.mkOption {
       type = lib.types.str;
-      default = "maplespike-prod";
+      default = "quill-prod";
       description = "Kubernetes namespace for the secret";
     };
 
@@ -27,7 +27,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     # Create systemd service to bootstrap the GHCR pull secret
-    systemd.services.maplespike-ghcr-secret = {
+    systemd.services.quill-ghcr-secret = {
       description = "Bootstrap MapleSpike GHCR image pull secret";
       after = ["k3s.service"];
       requires = ["k3s.service"];
@@ -42,13 +42,13 @@ in {
       script = ''
         set -euo pipefail
 
-        echo "[maplespike-ghcr-secret] Waiting for K8s API..."
+        echo "[quill-ghcr-secret] Waiting for K8s API..."
         elapsed=0
         until kubectl get nodes &>/dev/null; do
           sleep 5
           elapsed=$((elapsed + 5))
           if [ $elapsed -ge 120 ]; then
-            echo "[maplespike-ghcr-secret] Timed out waiting for K8s API"
+            echo "[quill-ghcr-secret] Timed out waiting for K8s API"
             exit 1
           fi
         done
@@ -56,20 +56,20 @@ in {
         # Decrypt vault with age key from agenix
         AGE_KEY=$(cat /run/agenix/age-key 2>/dev/null || echo "")
         if [ -z "$AGE_KEY" ]; then
-          echo "[maplespike-ghcr-secret] ERROR: Age key not found at /run/agenix/age-key"
+          echo "[quill-ghcr-secret] ERROR: Age key not found at /run/agenix/age-key"
           exit 1
         fi
 
         VAULT="/var/lib/maplespike/.secrets/vault.age"
         if [ ! -f "$VAULT" ]; then
-          echo "[maplespike-ghcr-secret] ERROR: Vault not found at $VAULT"
+          echo "[quill-ghcr-secret] ERROR: Vault not found at $VAULT"
           exit 1
         fi
 
         GITHUB_TOKEN=$(echo "$AGE_KEY" | age --decrypt -i - "$VAULT" 2>/dev/null | jq -r '.ghcr.pat_token')
 
         if [ -z "$GITHUB_TOKEN" ] || [ "$GITHUB_TOKEN" = "null" ]; then
-          echo "[maplespike-ghcr-secret] ERROR: ghcr.pat_token not found in vault"
+          echo "[quill-ghcr-secret] ERROR: ghcr.pat_token not found in vault"
           exit 1
         fi
 
@@ -87,13 +87,13 @@ in {
           --docker-password="$GITHUB_TOKEN" \
           --docker-email=reverb256@users.noreply.github.com
 
-        echo "[maplespike-ghcr-secret] Created/updated secret ${cfg.secretName} in ${cfg.namespace}"
-        echo "[maplespike-ghcr-secret] Done."
+        echo "[quill-ghcr-secret] Created/updated secret ${cfg.secretName} in ${cfg.namespace}"
+        echo "[quill-ghcr-secret] Done."
       '';
     };
 
     # Ensure secret is updated if GitHub token rotates
-    systemd.timers.maplespike-ghcr-secret-sync = {
+    systemd.timers.quill-ghcr-secret-sync = {
       description = "Sync MapleSpike GHCR secret daily";
       wantedBy = ["timers.target"];
       timerConfig = {
@@ -102,9 +102,9 @@ in {
       };
     };
 
-    systemd.services.maplespike-ghcr-secret-sync = {
+    systemd.services.quill-ghcr-secret-sync = {
       description = "Sync MapleSpike GHCR image pull secret";
-      after = ["k3s.service" "maplespike-ghcr-secret.service"];
+      after = ["k3s.service" "quill-ghcr-secret.service"];
       requires = ["k3s.service"];
       serviceConfig = {
         Type = "oneshot";
@@ -116,20 +116,20 @@ in {
 
         AGE_KEY=$(cat /run/agenix/age-key 2>/dev/null || echo "")
         if [ -z "$AGE_KEY" ]; then
-          echo "[maplespike-ghcr-secret-sync] Age key not found, skipping sync"
+          echo "[quill-ghcr-secret-sync] Age key not found, skipping sync"
           exit 0
         fi
 
         VAULT="/var/lib/maplespike/.secrets/vault.age"
         if [ ! -f "$VAULT" ]; then
-          echo "[maplespike-ghcr-secret-sync] Vault not found, skipping sync"
+          echo "[quill-ghcr-secret-sync] Vault not found, skipping sync"
           exit 0
         fi
 
         GITHUB_TOKEN=$(echo "$AGE_KEY" | age --decrypt -i - "$VAULT" 2>/dev/null | jq -r '.ghcr.pat_token')
 
         if [ -z "$GITHUB_TOKEN" ] || [ "$GITHUB_TOKEN" = "null" ]; then
-          echo "[maplespike-ghcr-secret-sync] ghcr.pat_token not found in vault, skipping sync"
+          echo "[quill-ghcr-secret-sync] ghcr.pat_token not found in vault, skipping sync"
           exit 0
         fi
 
@@ -142,7 +142,7 @@ in {
           --docker-password="$GITHUB_TOKEN" \
           --docker-email=reverb256@users.noreply.github.com
 
-        echo "[maplespike-ghcr-secret-sync] Synced secret ${cfg.secretName}"
+        echo "[quill-ghcr-secret-sync] Synced secret ${cfg.secretName}"
       '';
     };
   };
