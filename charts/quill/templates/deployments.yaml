@@ -4,61 +4,61 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-api
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-api
+    app: quill-api
     component: api
 spec:
   replicas: {{ .Values.api.replicas }}
   selector:
     matchLabels:
-      app: maplespike-api
+      app: quill-api
   template:
     metadata:
       labels:
-        app: maplespike-api
+        app: quill-api
     spec:
       securityContext:
         runAsNonRoot: true
       containers:
       - name: api
-        image: "{{ .Values.image.registry }}/maplespike-api:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.registry }}/quill-api:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.api.port }}
         env:
         - name: NODE_ENV
           value: "{{ .Values.api.env.NODE_ENV }}"
-        - name: MAPLESPIKE_STORAGE
-          value: "{{ .Values.api.env.MAPLESPIKE_STORAGE | default "memory" }}"
-        - name: MAPLESPIKE_API_URL
-          value: "{{ .Values.api.env.MAPLESPIKE_API_URL }}"
-        - name: MAPLESPIKE_QDRANT_ENDPOINT
-          value: "{{ .Values.api.env.MAPLESPIKE_QDRANT_ENDPOINT | default "http://qdrant:6333" }}"
-        - name: MAPLESPIKE_QDRANT_COLLECTION
-          value: "{{ .Values.api.env.MAPLESPIKE_QDRANT_COLLECTION | default "maplespike" }}"
-        - name: MAPLESPIKE_EMBED_MODEL
-          value: "{{ .Values.api.env.MAPLESPIKE_EMBED_MODEL | default "nvidia/llama-3.2-nv-embedqa-1b-v2" }}"
-        - name: MAPLESPIKE_API_KEY
+        - name: QUILL_STORAGE
+          value: "{{ .Values.api.env.QUILL_STORAGE | default "memory" }}"
+        - name: QUILL_API_URL
+          value: "{{ .Values.api.env.QUILL_API_URL }}"
+        - name: QUILL_QDRANT_ENDPOINT
+          value: "{{ .Values.api.env.QUILL_QDRANT_ENDPOINT | default "http://qdrant:6333" }}"
+        - name: QUILL_QDRANT_COLLECTION
+          value: "{{ .Values.api.env.QUILL_QDRANT_COLLECTION | default "maplespike" }}"
+        - name: QUILL_EMBED_MODEL
+          value: "{{ .Values.api.env.QUILL_EMBED_MODEL | default "nvidia/llama-3.2-nv-embedqa-1b-v2" }}"
+        - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:
               name: maplespike-secrets
               key: apiKey
               optional: true
-        {{- if eq .Values.api.env.MAPLESPIKE_STORAGE "postgres" }}
-        - name: MAPLESPIKE_DB_HOST
-          value: "{{ .Values.api.env.MAPLESPIKE_DB_HOST | default "maplespike-db" }}"
-        - name: MAPLESPIKE_DB_PORT
-          value: "{{ .Values.api.env.MAPLESPIKE_DB_PORT | default "5432" }}"
-        - name: MAPLESPIKE_DB_NAME
-          value: "{{ .Values.api.env.MAPLESPIKE_DB_NAME | default "maplespike" }}"
-        - name: MAPLESPIKE_DB_USER
+        {{- if eq .Values.api.env.QUILL_STORAGE "postgres" }}
+        - name: QUILL_DB_HOST
+          value: "{{ .Values.api.env.QUILL_DB_HOST | default "quill-db" }}"
+        - name: QUILL_DB_PORT
+          value: "{{ .Values.api.env.QUILL_DB_PORT | default "5432" }}"
+        - name: QUILL_DB_NAME
+          value: "{{ .Values.api.env.QUILL_DB_NAME | default "maplespike" }}"
+        - name: QUILL_DB_USER
           valueFrom:
             secretKeyRef:
-              name: maplespike-db-secret
+              name: quill-db-secret
               key: postgres-user
-        - name: MAPLESPIKE_DB_PASSWORD
+        - name: QUILL_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: maplespike-db-secret
+              name: quill-db-secret
               key: postgres-password
         {{- end }}
         - name: JWT_SECRET
@@ -81,32 +81,32 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-mcp
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-quill
+    app: quill-mcp
     component: mcp
 spec:
   replicas: {{ .Values.mcp.replicas }}
   selector:
     matchLabels:
-      app: maplespike-quill
+      app: quill-mcp
   template:
     metadata:
       labels:
-        app: maplespike-quill
+        app: quill-mcp
     spec:
       securityContext:
         runAsNonRoot: true
       containers:
       - name: mcp
-        image: "{{ .Values.image.registry }}/maplespike-quill:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.registry }}/quill-mcp:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.mcp.port }}
         env:
         - name: NODE_ENV
           value: production
-        - name: MAPLESPIKE_API_URL
+        - name: QUILL_API_URL
           value: "http://{{ include "maplespike.fullname" . }}-api:{{ .Values.api.port }}"
-        - name: MAPLESPIKE_API_KEY
+        - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:
               name: maplespike-secrets

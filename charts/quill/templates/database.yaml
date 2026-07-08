@@ -8,7 +8,7 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-db
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-db
+    app: quill-db
     component: database
     tier: data
 spec:
@@ -16,11 +16,11 @@ spec:
   serviceName: {{ include "maplespike.fullname" . }}-db
   selector:
     matchLabels:
-      app: maplespike-db
+      app: quill-db
   template:
     metadata:
       labels:
-        app: maplespike-db
+        app: quill-db
     spec:
       {{- if .Values.database.nodeName }}
       nodeName: {{ .Values.database.nodeName }}
@@ -34,17 +34,17 @@ spec:
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: maplespike-db-secret
+              name: quill-db-secret
               key: postgres-user
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: maplespike-db-secret
+              name: quill-db-secret
               key: postgres-password
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
-              name: maplespike-db-secret
+              name: quill-db-secret
               key: postgres-database
         - name: PGDATA
           value: /var/lib/postgresql/data/pgdata
@@ -85,12 +85,12 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-db
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-db
+    app: quill-db
 spec:
   type: ClusterIP
   ports:
   - port: 5432
     targetPort: 5432
   selector:
-    app: maplespike-db
+    app: quill-db
 {{- end }}
