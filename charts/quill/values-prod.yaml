@@ -78,6 +78,33 @@ portal:
     host: maplespike.ca
     tls: true
 
+# Cloudflare Tunnel (cloudflared)
+cloudflared:
+  enabled: true
+  image: cloudflare/cloudflared
+  tag: latest
+  pullPolicy: Always
+  replicas: 1
+  tunnelId: "cec1b070-796f-4524-b43e-9b05c32af906"
+  nodeSelector:
+    kubernetes.io/hostname: nexus
+  resources:
+    requests:
+      cpu: 50m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  ingress:
+    - hostname: quill.maplespike.ca
+      service: http://maplespike-portal.maplespike.svc.cluster.local:8080
+    - hostname: api.maplespike.ca
+      service: http://maplespike-api.maplespike.svc.cluster.local:8082
+    - hostname: mcp.maplespike.ca
+      service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+    - hostname: kanban.maplespike.ca
+      service: http://maplespike-kanban-exec.maplespike.svc.cluster.local:8080
+
 # Secrets (override via --set or external secret management)
 secrets:
   apiKey: ""
