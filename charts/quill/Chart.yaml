@@ -1,5 +1,8 @@
 apiVersion: v2
-name: maplespike
+# Per ADR 0007: chart `name` follows the product (matches the `charts/quill/` dirname;
+# Helmspec requires Chart.yaml `name:` = dirname). Brand-level identifiers
+# (description, home, maintainer name) preserved.
+name: quill
 description: MapleSpike — Canada's sovereign government data pipeline
 type: application
 version: 0.1.0
@@ -14,7 +17,7 @@ keywords:
 
 home: https://maplespike.ca
 sources:
-  - https://github.com/reverb256/maplespike
+  - https://github.com/reverb256/quill
 
 maintainers:
   - name: MapleSpike Team

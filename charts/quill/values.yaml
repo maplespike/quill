@@ -19,7 +19,7 @@ api:
       cpu: 500m
       memory: 256Mi
   env:
-    MAPLESPIKE_API_URL: "https://api.maplespike.ca"
+    QUILL_API_URL: "https://api.maplespike.ca"
     NODE_ENV: "production"
   ingress:
     host: api.maplespike.ca
@@ -105,7 +105,7 @@ monitoring:
   #
   # Alerts are routed by Alertmanager (deployed via k8s/infra.nix):
   #   critical → Slack (#alerts-maplespike)
-  #   warning  → Email (admin@maplespike.lan)
+  #   warning  → Email (admin@maplespike.ca)
   #
   # Grafana Alerting provisioning (contact points + notification policies)
   # lives in config/grafana/provisioning/ for Grafana-side notifications.
@@ -119,7 +119,7 @@ monitoring:
       # webhook_url set via Alertmanager config in k8s/infra.nix
     email:
       enabled: true
-      to: "admin@maplespike.lan"
+      to: "admin@maplespike.ca"
       smarthost: "localhost:25"
 
 # Secrets (set via --set or external secrets)

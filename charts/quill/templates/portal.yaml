@@ -8,21 +8,21 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-portal
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-portal
+    app: quill-portal
     component: portal
 spec:
   replicas: {{ .Values.portal.replicas | default 1 }}
   selector:
     matchLabels:
-      app: maplespike-portal
+      app: quill-portal
   template:
     metadata:
       labels:
-        app: maplespike-portal
+        app: quill-portal
     spec:
       containers:
       - name: portal
-        image: {{ printf "%s/maplespike-portal:%s" .Values.image.registry .Values.image.tag | quote }}
+        image: {{ printf "%s/quill-portal:%s" .Values.image.registry .Values.image.tag | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.portal.port | default 8080 }}
@@ -35,7 +35,7 @@ metadata:
   name: {{ include "maplespike.fullname" . }}-portal
   namespace: {{ .Release.Namespace }}
   labels:
-    app: maplespike-portal
+    app: quill-portal
 spec:
   type: NodePort
   ports:
@@ -43,5 +43,5 @@ spec:
     targetPort: {{ .Values.portal.port | default 8080 }}
     nodePort: 30964
   selector:
-    app: maplespike-portal
+    app: quill-portal
 {{- end }}
