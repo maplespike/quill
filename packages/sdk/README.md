@@ -375,7 +375,7 @@ pnpm test:coverage  # coverage report
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT — see [LICENSE](../../LICENSE)
 
 ---
 

@@ -1,52 +1,13 @@
 import type { Locale } from '@maplespike/i18n';
 
 /**
- * French route translations for the MapleSpike portal.
- * Maps English paths to their French equivalents.
+ * Get the URL for a given path and locale.
+ * The portal uses bare paths (/pricing, /explorer) without locale prefixes.
+ * Language is handled via client-side redirect on the root path only.
  */
-export const FRENCH_ROUTES: Record<string, string> = {
-  '/': '/',
-  '/dashboard': '/tableau-de-bord',
-  '/docs': '/documentation',
-  '/pricing': '/tarifs',
-  '/contact': '/contact',
-  '/api-explorer': '/explorateur-api',
-  '/settings': '/parametres',
-  '/signup': '/inscription',
-  '/login': '/connexion',
-  '/explorer': '/explorateur-de-donnees',
-  '/agents': '/agents',
-  '/signal': '/signaux',
-  '/watcher': '/surveillance',
-  '/status': '/statut',
-  '/citation': '/citations',
-  '/workspace': '/espace-de-travail',
-  '/changelog': '/journal-des-modifications',
-  '/privacy': '/confidentialite',
-  '/terms': '/conditions-utilisation',
-  '/blog': '/blogue',
-  '/ask': '/interroger',
-  '/dashboard/extraction': '/tableau-de-bord/extraction',
-  '/dashboard/owasp': '/tableau-de-bord/securite',
-};
-
-/**
- * Get the localized URL for a given path and locale.
- * If the path already has a language prefix, it's replaced.
- */
-export function localeUrl(path: string, lang: Locale): string {
-  // Strip existing /en/ or /fr/ prefix
+export function localeUrl(path: string, _lang: Locale): string {
   const clean = path.replace(/^\/(en|fr)(\/|$)/, '/');
-
-  // Find the matching route
-  const normalized = clean.endsWith('/') && clean !== '/' ? clean.slice(0, -1) : clean;
-
-  if (lang === 'fr') {
-    const frPath = FRENCH_ROUTES[normalized] ?? FRENCH_ROUTES['/'];
-    return `/fr${frPath === '/' ? '' : frPath}`;
-  }
-
-  return `/en${normalized === '/' ? '' : normalized}`;
+  return clean;
 }
 
 /**
