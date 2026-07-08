@@ -164,7 +164,7 @@ K8s deployment is planned for ROADMAP.md Phase 3. See:
 - `k8s/` — K8s configuration files (not currently deployed)
 - `ROADMAP.md` — Implementation timeline
 
-**Current Status:** K8s manifests exist but deployment infrastructure was never implemented.
+**Current Status:** K8s manifests live in `k8s/base/` (apply via `kubectl apply -k k8s/base/`); cloudflared tunnel is exposed via `k8s/base/05-cloudflared.yaml` (with `--metrics 0.0.0.0:2000` added per #744); only public DNS CNAMEs remain pending (issue #746).
 
 ## Monitoring and Logs
 

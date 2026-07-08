@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-01
+last-reviewed: 2026-07-07
 status: active
 ---
 
@@ -36,7 +36,7 @@ quill/
 │   ├── pretext-civic/    # Bibliothèque de composants React (graphiques, géo) — orphelin
 │   ├── portal/           # Portail développeur et page d'accueil (HTML statique)
 │   ├── api-server/       # Passerelle API REST (auth, limites de débit, usage)
-│   ├── quill-mcp/        # Serveur de protocole MCP (✅ 164 outils)
+│   ├── quill-mcp/        # Serveur de protocole MCP (✅ 166 outils, incluant `x402-deposit`)
 │   ├── sdk/              # Client TypeScript (@maplespike/sdk)
 │   ├── sdk-python/       # Client Python
 │   ├── legal-core/       # SDK de données juridiques

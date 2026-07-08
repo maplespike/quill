@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-19
+last-reviewed: 2026-07-07
 status: active
 ---
 
@@ -13,7 +13,7 @@ status: active
 
 > **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:reverb256/maplespike.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
-> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 208 modules, 164 MCP tools, ~191K lines TS, 14 packages.
+> **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 208 modules, **166 MCP tools** (incl. `x402-deposit`), ~199K lines TS, 14 packages.
 
 ---
 
@@ -51,7 +51,7 @@ quill/
 │   ├── engine/           # Entity resolution, graph building, signals, briefs
 │   ├── portal/           # Developer portal & landing page (Astro + React + Tailwind)
 │   ├── api-server/       # REST API gateway (auth, rate limits, usage)
-│   ├── quill-mcp/        # Quill — data-layer MCP server (✅ 164 tools, all live)
+│   ├── quill-mcp/        # Quill — data-layer MCP server (✅ 166 tools (incl. `x402-deposit`), all live)
 │   ├── sdk/              # TypeScript client library (@maplespike/sdk)
 │   ├── sdk-python/       # Python client library (`quill-sdk` on PyPI)
 │   ├── legal-core/       # Legal data SDK
@@ -70,7 +70,7 @@ quill/
 ## Build Plan (7 Phases)
 
 ```
-pipeline-core ──→ SQLite DB ──→ MCP server (164 live tools) ──→ Dashboard / Console
+pipeline-core ──→ SQLite DB ──→ MCP server (166 live tools (incl. `x402-deposit`)) ──→ Dashboard / Console
      │                                                             │
      └── Engine reads same DB ──→ briefs/signals ─────────────────┘
                                                                      │
@@ -81,7 +81,7 @@ pipeline-core ──→ SQLite DB ──→ MCP server (164 live tools) ──�
 |-------|------|--------|
 | 1 | **Shared DB** — D1 interface → `better-sqlite3` wrapper, schema migration | ✅ DONE |
 | 2 | **Wire Ingestion** — corporate CSV parse + DB insert, influence real queries | ✅ DONE |
-| 3 | **Wire MCP** — 164 tools all returning real DB results | ✅ DONE |
+| 3 | **Wire MCP** — 166 tools (incl. `x402-deposit`) all returning real DB results | ✅ DONE |
 | 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ✅ DONE |
 | 5 | **Live Dashboard** — hits MCP/API for live data | ✅ DONE |
 | 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🔴 TODO |
@@ -109,7 +109,7 @@ cd packages/quill-mcp
 pnpm start
 ```
 
-**All 164 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
+**All 166 MCP tools return real data** — committees, corporate, influence, and government data are all searchable via the SQLite database. No external database configuration required for MCP tools.
 
 **For full deployment guide, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 
