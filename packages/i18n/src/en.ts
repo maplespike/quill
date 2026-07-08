@@ -232,10 +232,13 @@ export const en: TranslationMap = {
 
   // Pricing page
   'pricing.page_title': 'Simple, Transparent Pricing',
-  'pricing.subtitle': 'Start free, scale as you grow. No hidden fees.',
+  'pricing.subtitle': 'Start free, scale as you grow. {free} free calls/month, then pay only for what you use.',
   'pricing.monthly': '/month',
   'pricing.yearly': '/year',
   'pricing.save': 'Save 20%',
+  'pricing.free_tier_label': 'Free',
+  'pricing.free_tier_desc': '{free} calls/month across all 164 tools. No credit card. Resets on the 1st.',
+  'pricing.paid_tier_note': 'After {free} free calls, paid tools bill via x402 (Solana USDC) at $0.001 — $1.00 per call depending on tool tier.',
 
   // Contact
   'contact.title': 'Contact Us',
@@ -411,6 +414,17 @@ export const en: TranslationMap = {
   'billing.insufficient_credits': 'Insufficient credits. Please upgrade your plan or top up.',
   'billing.order_not_found': 'Order not found',
   'billing.payment_failed': 'Payment processing failed. Please try again.',
+
+  // Quota (freemium — 1000 calls/month then x402)
+  'quota.title': 'Free tier quota',
+  'quota.subtitle': 'Your first {limit} tool calls each month are free. After that, per-call x402 billing applies automatically.',
+  'quota.used': '{used} of {limit} used this month',
+  'quota.remaining': '{remaining} free calls remaining',
+  'quota.percent': '{percent}% used',
+  'quota.reset': 'Resets on {reset}',
+  'quota.exceeded.title': 'Free quota exceeded',
+  'quota.exceeded.body': 'You\'ve used {used} of {limit} free calls this month. Paid tools now charge per call via Solana USDC (x402).',
+  'quota.exceeded.cta': 'Continue with paid tier',
   'extraction.source_not_found': 'Extraction source not found',
   'extraction.already_cached': 'Data is already cached',
   'validation.required': 'This field is required',

@@ -109,8 +109,35 @@ def make_md_fallback(path):
 
 class MapleSpikeHandler(SimpleHTTPRequestHandler):
 
+    # Security headers (migrated from Cloudflare Pages _headers file)
+    SECURITY_HEADERS = {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    }
+
+    CSP = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: blob:; "
+        "connect-src 'self' https://*.maplespike.ca https://static.cloudflareinsights.com; "
+        "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; "
+        "worker-src 'self' blob:; media-src 'self' data: blob:; upgrade-insecure-requests"
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
+
+    def end_headers(self):
+        # Inject security headers on every response
+        for k, v in self.SECURITY_HEADERS.items():
+            self.send_header(k, v)
+        self.send_header("Content-Security-Policy", self.CSP)
+        super().end_headers()
 
     def do_GET(self):
         parsed = urlparse(self.path)

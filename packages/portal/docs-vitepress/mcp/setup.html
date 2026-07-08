@@ -252,7 +252,7 @@ status: active</h2>
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
-      &quot;url&quot;: &quot;http://maplespike-mcp.ai-inference.svc.lan:3001/sse&quot;
+      &quot;url&quot;: &quot;http://quill-mcp.ai-inference.svc.lan:3001/sse&quot;
     }
   }
 }
@@ -270,7 +270,7 @@ status: active</h2>
       &quot;command&quot;: &quot;npx&quot;,
       &quot;args&quot;: [&quot;@reverb256/mcp-server&quot;],
       &quot;env&quot;: {
-        &quot;MAPLESPIKE_API_KEY&quot;: &quot;your-api-key-here&quot;
+        &quot;QUILL_API_KEY&quot;: &quot;your-api-key-here&quot;
       }
     }
   }
@@ -283,7 +283,7 @@ status: active</h2>
       &quot;command&quot;: &quot;node&quot;,
       &quot;args&quot;: [&quot;/path/to/maplespike/packages/mcp-server/dist/index.js&quot;],
       &quot;env&quot;: {
-        &quot;MAPLESPIKE_API_KEY&quot;: &quot;maplespike-dev-key&quot;,
+        &quot;QUILL_API_KEY&quot;: &quot;maplespike-dev-key&quot;,
         &quot;NODE_PATH&quot;: &quot;/path/to/maplespike/node_modules&quot;
       }
     }
@@ -294,20 +294,20 @@ status: active</h2>
 <p>In Cursor, navigate to <strong>Settings &gt; MCP</strong> and add a new server:</p>
 <pre><code>Name: MapleSpike
 Type: url
-URL: http://maplespike-mcp.ai-inference.svc.lan:3001/sse
+URL: http://quill-mcp.ai-inference.svc.lan:3001/sse
 </code></pre>
 <p>Or for local mode:</p>
 <pre><code>Name: MapleSpike
 Type: command
 Command: npx @reverb256/mcp-server
-Environment: MAPLESPIKE_API_KEY=your-api-key
+Environment: QUILL_API_KEY=your-api-key
 </code></pre>
 <h2>VS Code Extension (claude-dev / Continue)</h2>
 <p>For VS Code MCP extensions, add to your config:</p>
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
-      &quot;url&quot;: &quot;http://maplespike-mcp.ai-inference.svc.lan:3001/sse&quot;
+      &quot;url&quot;: &quot;http://quill-mcp.ai-inference.svc.lan:3001/sse&quot;
     }
   }
 }
@@ -315,7 +315,7 @@ Environment: MAPLESPIKE_API_KEY=your-api-key
 <h2>Running Locally</h2>
 <h3>Build and Start</h3>
 <pre><code class="language-bash"># Clone the repo
-git clone https://github.com/reverb256/maplespike.git
+git clone https://github.com/reverb256/quill.git
 cd maplespike
 
 # Install dependencies
@@ -338,13 +338,13 @@ pnpm start
 </tr>
 </thead>
 <tbody><tr>
-<td><code>MAPLESPIKE_API_KEY</code></td>
+<td><code>QUILL_API_KEY</code></td>
 <td><code>maplespike-dev-key</code></td>
 <td>API key for authentication</td>
 </tr>
 <tr>
-<td><code>MAPLESPIKE_API_URL</code></td>
-<td><code>http://maplespike-api:8084/v1</code></td>
+<td><code>QUILL_API_URL</code></td>
+<td><code>http://quill-api:8084/v1</code></td>
 <td>API server base URL</td>
 </tr>
 <tr>
@@ -391,11 +391,11 @@ echo &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quo
 </thead>
 <tbody><tr>
 <td>&quot;Could not connect to MCP server&quot;</td>
-<td>Check network access to the cluster. Try <code>curl http://maplespike-mcp.ai-inference.svc.lan:3001/health</code></td>
+<td>Check network access to the cluster. Try <code>curl http://quill-mcp.ai-inference.svc.lan:3001/health</code></td>
 </tr>
 <tr>
 <td>&quot;API key not found&quot;</td>
-<td>Ensure <code>MAPLESPIKE_API_KEY</code> is set in the environment or config</td>
+<td>Ensure <code>QUILL_API_KEY</code> is set in the environment or config</td>
 </tr>
 <tr>
 <td>&quot;Tool returned empty results&quot;</td>

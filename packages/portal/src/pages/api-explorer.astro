@@ -176,12 +176,12 @@ const i18n = createI18n(lang);
       const methodBadge = document.getElementById("method-badge");
 
       // Restore saved API key
-      const savedKey = localStorage.getItem("maplespike-api-key");
+      const savedKey = localStorage.getItem("quill-api-key");
       if (savedKey && apiKeyInput) apiKeyInput.value = savedKey;
 
       if (apiKeyInput) {
         apiKeyInput.addEventListener("input", function () {
-          localStorage.setItem("maplespike-api-key", this.value);
+          localStorage.setItem("quill-api-key", this.value);
         });
       }
 

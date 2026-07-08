@@ -71,7 +71,7 @@ function clearAuthState() {
   localStorage.removeItem("maplespike_token");
   localStorage.removeItem("maplespike_userId");
   localStorage.removeItem("maplespike_method");
-  localStorage.removeItem("maplespike-api-key");
+  localStorage.removeItem("quill-api-key");
   localStorage.removeItem("maplespike_oidc_token");
   if (typeof window !== "undefined" && window.MapleSpikeAuth) {
     window.MapleSpikeAuth.logout();
@@ -167,7 +167,7 @@ export default function SignupForm() {
 
       // Store API key for API calls
       if (apiKey?.key) {
-        localStorage.setItem("maplespike-api-key", apiKey.key);
+        localStorage.setItem("quill-api-key", apiKey.key);
       }
 
       // Immediately log in with the passkey to get a JWT for Convex auth.

@@ -1,20 +1,8 @@
 ---
-/**
- * 2026-07-06: replaced the static inline-landing page with the brand-shell
- * pattern that ships the live proper-design experience (currently
- * maplespike.ca). Landing.tsx is all-client (`client:only="react"`), so this
- * page intentionally emits an empty SSR shell + the React island.
- *
- * The previous inline landing (terminal demo, MCP config block, supported
- * platforms, hero/CTA) is preserved in git history at HEAD~1 and can be
- * restored by reverting this file if the brand design needs to be
- * re-evaluated.
- */
-import BrandLayout from "@/layouts/BrandLayout.astro";
-import Island from "@/islands/Island.tsx";
-import { LANDING_TITLE, LANDING_DESCRIPTION } from "@/lib/landing-meta";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import LandingBody from "@/components/LandingBody.astro";
 ---
 
-<BrandLayout title={LANDING_TITLE} description={LANDING_DESCRIPTION}>
-  <Island client:only="react" />
-</BrandLayout>
+<BaseLayout title="Quill · Canada's open data, on tap for any AI" description="Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config.">
+  <LandingBody />
+</BaseLayout>

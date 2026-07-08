@@ -5,8 +5,8 @@
 // ─────────────────────────────────────────────────────────────────
 window.MAPLESPIKE = window.MAPLESPIKE || {};
 
-// ── API (production: via maplespike-api.lan with user-provided key) ──
-MAPLESPIKE.apiBase   = 'https://maplespike-api.lan';
+// ── API (production: via api.maplespike.ca with user-provided key) ──
+MAPLESPIKE.apiBase   = 'https://api.maplespike.ca';
 MAPLESPIKE.apiKey    = '';  // User enters their own key via workspace
 
 // ── Timeouts (milliseconds) ─────────────────────────────────────

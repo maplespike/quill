@@ -4,7 +4,7 @@
 #
 # After applying, update the portal deployment to mount this
 # ConfigMap at /usr/share/nginx/html/config.js:
-#   kubectl patch deployment maplespike-portal -n maplespike -p '
+#   kubectl patch deployment quill-portal -n maplespike -p '
 #   {"spec":{"template":{"spec":{"volumes":[{"name":"portal-config","configMap":{"name":"portal-config","items":[{"key":"config.js","path":"config.js"}]}}],"containers":[{"name":"portal","volumeMounts":[{"name":"portal-config","mountPath":"/usr/share/nginx/html/config.js","subPath":"config.js"}]}]}}}}'
 # ─────────────────────────────────────────────────────────────────
 apiVersion: v1
@@ -13,13 +13,13 @@ metadata:
   name: portal-config
   namespace: maplespike
   labels:
-    app: maplespike-portal
+    app: quill-portal
     component: portal
 data:
   config.js: |
     // MapleSpike Portal Configuration — Production Override
     // Mounted as a ConfigMap at /usr/share/nginx/html/config.js
     window.MAPLESPIKE = window.MAPLESPIKE || {};
-    MAPLESPIKE.apiBase   = 'https://maplespike-api.lan';
+    MAPLESPIKE.apiBase   = 'https://quill-api.lan';
     MAPLESPIKE.apiKey    = '';
     MAPLESPIKE.timeout   = { health: 3000, quick: 5000, default: 8000 };

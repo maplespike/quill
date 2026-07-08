@@ -1,0 +1,230 @@
+---
+// Shared landing page body — used by / (index.astro) and /[locale].astro
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { localeUrl } from "@/utils/localeUrl";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+
+const stats = [
+  { value: "208", label: "Data modules" },
+  { value: "174", label: "MCP tools" },
+  { value: "13", label: "Jurisdictions" },
+  { value: "≈199K", label: "Lines of TS" },
+];
+
+const categories = [
+  {
+    title: "Federal Core",
+    items: ["IRCC immigration", "StatCan WDS", "Health Canada", "CRA Charity registry", "Federal Budget", "Proactive Disclosure", "ATI", "NPRI + Species at Risk", "CIPO + CMHC"],
+  },
+  {
+    title: "Parliament",
+    items: ["House committees", "Senate committees", "Hansard transcripts", "Canada Gazette I / II / III", "LEGISinfo", "GIC appointments"],
+  },
+  {
+    title: "Oversight",
+    items: ["OAG · PBO", "Ethics Commissioner", "Lobbying Commissioner", "Competition Bureau", "CRTC", "Privacy Commissioner", "OSFI · FCAC · FINTRAC"],
+  },
+  {
+    title: "Corporate + Influence",
+    items: ["Lobbying Registry (1996→)", "CanadaBuys procurement", "SEDI insider trades", "SEDAR+ filings", "Corporations Canada", "31 NGO / think tank RSS feeds"],
+  },
+  {
+    title: "Provincial + Municipal",
+    items: ["All 13 legislatures", "13 CKAN portals", "273 regulators across 21 categories", "19 cities (direct)", "3,490+ via CKAN federation"],
+  },
+  {
+    title: "Justice + Media",
+    items: ["CanLII case law", "A2AJ (116K+ decisions)", "Justice Canada legislation", "CRTC market reports", "ECCC alerts", "CBSA wait times"],
+  },
+];
+
+const platforms = [
+  { name: "Claude Desktop", icon: "🤖" },
+  { name: "ChatGPT", icon: "🧠" },
+  { name: "Cursor", icon: "🖊️" },
+  { name: "Gemini", icon: "💎" },
+  { name: "Grok", icon: "⚡" },
+  { name: "LM Studio", icon: "🖥️" },
+];
+
+const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca/sse","headers":{"Authorization":"Bearer YOUR_API_KEY"}}}}`;
+---
+
+<!-- Hero -->
+  <section class="aurora relative overflow-hidden border-b py-20 md:py-28">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4 max-w-4xl text-center">
+      <Badge variant="outline" class="mb-6">Open source · AGPL-3.0 · MIT</Badge>
+      <h1 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+        Canadian government data,
+        <br />
+        <span class="text-gradient">on tap for any AI.</span>
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
+        208 modules across federal, provincial, territorial, and municipal sources.
+        174 MCP tools. Every record cited and verifiable. One line of config.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <Button as="a" href={localeUrl("/signup", lang)} size="lg">
+          Get your API key
+        </Button>
+        <Button as="a" href="https://github.com/reverb256/quill" variant="outline" size="lg">
+          Fork on GitHub
+        </Button>
+      </div>
+      <p class="mt-3 text-sm text-muted-foreground">Free while in beta · No credit card required</p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="border-b py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-2 gap-px md:grid-cols-4">
+        {stats.map((s) => (
+          <div class="px-6 py-4 text-center">
+            <div class="text-3xl font-bold tracking-tight text-primary">{s.value}</div>
+            <div class="mt-1 text-sm text-muted-foreground">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- MCP Config -->
+  <section class="container mx-auto px-4 py-16 md:py-24">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-bold tracking-tight">
+        One line of <span class="text-gradient">config</span>
+      </h2>
+      <p class="mt-3 text-muted-foreground">
+        Paste this into your AI chatbot. Works with anything that speaks MCP.
+      </p>
+    </div>
+    <div class="mx-auto mt-8 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center justify-between">
+            MCP Server Config
+            <Button variant="ghost" size="sm" id="copy-config">Copy</Button>
+          </CardTitle>
+          <CardDescription>JSON for Claude Desktop, Cursor, ChatGPT, and more</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <pre class="overflow-x-auto rounded-lg bg-muted p-4 text-sm font-mono"><code id="mcp-config-text">{mcpConfig}</code></pre>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Platform grid -->
+    <div class="mx-auto mt-12 max-w-3xl">
+      <p class="mb-4 text-center text-sm text-muted-foreground">Works with your favorite AI tools</p>
+      <div class="grid grid-cols-3 gap-3 sm:grid-cols-6">
+        {platforms.map((p) => (
+          <div class="flex flex-col items-center gap-1 rounded-lg border border-border/40 p-3 card-hover">
+            <span class="text-2xl">{p.icon}</span>
+            <span class="text-xs text-muted-foreground">{p.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Coverage -->
+  <section class="border-t bg-card/20 py-16 md:py-24">
+    <div class="container mx-auto px-4">
+      <div class="mb-10 text-center">
+        <h2 class="text-3xl font-bold tracking-tight">
+          Every source, <span class="text-gradient">openly aggregated</span>
+        </h2>
+        <p class="mx-auto mt-3 max-w-xl text-muted-foreground">
+          Every record cites back to its public origin. SHA-256 provenance on every fetch.
+        </p>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {categories.map((cat) => (
+          <Card class="card-hover">
+            <CardHeader>
+              <CardTitle class="text-base">{cat.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul class="space-y-1.5">
+                {cat.items.map((item) => (
+                  <li class="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Sovereignty -->
+  <section class="container mx-auto px-4 py-16 md:py-24">
+    <div class="grid gap-8 md:grid-cols-3">
+      <Card class="card-hover">
+        <CardHeader>
+          <CardTitle class="text-lg">🔍 Verifiable</CardTitle>
+          <CardDescription>
+            Every record carries a SHA-256 citation, source URL, fetch timestamp, and pipeline version.
+            Fork the recipe, re-fetch, re-hash — decide for yourself.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+      <Card class="card-hover">
+        <CardHeader>
+          <CardTitle class="text-lg">🔧 Self-sovereign</CardTitle>
+          <CardDescription>
+            Runs in your cluster or on your laptop. No managed-service lock-in.
+            Nix builds for full reproducibility end to end.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+      <Card class="card-hover">
+        <CardHeader>
+          <CardTitle class="text-lg">📜 Open source</CardTitle>
+          <CardDescription>
+            AGPL-3.0 for pipeline-core, MIT for everything else. Forkable, auditable,
+            community-driven.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="aurora border-t py-16 md:py-20">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold tracking-tight">
+        Start building with <span class="text-gradient">Canadian data</span>
+      </hh>
+      <p class="mx-auto mt-3 max-w-md text-muted-foreground">
+        Get your API key in 30 seconds. Free while in beta.
+      </p>
+      <div class="mt-6">
+        <Button as="a" href={localeUrl("/signup", lang)} size="lg">
+          Get started free
+        </Button>
+      </div>
+    </div>
+  </section>
+
+<script>
+  // Copy config button
+  const copyBtn = document.getElementById("copy-config");
+  const configText = document.getElementById("mcp-config-text");
+  if (copyBtn && configText) {
+    copyBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(configText.textContent || "");
+      const original = copyBtn.textContent;
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => { copyBtn.textContent = original; }, 2000);
+    });
+  }
+</script>
