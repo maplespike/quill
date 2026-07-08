@@ -18,15 +18,15 @@ api:
       cpu: 500m
       memory: 512Mi
   env:
-    MAPLESPIKE_API_URL: "http://maplespike-api:8082/v1"
+    QUILL_API_URL: "http://quill-api:8082/v1"
     NODE_ENV: "production"
-    MAPLESPIKE_STORAGE: "postgres"
-    MAPLESPIKE_DB_HOST: "maplespike-db"
-    MAPLESPIKE_DB_PORT: "5432"
-    MAPLESPIKE_DB_NAME: "maplespike"
-    MAPLESPIKE_QDRANT_ENDPOINT: "http://qdrant:6333"
-    MAPLESPIKE_QDRANT_COLLECTION: "maplespike"
-    MAPLESPIKE_EMBED_MODEL: "nvidia/llama-3.2-nv-embedqa-1b-v2"
+    QUILL_STORAGE: "postgres"
+    QUILL_DB_HOST: "quill-db"
+    QUILL_DB_PORT: "5432"
+    QUILL_DB_NAME: "maplespike"
+    QUILL_QDRANT_ENDPOINT: "http://qdrant:6333"
+    QUILL_QDRANT_COLLECTION: "maplespike"
+    QUILL_EMBED_MODEL: "nvidia/llama-3.2-nv-embedqa-1b-v2"
   ingress:
     host: api.maplespike.ca
     tls: true
