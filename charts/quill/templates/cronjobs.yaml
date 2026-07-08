@@ -5,7 +5,7 @@ metadata:
   name: {{ include "maplespike.fullname" $ }}-ingest-{{ $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: maplespike-ingest
+    app: quill-ingest
     pipeline: {{ $name }}
 spec:
   schedule: "{{ $schedule }}"
@@ -19,31 +19,31 @@ spec:
           restartPolicy: Never
           containers:
           - name: ingest
-            image: "{{ $.Values.image.registry }}/maplespike-ingest:{{ $.Values.image.tag }}"
+            image: "{{ $.Values.image.registry }}/quill-ingest:{{ $.Values.image.tag }}"
             imagePullPolicy: {{ $.Values.image.pullPolicy }}
             env:
-            - name: MAPLESPIKE_PIPELINE
+            - name: QUILL_PIPELINE
               value: {{ $name }}
             - name: NODE_ENV
               value: production
             - name: PROMETHEUS_PUSHGATEWAY
               value: "http://prometheus-pushgateway.observability:9091"
-            {{- if eq $.Values.api.env.MAPLESPIKE_STORAGE "postgres" }}
-            - name: MAPLESPIKE_DB_HOST
-              value: "{{ $.Values.api.env.MAPLESPIKE_DB_HOST | default "maplespike-db" }}"
-            - name: MAPLESPIKE_DB_PORT
-              value: "{{ $.Values.api.env.MAPLESPIKE_DB_PORT | default "5432" }}"
-            - name: MAPLESPIKE_DB_NAME
-              value: "{{ $.Values.api.env.MAPLESPIKE_DB_NAME | default "maplespike" }}"
-            - name: MAPLESPIKE_DB_USER
+            {{- if eq $.Values.api.env.QUILL_STORAGE "postgres" }}
+            - name: QUILL_DB_HOST
+              value: "{{ $.Values.api.env.QUILL_DB_HOST | default "quill-db" }}"
+            - name: QUILL_DB_PORT
+              value: "{{ $.Values.api.env.QUILL_DB_PORT | default "5432" }}"
+            - name: QUILL_DB_NAME
+              value: "{{ $.Values.api.env.QUILL_DB_NAME | default "maplespike" }}"
+            - name: QUILL_DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: maplespike-db-secret
+                  name: quill-db-secret
                   key: postgres-user
-            - name: MAPLESPIKE_DB_PASSWORD
+            - name: QUILL_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: maplespike-db-secret
+                  name: quill-db-secret
                   key: postgres-password
             {{- end }}
             resources:
