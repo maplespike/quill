@@ -11,7 +11,7 @@ status: active
 
 **Status:** Active development · **License:** AGPL-3.0/MIT · **Stack:** TypeScript + Python + NixOS/K3s (backend) · Astro + React + Tailwind v4 (portal) *+ Quill (data-layer MCP)*
 
-> **Repo rename note (2026-07):** This repository was formerly `reverb256/maplespike`. Product-level identifiers (container images, K8s resources, Nix outputs) are now `quill-*`. Brand-level identifiers — `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
+> **Repo rename note (2026-07):** Working-directory renamed `maplespike/` → `quill/`. Product-level identifiers (container images, K8s resources, Nix outputs, Helm chart) are now `quill-*`. Brand-level identifiers — the **GitHub remote** (`git@github.com:reverb256/maplespike.git`), `@maplespike/*` npm scope, `maplespike.ca` domain, `*.maplespike.lan` DNS, K8s namespace `maplespike`, PostgreSQL user — are preserved. See [ADR 0007](./docs/decisions/0007-repo-rename.md) for the full decision record and [CHANGELOG.md](./CHANGELOG.md) for the executed diff.
 >
 > **Current metrics:** [docs/metrics.json](./docs/metrics.json) — 208 modules, 164 MCP tools, ~191K lines TS, 14 packages.
 
@@ -243,9 +243,10 @@ The authoritative contributor recipe is **[Running the local development stack &
 For production-grade deployment notes, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
 **Infrastructure Status:**
-- ✅ Docker Compose — Working (local development)
-- 🚧 K8s Deployment — Planned (Phase 3, not implemented)
-- 🚧 Production Deployment — Planned (Phase 3)
+- ✅ Docker Compose — Working (local development via `scripts/dev-up.sh`)
+- ✅ K3s + Cloudflare Tunnel — Live (`maplespike` namespace, `k8s/base/` Kustomize bundle, `cloudflared` pod with `--metrics 0.0.0.0:2000` for liveness probe)
+- ✅ Cloudflare Pages — Live for `maplespike.ca` root and product subdomains (see [DEPLOY-CHECKLIST.md](./DEPLOY-CHECKLIST.md))
+- 🟡 Production cutover — Track in [ROADMAP.md](./ROADMAP.md) Phase 4 (DNS CNAME records pending per [issue #746](https://github.com/reverb256/maplespike/issues/746))
 
 All backend data stays on Canadian infrastructure with zero external cloud spend.
 

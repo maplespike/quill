@@ -1,6 +1,7 @@
 # Deployment Guide
 
-> **⚠️ DEPLOYMENT STATUS:** MapleSpike currently uses **Docker Compose** for local development. K8s deployment is planned for ROADMAP.md Phase 3.
+> **Local development:** Docker Compose via `scripts/dev-up.sh` (this guide).
+> **Production:** K3s manifests in `k8s/base/` + Cloudflare Tunnel expose `*.maplespike.ca`. Production cutover under [ROADMAP.md Phase 4](./../ROADMAP.md); DNS CNAME records tracked under [issue #746](https://github.com/reverb256/maplespike/issues/746).
 
 ## Current Deployment: Docker Compose
 

@@ -123,9 +123,12 @@ Source of truth: [`docs/metrics.json`](../../docs/metrics.json) → `mcpTools.co
 ### Utility / Health (free)
 * `system_health` — health + local quota + cache stats
 * `cache_status` / `cache_clear` — in-memory cache management
-* `explore_catalog` — browse all 164 tools by category
+* `explore_catalog` — browse all 175+ tools by category
 * `searxng_health`, `get_module_health`, `get_pipeline_health` — pipeline diagnostics
 * `qa_validate_module`, `qa_schema` — schema QA
+
+### Payments (x402 — Phase 3)
+* `x402-deposit` — deposit USDC on Solana to pre-fund your credit balance. Submit a verified transaction signature + expected amount; the server verifies on-chain, atomically records the signature (no double-spend), and credits your identity balance.
 
 ---
 
@@ -138,9 +141,12 @@ AI Agent (Claude / Cursor / any MCP host)
   MapleSpike Quill  = packages/quill-mcp
         │
         ├── quota.ts        ──► 1000-free/month gate, then x402
-        ├── x402-middleware ──► Solana USDC payment verification (stub)
+        ├── x402-middleware ──► Solana USDC payment verification + credit debit
+        ├── solana-rpc.ts   ──► HTTP JSON-RPC tx verification (3-step)
+        ├── x402-ledger.ts  ──► replay-protect consumed signatures (7-day TTL)
+        ├── credit-balance.ts──► per-identity USDC pre-pay balance
+        ├── tools/x402-deposit──► MCP tool: verify tx, credit balance
         ├── pricing.ts      ──► per-tool tier prices (free/micro/standard/premium/enterprise)
-        │
         ├── upstream-fetcher.ts ──► ouvert.canada.ca (CKAN)
         │                         ──► api.openparliament.ca
         │                         ──► www.gazette.gc.ca/rss/
@@ -155,18 +161,39 @@ The quota tracker is **off by default** so the public `npx` experience stays zer
 
 ## Environment Variables
 
+All MCP server env vars are also documented in repo-root [`.env.example`](../../.env.example) under the **MCP Server** and **x402 (Solana USDC) micropayments** subsections.
+
+### Quota gate (hosted/SSE only; stdio callers are self-hosted and never counted)
+
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `QUOTA_ENABLED` | `false` | Turn on the 1000-free/month gate (typically set in hosted K8s). |
-| `QUILL_FREE_QUOTA` | `1000` | Override the free quota per identity / month. |
+| `QUILL_FREE_QUOTA` | `1000` | Override the free quota per identity / calendar month (UTC). |
 | `QUOTA_PERSIST_PATH` | *(none)* | Atomic JSON snapshot path (single-node persistence). |
-| `QUILL_API_URL` | *(empty)* | Optional: REST API server for advanced features. |
-| `QUILL_API_KEY` | *(empty)* | API key (only needed if using API server). |
+
+### x402 (Solana USDC) micropayments — Phases 1, 2, 3 of [issue #750](https://github.com/reverb256/maplespike/issues/750)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `X402_ENABLED` | `false` | Enable Solana USDC per-call payment. When `false`, all calls pass. |
+| `X402_RECIPIENT` | *(empty)* | Solana wallet (base58) receiving USDC. **Required** when `X402_ENABLED=true`. |
+| `SOLANA_RPC_URL` | *(empty)* | HTTPS Solana JSON-RPC endpoint (e.g. `https://api.mainnet-beta.solana.com` or a Helius/Alchemy URL). |
+| `X402_CONFIRMATION_LEVEL` | `confirmed` | `confirmed` (~12s) or `finalized` (~13s). `finalized` is safer but slower. |
+| `X402_TIMESTAMP_TOLERANCE_SEC` | `300` | How far back a signature's `blockTime` may be (5 min default). |
+| `X402_LEDGER_PATH` | *(none)* | Optional: persist the replay-protection signature ledger to disk. |
+| `X402_CREDITS_PATH` | *(none)* | Optional: persist per-identity pre-pay credit balances to disk. |
+
+### Server runtime
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `QUILL_API_URL` | *(empty)* | REST API server for advanced features. |
+| `QUILL_API_KEY` | *(empty)* | API key (only needed if using API server or Aura SSE). |
 | `PORT` | *(stdio)* | HTTP port for SSE mode. |
-| `X402_ENABLED` | `false` | Enable Solana USDC per-call payment. |
-| `X402_RECIPIENT` | *(empty)* | Solana wallet address receiving payments. |
 | `QUILL_LOCALE` | `en-CA` | `en-CA` or `fr-CA` for tool descriptions. |
 | `QUILL_HANDLER_TIMEOUT_MS` | `55000` | Max handler runtime before gateway kills the connection. |
+| `TRUST_PROXY` | `false` | Honor `X-Forwarded-For` for IP-keyed quota. ONLY set behind a trusted proxy. |
+| `ASTRAL_KEY_URL` | *(none)* | Optional: delegate `/auth/verify` to astral-key instead of comparing local `QUILL_API_KEY`. |
 
 ---
 

@@ -3,12 +3,7 @@ last-reviewed: 2026-06-11
 status: active
 ---
 
-# K8s Manifests — Nix-generated via easykubenix
-
-> **🚨 IMPORTANT:** This document describes **planned infrastructure that was never implemented**. See PIPELINE-ARCHITECTURE.md for CI/CD reality and ROADMAP.md Phase 3 for deployment status.
-
-All Kubernetes manifests are planned to be generated from Nix via [easykubenix](https://github.com/lillecarl/easykubenix).
-Source files live in `k8s/` directory. The flake attribute is `.#k8s-manifests`.
+> **🟡 Status (2026-07-07):** `k8s/base/` hand-edited YAML is live (applied via `kubectl apply -k k8s/base/`). Prometheus + Alertmanager + Pushgateway are Nix-rendered via `k8s/infra.nix`. This document tracks the longer-term goal of generating all k8s/ trees from `k8s/*.nix` via [easykubenix](https://github.com/lillecarl/easykubenix) rather than hand-editing YAML — see [ROADMAP.md Phase 4](./../ROADMAP.md) for the migration plan.
 
 ## Usage
 
