@@ -192,6 +192,6 @@ External MCP client configs and CI pipelines need a one-time edit:
 - [Decisions index](./README.md) — sibling ADRs and the status legend
 - [ADR 0005 — Quill product name](./0005-quill-product-name.md) — origin of the "Quill is canonical" invariant
 - [ADR 0006 — Quill hostname alias](./0006-quill-hostname-alias.md) — origin of the brand-vs-product split for DNS
-- [CHANGELOG.md](../CHANGELOG.md) §2026-07-03 — the executed diff
-- [README.md §Repo rename note](../README.md) — top-level repo orientation
-- [DESIGN.md §Overview](../DESIGN.md) — Quill's design narrative, now under the canonical name
+- [CHANGELOG.md](../../CHANGELOG.md) §2026-07-03 — the executed diff
+- [README.md §Repo rename note](../../README.md) — top-level repo orientation
+- [DESIGN.md §Overview](../../DESIGN.md) — Quill's design narrative, now under the canonical name

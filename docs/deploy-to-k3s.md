@@ -601,8 +601,8 @@ helm install maplespike ./charts/maplespike \
 
 - [Architecture overview](./ARCHITECTURE.md)
 - [K8s-Nix manifests](./K8S-NIX-MANIFESTS.md) — Nix-generated manifests (used in production)
-- [CI/CD guide](./ci-cd.md) — GitHub Actions pipeline
-- [Helm chart source](../charts/maplespike/)
+- [CI/CD guide](./GITHUB-ACTIONS-NIX.md) — GitHub Actions pipeline
+- [Helm chart source](../charts/quill/)
 - [Manual K8s manifests](../k8s/manual/)
 - [Dockerfile](../Dockerfile) — multi-stage build
 - [MapleSpike Helm Chart](https://github.com/reverb256/quill/tree/main/charts/maplespike)
