@@ -133,7 +133,7 @@ curl -s https://api.maplespike.ca/v1/llms.txt | head -20
 ## Step 6: Customer Onboarding Template
 
 ```
-Subject: Your MapleSpike API Key — 164 Canadian Government Data Tools
+Subject: Your MapleSpike API Key — 166 Canadian Government Data Tools
 
 Hi [Name],
 
@@ -161,7 +161,7 @@ Welcome to MapleSpike! Here's your API key and connection details.
 📋 Tool Discovery:
    https://api.maplespike.ca/v1/llms.txt
 
-You have access to 164 tools covering:
+You have access to 166 tools covering:
 - House & Senate committees, Hansard transcripts
 - Federal lobbying registry, procurement, GIC appointments
 - StatCan economic data (CPI, GDP, labour, trade)

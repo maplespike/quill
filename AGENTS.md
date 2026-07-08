@@ -7,7 +7,7 @@ status: active
 
 > **Mission**: Build the Library of Alexandria for Canadian public data — 150+ modules covering every federal, provincial, territorial, and municipal source.
 > **Data-layer MCP product:** [Quill](./docs/products/quill.md) (see ADR [0005](./docs/decisions/0005-quill-product-name.md)).
-> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 208 modules, 165 MCP tools, ~199K lines TS, 14 packages.
+> **Current metrics**: [docs/metrics.json](./docs/metrics.json) — 208 modules, **166 MCP tools** (incl. `x402-deposit`), ~199K lines TS, 14 packages.
 
 Quick reference for agents working in this repo. Don't guess — check here first.
 
@@ -112,7 +112,7 @@ Internet → Cloudflare Tunnel (cloudflared pod in k3s)
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (164 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (166 tools, incl. `x402-deposit`)
 ```
 
 ### Auth Chain

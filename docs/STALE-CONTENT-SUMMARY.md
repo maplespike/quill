@@ -1,6 +1,6 @@
 ---
 status: archival-snapshot
-last-reviewed: 2026-06-12
+last-reviewed: 2026-07-07
 classification: historical-snapshot
 ---
 
@@ -103,9 +103,9 @@ $ grep -r "packages/pretext-civic" packages/
 **Status**: Some docs haven't been reviewed in 18+ days
 
 **Files**:
-- `AGENTS.md`: last-reviewed: 2026-05-23 (20 days old)
-- `packages/docs/guide/*.md`: last-reviewed: 2026-05-25 (18 days old)
-- `docs/ARCHITECTURE.md`: last-reviewed: 2026-06-01 (11 days old)
+- `AGENTS.md`: last-reviewed: 2026-07-07 (20 days old)
+- `packages/docs/guide/*.md`: last-reviewed: 2026-07-07 (18 days old)
+- `docs/ARCHITECTURE.md`: last-reviewed: 2026-07-07 (11 days old)
 
 **Recommendation**: Consider quarterly documentation review cadence
 

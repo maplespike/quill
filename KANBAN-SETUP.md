@@ -1,6 +1,6 @@
 
 ---
-last-reviewed: 2026-06-11
+last-reviewed: 2026-07-07
 status: active
 
 > ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
