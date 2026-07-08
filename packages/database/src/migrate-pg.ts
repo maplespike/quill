@@ -1,5 +1,5 @@
 /**
- * MapleSpike — PostgreSQL Schema Migration
+ * Quill — PostgreSQL Schema Migration
  *
  * Creates all domain-data tables in PostgreSQL.
  * Mirrors the SQLite tables defined in schema.ts / connection.ts.

@@ -105,14 +105,14 @@ cp .env.deployment.example .env.deployment
 ## Architecture Overview
 
 ```
-Browser → maplespike.lan (Caddy TLS)
-  ├→ Portal (:31559) — Astro static site + server.py
-  ├→ API    (:32481) — Node.js API server (SQLite/PostgreSQL)
+Internet → Cloudflare Tunnel (cloudflared pod in k3s)
+  ├→ maplespike.ca / quill.maplespike.ca → Portal (:8080) — Astro static + server.py
+  ├→ api.maplespike.ca                   → API    (:8082) — Node.js API server (SQLite/PostgreSQL)
   │   ├→ AI Gateway — glm-5.2 via AI Inference Gateway
   │   ├→ Qdrant — vector search for RAG
   │   ├→ Astral Key (proxy) — Web3 SIWE + FIDO2 passkey auth
   │   └→ BYOK middleware — users bring their own AI key
-  └→ Quill  (:31746) — [Quill](./docs/products/quill.md) data-layer MCP server (164 tools)
+  └→ mcp.maplespike.ca                   → Quill  (:3001) — [Quill](./docs/products/quill.md) data-layer MCP server (164 tools)
 ```
 
 ### Auth Chain

@@ -27,20 +27,20 @@
 
 | Host | Path |
 |---|---|
-| `maplespike.lan` | LAN → Traefik Ingress → `maplespike-portal:8080` |
-| `portal.maplespike.lan` | LAN → Traefik → `maplespike-portal:8080` |
-| `dev.maplespike.lan` | LAN → Traefik → `maplespike-portal:8080` (gateway is dev layout) |
-| `api.maplespike.lan` | LAN → Traefik → `maplespike-api:8082` |
-| `dev-api.maplespike.lan` | LAN → Traefik → `maplespike-api:8082` (same backend, dev mode stays on the LAN) |
-| `mcp.maplespike.lan` | LAN → Traefik → `maplespike-quill:3001` |
-| `dev-mcp.maplespike.lan` | LAN → Traefik → `maplespike-quill:3001` |
+| `maplespike.lan` | LAN → Traefik Ingress → `quill-portal:8080` |
+| `portal.maplespike.lan` | LAN → Traefik → `quill-portal:8080` |
+| `dev.maplespike.lan` | LAN → Traefik → `quill-portal:8080` (gateway is dev layout) |
+| `api.maplespike.lan` | LAN → Traefik → `quill-api:8082` |
+| `dev-api.maplespike.lan` | LAN → Traefik → `quill-api:8082` (same backend, dev mode stays on the LAN) |
+| `mcp.maplespike.lan` | LAN → Traefik → `quill-mcp:3001` |
+| `dev-mcp.maplespike.lan` | LAN → Traefik → `quill-mcp:3001` |
 | `maplespike.ca` | Cloudflare Pages landing page (out of cluster scope) |
-| `api.maplespike.ca` | CF Edge → Tunnel → `cloudflared` pod → `maplespike-api:8082` |
-| `mcp.maplespike.ca` | CF Edge → Tunnel → `cloudflared` pod → `maplespike-quill:3001` |
+| `api.maplespike.ca` | CF Edge → Tunnel → `cloudflared` pod → `quill-api:8082` |
+| `mcp.maplespike.ca` | CF Edge → Tunnel → `cloudflared` pod → `quill-mcp:3001` |
 
 ## Decision
 
-Adopt the matrix above as the authoritative split-version wiring. Two entry points terminate at the same three Services (`maplespike-portal`, `maplespike-api`, `maplespike-quill`), so there's only one upstream surface to maintain. The Cloudflare Worker (`packages/edge-worker/`) is **not** part of this routing — cloudflared replaces it for `.ca` traffic. The legacy Caddyfile (and the malformed `config/k8s/maplespike-ingress.yaml`) is superseded.
+Adopt the matrix above as the authoritative split-version wiring. Two entry points terminate at the same three Services (`quill-portal`, `quill-api`, `quill-mcp`), so there's only one upstream surface to maintain. The Cloudflare Worker (`packages/edge-worker/`) is **not** part of this routing — cloudflared replaces it for `.ca` traffic. The legacy Caddyfile (and the malformed `config/k8s/maplespike-ingress.yaml`) is superseded.
 
 LAN TLS uses a local step-ca + cert-manager step-issuer plugin; the wildcard `*.maplespike.lan` cert is auto-rotated every 90 days. LAN DNS resolution uses an Unbound local-zone written by a one-shot script.
 

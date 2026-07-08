@@ -1,5 +1,5 @@
 /**
- * MapleSpike — e-Transfer Payment Listener (DEPRECATED — Decision 0002)
+ * Quill — e-Transfer Payment Listener (DEPRECATED — Decision 0002)
  *
  * Historically this polled an IMAP inbox for Interac e-Transfer
  * notification emails. That flow pulls *full email bodies* into

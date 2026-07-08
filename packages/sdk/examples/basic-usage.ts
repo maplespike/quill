@@ -8,7 +8,7 @@ import { MapleSpike } from '@maplespike/sdk';
 
 // Initialize the client with an API key
 const ms = new MapleSpike({
-  apiKey: process.env.MAPLESPIKE_API_KEY,
+  apiKey: process.env.QUILL_API_KEY,
   baseUrl: 'http://127.0.0.1:8082', // or https://api.maplespike.ca for production
 });
 

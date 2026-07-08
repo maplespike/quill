@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Rate Limiting
+ * Quill — Rate Limiting
  *
  * In-memory sliding window rate limiter using Map.
  * Replaces Cloudflare KV-based rate limiting for dev mode.

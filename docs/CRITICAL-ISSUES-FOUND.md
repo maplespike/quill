@@ -32,7 +32,7 @@ classification: historical-snapshot
 1. **Missing script**: References `./scripts/decrypt-secrets.sh` (doesn't exist)
 2. **K8s deployment**: Tries to deploy to K8s that doesn't exist
 3. **Archived scripts**: Calls `auto-rollback.sh` and `escalate-incident.sh` (now archived)
-4. **Non-existent images**: References `maplespike-api`, `maplespike-quill`, `maplespike-portal` images
+4. **Non-existent images**: References `quill-api`, `quill-mcp`, `quill-portal` images
 5. **Secret references**: References `SLACK_WEBHOOK_URL` and other secrets
 6. **Manual trigger only**: These would fail on push to main
 
@@ -43,7 +43,7 @@ $ bash scripts/decrypt-secrets.sh
 bash: scripts/decrypt-secrets.sh: No such file or directory
 
 # Non-existent package names
-$ find packages/ -name "package.json" | xargs grep "maplespike-api"
+$ find packages/ -name "package.json" | xargs grep "quill-api"
 (no results)
 
 # K8s manifests exist but deployment doesn't work
@@ -113,7 +113,7 @@ curl "http://maplespike.lan/v1/gov/search?q=McKinsey&limit=5"
 **Fix**: `chmod +x scripts/lib/common.sh`
 
 ### 2. Package naming confusion
-**Issue**: Workflows reference `maplespike-api`, `maplespike-quill`, `maplespike-portal` but actual packages are `api-server`, `quill-mcp`, `portal`
+**Issue**: Workflows reference `quill-api`, `quill-mcp`, `quill-portal` but actual packages are `api-server`, `quill-mcp`, `portal`
 **Fix**: Either rename packages or update workflows (but workflows are broken anyway)
 
 ### 3. Documentation example consistency

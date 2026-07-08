@@ -94,8 +94,8 @@ jobs:
           target: portal
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-portal:latest
-            ghcr.io/reverb256/maplespike-portal:${{ github.sha }}
+            ghcr.io/reverb256/quill-portal:latest
+            ghcr.io/reverb256/quill-portal:${{ github.sha }}
 
       - name: Build and push API image
         uses: docker/build-push-action@v5
@@ -105,8 +105,8 @@ jobs:
           target: api-server
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-api:latest
-            ghcr.io/reverb256/maplespike-api:${{ github.sha }}
+            ghcr.io/reverb256/quill-api:latest
+            ghcr.io/reverb256/quill-api:${{ github.sha }}
 
       - name: Build and push MCP image
         uses: docker/build-push-action@v5
@@ -116,5 +116,5 @@ jobs:
           target: quill-mcp
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-quill:latest
-            ghcr.io/reverb256/maplespike-quill:${{ github.sha }}
+            ghcr.io/reverb256/quill-mcp:latest
+            ghcr.io/reverb256/quill-mcp:${{ github.sha }}

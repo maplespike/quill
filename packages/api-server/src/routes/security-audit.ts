@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Live Dependency Security Audit
+ * Quill — Live Dependency Security Audit
  *
  * GET /v1/security/audit-summary
  *

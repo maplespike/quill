@@ -39,7 +39,7 @@ let
   # Generate a single CronJob easykubenix object
   mkCronJob = name: cfg: {
     metadata.labels = {
-      app = "maplespike-ingest";
+      app = "quill-ingest";
       pipeline = name;
       tier = "backend";
     };
@@ -49,7 +49,7 @@ let
         ${if cfg ? backoffLimit then "backoffLimit" else null} = cfg.backoffLimit or null;
         template = {
           metadata.labels = {
-            app = "maplespike-ingest";
+            app = "quill-ingest";
             pipeline = name;
             tier = "backend";
           };
@@ -60,13 +60,13 @@ let
             containers = {
               _namedlist = true;
               ingest = {
-                name = "maplespike-ingest";
-                image = "ghcr.io/reverb256/maplespike/maplespike-ingest:dev";
+                name = "quill-ingest";
+                image = "ghcr.io/reverb256/quill/quill-ingest:dev";
                 imagePullPolicy = "Always";
                 env = {
                   _namedlist = true;
                   NODE_ENV = { name = "NODE_ENV"; value = "production"; };
-                  PIPELINE = { name = "MAPLESPIKE_PIPELINE"; value = name; };
+                  PIPELINE = { name = "QUILL_PIPELINE"; value = name; };
                 };
                 resources = {
                   requests = { cpu = "100m"; memory = "128Mi"; };
@@ -83,7 +83,7 @@ let
   # SearXNG health check — special CronJob (different image, command, namespace)
   searxngHealth = {
     metadata.labels = {
-      app = "maplespike-quill";
+      app = "quill-mcp";
       component = "monitoring";
     };
     spec = {
@@ -101,7 +101,7 @@ let
             _namedlist = true;
             health-check = {
               name = "health-check";
-              image = "ghcr.io/reverb256/maplespike/maplespike-quill:dev";
+              image = "ghcr.io/reverb256/quill/quill-mcp:dev";
               imagePullPolicy = "Always";
               command = [
                 "/bin/sh" "-c"

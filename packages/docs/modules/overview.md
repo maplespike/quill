@@ -164,7 +164,7 @@ const committees = getModule('committees');
 Modules can be run via the pipeline CLI:
 
 ```bash
-MAPLESPIKE_PIPELINE=committees npx tsx packages/pipeline-core/src/cli.ts
+QUILL_PIPELINE=committees npx tsx packages/pipeline-core/src/cli.ts
 ```
 
 Or programmatically:

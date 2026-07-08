@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Registration / Self-Service Routes
+ * Quill — Registration / Self-Service Routes
  *
  * POST /v1/register — Creates a new tenant + API key
  * GET  /v1/me      — Returns current tenant info + usage (requires auth)
@@ -9,13 +9,13 @@ import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { TIER_LIMITS } from '../types.js';
-import type { Tenant, MapleSpikeStorage } from '../types.js';
+import type { Tenant, QuillStorage } from '../types.js';
 import { sendVerificationEmail, sendWelcomeEmail } from '../email.js';
 import { registerSchema, validateBody, validationError } from '../validation.js';
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,
@@ -220,7 +220,7 @@ function generateId(prefix: string): string {
 }
 
 async function persistRegistration(
-  db: MapleSpikeStorage,
+  db: QuillStorage,
   tenant: Tenant,
   keyHash: string,
   keyId: string,

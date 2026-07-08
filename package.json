@@ -1,11 +1,22 @@
 {
-  "name": "maplespike",
+  "name": "quill",
   "version": "0.2.0",
   "private": true,
   "description": "MapleSpike — civilian intelligence data platform",
   "workspaces": [
     "packages/*"
   ],
+  "overrides": {
+    "undici": ">=8.5.0",
+    "nodemailer": ">=9.0.1",
+    "ws": ">=8.21.0",
+    "uuid": ">=11.1.1",
+    "esbuild": ">=0.28.1",
+    "vite": "^7.3.5",
+    "@babel/core": ">=7.29.6",
+    "bigint-buffer": "npm:bigint-buffer-fixed@1.1.6",
+    "tar": ">=7.5.16"
+  },
   "scripts": {
     "build": "turbo build",
     "generate-metrics": "node scripts/generate-metrics.mjs",
@@ -24,13 +35,6 @@
     "node": ">=18"
   },
   "license": "AGPL-3.0-or-later",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3",
-      "esbuild",
-      "msgpackr-extract"
-    ]
-  },
   "packageManager": "pnpm@10.32.1+sha512.dcffc7b9dc455aa8555b7c0a5f71c9032fa9ff0d31308a81d0d13cb6c642b4893698c9f1fb4d36d2ae7e77a891f048f09574a7c8a215a8b4a3af53818378a75b",
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

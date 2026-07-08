@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: maplespike-ingest
+  name: quill-ingest
   namespace: maplespike
 spec:
   schedule: "*/30 * * * *"

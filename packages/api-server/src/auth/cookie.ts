@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Shared Cookie Utilities
+ * Quill — Shared Cookie Utilities
  *
  * Centralizes cookie serialization with consistent security flags.
  * Always sets: HttpOnly, Secure, SameSite=Lax

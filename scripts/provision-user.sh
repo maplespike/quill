@@ -16,7 +16,7 @@ set -euo pipefail
 NAME="${1:?Usage: provision-user.sh \"Name\" \"email\" [tier]}"
 EMAIL="${2:?Usage: provision-user.sh \"Name\" \"email\" [tier]}"
 TIER="${3:-pro}"
-DB_PATH="${MAPLESPIKE_DB_PATH:-./maplespike.db}"
+DB_PATH="${QUILL_DB_PATH:-./maplespike.db}"
 
 BOLD="\033[1m"
 GREEN="\033[32m"

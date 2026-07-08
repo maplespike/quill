@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Node Built-in SQLite Storage
+ * Quill — Node Built-in SQLite Storage
  *
  * Uses node:sqlite (built into Node 22+) — no native compilation needed.
  * This solves the better-sqlite3 GLIBC/NODE_MODULE_VERSION mismatch in Docker.
@@ -11,14 +11,14 @@
  */
 
 import { DatabaseSync } from 'node:sqlite';
-import type { MapleSpikeStorage, MapleSpikeCache, Tenant } from './types.js';
+import type { QuillStorage, QuillCache, Tenant } from './types.js';
 import { hashApiKey } from './auth.js';
 
-export class NodeSqliteStorage implements MapleSpikeStorage {
+export class NodeSqliteStorage implements QuillStorage {
   private db: DatabaseSync;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
+    const path = dbPath || process.env.QUILL_DB_PATH || './maplespike.db';
     this.db = new DatabaseSync(path);
     this.db.exec('PRAGMA journal_mode = WAL');
     this.db.exec('PRAGMA foreign_keys = ON');
@@ -91,7 +91,7 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
     // No hardcoded dev keys — use ALLOW_DEMO_KEYS env + auth.ts for development
   }
 
-  /* ── MapleSpikeStorage interface ─────────────────────────────── */
+  /* ── QuillStorage interface ─────────────────────────────── */
 
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string } | null> {
     const keyHash = hashApiKeySync(rawKey);
@@ -292,7 +292,7 @@ export class NodeSqliteStorage implements MapleSpikeStorage {
 
 /* ── Cache ────────────────────────────────────────────────────── */
 
-export class NodeSqliteCache implements MapleSpikeCache {
+export class NodeSqliteCache implements QuillCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {

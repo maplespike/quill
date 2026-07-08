@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /**
- * MapleSpike — Feature Gates
+ * Quill — Feature Gates
  *
  * Tier-based feature access enforcement. Every SaaS-gated feature checks
  * through this module so the gating logic lives in one place.

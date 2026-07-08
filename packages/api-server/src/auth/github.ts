@@ -1,5 +1,5 @@
 /**
- * MapleSpike — GitHub OAuth Routes
+ * Quill — GitHub OAuth Routes
  *
  * GET  /v1/auth/github          — redirect to GitHub OAuth
  * GET  /v1/auth/github/callback — handle OAuth callback

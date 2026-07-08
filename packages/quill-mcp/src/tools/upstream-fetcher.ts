@@ -441,8 +441,8 @@ export async function fetchProvincialData(province: string, query: string, limit
 // data via browser rendering and POSTs results to the extraction API.
 // This fetches those cached results so MCP tools have a fallback.
 
-const EXTRACTION_API_BASE = process.env.MAPLESPIKE_API_URL
-  ? `${process.env.MAPLESPIKE_API_URL.replace(/\/+$/, '')}`
+const EXTRACTION_API_BASE = process.env.QUILL_API_URL
+  ? `${process.env.QUILL_API_URL.replace(/\/+$/, '')}`
   : 'http://localhost:8082';
 
 const JURISDICTION_TO_SOURCE: Record<string, string[]> = {

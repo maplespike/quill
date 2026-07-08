@@ -12,7 +12,9 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FR_TOOLS_PATH = path.resolve(__dirname, '../../i18n/fr-tools.json');
 
-let frDescriptions: Record<string, string> = {};
+// Initialised to `null` so `if (frDescriptions)` correctly triggers lazy load.
+// (An empty object would be truthy — the JSON file would never be parsed.)
+let frDescriptions: Record<string, string> | null = null;
 
 function loadFrDescriptions(): Record<string, string> {
   if (frDescriptions) return frDescriptions;
@@ -26,7 +28,7 @@ function loadFrDescriptions(): Record<string, string> {
   } catch {
     frDescriptions = {};
   }
-  return frDescriptions;
+  return frDescriptions ?? {};
 }
 
 /**

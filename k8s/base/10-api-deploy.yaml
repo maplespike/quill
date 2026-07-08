@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maplespike-api
+  name: quill-api
   namespace: maplespike
   labels:
-    app: maplespike-api
+    app: quill-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: maplespike-api
+      app: quill-api
   template:
     metadata:
       labels:
-        app: maplespike-api
+        app: quill-api
     spec:
       containers:
       - name: api
-        image: localhost/maplespike-api:dev
+        image: localhost/quill-api:dev
         imagePullPolicy: Never
         ports:
         - containerPort: 8082
@@ -28,13 +28,13 @@ spec:
           value: "8082"
         - name: NODE_ENV
           value: "development"
-        - name: MAPLESPIKE_STORAGE
+        - name: QUILL_STORAGE
           value: "memory"
-        - name: MAPLESPIKE_QDRANT_ENDPOINT
+        - name: QUILL_QDRANT_ENDPOINT
           value: "http://qdrant:6333"
-        - name: MAPLESPIKE_QDRANT_COLLECTION
+        - name: QUILL_QDRANT_COLLECTION
           value: "maplespike"
-        - name: MAPLESPIKE_EMBED_MODEL
+        - name: QUILL_EMBED_MODEL
           value: "nvidia/llama-3.2-nv-embedqa-1b-v2"
         livenessProbe:
           httpGet:
@@ -59,11 +59,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-api
+  name: quill-api
   namespace: maplespike
 spec:
   selector:
-    app: maplespike-api
+    app: quill-api
   ports:
   - port: 8082
     targetPort: 8082

@@ -30,7 +30,7 @@
 #   MAPLESPIKE_PAGES_PROJECT     default: maplespike-brand
 #   MAPLESPIKE_APEX_DOMAIN       default: maplespike.ca
 #   MAPLESPIKE_PROD_BRANCH       default: main
-#   MAPLESPIKE_API_BASE          default: http://localhost:8787
+#   QUILL_API_BASE          default: http://localhost:8787
 #
 # Required env (for cloudflare-wire --apply):
 #   CLOUDFLARE_API_TOKEN         CF API token (or `wrangler login` first)
@@ -39,7 +39,7 @@
 # Required env (for secrets-k8s --apply):
 #   GH_TOKEN                     GitHub CLI token (with secret:write scope)
 #   KUBECONFIG_DEV_PATH          Path to maplespike-dev kubeconfig
-#   KUBECONFIG_PROD_PATH         Path to maplespike-prod kubeconfig
+#   KUBECONFIG_PROD_PATH         Path to quill-prod kubeconfig
 #
 # Required env (for cloudflare-wire IMAP secrets):
 #   IMAP_HOST / IMAP_USER / IMAP_PASS   e-Transfer reconciliation mailbox
@@ -67,7 +67,7 @@ REPO_ROOT="$SCRIPT_DIR"
 PAGES_PROJECT="${MAPLESPIKE_PAGES_PROJECT:-maplespike-brand}"
 APEX_DOMAIN="${MAPLESPIKE_APEX_DOMAIN:-maplespike.ca}"
 PROD_BRANCH="${MAPLESPIKE_PROD_BRANCH:-main}"
-API_BASE="${MAPLESPIKE_API_BASE:-http://localhost:8787}"
+API_BASE="${QUILL_API_BASE:-http://localhost:8787}"
 PLAN_FILE="${AUTOMATE_PLAN_FILE:-$REPO_ROOT/automate-plan.json}"
 
 # ─── flag parsing ────────────────────────────────────────────────────────────
@@ -231,7 +231,7 @@ cloudflare-wire() {
   if is_apply; then require_yolo; fi
 
   local kv_name="MAPLESPIKE_KV"
-  local d1_name="maplespike-cache"
+  local d1_name="quill-cache"
   local r2_name="maplespike-uploads"
 
   log "scanning existing resources on project '$PAGES_PROJECT'..."

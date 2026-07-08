@@ -16,7 +16,7 @@ import { httpGet } from '../../utils/http.js';
 
 const HANSARD_API_BASE = 'https://api.parliament.uk/historic-hansard/api';
 const HANSARD_TIMEOUT_MS = 20_000;
-const HANSARD_USER_AGENT = 'MapleSpike-Hansard/1.0 (+https://github.com/reverb256/maplespike)';
+const HANSARD_USER_AGENT = 'MapleSpike-Hansard/1.0 (+https://github.com/reverb256/quill)';
 
 interface HansardDebate {
   id: string;

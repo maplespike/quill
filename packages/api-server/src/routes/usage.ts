@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Usage Endpoint
+ * Quill — Usage Endpoint
  *
  * GET /v1/usage — Current period consumption
  */

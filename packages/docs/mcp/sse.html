@@ -123,17 +123,17 @@ li {
 <pre><code class="language-yaml">apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-quill
+  name: quill-mcp
   namespace: ai-inference
 spec:
   selector:
-    app: maplespike-quill
+    app: quill-mcp
   ports:
     - protocol: TCP
       port: 3001
       targetPort: 3001
 </code></pre>
-<p><strong>Cluster endpoint:</strong> <code>http://maplespike-quill.ai-inference.svc.lan:3001/sse</code></p>
+<p><strong>Cluster endpoint:</strong> <code>http://quill-mcp.ai-inference.svc.lan:3001/sse</code></p>
 <h2>Configuration</h2>
 <h3>Server-Side</h3>
 <p>Start the MCP server in SSE mode:</p>
@@ -146,7 +146,7 @@ spec:
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;maplespike&quot;: {
-      &quot;url&quot;: &quot;http://maplespike-quill.ai-inference.svc.lan:3001/sse&quot;
+      &quot;url&quot;: &quot;http://quill-mcp.ai-inference.svc.lan:3001/sse&quot;
     }
   }
 }
@@ -155,7 +155,7 @@ spec:
 <p>Add MCP Server:</p>
 <ul>
 <li><strong>Type:</strong> <code>url</code></li>
-<li><strong>URL:</strong> <code>http://maplespike-quill.ai-inference.svc.lan:3001/sse</code></li>
+<li><strong>URL:</strong> <code>http://quill-mcp.ai-inference.svc.lan:3001/sse</code></li>
 </ul>
 <h2>Request Flow</h2>
 <ol>
@@ -220,16 +220,16 @@ spec:
 </tbody></table>
 <h2>Health Check</h2>
 <p>The SSE server exposes a health endpoint:</p>
-<pre><code class="language-bash">curl http://maplespike-quill.ai-inference.svc.lan:3001/health
+<pre><code class="language-bash">curl http://quill-mcp.ai-inference.svc.lan:3001/health
 </code></pre>
 <h2>Troubleshooting</h2>
 <h3>Client Can&#39;t Connect</h3>
 <pre><code class="language-bash"># Verify the server is reachable
-curl -v http://maplespike-quill.ai-inference.svc.lan:3001/health
+curl -v http://quill-mcp.ai-inference.svc.lan:3001/health
 
 # Check for firewall or network policies
-kubectl -n ai-inference get pods -l app=maplespike-quill
-kubectl -n ai-inference logs deployment/maplespike-quill
+kubectl -n ai-inference get pods -l app=quill-mcp
+kubectl -n ai-inference logs deployment/quill-mcp
 </code></pre>
 <h3>Connection Drops</h3>
 <ul>

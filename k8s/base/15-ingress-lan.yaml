@@ -10,17 +10,17 @@
 # Routing matrix (canonical, see docs/ROUTING.md and decision 0004):
 #
 #   .lan (LAN-direct) ─────────────────────────────────────────────
-#     maplespike.lan        → maplespike-portal:8080  (user-facing portal)
-#     portal.maplespike.lan → maplespike-portal:8080
-#     api.maplespike.lan    → maplespike-api:8082
-#     mcp.maplespike.lan    → maplespike-quill:3001
-#     dev.maplespike.lan    → maplespike-portal:8080  (env=dev)
-#     dev-api.maplespike.lan → maplespike-api:8082
-#     dev-mcp.maplespike.lan → maplespike-quill:3001
+#     maplespike.lan        → quill-portal:8080  (user-facing portal)
+#     portal.maplespike.lan → quill-portal:8080
+#     api.maplespike.lan    → quill-api:8082
+#     mcp.maplespike.lan    → quill-mcp:3001
+#     dev.maplespike.lan    → quill-portal:8080  (env=dev)
+#     dev-api.maplespike.lan → quill-api:8082
+#     dev-mcp.maplespike.lan → quill-mcp:3001
 #
 #   .ca (external, via Cloudflare Tunnel) ──────────────────────────
-#     api.maplespike.ca → cloudflared → maplespike-api:8082
-#     mcp.maplespike.ca → cloudflared → maplespike-quill:3001
+#     api.maplespike.ca → cloudflared → quill-api:8082
+#     mcp.maplespike.ca → cloudflared → quill-mcp:3001
 #
 # TLS: cert-manager issues wildcard cert via step-ca Issuer
 #      (see 16-cert-issuer-lan.yaml, secret: maplespike-lan-tls).
@@ -60,7 +60,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-portal
+                name: quill-portal
                 port:
                   number: 8080
     - host: portal.maplespike.lan
@@ -70,7 +70,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-portal
+                name: quill-portal
                 port:
                   number: 8080
     - host: dev.maplespike.lan
@@ -80,7 +80,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-portal
+                name: quill-portal
                 port:
                   number: 8080
     - host: api.maplespike.lan
@@ -90,7 +90,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-api
+                name: quill-api
                 port:
                   number: 8082
     - host: dev-api.maplespike.lan
@@ -100,7 +100,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-api
+                name: quill-api
                 port:
                   number: 8082
     - host: mcp.maplespike.lan
@@ -110,7 +110,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-quill
+                name: quill-mcp
                 port:
                   number: 3001
     - host: dev-mcp.maplespike.lan
@@ -120,6 +120,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: maplespike-quill
+                name: quill-mcp
                 port:
                   number: 3001

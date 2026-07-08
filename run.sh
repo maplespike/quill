@@ -203,7 +203,7 @@ start_service() {
       cmd="node packages/api-server/dist/dev-server.js"
       ;;
     mcp)
-      cmd="MAPLESPIKE_LOCALE=${MAPLESPIKE_LOCALE:-en-CA} PORT=${MCP_PORT:-3001} node packages/quill-mcp/dist/cli.js"
+      cmd="QUILL_LOCALE=${QUILL_LOCALE:-en-CA} PORT=${MCP_PORT:-3001} node packages/quill-mcp/dist/cli.js"
       ;;
     portal)
       cmd="cd packages/portal && npx astro dev --port ${PORTAL_PORT:-4321}"

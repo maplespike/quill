@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Data Freshness Tracker
+ * Quill — Data Freshness Tracker
  *
  * Tracks when data was last ingested for each source,
  * computes freshness_seconds, confidence, and certainty_score.

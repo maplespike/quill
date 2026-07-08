@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Challenge Store (in-memory with TTL)
+ * Quill — Challenge Store (in-memory with TTL)
  *
  * Used by Web3 (SIWE) and Passkey (WebAuthn) auth flows.
  * Stores nonces/challenges temporarily for verification.

@@ -163,6 +163,8 @@ components:
 
 **Quill** is the first product shipped under the MapleSpike brand — an MCP server + REST API exposing 164 tools across 198 modules of Canada's public record. Parliamentary debates, federal open data, regulatory filings, corporate lobbying records, provincial datasets, and CanLII case law — all queryable through a single endpoint. The product page at `quill.maplespike.ca` and the in-app dashboard share this design system.
 
+> **Note (2026-07):** This repo was renamed `reverb256/maplespike` → `reverb256/quill`. Brand-level identifiers — domain `maplespike.ca`, npm scope `@maplespike/*` — are preserved. See [CHANGELOG.md](./CHANGELOG.md) for the rename entry.
+
 The UI evokes a command center: dark foundation, high-contrast data, color only for signal and severity. Tailwind handles all styling. Every number is tabular, every ID is mono, every transition is 200ms.
 
 ## Quill Page Layout
@@ -341,7 +343,7 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 
 ## Agent Prompt Guide
 
-**Context:** Quill — a sovereign MCP server + REST API for Canadian public record data. 164 tools, 198 modules. Product page at `quill.maplespike.ca`. Repo: `github.com/reverb256/maplespike`.
+**Context:** Quill — a sovereign MCP server + REST API for Canadian public record data. 164 tools, 198 modules. Product page at `quill.maplespike.ca`. Repo: `github.com/reverb256/quill`.
 
 **Bias:** dark canvas, tabular numerals, JetBrains Mono for code/IDs, red accent, dense tables, shimmer. Terminal snippets on elevated surface with copy button. Tool counts as stat cards.
 

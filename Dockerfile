@@ -88,7 +88,7 @@ ENV PORT=8080
 CMD ["python3", "/app/server.py"]
 
 # =============================================================================
-# Runtime: Ingestion Runner (runs a single pipeline by MAPLESPIKE_PIPELINE env)
+# Runtime: Ingestion Runner (runs a single pipeline by QUILL_PIPELINE env)
 # =============================================================================
 FROM docker.io/node:22-bookworm-slim AS ingestion
 
@@ -96,4 +96,4 @@ WORKDIR /app
 COPY --from=build /app /app
 
 ENV NODE_ENV=production
-CMD ["sh", "-c", "node --experimental-specifier-resolution=node packages/pipeline-core/dist/ingestion/run-pipeline.js --name=$MAPLESPIKE_PIPELINE"]
+CMD ["sh", "-c", "node --experimental-specifier-resolution=node packages/pipeline-core/dist/ingestion/run-pipeline.js --name=$QUILL_PIPELINE"]

@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Auth Module Barrel Exports
+ * Quill — Auth Module Barrel Exports
  */
 
 export * from './jwt.js';

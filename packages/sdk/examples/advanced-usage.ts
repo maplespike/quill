@@ -7,7 +7,7 @@
 import { MapleSpike, MapleSpikeError } from '@maplespike/sdk';
 
 const ms = new MapleSpike({
-  apiKey: process.env.MAPLESPIKE_API_KEY,
+  apiKey: process.env.QUILL_API_KEY,
   baseUrl: 'http://127.0.0.1:8082',
 });
 
@@ -39,7 +39,7 @@ async function advancedUsage() {
 
     // Using JWT authentication instead of API key
     const msJwt = new MapleSpike({
-      jwtToken: process.env.MAPLESPIKE_JWT_TOKEN,
+      jwtToken: process.env.QUILL_JWT_TOKEN,
       baseUrl: 'http://127.0.0.1:8082',
     });
 
@@ -60,7 +60,7 @@ async function advancedUsage() {
     console.log('Initially authenticated:', ms.isAuthenticated());
     ms.clearAuth();
     console.log('After clearAuth:', ms.isAuthenticated());
-    ms.apiKey = process.env.MAPLESPIKE_API_KEY;
+    ms.apiKey = process.env.QUILL_API_KEY;
     console.log('After setting new key:', ms.isAuthenticated());
 
   } catch (error) {

@@ -1,12 +1,12 @@
 /**
- * MapleSpike — API Key Management Endpoints
+ * Quill — API Key Management Endpoints
  *
  * GET    /v1/keys       — List API keys for the current tenant
  * POST   /v1/keys       — Create a new API key
  * DELETE /v1/keys/:id   — Revoke an API key
  */
 
-import type { RouteHandler, MapleSpikeStorage, Tenant } from '../types.js';
+import type { RouteHandler, QuillStorage, Tenant } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
 import { generateApiKey } from '../auth.js';
 import { canAccess } from '../feature-gates.js';
@@ -16,7 +16,7 @@ import { canAccess } from '../feature-gates.js';
  * Not all storage backends implement these (MemoryStorage uses registerTenant
  * instead), so we check their presence at runtime via typeof checks.
  */
-interface ExtendedStorage extends MapleSpikeStorage {
+interface ExtendedStorage extends QuillStorage {
   createApiKey?: (keyId: string, tenantId: string, keyHash: string, name: string, expiresAt?: string) => void | Promise<void>;
   registerTenant?: (tenant: Tenant, keyHash: string, keyId: string) => void | Promise<void>;
   revokeApiKey?: (keyId: string, tenantId: string) => void | Promise<void>;

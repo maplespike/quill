@@ -3,12 +3,12 @@
 /**
  * MapleSpike Ingestion Runner — K8s CronJob CLI entrypoint
  *
- * Reads MAPLESPIKE_PIPELINE env var and dispatches to the correct
+ * Reads QUILL_PIPELINE env var and dispatches to the correct
  * module via the ingestion registry.
  *
  * Usage:
- *   MAPLESPIKE_PIPELINE=committees node dist/cli/ingest.js
- *   MAPLESPIKE_PIPELINE=all node dist/cli/ingest.js
+ *   QUILL_PIPELINE=committees node dist/cli/ingest.js
+ *   QUILL_PIPELINE=all node dist/cli/ingest.js
  *
  * Supported pipelines:
  *   committees, corporate, influence, gazette, gic,
@@ -86,11 +86,11 @@ const PIPELINE_CONFIG: Record<string, string> = {
 };
 
 async function main() {
-  const pipeline = process.env.MAPLESPIKE_PIPELINE?.trim().toLowerCase() || 'help';
+  const pipeline = process.env.QUILL_PIPELINE?.trim().toLowerCase() || 'help';
 
   if (pipeline === 'help') {
     console.log('MapleSpike Ingestion Runner');
-    console.log('Usage: MAPLESPIKE_PIPELINE=<module> node dist/cli/ingest.js');
+    console.log('Usage: QUILL_PIPELINE=<module> node dist/cli/ingest.js');
     console.log('\nAvailable modules:');
     for (const [alias, modName] of Object.entries(PIPELINE_CONFIG).sort()) {
       const mod = getModule(modName);
@@ -124,7 +124,7 @@ async function main() {
   const moduleName = PIPELINE_CONFIG[pipeline];
   if (!moduleName) {
     console.error(`[CLI] Unknown pipeline: "${pipeline}"`);
-    console.error(`  Run without MAPLESPIKE_PIPELINE to see available modules`);
+    console.error(`  Run without QUILL_PIPELINE to see available modules`);
     process.exit(1);
   }
 

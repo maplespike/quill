@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Generic OAuth Provider Framework
+ * Quill — Generic OAuth Provider Framework
  *
  * Supports GitHub (built-in) plus any OAuth 2.0 provider via env config:
  *   MAPLESPIKE_OAUTH_{PROVIDER}_CLIENT_ID

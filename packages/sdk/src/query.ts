@@ -7,8 +7,8 @@ import { getApiKey, getJwtToken } from './auth.js';
 
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 
-export const DEFAULT_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
-const DEV_BASE_URL = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
+export const DEFAULT_BASE_URL = process.env.QUILL_API_URL || 'http://127.0.0.1:8085';
+const DEV_BASE_URL = process.env.QUILL_API_URL || 'http://127.0.0.1:8085';
 
 /**
  * Bilingual error message map for SDK-generated errors
