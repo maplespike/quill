@@ -1,17 +1,17 @@
 /**
- * MapleSpike — PostgreSQL Storage Backend
+ * Quill — PostgreSQL Storage Backend
  *
- * Implements MapleSpikeStorage using pg (node-postgres) for production deployments.
+ * Implements QuillStorage using pg (node-postgres) for production deployments.
  * Schema mirrors SqliteStorage exactly for seamless migration.
  */
 
 import pg from 'pg';
-import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,
@@ -19,18 +19,18 @@ const log = pino({
 
 const { Pool } = pg;
 
-export class PgStorage implements MapleSpikeStorage {
+export class PgStorage implements QuillStorage {
   private pool: pg.Pool;
 
   constructor(connectionString?: string) {
     const connStr = connectionString
       || process.env.DATABASE_URL
       || (() => {
-        const host = process.env.MAPLESPIKE_DB_HOST || 'localhost';
-        const port = process.env.MAPLESPIKE_DB_PORT || '5432';
-        const db   = process.env.MAPLESPIKE_DB_NAME || 'maplespike';
-        const user = process.env.MAPLESPIKE_DB_USER || 'maplespike';
-        const pass = process.env.MAPLESPIKE_DB_PASSWORD || '';
+        const host = process.env.QUILL_DB_HOST || 'localhost';
+        const port = process.env.QUILL_DB_PORT || '5432';
+        const db   = process.env.QUILL_DB_NAME || 'maplespike';
+        const user = process.env.QUILL_DB_USER || 'maplespike';
+        const pass = process.env.QUILL_DB_PASSWORD || '';
         return `postgresql://${user}:${pass}@${host}:${port}/${db}`;
       })();
 
@@ -153,7 +153,7 @@ export class PgStorage implements MapleSpikeStorage {
     `, ['dev-key-1', 'ms-internal', 'c73d089e582ca8a90a5e3543a1c2fe6f89afc0f9c82319cea56a804048075799', 'dev']);
   }
 
-  /*  MapleSpikeStorage Interface                                      */
+  /*  QuillStorage Interface                                      */
 
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
     const keyHash = await hashApiKey(rawKey);
@@ -361,7 +361,7 @@ export class PgStorage implements MapleSpikeStorage {
 }
 
 
-export class PgCache implements MapleSpikeCache {
+export class PgCache implements QuillCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {

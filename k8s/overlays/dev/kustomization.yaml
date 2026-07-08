@@ -16,18 +16,18 @@ resources:
 # Bump newTag to roll that image out via kustomize (more durable than kubectl patch
 # against a reconciling control plane).
 images:
-  - name: maplespike-portal
-    newName: localhost/maplespike-portal
+  - name: quill-portal
+    newName: localhost/quill-portal
     newTag: v2-corsfix-20260701-2049
-  - name: maplespike-api
-    newName: localhost/maplespike-api
+  - name: quill-api
+    newName: localhost/quill-api
     newTag: v2-corsfix-20260701-2049
 
 # Environment-specific config
 patches:
   - target:
       kind: Deployment
-      name: maplespike-api
+      name: quill-api
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-
@@ -37,20 +37,20 @@ patches:
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
-          name: MAPLESPIKE_STORAGE
+          name: QUILL_STORAGE
           value: "sqlite"
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
-          name: MAPLESPIKE_DB_PATH
+          name: QUILL_DB_PATH
           value: "/data/maplespike.db"
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
-          name: MAPLESPIKE_AI_ENDPOINT
+          name: QUILL_AI_ENDPOINT
           value: "http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1"
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
-          name: MAPLESPIKE_AI_MODEL
+          name: QUILL_AI_MODEL
           value: "glm-5.2"

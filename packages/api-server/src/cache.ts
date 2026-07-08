@@ -1,5 +1,5 @@
 /**
- * MapleSpike — In-Memory Cache
+ * Quill — In-Memory Cache
  *
  * Simple TTL-based cache with hit/miss tracking for cacheStatus reporting.
  * Can be upgraded to Redis later.

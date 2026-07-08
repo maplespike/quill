@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Usage Tracking & Quota Enforcement
+ * Quill — Usage Tracking & Quota Enforcement
  *
  * Tracks API requests per tenant and enforces tier-based quotas.
  * Uses in-memory sliding window counters (replace with DB for production).

@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Citation Endpoint (Real)
+ * Quill — Citation Endpoint (Real)
  *
  * GET /v1/citation/:hash — Verify a SHA-256 citation hash against real pipeline data.
  *
@@ -18,7 +18,7 @@ import { existsSync, readFileSync } from 'fs';
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,

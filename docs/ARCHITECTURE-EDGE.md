@@ -68,7 +68,7 @@
 
 ```typescript
 // wrangler.toml
-name = "maplespike-edge"
+name = "quill-edge"
 main = "packages/edge-worker/src/index.ts"
 compatibility_date = "2024-01-01"
 
@@ -89,7 +89,7 @@ id = "YOUR_KV_ID"
 # D1 for cached data (optional)
 [[d1_databases]]
 binding = "CACHE_DB"
-database_name = "maplespike-cache"
+database_name = "quill-cache"
 database_id = "YOUR_D1_ID"
 ```
 

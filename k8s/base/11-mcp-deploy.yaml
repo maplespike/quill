@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maplespike-quill
+  name: quill-mcp
   namespace: maplespike
   labels:
-    app: maplespike-quill
+    app: quill-mcp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: maplespike-quill
+      app: quill-mcp
   template:
     metadata:
       labels:
-        app: maplespike-quill
+        app: quill-mcp
     spec:
       containers:
       - name: mcp
-        image: localhost/maplespike-quill:dev
+        image: localhost/quill-mcp:dev
         imagePullPolicy: Never
         ports:
         - containerPort: 3001
@@ -26,8 +26,8 @@ spec:
           value: "3001"
         - name: NODE_ENV
           value: "development"
-        - name: MAPLESPIKE_API_URL
-          value: "http://maplespike-api:8082"
+        - name: QUILL_API_URL
+          value: "http://quill-api:8082"
         resources:
           limits:
             cpu: 200m
@@ -39,11 +39,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-quill
+  name: quill-mcp
   namespace: maplespike
 spec:
   selector:
-    app: maplespike-quill
+    app: quill-mcp
   ports:
   - port: 3001
     targetPort: 3001

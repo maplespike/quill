@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Passkey Auth Routes
+ * Quill — Passkey Auth Routes
  *
  * POST /v1/auth/passkey/register/begin — Get WebAuthn registration options
  * POST /v1/auth/passkey/register/complete — Verify registration

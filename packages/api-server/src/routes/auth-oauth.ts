@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Generic OAuth Routes
+ * Quill — Generic OAuth Routes
  *
  * GET  /v1/auth/oauth/:provider           — redirect to provider
  * GET  /v1/auth/oauth/:provider/callback   — handle callback → JWT + one-time code

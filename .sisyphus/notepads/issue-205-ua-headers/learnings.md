@@ -9,7 +9,7 @@
 - `packages/sdk/src/query.ts` — +USER_AGENT const, added to buildHeaders() (actual fetch in index.ts uses buildHeaders)
 
 ## Verified Already Correct (no action)
-- `packages/pipeline-core/src/ingestion/rss.ts` — default UA: `MapleSpike-Canada/1.0 (+https://github.com/reverb256/maplespike)`
+- `packages/pipeline-core/src/ingestion/rss.ts` — default UA: `MapleSpike-Canada/1.0 (+https://github.com/reverb256/quill)`
 
 ## UA String Used Consistently
 `MapleSpike/0.2 (+https://maplespike.lan)` — defined as `const USER_AGENT` at top of each file

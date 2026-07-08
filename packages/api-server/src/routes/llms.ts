@@ -1,5 +1,5 @@
 /**
- * MapleSpike — llms.txt & llms-full.txt Endpoints
+ * Quill — llms.txt & llms-full.txt Endpoints
  *
  * Dynamically generated from route data so they stay in sync
  * with the API spec automatically.
@@ -145,7 +145,7 @@ function generateLlmFullTxt(config: { name: string; version: string }): string {
     `> License: AGPL-3.0 (pipeline-core) / MIT (other packages)`,
     `> API Base URL: https://api.maplespike.lan/v1`,
     '> MCP Endpoint: https://mcp.maplespike.lan (SSE transport)',
-    `> Pipeline Source: https://github.com/reverb256/maplespike`,
+    `> Pipeline Source: https://github.com/reverb256/quill`,
     '',
     '---',
     '',
@@ -156,14 +156,14 @@ function generateLlmFullTxt(config: { name: string; version: string }): string {
     'Get your API key at https://maplespike.lan. For local development, use:',
     '',
     '```bash',
-    'export MAPLESPIKE_API_KEY="your-key-here"',
+    'export QUILL_API_KEY="your-key-here"',
     '```',
     '',
     '### 1.2 Make Your First API Call',
     '',
     '```bash',
     'curl https://api.maplespike.lan/v1/gov/search \\',
-    '  -H "Authorization: Bearer $MAPLESPIKE_API_KEY" \\',
+    '  -H "Authorization: Bearer $QUILL_API_KEY" \\',
     '  -G -d "query=housing" -d "jurisdiction=federal" -d "limit=3"',
     '```',
     '',

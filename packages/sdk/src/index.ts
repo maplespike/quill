@@ -582,10 +582,10 @@ export class MapleSpike {
 
   /**
    * Get the MCP server URL for direct AI agent integration.
-   * Set via MAPLESPIKE_MCP_URL or defaults to production.
+   * Set via QUILL_MCP_URL or defaults to production.
    */
   getMcpUrl(): string {
-    return process?.env?.MAPLESPIKE_MCP_URL ?? 'https://mcp.maplespike.ca';
+    return process?.env?.QUILL_MCP_URL ?? 'https://mcp.maplespike.ca';
   }
 
   /**

@@ -39,7 +39,7 @@ check_pods() {
 
 check_logs() {
   echo "  Checking logs (24h)..."
-  API_ERRORS=$(kubectl logs -n "$NAMESPACE" -l app=maplespike-api --since=24h 2>/dev/null | grep -iE "error|fail" | tail -2 || true)
+  API_ERRORS=$(kubectl logs -n "$NAMESPACE" -l app=quill-api --since=24h 2>/dev/null | grep -iE "error|fail" | tail -2 || true)
   [ -n "$API_ERRORS" ] && warning "API errors: $API_ERRORS"
 }
 

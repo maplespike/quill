@@ -11,7 +11,7 @@ Operator-facing quick reference. The rationale lives in [decisions/0004-split-ho
 
 | Host family | Entry point | Backends |
 |---|---|---|
-| `*.maplespike.lan` | k3s Traefik Ingress on the LAN | `maplespike-portal:8080`, `maplespike-api:8082`, `maplespike-quill:3001` |
+| `*.maplespike.lan` | k3s Traefik Ingress on the LAN | `quill-portal:8080`, `quill-api:8082`, `quill-mcp:3001` |
 | `*.maplespike.ca` | Cloudflare Edge → Tunnel → `cloudflared` pod in k3s | same three Services |
 
 Both entry points terminate at the SAME three k3s Services — there is one upstream to maintain.
@@ -20,17 +20,17 @@ Both entry points terminate at the SAME three k3s Services — there is one upst
 
 | Host | Service |
 |---|---|
-| `maplespike.lan` | `maplespike-portal:8080` |
-| `portal.maplespike.lan` | `maplespike-portal:8080` |
-| `dev.maplespike.lan` | `maplespike-portal:8080` (dev layout) |
-| `api.maplespike.lan`, `dev-api.maplespike.lan` | `maplespike-api:8082` |
-| `mcp.maplespike.lan`, `dev-mcp.maplespike.lan` | `maplespike-quill:3001` *(Phase D: 301 redirect to `quill.maplespike.lan`; keep for backward compat)* |
-| `quill.maplespike.lan` | `maplespike-quill:3001` *(canonical LAN hostname; Phase D)* |
+| `maplespike.lan` | `quill-portal:8080` |
+| `portal.maplespike.lan` | `quill-portal:8080` |
+| `dev.maplespike.lan` | `quill-portal:8080` (dev layout) |
+| `api.maplespike.lan`, `dev-api.maplespike.lan` | `quill-api:8082` |
+| `mcp.maplespike.lan`, `dev-mcp.maplespike.lan` | `quill-mcp:3001` *(Phase D: 301 redirect to `quill.maplespike.lan`; keep for backward compat)* |
+| `quill.maplespike.lan` | `quill-mcp:3001` *(canonical LAN hostname; Phase D)* |
 | `maplespike.ca` | Cloudflare Pages (landing — out of cluster scope) |
-| `api.maplespike.ca` | `cloudflared` → `maplespike-api:8082` |
-| `mcp.maplespike.ca` | `cloudflared` → `maplespike-quill:3001` *(Phase D: 301 redirect to `quill.maplespike.ca`; keep for backward compat)* |
-| `data.maplespike.ca` | `cloudflared` → `maplespike-portal:8080` *(Phase D: 301 redirect to `quill.maplespike.ca`; legacy alias)* |
-| `quill.maplespike.ca` | `cloudflared` → `maplespike-quill:3001` *(canonical public hostname; see [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md))* |
+| `api.maplespike.ca` | `cloudflared` → `quill-api:8082` |
+| `mcp.maplespike.ca` | `cloudflared` → `quill-mcp:3001` *(Phase D: 301 redirect to `quill.maplespike.ca`; keep for backward compat)* |
+| `data.maplespike.ca` | `cloudflared` → `quill-portal:8080` *(Phase D: 301 redirect to `quill.maplespike.ca`; legacy alias)* |
+| `quill.maplespike.ca` | `cloudflared` → `quill-mcp:3001` *(canonical public hostname; see [decisions/0006-quill-hostname-alias.md](decisions/0006-quill-hostname-alias.md))* |
 
 ## TLS strategy
 
@@ -120,4 +120,4 @@ If both green, you can `git rm maplespike/config/Caddyfile.deprecated`.
 | `curl https://api.maplespike.lan/` returns TLS error | step-ca not yet bootstrapped | run `scripts/setup-stepca-lan.sh`; ensure `step-ca` is running |
 | `kubectl describe certificate maplespike-lan-wildcard` shows `not ready` | step-issuer Secret wrong | re-run setup, re-do the `kubectl create secret` snippet |
 | `https://api.maplespike.ca/` 502 / 521 | cloudflared pod not connected | `kubectl logs -n maplespike deployment/cloudflared` |
-| `https://maplespike.lan/` 200 but body 404 | Portal Deployment image not built | `docker build --target portal -t maplespike-portal:dev .` |
+| `https://maplespike.lan/` 200 but body 404 | Portal Deployment image not built | `docker build --target portal -t quill-portal:dev .` |

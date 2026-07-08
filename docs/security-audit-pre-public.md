@@ -18,7 +18,7 @@ Pattern: `.env`, `.pem`, `.key`, `.p12`, `.kubeconfig`, `.netrc`, `id_rsa`, `id_
 
 ## Phase 2 — Secret-shaped content (working tree)
 
-Patterns: PEM private keys, AWS access keys (`AKIA…`/`ASIA…`), aws_secret_access_key, GitHub PATs (`ghp_…`/`gho_…`/`github_pat_…`), OpenAI/Stripe/Slack tokens, MAPLESPIKE_PII_HASH_SECRET literal, AKASH_MNEMONIC/SEED/PASSWORD/KEY/OPERATOR_ADDRESS/CHAIN_ID literals.
+Patterns: PEM private keys, AWS access keys (`AKIA…`/`ASIA…`), aws_secret_access_key, GitHub PATs (`ghp_…`/`gho_…`/`github_pat_…`), OpenAI/Stripe/Slack tokens, QUILL_PII_HASH_SECRET literal, AKASH_MNEMONIC/SEED/PASSWORD/KEY/OPERATOR_ADDRESS/CHAIN_ID literals.
 
 (none)
 

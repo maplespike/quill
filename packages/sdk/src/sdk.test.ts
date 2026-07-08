@@ -84,7 +84,7 @@ void describe('@maplespike/sdk', () => {
 
   void it('query in mock mode handles responses with empty/sparse data', async () => {
     const { MapleSpike } = require('../dist/index.cjs');
-    const testBase = process.env.MAPLESPIKE_API_URL || 'http://127.0.0.1:8085';
+    const testBase = process.env.QUILL_API_URL || 'http://127.0.0.1:8085';
     const ms = new MapleSpike({ apiKey: 'test', baseUrl: testBase });
 
     // _mock: true — server returns mock data without hitting upstream sources

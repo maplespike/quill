@@ -14,23 +14,23 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: maplespike-api
+  name: quill-api
   namespace: maplespike
   labels:
-    app: maplespike-api
+    app: quill-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: maplespike-api
+      app: quill-api
   template:
     metadata:
       labels:
-        app: maplespike-api
+        app: quill-api
     spec:
       containers:
       - name: api
-        image: ghcr.io/reverb256/maplespike/api-server:dev
+        image: ghcr.io/reverb256/quill/api-server:dev
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
@@ -41,7 +41,7 @@ spec:
           value: "8082"
         - name: NODE_ENV
           value: "development"
-        - name: MAPLESPIKE_STORAGE
+        - name: QUILL_STORAGE
           value: "memory"
         livenessProbe:
           httpGet:
@@ -66,11 +66,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: maplespike-api
+  name: quill-api
   namespace: maplespike
 spec:
   selector:
-    app: maplespike-api
+    app: quill-api
   ports:
   - port: 8082
     targetPort: 8082
@@ -80,7 +80,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: maplespike-ingest-test
+  name: quill-ingest-test
   namespace: maplespike
 spec:
   schedule: "*/30 * * * *"
@@ -100,7 +100,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: maplespike-ingest-cronjob
+  name: quill-ingest-cronjob
   namespace: ai-inference
 spec:
   schedule: "0 6 * * *"
@@ -110,7 +110,7 @@ spec:
         spec:
           containers:
           - name: ingest
-            image: ghcr.io/reverb256/maplespike/ingest:dev
+            image: ghcr.io/reverb256/quill/ingest:dev
             imagePullPolicy: Always
             env:
             - name: NODE_ENV

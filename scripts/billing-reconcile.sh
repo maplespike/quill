@@ -18,5 +18,5 @@ fi
 # Call reconciliation endpoint with billing secret
 curl -X POST http://localhost:8082/v1/billing/reconcile \
   -H "Content-Type: application/json" \
-  -H "X-Billing-Secret: $MAPLESPIKE_BILLING_SECRET" \
+  -H "X-Billing-Secret: $QUILL_BILLING_SECRET" \
   2>&1 | logger -t maplespike-billing

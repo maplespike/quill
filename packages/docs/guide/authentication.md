@@ -40,7 +40,7 @@ Manage your API keys via the `/v1/keys` endpoints:
 
 For local development, use:
 ```
-MAPLESPIKE_API_KEY=maplespike-dev-key
+QUILL_API_KEY=maplespike-dev-key
 ```
 
 ## JWT Authentication (Planned) 🚧

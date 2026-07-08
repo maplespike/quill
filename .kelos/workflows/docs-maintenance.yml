@@ -1,6 +1,6 @@
 # Kelos Workflow: Documentation Maintenance
 # Scans docs daily/weekly, auto-creates GitHub issues for detected gaps.
-# Issue #369 — https://github.com/reverb256/maplespike/issues/369
+# Issue #369 — https://github.com/reverb256/quill/issues/369
 #
 # Three scan tasks:
 #   1. Daily: Metadata coverage (missing/stale last-reviewed)

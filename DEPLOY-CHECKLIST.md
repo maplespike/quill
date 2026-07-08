@@ -1,79 +1,45 @@
-> ⚠️ **Historical artifact** — This document is preserved for context. The single source of truth for the active backlog is [`ROADMAP.md`](./ROADMAP.md). Do not edit without also updating ROADMAP.md.
-
-
 # MapleSpike — maplespike.ca Deployment Checklist
 
 > **Goal:** Get Core MCP live and accepting paying customers.
-> **Domain:** maplespike.ca (registered, connecting to Cloudflare)
+> **Domain:** maplespike.ca (registered, Cloudflare DNS active)
 
 ---
 
 ## Step 1: DNS + Tunnel Setup
 
 ### 1a. Domain (maplespike.ca)
-- [ ] Domain `maplespike.ca` registered
-- [ ] Added to Cloudflare (nameservers updated)
-- [ ] DNS propagation confirmed (`dig maplespike.ca`)
+- [x] Domain `maplespike.ca` registered
+- [x] Added to Cloudflare (nameservers updated)
+- [x] DNS propagation confirmed (`dig maplespike.ca`)
 
-### 1b. Choose Tunnel Strategy
+### 1b. Cloudflare Tunnel (canonical routing)
 
-**Option A: Cloudflare Tunnel (Recommended for Production)**
-- Pros: DDoS protection, WAF, caching, analytics, professional
-- Cons: Requires Cloudflare account, tunnel token management
+All `*.maplespike.ca` traffic flows through a single Cloudflare Tunnel
+(per ADR 0004). Tailscale Funnel and CF Pages/Workers alternatives are
+deprecated.
 
-```bash
-# On your K3s node:
-curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
-chmod +x /usr/local/bin/cloudflared
-cloudflared tunnel login
-cloudflared tunnel create maplespike-k8s
-cloudflared tunnel route dns maplespike-k8s api.maplespike.ca
-cloudflared tunnel route dns maplespike-k8s mcp.maplespike.ca
-# Note: maplespike.ca (root) is intentionally NOT routed via the tunnel.
-# It's served by Cloudflare Pages (per Step 1c). Adding a tunnel route
-# here would create a CNAME pointing at the tunnel, but the tunnel's
-# ingress has no service for the root domain (only api/mcp/quill/
-# datafabric/data maplespike.ca), so traffic would hit the catch-all 404.
+**Active ingress (cloudflared ConfigMap in K8s):**
+
+```yaml
+tunnel: cec1b070-796f-4524-b43e-9b05c32af906
+ingress:
+  - hostname: maplespike.ca       → portal:8080  (landing page)
+  - hostname: www.maplespike.ca   → portal:8080  (alias)
+  - hostname: quill.maplespike.ca → portal:8080  (product page)
+  - hostname: api.maplespike.ca   → api:8082     (REST API)
+  - hostname: mcp.maplespike.ca   → mcp:3001     (MCP SSE server)
+  - service: http_status:404      (catch-all)
 ```
-
-Then deploy via K3s: `kubectl apply -k k8s/base/` (canonical kustomize path; includes `05-cloudflared.yaml` since the 2026-07-04 kustomization.yaml fix — previously the kustomization omitted it, so cloudflared was silently dropped from the deploy)
-
-> **Note (2026-07-01):** **Only Option A (Cloudflare Tunnel) is supported
-> going forward — no other public-tunnel variants.** This is the single
-> canonical external-exposure mechanism for all `*.maplespike.ca` traffic
-> (per `docs/decisions/0004-split-hostname-routing.md`). The previous
-> "Option B: Tailscale Funnel" and "Option C: hybrid" variants are
-> **deprecated** — they create competing paths into the cluster, confuse
-> routing observability (two egress points, two secrets to rotate, two
-> DNS surfaces), and the cluster already terminates at exactly the three
-> K8s Services that cloudflared forwards to. If you need LAN-direct
-> access during development, use `*.maplespike.lan` (Traefik Ingress;
-> see `docs/ROUTING.md`) instead of a separate public tunnel. The
-> historical Cloudflare-Worker  alternative shapes
-> remain in `docs/ARCHITECTURE-EDGE.md` for reference but are
-> **superseded 2026-07-01** and are not part of the active routing path.
 
 ### 1c. DNS Records (Cloudflare)
 
 | Subdomain | Type | Target | Purpose |
 |-----------|------|--------|---------|
-| `maplespike.ca` | CNAME | Cloudflare Pages / GitHub Pages | Landing page + docs |
-| `api.maplespike.ca` | CNAME | tunnel → K3s API | REST API |
-| `mcp.maplespike.ca` | CNAME | tunnel → K3s MCP | MCP SSE server |
-
-### 1d. Static Site (Landing Page)
-
-**Option A: Cloudflare Pages (Recommended)**
-- Free, fast global CDN, auto-deploy from GitHub
-- Connect repo → auto-build on push to main
-- Custom domain: `maplespike.ca` (root)
-
-**Option B: GitHub Pages**
-- Free, auto-deploy from GitHub Actions
-- Custom domain: `maplespike.ca` (root)
-- Slightly slower than Cloudflare Pages globally
-
-Both options deploy the `packages/portal` Astro build as a static site.
+| `maplespike.ca` | CNAME | tunnel | Portal (landing + docs) |
+| `www.maplespike.ca` | CNAME | tunnel | Portal alias |
+| `quill.maplespike.ca` | CNAME | tunnel | Quill product page |
+| `api.maplespike.ca` | CNAME | tunnel | REST API |
+| `mcp.maplespike.ca` | CNAME | tunnel | MCP SSE server |
 
 ---
 

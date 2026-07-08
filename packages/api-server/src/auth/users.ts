@@ -1,5 +1,5 @@
 /**
- * MapleSpike — User Storage (In-Memory)
+ * Quill — User Storage (In-Memory)
  *
  * Stores user accounts created via GitHub OAuth.
  * Can be upgraded to DB later.

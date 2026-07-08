@@ -43,7 +43,7 @@ Create a `.env` file in the root directory:
 
 ```bash
 # API Server
-MAPLESPIKE_API_KEY=maplespike-dev-key
+QUILL_API_KEY=maplespike-dev-key
 API_PORT=8082
 
 # MCP Server

@@ -62,4 +62,4 @@ export const NGO_RSS_FETCH_TIMEOUT_MS = 30_000;
 export const MAX_ITEMS_PER_SOURCE = 50;
 
 /** User agent for RSS fetches */
-export const NGO_RSS_USER_AGENT = 'MapleSpike-NGO-Influence/1.0 (+https://github.com/reverb256/maplespike)';
+export const NGO_RSS_USER_AGENT = 'MapleSpike-NGO-Influence/1.0 (+https://github.com/reverb256/quill)';

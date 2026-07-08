@@ -18,7 +18,7 @@
 #   Workers:      100K requests/day
 #   Cron:         5 scheduled invocations/day (1 used for retention)
 
-name = "maplespike-ai"
+name = "quill-ai"
 main = "src/ai-worker.ts"
 compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
@@ -47,7 +47,7 @@ id = "73309fa7752641fbaf32ae4a5b5b47fd"
 # ── D1 Database ─────────────────────────────────────────────────────────
 [[d1_databases]]
 binding = "AUDIT_DB"
-database_name = "maplespike-audit"
+database_name = "quill-audit"
 database_id = "a9579d19-39da-454c-a65d-a7d83f0ee080"
 
 # ── Vars (non-secret config) ────────────────────────────────────────────

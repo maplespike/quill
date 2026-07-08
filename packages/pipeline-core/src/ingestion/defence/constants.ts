@@ -1,5 +1,5 @@
 /**
- * MapleSpike — National Defence Data Source Constants
+ * Quill — National Defence Data Source Constants
  *
  * DND/CAF personnel, procurement, and spending data from CKAN.
  * All under Open Government Licence – Canada.

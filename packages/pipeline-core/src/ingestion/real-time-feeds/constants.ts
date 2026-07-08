@@ -77,7 +77,7 @@ export const REALTIME_SOURCES: RealtimeSourceConfig[] = [
 ];
 
 export const REALTIME_FETCH_TIMEOUT_MS = 15_000;
-export const REALTIME_USER_AGENT = 'MapleSpike-Realtime/1.0 (+https://github.com/reverb256/maplespike)';
+export const REALTIME_USER_AGENT = 'MapleSpike-Realtime/1.0 (+https://github.com/reverb256/quill)';
 export const MAX_REALTIME_RECORDS = 200;
 export const REALTIME_CACHE_TTL_MS = 60_000; // 1-minute cache for fast re-queries
 

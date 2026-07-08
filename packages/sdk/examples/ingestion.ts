@@ -8,7 +8,7 @@ import { MapleSpike } from '@maplespike/sdk';
 import { readFileSync } from 'fs';
 
 const ms = new MapleSpike({
-  apiKey: process.env.MAPLESPIKE_API_KEY,
+  apiKey: process.env.QUILL_API_KEY,
   baseUrl: 'http://127.0.0.1:8082',
 });
 

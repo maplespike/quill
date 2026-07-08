@@ -37,7 +37,7 @@ Examples:
   $0 --runtime dev                # Check local dev server
   $0 --runtime k8s                # Full K8s health check
   $0 --runtime cicd --skip-k8s    # CI/CD without kubectl
-  $0 maplespike-prod              # Check prod namespace
+  $0 quill-prod              # Check prod namespace
 USAGE
   exit 0
 }
@@ -89,18 +89,18 @@ check_endpoint() {
     podman|docker)
       # Container runtimes — use localhost with well-known ports
       case "$service" in
-        maplespike-api)  url="http://localhost:8082${endpoint}" ;;
-        maplespike-quill)  url="http://localhost:3001${endpoint}" ;;
-        maplespike-portal) url="http://localhost:8080${endpoint:-/}" ;;
+        quill-api)  url="http://localhost:8082${endpoint}" ;;
+        quill-mcp)  url="http://localhost:3001${endpoint}" ;;
+        quill-portal) url="http://localhost:8080${endpoint:-/}" ;;
         *) url="http://localhost${endpoint}" ;;
       esac
       ;;
     dev|nix|cicd|unknown)
       # Direct node processes — use dev ports
       case "$service" in
-        maplespike-api)  url="http://localhost:8082${endpoint}" ;;
-        maplespike-quill)  url="http://localhost:3001${endpoint}" ;;
-        maplespike-portal) url="http://localhost:4321${endpoint:-/}" ;;
+        quill-api)  url="http://localhost:8082${endpoint}" ;;
+        quill-mcp)  url="http://localhost:3001${endpoint}" ;;
+        quill-portal) url="http://localhost:4321${endpoint:-/}" ;;
         *) url="http://localhost${endpoint}" ;;
       esac
       ;;
@@ -220,21 +220,21 @@ generate_report() {
   local services
   case "$RUNTIME" in
     k8s)
-      services="maplespike-api maplespike-quill maplespike-portal"
+      services="quill-api quill-mcp quill-portal"
       ;;
     podman|docker)
-      services="maplespike-api maplespike-quill maplespike-portal"
+      services="quill-api quill-mcp quill-portal"
       ;;
     dev|nix|cicd|unknown)
-      services="maplespike-api maplespike-quill maplespike-portal"
+      services="quill-api quill-mcp quill-portal"
       ;;
   esac
 
   # Build service endpoints map
   declare -A endpoints
-  endpoints[maplespike-api]="/v1/health"
-  endpoints[maplespike-quill]="/health"
-  endpoints[maplespike-portal]="/"
+  endpoints[quill-api]="/v1/health"
+  endpoints[quill]="/health"
+  endpoints[quill-portal]="/"
 
   # Collect health data
   local pod_status

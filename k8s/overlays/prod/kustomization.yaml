@@ -10,7 +10,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: maplespike-prod
+namespace: quill-prod
 
 resources:
   - ../../base
@@ -21,17 +21,17 @@ resources:
   - configmap.yaml
 
 images:
-  - name: maplespike-portal
-    newName: ghcr.io/reverb256/maplespike-portal
+  - name: quill-portal
+    newName: ghcr.io/reverb256/quill-portal
     newTag: stable
-  - name: maplespike-api
-    newName: ghcr.io/reverb256/maplespike-api
+  - name: quill-api
+    newName: ghcr.io/reverb256/quill-api
     newTag: stable
 
 patches:
   - target:
       kind: Deployment
-      name: maplespike-api
+      name: quill-api
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-
@@ -41,12 +41,12 @@ patches:
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
-          name: MAPLESPIKE_STORAGE
+          name: QUILL_STORAGE
           value: "postgres"
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
-          name: MAPLESPIKE_AI_MODEL
+          name: QUILL_AI_MODEL
           value: "glm-5.2"
       # DATABASE_URL must be provided via secret
       # JWT_SECRET must be provided via secret

@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Bilingual Error Codes
+ * Quill — Bilingual Error Codes
  *
  * Central registry of all API error codes with bilingual (EN/FR) messages.
  * Every error response includes both languages so clients can render

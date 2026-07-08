@@ -1,20 +1,20 @@
 /**
- * MapleSpike — SQLite Storage Backend
+ * Quill — SQLite Storage Backend
  *
- * Implements MapleSpikeStorage using better-sqlite3 for local/container deployments.
+ * Implements QuillStorage using better-sqlite3 for local/container deployments.
  * Table schemas match the D1 schema from schema.sql exactly.
  */
 
 import Database from 'better-sqlite3';
-import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
 
 
-export class SqliteStorage implements MapleSpikeStorage {
+export class SqliteStorage implements QuillStorage {
   private db: Database.Database;
 
   constructor(dbPath?: string) {
-    const path = dbPath || process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
+    const path = dbPath || process.env.QUILL_DB_PATH || './maplespike.db';
     this.db = new Database(path);
 
     // Enable WAL mode for better concurrent read performance
@@ -143,7 +143,7 @@ export class SqliteStorage implements MapleSpikeStorage {
     );
   }
 
-  /*  MapleSpikeStorage Interface                                          */
+  /*  QuillStorage Interface                                          */
 
   async authenticate(rawKey: string): Promise<{ tenant: Tenant; apiKeyId: string; rotatedKey?: { id: string; key: string; expiresAt: string } } | null> {
     const keyHash = await hashApiKey(rawKey);
@@ -353,7 +353,7 @@ export class SqliteStorage implements MapleSpikeStorage {
 }
 
 
-export class SqliteStorageCache implements MapleSpikeCache {
+export class SqliteStorageCache implements QuillCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {

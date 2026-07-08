@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Data Quality Checker
+ * Quill — Data Quality Checker
  *
  * Probes healthCheckUrl for all modules, checks freshness vs updateFrequency,
  * and aggregates error rates from pipeline ingestion events.

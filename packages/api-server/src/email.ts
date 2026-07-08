@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Email Service
+ * Quill — Email Service
  *
  * Sends transactional emails (verification, welcome, onboarding).
  * Supports SendGrid API (recommended) and console fallback for development.
@@ -12,7 +12,7 @@
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,

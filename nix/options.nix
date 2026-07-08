@@ -15,7 +15,7 @@ in
 
     prodNamespace = mkOption {
       type = types.str;
-      default = "maplespike-prod";
+      default = "quill-prod";
       description = "K8s namespace for prod deployment";
     };
 

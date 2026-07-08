@@ -37,7 +37,7 @@ Build container images tagged `:dev` for dev deployment:
 
 ```bash
 nix run .#deploy-dev
-# builds: maplespike-quill-image, maplespike-api-image, maplespike-portal-image
+# builds: quill-mcp-image, quill-api-image, quill-portal-image
 # then apply k8s/dev/ manifests
 ```
 
@@ -47,7 +47,7 @@ Build container images tagged `:stable` for production deployment:
 
 ```bash
 nix run .#deploy-prod
-# builds: maplespike-quill-image, maplespike-api-image, maplespike-portal-image
+# builds: quill-mcp-image, quill-api-image, quill-portal-image
 # then apply k8s/prod/ manifests
 ```
 
@@ -67,11 +67,11 @@ Currently checks:
 Also available via packages:
 
 ```bash
-nix build ".#maplespike-build-all"     # build all images
-nix build ".#maplespike-push-all"      # build + push all images
-nix build ".#maplespike-quill-image"     # build single image
-nix build ".#maplespike-api-image"
-nix build ".#maplespike-portal-image"
+nix build ".#quill-build-all"     # build all images
+nix build ".#quill-push-all"      # build + push all images
+nix build ".#quill-mcp-image"     # build single image
+nix build ".#quill-api-image"
+nix build ".#quill-portal-image"
 ```
 
 ## Dev Shell

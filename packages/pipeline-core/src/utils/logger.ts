@@ -1,6 +1,6 @@
 import pino from 'pino';
 
-const LOG_LEVEL = process.env.MAPLESPIKE_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
+const LOG_LEVEL = process.env.QUILL_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
 
 const logger = pino({
   level: LOG_LEVEL,

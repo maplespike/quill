@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Mock Data Middleware (REMOVED)
+ * Quill — Mock Data Middleware (REMOVED)
  *
  * This middleware has been removed. Mock data is no longer served.
  * All data endpoints now route through real pipeline-core modules.

@@ -1,17 +1,17 @@
 /**
- * MapleSpike — Unified API Client for MCP Tools
+ * Quill — Unified API Client for MCP Tools
  *
  * Single data access layer for all MCP tools.
  * Tries the live API server first. Falls back to direct upstream
  * fetches or cached data when the server is unreachable.
  *
  * Environment:
- *   MAPLESPIKE_API_URL  — HTTP API server (optional, user-side mode without it)
- *   MAPLESPIKE_API_KEY  — API key for the server
+ *   QUILL_API_URL  — HTTP API server (optional, user-side mode without it)
+ *   QUILL_API_KEY  — API key for the server
  */
 
-const API_BASE = process.env.MAPLESPIKE_API_URL || '';
-const API_KEY = process.env.MAPLESPIKE_API_KEY || 'maplespike-dev-key';
+const API_BASE = process.env.QUILL_API_URL || '';
+const API_KEY = process.env.QUILL_API_KEY || 'maplespike-dev-key';
 const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
 
 let serverAvailable: boolean | null = null;
@@ -62,7 +62,7 @@ export async function callApi<T>(
   params?: Record<string, string | number>,
 ): Promise<T> {
   if (!API_BASE) {
-    throw new ServerUnavailableError('No MAPLESPIKE_API_URL configured — running in user-side mode');
+    throw new ServerUnavailableError('No QUILL_API_URL configured — running in user-side mode');
   }
   if (!(await checkServer())) {
     throw new ServerUnavailableError('API server unreachable');

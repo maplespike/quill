@@ -6,14 +6,14 @@
 #      .kubeconfig, .netrc, id_rsa*, id_ed25519*, etc).
 #   2. Working tree for secret-shaped content (private keys, AWS
 #      access key IDs, GitHub/OpenAI/Stripe/Slack tokens,
-#      MAPLESPIKE_PII_HASH_SECRET, AKASH_* mnemonics).
+#      QUILL_PII_HASH_SECRET, AKASH_* mnemonics).
 #   3. Full git history (every branch, every commit) for the same
 #      secret patterns. This is the part gitleaks would do.
 #
 # Output: docs/security-audit-pre-public.md (human-readable report) +
 # exit code 0 if CLEAN, 1 if any hits.
 #
-# Designed before flipping github.com/reverb256/maplespike from
+# Designed before flipping github.com/reverb256/quill from
 # private → public, per maplespike/docs/decisions/0003-*.md.
 
 set -euo pipefail
@@ -24,7 +24,7 @@ mkdir -p docs
 
 # Patterns ------------------------------------------------------------
 DANGEROUS_FILE_RE='\.env($|\.)|\.pem($|\.)|\.key($|\.)|\.p12($|\.)|\.kubeconfig($|\.)|\.netrc$|^/?id_(rsa|ed25519|dsa|ecdsa)$|^/?\.env'
-SECRET_RE='-----BEGIN .* PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key|ghp_[A-Za-z0-9]{36}|gho_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{82}|sk-[A-Za-z0-9]{48}|sk_live_[A-Za-z0-9]{24,}|sk_test_[A-Za-z0-9]{24,}|xox[baprs]-[A-Za-z0-9-]{20,}|MAPLESPIKE_PII_HASH_SECRET[ =:]+|AKASH_(MNEMONIC|SEED|PASSWORD|KEY|OPERATOR_ADDRESS|CHAIN_ID)[ =:]+'
+SECRET_RE='-----BEGIN .* PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|aws_secret_access_key|ghp_[A-Za-z0-9]{36}|gho_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{82}|sk-[A-Za-z0-9]{48}|sk_live_[A-Za-z0-9]{24,}|sk_test_[A-Za-z0-9]{24,}|xox[baprs]-[A-Za-z0-9-]{20,}|QUILL_PII_HASH_SECRET[ =:]+|AKASH_(MNEMONIC|SEED|PASSWORD|KEY|OPERATOR_ADDRESS|CHAIN_ID)[ =:]+'
 
 # Excludes for false-positive reduction
 EXCLUDE_DIRS='--exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build --exclude-dir=target --exclude-dir=.next --exclude-dir=.turbo --exclude-dir=coverage --exclude-dir=.astro --exclude-lockfiles'
@@ -71,7 +71,7 @@ echo >> "$report"
 {
   echo "## Phase 2 — Secret-shaped content (working tree)"
   echo
-  echo 'Patterns: PEM private keys, AWS access keys (`AKIA…`/`ASIA…`), aws_secret_access_key, GitHub PATs (`ghp_…`/`gho_…`/`github_pat_…`), OpenAI/Stripe/Slack tokens, MAPLESPIKE_PII_HASH_SECRET literal, AKASH_MNEMONIC/SEED/PASSWORD/KEY/OPERATOR_ADDRESS/CHAIN_ID literals.'
+  echo 'Patterns: PEM private keys, AWS access keys (`AKIA…`/`ASIA…`), aws_secret_access_key, GitHub PATs (`ghp_…`/`gho_…`/`github_pat_…`), OpenAI/Stripe/Slack tokens, QUILL_PII_HASH_SECRET literal, AKASH_MNEMONIC/SEED/PASSWORD/KEY/OPERATOR_ADDRESS/CHAIN_ID literals.'
   echo
 } >> "$report"
 

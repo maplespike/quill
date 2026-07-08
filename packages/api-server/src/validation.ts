@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /**
- * MapleSpike — Zod Validation Schemas
+ * Quill — Zod Validation Schemas
  *
  * Centralized request body validation using Zod schemas.
  * All string schemas include .trim() to eliminate redundant manual trimming in handlers.

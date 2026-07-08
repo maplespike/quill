@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Security Headers Middleware
+ * Quill — Security Headers Middleware
  *
  * Applies OWASP-recommended response headers across all API responses.
  * Headers are attached at the response-construction layer so they appear

@@ -140,8 +140,8 @@ describe('CORS Headers', () => {
   it('allows known internal LAN origins', async () => {
     const { getAllowedOrigin } = await import('../response.js');
     assert.equal(getAllowedOrigin('https://dev.maplespike.lan'), 'https://dev.maplespike.lan');
-    assert.equal(getAllowedOrigin('https://maplespike-api.lan'), 'https://maplespike-api.lan');
-    assert.equal(getAllowedOrigin('https://maplespike-portal.lan'), 'https://maplespike-portal.lan');
+    assert.equal(getAllowedOrigin('https://quill-api.lan'), 'https://quill-api.lan');
+    assert.equal(getAllowedOrigin('https://quill-portal.lan'), 'https://quill-portal.lan');
   });
 });
 
@@ -189,7 +189,7 @@ describe('Rate Limit Configuration', () => {
       'rate-test-key',
     );
     const env = {
-      MAPLESPIKE_VERSION: '0.1.0',
+      QUILL_VERSION: '0.1.0',
       ENVIRONMENT: 'development',
       JWT_SECRET: 'test-jwt-secret-that-is-long-enough-for-testing',
     };
