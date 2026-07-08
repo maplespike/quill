@@ -295,7 +295,9 @@ export class McpServer {
     }
 
     // ── x402 payment check (gated by X402_ENABLED) ─────────────────
-    const paymentCheck = validatePayment(toolName, resolvedProof);
+    // validatePayment is async in Phase 2+ (Solana RPC verify + replay
+    // ledger + credit deduction). Await it here.
+    const paymentCheck = await validatePayment(toolName, resolvedProof, identity);
     if (!paymentCheck.allowed) {
       send(this.error(id ?? null, -402, 'Payment Required', {
         ...paymentCheck.paymentRequired,

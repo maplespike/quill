@@ -184,6 +184,9 @@ import * as systemHealth from './system-health.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as findConnections from './find-connections.js';
 
+// ── x402 payments (Phase 3) ──────────────────────────────────
+import * as x402Deposit from './x402-deposit.js';
+
 // Multi-tool adapters (worldbank-wdi and un-comtrade export multiple tools)
 import * as wdiAdapter from './worldbank-wdi-modules.js';
 import * as comtradeAdapter from './un-comtrade-modules.js';
@@ -437,6 +440,10 @@ export function getAllTools(): ToolModule[] {
     systemHealth,
     resolveEntity,
     findConnections,
+
+    // x402 deposit tool (Phase 3). Always available; deposit is a no-op
+    // when X402_ENABLED is unset — see x402-deposit.ts.
+    x402Deposit,
   ]);
 }
 
