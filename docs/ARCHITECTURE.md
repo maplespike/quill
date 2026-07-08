@@ -215,9 +215,9 @@ cd packages/sdk && pnpm build && pnpm test
 
 ## Deployment Architecture
 
-> **⚠️ DEPLOYMENT STATUS:** The K3s deployment described in this section is **planned architecture, not currently implemented**. See ROADMAP.md Phase 3 for deployment status and PIPELINE-ARCHITECTURE.md for CI/CD reality.
+> **K8s production track owned by [ROADMAP.md Phase 4](./../ROADMAP.md)** — K3s manifests live in `k8s/base/` (applied via `kubectl apply -k k8s/base/`); `cloudflared` tunnel `66d76492-...` exposes `api`/`mcp`/`quill`/`datafabric`/`data` subdomains through Cloudflare DNS. Local development uses Docker Compose via `scripts/dev-up.sh` (see [README.md §Running the local development stack](../README.md)). Production DNS CNAME records for `*.maplespike.ca` are tracked under [issue #746](https://github.com/reverb256/maplespike/issues/746).
 
-MapleSpike is designed to run on a K3s cluster with two environments isolated by namespace and ingress hostname. All backend data will stay on Canadian infrastructure with zero external cloud spend.
+MapleSpike is designed to run on a K3s cluster with two environments isolated by namespace and ingress hostname. All backend data stays on Canadian infrastructure with zero external cloud spend.
 
 ### Environments
 
