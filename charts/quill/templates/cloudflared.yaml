@@ -1,0 +1,96 @@
+{{/*
+  MapleSpike — Cloudflare Tunnel (cloudflared) Deployment
+
+  Routes external traffic from Cloudflare edge → in-cluster services:
+    quill.maplespike.ca   → maplespike-portal:8080
+    api.maplespike.ca     → maplespike-api:{{ .Values.api.port }}
+    mcp.maplespike.ca     → maplespike-mcp:{{ .Values.mcp.port }}
+    kanban.maplespike.ca  → maplespike-kanban-exec:8080
+
+  Authentication: credentials.json (mounted from cloudflared-creds secret,
+  synced by scripts/sops-sync-k8s.sh from SOPS-encrypted secrets/cloudflared.yaml).
+
+  The pod is pinned to the nexus node via nodeSelector to avoid cross-node
+  flannel overlay issues in the K3s cluster.
+*/}}
+{{- if .Values.cloudflared.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: cloudflared
+    component: tunnel
+data:
+  config.yaml: |
+    tunnel: {{ .Values.cloudflared.tunnelId | quote }}
+    credentials-file: /etc/cloudflared/credentials.json
+    metrics: 0.0.0.0:2000
+    ingress:
+      {{- range .Values.cloudflared.ingress }}
+      - hostname: {{ .hostname | quote }}
+        service: {{ .service | quote }}
+      {{- end }}
+      - service: http_status:404
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: cloudflared
+    component: tunnel
+spec:
+  replicas: {{ .Values.cloudflared.replicas }}
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      {{- with .Values.cloudflared.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: creds
+        secret:
+          secretName: cloudflared-creds
+      - name: config
+        configMap:
+          name: cloudflared-config
+      containers:
+      - name: cloudflared
+        image: "{{ .Values.cloudflared.image }}:{{ .Values.cloudflared.tag }}"
+        imagePullPolicy: {{ .Values.cloudflared.pullPolicy }}
+        args:
+        - tunnel
+        - --no-autoupdate
+        - --config
+        - /etc/cloudflared/config.yaml
+        - --metrics
+        - 0.0.0.0:2000
+        - run
+        volumeMounts:
+        - name: creds
+          mountPath: /etc/cloudflared/credentials.json
+          subPath: credentials.json
+          readOnly: true
+        - name: config
+          mountPath: /etc/cloudflared/config.yaml
+          subPath: config.yaml
+          readOnly: true
+        resources:
+          {{- toYaml .Values.cloudflared.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+{{- end }}
