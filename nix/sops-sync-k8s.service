@@ -1,0 +1,14 @@
+[Unit]
+Description=Sync sops-decrypted Quill secrets to K8s
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+Environment=QUILL_REPO=/opt/quill
+Environment=SOPS_AGE_KEY_FILE=/etc/nixos/.age/nexus-prod-key.txt
+ExecStart=/opt/quill/scripts/sops-sync-k8s.sh
+
+[Install]
+WantedBy=multi-user.target

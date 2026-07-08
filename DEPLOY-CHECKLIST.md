@@ -58,18 +58,28 @@ docker build --target quill-mcp -t quill-mcp:prod .
 # docker save quill-api:prod | ssh nexus docker load
 # docker save quill-mcp:prod | ssh nexus docker load
 
-# 3. Create production secrets
-kubectl create secret generic maplespike-secrets \
-  --from-literal=JWT_SECRET=$(openssl rand -hex 64) \
-  --from-literal=QUILL_BILLING_SECRET=$(openssl rand -hex 32) \
-  -n maplespike
-
-# credentials.json is written to ~/.cloudflared/<TUNNEL_ID>.json by the
-# `cloudflared tunnel create maplespike-k8s` command in Step 1b above.
-# Tunnel ID is verifiable via `wrangler tunnel info maplespike-k8s`.
-kubectl create secret generic cloudflared-creds \
-  --from-file=credentials.json=$HOME/.cloudflared/66d76492-036b-4177-8fac-8682e0eda37e.json \
-  -n maplespike
+# 3. Create production secrets (via SOPS — see secrets/README.md)
+#
+# Secrets are now managed with SOPS + age. Plaintext templates live in
+# secrets/*.yaml.example. Encrypted copies (secrets/*.yaml) are committed
+# to the repo and decrypted at boot by sops-nix on the nexus host.
+#
+# First-time setup:
+#   cp secrets/runtime.yaml.example secrets/runtime.yaml
+#   # edit secrets/runtime.yaml with real values
+#   SOPS_AGE_KEY_FILE=/etc/nixos/.age/nexus-prod-key.txt \
+#     sops --encrypt --in-place secrets/runtime.yaml
+#   # repeat for build.yaml + cloudflared.yaml
+#
+# Sync to K8s (one-shot or via systemd timer):
+#   QUILL_REPO=/opt/quill /opt/quill/scripts/sops-sync-k8s.sh
+#
+# The old manual flow was:
+#   kubectl create secret generic maplespike-secrets \
+#     --from-literal=JWT_SECRET=$(openssl rand -hex 64) \
+#     --from-literal=QUILL_BILLING_SECRET=$(openssl rand -hex 32) \
+#     -n maplespike
+# (kept above for reference; prefer the SOPS flow going forward)
 
 # 4. Deploy (canonical kustomize path; includes 05-cloudflared.yaml + 11-mcp-deploy.yaml)
 kubectl apply -k k8s/base/
