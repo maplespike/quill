@@ -341,6 +341,29 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
 ```
 
+## Implementation Status (2026-07-05)
+
+The spec above is the canonical design intent for Quill. Three implementation layers exist; this section captures what is wired where so future work can land in the right place.
+
+### Live portal (`packages/portal/src/` — Astro + React + Tailwind v4 + shadcn)
+
+* **Wired to spec**: Inter + JetBrains Mono (BaseLayout), dark-canvas default + light toggle, card pattern (12px radius, 24px padding), `.font-mono-num` utility, `aria-current="page"` nav highlight, i18n en-CA + fr-CA (`@maplespike/i18n`), mobile drawer, `prefers-reduced-motion` reset.
+* **Token reconciliation (this commit in `globals.css`)**: `--ring` + `--sidebar-ring` updated to spec cyan `hsl(191 96% 42%)` (≈ `#06b6d4`, parliamentary) — previously these tokens mirrored the maple-red `--primary`, violating the explicit "Visible focus states (cyan outline)" line under Accessibility and the "input-focus: cyan glow" rule under Components.
+* **NOT YET wired**: the **Quill Page Layout** section sequence — `TopBar → QuillHero → McpServerBlock → ToolGrid → Sovereignty → QuillFooter`. These Astro islands are pending work, targeted for the storefront milestone. Until shipped, the spec sections describe intent, not live behavior.
+
+### Canonical reference render (`packages/portal/public/readme.html`)
+
+A faithful, self-contained ~1,000-line reference HTML that encodes every token + component pattern from this spec verbatim into the live portal's `public/` static assets. Used as:
+
+* the canonical mood board for new components,
+* the build target when wiring the narrative into Astro islands.
+
+Includes exact hex tokens mirroring the YAML frontmatter, animated maple-leaf hero + aurora glow + bg-grid + reveal-on-scroll, metric cards with `IntersectionObserver`-animated counters and tabular-nums stats, timeline · repo-tree · service-grid · table · callout · code-block patterns with copy-to-clipboard, and `@media (prefers-reduced-motion: reduce)` reset. Header comment in the file reads: *"MapleSpike design system — extracted from packages/portal and DESIGN.md. Tokens are the source of truth; document CSS is a thin expressive layer over them."*
+
+### Brand marketing layers (separate `maplespike-brand` repo)
+
+Live at `maplespike.ca`. Maintains design cohesion with Quill via shared `colors.primary` (`#e84545`) + `colors.secondary` (`#06b6d4`) tokens.
+
 ## Agent Prompt Guide
 
 **Context:** Quill — a sovereign MCP server + REST API for Canadian public record data. 166 tools (incl. `x402-deposit`), 198 modules. Product page at `quill.maplespike.ca`. Repo: `github.com/reverb256/quill`.
