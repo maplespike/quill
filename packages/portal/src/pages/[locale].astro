@@ -1,16 +1,6 @@
 ---
-/**
- * 2026-07-06: locale-prefixed landing pages (/en, /fr). Same brand-shell
- * as the bare-root `/` so users can hit any of the three routes and get
- * the proper design. Static SSG via getStaticPaths — no SSR required.
- *
- * /pricing, /agents etc. continue to live at their un-prefixed paths
- * (BaseLayout) because the redirect script that once prefixed them is
- * gone (see BrandLayout.astro comment).
- */
-import BrandLayout from "@/layouts/BrandLayout.astro";
-import Island from "@/islands/Island.tsx";
-import { LANDING_TITLE, LANDING_DESCRIPTION } from "@/lib/landing-meta";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import LandingBody from "@/components/LandingBody.astro";
 
 export function getStaticPaths() {
   return [
@@ -22,10 +12,10 @@ export function getStaticPaths() {
 const { locale } = Astro.params;
 ---
 
-<BrandLayout
-  title={LANDING_TITLE}
-  description={LANDING_DESCRIPTION}
+<BaseLayout
+  title="Quill · Canada's open data, on tap for any AI"
+  description="Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config."
   lang={locale}
 >
-  <Island client:only="react" />
-</BrandLayout>
+  <LandingBody lang={locale} />
+</BaseLayout>

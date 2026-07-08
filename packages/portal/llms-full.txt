@@ -4,7 +4,7 @@
 > Auto-generated: 2026-05-18
 > License: AGPL-3.0 / MIT. Government data under OGL-C.
 > API Base URL: https://api.maplespike.ca/v1
-> Source: https://github.com/reverb256/maplespike
+> Source: https://github.com/reverb256/quill
 
 ## REST API
 

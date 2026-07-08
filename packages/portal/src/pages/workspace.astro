@@ -450,7 +450,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       });
 
       document.getElementById("copy-api-key")?.addEventListener("click", function () {
-        const storedKey = localStorage.getItem("maplespike-api-key");
+        const storedKey = localStorage.getItem("quill-api-key");
         const key = storedKey || "mp_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6";
         navigator.clipboard.writeText(key).then(function () {
           showToast("API key copied", "success");
@@ -474,7 +474,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
 
       document.getElementById("sign-out-btn")?.addEventListener("click", function () {
         document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        localStorage.removeItem("maplespike-api-key");
+        localStorage.removeItem("quill-api-key");
         document.getElementById("auth-unsigned").style.display = "";
         document.getElementById("auth-signed").style.display = "none";
         document.getElementById("auth-status-badge").textContent = "Not signed in";
@@ -507,7 +507,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
       // ── Fetch usage from API ──
       async function fetchUsage() {
         try {
-          const apiKey = localStorage.getItem("maplespike-api-key");
+          const apiKey = localStorage.getItem("quill-api-key");
           const headers = {};
           if (apiKey) headers["X-API-Key"] = apiKey;
           const resp = await fetch(base + "/v1/me", { headers });
@@ -545,7 +545,7 @@ $ curl -H "x-api-key: $MAPLESPIKE_KEY" \
 
       // ── Checklist update ──
       function updateChecklist() {
-        const apiKey = localStorage.getItem("maplespike-api-key");
+        const apiKey = localStorage.getItem("quill-api-key");
         const steps = document.querySelectorAll(".checklist-step");
         if (steps.length > 0 && apiKey) {
           const first = steps[0];
