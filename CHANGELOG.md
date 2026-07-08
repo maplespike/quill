@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased] — 2026-07-07
+
+### Added
+- **x402 Phase 2 — full Solana tx verification:** `packages/quill-mcp/src/solana-rpc.ts` performs the three-step introspect→simulate→confirm flow against `SOLANA_RPC_URL` (default https://api.mainnet-beta.solana.com). Recipient matched via the `owner` field on pre/post USDC token balances from `encoding:"jsonParsed"` `getTransaction`. No `@solana/web3.js` dependency added. Closes the verification half of [#750](https://github.com/reverb256/maplespike/issues/750).
+- **x402 Phase 3 — pre-pay credit balance:** `packages/quill-mcp/src/credit-balance.ts` mints per-identity USDC credit balances; `packages/quill-mcp/src/tools/x402-deposit.ts` exposes a new MCP tool that verifies an on-chain Solana USDC deposit, atomically records the signature in the replay ledger, and credits the caller's quota identity. Middleware now prefers credit balance over per-call verification. Closes the credits half of [#750](https://github.com/reverb256/maplespike/issues/750).
+- **Replay protection:** `packages/quill-mcp/src/x402-ledger.ts` — signature ledger with TTL eviction (7-day retention) and optional atomic JSON persistence at `X402_LEDGER_PATH`. Middleware uses atomic `recordIfNew()` to defeat concurrent double-spend.
+- **Shared x402 constants:** `packages/quill-mcp/src/x402-constants.ts` — USDC mint, decimals, retention, defaults. Imported by `solana-rpc.ts`, `x402-ledger.ts`, `credit-balance.ts`, `x402-middleware.ts`, and `tools/x402-deposit.ts`.
+- **New env vars:** `SOLANA_RPC_URL`, `X402_LEDGER_PATH`, `X402_CREDITS_PATH`, `X402_CONFIRMATION_LEVEL`, `X402_TIMESTAMP_TOLERANCE_SEC` (plus the long-undocumented `QUOTA_ENABLED`, `QUILL_FREE_QUOTA`, `QUOTA_PERSIST_PATH`, `QUILL_HANDLER_TIMEOUT_MS`, `TRUST_PROXY`, `ASTRAL_KEY_URL` now documented in `.env.example`).
+- **Async middleware flow:** `validatePayment()` is now `async` in `x402-middleware.ts`; `server.ts` `handleToolCall()` awaits it and passes the `QuotaIdentity` so credit balance can be debited before falling through to per-call verification.
+- **New MCP tool:** `x402-deposit` (registered in `tools/index.ts`) — signature + expectedAmount → validated credit balance update.
+- **Test coverage:** 54 new unit tests across `x402-ledger.test.ts`, `credit-balance.test.ts`, `solana-rpc.test.ts` (with mock fetch across happy path + every error reason), and `x402-middleware.test.ts` (async flow including replay-block).
+
+### Fixed
+- **Helm chart ADR 0007 executed:** `charts/maplespike/` deleted; `charts/quill/` introduced. Obsolete Grafana dashboard `maplespike-api-mcp-overview.json` and stray artifact `26868,` removed. Reference: [ADR 0007](./docs/decisions/0007-repo-rename.md).
+- **Portal landing redesign:** Astro islands (`Island.tsx`, `islands/pages/Landing.tsx`) removed; replaced with server-rendered `LandingBody.astro` + `logo.svg`. Tool descriptions bilingualised across `packages/i18n/src/{en,fr,types}.ts` and `packages/quill-mcp/i18n/fr-tools.json`.
+- **Cloudflared liveness probe restart loop:** `k8s/base/05-cloudflared.yaml` and `k8s/manual/05-cloudflared.yaml` both have `--metrics 0.0.0.0:2000` on the args block (already on `main` via commit `6dec534`); issues [#744](https://github.com/reverb256/maplespike/issues/744) and [#729](https://github.com/reverb256/maplespike/issues/729) closed.
+- **Docs hygiene:** `.env.example` now documents all 13 MCP server env vars; README.md + ARCHITECTURE.md deployment sections updated; MCP tool count in prose docs reflects `pricing.ts` and the new `x402-deposit` tool; ROADMAP.md Known-Drift block trimmed (committed rebranding drift + cloudflared entries marked DONE).
+
 ## [Unreleased] — 2026-07-04
 
 ### Fixed
