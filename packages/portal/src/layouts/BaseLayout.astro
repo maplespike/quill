@@ -23,11 +23,11 @@ const {
 } = Astro.props;
 
 const i18n = createI18n(lang);
-const siteUrl = Astro.site?.href ?? `https://${process.env.MAPLESPIKE_DOMAIN ?? 'maplespike.ca'}`;
+const siteUrl = Astro.site?.href ?? `https://quill.maplespike.ca`;
 const pathname = Astro.url.pathname;
 const cleanPath = stripLangPrefix(pathname);
-const canonical = `${siteUrl.replace(/\/$/, "")}${lang === 'en' ? '/en' : '/fr'}${cleanPath === '/' ? '' : cleanPath}`;
-const canonicalEn = `${siteUrl.replace(/\/$/, "")}/en${cleanPath === '/' ? '' : cleanPath}`;
+const canonical = `${siteUrl.replace(/\/$/, "")}${cleanPath === '/' ? '' : cleanPath}`;
+const canonicalEn = `${siteUrl.replace(/\/$/, "")}${cleanPath === '/' ? '' : cleanPath}`;
 const canonicalFr = `${siteUrl.replace(/\/$/, "")}/fr${cleanPath === '/' ? '' : cleanPath}`;
 
 const navLinks = [
