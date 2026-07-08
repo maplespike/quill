@@ -118,7 +118,7 @@ if (Astro.url.searchParams.has("error")) {
 
           // Also store API key if provided
           if (payload?.apiKey?.key) {
-            localStorage.setItem("maplespike-api-key", payload.apiKey.key);
+            localStorage.setItem("quill-api-key", payload.apiKey.key);
           }
 
           if (!statusEl) return;

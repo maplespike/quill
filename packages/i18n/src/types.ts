@@ -118,6 +118,8 @@ export type TranslationKeys =
   // Pricing page
   | 'pricing.page_title' | 'pricing.subtitle'
   | 'pricing.monthly' | 'pricing.yearly' | 'pricing.save'
+  | 'pricing.free_tier_label' | 'pricing.free_tier_desc'
+  | 'pricing.paid_tier_note'
 
   // Contact
   | 'contact.title' | 'contact.name' | 'contact.email'
@@ -220,7 +222,11 @@ export type TranslationKeys =
   | 'billing.payment_failed'
   | 'extraction.source_not_found' | 'extraction.already_cached'
   | 'validation.required' | 'validation.invalid_format'
-  | 'validation.too_long' | 'validation.too_short';
+  | 'validation.too_long' | 'validation.too_short'
+  // Quota (freemium — 1000 calls/month then x402)
+  | 'quota.title' | 'quota.subtitle' | 'quota.used' | 'quota.remaining'
+  | 'quota.percent' | 'quota.reset'
+  | 'quota.exceeded.title' | 'quota.exceeded.body' | 'quota.exceeded.cta';
 
 export type TranslationMap = Record<TranslationKeys, string>;
 
