@@ -1,11 +1,11 @@
 /**
- * MapleSpike — Storage Abstraction
+ * Quill — Storage Abstraction
  *
  * Provides D1-backed and in-memory storage implementations
- * of the MapleSpikeStorage interface.
+ * of the QuillStorage interface.
  */
 
-import type { MapleSpikeStorage, MapleSpikeCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
 import { hashApiKey } from './auth.js';
 import type { Env } from './types.js';
 
@@ -13,7 +13,7 @@ import type { Env } from './types.js';
 /*  D1 Implementation (Cloudflare Workers production)                  */
 /* ------------------------------------------------------------------ */
 
-export class D1Storage implements MapleSpikeStorage {
+export class D1Storage implements QuillStorage {
   private db: Env['DB'];
 
   constructor(db: Env['DB']) {
@@ -152,7 +152,7 @@ export class D1Storage implements MapleSpikeStorage {
 /*  KV Cache Implementation                                            */
 /* ------------------------------------------------------------------ */
 
-export class KVCache implements MapleSpikeCache {
+export class KVCache implements QuillCache {
   private kv: Env['CACHE'];
 
   constructor(kv: Env['CACHE']) {
@@ -180,7 +180,7 @@ export class KVCache implements MapleSpikeCache {
 /*  In-Memory Implementation (development / testing)                   */
 /* ------------------------------------------------------------------ */
 
-export class MemoryStorage implements MapleSpikeStorage {
+export class MemoryStorage implements QuillStorage {
   private tenants: Map<string, Tenant> = new Map();
   private keyToTenant: Map<string, { tenantId: string; keyId: string }> = new Map();
   private dailyUsage: Map<string, number> = new Map();
@@ -256,7 +256,7 @@ export class MemoryStorage implements MapleSpikeStorage {
   }
 }
 
-export class MemoryCache implements MapleSpikeCache {
+export class MemoryCache implements QuillCache {
   private store = new Map<string, { value: string; expires: number }>();
 
   async get(key: string): Promise<string | null> {

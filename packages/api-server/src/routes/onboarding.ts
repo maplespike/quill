@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Onboarding Checklist Route
+ * Quill — Onboarding Checklist Route
  *
  * GET /v1/onboarding — Returns onboarding progress for the current tenant
  *

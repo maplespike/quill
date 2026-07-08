@@ -69,12 +69,12 @@ check_logs() {
   echo "  Checking recent logs (24h)..."
   SINCE="24h"
 
-  kubectl logs -n "$NAMESPACE" -l app=maplespike-api --since="$SINCE" 2>/dev/null | \
+  kubectl logs -n "$NAMESPACE" -l app=quill-api --since="$SINCE" 2>/dev/null | \
     grep -iE "error|fail|exception|panic" | tail -5 | while read -r line; do
       warning "API log: $line"
     done || true
 
-  kubectl logs -n "$NAMESPACE" -l app=maplespike-portal --since="$SINCE" 2>/dev/null | \
+  kubectl logs -n "$NAMESPACE" -l app=quill-portal --since="$SINCE" 2>/dev/null | \
     grep -iE "error|fail|exception" | tail -5 | while read -r line; do
       warning "Portal log: $line"
     done || true

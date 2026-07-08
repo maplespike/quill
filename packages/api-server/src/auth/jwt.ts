@@ -1,5 +1,5 @@
 /**
- * MapleSpike — JWT Token Utilities
+ * Quill — JWT Token Utilities
  *
  * Uses Node.js built-in crypto (HMAC-SHA256) — no external dependencies.
  * Payload: { sub: user.id, email, tier, iat, exp }
@@ -23,7 +23,7 @@ const DEFAULT_SECRET = process.env.JWT_SECRET;
 const DEFAULT_EXPIRY = 7 * 24 * 60 * 60; // 7 days in seconds
 const REFRESH_EXPIRY = 30 * 24 * 60 * 60; // 30 days for refresh tokens
 const JWT_ISSUER = process.env.JWT_ISSUER || 'maplespike';
-const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'maplespike-api';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'quill-api';
 
 // Enforce JWT_SECRET in production to prevent empty-string signing
 if (!DEFAULT_SECRET && process.env.NODE_ENV === 'production') {

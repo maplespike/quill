@@ -53,15 +53,15 @@ jobs:
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/maplespike-api -n maplespike-dev --timeout=3m || true
-          kubectl rollout status deployment/maplespike-portal -n maplespike-dev --timeout=3m || true
+          kubectl rollout status deployment/quill-api -n maplespike-dev --timeout=3m || true
+          kubectl rollout status deployment/quill-portal -n maplespike-dev --timeout=3m || true
           kubectl rollout status deployment/cloudflared -n maplespike-dev --timeout=3m || true
 
       - name: Smoke test
         run: |
           sleep 10
-          curl -sf https://dev-api.maplespike.lan/v1/health && echo "✓ dev API healthy" || echo "⚠ dev API health check unavailable"
-          curl -sfI https://dev.maplespike.lan/ && echo "✓ dev Portal up" || echo "⚠ dev Portal unavailable"
+          curl -sf https://api.maplespike.ca/v1/health && echo "✓ API healthy" || echo "⚠ API health check unavailable"
+          curl -sfI https://maplespike.ca/ && echo "✓ Portal up" || echo "⚠ Portal unavailable"
 
   build-docker:
     name: Build & Push Dev Docker Images
@@ -87,8 +87,8 @@ jobs:
           target: portal
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-portal:dev
-            ghcr.io/reverb256/maplespike-portal:${{ github.sha }}
+            ghcr.io/reverb256/quill-portal:dev
+            ghcr.io/reverb256/quill-portal:${{ github.sha }}
 
       - name: Build and push dev API image
         uses: docker/build-push-action@v5
@@ -98,10 +98,10 @@ jobs:
           target: api-server
           push: true
           tags: |
-            ghcr.io/reverb256/maplespike-api:dev
-            ghcr.io/reverb256/maplespike-api:${{ github.sha }}
+            ghcr.io/reverb256/quill-api:dev
+            ghcr.io/reverb256/quill-api:${{ github.sha }}
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/maplespike-api -n maplespike-dev --timeout=5m
-          kubectl rollout status deployment/maplespike-portal -n maplespike-dev --timeout=5m
+          kubectl rollout status deployment/quill-api -n maplespike-dev --timeout=5m
+          kubectl rollout status deployment/quill-portal -n maplespike-dev --timeout=5m

@@ -145,4 +145,4 @@ export const PROVINCIAL_FETCH_TIMEOUT_MS = 20_000;
 export const MAX_RECORDS_PER_BODY = 30;
 
 /** User agent */
-export const PROVINCIAL_USER_AGENT = 'MapleSpike-ProvincialOrgs/1.0 (+https://github.com/reverb256/maplespike)';
+export const PROVINCIAL_USER_AGENT = 'MapleSpike-ProvincialOrgs/1.0 (+https://github.com/reverb256/quill)';

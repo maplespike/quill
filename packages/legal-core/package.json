@@ -41,7 +41,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/reverb256/maplespike.git",
+    "url": "https://github.com/reverb256/quill.git",
     "directory": "packages/legal-core"
   },
   "devDependencies": {

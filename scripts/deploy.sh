@@ -40,7 +40,7 @@ fi
 : "${NAMESPACE:=maplespike}"
 : "${IMAGE_REGISTRY:=localhost}"
 : "${IMAGE_TAG:=latest}"
-: "${MAPLESPIKE_STORAGE:=memory}"
+: "${QUILL_STORAGE:=memory}"
 
 echo "╔══════════════════════════════════════════════╗"
 echo "║  MapleSpike Deployment                        ║"
@@ -48,7 +48,7 @@ echo "╚═══════════════════════�
 echo ""
 echo "  Domain:     $MAPLESPIKE_DOMAIN"
 echo "  Namespace:  $NAMESPACE"
-echo "  Storage:    $MAPLESPIKE_STORAGE"
+echo "  Storage:    $QUILL_STORAGE"
 echo "  Registry:   $IMAGE_REGISTRY"
 echo "  Tag:        $IMAGE_TAG"
 echo "  Overlay:    $OVERLAY"
@@ -60,15 +60,15 @@ if [[ "$DO_BUILD" == true ]]; then
   cd "$PROJECT_ROOT"
 
   echo "  Building portal (--target=portal)..."
-  if ! docker build -t "${IMAGE_REGISTRY}/maplespike-portal:${IMAGE_TAG}" --target=portal .; then
+  if ! docker build -t "${IMAGE_REGISTRY}/quill-portal:${IMAGE_TAG}" --target=portal .; then
     echo "  ⚠ Portal build failed. If Docker is unavailable on this host,"
     echo "    build on nexus manually:"
-    echo "    ssh nexus 'docker build -t nexus:5000/maplespike-portal:TAG --target=portal ...'"
+    echo "    ssh nexus 'docker build -t nexus:5000/quill-portal:TAG --target=portal ...'"
     exit 1
   fi
 
   echo "  Building API..."
-  docker build -t "${IMAGE_REGISTRY}/maplespike-api:${IMAGE_TAG}" --target=api-server .
+  docker build -t "${IMAGE_REGISTRY}/quill-api:${IMAGE_TAG}" --target=api-server .
 
   echo "  ✓ Images built"
 fi
@@ -78,7 +78,7 @@ if [[ "$IMAGE_REGISTRY" == "localhost" ]]; then
   echo "── Distributing images to cluster nodes ──"
   NODES=$(kubectl get nodes -o jsonpath='{range .items[*]}{.status.addresses[?(@.type=="InternalIP")].address}{"\n"}{end}')
   for NODE in $NODES; do
-    for IMG in maplespike-portal maplespike-api; do
+    for IMG in quill-portal quill-api; do
       TAR="/tmp/${IMG}-${IMAGE_TAG}.tar"
       echo "  → $NODE:$IMG"
       docker save "${IMAGE_REGISTRY}/${IMG}:${IMAGE_TAG}" -o "$TAR" 2>/dev/null
@@ -91,7 +91,7 @@ if [[ "$IMAGE_REGISTRY" == "localhost" ]]; then
 else
   echo "── Pushing images to $IMAGE_REGISTRY ──"
   cd "$PROJECT_ROOT"
-  for IMG in maplespike-portal maplespike-api; do
+  for IMG in quill-portal quill-api; do
     docker push "${IMAGE_REGISTRY}/${IMG}:${IMAGE_TAG}"
   done
   echo "  ✓ Images pushed"
@@ -113,13 +113,13 @@ echo "  ✓ Manifests applied"
 # ── Wait for rollout ─────────────────────────────────────────────
 # ── Verify ──────────────────────────────────────────────────────
 echo "── Rolling out deployment ──"
-kubectl rollout status deployment -n "$NAMESPACE" maplespike-api --timeout=120s || true
-kubectl rollout status deployment -n "$NAMESPACE" maplespike-portal --timeout=120s || true
+kubectl rollout status deployment -n "$NAMESPACE" quill-api --timeout=120s || true
+kubectl rollout status deployment -n "$NAMESPACE" quill-portal --timeout=120s || true
 kubectl rollout status deployment -n "$NAMESPACE" cloudflared --timeout=120s || true
 
 echo "── Post-deploy verification ──"
 echo "  Portal process:"
-kubectl exec -n "$NAMESPACE" deploy/maplespike-portal -- cat /proc/1/cmdline 2>/dev/null | tr '\0' ' ' || echo "  (unable to verify)"
+kubectl exec -n "$NAMESPACE" deploy/quill-portal -- cat /proc/1/cmdline 2>/dev/null | tr '\0' ' ' || echo "  (unable to verify)"
 echo ""
 echo "  API health:"
 curl -sf "https://api.${MAPLESPIKE_DOMAIN}/v1/health" | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'  Status: {d[\"data\"][\"status\"]}')" 2>/dev/null || echo "  (health check unavailable)"

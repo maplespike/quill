@@ -8,10 +8,10 @@
 # Per docs/ROUTING.md (rationale: docs/decisions/0004-split-hostname-routing.md),
 # all subdomains route via the Cloudflare Tunnel to the homelab k3s cluster —
 # NOT via Pages:
-#   - api.maplespike.ca         → tunnel → maplespike-api:8082
-#   - mcp.maplespike.ca         → tunnel → maplespike-quill:3001
-#   - data.maplespike.ca        → tunnel → maplespike-portal:8080 (Quill surface)
-#   - quill.maplespike.ca       → tunnel → maplespike-portal:8080 (Phase D planned)
+#   - api.maplespike.ca         → tunnel → quill-api:8082
+#   - mcp.maplespike.ca         → tunnel → quill-mcp:3001
+#   - data.maplespike.ca        → tunnel → quill-portal:8080 (Quill surface)
+#   - quill.maplespike.ca       → tunnel → quill-portal:8080 (Phase D planned)
 #
 # IMPORTANT: hostname→service ingress rules for the tunnel are configured
 # in the Cloudflare Zero Trust Dashboard (Networks → Tunnels → Routes),

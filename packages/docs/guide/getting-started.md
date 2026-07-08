@@ -30,7 +30,7 @@ To get your first API key:
 
 3. **For local development**, use the dev key:
    ```
-   MAPLESPIKE_API_KEY=maplespike-dev-key
+   QUILL_API_KEY=maplespike-dev-key
    ```
 
 ## Response Envelope
@@ -111,7 +111,7 @@ Configure your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "maplespike": {
-      "url": "http://maplespike-quill.lan:3001/sse"  <!-- internal for local dev; use public MCP endpoint when available -->
+      "url": "http://quill-mcp.lan:3001/sse"  <!-- internal for local dev; use public MCP endpoint when available -->
     }
   }
 }

@@ -23,7 +23,7 @@ import type {
 
 const UNHCR_API_BASE = 'https://api.unhcr.org';
 const UNHCR_TIMEOUT_MS = 15_000;
-const UNHCR_USER_AGENT = 'MapleSpike-UNHCR/1.0 (+https://github.com/reverb256/maplespike)';
+const UNHCR_USER_AGENT = 'MapleSpike-UNHCR/1.0 (+https://github.com/reverb256/quill)';
 
 export interface UNHCRModuleMetadata {
   sourcesAttempted: number;

@@ -18,7 +18,7 @@ import { randomUUID, createHmac, randomBytes } from "node:crypto";
 let _cachedSecret: string | null = null;
 function hashSecret(): string {
   if (_cachedSecret) return _cachedSecret;
-  const env = process.env["MAPLESPIKE_PII_HASH_SECRET"];
+  const env = process.env["QUILL_PII_HASH_SECRET"];
   if (env && env.length >= 16) {
     _cachedSecret = env;
     return _cachedSecret;

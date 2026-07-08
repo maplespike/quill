@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Passkey Authentication (WebAuthn)
+ * Quill — Passkey Authentication (WebAuthn)
  *
  * Uses @simplewebauthn/server for WebAuthn ceremony handling.
  * Flow:

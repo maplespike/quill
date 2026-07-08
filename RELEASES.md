@@ -83,7 +83,7 @@ Highest-centrality utilities now have test coverage:
 4. **Verify:**
    ```bash
    pnpm test
-   kubectl get cronjobs -n maplespike-prod
+   kubectl get cronjobs -n quill-prod
    ```
 
 ### Breaking Changes

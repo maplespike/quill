@@ -1,5 +1,5 @@
 /**
- * MapleSpike — AI Settings & Bring Your Own Key
+ * Quill — AI Settings & Bring Your Own Key
  *
  * GET  /v1/ai/settings  — Get current AI settings (keys masked)
  * PUT  /v1/ai/settings  — Update AI settings (provider, key, model, endpoint)
@@ -113,10 +113,10 @@ export function resolveAIConfig(tenantId: string): {
   const byok = getTenantAISettings(tenantId);
   if (!byok) {
     return {
-      endpoint: process.env.MAPLESPIKE_AI_ENDPOINT
+      endpoint: process.env.QUILL_AI_ENDPOINT
         || 'http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1',
       apiKey: '',
-      model: process.env.MAPLESPIKE_AI_MODEL || 'glm-5.2',
+      model: process.env.QUILL_AI_MODEL || 'glm-5.2',
       source: 'cluster-default',
     };
   }

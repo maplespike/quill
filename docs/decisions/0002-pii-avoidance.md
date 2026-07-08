@@ -89,7 +89,7 @@ MapleSpike can run with *zero* PII retention if we architect for it.
 
 ## Open Questions
 
-- Should we add a `MAPLESPIKE_PII_HASH_SECRET` rotation policy? (every
+- Should we add a `QUILL_PII_HASH_SECRET` rotation policy? (every
   90d? on compromise?)
 - Does it make sense to keep IMAP e-Transfer as **opt-in** for
   non-PIPEDA jurisdictions?

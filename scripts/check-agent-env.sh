@@ -4,7 +4,7 @@
 set -euo pipefail
 
 required_vars=(
-  "MAPLESPIKE_GATEWAY_URL"
+  "QUILL_GATEWAY_URL"
   "OPENCODE_API_KEY"
   "KELOS_MODEL"
 )

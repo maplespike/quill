@@ -43,7 +43,7 @@ Sign up at [maplespike.ca](https://maplespike.ca) to get a free API key (1,000 r
 import { MapleSpike } from '@maplespike/sdk';
 
 const ms = new MapleSpike({
-  apiKey: process.env.MAPLESPIKE_API_KEY,
+  apiKey: process.env.QUILL_API_KEY,
 });
 ```
 
@@ -383,5 +383,5 @@ MIT — see [LICENSE](LICENSE)
 
 - [MapleSpike Portal](https://maplespike.ca)
 - [API Docs](https://maplespike.ca/docs.html)
-- [GitHub](https://github.com/reverb256/maplespike)
-- [Issues](https://github.com/reverb256/maplespike/issues)
+- [GitHub](https://github.com/reverb256/quill)
+- [Issues](https://github.com/reverb256/quill/issues)

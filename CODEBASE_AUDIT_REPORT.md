@@ -96,7 +96,7 @@ async updatePaymentOrder(id: string, updates: Partial<PaymentOrder>): Promise<vo
 **File:** `packages/api-server/src/routes/billing.ts` (line 98)
 
 ```typescript
-const SIGNING_SECRET = process.env.MAPLESPIKE_BILLING_SECRET || randomUUID();
+const SIGNING_SECRET = process.env.QUILL_BILLING_SECRET || randomUUID();
 ```
 
 If the env var is missing, `randomUUID()` is called once at module load. In a multi-replica deployment, each pod generates a different secret. An order created on pod A will fail signature verification on pod B.
@@ -105,9 +105,9 @@ If the env var is missing, `randomUUID()` is called once at module load. In a mu
 
 **Remediation:**
 ```typescript
-const SIGNING_SECRET = process.env.MAPLESPIKE_BILLING_SECRET;
+const SIGNING_SECRET = process.env.QUILL_BILLING_SECRET;
 if (!SIGNING_SECRET) {
-  throw new Error('MAPLESPIKE_BILLING_SECRET must be set in production');
+  throw new Error('QUILL_BILLING_SECRET must be set in production');
 }
 ```
 
@@ -281,14 +281,14 @@ Root requires `typescript: ^6.0.3` (does not exist; latest stable is 5.9.3). API
 **File:** `packages/api-server/src/routes/ai.ts` (lines 31, 67, 128)
 
 ```typescript
-const LOCAL_ENDPOINT = process.env.MAPLESPIKE_LOCAL_ENDPOINT || 'http://10.1.1.140:8001';
+const LOCAL_ENDPOINT = process.env.QUILL_LOCAL_ENDPOINT || 'http://10.1.1.140:8001';
 ```
 
 Internal network topology is leaked in source code. If the repo is public, attackers know the internal LLM inference endpoint IP.
 
 **Remediation:** Remove the fallback entirely:
 ```typescript
-const LOCAL_ENDPOINT = process.env.MAPLESPIKE_LOCAL_ENDPOINT;
+const LOCAL_ENDPOINT = process.env.QUILL_LOCAL_ENDPOINT;
 if (!LOCAL_ENDPOINT) {
   log.warn('Local AI endpoint not configured');
 }
@@ -438,7 +438,7 @@ try {
 1. [ ] Fix JWT empty secret fallback (**C1**)
 2. [ ] Remove billing auto-confirm for non-EVM chains (**C2**)
 3. [ ] Make billing store persistent (PostgreSQL) (**C3**)
-4. [ ] Enforce `MAPLESPIKE_BILLING_SECRET` env var (**C4**)
+4. [ ] Enforce `QUILL_BILLING_SECRET` env var (**C4**)
 5. [ ] Sanitize portal `innerHTML` with `textContent` or DOMPurify (**C5**)
 
 ### Week 2 (High)

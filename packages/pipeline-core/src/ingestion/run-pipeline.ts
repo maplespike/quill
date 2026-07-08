@@ -1,8 +1,8 @@
 /**
- * MapleSpike — Ingestion Pipeline Runner
+ * Quill — Ingestion Pipeline Runner
  *
  * Runs a single ingestion pipeline by module name.
- * Called by the ingestion CronJob container with MAPLESPIKE_PIPELINE env.
+ * Called by the ingestion CronJob container with QUILL_PIPELINE env.
  * Persists results to PostgreSQL when DATABASE_URL is set.
  *
  * Usage:
@@ -10,7 +10,7 @@
  *   node packages/pipeline-core/dist/ingestion/run-pipeline.js --name=realtime --limit=5
  *
  * Env:
- *   MAPLESPIKE_PIPELINE  — module name to run (required)
+ *   QUILL_PIPELINE  — module name to run (required)
  *   DATABASE_URL          — PostgreSQL connection string (optional; skips persistence if absent)
  *   NODE_ENV              — defaults to 'production'
  *   JWT_SECRET            — required for API calls (set in k8s secrets)
@@ -21,7 +21,7 @@ import type { ModuleCategory } from './registry.js';
 
 /**
  * Pipeline alias map.
- * Maps CronJob pipeline names (MAPLESPIKE_PIPELINE) to registry module names.
+ * Maps CronJob pipeline names (QUILL_PIPELINE) to registry module names.
  * Kept in sync with cli/ingest.ts PIPELINE_CONFIG.
  */
 const PIPELINE_CONFIG: Record<string, string> = {
@@ -87,11 +87,11 @@ interface IngestionRecord {
 async function getPgPool() {
   const { default: pg } = await import('pg');
   const connStr = process.env.DATABASE_URL || (() => {
-    const host = process.env.MAPLESPIKE_DB_HOST || 'localhost';
-    const port = process.env.MAPLESPIKE_DB_PORT || '5432';
-    const db   = process.env.MAPLESPIKE_DB_NAME || 'maplespike';
-    const user = process.env.MAPLESPIKE_DB_USER || 'maplespike';
-    const pass = process.env.MAPLESPIKE_DB_PASSWORD || '';
+    const host = process.env.QUILL_DB_HOST || 'localhost';
+    const port = process.env.QUILL_DB_PORT || '5432';
+    const db   = process.env.QUILL_DB_NAME || 'maplespike';
+    const user = process.env.QUILL_DB_USER || 'maplespike';
+    const pass = process.env.QUILL_DB_PASSWORD || '';
     return `postgresql://${user}:${pass}@${host}:${port}/${db}`;
   })();
   const pool = new pg.Pool({ connectionString: connStr, max: 5 });
@@ -163,11 +163,11 @@ async function main() {
   const args = process.argv.slice(2);
   const nameFlag = args.find(a => a.startsWith('--name='));
   const limitFlag = args.find(a => a.startsWith('--limit='));
-  const pipelineName = nameFlag?.split('=')[1] || process.env['MAPLESPIKE_PIPELINE'];
+  const pipelineName = nameFlag?.split('=')[1] || process.env['QUILL_PIPELINE'];
   const limit = limitFlag ? parseInt(limitFlag.split('=')[1], 10) : undefined;
 
   if (!pipelineName) {
-    console.error('ERROR: No pipeline name provided. Set MAPLESPIKE_PIPELINE env or pass --name=<module>.');
+    console.error('ERROR: No pipeline name provided. Set QUILL_PIPELINE env or pass --name=<module>.');
     const all = getAllModules();
     console.error(`Available modules: ${all.length} total, ${all.filter(m => m.status !== 'placeholder').length} active`);
     process.exit(1);
@@ -198,7 +198,7 @@ async function main() {
   console.log(`[ingestion] Limit: ${limit ?? 'default'}`);
 
   // Determine if we have DB persistence
-  const hasDb = !!(process.env.DATABASE_URL || process.env.MAPLESPIKE_DB_HOST);
+  const hasDb = !!(process.env.DATABASE_URL || process.env.QUILL_DB_HOST);
   let pool: import('pg').Pool | null = null;
   if (hasDb) {
     try {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /**
- * MapleSpike — API Gateway (Worker Entry)
+ * Quill — API Gateway (Worker Entry)
  *
  * Cloudflare Workers fetch handler + Node.js dev server compatible.
  * Multi-tenant REST API gateway wrapping pipeline-core.
@@ -33,7 +33,7 @@ import type { BuildContext } from './response.js';
 import { detectLocale, buildBilingualError } from './error-codes.js';
 import { loadConfig, validateConfig } from './config.js';
 import { D1Storage, KVCache, MemoryStorage, MemoryCache } from './storage.js';
-import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
+import type { QuillStorage, QuillCache } from './types.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
@@ -261,7 +261,7 @@ function generateRequestId(): string {
 }
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,
@@ -416,8 +416,8 @@ function finalizeResponse(
 export async function handleRequest(
   request: Request,
   env: Record<string, string | undefined>,
-  db: MapleSpikeStorage,
-  cache: MapleSpikeCache,
+  db: QuillStorage,
+  cache: QuillCache,
 ): Promise<Response> {
   const config = loadConfig(env);
   const environment = config.environment || process.env.ENVIRONMENT;
@@ -597,20 +597,20 @@ export async function handleRequest(
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     // Support both Workers D1 and Node.js PG/SQLite backends
-    const storageMode = (env.MAPLESPIKE_STORAGE || process.env.MAPLESPIKE_STORAGE || '').toLowerCase();
+    const storageMode = (env.QUILL_STORAGE || process.env.QUILL_STORAGE || '').toLowerCase();
     const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
 
-    let db: MapleSpikeStorage;
-    let cache: MapleSpikeCache;
+    let db: QuillStorage;
+    let cache: QuillCache;
 
-    if (storageMode === 'postgres' || databaseUrl || env.MAPLESPIKE_DB_HOST || process.env.MAPLESPIKE_DB_HOST) {
+    if (storageMode === 'postgres' || databaseUrl || env.QUILL_DB_HOST || process.env.QUILL_DB_HOST) {
       // PostgreSQL mode — used in Node.js or when DATABASE_URL is provided
       const { PgStorage, PgCache } = await import('./pg-storage.js');
       const pgDb = new PgStorage(databaseUrl);
       await pgDb.init();
       db = pgDb;
       cache = new PgCache();
-    } else if (storageMode === 'sqlite' || storageMode === 'node-sqlite' || process.env.MAPLESPIKE_DB_PATH) {
+    } else if (storageMode === 'sqlite' || storageMode === 'node-sqlite' || process.env.QUILL_DB_PATH) {
       // Node built-in SQLite mode (no native compilation needed)
       const { NodeSqliteStorage, NodeSqliteCache } = await import('./node-sqlite-storage.js');
       db = new NodeSqliteStorage();
@@ -628,8 +628,8 @@ export default {
     initAnnotationStore(env.DB);
     const envVars: Record<string, string | undefined> = {
       ENVIRONMENT: env.ENVIRONMENT,
-      MAPLESPIKE_VERSION: env.MAPLESPIKE_VERSION,
-      MAPLESPIKE_NAME: env.MAPLESPIKE_NAME,
+      QUILL_VERSION: env.QUILL_VERSION,
+      MAPLESPIKE_NAME: env.QUILL_NAME,
       FREE_LIMIT: env.FREE_LIMIT,
       PRO_LIMIT: env.PRO_LIMIT,
       BUSINESS_LIMIT: env.BUSINESS_LIMIT,

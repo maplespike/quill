@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Authentication Middleware
+ * Quill — Authentication Middleware
  *
  * Multi-method authentication supporting:
  *   1. X-API-Key header (legacy, for server-to-server)
@@ -12,7 +12,7 @@
 import type { Tenant } from './types.js';
 import { verifyToken, tokenFromRequest } from './auth/jwt.js';
 import { getUser, getTenantForUser } from './auth/users.js';
-import type { MapleSpikeStorage } from './types.js';
+import type { QuillStorage } from './types.js';
 
 /* ------------------------------------------------------------------ */
 /*  In-Memory API Key Store (legacy)                                   */
@@ -118,7 +118,7 @@ function extractApiKeyHeader(request: Request): string | null {
  */
 export async function authenticateRequest(
   request: Request,
-  db?: MapleSpikeStorage,
+  db?: QuillStorage,
 ): Promise<AuthResult | null> {
   // Method 1: X-API-Key header (legacy server-to-server)
   const apiKey = extractApiKeyHeader(request);
@@ -157,7 +157,7 @@ export async function authenticateRequest(
 
 async function authenticateWithApiKey(
   rawKey: string,
-  db?: MapleSpikeStorage,
+  db?: QuillStorage,
 ): Promise<AuthResult | null> {
   const entry = apiKeyMap.get(rawKey);
   if (entry) {

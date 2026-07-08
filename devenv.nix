@@ -12,7 +12,7 @@
   };
   languages.typescript.enable = true;
 
-  # Python for the Python SDK (maplespike-sdk on PyPI)
+  # Python for the Python SDK (quill-sdk on PyPI)
   languages.python = {
     enable = true;
     package = pkgs.python3;

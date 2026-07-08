@@ -1,5 +1,5 @@
 /**
- * MapleSpike — GET /v1/health
+ * Quill — GET /v1/health
  */
 
 import type { RouteHandler } from '../types.js';

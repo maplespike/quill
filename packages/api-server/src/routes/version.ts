@@ -1,5 +1,5 @@
 /**
- * MapleSpike — GET /v1/version
+ * Quill — GET /v1/version
  *
  * Returns the current API server version from config.
  * Used by clients and monitoring for deployment tracking.

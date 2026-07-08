@@ -54,5 +54,5 @@ export const MEDIA_SOURCES: MediaSourceConfig[] = [
 ];
 
 export const MEDIA_FETCH_TIMEOUT_MS = 15_000;
-export const MEDIA_USER_AGENT = 'MapleSpike-Media/1.0 (+https://github.com/reverb256/maplespike)';
+export const MEDIA_USER_AGENT = 'MapleSpike-Media/1.0 (+https://github.com/reverb256/quill)';
 export const MAX_MEDIA_RECORDS = 200;

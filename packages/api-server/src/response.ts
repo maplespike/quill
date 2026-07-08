@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Response Envelope
+ * Quill — Response Envelope
  *
  * Consistent API response format for all endpoints.
  * MapleSpike-quality envelope: success/data/error/meta/quality/citation.
@@ -321,8 +321,8 @@ const ALLOWED_ORIGINS = [
   'https://dev-api.maplespike.lan',
   'https://dev-mcp.maplespike.lan',
   // LAN aliases
-  'https://maplespike-api.lan',
-  'https://maplespike-portal.lan',
+  'https://quill-api.lan',
+  'https://quill-portal.lan',
   // Auto-derived from MAPLESPIKE_DOMAIN env var
   ...(() => {
     const d = process.env.MAPLESPIKE_DOMAIN;

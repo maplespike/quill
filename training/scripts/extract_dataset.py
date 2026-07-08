@@ -9,7 +9,7 @@ model when a suitable GPU is available.
 
 Usage:
     python scripts/extract_dataset.py --output data/maplespike-training.jsonl
-    python scripts/extract_dataset.py --api http://maplespike-api:8082 --sources committees,lobbying --limit 500
+    python scripts/extract_dataset.py --api http://quill-api:8082 --sources committees,lobbying --limit 500
 """
 
 import argparse
@@ -187,7 +187,7 @@ def extract_regulatory(api_base: str, limit: int = 100) -> list[dict]:
 
 def main():
     parser = argparse.ArgumentParser(description="Extract real training data from MapleSpike pipeline")
-    parser.add_argument("--api", default="http://maplespike-api:8082",
+    parser.add_argument("--api", default="http://quill-api:8082",
                         help="MapleSpike API base URL")
     parser.add_argument("--output", default="data/maplespike-training.jsonl", help="Output JSONL path")
     parser.add_argument("--sources", default="all",

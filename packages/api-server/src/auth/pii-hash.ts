@@ -1,5 +1,5 @@
 /**
- * MapleSpike — PII Hash Helper (Decision 0002)
+ * Quill — PII Hash Helper (Decision 0002)
  *
  * Storage layers agree on a single HMAC-SHA256 derivation for any PII
  * that *must* be retained only as a lookup token (email, phone, etc.).
@@ -11,7 +11,7 @@
  *   3. Send the original email via a transactional mailer (one-shot)
  *   4. Discard the plaintext
  *
- * The server-side `MAPLESPIKE_PII_HASH_SECRET` env var
+ * The server-side `QUILL_PII_HASH_SECRET` env var
  * (auto-generated if absent) salts the HMAC so a database leak does
  * not expose plaintext via rainbow-table attack.
  */
@@ -22,7 +22,7 @@ let _cachedSecret: string | null = null;
 
 function getSecret(): string {
   if (_cachedSecret) return _cachedSecret;
-  const env = process.env["MAPLESPIKE_PII_HASH_SECRET"];
+  const env = process.env["QUILL_PII_HASH_SECRET"];
   // All environments (dev/staging/prod): enforce a length floor
   // AND a hex-format check so an operator can't accidentally set
   // a 32-char garbage string with weak entropy.
@@ -32,7 +32,7 @@ function getSecret(): string {
   }
   if (env && env.length > 0) {
     throw new Error(
-      `MAPLESPIKE_PII_HASH_SECRET must be a 64-char hex string (got length=${env.length}). ` +
+      `QUILL_PII_HASH_SECRET must be a 64-char hex string (got length=${env.length}). ` +
         "Decision 0002 refuses shorter or non-hex secrets in any environment to keep `emailHash` " +
         "namespaces reconcilable across restart, staging, and production.",
     );
@@ -43,7 +43,7 @@ function getSecret(): string {
   // breaking the verified-email branch invisibly.
   if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "MAPLESPIKE_PII_HASH_SECRET must be set to a stable 32-byte hex " +
+      "QUILL_PII_HASH_SECRET must be set to a stable 32-byte hex " +
         "string in production. Refusing to start with an ephemeral secret " +
         "(see Decision 0002 in docs/decisions/0002-pii-avoidance.md).",
     );
@@ -53,7 +53,7 @@ function getSecret(): string {
   _cachedSecret = randomBytes(32).toString("hex");
   // eslint-disable-next-line no-console
   console.warn(
-    "[pii-hash] MAPLESPIKE_PII_HASH_SECRET was unset; generated an ephemeral secret. " +
+    "[pii-hash] QUILL_PII_HASH_SECRET was unset; generated an ephemeral secret. " +
       "Hashes will NOT survive a process restart. Set this env var to a 32-byte hex string " +
       "before deploying to production.",
   );

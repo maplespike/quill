@@ -97,16 +97,16 @@ cd maplespike
 
 ```bash
 # API Server
-docker build --target api-server -t maplespike-api:latest .
+docker build --target api-server -t quill-api:latest .
 
 # MCP Server
-docker build --target quill-mcp -t maplespike-quill:latest .
+docker build --target quill-mcp -t quill-mcp:latest .
 
 # Portal (static HTML)
-docker build --target portal -t maplespike-portal:latest .
+docker build --target portal -t quill-portal:latest .
 
 # Ingestion (CronJob runner)
-docker build --target ingestion -t maplespike-ingest:latest .
+docker build --target ingestion -t quill-ingest:latest .
 ```
 
 > **Tip for K3s single-node**: If building on the same node, `docker save` + `docker import` is optional — use `k3s ctr images import` or set `imagePullPolicy: Never` with `localhost/` image names in the manifests.
@@ -115,10 +115,10 @@ docker build --target ingestion -t maplespike-ingest:latest .
 
 ```bash
 # Tag for your registry
-docker tag maplespike-api:latest registry.example.com/maplespike-api:latest
+docker tag quill-api:latest registry.example.com/quill-api:latest
 
 # Push
-docker push registry.example.com/maplespike-api:latest
+docker push registry.example.com/quill-api:latest
 # ... repeat for quill-mcp, portal, ingestion
 ```
 
@@ -193,17 +193,17 @@ helm upgrade --install maplespike ./charts/maplespike \
 
 | Resource                    | Kind         | Notes                            |
 |-----------------------------|--------------|----------------------------------|
-| `maplespike-api`             | Deployment   | REST API gateway                 |
-| `maplespike-quill`             | Deployment   | MCP protocol server              |
-| `maplespike-portal`          | Deployment   | Developer portal (static site)   |
-| `maplespike-db`              | StatefulSet  | PostgreSQL 17 (Alpine)           |
-| `maplespike-ingest-<name>`   | CronJob × 22 | One CronJob per pipeline         |
+| `quill-api`             | Deployment   | REST API gateway                 |
+| `quill-mcp`             | Deployment   | MCP protocol server              |
+| `quill-portal`          | Deployment   | Developer portal (static site)   |
+| `quill-db`              | StatefulSet  | PostgreSQL 17 (Alpine)           |
+| `quill-ingest-<name>`   | CronJob × 22 | One CronJob per pipeline         |
 | `maplespike-secrets`         | Secret       | API key, JWT secret              |
-| `maplespike-db-secret`       | Secret       | DB user, password, database name |
-| `maplespike-api` (svc)       | Service      | ClusterIP / NodePort 31283       |
-| `maplespike-quill` (svc)       | Service      | ClusterIP / NodePort 31745       |
-| `maplespike-portal` (svc)    | Service      | ClusterIP / NodePort 30964       |
-| `maplespike-db` (svc)        | Service      | ClusterIP :5432                  |
+| `quill-db-secret`       | Secret       | DB user, password, database name |
+| `quill-api` (svc)       | Service      | ClusterIP / NodePort 31283       |
+| `quill-mcp` (svc)       | Service      | ClusterIP / NodePort 31745       |
+| `quill-portal` (svc)    | Service      | ClusterIP / NodePort 30964       |
+| `quill-db` (svc)        | Service      | ClusterIP :5432                  |
 
 ### Uninstall
 
@@ -214,7 +214,7 @@ kubectl delete namespace maplespike
 
 > PVCs for PostgreSQL are **not** deleted by `helm uninstall`. Remove them manually if needed:
 > ```bash
-> kubectl delete pvc -n maplespike -l app=maplespike-db
+> kubectl delete pvc -n maplespike -l app=quill-db
 > ```
 
 ---
@@ -255,7 +255,7 @@ kubectl create secret generic maplespike-secrets \
   --from-literal=apiKey="your-api-key" \
   --from-literal=jwtSecret="your-jwt-secret"
 
-kubectl create secret generic maplespike-db-secret \
+kubectl create secret generic quill-db-secret \
   -n maplespike \
   --from-literal=postgres-user=maplespike \
   --from-literal=postgres-password="your-db-password" \
@@ -280,16 +280,16 @@ kubectl get all -n maplespike
 |-------------------------|----------------------|------------------------------------------|
 | `NODE_ENV`              | `production`         | Runtime mode                             |
 | `PORT`                  | `8082` (api) / `3001` (mcp) | HTTP listen port                    |
-| `MAPLESPIKE_API_URL`    | —                    | Base URL of the API server               |
-| `MAPLESPIKE_API_KEY`    | —                    | API key for server-to-server auth        |
-| `MAPLESPIKE_STORAGE`    | `memory`             | Storage backend: `memory` or `postgres`  |
-| `MAPLESPIKE_DB_HOST`    | `maplespike-db`      | PostgreSQL hostname                      |
-| `MAPLESPIKE_DB_PORT`    | `5432`               | PostgreSQL port                          |
-| `MAPLESPIKE_DB_NAME`    | `maplespike`         | PostgreSQL database name                 |
-| `MAPLESPIKE_DB_USER`    | `maplespike`         | PostgreSQL user                          |
-| `MAPLESPIKE_DB_PASSWORD`| —                    | PostgreSQL password                      |
+| `QUILL_API_URL`    | —                    | Base URL of the API server               |
+| `QUILL_API_KEY`    | —                    | API key for server-to-server auth        |
+| `QUILL_STORAGE`    | `memory`             | Storage backend: `memory` or `postgres`  |
+| `QUILL_DB_HOST`    | `quill-db`      | PostgreSQL hostname                      |
+| `QUILL_DB_PORT`    | `5432`               | PostgreSQL port                          |
+| `QUILL_DB_NAME`    | `maplespike`         | PostgreSQL database name                 |
+| `QUILL_DB_USER`    | `maplespike`         | PostgreSQL user                          |
+| `QUILL_DB_PASSWORD`| —                    | PostgreSQL password                      |
 | `JWT_SECRET`            | —                    | Secret for JWT token signing             |
-| `MAPLESPIKE_PIPELINE`   | —                    | Pipeline name for ingestion CronJob      |
+| `QUILL_PIPELINE`   | —                    | Pipeline name for ingestion CronJob      |
 | `PROMETHEUS_PUSHGATEWAY`| —                    | Pushgateway URL for pipeline metrics     |
 
 ### Secrets to set
@@ -329,11 +329,11 @@ kubectl create secret generic maplespike-secrets \
 
 ```bash
 # API health
-kubectl port-forward -n maplespike svc/maplespike-api 8082:8082 &
+kubectl port-forward -n maplespike svc/quill-api 8082:8082 &
 curl http://localhost:8082/v1/health
 
 # MCP health
-kubectl port-forward -n maplespike svc/maplespike-quill 3001:3001 &
+kubectl port-forward -n maplespike svc/quill-mcp 3001:3001 &
 curl http://localhost:3001/health
 ```
 
@@ -341,20 +341,20 @@ curl http://localhost:3001/health
 
 ```bash
 # API server
-kubectl logs -n maplespike -l app=maplespike-api --tail=50
+kubectl logs -n maplespike -l app=quill-api --tail=50
 
 # MCP server
-kubectl logs -n maplespike -l app=maplespike-quill --tail=50
+kubectl logs -n maplespike -l app=quill-mcp --tail=50
 
 # A specific ingestion job
-kubectl logs -n maplespike job/maplespike-ingest-committees-<job-id> --tail=50
+kubectl logs -n maplespike job/quill-ingest-committees-<job-id> --tail=50
 ```
 
 ### Test an API call
 
 ```bash
 # Forward the port
-kubectl port-forward -n maplespike svc/maplespike-api 8082:8082 &
+kubectl port-forward -n maplespike svc/quill-api 8082:8082 &
 
 # Make a request (no auth needed with default config)
 curl -s http://localhost:8082/v1/health | jq .
@@ -366,7 +366,7 @@ curl -s http://localhost:8082/v1/health | jq .
 kubectl get cronjobs -n maplespike
 ```
 
-The ingestion CronJobs run various Canadian government data pipelines on schedules defined in `values.yaml`. Each CronJob runs `maplespike-ingest` with the pipeline name in the `MAPLESPIKE_PIPELINE` environment variable.
+The ingestion CronJobs run various Canadian government data pipelines on schedules defined in `values.yaml`. Each CronJob runs `quill-ingest` with the pipeline name in the `QUILL_PIPELINE` environment variable.
 
 ---
 
@@ -395,7 +395,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: maplespike-api
+            name: quill-api
             port:
               number: 8082
   - host: mcp.maplespike.example
@@ -405,7 +405,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: maplespike-quill
+            name: quill-mcp
             port:
               number: 3001
   - host: maplespike.example
@@ -415,7 +415,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: maplespike-portal
+            name: quill-portal
             port:
               number: 8080
   tls:
@@ -436,9 +436,9 @@ The Helm chart creates NodePort services by default:
 
 | Service            | NodePort |
 |-------------------|----------|
-| `maplespike-api`  | 31283    |
-| `maplespike-quill`  | 31745    |
-| `maplespike-portal` | 30964  |
+| `quill-api`  | 31283    |
+| `quill-mcp`  | 31745    |
+| `quill-portal` | 30964  |
 
 Access services at `http://<node-ip>:<nodeport>`.
 
@@ -484,13 +484,13 @@ helm install pushgateway prometheus-community/prometheus-pushgateway \
 
 ```bash
 # Build new images
-docker build --target api-server -t maplespike-api:new-tag .
-docker build --target quill-mcp -t maplespike-quill:new-tag .
-docker build --target portal -t maplespike-portal:new-tag .
-docker build --target ingestion -t maplespike-ingest:new-tag .
+docker build --target api-server -t quill-api:new-tag .
+docker build --target quill-mcp -t quill-mcp:new-tag .
+docker build --target portal -t quill-portal:new-tag .
+docker build --target ingestion -t quill-ingest:new-tag .
 
 # Push to registry
-docker push registry.example.com/maplespike-api:new-tag
+docker push registry.example.com/quill-api:new-tag
 # ... repeat for other targets
 
 # Upgrade Helm release
@@ -509,7 +509,7 @@ kubectl rollout restart deployment -n maplespike
 The PostgreSQL StatefulSet uses a PVC. Back up with `pg_dump`:
 
 ```bash
-kubectl exec -n maplespike deploy/maplespike-db-0 -- \
+kubectl exec -n maplespike deploy/quill-db-0 -- \
   pg_dump -U maplespike maplespike > maplespike-backup-$(date +%F).sql
 ```
 
@@ -520,8 +520,8 @@ kubectl exec -n maplespike deploy/maplespike-db-0 -- \
 stern -n maplespike .
 
 # Specific deployments
-kubectl logs -n maplespike -l app=maplespike-api -f
-kubectl logs -n maplespike -l app=maplespike-quill -f
+kubectl logs -n maplespike -l app=quill-api -f
+kubectl logs -n maplespike -l app=quill-mcp -f
 ```
 
 ---
@@ -540,25 +540,25 @@ Common causes:
 | Symptom                       | Likely cause                                 | Fix                                               |
 |-------------------------------|----------------------------------------------|---------------------------------------------------|
 | `Pending` — no node fits      | Insufficient CPU/memory                      | Check node resources: `kubectl describe node`     |
-| `CrashLoopBackOff` — API      | Missing `JWT_SECRET` or DB connection        | Set secrets; check `MAPLESPIKE_STORAGE`           |
+| `CrashLoopBackOff` — API      | Missing `JWT_SECRET` or DB connection        | Set secrets; check `QUILL_STORAGE`           |
 | `CrashLoopBackOff` — DB       | PVC not bound, missing StorageClass          | `kubectl get pvc -n maplespike`                   |
 | `ImagePullBackOff`            | Image not found in registry                  | Check image name, tag, and registry credentials   |
-| Ingestion CronJob not running | Wrong pipeline name                          | Check `MAPLESPIKE_PIPELINE` env var               |
-| MCP can't reach API           | Wrong `MAPLESPIKE_API_URL`                   | Check service DNS: `http://maplespike-api:8082`   |
+| Ingestion CronJob not running | Wrong pipeline name                          | Check `QUILL_PIPELINE` env var               |
+| MCP can't reach API           | Wrong `QUILL_API_URL`                   | Check service DNS: `http://quill-api:8082`   |
 
 ### Secrets not propagating
 
 After updating a Secret, pods need to be restarted:
 
 ```bash
-kubectl rollout restart deployment -n maplespike maplespike-api
+kubectl rollout restart deployment -n maplespike quill-api
 ```
 
 ### PVC stuck in `Pending`
 
 ```bash
 kubectl get pvc -n maplespike
-kubectl describe pvc -n maplespike data-maplespike-db-0
+kubectl describe pvc -n maplespike data-quill-db-0
 ```
 
 If the StorageClass doesn't exist:
@@ -571,13 +571,13 @@ kubectl get storageclass local-path
 ### Changing from `memory` to `postgres` storage
 
 1. Deploy the PostgreSQL StatefulSet (included in the Helm chart)
-2. Set `MAPLESPIKE_STORAGE=postgres` and the DB env vars
+2. Set `QUILL_STORAGE=postgres` and the DB env vars
 3. Restart the API deployment
 
 ```bash
 helm upgrade maplespike ./charts/maplespike -n maplespike \
-  --set api.env.MAPLESPIKE_STORAGE=postgres \
-  --set api.env.MAPLESPIKE_DB_HOST=maplespike-db \
+  --set api.env.QUILL_STORAGE=postgres \
+  --set api.env.QUILL_DB_HOST=quill-db \
   --set database.enabled=true
 ```
 
@@ -605,5 +605,5 @@ helm install maplespike ./charts/maplespike \
 - [Helm chart source](../charts/maplespike/)
 - [Manual K8s manifests](../k8s/manual/)
 - [Dockerfile](../Dockerfile) — multi-stage build
-- [MapleSpike Helm Chart](https://github.com/reverb256/maplespike/tree/main/charts/maplespike)
+- [MapleSpike Helm Chart](https://github.com/reverb256/quill/tree/main/charts/maplespike)
 - [NixOS config](https://github.com/reverb256/nixos-config) — Cluster NixOS configuration

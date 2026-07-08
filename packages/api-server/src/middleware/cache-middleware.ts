@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Per-Route TTL-Based Caching Middleware
+ * Quill — Per-Route TTL-Based Caching Middleware
  *
  * Wraps individual route handlers with cache-check / cache-store logic.
  * Cache hits return the cached response without invoking the original handler.

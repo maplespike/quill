@@ -1,36 +1,36 @@
 /**
- * MapleSpike — Development Server
+ * Quill — Development Server
  *
  * Node.js HTTP server that mounts the same route handlers as the Worker.
  * Supports in-memory (default) and SQLite storage backends.
  *
  * Usage:
- *   MAPLESPIKE_STORAGE=memory   node dist/dev-server.js   # in-memory (default)
- *   MAPLESPIKE_STORAGE=sqlite   node dist/dev-server.js   # SQLite persistence
- *   MAPLESPIKE_STORAGE=postgres node dist/dev-server.js   # PostgreSQL (production)
- *   MAPLESPIKE_DB_PATH=/tmp/my.db node dist/dev-server.js # custom SQLite path
+ *   QUILL_STORAGE=memory   node dist/dev-server.js   # in-memory (default)
+ *   QUILL_STORAGE=sqlite   node dist/dev-server.js   # SQLite persistence
+ *   QUILL_STORAGE=postgres node dist/dev-server.js   # PostgreSQL (production)
+ *   QUILL_DB_PATH=/tmp/my.db node dist/dev-server.js # custom SQLite path
  */
 
 import * as http from 'node:http';
 import { handleRequest } from './index.js';
 import { MemoryStorage, MemoryCache } from './storage.js';
-import type { MapleSpikeStorage, MapleSpikeCache } from './types.js';
+import type { QuillStorage, QuillCache } from './types.js';
 import { initEmailConfig } from './email.js';
 import { validateConfig } from './config.js';
 import pino from 'pino';
 
 const log = pino({
-  level: process.env.MAPLESPIKE_LOG_LEVEL || 'info',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
   transport: process.env.NODE_ENV !== 'production'
     ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
     : undefined,
 });
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
-const AI_ENDPOINT = process.env.MAPLESPIKE_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
-const AI_MODEL = process.env.MAPLESPIKE_AI_MODEL || 'qwen3.5-27b';
-const MAPLESPIKE_STORAGE = (process.env.MAPLESPIKE_STORAGE || 'memory').toLowerCase();
-const MAPLESPIKE_DB_PATH = process.env.MAPLESPIKE_DB_PATH || './maplespike.db';
+const AI_ENDPOINT = process.env.QUILL_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
+const AI_MODEL = process.env.QUILL_AI_MODEL || 'qwen3.5-27b';
+const QUILL_STORAGE = (process.env.QUILL_STORAGE || 'memory').toLowerCase();
+const QUILL_DB_PATH = process.env.QUILL_DB_PATH || './maplespike.db';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') {
@@ -40,11 +40,11 @@ if (!JWT_SECRET || JWT_SECRET === 'maplespike-jwt-secret-change-in-production') 
 }
 
 const env = {
-  MAPLESPIKE_API_KEY: process.env.MAPLESPIKE_API_KEY || '',
-  MAPLESPIKE_VERSION: process.env.MAPLESPIKE_VERSION || '0.1.0',
-  MAPLESPIKE_NAME: process.env.MAPLESPIKE_NAME || 'MapleSpike',
+  QUILL_API_KEY: process.env.QUILL_API_KEY || '',
+  QUILL_VERSION: process.env.QUILL_VERSION || '0.1.0',
+  QUILL_NAME: process.env.QUILL_NAME || 'Quill',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
-  MAPLESPIKE_DB_PATH: process.env.MAPLESPIKE_DB_PATH || './maplespike.db',
+  QUILL_DB_PATH: process.env.QUILL_DB_PATH || './maplespike.db',
   AI_ENDPOINT,
   AI_MODEL,
   JWT_SECRET,
@@ -60,21 +60,21 @@ try {
 
 initEmailConfig({ ...process.env });
 
-let db: MapleSpikeStorage;
-let cache: MapleSpikeCache;
+let db: QuillStorage;
+let cache: QuillCache;
 
-if (MAPLESPIKE_STORAGE === 'postgres') {
+if (QUILL_STORAGE === 'postgres') {
   log.info('Using PostgreSQL backend');
   const { PgStorage, PgCache } = await import('./pg-storage.js');
   const pgDb = new PgStorage();
   await pgDb.init();
   db = pgDb;
   cache = new PgCache();
-} else if (MAPLESPIKE_STORAGE === 'sqlite' || MAPLESPIKE_STORAGE === 'node-sqlite') {
-  log.info(`Using Node SQLite backend: ${MAPLESPIKE_DB_PATH}`);
+} else if (QUILL_STORAGE === 'sqlite' || QUILL_STORAGE === 'node-sqlite') {
+  log.info(`Using Node SQLite backend: ${QUILL_DB_PATH}`);
   // Uses node:sqlite (built into Node 22+, no native compilation needed)
   const { NodeSqliteStorage, NodeSqliteCache } = await import('./node-sqlite-storage.js');
-  db = new NodeSqliteStorage(MAPLESPIKE_DB_PATH);
+  db = new NodeSqliteStorage(QUILL_DB_PATH);
   cache = new NodeSqliteCache();
 } else {
   log.info('Using in-memory backend');
@@ -150,20 +150,20 @@ if (!verifyStorageHealth()) {
 }
 
 server.listen(PORT, '0.0.0.0', () => {
-  const devKey = process.env.MAPLESPIKE_DEV_API_KEY || '<generate with /v1/register>';
+  const devKey = process.env.QUILL_DEV_API_KEY || '<generate with /v1/register>';
   const jwtSecret = process.env.JWT_SECRET ? 'configured' : 'default (change in production)';
 
-  console.log(`\n  MapleSpike API (dev)`);
+  console.log(`\n  Quill API (dev)`);
   console.log(`  ${'─'.repeat(45)}`);
   console.log(`  Server:    http://0.0.0.0:${PORT}/v1`);
   console.log(`  Health:    http://localhost:${PORT}/v1/health`);
   console.log(`  Spec:      http://localhost:${PORT}/v1/openapi.json`);
-  console.log(`  Storage:   ${MAPLESPIKE_STORAGE}`);
-  if (MAPLESPIKE_STORAGE === 'sqlite') {
-    console.log(`  DB Path:   ${MAPLESPIKE_DB_PATH}`);
-  } else if (MAPLESPIKE_STORAGE === 'postgres') {
-    const host = process.env.MAPLESPIKE_DB_HOST || 'localhost';
-    const db   = process.env.MAPLESPIKE_DB_NAME || 'maplespike';
+  console.log(`  Storage:   ${QUILL_STORAGE}`);
+  if (QUILL_STORAGE === 'sqlite') {
+    console.log(`  DB Path:   ${QUILL_DB_PATH}`);
+  } else if (QUILL_STORAGE === 'postgres') {
+    const host = process.env.QUILL_DB_HOST || 'localhost';
+    const db   = process.env.QUILL_DB_NAME || 'maplespike';
     console.log(`  PG Host:   ${host}/${db}`);
   }
   console.log(`  AI:        ${AI_ENDPOINT} (${AI_MODEL})`);

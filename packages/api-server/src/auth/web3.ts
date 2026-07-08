@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Web3 Wallet Authentication (SIWE)
+ * Quill — Web3 Wallet Authentication (SIWE)
  *
  * Sign-In with Ethereum (EIP-4361) compatible.
  * Flow:

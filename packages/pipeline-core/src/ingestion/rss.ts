@@ -238,7 +238,7 @@ export async function fetchFeed(
   url: string,
   options: FetchOptions = {},
 ): Promise<RSSFeed> {
-  const { userAgent = 'MapleSpike-Canada/1.0 (+https://github.com/reverb256/maplespike)', timeout = 30_000 } = options;
+  const { userAgent = 'MapleSpike-Canada/1.0 (+https://github.com/reverb256/quill)', timeout = 30_000 } = options;
 
   const cached = feedCache.get(url);
   const reqHeaders: Record<string, string> = { 'User-Agent': userAgent };

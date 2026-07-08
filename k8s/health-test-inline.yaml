@@ -22,7 +22,7 @@ spec:
   backoffLimit: 0
   template:
     spec:
-      serviceAccountName: maplespike-health-check
+      serviceAccountName: quill-health-check
       restartPolicy: Never
       containers:
       - name: test

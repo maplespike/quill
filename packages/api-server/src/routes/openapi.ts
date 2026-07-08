@@ -1,5 +1,5 @@
 /**
- * MapleSpike — OpenAPI Specification
+ * Quill — OpenAPI Specification
  *
  * GET /v1/openapi.json — Auto-generated OpenAPI 3.1 spec
  */

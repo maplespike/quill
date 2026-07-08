@@ -11,40 +11,40 @@ All MapleSpike container images are built via **Nix** (`flake.nix`) using `pkgs.
 
 | Nix attribute | Image name | Port | Entry point |
 |---|---|---|---|
-| `maplespike-quill-image` | `maplespike-quill` | 3001 | `node packages/quill-mcp/dist/index.js` |
-| `maplespike-api-image` | `maplespike-api` | 8082 | `node packages/api-server/dist/dev-server.js` |
-| `maplespike-portal-image` | `maplespike-portal` | 8080 | `python3 /app/server.py` |
-| `maplespike-ingest-image` | `maplespike-ingest` | CLI | `node packages/pipeline-core/dist/cli/ingest.js` |
-| `maplespike-engine-image` | `maplespike-engine` | CLI | `node packages/engine/dist/sweep/run.js` |
+| `quill-mcp-image` | `quill-mcp` | 3001 | `node packages/quill-mcp/dist/index.js` |
+| `quill-api-image` | `quill-api` | 8082 | `node packages/api-server/dist/dev-server.js` |
+| `quill-portal-image` | `quill-portal` | 8080 | `python3 /app/server.py` |
+| `quill-ingest-image` | `quill-ingest` | CLI | `node packages/pipeline-core/dist/cli/ingest.js` |
+| `quill-engine-image` | `quill-engine` | CLI | `node packages/engine/dist/sweep/run.js` |
 
 ## Building
 
 ```bash
 # Build a single image
-nix build .#maplespike-quill-image -L
+nix build .#quill-mcp-image -L
 
 # Load into podman/docker
 podman load < result
 
 # Build all images
-nix build .#maplespike-all -L
+nix build .#quill-all -L
 ```
 
 ## Pushing to GHCR
 
-The `maplespike-push-all` script handles tagging and pushing:
+The `quill-push-all` script handles tagging and pushing:
 
 ```bash
-REGISTRY=ghcr.io/reverb256 TAG=stable nix run .#maplespike-push-all
+REGISTRY=ghcr.io/reverb256 TAG=stable nix run .#quill-push-all
 ```
 
 Or manually:
 
 ```bash
-nix build .#maplespike-api-image -L
+nix build .#quill-api-image -L
 podman load < result
-podman tag maplespike-api:latest ghcr.io/reverb256/maplespike/maplespike-api:dev
-podman push ghcr.io/reverb256/maplespike/maplespike-api:dev
+podman tag quill-api:latest ghcr.io/reverb256/quill/quill-api:dev
+podman push ghcr.io/reverb256/quill/quill-api:dev
 ```
 
 ## CI/CD
@@ -63,6 +63,6 @@ The CI workflow (`ci.yml`) includes a **forbidden Dockerfile check** — any `Do
 ## Adding a New Image
 
 1. Add a `mkImage` call in `flake.nix` under `packages`
-2. Add to `maplespike-all` symlinkJoin
+2. Add to `quill-all` symlinkJoin
 3. Add build+push step in `deploy-dev.yml` and `deploy-prod.yml`
 4. **Never** create a Dockerfile — use Nix exclusively

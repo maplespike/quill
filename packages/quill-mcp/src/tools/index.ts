@@ -238,12 +238,14 @@ function wrapTools(modules: ToolModule[]): ToolModule[] {
   return modules.map(m => {
     // Inject French description if available
     const frDesc = getFrDescription(m.definition.name);
-    let descriptions = m.definition.descriptions ?? {};
-    if (frDesc) {
-      descriptions = { ...descriptions, 'fr-CA': frDesc };
+    const existing = m.definition.descriptions;
+    const descriptions = frDesc ? { ...existing, 'fr-CA': frDesc } : existing;
+    const definition = { ...m.definition };
+    if (descriptions) {
+      definition.descriptions = descriptions;
     }
     return {
-      definition: { ...m.definition, descriptions },
+      definition,
       handler: wrapHandler(m.definition.name, m.handler),
     };
   });

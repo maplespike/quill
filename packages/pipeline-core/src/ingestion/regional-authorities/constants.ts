@@ -114,4 +114,4 @@ for (const ra of REGIONAL_AUTHORITIES) {
 }
 
 export const REGIONAL_FETCH_TIMEOUT_MS = 15_000;
-export const REGIONAL_USER_AGENT = 'MapleSpike-Regional/1.0 (+https://github.com/reverb256/maplespike)';
+export const REGIONAL_USER_AGENT = 'MapleSpike-Regional/1.0 (+https://github.com/reverb256/quill)';

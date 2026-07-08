@@ -1,6 +1,6 @@
 export const A2AJ_BASE = 'https://api.a2aj.ca';
 export const A2AJ_TIMEOUT_MS = 30_000;
-export const A2AJ_USER_AGENT = 'MapleSpike-A2AJ/1.0 (+https://github.com/reverb256/maplespike)';
+export const A2AJ_USER_AGENT = 'MapleSpike-A2AJ/1.0 (+https://github.com/reverb256/quill)';
 export const A2AJ_MAX_SEARCH_RESULTS = 50;
 export const A2AJ_RATE_LIMIT_PER_HOUR = 1000;
 

@@ -1,5 +1,5 @@
 /**
- * MapleSpike — Mock Data (routed to real pipeline-core modules)
+ * Quill — Mock Data (routed to real pipeline-core modules)
  *
  * Previously contained 800+ lines of hardcoded synthetic data for every
  * agent/action endpoint. All mock data has been removed. The `getMockResponse`
