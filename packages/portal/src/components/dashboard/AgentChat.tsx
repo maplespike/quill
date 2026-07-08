@@ -47,7 +47,7 @@ export default function AgentChat({ lang: propLang }: { lang?: Locale }) {
       try {
         const t =
           localStorage.getItem("maplespike_token") ||
-          localStorage.getItem("maplespike-api-key") ||
+          localStorage.getItem("quill-api-key") ||
           null;
         setStoredToken(t);
       } catch {

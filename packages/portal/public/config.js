@@ -17,7 +17,7 @@ window.MAPLESPIKE = window.MAPLESPIKE || {};
   // strip it to get the base domain
   var parts = host.split('.');
   var baseDomain;
-  if (parts.length > 2 && ['api', 'portal', 'www', 'mcp', 'dev', 'data'].includes(parts[0])) {
+  if (parts.length > 2 && ['api', 'portal', 'www', 'mcp', 'quill', 'data', 'datafabric'].includes(parts[0])) {
     baseDomain = parts.slice(1).join('.');
   } else {
     baseDomain = host;

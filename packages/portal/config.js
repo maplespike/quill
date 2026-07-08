@@ -6,7 +6,7 @@
 //
 // Dev defaults point at a local API server on port 8082.
 // Production overrides:
-//   apiBase: "https://maplespike-api.lan"
+//   apiBase: "https://api.maplespike.ca"
 //   apiKey: ""  ← user enters their own key via workspace
 // ─────────────────────────────────────────────────────────────────
 window.MAPLESPIKE = window.MAPLESPIKE || {};

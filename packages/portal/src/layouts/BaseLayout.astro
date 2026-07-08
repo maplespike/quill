@@ -99,24 +99,20 @@ const isActive = (match: string) =>
         if (theme === "dark") document.documentElement.classList.add("dark");
         else document.documentElement.classList.remove("dark");
       })();
-      // Client-side language redirect
+      // Client-side language redirect — ONLY on bare root `/`
       (function() {
-        var path = window.location.pathname;
-        if (!path.startsWith('/en/') && !path.startsWith('/fr/') && path !== '/en' && path !== '/fr') {
+        var path = window.location.pathname.replace(/\/$/, '');
+        if (path === '') {
           var stored = localStorage.getItem('maplespike_lang') || navigator.language || 'en';
           var lang = stored.startsWith('fr') ? 'fr' : 'en';
-          var clean = path.replace(/\/$/, '') || '';
-          window.location.href = '/' + lang + (clean || '');
+          window.location.href = '/' + lang;
         }
       })();
     </script>
   </head>
-  <!-- Phase-1 Brand Harmonization Baseline (2026-07-06):
-       22 existing portal pages still use this layout. The 5 chrome-level
-       changes below (font weight range, default meta description, body
-       selection-accent, active-nav maple accent, footer brand-rule) bring
-       the legacy BaseLayout into the same visual language as the new
-       BrandLayout+Island landing without touching page-level content. -->
+  <!-- Unified layout: all pages (including landing) use BaseLayout for
+       consistent nav, footer, auth, and i18n chrome. The landing page's
+       React island renders content sections only — no internal TopBar/SiteFooter. -->
   <body class="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-maple/30">
 
     <!-- Navigation -->

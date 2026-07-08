@@ -137,7 +137,7 @@ function buildLlmsFull() {
   out += `> License: AGPL-3.0 / MIT. Government data under OGL-C.\n`;
   out += `> API Base URL: https://api.maplespike.ca/v1\n`;
   out += `> MCP Server: https://mcp.maplespike.ca/sse\n`;
-  out += `> Source: https://github.com/reverb256/maplespike\n\n`;
+  out += `> Source: https://github.com/reverb256/quill\n\n`;
 
   out += `## REST API\n\n`;
   out += `Base URL: https://api.maplespike.ca/v1\n`;

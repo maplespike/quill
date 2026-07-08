@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { localeUrl } from "@/utils/localeUrl";
 import { createI18n } from "@maplespike/i18n";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
@@ -145,11 +146,12 @@ const tabs = [
 
 <BaseLayout title={i18n.t('signal.title')} lang={lang}>
   <!-- Hero -->
-  <section class="border-b py-16 md:py-20">
-    <div class="container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4">Real-time engine signals</Badge>
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">Real-time engine signals</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        Intelligence&nbsp;Signals
+        Intelligence&nbsp;<span class="text-gradient">Signals</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
         Cross-referenced signals from 206 data modules — lobbying spikes, regulatory changes,
@@ -307,6 +309,24 @@ const tabs = [
           <div class="text-3xl font-bold text-primary">15m</div>
           <div class="mt-1 text-sm text-muted-foreground">Avg detection latency</div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="aurora relative overflow-hidden border-t py-16 md:py-20">
+    <div class="absolute inset-0 bg-grid opacity-60" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <h2 class="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
+        Get real-time government intelligence
+      </h2>
+      <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
+        Pro plan includes real-time cross-referencing, unlimited history, and priority API access.
+        Start your free trial today — no credit card required.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href={localeUrl('/signup?plan=pro', lang)} class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">Start Free Trial</a>
+        <a href={localeUrl('/pricing', lang)} class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Compare Plans</a>
       </div>
     </div>
   </section>

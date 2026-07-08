@@ -232,10 +232,13 @@ export const fr: Partial<TranslationMap> = {
 
   // Pricing page
   'pricing.page_title': 'Tarification simple et transparente',
-  'pricing.subtitle': 'Commencez gratuitement, évoluez selon vos besoins.',
+  'pricing.subtitle': 'Commencez gratuitement, évoluez selon vos besoins. {free} appels gratuits/mois, puis payez à l\'usage.',
   'pricing.monthly': '/mois',
   'pricing.yearly': '/an',
   'pricing.save': 'Économisez 20 %',
+  'pricing.free_tier_label': 'Gratuit',
+  'pricing.free_tier_desc': '{free} appels/mois sur les 164 outils. Sans carte de crédit. Réinitialisation le 1er.',
+  'pricing.paid_tier_note': 'Après {free} appels gratuits, les outils payants facturent via x402 (Solana USDC) entre 0,001 $ et 1,00 $ par appel selon le niveau.',
 
   // Contact
   'contact.title': 'Nous joindre',
@@ -411,6 +414,17 @@ export const fr: Partial<TranslationMap> = {
   'billing.insufficient_credits': 'Crédits insuffisants. Veuillez mettre à niveau votre forfait.',
   'billing.order_not_found': 'Commande non trouvée',
   'billing.payment_failed': 'Le traitement du paiement a échoué',
+
+  // Quota (freemium — 1000 appels/mois puis x402)
+  'quota.title': 'Quota gratuit',
+  'quota.subtitle': 'Vos {limit} premiers appels d\'outils chaque mois sont gratuits. Au-delà, facturation x402 automatique par appel.',
+  'quota.used': '{used} sur {limit} utilisés ce mois-ci',
+  'quota.remaining': '{remaining} appels gratuits restants',
+  'quota.percent': '{percent}% utilisé',
+  'quota.reset': 'Réinitialisation le {reset}',
+  'quota.exceeded.title': 'Quota gratuit dépassé',
+  'quota.exceeded.body': 'Vous avez utilisé {used} appels gratuits sur {limit} ce mois-ci. Les outils payants facturent maintenant via Solana USDC (x402).',
+  'quota.exceeded.cta': 'Continuer avec le forfait payant',
   'extraction.source_not_found': 'Source d\'extraction non trouvée',
   'extraction.already_cached': 'Les données sont déjà en cache',
   'validation.required': 'Ce champ est requis',
