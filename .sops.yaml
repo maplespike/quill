@@ -1,0 +1,31 @@
+# SOPS creation rules — Quill (hybrid namespace-split)
+#
+# Two age recipients, split by secret class:
+#
+#   secrets/runtime.yaml    → nexus-prod key  (decrypted on the K3s host at boot)
+#   secrets/build.yaml      → homelab-dev key (decrypted on dev workstations + CI)
+#   secrets/cloudflared.yaml → both keys      (needed at build-time deploy + runtime tunnel)
+#
+# Key rotation: add the new recipient to the `age:` list, then run
+#   `sops updatekeys secrets/<file>.yaml`
+# to re-encrypt to all recipients. Remove the old key from .sops.yaml
+# and run updatekeys again to drop it.
+#
+# NEVER commit the private keys. The nexus-prod private key lives at
+# /etc/nixos/.age/nexus-prod-key.txt on the nexus host only; the homelab
+# key lives at /etc/nixos/.age/key.txt.
+
+creation_rules:
+  # Runtime secrets — decrypted by sops-nix on nexus at boot
+  - path_regex: secrets/runtime\.yaml$
+    age: age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm
+
+  # Build-time secrets — decrypted on dev workstations + CI runners
+  - path_regex: secrets/build\.yaml$
+    age: age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
+
+  # Cloudflared tunnel credentials — needed at both build + runtime
+  - path_regex: secrets/cloudflared\.yaml$
+    age: >-
+      age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm,
+      age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
