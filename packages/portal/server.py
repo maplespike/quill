@@ -175,10 +175,12 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             try:
                 length = int(content_length)
                 if length > MAX_BODY_BYTES:
+                    err = json.dumps({"error": "Payload Too Large"}).encode("utf-8")
                     self.send_response(413)
                     self.send_header("Content-Type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"error": "Payload Too Large"}).encode("utf-8"))
+                    self.send_header("Content-Length", str(len(err)))
+                    SimpleHTTPRequestHandler.end_headers(self)
+                    self.wfile.write(err)
                     return
                 body = self.rfile.read(length)
             except ValueError:
@@ -186,10 +188,12 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         elif "chunked" in transfer_encoding.lower():
             # http.server does not decode chunked bodies; reject rather than
             # forwarding an empty/mis-framed body.
+            err = json.dumps({"error": "Length Required"}).encode("utf-8")
             self.send_response(411)
             self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps({"error": "Length Required"}).encode("utf-8"))
+            self.send_header("Content-Length", str(len(err)))
+            SimpleHTTPRequestHandler.end_headers(self)
+            self.wfile.write(err)
             return
 
         # Filter hop-by-hop headers and add forwarding headers
@@ -223,6 +227,10 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             # the static-site CSP.
             self.send_header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
             self.send_header("X-Content-Type-Options", "nosniff")
+            # The upstream may have sent chunked data; http.client decodes it.
+            # Tell the client to close the connection so the streamed body end
+            # is unambiguous when we don't have a Content-Length.
+            self.send_header("Connection", "close")
             # Use the base end_headers so we don't inject the static-site CSP
             # headers into API responses.
             SimpleHTTPRequestHandler.end_headers(self)
@@ -236,11 +244,12 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(chunk)
         except Exception as e:
             print(f"[portal] API proxy error: {e}", file=sys.stderr)
+            err = json.dumps({"error": "Bad Gateway", "message": str(e)}).encode("utf-8")
             self.send_response(502)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(err)))
             # Avoid injecting the static-site CSP on the 502 error response.
             SimpleHTTPRequestHandler.end_headers(self)
-            err = json.dumps({"error": "Bad Gateway", "message": str(e)}).encode("utf-8")
             self.wfile.write(err)
         finally:
             if conn is not None:
