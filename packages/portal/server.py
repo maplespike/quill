@@ -144,6 +144,18 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
 
     def _proxy_api(self):
         """Forward a request whose path starts with /api/ to the upstream API."""
+        # Handle CORS preflight locally. Since the frontend calls the same
+        # origin this should rarely be needed, but ad blockers / strict
+        # privacy browsers may still issue preflights for some requests.
+        if self.command == "OPTIONS":
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            self.send_header("Access-Control-Max-Age", "86400")
+            SimpleHTTPRequestHandler.end_headers(self)
+            return
+
         parsed_upstream = urlparse(API_UPSTREAM)
         host = parsed_upstream.hostname or "localhost"
         port = parsed_upstream.port or (443 if parsed_upstream.scheme == "https" else 80)
@@ -156,6 +168,7 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
 
         # Read request body if present (bounded to prevent memory exhaustion)
         content_length = self.headers.get("Content-Length")
+        transfer_encoding = self.headers.get("Transfer-Encoding", "")
         body = None
         if content_length:
             try:
@@ -169,6 +182,14 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                 body = self.rfile.read(length)
             except ValueError:
                 body = None
+        elif "chunked" in transfer_encoding.lower():
+            # http.server does not decode chunked bodies; reject rather than
+            # forwarding an empty/mis-framed body.
+            self.send_response(411)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "Length Required"}).encode("utf-8"))
+            return
 
         # Filter hop-by-hop headers and add forwarding headers
         hop_by_hop = {
