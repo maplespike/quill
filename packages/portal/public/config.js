@@ -23,8 +23,8 @@ window.MAPLESPIKE = window.MAPLESPIKE || {};
     baseDomain = host;
   }
 
-  // Default: api subdomain of the base domain
-  var defaultApiBase = proto + '//api.' + baseDomain + port;
+  // Default: same-origin /api proxy (avoids cross-subdomain CORS blocks)
+  var defaultApiBase = '/api';
 
   // ── API ─────────────────────────────────────────────────────────
   MAPLESPIKE.apiBase = MAPLESPIKE.apiBase || defaultApiBase;

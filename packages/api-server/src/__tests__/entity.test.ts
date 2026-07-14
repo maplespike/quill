@@ -1,25 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { MemoryStorage, MemoryCache } from '../storage.js';
+import { makeCtx as makeBaseCtx } from './_helpers.js';
 
-function makeCtx(overrides: Record<string, unknown> = {}) {
-  const db = new MemoryStorage();
-  const cache = new MemoryCache();
-  db.registerTenant(
-    { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'free', isActive: true, journalismMode: false },
-    'test-key-hash',
-    'test-key-id',
-  );
-  return {
-    tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'free' as const, isActive: true, journalismMode: false },
-    apiKeyId: 'test-key-id',
-    requestId: 'test',
-    startTime: Date.now(),
-    env: {},
-    db,
-    cache,
-    ...overrides,
-  };
+function makeCtx() {
+  return makeBaseCtx({ tenant: { tier: 'pro' } });
 }
 
 describe('Entity Resolution Routes', () => {

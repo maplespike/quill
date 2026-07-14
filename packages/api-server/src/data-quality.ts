@@ -93,6 +93,30 @@ export interface DataQualitySummary {
 /* ------------------------------------------------------------------ */
 
 /**
+ * Split a string on commas that are not inside parentheses.
+ * Used to separate multi-cadence descriptors like
+ * "annual (budget), quarterly (fiscal monitor)" without breaking
+ * descriptive lists inside parentheses.
+ */
+function splitOutsideParentheses(str: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const char of str) {
+    if (char === '(') depth++;
+    if (char === ')') depth--;
+    if (char === ',' && depth === 0) {
+      parts.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  if (current) parts.push(current);
+  return parts;
+}
+
+/**
  * Parse a freeform updateFrequency string into a staleness threshold in seconds.
  * Handles common patterns like "30 min", "daily", "weekly", "monthly", etc.
  */
@@ -107,6 +131,7 @@ export function parseUpdateFrequencyToSeconds(freq: string): number {
     hourly: 3600,
     daily: 86400,
     weekly: 604800,
+    biweekly: 1209600,
     monthly: 2592000,
     quarterly: 7776000,
     annual: 31536000,
@@ -134,12 +159,17 @@ export function parseUpdateFrequencyToSeconds(freq: string): number {
   }
 
   // Multi-cadence descriptors like "annual (budget), quarterly (fiscal monitor)"
-  // — take the fastest one
-  const parts = normalized.split(/[,\s]+/);
+  // — take the fastest one. Split on commas that are NOT inside parentheses
+  // so descriptive lists such as "annual (health, education, tax)" stay intact.
+  const parts = splitOutsideParentheses(normalized);
+
   let fastest = Infinity;
   for (const part of parts) {
     const trimmed = part.replace(/\(.*?\)/g, '').trim();
-    if (!trimmed) continue;
+    // Guard against infinite recursion: an unknown single token would
+    // otherwise call parseUpdateFrequencyToSeconds(trimmed) with the same
+    // input and loop forever.
+    if (!trimmed || trimmed === normalized) continue;
     const seconds = parseUpdateFrequencyToSeconds(trimmed);
     if (seconds < fastest) fastest = seconds;
   }
@@ -229,13 +259,16 @@ function computeFreshness(
 /*  Error Aggregation (from pipeline HealthMonitor)                     */
 /* ------------------------------------------------------------------ */
 
-let healthMonitor: { getModuleHealth(name: string): { lastSuccessAt: string | null; lastFailureAt: string | null; lastError: string | null; successCount: number; totalRuns: number; successRate: number; consecutiveFailures: number } } | null = null;
+let healthMonitor:
+  | { getModuleHealth(name: string): { lastSuccessAt: string | null; lastFailureAt: string | null; lastError: string | null; successCount: number; totalRuns: number; successRate: number; consecutiveFailures: number } }
+  | null
+  | undefined = undefined;
 
 /**
  * Lazily resolve the pipeline-core HealthMonitor singleton.
  * Returns null if the module isn't available (graceful degradation).
  */
-function getMonitor(): typeof healthMonitor {
+function getMonitor(): NonNullable<typeof healthMonitor> | null {
   if (healthMonitor !== undefined) return healthMonitor;
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -302,6 +335,37 @@ function getModuleIngestionData(moduleName: string): {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Concurrency helper                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Run an async function over an array with a maximum number of concurrent
+ * in-flight operations. Returns results in the same order as the input.
+ */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  fn: (item: T) => Promise<R>,
+  concurrency: number,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let index = 0;
+
+  async function worker(): Promise<void> {
+    while (index < items.length) {
+      const i = index++;
+      results[i] = await fn(items[i]);
+    }
+  }
+
+  const workers: Promise<void>[] = [];
+  for (let w = 0; w < Math.min(concurrency, items.length); w++) {
+    workers.push(worker());
+  }
+  await Promise.all(workers);
+  return results;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Report Generator                                              */
 /* ------------------------------------------------------------------ */
 
@@ -354,12 +418,15 @@ export async function getDataQualityReport(): Promise<DataQualitySummary> {
   let modulesWithErrors = 0;
   const errorMap = new Map<string, { count: number; moduleName: string; error: string }>();
 
-  for (const mod of modules) {
-    // Skip placeholder modules (they have no real data)
-    if (mod.status === 'placeholder') continue;
+  // Probe health checks in parallel (up to 20 concurrent HEAD requests)
+  // to keep the first report request responsive.
+  const activeModules = modules.filter(mod => mod.status !== 'placeholder');
+  const healthStatuses = await mapWithConcurrency(activeModules, probeModuleHealth, 20);
 
-    // Health probe
-    const healthStatus = await probeModuleHealth(mod);
+  for (let i = 0; i < activeModules.length; i++) {
+    const mod = activeModules[i];
+    const healthStatus = healthStatuses[i];
+
     if (mod.healthCheckUrl) modulesWithHealthUrl++;
     switch (healthStatus) {
       case 'up': up++; break;

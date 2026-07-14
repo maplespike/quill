@@ -84,7 +84,7 @@ pipeline-core ──→ SQLite DB ──→ MCP server (166 live tools (incl. `x
 | 3 | **Wire MCP** — 166 tools (incl. `x402-deposit`) all returning real DB results | ✅ DONE |
 | 4 | **Engine integration** — entity resolution + brief gen reads shared DB | ✅ DONE |
 | 5 | **Live Dashboard** — hits MCP/API for live data | ✅ DONE |
-| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🔴 TODO |
+| 6 | **SaaS / Public API** — Stripe + crypto + Interac billing, developer console | 🟡 Stripe live (checkout, webhooks, portal, expiry reconciliation); crypto/Interac pending |
 | 7 | **CI/CD + White-Label** — GitHub Actions, enterprise tenants, journalism mode | 🔴 TODO |
 
 See [ROADMAP.md](./ROADMAP.md) for the full phased plan. Detailed architecture: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
@@ -236,7 +236,7 @@ Stop the entire stack with `./scripts/dev-up.sh --down`.
 >
 > **Planned:** K8s deployment in ROADMAP.md Phase 3
 >
-> **Container images:** `ghcr.io/reverb256/quill/quill-mcp:dev`, `ghcr.io/reverb256/quill/quill-api:dev`, `ghcr.io/reverb256/quill/quill-portal:dev` (formerly under `reverb256/maplespike/`).
+> **Container images:** `nexus:5000/quill-mcp:dev`, `nexus:5000/quill-api:dev`, `nexus:5000/quill-portal:dev` (formerly under `reverb256/maplespike/`).
 
 The authoritative contributor recipe is **[Running the local development stack & smoke test](#running-the-local-development-stack--smoke-test)** above — use `scripts/dev-up.sh` and `scripts/e2e-smoke.sh` instead of raw `docker-compose up -d` (the v1 binary is not installed on hosts that ship only the `docker compose` plugin).
 

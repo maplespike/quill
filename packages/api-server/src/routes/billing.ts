@@ -1,8 +1,18 @@
 /**
  * Billing Routes
  *
- * Handles order creation, status checking, and payment reconciliation for
- * Interac e-Transfer payments.
+ * Handles plan discovery + Interac e-Transfer order endpoints.
+ *
+ * Phase 1 Stripe migration note (2026-07):
+ *   The previous in-memory `tenantTiers` Map + `getAssignedTier()` override
+ *   that index.ts used to layer on top of authenticate() is gone. Both
+ *   Stripe webhooks (routes/billing-stripe.ts) AND this module's verify
+ *   path now persist tier changes directly via ctx.db.updateTenantStripe.
+ *   Auth middleware reads the DB tier; there is no in-memory override layer.
+ *
+ *   The `verifiedOrders` Map still exists so the e-Transfer order status
+ *   endpoint can answer "did the IMAP poller reconcile my order yet?". The
+ *   IMAP poller isn't wired up yet (TODO), so this map stays empty in prod.
  */
 
 import type { RouteHandler } from '../types.js';
@@ -119,7 +129,14 @@ const PLANS: Record<string, Plan> = {
   },
 };
 
-// ─── Verified Order Store (in-memory — replace with DB) ────────────────────
+// ─── Verified Order Store (in-memory; pending IMAP poller integration) ───
+//
+// Phase 1 (Stripe migration): the tenant tier is no longer mirrored here.
+// The e-Transfer verify path persists to tenants.tier via ctx.db (see
+// billingVerifyHandler below). The Map keeps the orderId → VerifiedOrder
+// lookup so /v1/billing/orders/:id can answer "did the IMAP poller pick
+// up my e-Transfer yet?". Once Stripe replaces e-Transfer end-to-end, this
+// Map can be retired.
 
 interface VerifiedOrder {
   order_id: string;
@@ -130,8 +147,6 @@ interface VerifiedOrder {
 }
 
 const verifiedOrders = new Map<string, VerifiedOrder>();
-/** Latest assigned tier per tenant (ordered by verification time). */
-const tenantTiers = new Map<string, 'free' | 'pro' | 'business' | 'enterprise'>();
 
 /** Look up a verified order by order_id. Returns null if not found or expired. */
 export function getVerifiedOrder(orderId: string): VerifiedOrder | null {
@@ -140,21 +155,9 @@ export function getVerifiedOrder(orderId: string): VerifiedOrder | null {
   // Orders expire after 24 hours
   if (Date.now() / 1000 - order.verified_at > 86400) {
     verifiedOrders.delete(orderId);
-    // Clean up tenantTiers if this was their only verified order
-    const hasOtherOrders = [...verifiedOrders.values()].some(
-      (o) => o.tenant_id === order.tenant_id,
-    );
-    if (!hasOtherOrders) {
-      tenantTiers.delete(order.tenant_id);
-    }
     return null;
   }
   return order;
-}
-
-/** Assign a tier to a tenant based on their most recent verified order. */
-export function getAssignedTier(tenantId: string): 'free' | 'pro' | 'business' | 'enterprise' | null {
-  return tenantTiers.get(tenantId) || null;
 }
 
 // ─── Utilities ───────────────────────────────────────────────────────────
@@ -270,6 +273,13 @@ export const billingReconcileHandler: RouteHandler = async (request, ctx) => {
   }, bc));
 };
 
+/**
+ * Phase-1 e-Transfer verify path. This endpoint is called by the (future)
+ * IMAP poller behind the QUILL_BILLING_SECRET shared key. After Phase 1, the
+ * persistence target is the DB (tenants.tier + stripe_orders) — not an
+ * in-memory cache. We mirror the Stripe webhook pattern so behaviour is
+ * identical for any other tenant that signs up via the Canadian channel.
+ */
 export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
   const bc: BuildContext = { tenant: ctx.tenant, requestId: ctx.requestId, startTime: ctx.startTime };
   const secret = request.headers.get('X-Billing-Secret');
@@ -300,7 +310,23 @@ export const billingVerifyHandler: RouteHandler = async (request, ctx) => {
       verified_at: Math.floor(Date.now() / 1000),
     };
     verifiedOrders.set(orderId, verified);
-    tenantTiers.set(tenantId, plan.tier);
+
+    // Persist tier to DB so the next authenticated API call reflects the
+    // upgrade — symmetrical with the Stripe webhook's ctx.db.updateTenantStripe.
+    // We DO NOT touch stripe_customer_id / stripe_subscription_id here — that's
+    // Stripe's side of the world. The two channels can co-exist (a tenant may
+    // upgrade via e-Transfer once and switch to Stripe later, or vice versa).
+    await ctx.db.updateTenantStripe(tenantId, { tier: plan.tier });
+    await ctx.db.logAudit({
+      tenantId,
+      apiKeyId: undefined,
+      operation: 'billing_etransfer_verified',
+      endpoint: '/v1/billing/verify',
+      inputPreview: `order=${orderId},plan=${planId}`,
+      outputSummary: `tier=${plan.tier}`,
+      success: true,
+      durationMs: 0,
+    });
 
     return jsonResponse(buildSuccess({
       verified: true,

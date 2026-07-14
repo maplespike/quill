@@ -3,7 +3,7 @@
 
 # Image configuration
 image:
-  registry: ghcr.io/reverb256
+  registry: nexus:5000
   tag: stable
   pullPolicy: Always
 

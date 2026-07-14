@@ -22,7 +22,7 @@ you touched:
 | npm CLI binary | `maplespike-quill` | `quill` |
 | GitHub URL | `github.com/reverb256/maplespike` | `github.com/reverb256/quill` |
 | Local checkout path | `~/projects/maplespike/` | `~/projects/quill/` |
-| Container image | `ghcr.io/reverb256/maplespike/maplespike-quill` | `ghcr.io/reverb256/quill/quill-mcp` |
+| Container image | `nexus:5000/maplespike/maplespike-quill` | `ghcr.io/reverb256/quill/quill-mcp` |
 | K8s resource | `deployment/maplespike-quill` | `deployment/quill-mcp` |
 | MCP client config | `{ "command": "npx", "args": ["maplespike-quill"] }` | `{ "command": "npx", "args": ["@maplespike/quill-mcp"] }` |
 
@@ -46,7 +46,7 @@ not aesthetic — **infra and customer-facing brand stay; product advertising mo
 | Root `package.json` `name` | `maplespike` | `quill` |
 | npm binary (quill-mcp) | `maplespike-quill` | `quill` |
 | Log prefix (`[maplespike-quill]` etc.) | `[maplespike-quill]` | `[quill]` |
-| Container image path | `ghcr.io/reverb256/maplespike/` | `ghcr.io/reverb256/quill/` |
+| Container image path | `nexus:5000/maplespike/` | `ghcr.io/reverb256/quill/` |
 | Container image names | `maplespike-{quill,api,portal,ingest,engine,...}` | `quill-{mcp,api,portal,ingest,engine,...}` |
 | K8s deployments / services | `maplespike-{quill,api,portal,...}` | `quill-{mcp,api,portal,...}` |
 | Helm chart directory | `charts/maplespike/` | `charts/quill/` |
@@ -56,7 +56,7 @@ not aesthetic — **infra and customer-facing brand stay; product advertising mo
 | Cloudflare Worker names | `maplespike-edge`, `maplespike-ai` | `quill-edge`, `quill-ai` |
 | Consumer-facing env-var convention (executed 2026-07-03) | see comprehensive Preserved-table row below — all product-level `MAPLESPIKE_*` env vars renamed to `QUILL_*` (full list in Mapping section) | n/a — replaced by the Preserved-table row + the brand-level env-var row |
 | Systemd unit name | `maplespike-quill.service` | `quill-mcp.service` |
-| Org-container relation | `ghcr.io/reverb256/maplespike/...` | `ghcr.io/reverb256/quill/...` |
+| Org-container relation | `nexus:5000/maplespike/...` | `ghcr.io/reverb256/quill/...` |
 
 ## Preserved (brand-level identifiers)
 
@@ -114,7 +114,7 @@ The split is governed by three rules, in priority order:
   has no French translation in `packages/i18n/src/fr-tools.json`. The rename sed patterns
   never touched `descriptions: { 'fr-CA': … }` fields; the gap was already there. Filed as
   a separate data-coverage issue.
-- ⚠️ **Old GHCR images not auto-cleaned.** `ghcr.io/reverb256/maplespike/*` tags remain
+- ⚠️ **Old GHCR images not auto-cleaned.** `nexus:5000/maplespike/*` tags remain
   resolvable until manually purged (or until GHCR's retention policy rolls them out). No
   production traffic follows them — they're cosmetic waste, not a redirect surface.
 - ⚠️ **GitHub auto-redirects old repo URLs.** `github.com/reverb256/maplespike` 302s to
@@ -131,7 +131,7 @@ multi-day multi-PR rollout:
 | **1. Bulk content rename** | 6 `sed` patterns against ~65 files in `maplespike/`, `maplespike-workers/`, `maplespike-brand/` covering log prefixes, binary names, image paths, K8s resources, Nix outputs, Cloudflare worker names, Prometheus jobs, env vars, Helm chart contents | `find + sed -i` |
 | **2. Root config + chart/dashboard rename** | Root `package.json` `name` field, Helm chart directory rename, Grafana dashboard filename | `sed`, `mv` |
 | **3. Directory rename** | `maplespike/` → `quill/` | `mv` |
-| **4. Verification + sweep** | `rg` for stale `maplespike-quill`, `maplespike-api`, `maplespike-portal`, `ghcr.io/reverb256/maplespike/`, `github.com/reverb256/maplespike` in JS/MJS/PY/CONF/TXT (extensions that Phase 1's find missed); final sweep confirms zero references outside preserved layers. | `rg` |
+| **4. Verification + sweep** | `rg` for stale `maplespike-quill`, `maplespike-api`, `maplespike-portal`, `nexus:5000/maplespike/`, `github.com/reverb256/maplespike` in JS/MJS/PY/CONF/TXT (extensions that Phase 1's find missed); final sweep confirms zero references outside preserved layers. | `rg` |
 
 **Estimated blast radius:** ~370 references across ~65 files. Actual final count after
 Phase 4 cleanup matched the estimate.
@@ -146,7 +146,7 @@ rg -c 'maplespike-quill|maplespike-api[^-]|maplespike-portal|maplespike-ingest|m
 # → (no output)
 
 # Stale registry refs (expect zero):
-rg -c 'ghcr.io/reverb256/maplespike/' quill/ maplespike-brand/ maplespike-workers/
+rg -c 'nexus:5000/maplespike/' quill/ maplespike-brand/ maplespike-workers/
 
 # Stale GitHub refs (expect zero):
 rg -c 'github.com/reverb256/maplespike' quill/ maplespike-brand/ maplespike-workers/
@@ -171,7 +171,7 @@ External MCP client configs and CI pipelines need a one-time edit:
 ```
 
 ```diff
-- image: ghcr.io/reverb256/maplespike/quill-mcp:0.4.0
+- image: nexus:5000/maplespike/quill-mcp:0.4.0
 + image: ghcr.io/reverb256/quill/quill-mcp:0.4.0
 ```
 

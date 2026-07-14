@@ -310,6 +310,8 @@ const ALLOWED_ORIGINS = [
   'https://api.maplespike.ca',
   'https://api.data.maplespike.ca',
   'https://mcp.maplespike.ca',
+  'https://quill.maplespike.ca',
+  'https://www.quill.maplespike.ca',
   // Production (LAN)
   'https://maplespike.lan',
   'https://www.maplespike.lan',
@@ -371,12 +373,13 @@ export function jsonResponse<T>(
     ...extraHeaders,
   };
 
-  // Apply OWASP security headers
+  // Apply OWASP security headers and CORS
   const head = new Headers();
   for (const [key, value] of Object.entries(headers)) {
     head.set(key, value);
   }
   applySecurityHeaders(head, environment);
+  applyCorsHeaders(head, requestOrigin);
 
   return new Response(JSON.stringify(body, null, 2), {
     status,

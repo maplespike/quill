@@ -1,60 +1,40 @@
 ---
-last-reviewed: 2026-07-07
-status: planned
+last-reviewed: 2026-07-14
+status: active
 ---
 
 # Billing & Rate Limits
 
-> **⚠️ PLANNED FEATURE**: This documentation describes planned billing and authentication infrastructure. Current implementation is in development. See ROADMAP.md Phase 6 for status.
+Quill uses a tiered usage model. Paid plans are purchased through Stripe Checkout; webhooks keep tenant tiers in sync; a nightly cron calls `/v1/billing/reconcile-expiry` to downgrade expired subscriptions.
 
-MapleSpike will offer tiered pricing for different usage levels. Rate limits and monthly quotas will vary by tier.
+## Pricing Tiers
 
-## Pricing Tiers (Planned)
-
-| Tier | Price | Monthly Requests | Rate Limit | Support |
-|------|-------|-----------------|------------|---------|
-| Free | $0 | 1,000/mo | 30/min | Community (Discord) |
-| Pro | $49/mo | 100,000/mo | 25/sec | Email |
-| Business | $199/mo | 500,000/mo | 100/sec | 24h SLA |
+| Tier | Price (CAD) | Monthly Requests | Rate Limit | Support |
+|------|-------------|------------------|------------|---------|
+| Free | $0 | 1,000/mo | 35/day, 30/min | Community |
+| Pro | $50/mo | 50,000/mo | 1,700/day | Email |
+| Business | $200/mo | 250,000/mo | 8,500/day | 24h SLA |
 | Enterprise | Custom | Custom | Custom | Dedicated |
 
-## Request Credits (Planned)
+## Request Credits
 
-Every API call will consume one credit from your monthly quota.
+Every authenticated API call consumes one credit from the monthly quota. Free-tier requests are charged `0` credits.
 
 | Operation | Credits |
 |-----------|---------|
-| `GET /v1/health` | 0 (free) |
+| `GET /v1/health` | 0 |
 | `GET /v1/gov/search` | 1 |
 | `GET /v1/gov/releases` | 1 |
-| `GET /v1/citation/:id` | 0 (free) |
-| `GET /v1/usage` | 0 (free) |
-| `POST /v1/ai_ask` | 1 |
+| `GET /v1/citation/:id` | 0 |
+| `GET /v1/usage` | 0 |
+| `POST /v1/ai/ask` | 1 |
 | `POST /v1/audit/query` | 1 |
 
-Free tier requests will always be 0 credits charged. Check the `creditsCharged` field in the response meta.
+Check `meta.usage.periodCalls` / `periodLimit` in every response.
 
-## Rate Limiting (Planned)
+## Rate Limiting
 
-Rate limits will be enforced per API key using a sliding window algorithm.
-
-### Unauthenticated Requests
-
-- Max 5 requests per minute
-- Strictly enforced with 429 responses
-
-### Authenticated Requests
-
-| Tier | Window Limit | Monthly Hard Cap |
-|------|-------------|------------------|
-| Free | 30/min | 1,000 (hard cap — access denied when exhausted) |
-| Pro | 25/sec | 100,000 (soft cap — overage warning via header) |
-| Business | 100/sec | 500,000 (soft cap) |
-| Enterprise | Custom | Custom |
-
-### Rate Limit Headers
-
-Every response will include rate limit information:
+Rate limits are enforced per API key using a sliding window. Responses include:
 
 ```
 X-RateLimit-Limit: 30
@@ -63,7 +43,8 @@ X-RateLimit-Reset: 1715700000
 Retry-After: 45
 ```
 
-When you exceed the limit, the API will return HTTP 429:
+Exceeding the limit returns HTTP 429:
+
 ```json
 {
   "success": false,
@@ -74,47 +55,108 @@ When you exceed the limit, the API will return HTTP 429:
 }
 ```
 
-## Monthly Quota (Planned)
+## Stripe Checkout
 
-When monthly quota is exhausted for Free tier, the API will return HTTP 402:
+Create a checkout session:
+
+```bash
+curl -X POST https://api.maplespike.ca/v1/billing/stripe/checkout \
+  -H "Authorization: Bearer $QUILL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"plan_id":"pro"}'
+```
+
+Response:
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "QUOTA_EXHAUSTED",
-    "message": "Monthly API call limit reached. Upgrade to Pro for more calls."
+  "success": true,
+  "data": {
+    "order_id": "MS-XXXXXX",
+    "plan_id": "pro",
+    "amount_cents": 5000,
+    "currency": "CAD",
+    "checkout_url": "https://checkout.stripe.com/c/pay/...",
+    "stripe_checkout_session_id": "cs_test_...",
+    "expires_at": 1715700000
   }
 }
 ```
 
-For paid tiers, a warning header will be added but requests will still succeed.
+Open `checkout_url` to complete payment. Stripe webhooks update the tenant tier automatically.
 
-## Payment Methods (Planned)
+## Stripe Webhook
 
-| Method | Details |
+Stripe posts signed events to:
+
+```
+POST /v1/billing/stripe/webhook
+```
+
+Set `STRIPE_WEBHOOK_SECRET` on the server. Events are verified with HMAC-SHA256 and idempotent at the DB layer via `payment_reconciliations.transaction_uid`.
+
+## Customer Portal
+
+Manage payment methods, invoices, and cancellations:
+
+```bash
+curl -X POST https://api.maplespike.ca/v1/billing/stripe/portal \
+  -H "Authorization: Bearer $QUILL_API_KEY"
+```
+
+## Tier Expiry Reconciliation
+
+A shared-secret cron hits:
+
+```bash
+POST /v1/billing/reconcile-expiry
+Headers: X-Billing-Secret: $QUILL_BILLING_SECRET
+```
+
+It downgrades tenants whose `stripe_current_period_end` has passed to `free` and writes an audit entry.
+
+## Payment Reconciliation Table
+
+Every Stripe event is persisted to `payment_reconciliations` before handler dispatch:
+
+| Column | Purpose |
 |--------|---------|
-| **Stripe** | Credit/debit cards (Visa, Mastercard, AMEX) |
-| **Crypto** | BTC/ETH via BTCPay Server |
-| **Interac e-Transfer** | Canadian bank transfers |
-| **Invoice** | Enterprise only, net-30 terms |
+| `transaction_uid` | Stripe event id (unique) |
+| `order_id` | Internal order id from metadata |
+| `amount_cents` | Event amount, if any |
+| `reference` | Stripe object id |
+| `channel` | `stripe` (extensible to `interac_webhook`, `plaid_ca`) |
+| `processed_at` | Unix timestamp |
+
+## Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `STRIPE_SECRET_KEY` | Stripe API key |
+| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
+| `STRIPE_ACCOUNT_ID` | Optional account id (diagnostics only) |
+| `QUILL_BILLING_SECRET` | Shared secret for `/v1/billing/reconcile-expiry` |
+| `APP_URL` / `MAPLESPIKE_PUBLIC_URL` | Base URL for checkout success/cancel redirects |
 
 ## Implementation Status
 
-- [ ] API key management endpoints
-- [ ] Rate limiting implementation
-- [ ] Usage tracking and quota enforcement
-- [ ] Stripe integration
+- [x] API key management
+- [x] Usage tracking and rate limits
+- [x] Stripe checkout + customer portal
+- [x] Stripe webhook signature verification
+- [x] `payment_reconciliations` persistence
+- [x] Tier expiry reconciliation cron
 - [ ] Crypto payment processing
 - [ ] Interac e-Transfer handling
-- [ ] Billing dashboard
+- [ ] Billing dashboard UI
 - [ ] Invoice generation
 
-## Current Development Status
+## Local Development
 
-See ROADMAP.md Phase 6 for current billing development status. Basic authentication framework exists but billing integration is not yet implemented.
+Use the dev key for local calls:
 
-For local development, use the dev key:
 ```
 QUILL_API_KEY=maplespike-dev-key
 ```
+
+For Stripe webhook testing, set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` before starting the server.

@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 import { ClientRouter } from "astro:transitions";
 import { createI18n } from "@maplespike/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
-import { localeUrl, detectLangFromUrl, stripLangPrefix } from "@/utils/localeUrl";
+import { localeUrl, stripLangPrefix } from "@/utils/localeUrl";
 
 export interface Props {
   title: string;
@@ -137,7 +137,7 @@ const isActive = (match: string) =>
                   href={localeUrl(link.href, lang)}
                   aria-current={isActive(link.match) ? "page" : undefined}
                   class:list={[
-                    "relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200",
+                    "relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ease-out",
                     isActive(link.match)
                       ? "bg-[var(--maple)] text-white shadow-sm shadow-maple/20"
                       : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]",
@@ -155,7 +155,7 @@ const isActive = (match: string) =>
           <LanguageSwitcher currentLang={lang} currentPath={pathname} />
           <button
             id="theme-toggle"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
+            class="press-feedback inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 ease-out hover:bg-foreground/[0.06] hover:text-foreground"
             aria-label="Toggle theme"
           >
             <svg
@@ -185,7 +185,7 @@ const isActive = (match: string) =>
           </button>
           <a
             href={localeUrl('/signup', lang)}
-            class="btn-sheen hidden h-9 items-center rounded-full px-5 text-sm font-medium text-primary-foreground transition-colors sm:inline-flex"
+            class="btn-sheen press-feedback hidden h-9 items-center rounded-full px-5 text-sm font-medium text-primary-foreground transition-colors duration-200 ease-out sm:inline-flex"
           >{i18n.t('nav.signup')}</a
           >
           <!-- Auth-aware container — populated by auth.js -->
@@ -193,7 +193,7 @@ const isActive = (match: string) =>
           <!-- Mobile menu button -->
           <button
             id="mobile-menu-toggle"
-            class="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors md:hidden"
+            class="press-feedback inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors duration-200 ease-out hover:bg-foreground/[0.06] hover:text-foreground md:hidden"
             aria-label={i18n.t('common.more')}
             aria-expanded="false"
           >
@@ -256,7 +256,7 @@ const isActive = (match: string) =>
           </div>
           <a
             href={localeUrl('/signup', lang)}
-            class="btn-sheen mt-3 flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-primary-foreground"
+            class="btn-sheen press-feedback mt-3 flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors duration-200 ease-out"
           >{i18n.t('nav.signup')}</a
           >
         </nav>
@@ -375,14 +375,15 @@ const isActive = (match: string) =>
 
       // Scroll shrink: reduce header height, hide center pills
       const header = document.querySelector('header.sticky');
+      const pillNav = header?.querySelector('.nav-pills');
       if (header) {
-        const pillNav = header.querySelector('.nav-pills');
+        const headerEl = header;
         let ticking = false;
         function onScroll() {
           if (!ticking) {
             requestAnimationFrame(() => {
               const scrolled = window.scrollY > 40;
-              header.classList.toggle('header-scrolled', scrolled);
+              headerEl.classList.toggle('header-scrolled', scrolled);
               if (pillNav) {
                 pillNav.classList.toggle('opacity-0', scrolled);
                 pillNav.classList.toggle('-translate-y-2', scrolled);
@@ -395,7 +396,7 @@ const isActive = (match: string) =>
         }
         window.addEventListener('scroll', onScroll, { passive: true });
         if (window.scrollY > 40) {
-          header.classList.add('header-scrolled');
+          headerEl.classList.add('header-scrolled');
           if (pillNav) {
             pillNav.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
           }
@@ -403,6 +404,8 @@ const isActive = (match: string) =>
       }
     </script>
 
+    <!-- Runtime config (sets window.MAPLESPIKE before any island runs) -->
+    <script src="/config.js" is:inline></script>
     <!-- Load auth state manager (runs before React hydration) -->
     <script src="/auth.js" is:inline></script>
     <!-- Shared scroll-shrink utility (DRY with static landing page) -->
@@ -411,12 +414,7 @@ const isActive = (match: string) =>
       // Expose current language for client-side React components
       window.__LANG = "{lang}";
     </script>
-    <script is:inline>
-      // Shrink sticky header on scroll (shared nav-scroll.js utility)
-      if (window.navScroll) {
-        window.navScroll.start({ selector: 'header', threshold: 40, className: 'scrolled' });
-      }
-    </script>
+
     <!-- Load script.js for pages that need it -->
     <script src="/script.js" is:inline></script>
   </body>

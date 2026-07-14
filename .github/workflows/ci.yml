@@ -1,3 +1,10 @@
+# CI runs on the self-hosted NixOS runner (node, pnpm, docker, buildx, age, gh, kubectl
+# are all provided as system packages per docs/GITHUB-ACTIONS-NIX.md).
+# DO NOT add actions/setup-node or pnpm/action-setup here — those tools are
+# already on the runner, and a second install breaks cache attribution.
+# Image paths use the `nexus:5000/quill-<svc>` namespace per ADR 0007
+# (see docs/GHCR-CLEANUP.md); the older flat `ghcr.io/reverb256/<svc>` paths
+# are RETIRED and either quarantined or purged on GHCR.
 name: CI
 
 on:
@@ -15,46 +22,74 @@ env:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        # Auto-detects version from package.json packageManager field
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Typecheck api-server
+        run: pnpm --filter @maplespike/api-server typecheck
+
+      - name: Typecheck quill-mcp
+        run: pnpm --filter @maplespike/quill-mcp typecheck
+
+      - name: Lint api-server
+        run: pnpm --filter @maplespike/api-server lint
+        continue-on-error: true
+
+      - name: Lint quill-mcp
+        run: pnpm --filter @maplespike/quill-mcp lint
+        continue-on-error: true
 
       - name: Build all packages
         run: pnpm build
 
-      - name: Run unit tests
-        run: pnpm test
+      - name: Run api-server unit tests
+        run: pnpm --filter @maplespike/api-server test:unit
 
-  integration-test:
+      - name: Run quill-mcp unit tests
+        run: pnpm --filter @maplespike/quill-mcp test:unit
+
+      - name: Run api-server integration tests
+        run: pnpm --filter @maplespike/api-server test:integration
+        continue-on-error: true
+
+      - name: Run quill-mcp integration tests
+        run: pnpm --filter @maplespike/quill-mcp test:integration
+        continue-on-error: true
+
+  coverage:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
+      - name: Build api-server + quill-mcp
+        run: |
+          pnpm --filter @maplespike/api-server build
+          pnpm --filter @maplespike/quill-mcp build
+
+      - name: Run api-server coverage
+        run: pnpm --filter @maplespike/api-server test:coverage
+
+      - name: Run quill-mcp coverage
+        run: pnpm --filter @maplespike/quill-mcp test:coverage
+
+  integration-test:
+    needs: build-and-test
+    runs-on: [self-hosted, nixos]
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -70,8 +105,14 @@ jobs:
 
   docker:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/prod'
+    # GHCR push is RETIRED post-flip (2026-07-10 systemic registry flip).
+    # The default target is the operator-host nexus:5000 registry. The self-hosted
+    # NixOS runner can `nix run .#push-images` directly (operator-side) — no GHCR
+    # auth, no public-internet push, much faster. This job now builds only;
+    # `push:` is intentionally false. To restore GHCR push when PAT scope is
+    # bumped, replace the login + flip `push: true` + retarget tags to ghcr.io.
 
     steps:
       - uses: actions/checkout@v4
@@ -79,42 +120,32 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Portal image
+      - name: Build Portal image (push: false — operator-side nix run .#push-images)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           target: portal
-          push: true
+          push: false
           tags: |
-            ghcr.io/reverb256/quill-portal:latest
-            ghcr.io/reverb256/quill-portal:${{ github.sha }}
+            nexus:5000/quill-portal:${{ github.sha }}
 
-      - name: Build and push API image
+      - name: Build API image (push: false)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           target: api-server
-          push: true
+          push: false
           tags: |
-            ghcr.io/reverb256/quill-api:latest
-            ghcr.io/reverb256/quill-api:${{ github.sha }}
+            nexus:5000/quill-api:${{ github.sha }}
 
-      - name: Build and push MCP image
+      - name: Build MCP image (push: false)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           target: quill-mcp
-          push: true
+          push: false
           tags: |
-            ghcr.io/reverb256/quill-mcp:latest
-            ghcr.io/reverb256/quill-mcp:${{ github.sha }}
+            nexus:5000/quill-mcp:${{ github.sha }}

@@ -27,7 +27,6 @@ let _DEPRECATION_WARNED = false;
 function warnOnce(): void {
   if (_DEPRECATION_WARNED) return;
   _DEPRECATION_WARNED = true;
-  // eslint-disable-next-line no-console
   console.warn(
     '[etransfer] DEPRECATED. IMAP polling is disabled in Decision 0002. ' +
       'Migrate to /v1/billing/orders + bank webhook.',

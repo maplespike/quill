@@ -7,9 +7,11 @@ import { localeUrl } from "@/utils/localeUrl";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 
+// Stats — synced with docs/metrics.json (last reviewed 2026-07-10):
+//   208 modules, 175 MCP tools (getAllTools() runtime count), 13 jurisdictions.
 const stats = [
   { value: "208", label: "Data modules" },
-  { value: "174", label: "MCP tools" },
+  { value: "175", label: "MCP tools" },
   { value: "13", label: "Jurisdictions" },
   { value: "≈199K", label: "Lines of TS" },
 ];
@@ -51,13 +53,16 @@ const platforms = [
 ];
 
 const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca/sse","headers":{"Authorization":"Bearer YOUR_API_KEY"}}}}`;
+const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
+  https://quill.maplespike.ca/v1/search?q=lobbying+registrations`;
 ---
 
-<!-- Hero -->
-  <section class="aurora relative overflow-hidden border-b py-20 md:py-28">
+<div class="quill-landing-bg">
+  <!-- QuillHero -->
+  <section id="quill-hero" class="quill-hero aurora relative overflow-hidden border-b py-20 md:py-28">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 max-w-4xl text-center">
-      <Badge variant="outline" class="mb-6">Open source · AGPL-3.0 · MIT</Badge>
+      <Badge variant="outline" className="mb-6">Open source · AGPL-3.0 · MIT</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
         Canadian government data,
         <br />
@@ -65,27 +70,31 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
       </h1>
       <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
         208 modules across federal, provincial, territorial, and municipal sources.
-        174 MCP tools. Every record cited and verifiable. One line of config.
+        175 MCP tools. Every record cited and verifiable. One line of config.
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Button as="a" href={localeUrl("/signup", lang)} size="lg">
-          Get your API key
-        </Button>
-        <Button as="a" href="https://github.com/reverb256/maplespike" variant="outline" size="lg">
-          Fork on GitHub
-        </Button>
+        <a href={localeUrl("/signup", lang)} class="press-feedback inline-flex transition-transform duration-[160ms] ease-out">
+          <Button asChild size="lg">
+            <span>Get your API key</span>
+          </Button>
+        </a>
+        <a href="https://github.com/reverb256/maplespike" target="_blank" rel="noopener noreferrer" class="press-feedback inline-flex transition-transform duration-[160ms] ease-out">
+          <Button asChild variant="outline" size="lg">
+            <span>Fork on GitHub</span>
+          </Button>
+        </a>
       </div>
       <p class="mt-3 text-sm text-muted-foreground">Free while in beta · No credit card required</p>
     </div>
   </section>
 
   <!-- Stats -->
-  <section class="border-b py-12">
+  <section id="quill-stats" class="border-b py-12">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-2 gap-px md:grid-cols-4">
+      <div class="grid grid-cols-2 gap-px md:grid-cols-4 reveal-on-scroll">
         {stats.map((s) => (
           <div class="px-6 py-4 text-center">
-            <div class="text-3xl font-bold tracking-tight text-primary">{s.value}</div>
+            <div class="text-3xl font-bold tracking-tight text-primary font-mono-num">{s.value}</div>
             <div class="mt-1 text-sm text-muted-foreground">{s.label}</div>
           </div>
         ))}
@@ -93,9 +102,9 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
     </div>
   </section>
 
-  <!-- MCP Config -->
-  <section class="container mx-auto px-4 py-16 md:py-24">
-    <div class="mx-auto max-w-2xl text-center">
+  <!-- McpServerBlock -->
+  <section id="quill-mcp-server" class="mcp-server-block container mx-auto px-4 py-16 md:py-24">
+    <div class="mx-auto max-w-2xl text-center reveal-on-scroll">
       <h2 class="text-3xl font-bold tracking-tight">
         One line of <span class="text-gradient">config</span>
       </h2>
@@ -103,12 +112,12 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
         Paste this into your AI chatbot. Works with anything that speaks MCP.
       </p>
     </div>
-    <div class="mx-auto mt-8 max-w-2xl">
+    <div class="mx-auto mt-8 max-w-2xl reveal-on-scroll">
       <Card>
         <CardHeader>
-          <CardTitle class="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between">
             MCP Server Config
-            <Button variant="ghost" size="sm" id="copy-config">Copy</Button>
+            <Button variant="ghost" size="sm" id="copy-config" className="press-feedback" aria-live="polite" aria-label="Copy MCP config">Copy</Button>
           </CardTitle>
           <CardDescription>JSON for Claude Desktop, Cursor, ChatGPT, and more</CardDescription>
         </CardHeader>
@@ -118,12 +127,23 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
       </Card>
     </div>
 
+    <!-- Terminal snippet -->
+    <div class="mx-auto mt-8 max-w-2xl reveal-on-scroll">
+      <div class="rounded-lg border border-border/60 bg-card/40 p-4 font-mono text-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-muted-foreground uppercase tracking-wider">REST example</span>
+          <Button variant="ghost" size="sm" id="copy-curl" className="press-feedback" aria-live="polite" aria-label="Copy cURL example">Copy</Button>
+        </div>
+        <pre class="overflow-x-auto text-muted-foreground"><code id="curl-config-text">{curlSnippet}</code></pre>
+      </div>
+    </div>
+
     <!-- Platform grid -->
-    <div class="mx-auto mt-12 max-w-3xl">
+    <div class="mx-auto mt-12 max-w-3xl reveal-on-scroll">
       <p class="mb-4 text-center text-sm text-muted-foreground">Works with your favorite AI tools</p>
-      <div class="grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div class:list={["grid", "grid-cols-3", "gap-3", "sm:grid-cols-6", "stagger-children"]}>
         {platforms.map((p) => (
-          <div class="flex flex-col items-center gap-1 rounded-lg border border-border/40 p-3 card-hover">
+          <div class:list={["flex", "flex-col", "items-center", "gap-1", "rounded-lg", "border", "border-border/40", "p-3", "card-hover"]}>
             <span class="text-2xl">{p.icon}</span>
             <span class="text-xs text-muted-foreground">{p.name}</span>
           </div>
@@ -132,10 +152,10 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
     </div>
   </section>
 
-  <!-- Coverage -->
-  <section class="border-t bg-card/20 py-16 md:py-24">
+  <!-- ToolGrid -->
+  <section id="quill-tool-grid" class="tool-grid border-t bg-card/20 py-16 md:py-24">
     <div class="container mx-auto px-4">
-      <div class="mb-10 text-center">
+      <div class="mb-10 text-center reveal-on-scroll">
         <h2 class="text-3xl font-bold tracking-tight">
           Every source, <span class="text-gradient">openly aggregated</span>
         </h2>
@@ -143,11 +163,11 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
           Every record cites back to its public origin. SHA-256 provenance on every fetch.
         </p>
       </div>
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger-children">
         {categories.map((cat) => (
-          <Card class="card-hover">
+          <Card className="card-hover">
             <CardHeader>
-              <CardTitle class="text-base">{cat.title}</CardTitle>
+              <CardTitle className="text-base">{cat.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul class="space-y-1.5">
@@ -166,29 +186,29 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
   </section>
 
   <!-- Sovereignty -->
-  <section class="container mx-auto px-4 py-16 md:py-24">
-    <div class="grid gap-8 md:grid-cols-3">
-      <Card class="card-hover">
+  <section id="quill-sovereignty" class="sovereignty container mx-auto px-4 py-16 md:py-24">
+    <div class="grid gap-8 md:grid-cols-3 stagger-children reveal-on-scroll">
+      <Card className="card-hover">
         <CardHeader>
-          <CardTitle class="text-lg">🔍 Verifiable</CardTitle>
+          <CardTitle className="text-lg">🔍 Verifiable</CardTitle>
           <CardDescription>
             Every record carries a SHA-256 citation, source URL, fetch timestamp, and pipeline version.
             Fork the recipe, re-fetch, re-hash — decide for yourself.
           </CardDescription>
         </CardHeader>
       </Card>
-      <Card class="card-hover">
+      <Card className="card-hover">
         <CardHeader>
-          <CardTitle class="text-lg">🔧 Self-sovereign</CardTitle>
+          <CardTitle className="text-lg">🔧 Self-sovereign</CardTitle>
           <CardDescription>
             Runs in your cluster or on your laptop. No managed-service lock-in.
             Nix builds for full reproducibility end to end.
           </CardDescription>
         </CardHeader>
       </Card>
-      <Card class="card-hover">
+      <Card className="card-hover">
         <CardHeader>
-          <CardTitle class="text-lg">📜 Open source</CardTitle>
+          <CardTitle className="text-lg">📜 Open source</CardTitle>
           <CardDescription>
             AGPL-3.0 for pipeline-core, MIT for everything else. Forkable, auditable,
             community-driven.
@@ -199,23 +219,49 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
   </section>
 
   <!-- CTA -->
-  <section class="aurora border-t py-16 md:py-20">
-    <div class="container mx-auto px-4 text-center">
+  <section id="quill-cta" class="aurora border-t py-16 md:py-20">
+    <div class="container mx-auto px-4 text-center reveal-on-scroll">
       <h2 class="text-3xl font-bold tracking-tight">
         Start building with <span class="text-gradient">Canadian data</span>
-      </hh>
+      </h2>
       <p class="mx-auto mt-3 max-w-md text-muted-foreground">
         Get your API key in 30 seconds. Free while in beta.
       </p>
       <div class="mt-6">
-        <Button as="a" href={localeUrl("/signup", lang)} size="lg">
-          Get started free
-        </Button>
+        <a href={localeUrl("/signup", lang)} class="press-feedback inline-flex transition-transform duration-[160ms] ease-out">
+          <Button asChild size="lg">
+            <span>Get started free</span>
+          </Button>
+        </a>
       </div>
     </div>
   </section>
+</div>
+
+<noscript>
+  <style>
+    .reveal-on-scroll,
+    .stagger-children > * {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+    }
+  </style>
+</noscript>
 
 <script>
+  // Reveal on scroll via IntersectionObserver
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal-on-scroll').forEach((el) => revealObserver.observe(el));
+
   // Copy config button
   const copyBtn = document.getElementById("copy-config");
   const configText = document.getElementById("mcp-config-text");
@@ -225,6 +271,18 @@ const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca
       const original = copyBtn.textContent;
       copyBtn.textContent = "Copied!";
       setTimeout(() => { copyBtn.textContent = original; }, 2000);
+    });
+  }
+
+  // Copy curl button
+  const copyCurlBtn = document.getElementById("copy-curl");
+  const curlText = document.getElementById("curl-config-text");
+  if (copyCurlBtn && curlText) {
+    copyCurlBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(curlText.textContent || "");
+      const original = copyCurlBtn.textContent;
+      copyCurlBtn.textContent = "Copied!";
+      setTimeout(() => { copyCurlBtn.textContent = original; }, 2000);
     });
   }
 </script>

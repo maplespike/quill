@@ -443,7 +443,7 @@ describe('e2e: search_corporate', () => {
 /*  Cross-tool contract — all handlers accept empty args gracefully     */
 /* ------------------------------------------------------------------ */
 describe('e2e: cross-tool contract', () => {
-  const handlers: Array<{ name: string; handler: Function }> = [
+  const handlers: Array<{ name: string; handler: (...args: unknown[]) => unknown }> = [
     { name: 'fact_check', handler: factCheck.handler },
     { name: 'get_citation', handler: getCitation.handler },
     { name: 'latest_releases', handler: latestReleases.handler },

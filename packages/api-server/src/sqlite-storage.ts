@@ -6,7 +6,7 @@
  */
 
 import Database from 'better-sqlite3';
-import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, TenantStripeUpdates, StripeOrder, StripeOrderInsert, StripeOrderUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier } from './types.js';
 import { hashApiKey, generateApiKey } from './auth.js';
 
 
@@ -150,6 +150,7 @@ export class SqliteStorage implements QuillStorage {
 
     const row = this.db.prepare(`
       SELECT t.id AS tenant_id, t.name, t.email_hash, t.email_verified, t.tier, t.is_active, t.journalism_mode,
+             t.stripe_customer_id, t.stripe_subscription_id, t.stripe_subscription_status, t.stripe_current_period_end,
              k.id AS key_id, k.is_active AS key_active, k.expires_at
       FROM api_keys k
       JOIN tenants t ON t.id = k.tenant_id
@@ -193,6 +194,10 @@ export class SqliteStorage implements QuillStorage {
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),
         journalismMode: Boolean(row.journalism_mode),
+        stripeCustomerId: (row.stripe_customer_id as string | null) ?? undefined,
+        stripeSubscriptionId: (row.stripe_subscription_id as string | null) ?? undefined,
+        stripeSubscriptionStatus: (row.stripe_subscription_status as Tenant['stripeSubscriptionStatus']) ?? undefined,
+        stripeCurrentPeriodEnd: (row.stripe_current_period_end as number | null) ?? undefined,
       },
       apiKeyId: rotatedKey?.id ?? (row.key_id as string),
       rotatedKey,
@@ -320,6 +325,174 @@ export class SqliteStorage implements QuillStorage {
     return true;
   }
 
+  /*  Stripe billing persistence (Phase 1)                          */
+
+  /**
+   * Idempotent additive schema bootstrap for Stripe linkage. Called on every
+   * stripe-method entry (the cheapest probe-and-ALTER pattern; safe to repeat).
+   * Mirrors NodeSqliteStorage.addColumnIfMissing() without a shared helper class.
+   */
+  private ensureStripeSchema(): void {
+    const cols = this.db.prepare(`PRAGMA table_info(tenants)`).all() as Array<{ name: string }>;
+    const names = new Set(cols.map((c) => c.name));
+    if (!names.has('stripe_customer_id')) this.db.exec('ALTER TABLE tenants ADD COLUMN stripe_customer_id TEXT');
+    if (!names.has('stripe_subscription_id')) this.db.exec('ALTER TABLE tenants ADD COLUMN stripe_subscription_id TEXT');
+    if (!names.has('stripe_subscription_status')) this.db.exec('ALTER TABLE tenants ADD COLUMN stripe_subscription_status TEXT');
+    if (!names.has('stripe_current_period_end')) this.db.exec('ALTER TABLE tenants ADD COLUMN stripe_current_period_end INTEGER');
+    if (!names.has('stripe_updated_at')) this.db.exec('ALTER TABLE tenants ADD COLUMN stripe_updated_at TEXT');
+
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS stripe_orders (
+        order_id TEXT PRIMARY KEY NOT NULL,
+        tenant_id TEXT NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+        plan_id TEXT NOT NULL,
+        amount_cents INTEGER NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'CAD',
+        stripe_checkout_session_id TEXT NOT NULL UNIQUE,
+        stripe_customer_id TEXT,
+        stripe_subscription_id TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at INTEGER NOT NULL,
+        expires_at INTEGER NOT NULL,
+        paid_at INTEGER,
+        fulfilled_at INTEGER,
+        cancelled_at INTEGER
+      );
+      CREATE INDEX IF NOT EXISTS idx_stripe_orders_tenant ON stripe_orders(tenant_id);
+      CREATE INDEX IF NOT EXISTS idx_stripe_orders_subscription ON stripe_orders(stripe_subscription_id);
+    `);
+  }
+
+  async createStripeOrder(order: StripeOrderInsert): Promise<void> {
+    this.ensureStripeSchema();
+    this.db.prepare(`
+      INSERT INTO stripe_orders (
+        order_id, tenant_id, plan_id, amount_cents, currency,
+        stripe_checkout_session_id, status, created_at, expires_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, strftime('%s','now'), ?)
+    `).run(
+      order.order_id, order.tenant_id, order.plan_id, order.amount_cents, order.currency,
+      order.stripe_checkout_session_id, order.status, order.expires_at,
+    );
+  }
+
+  async getStripeOrderById(orderId: string): Promise<StripeOrder | null> {
+    this.ensureStripeSchema();
+    const row = this.db.prepare('SELECT * FROM stripe_orders WHERE order_id = ?').get(orderId) as Record<string, unknown> | undefined;
+    return row ? this.mapStripeOrder(row) : null;
+  }
+
+  async getStripeOrderBySessionId(sessionId: string): Promise<StripeOrder | null> {
+    this.ensureStripeSchema();
+    const row = this.db.prepare('SELECT * FROM stripe_orders WHERE stripe_checkout_session_id = ?').get(sessionId) as Record<string, unknown> | undefined;
+    return row ? this.mapStripeOrder(row) : null;
+  }
+
+  async updateStripeOrder(orderId: string, updates: StripeOrderUpdates): Promise<void> {
+    this.ensureStripeSchema();
+    const sets: string[] = [];
+    const args: (string | number | null)[] = [];
+    if (updates.status !== undefined) { sets.push('status = ?'); args.push(updates.status); }
+    if (updates.stripe_customer_id !== undefined) { sets.push('stripe_customer_id = ?'); args.push(updates.stripe_customer_id); }
+    if (updates.stripe_subscription_id !== undefined) { sets.push('stripe_subscription_id = ?'); args.push(updates.stripe_subscription_id); }
+    if (updates.paid_at !== undefined) { sets.push('paid_at = ?'); args.push(updates.paid_at); }
+    if (updates.fulfilled_at !== undefined) { sets.push('fulfilled_at = ?'); args.push(updates.fulfilled_at); }
+    if (updates.cancelled_at !== undefined) { sets.push('cancelled_at = ?'); args.push(updates.cancelled_at); }
+    if (sets.length === 0) return;
+    args.push(orderId);
+    this.db.prepare(`UPDATE stripe_orders SET ${sets.join(', ')} WHERE order_id = ?`).run(...args);
+  }
+
+  async updateTenantStripe(tenantId: string, updates: TenantStripeUpdates): Promise<void> {
+    this.ensureStripeSchema();
+    const sets: string[] = [`stripe_updated_at = datetime('now')`];
+    const args: (string | number | null)[] = [];
+    if (updates.tier !== undefined) { sets.push('tier = ?'); args.push(updates.tier); }
+    if (updates.stripeCustomerId !== undefined) { sets.push('stripe_customer_id = ?'); args.push(updates.stripeCustomerId); }
+    if (updates.stripeSubscriptionId !== undefined) { sets.push('stripe_subscription_id = ?'); args.push(updates.stripeSubscriptionId); }
+    if (updates.stripeSubscriptionStatus !== undefined) { sets.push('stripe_subscription_status = ?'); args.push(updates.stripeSubscriptionStatus); }
+    if (updates.stripeCurrentPeriodEnd !== undefined) { sets.push('stripe_current_period_end = ?'); args.push(updates.stripeCurrentPeriodEnd); }
+    args.push(tenantId);
+    this.db.prepare(`UPDATE tenants SET ${sets.join(', ')} WHERE id = ?`).run(...args);
+  }
+
+  async getTenantStripeCustomerId(tenantId: string): Promise<string | null> {
+    this.ensureStripeSchema();
+    const row = this.db.prepare('SELECT stripe_customer_id FROM tenants WHERE id = ?').get(tenantId) as { stripe_customer_id: string | null } | undefined;
+    return row?.stripe_customer_id ?? null;
+  }
+
+  /* ── AUDIT-LOG-3 + STRIPE-1 (SqliteStorage) ── */
+
+  private ensureReconciliationsSchema(): void {
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS payment_reconciliations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        transaction_uid TEXT NOT NULL UNIQUE,
+        order_id TEXT,
+        amount_cents INTEGER,
+        reference TEXT,
+        channel TEXT NOT NULL DEFAULT 'stripe',
+        processed_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_reconciliations_processed ON payment_reconciliations(processed_at DESC);
+    `);
+  }
+
+  async createPaymentReconciliation(rec: PaymentReconciliationInsert): Promise<void> {
+    this.ensureReconciliationsSchema();
+    this.db.prepare(
+      `INSERT INTO payment_reconciliations (transaction_uid, order_id, amount_cents, reference, channel) VALUES (?, ?, ?, ?, ?)`
+    ).run(rec.transactionUid, rec.orderId ?? null, rec.amountCents ?? null, rec.reference ?? null, rec.channel);
+  }
+
+  async getPaymentReconciliations(limit: number = 50): Promise<PaymentReconciliation[]> {
+    this.ensureReconciliationsSchema();
+    const rows = this.db.prepare(
+      `SELECT id, transaction_uid AS transactionUid, order_id AS orderId, amount_cents AS amountCents, reference, channel, processed_at AS processedAt FROM payment_reconciliations ORDER BY processed_at DESC LIMIT ?`
+    ).all(limit) as Array<Record<string, unknown>>;
+    return rows.map((r) => ({
+      id: r.id as number,
+      transactionUid: r.transactionUid as string,
+      orderId: (r.orderId as string | null) ?? undefined,
+      amountCents: (r.amountCents as number | null) ?? undefined,
+      reference: (r.reference as string | null) ?? undefined,
+      channel: r.channel as PaymentReconciliation['channel'],
+      processedAt: (r.processedAt as number | null) ?? undefined,
+    }));
+  }
+
+  async findTenantsForTierExpiry(nowUnix: number): Promise<ExpiringTier[]> {
+    const rows = this.db.prepare(
+      `SELECT id AS tenant_id, stripe_current_period_end, tier FROM tenants WHERE stripe_current_period_end IS NOT NULL AND stripe_current_period_end < ? AND tier != 'free'`
+    ).all(nowUnix) as Array<{ tenant_id: string; stripe_current_period_end: number; tier: string }>;
+    return rows.map((r) => ({
+      tenant_id: r.tenant_id,
+      stripe_current_period_end: r.stripe_current_period_end,
+      tier: r.tier as ExpiringTier['tier'],
+    }));
+  }
+
+  /** Map raw sqlite row -> StripeOrder (column-name canonicalisation). */
+  private mapStripeOrder(row: Record<string, unknown>): StripeOrder {
+    return {
+      order_id: row.order_id as string,
+      tenant_id: row.tenant_id as string,
+      plan_id: row.plan_id as StripeOrder['plan_id'],
+      amount_cents: row.amount_cents as number,
+      currency: row.currency as string,
+      stripe_checkout_session_id: row.stripe_checkout_session_id as string,
+      stripe_customer_id: (row.stripe_customer_id as string | null) ?? undefined,
+      stripe_subscription_id: (row.stripe_subscription_id as string | null) ?? undefined,
+      status: row.status as StripeOrder['status'],
+      created_at: row.created_at as number,
+      expires_at: row.expires_at as number,
+      paid_at: (row.paid_at as number | null) ?? undefined,
+      fulfilled_at: (row.fulfilled_at as number | null) ?? undefined,
+      cancelled_at: (row.cancelled_at as number | null) ?? undefined,
+    };
+  }
+
   /** Create a new API key record. */
   createApiKey(keyId: string, tenantId: string, keyHash: string, name: string, expiresAt?: string): void {
     this.db.prepare(`
@@ -337,7 +510,11 @@ export class SqliteStorage implements QuillStorage {
 
   /** Get a tenant by ID. */
   getTenant(tenantId: string): Tenant | null {
-    const row = this.db.prepare('SELECT * FROM tenants WHERE id = ?').get(tenantId) as Record<string, unknown> | undefined;
+    const row = this.db.prepare(
+      `SELECT id, name, email_hash, email_verified, verification_token, tier, is_active, journalism_mode,
+              stripe_customer_id, stripe_subscription_id, stripe_subscription_status, stripe_current_period_end
+       FROM tenants WHERE id = ?`,
+    ).get(tenantId) as Record<string, unknown> | undefined;
     if (!row) return null;
     return {
       id: row.id as string,
@@ -348,6 +525,10 @@ export class SqliteStorage implements QuillStorage {
       tier: row.tier as Tenant['tier'],
       isActive: Boolean(row.is_active),
       journalismMode: Boolean(row.journalism_mode),
+      stripeCustomerId: (row.stripe_customer_id as string | null) ?? undefined,
+      stripeSubscriptionId: (row.stripe_subscription_id as string | null) ?? undefined,
+      stripeSubscriptionStatus: (row.stripe_subscription_status as Tenant['stripeSubscriptionStatus']) ?? undefined,
+      stripeCurrentPeriodEnd: (row.stripe_current_period_end as number | null) ?? undefined,
     };
   }
 }

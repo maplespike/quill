@@ -38,6 +38,10 @@ fi
 
 : "${MAPLESPIKE_DOMAIN:?MAPLESPIKE_DOMAIN must be set}"
 : "${NAMESPACE:=maplespike}"
+# Post-2026-07-10 flip: canonical default for cluster rolls is `nexus:5000`
+# (private registry on the operator host). `localhost` still works for fully
+# local docker-compose loops (image distribution branch below); flip your
+# `.env.deployment` to `IMAGE_REGISTRY=nexus:5000` for cluster rolls.
 : "${IMAGE_REGISTRY:=localhost}"
 : "${IMAGE_TAG:=latest}"
 : "${QUILL_STORAGE:=memory}"

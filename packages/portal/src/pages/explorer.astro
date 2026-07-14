@@ -21,7 +21,7 @@ const i18n = createI18n(lang);
 <BaseLayout title={i18n.t('explorer.title')} description="Browse and search Canadian government data across all 206 modules" lang={lang}>
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
-    <div class="relative z-10 container mx-auto px-4">
+    <div class="relative z-10 container mx-auto px-4 reveal-on-scroll">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
         Data <span class="text-gradient">Explorer</span>
       </h1>
@@ -32,10 +32,10 @@ const i18n = createI18n(lang);
   </section>
 
   <section class="container mx-auto px-4 py-16 md:py-24">
-    <div class="mb-8">
+    <div class="mb-8 reveal-on-scroll">
 
     <!-- Search and Filters -->
-    <Card class="mb-8">
+    <Card className="mb-8 card-hover">
       <CardHeader>
         <CardTitle>Search</CardTitle>
         <CardDescription>
@@ -47,9 +47,9 @@ const i18n = createI18n(lang);
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <Input id="query" name="query" type="search" placeholder="Search committees, lobbying records, legislation..." class="pl-10" />
+              <Input id="query" name="query" type="search" placeholder="Search committees, lobbying records, legislation..." className="pl-10" />
             </div>
-            <Button type="submit">Search</Button>
+            <Button type="submit" className="press-feedback">Search</Button>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
@@ -103,8 +103,10 @@ const i18n = createI18n(lang);
       </CardContent>
     </Card>
 
+    </div>
+
     <!-- Results Summary -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-4 reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
         Showing <span class="font-medium text-foreground">1&ndash;10</span> of
         <span class="font-medium text-foreground">12,847</span> results
@@ -116,12 +118,12 @@ const i18n = createI18n(lang);
     </div>
 
     <!-- Results Table -->
-    <Card>
+    <Card className="card-hover reveal-on-scroll">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-[40%]">Title</TableHead>
+              <TableHead className="w-[40%]">Title</TableHead>
               <TableHead>Module</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Date</TableHead>
@@ -129,14 +131,14 @@ const i18n = createI18n(lang);
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
+            <TableRow className="transition-colors duration-200 ease-out hover:bg-muted/30">
               <TableCell>
-                <a href="/explorer/result/1" class="font-medium text-primary hover:underline">House of Commons &mdash; Standing Committee on Finance (FINA) &mdash; Meeting No. 142</a>
+                <a href="/explorer/result/1" class="font-medium text-primary transition-colors duration-200 hover:underline">House of Commons &mdash; Standing Committee on Finance (FINA) &mdash; Meeting No. 142</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Evidence of ministerial briefing on fiscal update and economic projections for 2026&ndash;2027.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">Committees</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">House of Commons</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-15</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">Committees</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">House of Commons</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-15</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">96%</span>
@@ -146,12 +148,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/2" class="font-medium text-primary hover:underline">Lobbying Registry &mdash; Monthly Communication Report &mdash; January 2026</a>
+                <a href="/explorer/result/2" class="font-medium text-primary transition-colors duration-200 hover:underline">Lobbying Registry &mdash; Monthly Communication Report &mdash; January 2026</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Registered lobbying communications between designated public office holders and in-house lobbyists.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">Lobbying</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">OCL Registry</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-14</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">Lobbying</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">OCL Registry</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-14</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">98%</span>
@@ -161,12 +163,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/3" class="font-medium text-primary hover:underline">Canada Gazette &mdash; Part I &mdash; Proposed Regulations &mdash; Clean Fuel Standard Amendments</a>
+                <a href="/explorer/result/3" class="font-medium text-primary transition-colors duration-200 hover:underline">Canada Gazette &mdash; Part I &mdash; Proposed Regulations &mdash; Clean Fuel Standard Amendments</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Proposed regulatory amendments to the Clean Fuel Standard published for public comment.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">Gazette</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">Canada Gazette</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-12</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">Gazette</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">Canada Gazette</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-12</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">99%</span>
@@ -176,12 +178,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/4" class="font-medium text-primary hover:underline">Governor-in-Council Appointments &mdash; February 2026 Report</a>
+                <a href="/explorer/result/4" class="font-medium text-primary transition-colors duration-200 hover:underline">Governor-in-Council Appointments &mdash; February 2026 Report</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">New appointments and renewals to federal boards, commissions, and tribunals.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">GIC</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">Infobase API</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-10</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">GIC</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">Infobase API</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-10</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">94%</span>
@@ -191,12 +193,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/5" class="font-medium text-primary hover:underline">SEDI Insider Trade Report &mdash; BCE Inc. &mdash; Executive Share Disposition</a>
+                <a href="/explorer/result/5" class="font-medium text-primary transition-colors duration-200 hover:underline">SEDI Insider Trade Report &mdash; BCE Inc. &mdash; Executive Share Disposition</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Insider trade report filed with SEDI for disposition of common shares by senior officer.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">SEDI</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">SEDI Database</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-09</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">SEDI</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">SEDI Database</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-09</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-amber-500">87%</span>
@@ -206,12 +208,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/6" class="font-medium text-primary hover:underline">OAG &mdash; 2026 Spring Reports &mdash; Volume 1 &mdash; Climate Change Adaptation</a>
+                <a href="/explorer/result/6" class="font-medium text-primary transition-colors duration-200 hover:underline">OAG &mdash; 2026 Spring Reports &mdash; Volume 1 &mdash; Climate Change Adaptation</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Auditor General audit of federal climate change adaptation programs and expenditures.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">OAG</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">OAG Website</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-07</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">OAG</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">OAG Website</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-07</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">97%</span>
@@ -221,12 +223,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/7" class="font-medium text-primary hover:underline">Competition Bureau &mdash; Merger Review &mdash; Rogers&ndash;Shaw Post-Closing Compliance</a>
+                <a href="/explorer/result/7" class="font-medium text-primary transition-colors duration-200 hover:underline">Competition Bureau &mdash; Merger Review &mdash; Rogers&ndash;Shaw Post-Closing Compliance</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Compliance monitoring update on merger remedies and divestiture requirements.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">Competition</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">Competition Bureau</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-05</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">Competition</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">Competition Bureau</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-05</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">92%</span>
@@ -236,12 +238,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/8" class="font-medium text-primary hover:underline">CanLII &mdash; Federal Court of Appeal &mdash; 2026 FCA 89 &mdash; Environmental Review</a>
+                <a href="/explorer/result/8" class="font-medium text-primary transition-colors duration-200 hover:underline">CanLII &mdash; Federal Court of Appeal &mdash; 2026 FCA 89 &mdash; Environmental Review</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Appeal decision regarding federal environmental assessment jurisdiction.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">CanLII</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">CanLII</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-03</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">CanLII</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">CanLII</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-03</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">95%</span>
@@ -251,12 +253,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/9" class="font-medium text-primary hover:underline">Statistics Canada &mdash; Labour Force Survey &mdash; April 2026</a>
+                <a href="/explorer/result/9" class="font-medium text-primary transition-colors duration-200 hover:underline">Statistics Canada &mdash; Labour Force Survey &mdash; April 2026</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Monthly LFS results including unemployment rate, participation rate, and employment by industry.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">StatCan</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">StatCan WDS</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-05-01</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">StatCan</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">StatCan WDS</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-01</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">99%</span>
@@ -266,12 +268,12 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/10" class="font-medium text-primary hover:underline">Procurement &mdash; TPSGC &mdash; IT Services Contract Award &mdash; March 2026</a>
+                <a href="/explorer/result/10" class="font-medium text-primary transition-colors duration-200 hover:underline">Procurement &mdash; TPSGC &mdash; IT Services Contract Award &mdash; March 2026</a>
                 <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Contract award notice for enterprise IT services with 3-year term and option periods.</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" class="text-xs">Procurement</Badge></TableCell>
-              <TableCell class="text-sm text-muted-foreground">CanadaBuys</TableCell>
-              <TableCell class="text-sm text-muted-foreground whitespace-nowrap">2026-04-28</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">Procurement</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">CanadaBuys</TableCell>
+              <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-04-28</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs font-medium text-emerald-500">93%</span>
@@ -285,7 +287,7 @@ const i18n = createI18n(lang);
     </Card>
 
     <!-- Pagination -->
-    <div class="mt-6 flex items-center justify-between">
+    <div class="mt-6 flex items-center justify-between reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
         Page <span class="font-medium text-foreground">1</span> of
         <span class="font-medium text-foreground">1,285</span>
