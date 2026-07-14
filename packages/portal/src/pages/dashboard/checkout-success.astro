@@ -1,0 +1,62 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import CheckoutSuccessPoller from "@/components/billing/CheckoutSuccessPoller";
+import { createI18n } from "@maplespike/i18n";
+import { localeUrl } from "@/utils/localeUrl";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
+
+// Stripe redirects back here with ?session_id=...&order=... — capture both so
+// the poller can re-find the order after a pod restart or webhook delay.
+const url = Astro.url;
+const orderIdFromUrl = url.searchParams.get("order") ?? "";
+let orderId = orderIdFromUrl;
+if (!orderId) {
+  try {
+    orderId = typeof window !== "undefined" ? window.sessionStorage?.getItem("last_stripe_order_id") ?? "" : "";
+  } catch { /* SSR or storage locked */ }
+}
+if (!orderId && typeof window === "undefined") {
+  // SSR fallback: Cookie is not currently used for the order id; the URL
+  // ?order= query is the canonical channel we wrote into successUrl.
+}
+---
+
+<BaseLayout title={i18n.t('dashboard.billing.success_title')} description="Stripe checkout completed; verifying payment." lang={lang}>
+  <section class="container mx-auto px-4 py-16 md:py-20">
+    <div class="mb-8 reveal-on-scroll">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+        <span class="text-gradient">
+          {lang === "fr" ? "Activation de votre abonnement" : "Activating your subscription"}
+        </span>
+      </h1>
+      <p class="mt-2 text-muted-foreground">
+        {lang === "fr"
+          ? "Confirmation de votre paiement Stripe. Cela prend généralement moins de 5 secondes."
+          : "Confirming your Stripe payment. This usually takes under 5 seconds."}
+      </p>
+    </div>
+
+    {orderId ? (
+      <CheckoutSuccessPoller orderId={orderId} client:load />
+    ) : (
+      <div class="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-6 reveal-on-scroll">
+        <h2 class="font-semibold text-yellow-700 dark:text-yellow-300">
+          {lang === "fr" ? "ID de commande manquant" : "Missing order id"}
+        </h2>
+        <p class="mt-2 text-sm text-muted-foreground">
+          {lang === "fr"
+            ? "Impossible de vérifier le statut sans ID de commande. Visitez la facturation pour voir vos abonnements."
+            : "Cannot verify status without an order id. Visit billing to see your subscriptions."}
+        </p>
+        <a
+          href={localeUrl('/dashboard/billing', lang)}
+          class="mt-4 inline-flex items-center gap-1.5 rounded-md border border-primary/40 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition-colors duration-200 ease-out press-feedback"
+        >
+          {lang === "fr" ? "Voir la facturation" : "View billing"} →
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>
