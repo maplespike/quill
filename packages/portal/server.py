@@ -18,6 +18,9 @@ import http.client
 # the same origin, and this server forwards those requests to the real API.
 API_UPSTREAM = os.environ.get("API_UPSTREAM", "http://localhost:8082")
 
+# Reject request/response bodies larger than this to avoid memory exhaustion.
+MAX_BODY_BYTES = int(os.environ.get("PROXY_MAX_BODY_BYTES", "1048576"))
+
 PORT = int(os.environ.get("PORT", "4321"))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOCS_DIR = os.path.join(DIRECTORY, "docs")
@@ -151,12 +154,19 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         if not target.startswith("/"):
             target = "/" + target
 
-        # Read request body if present
+        # Read request body if present (bounded to prevent memory exhaustion)
         content_length = self.headers.get("Content-Length")
         body = None
         if content_length:
             try:
-                body = self.rfile.read(int(content_length))
+                length = int(content_length)
+                if length > MAX_BODY_BYTES:
+                    self.send_response(413)
+                    self.send_header("Content-Type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Payload Too Large"}).encode("utf-8"))
+                    return
+                body = self.rfile.read(length)
             except ValueError:
                 body = None
 
@@ -171,7 +181,9 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             if key.lower() not in hop_by_hop:
                 headers[key] = value
         headers["X-Forwarded-For"] = self.client_address[0]
-        headers["X-Forwarded-Proto"] = self.headers.get("X-Forwarded-Proto", "https")
+        # Default to http when no proxy header is present; the ingress/TLS
+        # terminator sets X-Forwarded-Proto if the request came in over HTTPS.
+        headers["X-Forwarded-Proto"] = self.headers.get("X-Forwarded-Proto", "http")
         headers["X-Forwarded-Host"] = self.headers.get("Host", host)
 
         try:
@@ -184,12 +196,18 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             for key, value in resp.getheaders():
                 if key.lower() not in hop_by_hop:
                     self.send_header(key, value)
+            # Keep baseline security headers on API responses without injecting
+            # the static-site CSP.
+            self.send_header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+            self.send_header("X-Content-Type-Options", "nosniff")
             # Use the base end_headers so we don't inject the static-site CSP
             # headers into API responses.
             SimpleHTTPRequestHandler.end_headers(self)
             # Stream the response body so SSE / LLM token streams work.
+            # read1() avoids blocking until the full 8KB buffer is filled.
+            read_fn = getattr(resp, "read1", resp.read)
             while True:
-                chunk = resp.read(8192)
+                chunk = read_fn(8192)
                 if not chunk:
                     break
                 self.wfile.write(chunk)
