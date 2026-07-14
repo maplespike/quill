@@ -24,6 +24,9 @@ spec:
       - name: portal
         image: {{ printf "%s/quill-portal:%s" .Values.image.registry .Values.image.tag | quote }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: API_UPSTREAM
+          value: "http://{{ include "maplespike.fullname" . }}-api:{{ .Values.api.port }}"
         ports:
         - containerPort: {{ .Values.portal.port | default 8080 }}
         resources:
