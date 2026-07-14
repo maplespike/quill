@@ -173,6 +173,26 @@
           # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
           "API_UPSTREAM=http://quill-api:8082"
         ];
+||||||| ed0b1af
+        tag = "latest";
+        created = "now";
+        contents = with pkgs; [ portal-src python3 bash coreutils ];
+        config = {
+          Env = [
+            "PORT=8080"
+            "HOME=/tmp"
+            "PYTHONUNBUFFERED=1"
+          ];
+          Cmd = [ "python3" "/app/server.py" ];
+          WorkingDir = "/app";
+          ExposedPorts = { "8080/tcp" = {}; };
+          Labels = {
+            "org.opencontainers.image.title" = "MapleSpike Portal";
+            "org.opencontainers.image.description" = "Canadian government data portal";
+            "org.opencontainers.image.source" = "https://github.com/reverb256/quill";
+            "org.opencontainers.image.version" = "${self.shortRev or "dirty"}";
+          };
+        };
       };
 
       quill-all = pkgs.symlinkJoin {
@@ -230,6 +250,79 @@
         apiImage = "quill-api";
         mcpImage = "quill-mcp";
         portalImage = "quill-portal";
+||||||| ed0b1af
+      # ── Podman Quadlet Services (systemd .container + .service) ─────
+      systemd-services = pkgs.symlinkJoin {
+        name = "maplespike-systemd-services";
+        paths = [
+          (pkgs.writeText "quill-mcp.container" ''
+[Container]
+Image=ghcr.io/reverb256/quill/quill-mcp:${self.shortRev or "stable"}
+ContainerName=quill-mcp
+Environment=PORT=3001,NODE_ENV=production
+PodmanArgs=--network=host
+'')
+          (pkgs.writeText "quill-mcp.service" ''
+[Unit]
+Description=MapleSpike Quill (data-layer MCP server)
+After=network-online.target
+Wants=network-online.target
+Requires=quill-mcp.container
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start quill-mcp
+ExecStop=/usr/bin/podman stop -t 10 quill-mcp
+
+[Install]
+WantedBy=default.target
+'')
+          (pkgs.writeText "quill-api.container" ''
+[Container]
+Image=ghcr.io/reverb256/quill/quill-api:${self.shortRev or "stable"}
+ContainerName=quill-api
+Environment=PORT=8082,NODE_ENV=production,QUILL_STORAGE=sqlite
+Volumes=quill-api-data:/data
+PodmanArgs=--network=host
+'')
+          (pkgs.writeText "quill-api.service" ''
+[Unit]
+Description=Maplespike API Server
+After=network-online.target
+Wants=network-online.target
+Requires=quill-api.container
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start quill-api
+ExecStop=/usr/bin/podman stop -t 10 quill-api
+
+[Install]
+WantedBy=default.target
+'')
+          (pkgs.writeText "quill-portal.container" ''
+[Container]
+Image=ghcr.io/reverb256/quill/quill-portal:${self.shortRev or "stable"}
+ContainerName=quill-portal
+Environment=PORT=8080,HOME=/tmp
+PodmanArgs=--network=host
+'')
+          (pkgs.writeText "quill-portal.service" ''
+[Unit]
+Description=Maplespike Portal
+After=network-online.target
+Wants=network-online.target
+Requires=quill-portal.container
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/podman start quill-portal
+ExecStop=/usr/bin/podman stop -t 10 quill-portal
+
+[Install]
+WantedBy=default.target
+'')
+        ];
       };
 
       # ── SaaS K8s manifests (cloudflared-shaped, matches k8s/base) ─
@@ -240,6 +333,233 @@
         tag = "latest";
         domain = "maplespike.ca";
       };
+||||||| ed0b1af
+      # ── Docker/Podman Load Scripts ─────────────────────────────
+      maplespike-load-all = pkgs.writeShellScriptBin "maplespike-load-all" ''
+        set -euo pipefail
+        RUNTIME=''${RUNTIME:-docker}
+
+        for img in quill-mcp quill-api quill-portal; do
+          echo "=== Loading $img ==="
+          path=$(nix build ".#$img-image" --print-out-paths --no-link -L)
+          $RUNTIME load < "$path"
+          echo "✓ $img loaded into $RUNTIME"
+        done
+      '';
+
+# Helm values.yaml ───────────────────────────────────────────────
+      helm-values = pkgs.writeText "values.yaml" ''
+# MapleSpike Helm Chart Values
+# Generated from maplespike flake (single source of truth)
+# Override per-environment: helm install -f values-prod.yaml
+
+# Image configuration
+image:
+  registry: ghcr.io/reverb256
+  tag: "${self.shortRev or "stable"}"
+  pullPolicy: IfNotPresent
+
+# API Server
+api:
+  replicas: 2
+  port: 8082
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    QUILL_STORAGE: "sqlite"
+    NODE_ENV: "production"
+  volumeMounts:
+    - name: api-data
+      mountPath: /data
+
+# MCP Server
+mcp:
+  replicas: 1
+  port: 3001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+  env:
+    NODE_ENV: "production"
+
+# Portal
+portal:
+  replicas: 1
+  port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# ── BYOK: Bring Your Own Keys ───────────────────────────────
+# Support for user-provided API keys (no hardcoded secrets)
+# Three modes: k8s-secrets | external-manager | env-injection
+
+byok:
+  enabled: true
+  # Mode 1: Kubernetes Secrets (recommended for K8s clusters)
+  k8sSecrets:
+    enabled: true
+    canlii:
+      create: true
+      name: quill-api-keys
+      keys:
+        - QUILL_CANLII_API_KEY
+    ai:
+      create: true
+      name: quill-ai-keys
+      keys:
+        - QUILL_AI_ENDPOINT  # Custom AI endpoint URL
+        - QUILL_AI_API_KEY   # API key for external provider (OpenAI, Anthropic, etc.)
+        - QUILL_AI_MODEL      # Model name (e.g., gpt-4, claude-3-opus-20240229)
+
+  # Mode 2: External Secret Manager (AWS Secrets Manager, Azure Key Vault, etc.)
+  externalSecretManager:
+    enabled: false
+    provider: "aws-secrets-manager"  # aws-secrets-manager | azure-key-vault | hashicorp-vault
+    secretRefs:
+      canlii:
+        secretARN: "arn:aws:secretsmanager:region:account:secret:maplespike/canlii-api-key"
+      ai:
+        secretARN: "arn:aws:secretsmanager:region:account:secret:maplespike/ai-keys"
+
+  # Mode 3: Environment Variable Injection (least secure, not recommended)
+  envInjection:
+    enabled: false
+    # Keys must be provided as environment variables (not in values.yaml)
+    # QUILL_CANLII_API_KEY (from CI/CD or user environment)
+    # QUILL_AI_ENDPOINT (e.g., https://api.openai.com/v1, http://local-ai:8080)
+    # QUILL_AI_API_KEY (e.g., sk-ant-..., sk-or-...)
+    # QUILL_AI_MODEL (e.g., gpt-4, claude-3-opus-20240229)
+
+# Persistence
+persistence:
+  api:
+    enabled: true
+    storageClass: "longhorn"
+    size: "5Gi"
+    accessMode: "ReadWriteOnce"
+
+# Image pull secrets
+imagePullSecrets:
+  enabled: true
+  name: "ghcr-pull"
+
+# NetworkPolicy (restrict egress to trusted sources)
+networkPolicy:
+  enabled: true
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8084
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              k8s-app.kubernetes.io/name: ai-inference
+      ports:
+        - protocol: TCP
+          port: 8084
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              k8s-app.kubernetes.io/name: qdrant
+      ports:
+        - protocol: TCP
+          port: 6333
+
+# Ingress (for non-NixOS clusters)
+ingress:
+  enabled: false
+  ingressClassName: "nginx"
+  domain: "maplespike.lan"
+  annotations: {}
+'';
+
+      # ── Docker/Podman manifests (generated from Nix builds) ────────
+      docker-compose = pkgs.writeText "docker-compose.yml" ''
+version: "3.8"
+
+services:
+  quill-api:
+    image: quill-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-server
+    container_name: quill-api
+    ports:
+      - "8082:8082"
+    environment:
+      - NODE_ENV=production
+      - QUILL_STORAGE=sqlite
+      - PORT=8082
+      - JWT_SECRET=change-me-in-production
+    volumes:
+      - quill-api-data:/data
+    networks:
+      - maplespike
+
+  quill-mcp:
+    image: quill-mcp:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: quill-mcp
+    container_name: quill-mcp
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    depends_on:
+      - quill-api
+    networks:
+      - maplespike
+
+  quill-portal:
+    image: quill-portal:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: portal
+    container_name: quill-portal
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - HOME=/tmp
+    depends_on:
+      - quill-api
+    networks:
+      - maplespike
+
+networks:
+  maplespike:
+    driver: bridge
+
+volumes:
+  quill-api-data:
+'';
+
+      docker-manifests = pkgs.runCommand "maplespike-docker-manifests" {} ''
+        mkdir -p $out
+        cp ${self.packages.${system}.docker-compose} $out/docker-compose.yml
+        cp ${./Dockerfile} $out/Dockerfile
+      '';
     };
 
     # Top-level easy handles
