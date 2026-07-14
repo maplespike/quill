@@ -165,7 +165,7 @@ export class McpServer {
         await this.handleToolCall(id, params, send, paymentProof, identity);
         break;
       default:
-        if (id != null) {
+        if (id !== null && id !== undefined) {
           send(this.error(id, -32601, `Method not found: ${method}`));
         }
     }
