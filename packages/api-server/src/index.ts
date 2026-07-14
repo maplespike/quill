@@ -20,7 +20,7 @@ import type { Env, RouteHandler, RouteContext, ApiResponse } from './types.js';
 import { TIER_LIMITS, parseQueryOptions } from './types.js';
 import type { QueryOptions } from './types.js';
 import { authenticateRequest } from './auth.js';
-import { checkRateLimit } from './rate-limit.js';
+import { enforceRateLimit } from './rate-limit.js';
 import {
   buildError,
   buildSuccess,
@@ -64,7 +64,15 @@ import { openApiHandler } from './routes/openapi.js';
 import { listModulesHandler, exportModuleHandler } from './routes/export.js';
 import { registerHandler, verifyHandler, meHandler } from './routes/register.js';
 import { web3ChallengeHandler, web3LoginHandler } from './routes/auth-web3.js';
-import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingReconcileHandler, billingVerifyHandler, billingSeedPlansHandler, getAssignedTier } from './routes/billing.js';
+import { billingPlansHandler, billingOrderHandler, billingOrderStatusHandler, billingReconcileHandler, billingVerifyHandler, billingSeedPlansHandler } from './routes/billing.js';
+import {
+  stripeCheckoutHandler,
+  stripeWebhookHandler,
+  stripePortalHandler,
+  stripeOrderStatusHandler,
+  stripeStatusHandler,
+  reconcileExpiryHandler,
+} from './routes/billing-stripe.js';
 import {
   listAnnotationsHandler, createAnnotationHandler, updateAnnotationHandler,
   deleteAnnotationHandler, exportAnnotationsHandler,
@@ -150,6 +158,14 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/billing\/orders\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: billingOrderStatusHandler },
   { pattern: /^\/v1\/billing\/reconcile\/?$/, method: 'POST', params: [], handler: billingReconcileHandler },
   { pattern: /^\/v1\/billing\/verify\/?$/, method: 'POST', params: [], handler: billingVerifyHandler },
+  // Stripe — Checkout / Webhook / Customer Portal (webhook is authExempt; see below)
+  { pattern: /^\/v1\/billing\/stripe\/checkout\/?$/, method: 'POST', params: [], handler: stripeCheckoutHandler },
+  { pattern: /^\/v1\/billing\/stripe\/webhook\/?$/, method: 'POST', params: [], handler: stripeWebhookHandler },
+  { pattern: /^\/v1\/billing\/stripe\/portal\/?$/, method: 'POST', params: [], handler: stripePortalHandler },
+  { pattern: /^\/v1\/billing\/stripe\/order\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: stripeOrderStatusHandler },
+  { pattern: /^\/v1\/billing\/stripe\/status\/?$/, method: 'GET', params: [], handler: stripeStatusHandler },
+  // STRIPE-1: cron reconciler — shared-secret auth (X-Billing-Secret); route-level authExempt false; handler enforces secret.
+  { pattern: /^\/v1\/billing\/reconcile-expiry\/?$/, method: 'POST', params: [], handler: reconcileExpiryHandler },
 
   // Extraction — client-side browser extraction system
   { pattern: /^\/v1\/extraction\/tasks\/?$/, method: 'GET', params: [], handler: withRouteCache(extractionTasksHandler, 300) },
@@ -472,6 +488,9 @@ export async function handleRequest(
     || path.startsWith('/v1/register')
     || path.startsWith('/v1/verify/')
     || path.startsWith('/v1/billing/plans')
+    || path.startsWith('/v1/billing/stripe/webhook') // Stripe-signed events verified by HMAC; no bearer auth
+    // stripe/status is intentionally NOT authExempt: configuration fingerprints
+    // never leave authenticated contexts. Operators use dev tools / kubectl logs.
     || path.startsWith('/v1/contact')
     || path.startsWith('/v1/engine/status')
     || path.startsWith('/v1/data/quality')
@@ -499,10 +518,13 @@ export async function handleRequest(
 
   // ── Billing tier assignment ──
   // Override the DB tier with the most recent verified billing order, if any.
-  const billingTier = getAssignedTier(baseTenant.id);
-  const effectiveTenant = billingTier
-    ? { ...baseTenant, tier: billingTier }
-    : baseTenant;
+  // Phase 1 (DB persistence): the DB is the sole source of truth for tier.
+  // The previous in-memory tenantTiers cache + getAssignedTier override is
+  // removed. Both Stripe webhooks (routes/billing-stripe.ts) and the
+  // e-Transfer verify path (routes/billing.ts) now persist tier via
+  // ctx.db.updateTenantStripe, and authenticate() reads tenants.tier on
+  // every request — no cache layer, no cross-channel override.
+  const effectiveTenant = baseTenant;
 
   const ctx: RouteContext = {
     tenant: effectiveTenant,
@@ -520,13 +542,9 @@ export async function handleRequest(
   const creditsCharged = tier === 'free' ? 0 : 1;
 
   // Rate limit (skip for health, data quality, and spec)
-  let rateCheck: { allowed: boolean; remaining: number; resetTime: number } | null = null;
+  let rateCheck: { allowed: boolean; remaining: number; resetTime: number; reason?: 'burst' | 'daily' | 'monthly' } | null = null;
   if (!path.startsWith('/v1/health') && path !== '/v1/data/quality' && route.handler !== openApiHandler) {
-    // Stricter limits for unauthenticated requests
     const isAuthenticated = tenant !== null;
-    const tierLimits = TIER_LIMITS[ctx.tenant.tier];
-    const windowMs = 60 * 1000; // 1-minute sliding window for aggressive check
-    const maxPerWindow = isAuthenticated ? tierLimits.daily : 5; // unauthenticated: 5/min max
 
     // Rate-limit key: authenticated → tenant ID; anonymous → IP-based for granularity
     let rateLimitKey: string;
@@ -553,7 +571,8 @@ export async function handleRequest(
       }
       rateLimitKey = `anon:${clientIp}`;
     }
-    const check = checkRateLimit(rateLimitKey, maxPerWindow, windowMs);
+
+    const check = await enforceRateLimit(db, ctx.tenant.id, ctx.tenant.tier, isAuthenticated, rateLimitKey);
     rateCheck = check;
     if (!check.allowed) {
       await db.logAudit({
@@ -561,7 +580,7 @@ export async function handleRequest(
         apiKeyId: ctx.apiKeyId,
         operation: 'rate_limit',
         endpoint: route.pattern.source,
-        outputSummary: 'Rate limited',
+        outputSummary: `Rate limited (${check.reason})`,
         confidence: null,
         success: false,
         durationMs: Date.now() - startTime,
@@ -580,7 +599,7 @@ export async function handleRequest(
         },
       };
       const retryAfter = rateCheck ? Math.ceil((rateCheck.resetTime - Date.now()) / 1000) : 60;
-      let response = jsonResponse(buildError('RATE_LIMITED', 'Rate limit exceeded. Try again later.', bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) }, undefined, environment);
+      let response = jsonResponse(buildError('RATE_LIMITED', `Rate limit exceeded (${check.reason}). Try again later.`, bc), 429, { 'Retry-After': String(Math.max(1, retryAfter)) }, undefined, environment);
       if (rateCheck) {
         response = addRateLimitHeaders(response, rateCheck);
       }
