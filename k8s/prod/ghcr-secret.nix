@@ -1,3 +1,15 @@
+# ⚠️  ARCHIVAL post-2026-07-10 systemic registry flip.
+# GHCR push retired; the canonical registry is now `nexus:5000/quill-<svc>`
+# (operator-host). This module is dormant: the GitHub PAT it bootstraps is
+# unrecoverable per AGENTS.md Known Drift "sops-nix secret decryption blocked"
+# (Yubikey/local age key pubkey mismatch). The renderable Kubernetes secret
+# it would create (`ghcr-pull`) is no longer pulled by any Deployment — the
+# `maplespike-*` Deployments now reference `nexus:5000/*` exclusively. This
+# file is retained for forensic reference; do not wire it up to a fresh
+# hostname. Future operator-host pulls authenticate via
+# `~/.config/containers/auth.json` on the operator host (nix → local registry).
+
+# ------------------------------------------------------------------
 # MapleSpike GHCR Image Pull Secret Configuration
 # This module creates the ghcr-pull secret for pulling container images from GHCR
 # The secret is populated from the GitHub CLI token stored in agenix

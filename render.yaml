@@ -1,0 +1,101 @@
+# =============================================================================
+# ⚠️  DEPRECATED post-flip (2026-07-10) — see AGENTS.md install-matrix item 3
+# The `nexus:5000` registry below is the operator-host registry on the bare
+# metal cluster; Render.com cannot reach it. This file is retained as a
+# CfT (config-from-template) reference for self-hosters who point Render at
+# their OWN registry; replace the URL prefix with whatever registry your
+# Render account can pull from. For internal-cluster deploys use `nix run
+# .#push-images` + `kubectl apply -f result/manifests.yaml` instead.
+# =============================================================================
+
+# =============================================================================
+# Quill — Render Blueprint (one-click cloud deploy)
+# =============================================================================
+# Deploy the entire Quill stack to Render.com with a single click:
+#   https://render.com/deploy?repo=https://github.com/reverb256/maplespike
+# Once Render provisions, the Portal URL is given on the dashboard.
+#
+# Same image tags and port conventions as docker-compose.yml.
+# All services deploy from nexus:5000/quill-<svc>:latest.
+# =============================================================================
+# DO NOT apply this file without first re-targeting the three `image:`
+# URLs below to a registry Render.com can actually pull from. The defaults
+# (`nexus:5000/quill-<svc>`) target the operator-host network; Render's
+# infrastructure has no route to nexus:5000. Either (a) push the same
+# images to a registry Render can reach and edit those three URLs here, or
+# (b) use the canonical internal-cluster deploy path instead:
+#     nix run .#push-images && kubectl apply -f result/manifests.yaml
+services:
+  - type: web
+    name: quill-api
+    runtime: image
+    image:
+      url: nexus:5000/quill-api:latest
+      tag: latest
+    plan: starter
+    region: oregon
+    port: 8082
+    healthCheckPath: /v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8082
+      - key: QUILL_STORAGE
+        value: memory
+      - key: JWT_SECRET
+        generateValue: true
+        description: JWT signing secret — auto-generated on first provision
+    # Persistent disk for /data so SQLite survives restarts (Render disks).
+    disk:
+      name: quill-api-data
+      mountPath: /data
+      sizeGB: 1
+
+  - type: web
+    name: quill-mcp
+    runtime: image
+    image:
+      url: nexus:5000/quill-mcp:latest
+      tag: latest
+    plan: starter
+    region: oregon
+    port: 3001
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: QUILL_API_URL
+        fromService:
+          type: web
+          name: quill-api
+          property: hostport
+          prefix: http://
+          suffix: /v1
+
+  - type: web
+    name: quill-portal
+    runtime: image
+    image:
+      url: nexus:5000/quill-portal:latest
+      tag: latest
+    plan: starter
+    region: oregon
+    port: 8080
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: PUBLIC_API_BASE
+        fromService:
+          type: web
+          name: quill-api
+          property: hostport
+          prefix: http://
+          suffix: /v1
+    # Public portal URL — set Render to route the default `.onrender.com`
+    # hostname here once the API + MCP are healthy.

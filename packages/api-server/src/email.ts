@@ -134,7 +134,6 @@ export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<{ se
 export type ContactEmailParams = never;
 
 export async function sendContactEmail(_params: never): Promise<{ sent: boolean; provider: string }> {
-  // eslint-disable-next-line no-console
   console.warn(
     '[email] sendContactEmail is RETIRED under Decision 0002. ' +
       'See /docs/decisions/0002-pii-avoidance.md for the new paths.',

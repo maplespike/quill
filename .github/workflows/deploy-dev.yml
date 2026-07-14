@@ -1,3 +1,6 @@
+# Dev deploy runs on the self-hosted NixOS runner — node/pnpm/kubectl/podman
+# are system packages per docs/GITHUB-ACTIONS-NIX.md. Image paths use the
+# `nexus:5000/quill-<svc>` namespace per ADR 0007.
 name: Deploy to Development
 
 on:
@@ -8,21 +11,10 @@ on:
 jobs:
   ci:
     name: Build & Test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -36,7 +28,7 @@ jobs:
   deploy-dev:
     name: Deploy to maplespike-dev
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
@@ -66,40 +58,33 @@ jobs:
   build-docker:
     name: Build & Push Dev Docker Images
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push dev portal image
+      - name: Build dev Portal image (push: false — operator-side nix run .#push-images)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           target: portal
-          push: true
+          push: false
           tags: |
-            ghcr.io/reverb256/quill-portal:dev
-            ghcr.io/reverb256/quill-portal:${{ github.sha }}
+            nexus:5000/quill-portal:dev
+            nexus:5000/quill-portal:${{ github.sha }}
 
-      - name: Build and push dev API image
+      - name: Build dev API image (push: false)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           target: api-server
-          push: true
+          push: false
           tags: |
-            ghcr.io/reverb256/quill-api:dev
-            ghcr.io/reverb256/quill-api:${{ github.sha }}
+            nexus:5000/quill-api:dev
+            nexus:5000/quill-api:${{ github.sha }}
 
       - name: Wait for rollout
         run: |

@@ -1,59 +1,64 @@
 ---
-last-reviewed: 2026-07-07
+last-reviewed: 2026-07-10
 status: active
 ---
 
-> **🟡 Status (2026-07-07):** `k8s/base/` hand-edited YAML is live (applied via `kubectl apply -k k8s/base/`). Prometheus + Alertmanager + Pushgateway are Nix-rendered via `k8s/infra.nix`. This document tracks the longer-term goal of generating all k8s/ trees from `k8s/*.nix` via [easykubenix](https://github.com/lillecarl/easykubenix) rather than hand-editing YAML — see [ROADMAP.md Phase 4](./../ROADMAP.md) for the migration plan.
+# K8s Manifests — Nix-Generated (SaaS Path)
 
-## Usage
+The SaaS deployment to the homelab k3s cluster is **generated from Nix**
+(`nix/saas-manifests.nix`), not hand-edited. The generator emits the same
+cloudflared-shaped objects the live cluster runs:
 
-> **NOTE:** These commands are for the planned infrastructure. Current deployment uses Docker Compose.
+- `namespace/maplespike` (+ `ai-inference`)
+- `cloudflared` Deployment + `cloudflared-config` ConfigMap (traffic for `*.maplespike.ca`)
+- `quill-api` / `quill-mcp` / `quill-portal` Deployments + Services
+- LAN Traefik Ingress (`15-ingress-lan.yaml` shape)
 
-```bash
-# View generated manifests
-nix run .#k8s-manifests
+The hand-maintained `k8s/base/*.yaml` files are kept as a human-readable
+reference but the Nix generator is the source of truth. Image registry/tag
+and public domain are parameters, so dev vs prod are just different call
+sites.
 
-# Build manifests (produces multi-doc YAML in result/)
-nix build .#k8s-manifests
-
-# Apply to dev cluster
-nix build .#k8s-manifests -o k8s-output
-kubectl apply -f k8s-output/manifest.yaml -n maplespike
-```
-
-## Structure
-
-```
-k8s/
-├── cron.nix          # 24 CronJobs (23 pipeline + searxng-health)
-├── default.nix       # Module import list
-├── dev.nix           # maplespike-dev namespace, deployments, services, configmaps
-├── prod.nix          # quill-prod namespace, statefulset, deployments, services, ingresses
-├── infra.nix         # Observability (Prometheus, Alertmanager, Loki, Promtail, Pushgateway)
-├── grafana-dashboard.json
-└── prod/
-    └── ghcr-secret.nix
-```
-
-## Docker Compose (for local dev)
+## Build + apply
 
 ```bash
-# View generated docker-compose.yml
-nix run .#docker-compose
+# Generate manifests (writes result/manifests.yaml)
+nix build .#saas-manifests -L
 
-# Build manifests directory (Dockerfile + docker-compose.yml)
-nix build .#docker-manifests
+# Apply to the cluster (namespace maplespike)
+kubectl apply -f result/manifests.yaml
+
+# Or use the one-shot deploy app
+TAG=stable nix run .#deploy-saas
 ```
 
-## Helm (for non-Nix clusters)
+## Image tagging
+
+The generator references `nexus:5000/quill-{api,mcp,portal}:<tag>`.
+Push images first:
 
 ```bash
-# View generated values.yaml
-nix run .#helm-values
+REGISTRY=ghcr.io/reverb256 TAG=stable nix run .#push-images
 ```
 
-## See also
+## Why not easykubenix / Helm?
 
-- `k8s/` — easykubenix module files
-- `nix/` — NixOS module for MapleSpike services
-- `flake.nix` — package definitions for all images, manifests, and apps
+- easykubenix was removed (PR #733): its `manifestYAML = builtins.readFile`
+  is an Import-From-Derivation that breaks `nix flake check --no-build`.
+- There is no Helm chart in the repo, so the generated `values.yaml` was
+  removed. Plain Nix → YAML (concatenated `---` documents) is the most
+  transparent and still pure-evaluable.
+
+## Self-hosting (non-cluster)
+
+For a single box, use the Podman Quadlet units instead — see
+`nix/selfhost.nix` and `./selfhost.sh`:
+
+```bash
+./selfhost.sh up      # build images + install units + start
+./selfhost.sh down    # stop + disable
+./selfhost.sh status  # health check
+# or: nix run .#selfhost up
+```
+
+See also: `NIX-FIRST-WORKFLOW.md`, `NIX-IMAGES.md`, `docs/ROUTING.md`.

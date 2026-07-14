@@ -1,0 +1,1177 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const themes = [
+  {
+    id: "neural-quill",
+    name: "Neural Quill",
+    tagline: "AI-native · Cyber-kitted · Holographic parchment",
+    description:
+      "The quill becomes a circuit-traced nib. Ink is live data. Parchment is glass. Cyan structure, ember signals, scanline motion.",
+  },
+  {
+    id: "classical-scribe",
+    name: "Classical Scribe",
+    tagline: "Parchment · Ink · Gold leaf · Serif authority",
+    description:
+      "Lean into the quill's original meaning: a scribe's desk, warm parchment, black ink, and gold-foil accents on citations.",
+  },
+  {
+    id: "sovereign-command",
+    name: "Sovereign Command",
+    tagline: "Deep navy · Maple signal · Command-center clarity",
+    description:
+      "A refined version of the current direction: dark command center, high-contrast data, red severity, cyan focus, no fluff.",
+  },
+  {
+    id: "monochrome-data",
+    name: "Monochrome Data",
+    tagline: "Brutalist · High contrast · Swiss precision",
+    description:
+      "Strip away color entirely. Black, white, and gray. Tabular data, sharp edges, maximum information density.",
+  },
+  {
+    id: "open-concept",
+    name: "Open Concept",
+    tagline: "Airy · Data-forward · Generous whitespace",
+    description:
+      "Borderless content, expansive padding, giant typography, and soft elevations. Inspired by modern API platforms.",
+  },
+];
+
+const stats = [
+  { value: "208", label: "Data modules" },
+  { value: "175", label: "MCP tools" },
+  { value: "13", label: "Jurisdictions" },
+];
+
+const features = [
+  "Federal & parliamentary data",
+  "Provincial & municipal sources",
+  "CanLII case law & citations",
+  "Real-time alerts & signals",
+];
+---
+
+<BaseLayout title="Design Demo" description="Five visual directions for the Quill portal.">
+  <div class="design-demo-shell">
+    <header class="design-demo-header">
+      <h1>Quill Visual Refresh — Design Explorations</h1>
+      <p>
+        Five directions for <code>quill.maplespike.ca</code>. Each section uses the same
+        components (hero, stats, cards, buttons, code block, badges) so you can compare
+        how the same information feels under different identities.
+      </p>
+    </header>
+
+    {
+      themes.map((theme) => (
+        <section class={`design-demo-theme ${theme.id}`} id={theme.id}>
+          <div class="design-demo-label">
+            <span class="design-demo-number">{String(themes.indexOf(theme) + 1).padStart(2, "0")}</span>
+            <h2>{theme.name}</h2>
+            <p>{theme.tagline}</p>
+          </div>
+
+          <div class="design-demo-canvas">
+            {/* Hero */}
+            <div class="hero">
+              <div class="hero-content">
+                <div class="badge-row">
+                  <span class="badge">Open source</span>
+                  <span class="badge badge-ghost">AGPL-3.0 · MIT</span>
+                </div>
+                <h3>Canadian government data, on tap for any AI.</h3>
+                <p>{theme.description}</p>
+                <div class="hero-actions">
+                  <button type="button" class="btn btn-primary">Get your API key</button>
+                  <button type="button" class="btn btn-secondary">Fork on GitHub</button>
+                </div>
+              </div>
+              <div class="hero-art" aria-hidden="true">
+                <div class="art-inner" />
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div class="stats">
+              {stats.map((s) => (
+                <div class="stat">
+                  <div class="stat-value">{s.value}</div>
+                  <div class="stat-label">{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Features */}
+            <div class="cards">
+              {features.map((f) => (
+                <div class="card">
+                  <div class="card-dot" />
+                  <p>{f}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Code block */}
+            <div class="codeblock">
+              <div class="codeblock-header">
+                <span>mcp-config.json</span>
+                <button type="button" class="copy-btn" data-copy>Copy</button>
+                <span class="copy-live-region sr-only" aria-live="polite" aria-atomic="true" role="status"></span>
+              </div>
+              <pre><code>{`{
+  "mcpServers": {
+    "quill": {
+      "url": "https://mcp.maplespike.ca/sse",
+      "headers": { "Authorization": "Bearer $QUILL_KEY" }
+    }
+  }
+}`}</code></pre>
+            </div>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* ============================================================
+     Design Demo — five visual directions for quill.maplespike.ca
+     Each theme is self-contained so it can be evaluated in isolation.
+     ============================================================ */
+
+  /* Design-engineering motion tokens (Emil Kowalski / animations.dev) */
+  .design-demo-shell {
+    --demo-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --demo-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --demo-duration-fast: 160ms;
+    --demo-duration-enter: 280ms;
+  }
+
+  .design-demo-shell {
+    --design-demo-max-width: 1200px;
+    padding-bottom: 4rem;
+  }
+
+  .design-demo-header {
+    max-width: var(--design-demo-max-width);
+    margin: 0 auto;
+    padding: 3rem 1.5rem 2rem;
+  }
+
+  .design-demo-header h1 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+
+  .design-demo-header p {
+    color: hsl(var(--muted-foreground));
+    max-width: 70ch;
+    line-height: 1.6;
+  }
+
+  .design-demo-header code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: hsl(var(--muted));
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+
+  .design-demo-theme {
+    max-width: var(--design-demo-max-width);
+    margin: 0 auto 3rem;
+    padding: 0 1.5rem;
+  }
+
+  .design-demo-label {
+    margin-bottom: 1rem;
+  }
+
+  .design-demo-number {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  .design-demo-label h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .design-demo-label > p {
+    font-size: 0.95rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .design-demo-canvas {
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Common component skeleton — each theme overrides the skin below */
+  .design-demo-canvas .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .design-demo-canvas .hero {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+    }
+  }
+
+  .design-demo-canvas .badge-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .design-demo-canvas .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .design-demo-canvas h3 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .design-demo-canvas .hero-content > p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 55ch;
+  }
+
+  .design-demo-canvas .hero-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .design-demo-canvas .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform var(--demo-duration-fast) var(--demo-ease-out),
+                opacity var(--demo-duration-fast) var(--demo-ease-out);
+  }
+
+  .design-demo-canvas .btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .design-demo-canvas .btn:active {
+    transform: scale(0.97);
+    transition-duration: 100ms;
+  }
+
+  .design-demo-canvas .hero-art {
+    aspect-ratio: 1 / 1;
+    max-width: 280px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .design-demo-canvas .art-inner {
+    width: 100%;
+    height: 100%;
+  }
+
+  .design-demo-canvas .stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1.5rem 2.5rem;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+  }
+
+  @media (max-width: 480px) {
+    .design-demo-canvas .stats {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+
+  .design-demo-canvas .stat {
+    text-align: center;
+  }
+
+  .design-demo-canvas .stat-value {
+    font-family: "JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+
+  .design-demo-canvas .stat-label {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+
+  .design-demo-canvas .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 2rem 2.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .design-demo-canvas .cards {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .design-demo-canvas .card {
+    padding: 1.25rem;
+    border-radius: 12px;
+    position: relative;
+    transition: transform var(--demo-duration-fast) var(--demo-ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .design-demo-canvas .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+
+    .design-demo-canvas .card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Monochrome Data keeps its brutalist, instant state change — no lift */
+    .monochrome-data .design-demo-canvas .card:hover {
+      transform: none;
+    }
+  }
+
+  /* Ensure active press feedback wins over hover lifts */
+  .design-demo-canvas .btn-primary:active,
+  .design-demo-canvas .btn-secondary:active,
+  .design-demo-canvas .copy-btn:active {
+    transform: scale(0.97);
+    transition-duration: 100ms;
+  }
+
+  .design-demo-canvas .card-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-bottom: 0.75rem;
+  }
+
+  .design-demo-canvas .card p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .design-demo-canvas .codeblock {
+    margin: 0 2.5rem 2.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .design-demo-canvas .codeblock-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .design-demo-canvas .codeblock pre {
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .design-demo-canvas .copy-btn {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    transition: transform var(--demo-duration-fast) var(--demo-ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .design-demo-canvas .copy-btn:hover {
+      transform: scale(1.03);
+    }
+  }
+
+  .design-demo-canvas .copy-btn[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Staggered entrance for grouped components.
+     Uses @starting-style so the default state stays visible in browsers
+     that don't support it (graceful fallback = no animation).
+     NOTE: delays are coupled to the number of stats/cards rendered by the page. */
+  .design-demo-canvas .stat,
+  .design-demo-canvas .card {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--demo-duration-enter) var(--demo-ease-out),
+                transform var(--demo-duration-enter) var(--demo-ease-out);
+    transition-delay: 0ms;
+    @starting-style {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  .design-demo-canvas .stat:nth-child(1) { transition-delay: 0ms; }
+  .design-demo-canvas .stat:nth-child(2) { transition-delay: 60ms; }
+  .design-demo-canvas .stat:nth-child(3) { transition-delay: 120ms; }
+
+  .design-demo-canvas .card:nth-child(1) { transition-delay: 0ms; }
+  .design-demo-canvas .card:nth-child(2) { transition-delay: 60ms; }
+  .design-demo-canvas .card:nth-child(3) { transition-delay: 120ms; }
+  .design-demo-canvas .card:nth-child(4) { transition-delay: 180ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .design-demo-canvas .stat,
+    .design-demo-canvas .card {
+      transition: none;
+    }
+  }
+
+  /* ============================================================
+     THEME 1 — Neural Quill (cyberpunk)
+     ============================================================ */
+  .neural-quill .theme-number {
+    background: rgba(0, 229, 255, 0.15);
+    color: #00e5ff;
+    border: 1px solid rgba(0, 229, 255, 0.3);
+  }
+
+  .neural-quill .design-demo-canvas {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(0, 229, 255, 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(255, 92, 0, 0.08), transparent 55%),
+      #05080c;
+    border: 1px solid rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 60px rgba(0, 229, 255, 0.06);
+  }
+
+  .neural-quill .design-demo-canvas::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 0%, black 0%, transparent 80%);
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 0%, black 0%, transparent 80%);
+  }
+
+  .neural-quill .badge {
+    background: rgba(0, 229, 255, 0.1);
+    color: #00e5ff;
+    border: 1px solid rgba(0, 229, 255, 0.25);
+  }
+
+  .neural-quill .badge-ghost {
+    background: transparent;
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.25);
+  }
+
+  .neural-quill h3 {
+    color: #f8fafc;
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+  }
+
+  .neural-quill .hero-content > p {
+    color: #94a3b8;
+  }
+
+  .neural-quill .btn-primary {
+    background: linear-gradient(135deg, #00e5ff, #00b8d4);
+    color: #020617;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .neural-quill .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+    }
+  }
+
+  .neural-quill .btn-secondary {
+    background: transparent;
+    color: #00e5ff;
+    border: 1px solid rgba(0, 229, 255, 0.4);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .neural-quill .btn-secondary:hover {
+      background: rgba(0, 229, 255, 0.08);
+    }
+  }
+
+  .neural-quill .art-inner {
+    background:
+      radial-gradient(circle at 50% 40%, rgba(255, 92, 0, 0.35), transparent 40%),
+      conic-gradient(from 180deg at 50% 50%, #00e5ff 0deg, #00b8d4 90deg, #00e5ff 180deg, #00b8d4 270deg, #00e5ff 360deg);
+    /* Circuit-traced nib silhouette */
+    clip-path: polygon(
+      50% 0%, 58% 35%, 85% 40%, 60% 55%, 65% 100%, 50% 75%, 35% 100%,
+      40% 55%, 15% 40%, 42% 35%
+    );
+    filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.5));
+    animation: neural-pulse 4s var(--demo-ease-in-out) infinite;
+  }
+
+  @keyframes neural-pulse {
+    0%, 100% { filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.4)); }
+    50% { filter: drop-shadow(0 0 28px rgba(0, 229, 255, 0.7)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .neural-quill .art-inner {
+      animation: none;
+    }
+  }
+
+  .neural-quill .stats {
+    background: rgba(0, 229, 255, 0.03);
+    border-color: rgba(0, 229, 255, 0.1);
+  }
+
+  .neural-quill .stat-value {
+    color: #00e5ff;
+  }
+
+  .neural-quill .stat-label {
+    color: #64748b;
+  }
+
+  .neural-quill .card {
+    background: rgba(2, 6, 23, 0.6);
+    border: 1px solid rgba(0, 229, 255, 0.12);
+    backdrop-filter: blur(8px);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .neural-quill .card:hover {
+      border-color: rgba(0, 229, 255, 0.35);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+    }
+  }
+
+  .neural-quill .card-dot {
+    background: #ff5c00;
+    box-shadow: 0 0 8px #ff5c00;
+  }
+
+  .neural-quill .card p {
+    color: #cbd5e1;
+  }
+
+  .neural-quill .codeblock {
+    background: rgba(2, 6, 23, 0.8);
+    border: 1px solid rgba(0, 229, 255, 0.15);
+  }
+
+  .neural-quill .codeblock-header {
+    background: rgba(0, 229, 255, 0.08);
+    color: #00e5ff;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  }
+
+  .neural-quill .codeblock pre {
+    color: #e2e8f0;
+  }
+
+  .neural-quill .copy-btn {
+    background: rgba(0, 229, 255, 0.12);
+    color: #00e5ff;
+  }
+
+  /* ============================================================
+     THEME 2 — Classical Scribe
+     ============================================================ */
+  .classical-scribe .theme-number {
+    background: #f3e9d2;
+    color: #3d2b1f;
+    border: 1px solid #d4c5a3;
+  }
+
+  .classical-scribe .design-demo-canvas {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 197, 163, 0.25), transparent 60%),
+      #f8f3e8;
+    border: 1px solid #e6dcc3;
+  }
+
+  .classical-scribe .badge {
+    background: #ede4cc;
+    color: #5c4a32;
+    border: 1px solid #d4c5a3;
+  }
+
+  .classical-scribe .badge-ghost {
+    background: transparent;
+    color: #7d6b52;
+  }
+
+  .classical-scribe h3 {
+    color: #2c1f16;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .classical-scribe .hero-content > p {
+    color: #5c4a32;
+  }
+
+  .classical-scribe .btn-primary {
+    background: #2c1f16;
+    color: #f8f3e8;
+    border: 1px solid #2c1f16;
+  }
+
+  .classical-scribe .btn-secondary {
+    background: transparent;
+    color: #2c1f16;
+    border: 1px solid #2c1f16;
+  }
+
+  .classical-scribe .art-inner {
+    background:
+      radial-gradient(circle at 50% 45%, #c9a227 0%, transparent 50%),
+      linear-gradient(135deg, #2c1f16 0%, #5c4a32 100%);
+    /* Feather silhouette */
+    clip-path: polygon(
+      50% 0%, 55% 15%, 62% 30%, 68% 45%, 72% 60%, 74% 75%, 75% 90%,
+      70% 85%, 65% 80%, 60% 85%, 55% 90%, 50% 100%, 45% 90%,
+      40% 85%, 35% 80%, 30% 85%, 25% 90%, 26% 75%, 28% 60%,
+      32% 45%, 38% 30%, 45% 15%
+    );
+    box-shadow: 0 12px 40px rgba(44, 31, 22, 0.25);
+  }
+
+  .classical-scribe .stats {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: #e6dcc3;
+  }
+
+  .classical-scribe .stat-value {
+    color: #2c1f16;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .classical-scribe .stat-label {
+    color: #5c4a32;
+  }
+
+  .classical-scribe .card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #e6dcc3;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .classical-scribe .card:hover {
+      border-color: #c9a227;
+      box-shadow: 0 8px 24px rgba(201, 162, 39, 0.12);
+    }
+  }
+
+  .classical-scribe .card-dot {
+    background: #c9a227;
+  }
+
+  .classical-scribe .card p {
+    color: #3d2b1f;
+  }
+
+  .classical-scribe .codeblock {
+    background: #f4f0e4;
+    border: 1px solid #e6dcc3;
+  }
+
+  .classical-scribe .codeblock-header {
+    background: #ede4cc;
+    color: #5c4a32;
+    border-bottom: 1px solid #e6dcc3;
+  }
+
+  .classical-scribe .codeblock pre {
+    color: #2c1f16;
+  }
+
+  .classical-scribe .copy-btn {
+    background: #e6dcc3;
+    color: #2c1f16;
+  }
+
+  /* ============================================================
+     THEME 3 — Sovereign Command (current refined)
+     ============================================================ */
+  .sovereign-command .theme-number {
+    background: rgba(232, 69, 69, 0.12);
+    color: #e84545;
+    border: 1px solid rgba(232, 69, 69, 0.25);
+  }
+
+  .sovereign-command .design-demo-canvas {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(232, 69, 69, 0.1), transparent 60%),
+      #0a0e17;
+    border: 1px solid #1e2d45;
+  }
+
+  .sovereign-command .badge {
+    background: rgba(232, 69, 69, 0.1);
+    color: #ff8a8a;
+    border: 1px solid rgba(232, 69, 69, 0.25);
+  }
+
+  .sovereign-command .badge-ghost {
+    background: transparent;
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.25);
+  }
+
+  .sovereign-command h3 {
+    color: #f8fafc;
+  }
+
+  .sovereign-command .hero-content > p {
+    color: #94a3b8;
+  }
+
+  .sovereign-command .btn-primary {
+    background: linear-gradient(135deg, #e84545, #ff7373);
+    color: white;
+  }
+
+  .sovereign-command .btn-secondary {
+    background: transparent;
+    color: #e84545;
+    border: 1px solid rgba(232, 69, 69, 0.4);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sovereign-command .btn-secondary:hover {
+      background: rgba(232, 69, 69, 0.08);
+    }
+  }
+
+  .sovereign-command .art-inner {
+    background:
+      radial-gradient(circle at 50% 45%, rgba(6, 182, 212, 0.3), transparent 50%),
+      linear-gradient(135deg, #e84545 0%, #ff7373 100%);
+    /* Shield / chevron silhouette */
+    clip-path: polygon(
+      50% 5%, 85% 25%, 85% 55%, 50% 95%, 15% 55%, 15% 25%
+    );
+    box-shadow: 0 0 30px rgba(232, 69, 69, 0.35);
+  }
+
+  .sovereign-command .stats {
+    background: rgba(17, 24, 39, 0.6);
+    border-color: #1e2d45;
+  }
+
+  .sovereign-command .stat-value {
+    color: #e84545;
+  }
+
+  .sovereign-command .stat-label {
+    color: #64748b;
+  }
+
+  .sovereign-command .card {
+    background: #111827;
+    border: 1px solid #1e2d45;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sovereign-command .card:hover {
+      border-color: #2d4a6a;
+      box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.1);
+    }
+  }
+
+  .sovereign-command .card-dot {
+    background: #06b6d4;
+  }
+
+  .sovereign-command .card p {
+    color: #cbd5e1;
+  }
+
+  .sovereign-command .codeblock {
+    background: #111827;
+    border: 1px solid #1e2d45;
+  }
+
+  .sovereign-command .codeblock-header {
+    background: #1a2332;
+    color: #06b6d4;
+    border-bottom: 1px solid #1e2d45;
+  }
+
+  .sovereign-command .codeblock pre {
+    color: #e2e8f0;
+  }
+
+  .sovereign-command .copy-btn {
+    background: #1e2d45;
+    color: #06b6d4;
+  }
+
+  /* ============================================================
+     THEME 4 — Monochrome Data
+     ============================================================ */
+  .monochrome-data .theme-number {
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+  }
+
+  .monochrome-data .design-demo-canvas {
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 0;
+  }
+
+  .monochrome-data .badge {
+    background: #000;
+    color: #fff;
+    border-radius: 0;
+  }
+
+  .monochrome-data .badge-ghost {
+    background: transparent;
+    color: #333;
+    border: 1px solid #000;
+  }
+
+  .monochrome-data h3 {
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+
+  .monochrome-data .hero-content > p {
+    color: #333;
+  }
+
+  .monochrome-data .btn-primary {
+    background: #000;
+    color: #fff;
+    border-radius: 0;
+  }
+
+  .monochrome-data .btn-secondary {
+    background: transparent;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 0;
+  }
+
+  .monochrome-data .art-inner {
+    background: #000;
+    /* Stark square silhouette */
+    clip-path: polygon(
+      20% 20%, 80% 20%, 80% 80%, 20% 80%
+    );
+  }
+
+  .monochrome-data .stats {
+    background: #f5f5f5;
+    border-color: #000;
+    border-style: solid;
+  }
+
+  .monochrome-data .stat-value {
+    color: #000;
+  }
+
+  .monochrome-data .stat-label {
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+
+  .monochrome-data .card {
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 0;
+  }
+
+  .monochrome-data .card:hover {
+    background: #000;
+  }
+
+  .monochrome-data .card:hover p,
+  .monochrome-data .card:hover .card-dot {
+    color: #fff;
+  }
+
+  .monochrome-data .card:hover .card-dot {
+    background: #fff;
+  }
+
+  .monochrome-data .card-dot {
+    background: #000;
+  }
+
+  .monochrome-data .card p {
+    color: #000;
+    font-weight: 500;
+  }
+
+  .monochrome-data .codeblock {
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 0;
+  }
+
+  .monochrome-data .codeblock-header {
+    background: #000;
+    color: #fff;
+    border-bottom: 2px solid #000;
+    border-radius: 0;
+  }
+
+  .monochrome-data .codeblock pre {
+    color: #000;
+  }
+
+  .monochrome-data .copy-btn {
+    background: #fff;
+    color: #000;
+    border-radius: 0;
+  }
+
+  /* ============================================================
+     THEME 5 — Open Concept
+     ============================================================ */
+  .open-concept .theme-number {
+    background: #eff6ff;
+    color: #2563eb;
+    border: none;
+  }
+
+  .open-concept .design-demo-canvas {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: none;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+  }
+
+  /* Exaggerated breathing room */
+  .open-concept .hero {
+    padding: 4rem 3rem 2rem;
+  }
+
+  .open-concept .badge {
+    background: #eff6ff;
+    color: #2563eb;
+    border: none;
+  }
+
+  .open-concept .badge-ghost {
+    background: transparent;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+  }
+
+  .open-concept h3 {
+    color: #111827;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .open-concept .hero-content > p {
+    color: #4b5563;
+    font-size: 1.1rem;
+  }
+
+  .open-concept .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+    border-radius: 999px;
+  }
+
+  .open-concept .btn-secondary {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .open-concept .btn-secondary:hover {
+      background: #f9fafb;
+      border-color: #cbd5e1;
+    }
+  }
+
+  .open-concept .art-inner {
+    /* Atomic-style: filled core + clean orbital ring.
+       Hollow areas are fully transparent so the white canvas shows through. */
+    background:
+      radial-gradient(circle at 50% 50%, #2563eb 0%, #2563eb 12%, transparent 13%),
+      radial-gradient(circle at 50% 50%, transparent 25%, rgba(37, 99, 235, 0.55) 25.5%, rgba(37, 99, 235, 0.55) 30%, transparent 30.5%);
+    border-radius: 50%;
+    box-shadow: 0 20px 60px -15px rgba(37, 99, 235, 0.35);
+  }
+
+  .open-concept .stats {
+    background: transparent;
+    border: none;
+    padding: 1rem 3rem 3rem;
+    gap: 2rem;
+  }
+
+  .open-concept .stat-value {
+    color: #111827;
+    font-size: 3.25rem;
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .open-concept .stat-label {
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .open-concept .cards {
+    gap: 1.5rem;
+    padding: 2rem 3rem;
+  }
+
+  .open-concept .card {
+    background: #ffffff;
+    border: none;
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .open-concept .card:hover {
+      box-shadow: 0 12px 40px -8px rgba(37, 99, 235, 0.12),
+                  0 4px 20px -5px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  .open-concept .card-dot {
+    background: #10b981;
+    box-shadow: 0 0 0 4px #d1fae5;
+    margin-bottom: 1rem;
+  }
+
+  .open-concept .card p {
+    color: #1f2937;
+    font-weight: 500;
+  }
+
+  .open-concept .codeblock {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    margin: 1rem 3rem 4rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  }
+
+  .open-concept .codeblock-header {
+    background: #f8fafc;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .open-concept .codeblock pre {
+    color: #1f2937;
+  }
+
+  .open-concept .copy-btn {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+</style>
+
+<script>
+  // Wire up copy buttons within the design demo canvases only
+  const copyButtons = document.querySelectorAll(".design-demo-canvas .codeblock [data-copy]");
+  const COPY_RESET_MS = 1500;
+
+  copyButtons.forEach((btn) => {
+    let isResetting = false;
+
+    btn.addEventListener("click", async () => {
+      if (isResetting) return;
+
+      const codeBlock = btn.closest(".codeblock");
+      const liveRegion = codeBlock?.querySelector(".copy-live-region");
+      const code = codeBlock?.querySelector("pre")?.textContent || "";
+      const original = btn.textContent;
+
+      isResetting = true;
+      btn.setAttribute("aria-disabled", "true");
+
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.textContent = "Copied!";
+        if (liveRegion) liveRegion.textContent = "Code copied to clipboard";
+      } catch {
+        btn.textContent = "Failed";
+        if (liveRegion) liveRegion.textContent = "Copy failed";
+      }
+
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.removeAttribute("aria-disabled");
+        isResetting = false;
+        if (liveRegion) liveRegion.textContent = "";
+      }, COPY_RESET_MS);
+    });
+  });
+</script>

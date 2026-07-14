@@ -5,8 +5,8 @@
 // ─────────────────────────────────────────────────────────────────
 window.MAPLESPIKE = window.MAPLESPIKE || {};
 
-// ── API (dev: via api.maplespike.ca with dev key) ──────────
-MAPLESPIKE.apiBase   = 'https://api.maplespike.ca';
+// ── API (dev: same-origin /api proxy to avoid cross-subdomain CORS) ──────────
+MAPLESPIKE.apiBase   = '/api';
 MAPLESPIKE.apiKey    = '';  // User enters their own key via workspace
 
 // ── Timeouts (milliseconds) ─────────────────────────────────────

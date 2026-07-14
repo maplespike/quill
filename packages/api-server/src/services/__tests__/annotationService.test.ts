@@ -6,7 +6,7 @@ const TEST_DB = '/tmp/test-annotations.db';
 
 describe('AnnotationService', () => {
   after(() => {
-    try { fs.unlinkSync(TEST_DB); } catch {}
+    try { fs.unlinkSync(TEST_DB); } catch { /* ignore cleanup errors */ }
   });
 
   it('creates and lists annotations', async () => {

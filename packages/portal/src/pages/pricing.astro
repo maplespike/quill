@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createI18n } from "@maplespike/i18n";
+import StripeCheckoutButton from "@/components/billing/StripeCheckoutButton";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
@@ -35,10 +36,12 @@ const tiers = [
     cta: "Get Started",
     href: "/signup",
     highlighted: false,
+    /** "free" → no payment, just sign up */
+    kind: "signup" as const,
   },
   {
     name: "Pro",
-    price: "$49",
+    price: "$50",
     period: "/mo",
     description: "For journalists, analysts, and teams who need real-time government intelligence.",
     badge: "Popular",
@@ -52,13 +55,14 @@ const tiers = [
       "SDK access (TypeScript + Python)",
       "SHA-256 citation verification on all records",
     ],
-    cta: "Start Free Trial",
+    cta: "Buy Pro — $50 CAD/mo",
     href: "/signup?plan=pro",
     highlighted: true,
+    kind: "stripe-pro" as const,
   },
   {
     name: "Business",
-    price: "$199",
+    price: "$200",
     period: "/mo",
     description: "For government departments, media organizations, and large-scale compliance teams.",
     badge: "Enterprise",
@@ -73,9 +77,10 @@ const tiers = [
       "White-label portal option",
       "Quarterly strategy reviews",
     ],
-    cta: "Contact Sales",
+    cta: "Buy Business — $200 CAD/mo",
     href: "/contact",
     highlighted: false,
+    kind: "stripe-business" as const,
   },
 ];
 
@@ -107,8 +112,8 @@ const featureValues: Record<string, (string | boolean)[]> = {
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
-    <div class="relative z-10 container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary"
+    <div class="relative z-10 container mx-auto px-4 text-center reveal-on-scroll">
+      <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/5 text-primary"
         >Simple, transparent pricing</Badge
       >
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
@@ -123,11 +128,11 @@ const featureValues: Record<string, (string | boolean)[]> = {
 
   <!-- Pricing Cards -->
   <section class="py-16 md:py-20">
-    <div class="container mx-auto px-4">
-      <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3">
+    <div class="container mx-auto px-4 reveal-on-scroll">
+      <div class="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-3 stagger-children">
         {tiers.map((tier) => (
           <Card
-            class={cn(
+            className={cn(
               "card-hover relative flex flex-col",
               tier.highlighted &&
                 "border-primary/50 ring-1 ring-primary/20 shadow-lg shadow-primary/5"
@@ -135,14 +140,14 @@ const featureValues: Record<string, (string | boolean)[]> = {
           >
             {tier.highlighted && (
               <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge class="btn-sheen px-4 py-1 text-xs">
+                <Badge className="btn-sheen px-4 py-1 text-xs">
                   Most Popular
                 </Badge>
               </div>
             )}
             <CardHeader>
               <div class="flex items-center justify-between">
-                <CardTitle class="text-xl">{tier.name}</CardTitle>
+                <CardTitle className="text-xl">{tier.name}</CardTitle>
                 <Badge variant={tier.badgeVariant}>{tier.badge}</Badge>
               </div>
               <div class="mt-2">
@@ -151,9 +156,9 @@ const featureValues: Record<string, (string | boolean)[]> = {
                   <span class="text-sm text-muted-foreground">{tier.period}</span>
                 )}
               </div>
-              <CardDescription class="mt-2">{tier.description}</CardDescription>
+              <CardDescription className="mt-2">{tier.description}</CardDescription>
             </CardHeader>
-            <CardContent class="flex-1">
+            <CardContent className="flex-1">
               <ul class="space-y-3">
                 {tier.features.map((feature) => (
                   <li class="flex items-start gap-2 text-sm">
@@ -177,14 +182,30 @@ const featureValues: Record<string, (string | boolean)[]> = {
               </ul>
             </CardContent>
             <CardFooter>
-              <a href={tier.href} class="w-full">
-                <Button
-                  variant={tier.highlighted ? "default" : "outline"}
-                  class={cn("w-full", tier.highlighted && "btn-sheen")}
-                >
-                  {tier.cta}
-                </Button>
-              </a>
+              {tier.kind === "stripe-pro" && (
+                <StripeCheckoutButton
+                  planId="pro"
+                  client:load
+                  className="w-full"
+                />
+              )}
+              {tier.kind === "stripe-business" && (
+                <StripeCheckoutButton
+                  planId="business"
+                  client:load
+                  className="w-full"
+                />
+              )}
+              {tier.kind === "signup" && (
+                <a href={tier.href} class="press-feedback inline-flex w-full transition-transform duration-[160ms] ease-out">
+                  <Button
+                    variant={tier.highlighted ? "default" : "outline"}
+                    className={cn("w-full", tier.highlighted && "btn-sheen")}
+                  >
+                    {tier.cta}
+                  </Button>
+                </a>
+              )}
             </CardFooter>
           </Card>
         ))}
@@ -194,7 +215,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
 
   <!-- Feature Comparison Table -->
   <section class="border-t py-16 md:py-20">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 reveal-on-scroll">
       <h2 class="mb-12 text-center text-3xl font-bold">Full feature comparison</h2>
       <div class="mx-auto max-w-4xl overflow-x-auto">
         <table class="w-full text-sm">
@@ -205,7 +226,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
                 <th class="py-4 px-6 text-center font-medium">
                   {tier.name}
                   {tier.name === "Pro" && (
-                    <Badge variant="default" class="ml-2 text-xs">Popular</Badge>
+                    <Badge variant="default" className="ml-2 text-xs">Popular</Badge>
                   )}
                 </th>
               ))}
@@ -276,7 +297,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
 
   <!-- FAQ -->
   <section class="border-t py-16 md:py-20">
-    <div class="container mx-auto px-4">
+    <div class="container mx-auto px-4 reveal-on-scroll">
       <h2 class="mb-12 text-center text-3xl font-bold">Frequently asked questions</h2>
       <div class="mx-auto grid max-w-3xl gap-8 md:grid-cols-2">
         <div>

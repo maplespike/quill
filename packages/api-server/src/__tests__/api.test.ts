@@ -1,25 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { MemoryStorage, MemoryCache } from '../storage.js';
+import { makeCtx as makeBaseCtx } from './_helpers.js';
 
-function makeCtx(overrides: Record<string, unknown> = {}) {
-  const db = new MemoryStorage();
-  const cache = new MemoryCache();
-  db.registerTenant(
-    { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'free', isActive: true, journalismMode: false },
-    'test-key-hash',
-    'test-key-id',
-  );
-  return {
-    tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'free' as const, isActive: true, journalismMode: false },
-    apiKeyId: 'test-key-id',
-    requestId: 'test',
-    startTime: Date.now(),
-    env: {},
-    db,
-    cache,
-    ...overrides,
-  };
+function makeCtx(tier: 'free' | 'pro' | 'business' = 'free') {
+  return makeBaseCtx({ tenant: { tier } });
 }
 
 describe('API Server Routes', () => {
@@ -64,7 +48,7 @@ describe('API Server Routes', () => {
 
   it('keys endpoint returns list', async () => {
     const { listKeysHandler } = await import('../routes/keys.js');
-    const ctx = makeCtx();
+    const ctx = makeCtx('pro');
     const resp = await listKeysHandler(new Request('http://localhost/v1/keys'), ctx as any, {});
     assert.equal(resp.status, 200);
     const body = await resp.json();
@@ -81,7 +65,7 @@ describe('API Server Routes', () => {
 
   it('usage endpoint returns data', async () => {
     const { usageHandler } = await import('../routes/usage.js');
-    const ctx = makeCtx({ tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'business' as const, isActive: true, journalismMode: false } });
+    const ctx = makeCtx('business');
     const resp = await usageHandler(new Request('http://localhost/v1/usage'), ctx as any, {});
     assert.equal(resp.status, 200);
   });
@@ -128,7 +112,7 @@ describe('API Server Routes', () => {
 
   it('keys CRUD flow works correctly', async () => {
     const { createKeyHandler, listKeysHandler, deleteKeyHandler } = await import('../routes/keys.js');
-    const ctx = makeCtx({ tenant: { id: 'test-tenant', name: 'Test User', emailVerified: true, tier: 'pro' as const, isActive: true, journalismMode: false } });
+    const ctx = makeCtx('pro');
 
     const createResp = await createKeyHandler(new Request('http://localhost/v1/keys', {
       method: 'POST',

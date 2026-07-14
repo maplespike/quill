@@ -1,12 +1,20 @@
 # GHCR cleanup — purging old `reverb256/maplespike/*` images
 
+> **⚠️ ARCHIVAL (2026-07-10).** GHCR push is **dormant** post systemic registry flip —
+> all new images ship to `nexus:5000/quill-<svc>` and the GHCR push path is `push: false`
+> in CI workflows. This document is retained for context + as a cleanup recipe if
+> ever needed (e.g. reclaiming 4–6 GB of GHCR free-tier storage, or pruning
+> abandoned image versions). No action needed unless someone wants to do the cleanup
+> for hygiene. See [`AGENTS.md` § Image-tag construction](../AGENTS.md#image-tag-construction-resolved-post-flip)
+> for the new canonical-registry narrative.
+
 **Status:** Documented post-rename (2026-07-03). No automatic cleanup attempted because
 manual confirmation is required before destructive operations on shared CI infrastructure.
 
 ## Why
 
 The 2026-07-03 repo rename (see [ADR 0007](./decisions/0007-repo-rename.md)) moved all
-container images from `ghcr.io/reverb256/maplespike/{quill-mcp,quill-api,quill-portal,quill-ingest,quill-engine,...}`
+container images from `nexus:5000/maplespike/{quill-mcp,quill-api,quill-portal,quill-ingest,quill-engine,...}`
 to `ghcr.io/reverb256/quill/{quill-mcp,quill-api,quill-portal,quill-ingest,quill-engine,...}`.
 The old images are **cosmetic waste** — no production traffic follows them, but they
 continue to occupy disk in GHCR's storage tier.
@@ -20,11 +28,11 @@ Every tag under these image names ceased being canonical on 2026-07-03:
 
 | Image | Status post-rename |
 |---|---|
-| `ghcr.io/reverb256/maplespike/quill-mcp` | superseded by `ghcr.io/reverb256/quill/quill-mcp` |
-| `ghcr.io/reverb256/maplespike/quill-api` | superseded by `ghcr.io/reverb256/quill/quill-api` |
-| `ghcr.io/reverb256/maplespike/quill-portal` | superseded by `ghcr.io/reverb256/quill/quill-portal` |
-| `ghcr.io/reverb256/maplespike/quill-ingest` | superseded by `ghcr.io/reverb256/quill/quill-ingest` |
-| `ghcr.io/reverb256/maplespike/quill-engine` | superseded by `ghcr.io/reverb256/quill/quill-engine` |
+| `nexus:5000/maplespike/quill-mcp` | superseded by `ghcr.io/reverb256/quill/quill-mcp` |
+| `nexus:5000/maplespike/quill-api` | superseded by `ghcr.io/reverb256/quill/quill-api` |
+| `nexus:5000/maplespike/quill-portal` | superseded by `ghcr.io/reverb256/quill/quill-portal` |
+| `nexus:5000/maplespike/quill-ingest` | superseded by `ghcr.io/reverb256/quill/quill-ingest` |
+| `nexus:5000/maplespike/quill-engine` | superseded by `ghcr.io/reverb256/quill/quill-engine` |
 
 Preserve: nothing at `maplespike/*` is canonical post-rename. The container *registry
 namespace* `reverb256/maplespike` itself is the org-level identity in GitHub and cannot

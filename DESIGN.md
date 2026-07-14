@@ -28,11 +28,13 @@ typography:
     fontSize: 1.5rem
     fontWeight: 700
     lineHeight: 1.2
+    letterSpacing: -0.02em
   h2:
     fontFamily: Inter
     fontSize: 1rem
     fontWeight: 600
     lineHeight: 1.3
+    letterSpacing: -0.01em
   body:
     fontFamily: Inter
     fontSize: 0.85rem
@@ -77,9 +79,10 @@ motion:
   fast: 100ms
   normal: 200ms
   slow: 300ms
-  eased: ease-out
-  eased-in-out: ease-in-out
   shimmer-duration: 1500ms
+  ease-out: "cubic-bezier(0.23, 1, 0.32, 1)"
+  ease-in-out: "cubic-bezier(0.77, 0, 0.175, 1)"
+  ease-drawer: "cubic-bezier(0.32, 0.72, 0, 1)"
 components:
   button-primary:
     backgroundColor: "{colors.primary}"
@@ -88,12 +91,12 @@ components:
     padding: 12px 24px
     fontWeight: 600
     fontSize: 0.9rem
-    transition: "opacity {motion.normal} {motion.eased}"
+    transition: "opacity {motion.normal} {motion.ease-out}"
   button-primary-hover:
     opacity: 0.85
   button-primary-active:
     opacity: 0.7
-    transform: "scale(0.98)"
+    transform: "scale(0.97)"
   button-secondary:
     backgroundColor: transparent
     textColor: "{colors.primary}"
@@ -101,7 +104,7 @@ components:
     padding: 6px 14px
     border: "1px solid {colors.primary}"
     fontSize: 0.78rem
-    transition: "background-color {motion.normal} {motion.eased}"
+    transition: "background-color {motion.normal} {motion.ease-out}"
   button-secondary-hover:
     backgroundColor: "rgba(232,69,69,0.08)"
   card:
@@ -109,12 +112,12 @@ components:
     border: "1px solid {colors.border}"
     rounded: "{rounded.lg}"
     padding: 24px
-    transition: "border-color {motion.normal} {motion.eased}, box-shadow {motion.normal} {motion.eased}"
+    transition: "border-color {motion.normal} {motion.ease-out}, box-shadow {motion.normal} {motion.ease-out}"
   card-hover:
     border-color: "#2d4a6a"
     boxShadow: "0 0 0 1px rgba(6,182,212,0.1)"
   card-entrance:
-    animation: "fadeIn {motion.slow} {motion.eased}, slideUp {motion.slow} {motion.eased}"
+    animation: "fadeIn {motion.slow} {motion.ease-out}, slideUp {motion.slow} {motion.ease-out}"
   input:
     backgroundColor: "{colors.surface-elevated}"
     border: "1px solid {colors.border}"
@@ -122,7 +125,7 @@ components:
     padding: 12px 16px
     textColor: "{colors.text-primary}"
     fontSize: 0.9rem
-    transition: "border-color {motion.normal} {motion.eased}"
+    transition: "border-color {motion.normal} {motion.ease-out}"
   input-focus:
     border-color: "{colors.secondary}"
     outline: "none"
@@ -131,7 +134,7 @@ components:
     textColor: "{colors.text-secondary}"
     fontSize: 0.82rem
     letterSpacing: 0.02em
-    transition: "color {motion.normal} {motion.eased}"
+    transition: "color {motion.normal} {motion.ease-out}"
   nav-link-hover:
     textColor: "{colors.text-primary}"
   badge:
@@ -147,12 +150,12 @@ components:
     border: "1px solid {colors.border}"
     rounded: "{rounded.lg}"
     padding: 20px
-    transition: "border-color {motion.normal} {motion.eased}, box-shadow {motion.normal} {motion.eased}"
+    transition: "border-color {motion.normal} {motion.ease-out}, box-shadow {motion.normal} {motion.ease-out}"
   stat-card-hover:
     border-color: "#2d4a6a"
     boxShadow: "0 4px 20px rgba(0,0,0,0.2)"
   stat-card-entrance:
-    animation: "slideUp {motion.slow} {motion.eased}"
+    animation: "slideUp {motion.slow} {motion.ease-out}"
   shimmer:
     background: "linear-gradient(90deg, {colors.surface} 25%, {colors.surface-elevated} 50%, {colors.surface} 75%)"
     backgroundSize: "200% 100%"
@@ -165,7 +168,7 @@ components:
 
 > **Note (2026-07):** This repo was renamed `reverb256/maplespike` → `reverb256/quill`. Brand-level identifiers — domain `maplespike.ca`, npm scope `@maplespike/*` — are preserved. See [CHANGELOG.md](./CHANGELOG.md) for the rename entry.
 
-The UI evokes a command center: dark foundation, high-contrast data, color only for signal and severity. Tailwind handles all styling. Every number is tabular, every ID is mono, every transition is 200ms.
+The UI evokes a command center: dark foundation, high-contrast data, color only for signal and severity. Tailwind handles all styling. Every number is tabular, every ID is mono, every transition is intentional.
 
 ## Quill Page Layout
 
@@ -191,7 +194,7 @@ Each ToolGrid card:
 - Icon + title (Inter 600, 1rem)
 - Bullet list of tool names (Inter, 0.78rem, text-secondary)
 - Surface background, hover → border brightens
-- Entrance: stagger 50ms per card
+- Entrance: stagger 50–80ms per card
 
 ## Color System & Tokens
 
@@ -227,13 +230,19 @@ Scale: `11 → 12 → 13 → 14 → 16 → 20 → 24 → 32px`
 
 All numbers use `font-variant-numeric: tabular-nums`.
 
+### Optical sizing & tracking
+- Large display text uses **negative tracking** (`-0.02em`) because letters read too far apart as size grows.
+- Body text stays near `0` tracking; small labels get slightly positive tracking for legibility.
+- Leading is tight on headings (`1.2`) and looser on body copy (`1.5`).
+- Respect the user's text-size setting by sizing spacing in `rem`/`em`.
+
 ## Component Catalog
 
 **Cards:** Surface, 1px border, 12px radius, 24px padding. Entrance: fadeIn + slideUp 300ms. Hover: border brightens + cyan glow.
 
 **Stat Cards:** Metric hero (1.5rem, bold, tabular-nums). SlideUp entrance. Hover: shadow lift.
 
-**Buttons:** Primary = red fill, white text, 8px radius. Active: scale(0.98). Secondary = transparent, red border. Hover: bg fill 8%.
+**Buttons:** Primary = red fill, white text, 8px radius. Active: scale(0.97). Secondary = transparent, red border. Hover: bg fill 8%.
 
 **Inputs:** Elevated surface, 1px border, 8px radius. Focus: cyan border + 3px glow ring.
 
@@ -247,7 +256,7 @@ All numbers use `font-variant-numeric: tabular-nums`.
 
 | Component | Hover | Active | Focus | Disabled | Loading |
 |-----------|-------|--------|-------|----------|---------|
-| button-primary | opacity 0.85 | scale 0.98 | — | opacity 0.4 | shimmer |
+| button-primary | opacity 0.85 | scale 0.97 | — | opacity 0.4 | shimmer |
 | button-secondary | bg 8% red | — | — | opacity 0.4 | — |
 | input | — | — | cyan glow | opacity 0.5 | — |
 | card | border ↑ | — | — | — | — |
@@ -275,21 +284,63 @@ Flat. Depth via background layers. Shadows only for: dropdowns, modals (blur 4px
 | slow | 300ms | Card entrance, modal |
 | shimmer | 1500ms | Loading loop |
 
-Easing: ease-out for entrances. ease-in-out for state changes. Card entrance stagger: 50ms delay between items.
+Easing: ease-out for entrances. ease-in-out for state changes. Card entrance stagger: 50–80ms delay between items.
 
-## Do's and Don'ts
+### Custom easing curves
+```css
+--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+```
 
-- DO use Tailwind utility classes for ALL text layout.
-- DO use JetBrains Mono for nav, code, and module identifiers.
-- DO use tabular numerals in data displays and tool counts.
-- DO right-align numeric columns.
-- DO use shimmer for loading.
-- DO display install snippets in mono on elevated surface.
-- DON'T use pure white backgrounds.
-- DON'T add decorative illustrations.
-- DON'T use serif fonts.
-- DON'T center numeric data.
-- DON'T hardcode CSS heights — Tailwind handles layout.
+## Animation Decision Framework
+
+Before adding any animation, answer: *should this animate at all?*
+
+| Frequency | Decision |
+| --- | --- |
+| 100+ times/day (keyboard shortcuts, command palette toggle) | No animation. Ever. |
+| Tens of times/day (hover effects, list navigation) | Remove or drastically reduce |
+| Occasional (modals, drawers, toasts) | Standard animation |
+| Rare / first-time (onboarding, feedback, celebrations) | Can add delight |
+
+**Never animate keyboard-initiated actions.** They repeat hundreds of times daily; animation makes them feel slow and disconnected.
+
+Valid purposes for motion: spatial consistency, state indication, explanation, feedback, preventing jarring change. "It looks cool" on a frequently-seen element is not valid.
+
+### Easing & Timing
+- **Enter/exit:** `ease-out` or custom `cubic-bezier(0.23, 1, 0.32, 1)`.
+- **Move/morph on screen:** `ease-in-out` or `cubic-bezier(0.77, 0, 0.175, 1)`.
+- **Hover/color:** `ease`.
+- **UI animations stay under 300ms.** Button press: 100–160ms. Dropdowns/selects: 150–250ms. Modals/drawers: 200–500ms.
+- **Never use `ease-in` on UI** — it delays the moment the user watches most.
+
+### Physicality
+- Never animate from `scale(0)`. Start from `scale(0.95)` + `opacity: 0`.
+- Popovers/dropdowns scale from their trigger; modals stay centered.
+- Buttons use `transform: scale(0.97)` on `:active` with 160ms `ease-out`.
+
+### Interruptibility & Performance
+- Prefer CSS transitions over keyframes for rapidly-triggered UI (toasts, toggles).
+- Only animate `transform` and `opacity` for GPU compositing.
+- Gate hover motion behind `@media (hover: hover) and (pointer: fine)`.
+- Honor `prefers-reduced-motion: reduce` — keep opacity/color transitions, drop movement.
+
+### Stagger
+- Group entrances stagger 30–80ms between items.
+- Never block interaction while stagger plays.
+
+## Apple-Style Fluid Interactions
+
+Where Quill uses drag, sheets, or gesture-driven UI, follow these principles:
+
+1. **Response on pointer-down.** Show feedback the instant the user presses. Waiting for `click` feels dead.
+2. **Direct manipulation — 1:1 tracking.** Content stays glued to the finger; respect the grab offset.
+3. **Interruptibility.** Never lock out input during a transition. Animate from the current on-screen value, not the target value.
+4. **Velocity handoff.** When a gesture ends, the animation continues at the finger's exact velocity.
+5. **Momentum projection.** Snap to the target nearest the projected resting point, not the release point.
+6. **Rubber-banding.** At boundaries, resist progressively instead of stopping hard.
+7. **Spatial consistency.** Enter and exit along the same path; anchor popovers to their trigger.
 
 ## Accessibility
 
@@ -298,6 +349,26 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 - WCAG AA contrast minimum.
 - Keyboard-navigable.
 - Tailwind-based layouts respect WCAG resize.
+
+### Reduced motion
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### Hover gating
+```css
+@media (hover: hover) and (pointer: fine) {
+  .card-hover:hover { transform: translateY(-3px); }
+}
+```
 
 ## Responsive
 
@@ -308,6 +379,8 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 
 ## Code Snippets
 
+### Theme tokens
+
 ```css
 @theme {
   --color-primary: #e84545;
@@ -316,7 +389,8 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
   --color-surface-elevated: #1a2332;
   --color-border: #1e2d45;
   --color-text: #e2e8f0;
-```
+}
+
 :root {
   --color-primary: #e84545;
   --color-secondary: #06b6d4;
@@ -331,6 +405,9 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
   --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
   --spacing-xs: 4px; --spacing-sm: 8px; --spacing-md: 16px;
   --spacing-lg: 24px; --spacing-xl: 32px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 ```
 
@@ -341,15 +418,16 @@ Easing: ease-out for entrances. ease-in-out for state changes. Card entrance sta
 @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
 ```
 
-## Implementation Status (2026-07-05)
+## Implementation Status (2026-07-10)
 
 The spec above is the canonical design intent for Quill. Three implementation layers exist; this section captures what is wired where so future work can land in the right place.
 
 ### Live portal (`packages/portal/src/` — Astro + React + Tailwind v4 + shadcn)
 
 * **Wired to spec**: Inter + JetBrains Mono (BaseLayout), dark-canvas default + light toggle, card pattern (12px radius, 24px padding), `.font-mono-num` utility, `aria-current="page"` nav highlight, i18n en-CA + fr-CA (`@maplespike/i18n`), mobile drawer, `prefers-reduced-motion` reset.
-* **Token reconciliation (this commit in `globals.css`)**: `--ring` + `--sidebar-ring` updated to spec cyan `hsl(191 96% 42%)` (≈ `#06b6d4`, parliamentary) — previously these tokens mirrored the maple-red `--primary`, violating the explicit "Visible focus states (cyan outline)" line under Accessibility and the "input-focus: cyan glow" rule under Components.
-* **NOT YET wired**: the **Quill Page Layout** section sequence — `TopBar → QuillHero → McpServerBlock → ToolGrid → Sovereignty → QuillFooter`. These Astro islands are pending work, targeted for the storefront milestone. Until shipped, the spec sections describe intent, not live behavior.
+* **Token reconciliation (in `globals.css`)**: `--ring` + `--sidebar-ring` use spec cyan `hsl(191 96% 42%)` (≈ `#06b6d4`, parliamentary).
+* **Animation tokens (in `globals.css`)**: custom easing variables `--ease-out`, `--ease-in-out`, `--ease-drawer`; `reveal-on-scroll`, `stagger-*`, and `press-feedback` utilities added.
+* **Quill Page Layout (in `LandingBody.astro`)**: section sequence now maps to `TopBar` (BaseLayout), `QuillHero`, `McpServerBlock`, `ToolGrid`, `Sovereignty`, and `QuillFooter` (BaseLayout). Added reveal-on-scroll, staggered card entrances, tabular-numeral stats, and terminal-style snippet copy.
 
 ### Canonical reference render (`packages/portal/public/readme.html`)
 
@@ -364,6 +442,17 @@ Includes exact hex tokens mirroring the YAML frontmatter, animated maple-leaf he
 
 Live at `maplespike.ca`. Maintains design cohesion with Quill via shared `colors.primary` (`#e84545`) + `colors.secondary` (`#06b6d4`) tokens.
 
+## Design Skills & References
+
+This design system is augmented by the following project skills under `.agents/skills/`:
+
+- **`emil-design-eng`** — UI polish, animation decision framework, component craft, and the invisible details that make software feel right.
+- **`apple-design`** — Fluid interfaces, springs, gesture-driven UI, translucent materials, typography, and reduced-motion/accessibility.
+- **`animation-vocabulary`** — Reverse-lookup glossary for naming motion effects.
+- **`review-animations`** + **`STANDARDS.md`** — Concrete animation standards (curves, durations, physicality, performance, a11y) used when reviewing motion code.
+
+Use these skills whenever adding or reviewing motion, gestures, or visual polish in Quill.
+
 ## Agent Prompt Guide
 
 **Context:** Quill — a sovereign MCP server + REST API for Canadian public record data. 166 tools (incl. `x402-deposit`), 198 modules. Product page at `quill.maplespike.ca`. Repo: `github.com/reverb256/quill`.
@@ -372,4 +461,4 @@ Live at `maplespike.ca`. Maintains design cohesion with Quill via shared `colors
 
 **Reject:** light backgrounds, serif fonts, hero illustrations, spinners, center-aligned numbers, shadows on cards, hardcoded CSS heights.
 
-**Tailwind:** use utility classes for all styling. Use framer-motion for entrance animations (stagger 50ms). Never use inline styles for layout.
+**Tailwind:** use utility classes for all styling. Prefer CSS animations/transitions for predetermined motion; use Framer Motion springs only for interruptible, gesture-driven React islands. Never use inline styles for layout.

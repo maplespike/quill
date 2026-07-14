@@ -1,3 +1,5 @@
+# Edge-worker deploy runs on the self-hosted NixOS runner — node, pnpm,
+# wrangler, jq, gh are system packages per docs/GITHUB-ACTIONS-NIX.md.
 name: Deploy Edge AI Worker
 
 on:
@@ -12,20 +14,10 @@ on:
 jobs:
   deploy:
     name: Deploy quill-ai Worker
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Install wrangler
         run: pnpm add -g wrangler

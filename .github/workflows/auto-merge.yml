@@ -68,12 +68,36 @@ jobs:
 
       - name: Wait for CI checks
         if: steps.check.outputs.safe == 'true'
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: "test"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Native replacement for the unmaintained lewagon/wait-on-check-action.
+          # Polls `gh pr checks` until every required check reports success.
+          echo "Waiting for CI checks on SHA $PR_SHA…"
+          for i in $(seq 1 60); do
+            # `bucket` is one of pass | fail | pending | skipping — the exhaustive
+          # GH check status. Wait until every non-skipping check has reached a
+          # terminal bucket. Mirror the dependabot-auto-merge pipeline (capture
+          # checks once, pipe to `jq`) for consistency and so a transient gh
+          # failure can't abort the loop early. No `--arg` here because
+          # auto-merge.yml doesn't gate on workflow display name.
+            CHECKS=$(gh pr checks "$PR_SHA" --json bucket 2>/dev/null || echo '[]')
+            PENDING=$(jq '[.[] | select(.bucket == "pending")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
+            FAILURES=$(jq '[.[] | select(.bucket == "fail")] | length' <<<"$CHECKS" 2>/dev/null || echo 0)
+            if [ "$FAILURES" -gt 0 ]; then
+              echo "::error::A required check failed before timeout."
+              exit 1
+            fi
+            if [ "$PENDING" -eq 0 ]; then
+              echo "All required checks passed."
+              exit 0
+            fi
+            echo "($i/60) $PENDING checks still pending…"
+            sleep 30
+          done
+          echo "::error::Timed out waiting for CI after 30 minutes."
+          exit 1
 
       - name: Approve and auto-merge
         if: steps.check.outputs.safe == 'true'

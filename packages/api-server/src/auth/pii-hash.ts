@@ -51,7 +51,6 @@ function getSecret(): string {
   // Dev / test only: auto-generate so the app boots. Hashes WILL
   // drift across restarts; that's expected in dev.
   _cachedSecret = randomBytes(32).toString("hex");
-  // eslint-disable-next-line no-console
   console.warn(
     "[pii-hash] QUILL_PII_HASH_SECRET was unset; generated an ephemeral secret. " +
       "Hashes will NOT survive a process restart. Set this env var to a 32-byte hex string " +

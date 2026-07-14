@@ -66,6 +66,11 @@ function resolveModule(agent: string): string | undefined {
   return AGENT_MODULE_MAP[agent];
 }
 
+function countResults(result: unknown): number {
+  if (Array.isArray(result)) return result.length;
+  return result === null || result === undefined ? 0 : 1;
+}
+
 /* ------------------------------------------------------------------ */
 /*  getMockResponse — calls runModule() on the real pipeline           */
 /* ------------------------------------------------------------------ */
@@ -121,7 +126,7 @@ export async function getMockResponse(
       const result = await runModule(moduleName, ...args);
       data = {
         results: Array.isArray(result) ? result : [result],
-        total: Array.isArray(result) ? result.length : result != null ? 1 : 0,
+        total: countResults(result),
         module: moduleName,
         action,
         _note: 'Live data from pipeline-core module — use real API endpoints for production',
