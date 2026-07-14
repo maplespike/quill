@@ -96,7 +96,7 @@
 
     # ── OCI image builder ───────────────────────────────────────────
     # Image names match the live SaaS registry layout:
-    #   ghcr.io/reverb256/quill/api  · /mcp  · /portal
+    #   nexus:5000/quill-api  · /mcp  · /portal
     mkImage = { name, cmd, port, extraEnv, contents }: pkgs.dockerTools.buildLayeredImage {
       inherit name;
       tag = "latest";
@@ -109,7 +109,13 @@
           "HOME=/tmp"
         ] ++ extraEnv;
         Cmd = cmd;
-        WorkingDir = "/app";
+        # WorkingDir = "/" so relative cmd paths like
+        # `node packages/api-server/dist/dev-server.js` resolve to the
+        # quill-build overlay at container root (`/packages/...`),
+        # not at `/app/` which is empty for api/mcp/ingest/engine.
+        # (Portal uses an absolute cmd path so is unaffected.) Resolved
+        # 2026-07-11 during the systemic live-rollout bootstrap.
+        WorkingDir = "/";
         ExposedPorts = { "${toString port}/tcp" = {}; };
         Labels = {
           "org.opencontainers.image.title" = "MapleSpike ${name}";
@@ -162,7 +168,11 @@
         cmd = [ "python3" "/app/server.py" ];
         port = 8080;
         contents = with pkgs; [ portal-dist python3 bash coreutils ];
-        extraEnv = [ "PYTHONUNBUFFERED=1" ];
+        extraEnv = [
+          "PYTHONUNBUFFERED=1"
+          # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
+          "API_UPSTREAM=http://quill-api:8082"
+        ];
       };
 
       quill-all = pkgs.symlinkJoin {
@@ -188,8 +198,12 @@
 
       push-all = pkgs.writeShellScriptBin "quill-push-all" ''
         set -euo pipefail
-        REGISTRY="''${REGISTRY:-ghcr.io/reverb256}"
-        REPO="''${REPO:-quill}"
+        # Default target is the operator-host nexus:5000 registry. Override
+        # `REGISTRY=<host>` runtime. The bash heredoc below uses bare
+        # $REGISTRY — Nix indented-string interpolation only triggers on
+        # ''${X} brace forms, so write $X without braces here. (GHCR push
+        # path retired 2026-07-11; see AGENTS.md § Image-tag construction.)
+        REGISTRY="''${REGISTRY:-nexus:5000}"
         TAG="''${TAG:-stable}"
         COMMIT="''${COMMIT:-$(git rev-parse --short HEAD)}"
 
@@ -197,11 +211,11 @@
           echo "=== $svc ==="
           path=$(nix build ".#quill-$svc-image" --print-out-paths --no-link -L)
           ${pkgs.podman}/bin/podman load < "$path"
-          ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/$REPO/$svc:$TAG"
-          ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/$REPO/$svc:$COMMIT"
-          ${pkgs.podman}/bin/podman push "$REGISTRY/$REPO/$svc:$TAG"
-          ${pkgs.podman}/bin/podman push "$REGISTRY/$REPO/$svc:$COMMIT"
-          echo "✓ $REGISTRY/$REPO/$svc:$TAG"
+          ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/quill-$svc:$TAG"
+          ${pkgs.podman}/bin/podman tag "quill-$svc:latest" "$REGISTRY/quill-$svc:$COMMIT"
+          ${pkgs.podman}/bin/podman push "$REGISTRY/quill-$svc:$TAG"
+          ${pkgs.podman}/bin/podman push "$REGISTRY/quill-$svc:$COMMIT"
+          echo "✓ $REGISTRY/quill-$svc:$TAG"
         done
       '';
 

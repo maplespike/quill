@@ -75,7 +75,8 @@ let
     ContainerName=quill-portal
     Environment=PORT=8080
     Environment=NODE_ENV=production
-    Environment=PUBLIC_API_BASE=http://quill-api:8082/v1
+    # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
+    Environment=API_UPSTREAM=http://quill-api:8082
     Network=${net}
     PublishPort=8080:8080
 

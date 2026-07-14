@@ -12,6 +12,11 @@ Serves the static portal with:
 import os, sys, json, re, html as html_mod
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse
+import http.client
+
+# Upstream API for the /api/ reverse proxy. The portal frontend now talks to
+# the same origin, and this server forwards those requests to the real API.
+API_UPSTREAM = os.environ.get("API_UPSTREAM", "http://localhost:8082")
 
 PORT = int(os.environ.get("PORT", "4321"))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -132,6 +137,110 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
+    # ── API reverse proxy ───────────────────────────────────────────────
+
+    def _proxy_api(self):
+        """Forward a request whose path starts with /api/ to the upstream API."""
+        parsed_upstream = urlparse(API_UPSTREAM)
+        host = parsed_upstream.hostname or "localhost"
+        port = parsed_upstream.port or (443 if parsed_upstream.scheme == "https" else 80)
+        is_https = parsed_upstream.scheme == "https"
+
+        # Strip the /api prefix so /api/v1/health becomes /v1/health
+        target = self.path[len("/api"):] if self.path.startswith("/api") else self.path
+        if not target.startswith("/"):
+            target = "/" + target
+
+        # Read request body if present
+        content_length = self.headers.get("Content-Length")
+        body = None
+        if content_length:
+            try:
+                body = self.rfile.read(int(content_length))
+            except ValueError:
+                body = None
+
+        # Filter hop-by-hop headers and add forwarding headers
+        hop_by_hop = {
+            "connection", "keep-alive", "proxy-authenticate",
+            "proxy-authorization", "te", "trailers", "transfer-encoding",
+            "upgrade", "host",
+        }
+        headers = {}
+        for key, value in self.headers.items():
+            if key.lower() not in hop_by_hop:
+                headers[key] = value
+        headers["X-Forwarded-For"] = self.client_address[0]
+        headers["X-Forwarded-Proto"] = self.headers.get("X-Forwarded-Proto", "https")
+        headers["X-Forwarded-Host"] = self.headers.get("Host", host)
+
+        try:
+            ConnClass = http.client.HTTPSConnection if is_https else http.client.HTTPConnection
+            conn = ConnClass(host, port, timeout=30)
+            conn.request(self.command, target, body=body, headers=headers)
+            resp = conn.getresponse()
+
+            self.send_response(resp.status)
+            for key, value in resp.getheaders():
+                if key.lower() not in hop_by_hop:
+                    self.send_header(key, value)
+            # Use the base end_headers so we don't inject the static-site CSP
+            # headers into API responses.
+            SimpleHTTPRequestHandler.end_headers(self)
+            # Stream the response body so SSE / LLM token streams work.
+            while True:
+                chunk = resp.read(8192)
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+        except Exception as e:
+            self.send_response(502)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            err = json.dumps({"error": "Bad Gateway", "message": str(e)}).encode("utf-8")
+            self.wfile.write(err)
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+    def do_POST(self):
+        if self.path.startswith("/api/"):
+            self._proxy_api()
+        else:
+            super().do_POST()
+
+    def do_PUT(self):
+        if self.path.startswith("/api/"):
+            self._proxy_api()
+        else:
+            super().do_PUT()
+
+    def do_PATCH(self):
+        if self.path.startswith("/api/"):
+            self._proxy_api()
+        else:
+            super().do_PATCH()
+
+    def do_DELETE(self):
+        if self.path.startswith("/api/"):
+            self._proxy_api()
+        else:
+            super().do_DELETE()
+
+    def do_OPTIONS(self):
+        if self.path.startswith("/api/"):
+            self._proxy_api()
+        else:
+            super().do_OPTIONS()
+
+    def do_HEAD(self):
+        if self.path.startswith("/api/"):
+            self._proxy_api()
+        else:
+            super().do_HEAD()
+
     def end_headers(self):
         # Inject security headers on every response
         for k, v in self.SECURITY_HEADERS.items():
@@ -140,6 +249,9 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self):
+        if self.path.startswith("/api/"):
+            return self._proxy_api()
+
         parsed = urlparse(self.path)
         p = parsed.path
 

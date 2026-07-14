@@ -13,9 +13,13 @@
 # `---` separated) ready for `kubectl apply -f`.
 { pkgs, registry, tag, domain }:
 let
-  apiImage = "${registry}/api:${tag}";
-  mcpImage = "${registry}/mcp:${tag}";
-  portalImage = "${registry}/portal:${tag}";
+  # Image paths MUST match `flake.nix packages.push-all`'s tag scheme
+  # (`${REGISTRY}/quill-${svc}:${TAG}`) AND `mkImage { name = "quill-${svc}" }` —
+  # otherwise the registry hosts nexus:5000/quill-<svc>:*  while the
+  # manifests request nexus:5000/<svc>:* (flip drifted; resolved 2026-07-11).
+  apiImage = "${registry}/quill-api:${tag}";
+  mcpImage = "${registry}/quill-mcp:${tag}";
+  portalImage = "${registry}/quill-portal:${tag}";
 
   # Ingress hostnames for the LAN side (.lan) and external side (.ca)
   lanHosts = [
@@ -49,16 +53,24 @@ let
         tunnel: 66d76492-036b-4177-8fac-8682e0eda37e
         credentials-file: /etc/cloudflared/credentials.json
         ingress:
+          # service URLs use literal ClusterIPs (DNS bypass for upstream).
+          # cloudflared's Go resolver on the minimal Alpine image dials
+          # 1.1.1.1 for *.svc.cluster.local lookups (does not honor the
+          # /etc/resolv.conf nameserver order from the kubelet admission
+          # controller), getting NXDOMAIN. Static IPs in this block avoid
+          # that failure mode. ClusterIPs are pinned in the matching
+          # Service specs below so they survive service restarts.
+          # Recovery 2026-07-12 from 530/1033 + 502 in-cluster DNS failure.
           - hostname: api.${domain}
-            service: http://quill-api.maplespike.svc.cluster.local:8082
+            service: http://10.43.100.10:8082
           - hostname: quill.${domain}
-            service: http://quill-portal.maplespike.svc.cluster.local:8080
+            service: http://10.43.100.12:8080
           - hostname: mcp.${domain}
-            service: http://quill-mcp.maplespike.svc.cluster.local:3001
+            service: http://10.43.100.11:3001
           - hostname: datafabric.${domain}
-            service: http://quill-portal.maplespike.svc.cluster.local:8080
+            service: http://10.43.100.12:8080
           - hostname: data.${domain}
-            service: http://quill-portal.maplespike.svc.cluster.local:8080
+            service: http://10.43.100.12:8080
           - service: http_status:404
     ---
     apiVersion: apps/v1
@@ -78,12 +90,28 @@ let
           labels:
             app: cloudflared
         spec:
+          # dnsPolicy intentionally defaults to ClusterFirst so CoreDNS
+          # resolves in-cluster upstreams (*.svc.cluster.local -> A record).
+          # The api.cloudflare.com A-record-stripping bug in Tailscale
+          # MagicDNS upstream is sidestepped entirely by --edge-ip-version 4
+          # below — Go uses a compiled-in list of Cloudflare IPv4 edge IPs
+          # for tunnel-edge dialing, not DNS, so the bogus AAAA-only
+          # response from the local upstream resolver is irrelevant here.
+          # Verified TCP 7844 / UDP 7844 reachable to 198.41.0.0/16 from nexus.
           containers:
           - name: cloudflared
-            image: cloudflare/cloudflared:2026.7.0
+            image: cloudflare/cloudflared:2026.7.1
+            # --edge-ip-version 4 forces IPv4-only tunnel-edge dialing.
+            # Without it, Go's resolver prefers IPv6 when AAAA is returned,
+            # but the pod network (cluster-cidr 10.42.0.0/16) is IPv4-only
+            # so IPv6 dials get blackholed. TCP/UDP 7844 to 198.41.0.0/16
+            # verified reachable from nexus. Surviving cluster restart:
+            # 2026-07-12 recovery from 530/1033.
             args:
             - tunnel
             - --no-autoupdate
+            - --edge-ip-version
+            - "4"
             - --metrics
             - 0.0.0.0:2000
             - --config
@@ -97,11 +125,11 @@ let
               periodSeconds: 30
             resources:
               limits:
+                cpu: 500m
+                memory: 256Mi
+              requests:
                 cpu: 100m
                 memory: 128Mi
-              requests:
-                cpu: 25m
-                memory: 64Mi
             volumeMounts:
             - name: creds
               mountPath: /etc/cloudflared/credentials.json
@@ -139,7 +167,7 @@ let
           containers:
           - name: api
             image: ${apiImage}
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             ports:
             - containerPort: 8082
             env:
@@ -152,6 +180,34 @@ let
                 secretKeyRef:
                   name: quill-runtime-secrets
                   key: jwt-secret
+                  optional: true
+            # Stripe monetization — secret + webhook signing keys. All read
+            # from the `maplespike-stripe-secrets` K8s Secret, itself populated
+            # by scripts/sops-sync-k8s.sh from quill/secrets/runtime.yaml.
+            # RESTRICTED to api-server only (mcp + portal do not need keys).
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-stripe-secrets
+                  key: stripe-secret-key
+                  optional: true
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-stripe-secrets
+                  key: stripe-webhook-secret
+                  optional: true
+            - name: STRIPE_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-stripe-secrets
+                  key: stripe-account-id
+                  optional: true
+            - name: STRIPE_PUBLISHABLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-stripe-secrets
+                  key: stripe-publishable-key
                   optional: true
             - name: PORT
               value: "8082"
@@ -199,6 +255,7 @@ let
       name: quill-api
       namespace: maplespike
     spec:
+      clusterIP: 10.43.100.10  # pinned for cloudflared ClusterIP-literal ingress
       selector:
         app: quill-api
       ports:
@@ -228,7 +285,7 @@ let
           containers:
           - name: mcp
             image: ${mcpImage}
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             ports:
             - containerPort: 3001
             env:
@@ -264,6 +321,7 @@ let
       name: quill-mcp
       namespace: maplespike
     spec:
+      clusterIP: 10.43.100.11  # pinned for cloudflared ClusterIP-literal ingress
       selector:
         app: quill-mcp
       ports:
@@ -293,7 +351,7 @@ let
           containers:
           - name: portal
             image: ${portalImage}
-            imagePullPolicy: IfNotPresent
+            imagePullPolicy: Always
             ports:
             - name: http
               containerPort: 8080
@@ -302,6 +360,8 @@ let
               value: "production"
             - name: PORT
               value: "8080"
+            - name: API_UPSTREAM
+              value: "http://quill-api:8082"
             livenessProbe:
               httpGet:
                 path: /
@@ -329,6 +389,7 @@ let
       namespace: maplespike
     spec:
       type: ClusterIP
+      clusterIP: 10.43.100.12  # pinned for cloudflared ClusterIP-literal ingress
       selector:
         app: quill-portal
       ports:
@@ -351,20 +412,20 @@ let
       ingressClassName: traefik
       tls:
       - hosts:
-        ${pkgs.lib.concatMapStringsSep "\n" (h: "        - ${h}") lanHosts}
+        ${pkgs.lib.concatMapStringsSep "\n    " (h: "  - ${h}") lanHosts}
         secretName: maplespike-lan-tls
       rules:
-      ${pkgs.lib.concatMapStringsSep "\n" (h: ''
+      ${pkgs.lib.concatMapStringsSep "\n  " (h: ''
         - host: ${h}
-          http:
-            paths:
-            - path: /
-              pathType: Prefix
-              backend:
-                service:
-                  name: ${if (pkgs.lib.hasPrefix "mcp" h) then "quill-mcp" else if (pkgs.lib.hasPrefix "api" h) then "quill-api" else "quill-portal"}
-                  port:
-                    number: ${toString (if (pkgs.lib.hasPrefix "mcp" h) then 3001 else if (pkgs.lib.hasPrefix "api" h) then 8082 else 8080)}
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: ${if (pkgs.lib.hasPrefix "mcp" h) then "quill-mcp" else if (pkgs.lib.hasPrefix "api" h) then "quill-api" else "quill-portal"}
+                    port:
+                      number: ${toString (if (pkgs.lib.hasPrefix "mcp" h) then 3001 else if (pkgs.lib.hasPrefix "api" h) then 8082 else 8080)}
       '') lanHosts}
   '';
 
