@@ -87,7 +87,7 @@ services:
       # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
       API_UPSTREAM: http://quill-api:8082
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8080/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\" || exit 1"]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/')\" || exit 1"]
       interval: 20s
       timeout: 5s
       retries: 5
