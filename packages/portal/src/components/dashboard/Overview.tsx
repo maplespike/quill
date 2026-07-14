@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function DashboardOverview({ lang: propLang }: Props) {
-  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const lang = propLang || (typeof window !== "undefined" ? ((window as unknown as Record<string, string>).__LANG as Locale || "en") : "en");
   const i18n = createI18n(lang);
   const [health, setHealth] = useState<{
     service: string;
@@ -35,19 +35,19 @@ export default function DashboardOverview({ lang: propLang }: Props) {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 stagger-children">
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>{i18n.t('nav.api')}</CardDescription>
           <CardTitle className="text-3xl">{health?.service || "—"}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {i18n.t('changelog.version', { version: health?.version || "—" })}
+            {i18n.t('changelog.version').replace('{version}', health?.version || "—")}
           </p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>{i18n.t('nav.docs')}</CardDescription>
           <CardTitle className="text-3xl">
@@ -56,11 +56,11 @@ export default function DashboardOverview({ lang: propLang }: Props) {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {i18n.t('billing.plan.free')}{health?.tier || "free"}
+            {i18n.t('billing.plan.free')} {health?.tier || "free"}
           </p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>{i18n.t('dashboard.stats.queries')}</CardDescription>
           <CardTitle className="text-3xl">
@@ -71,7 +71,7 @@ export default function DashboardOverview({ lang: propLang }: Props) {
           <p className="text-sm text-muted-foreground">{i18n.t('dashboard.stats.queries')}</p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>{i18n.t('billing.monthly')}</CardDescription>
           <CardTitle className="text-3xl">

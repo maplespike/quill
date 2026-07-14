@@ -77,6 +77,14 @@
   --sidebar-accent-foreground: 0 72% 35%;
   --sidebar-border: 0 0% 89.8%;
   --sidebar-ring: 191 96% 42%;
+
+  /* Motion tokens — synced with DESIGN.md motion.ease-* */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Stagger base delay */
+  --stagger-delay: 60ms;
 }
 
 .dark {
@@ -164,7 +172,7 @@ body {
   background-clip: content-box;
 }
 
-/* ---- Brand utilities ---- */
+/* ── Brand utilities ─────────────────────────────────────────────── */
 
 /* Gradient text emphasis — Maple red → warm ember */
 .text-gradient {
@@ -195,7 +203,7 @@ body {
   -webkit-mask-image: radial-gradient(
     ellipse 80% 60% at 50% 0%,
     #000 40%,
-      transparent 100%
+    transparent 100%
   );
   mask-image: radial-gradient(
     ellipse 80% 60% at 50% 0%,
@@ -228,17 +236,13 @@ body {
     );
 }
 
-/* Card hover lift — use on interactive cards */
-.card-hover {
-  transition:
-    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-.card-hover:hover {
-  transform: translateY(-3px);
-  border-color: hsl(var(--primary) / 0.45);
-  box-shadow: 0 12px 40px -16px hsl(var(--primary) / 0.35);
+/* Landing page aurora background — scoped to .quill-landing-bg so it only
+   applies to the landing page and does not leak into other pages. */
+.quill-landing-bg {
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% -10%, rgba(232, 69, 69, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 30%, rgba(56, 189, 248, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 70%, rgba(168, 85, 247, 0.10) 0%, transparent 60%);
 }
 
 /* Primary CTA with a live Maple sheen */
@@ -260,6 +264,107 @@ body {
   box-shadow: 0 10px 30px -10px hsl(var(--primary) / 0.6);
 }
 
+/* ── Motion utilities ────────────────────────────────────────────── */
+
+/* GPU-only transition helper. Use for hover/focus states that should
+   stay on the compositor. */
+.gpu-transition {
+  transition: transform 0.25s var(--ease-out), opacity 0.25s var(--ease-out);
+  will-change: transform, opacity;
+}
+
+/* Press feedback — subtle scale on active, per emil-design-eng / apple-design */
+.press-feedback {
+  transition: transform 160ms var(--ease-out);
+}
+.press-feedback:active {
+  transform: scale(0.97);
+}
+
+/* Card hover lift — use on interactive cards.
+   Only transform is GPU-composited; border-color/box-shadow are kept for
+   subtle polish and are gated behind fine-pointer hover media. */
+.card-hover {
+  transition:
+    transform 0.25s var(--ease-out),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+  will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-hover:hover {
+    transform: translateY(-3px);
+    border-color: hsl(var(--primary) / 0.45);
+    box-shadow: 0 12px 40px -16px hsl(var(--primary) / 0.35);
+  }
+}
+
+/* Reveal-on-scroll: elements start slightly lower/transparent and animate in */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Clip-path reveal — hardware-accelerated wipe from bottom to top */
+.clip-reveal {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.4s var(--ease-out);
+}
+.clip-reveal.is-visible {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Stagger children — apply to a parent; children get a fade/slide entrance.
+   Delays follow the 30–80ms rule from the animation standards. */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: staggerIn 0.3s var(--ease-out) forwards;
+  animation-delay: calc(var(--stagger-index, 0) * var(--stagger-delay));
+}
+.stagger-children > *:nth-child(1) { --stagger-index: 0; }
+.stagger-children > *:nth-child(2) { --stagger-index: 1; }
+.stagger-children > *:nth-child(3) { --stagger-index: 2; }
+.stagger-children > *:nth-child(4) { --stagger-index: 3; }
+.stagger-children > *:nth-child(5) { --stagger-index: 4; }
+.stagger-children > *:nth-child(6) { --stagger-index: 5; }
+.stagger-children > *:nth-child(7) { --stagger-index: 6; }
+.stagger-children > *:nth-child(8) { --stagger-index: 7; }
+
+@keyframes staggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer loading effect */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted) / 0.3) 25%,
+    hsl(var(--muted) / 0.6) 50%,
+    hsl(var(--muted) / 0.3) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -267,16 +372,25 @@ body {
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
-}
 
-/* Infinite horizontal ticker scroll */
-@keyframes scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  /* Keep opacity cross-fades for comprehension, drop transform motion */
+  .reveal-on-scroll,
+  .clip-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: inset(0 0 0 0) !important;
+  }
+
+  .stagger-children > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
 }
 
 /* ── Agent Chat styles ─────────────────────────────────────────────── */
@@ -292,12 +406,14 @@ body {
   border: 1px solid hsl(var(--border));
   color: hsl(var(--muted-foreground));
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
-.suggestion-chip:hover {
-  border-color: hsl(var(--primary));
-  color: hsl(var(--foreground));
-  background: hsl(var(--primary) / 0.1);
+@media (hover: hover) and (pointer: fine) {
+  .suggestion-chip:hover {
+    border-color: hsl(var(--primary));
+    color: hsl(var(--foreground));
+    background: hsl(var(--primary) / 0.1);
+  }
 }
 
 .chat-message {
@@ -386,6 +502,12 @@ body {
   }
 }
 
+/* Infinite horizontal ticker scroll */
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* ── 2026-07-06: brand landing tokens (Landing.tsx ships from /islands) ────────
    Maplespike-brand live at maplespike.ca uses these tokens. Landing.tsx is
    the source-of-truth canonical Landing for the MapleSpike brand experience;
@@ -423,15 +545,6 @@ body {
   --parchment: #f8fafc;
   --parchment-foreground: #0a0e17;
   --hero-min-height: 100vh;
-}
-
-@layer base {
-  html, body {
-    background-image:
-      radial-gradient(ellipse 60% 50% at 50% -10%, rgba(232, 69, 69, 0.15) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 90% 30%, rgba(56, 189, 248, 0.10) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 10% 70%, rgba(168, 85, 247, 0.10) 0%, transparent 60%);
-  }
 }
 
 @layer utilities {
