@@ -101,3 +101,33 @@ jobs:
             process.exit(0);
           "
         working-directory: packages/pipeline-core
+
+  api-and-mcp-validation:
+    runs-on: [self-hosted, nixos]
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck api-server
+        run: pnpm --filter @maplespike/api-server typecheck
+
+      - name: Typecheck quill-mcp
+        run: pnpm --filter @maplespike/quill-mcp typecheck
+
+      - name: Lint api-server
+        run: pnpm --filter @maplespike/api-server lint
+
+      - name: Lint quill-mcp
+        run: pnpm --filter @maplespike/quill-mcp lint
+
+      - name: Build api-server + quill-mcp
+        run: |
+          pnpm --filter @maplespike/api-server build
+          pnpm --filter @maplespike/quill-mcp build
+
+      - name: Run api-server unit tests
+        run: pnpm --filter @maplespike/api-server test:unit
+
+      - name: Run quill-mcp unit tests
+        run: pnpm --filter @maplespike/quill-mcp test:unit

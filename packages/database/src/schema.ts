@@ -489,6 +489,13 @@ export const users = sqliteTable(
     quotaCredits: integer("quota_credits").notNull().default(1000),
     quotaResetAt: integer("quota_reset_at").notNull().default(sql`(strftime('%s', 'now'))`),
     subscriptionStatus: text("subscription_status").notNull().default("active"), // active, cancelled, past_due
+    // ── Stripe additions (nullable; only populated after webhook settlement) ──
+    // Per ADR-0002 PII avoidance: we never store the Stripe Customer email here;
+    // customer-side identity lives in the Stripe dashboard. We only store opaque IDs.
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    stripeSubscriptionStatus: text("stripe_subscription_status"), // mirrors Stripe: active, trialing, past_due, canceled, unpaid, incomplete, incomplete_expired
+    stripeCurrentPeriodEnd: integer("stripe_current_period_end"), // unix seconds; used to gate tier expiry
     createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
     updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
   }
@@ -518,11 +525,15 @@ export const orders = sqliteTable(
     planId: text("plan_id").notNull(),
     amountCents: integer("amount_cents").notNull(),
     currency: text("currency").notNull().default("CAD"),
-    paymentMethod: text("payment_method").notNull().default("etransfer"), // etransfer, crypto
+    paymentMethod: text("payment_method").notNull().default("etransfer"), // etransfer, stripe, crypto
     status: text("status").notNull().default("pending"), // pending, paid, expired, cancelled
     expiresAt: integer("expires_at").notNull(),
     createdAt: integer("created_at").notNull().default(sql`(strftime('%s', 'now'))`),
     paidAt: integer("paid_at"),
+    // Stripe linkage (nullable; only set when paymentMethod='stripe')
+    stripeCheckoutSessionId: text("stripe_checkout_session_id"),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
   }
 );
 

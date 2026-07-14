@@ -199,7 +199,7 @@ spec:
     spec:
       containers:
       - name: tester
-        image: ghcr.io/reverb256/quill-mcp:dev
+        image: nexus:5000/quill-mcp:dev
         command: ["node", "--test", "packages/quill-mcp/src/sse-protocol.test.ts"]
         env:
         - name: PORT

@@ -10,6 +10,9 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "lint": "eslint src",
+    "lint:strict": "eslint src --max-warnings=0",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "start": "node dist/cli.js",
     "start:sse": "node dist/index.js",

@@ -26,6 +26,19 @@ export interface Tenant {
   tier: Tier;
   isActive: boolean;
   journalismMode: boolean;
+  /**
+   * Stripe-side linkage (post-checkout only). All nullable so that free-tier
+   * tenants created before Stripe integration don't carry dead columns.
+   * These are loaded by the QuillStorage.authenticate() call so handlers can
+   * assume they're current (within the request's read-after-write window).
+   */
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'incomplete' | 'incomplete_expired' | 'paused';
+  /**
+   * Unix-seconds. Used to gate tier expiry on next request.
+   */
+  stripeCurrentPeriodEnd?: number;
 }
 
 export interface ApiKeyRecord {
@@ -219,6 +232,112 @@ export interface RouteContext {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Stripe billing state (orders + tenant billing linkage)             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Persisted Stripe order. Survives pod restart (unlike the previous
+ * in-memory `Map<string, StripeOrder>`). All fields except the immutable
+ * primary keys are nullable so the table can grow without breaking the
+ * pre-Stripe-era schema.
+ */
+export interface StripeOrder {
+  order_id: string;
+  tenant_id: string;
+  plan_id: 'free' | 'pro' | 'business';
+  amount_cents: number;
+  currency: string;
+  /**
+   * Bind to Stripe Checkout Session. UNIQUE — first writer wins, second
+   * writer's webhook delivery becomes a no-op (idempotent via UPSERT).
+   */
+  stripe_checkout_session_id: string;
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+  /** Order lifecycle. Mirrors orders.status in schema.ts. */
+  status: 'pending' | 'paid' | 'expired' | 'cancelled' | 'fulfilled';
+  /** Unix seconds. */
+  created_at: number;
+  expires_at: number;
+  paid_at?: number;
+  fulfilled_at?: number;
+  cancelled_at?: number;
+}
+
+export interface StripeOrderInsert {
+  order_id: string;
+  tenant_id: string;
+  plan_id: 'free' | 'pro' | 'business';
+  amount_cents: number;
+  currency: string;
+  stripe_checkout_session_id: string;
+  status: 'pending' | 'paid' | 'expired' | 'cancelled' | 'fulfilled';
+  expires_at: number;
+}
+
+export interface StripeOrderUpdates {
+  status?: StripeOrder['status'];
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+  paid_at?: number;
+  fulfilled_at?: number;
+  cancelled_at?: number;
+}
+
+export interface TenantStripeUpdates {
+  /** Tier is the canonical plan — writing 'pro' here upgrades a tenant. */
+  tier?: Tier;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripeSubscriptionStatus?: Tenant['stripeSubscriptionStatus'];
+  /** Unix-seconds. */
+  stripeCurrentPeriodEnd?: number;
+}
+
+/**
+ * AUDIT-LOG-3 — durable payment reconciliation row. INSERT into the
+ * payment_reconciliations table on every Stripe webhook receipt, before
+ * handler dispatch. UNIQUE(transaction_uid) provides idempotency at the
+ * DB layer: a Stripe retry on 5xx lands as a no-op (existing row wins).
+ * channel='stripe' here; the same shape supports interac_webhook / plaid_ca
+ * when those streams are introduced.
+ */
+export type PaymentChannel = 'stripe' | 'interac_webhook' | 'plaid_ca';
+
+export interface PaymentReconciliation {
+  /** Auto-incremented primary key. Set on the read path. */
+  id?: number;
+  /** Stripe event id, e-Transfer IMAP UID, or Plaid transaction id. */
+  transactionUid: string;
+  orderId?: string;
+  amountCents?: number;
+  /** Provider reference (Stripe Checkout Session id, e-Transfer tx id, etc). */
+  reference?: string;
+  channel: PaymentChannel;
+  /** Unix-seconds when the row was written. */
+  processedAt?: number;
+}
+
+export interface PaymentReconciliationInsert {
+  transactionUid: string;
+  orderId?: string;
+  amountCents?: number;
+  reference?: string;
+  channel: PaymentChannel;
+}
+
+/**
+ * STRIPE-1 — record returned by reconciliation sweep. Each entry is a
+ * tenant whose current subscription period has expired and whose tier
+ * must be downgraded. Auto-collected so the cron route has zero allocations.
+ */
+export interface ExpiringTier {
+  tenant_id: string;
+  stripe_current_period_end: number;
+  tier: 'free' | 'pro' | 'business' | 'enterprise' | 'internal';
+}
+
+/* ------------------------------------------------------------------ */
 /*  Storage Abstraction (D1 / local)                                   */
 /* ------------------------------------------------------------------ */
 
@@ -237,6 +356,35 @@ export interface QuillStorage {
   queryAudit(filter: AuditQueryParams): Promise<AuditEntry[]>;
   /** List API keys for a tenant. Returns key metadata (not the raw key/hash). */
   listApiKeys(tenantId: string): Promise<Array<{ id: string; name: string; isActive: boolean; createdAt: string; lastUsedAt: string | null }>>;
+
+  /* ─── Stripe billing persistence (Phase 1: replaces in-memory Maps) ─── */
+  /** Insert a new Stripe order. Throws on UNIQUE(stripe_checkout_session_id) violation. */
+  createStripeOrder(order: StripeOrderInsert): Promise<void>;
+  /** Look up a Stripe order by its opaque order_id. */
+  getStripeOrderById(orderId: string): Promise<StripeOrder | null>;
+  /** Look up a Stripe order by Stripe Checkout Session id. The dedupe key for Stripe webhook retries. */
+  getStripeOrderBySessionId(sessionId: string): Promise<StripeOrder | null>;
+  /** Patch an existing Stripe order (caller passes only changed fields). */
+  updateStripeOrder(orderId: string, updates: StripeOrderUpdates): Promise<void>;
+  /**
+   * Atomically upsert tenant's Stripe billing linkage. Used by webhook to
+   * promote a tenant's tier after a Stripe event. Tier writes also persist
+   * to tenants.tier so subsequent authenticated requests reflect the
+   * upgrade without consulting an in-memory cache.
+   */
+  updateTenantStripe(tenantId: string, updates: TenantStripeUpdates): Promise<void>;
+  /** Look up a tenant's Stripe customer id (cross-tenant defense-in-depth check in authorizeEvent). */
+  getTenantStripeCustomerId(tenantId: string): Promise<string | null>;
+
+  /* ── AUDIT-LOG-3: payment_reconciliations persistence ── */
+  /** Insert a payment reconciliation row. Throws on UNIQUE(transactionUid) violation. */
+  createPaymentReconciliation(rec: PaymentReconciliationInsert): Promise<void>;
+  /** Most-recent reconciliation rows for diagnostics. */
+  getPaymentReconciliations(limit?: number): Promise<PaymentReconciliation[]>;
+
+  /* ── STRIPE-1: tier-expiry sweep for cron reconciler ── */
+  /** Tenants whose stripe_current_period_end is past AND tier is non-free. */
+  findTenantsForTierExpiry(nowUnix: number): Promise<ExpiringTier[]>;
 }
 
 export interface QuillCache {

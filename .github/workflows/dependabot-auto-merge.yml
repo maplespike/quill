@@ -18,12 +18,42 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Wait for CI checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
-          running-workflow-name: "Dependabot Auto-Merge"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          # Hardcoded display name (NOT `github.workflow`, which resolves to
+          # the workflow FILE basename — `gh pr checks --json name` returns the
+          # DISPLAY name, so only the literal matches).
+          WORKFLOW_NAME: "Dependabot Auto-Merge"
+        run: |
+          # Native replacement for the unmaintained lewagon/wait-on-check-action.
+          # Polls `gh pr checks` until every required check reports success.
+          # Inline `--jq` (with `--arg wf`) keeps a single gh invocation per
+          # check so we don't depend on shell-quoted NDJSON handling.
+          echo "Waiting for CI checks on SHA $PR_SHA…"
+          for i in $(seq 1 60); do
+            # Capture inline; pipe through `jq` so we keep stable flag-parsing
+            # semantics and avoid gh-cli quirks around `--jq` + `--arg`.
+            CHECKS=$(gh pr checks "$PR_SHA" --json name,bucket 2>/dev/null || echo '[]')
+            PENDING=$(jq --arg wf "$WORKFLOW_NAME" \
+              '[.[] | select(.bucket == "pending" and .name != $wf)] | length' \
+              <<<"$CHECKS")
+            FAILURES=$(jq --arg wf "$WORKFLOW_NAME" \
+              '[.[] | select(.bucket == "fail" and .name != $wf)] | length' \
+              <<<"$CHECKS")
+            if [ "$FAILURES" -gt 0 ]; then
+              echo "::error::A required check failed before timeout."
+              exit 1
+            fi
+            if [ "$PENDING" -eq 0 ]; then
+              echo "All required checks passed."
+              exit 0
+            fi
+            echo "($i/60) $PENDING checks still pending…"
+            sleep 30
+          done
+          echo "::error::Timed out waiting for CI after 30 minutes."
+          exit 1
 
       - name: Enable auto-merge
         env:

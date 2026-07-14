@@ -21,6 +21,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "tsx": "^4.22.5"
+    "tsx": "^4.22.5",
+    "@types/node": "^22.19.19"
   }
 }

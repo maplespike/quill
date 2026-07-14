@@ -44,6 +44,13 @@ export interface JwtPayload {
   exp: number;
 }
 
+export interface TokenOptions {
+  secret?: string;
+  expiresIn?: number;
+  issuer?: string;
+  audience?: string;
+}
+
 export interface JwtResult {
   payload: JwtPayload;
   token: string;
@@ -109,17 +116,29 @@ const HEADER = base64UrlEncode(
  * Create a signed JWT token.
  * @param payload - Claims to embed (sub, email, tier)
  * @param secret - HMAC secret (defaults to JWT_SECRET env var)
- * @param expiresIn - Expiry in seconds (default: 7 days)
+ * @param options - Expiry in seconds (default: 7 days) or TokenOptions for issuer/audience overrides
  */
 export function generateToken(
   payload: { sub: string; email?: string; tier: string },
   secret?: string,
-  expiresIn: number = DEFAULT_EXPIRY,
+  options: number | TokenOptions = DEFAULT_EXPIRY,
 ): string {
   // Accept (payload, expiresIn) or (payload, secret, expiresIn) signatures
   if (typeof secret === 'number') {
-    expiresIn = secret;
+    options = secret;
     secret = undefined;
+  }
+
+  let expiresIn: number;
+  let issuer = JWT_ISSUER;
+  let audience = JWT_AUDIENCE;
+
+  if (typeof options === 'number') {
+    expiresIn = options;
+  } else {
+    expiresIn = options.expiresIn ?? DEFAULT_EXPIRY;
+    issuer = options.issuer ?? JWT_ISSUER;
+    audience = options.audience ?? JWT_AUDIENCE;
   }
 
   const now = Math.floor(Date.now() / 1000);
@@ -127,8 +146,8 @@ export function generateToken(
     sub: payload.sub,
     email: payload.email,
     tier: payload.tier,
-    iss: JWT_ISSUER,
-    aud: JWT_AUDIENCE,
+    iss: issuer,
+    aud: audience,
     iat: now,
     exp: now + expiresIn,
   };
@@ -141,15 +160,41 @@ export function generateToken(
   return `${HEADER}.${encodedPayload}.${signature}`;
 }
 
+export interface VerifyTokenOptions {
+  secret?: string;
+  issuer?: string;
+  audience?: string;
+}
+
 /**
  * Verify and decode a JWT token.
  * Returns the JwtPayload if valid, null otherwise.
+ *
+ * By default validates issuer/audience against the configured defaults.
+ * Pass `issuer`/`audience` to override (used for internal service tokens).
  */
-export function verifyToken(token: string, secret?: string): JwtPayload | null {
+export function verifyToken(token: string, secret?: string): JwtPayload | null;
+export function verifyToken(token: string, options?: VerifyTokenOptions): JwtPayload | null;
+export function verifyToken(
+  token: string,
+  secretOrOptions?: string | VerifyTokenOptions,
+): JwtPayload | null {
   const parts = token.split('.');
   if (parts.length !== 3) return null;
 
   const [header, payload, signature] = parts;
+
+  let secret: string | undefined;
+  let expectedIssuer = JWT_ISSUER;
+  let expectedAudience = JWT_AUDIENCE;
+
+  if (typeof secretOrOptions === 'string') {
+    secret = secretOrOptions;
+  } else if (secretOrOptions) {
+    secret = secretOrOptions.secret;
+    if (secretOrOptions.issuer !== undefined) expectedIssuer = secretOrOptions.issuer;
+    if (secretOrOptions.audience !== undefined) expectedAudience = secretOrOptions.audience;
+  }
 
   // Verify header is correct (HS256)
   try {
@@ -182,8 +227,8 @@ export function verifyToken(token: string, secret?: string): JwtPayload | null {
     if (!decoded.sub) return null;
 
     // Validate issuer and audience to prevent cross-system token acceptance
-    if (decoded.iss && decoded.iss !== JWT_ISSUER) return null;
-    if (decoded.aud && decoded.aud !== JWT_AUDIENCE) return null;
+    if (decoded.iss && decoded.iss !== expectedIssuer) return null;
+    if (decoded.aud && decoded.aud !== expectedAudience) return null;
 
     return decoded;
   } catch {

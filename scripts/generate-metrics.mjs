@@ -32,20 +32,50 @@ const ingestionDirs = readdirSync(ingestionDir, { withFileTypes: true })
   .length;
 
 // ── 3. MCP tool definitions ──────────────────────────────────
-const toolsGlob = 'packages/quill-mcp/src/tools/*.ts';
-const mcpToolResult = run(
-  `grep -rl 'export const.*definition' ${toolsGlob} | grep -v 'index.ts\\|types.ts\\|api-client.ts' | wc -l`
-);
-const mcpToolCount = parseInt(mcpToolResult, 10);
-
+// 2026-07-10: replaced the old grep-based counting with a text parse of the
+// getAllTools() array literal + adapter spreads. The previous strategy
+// (`grep -rl 'export const.*definition' packages/.../tools/*.ts | wc -l`)
+// undercounted: multi-export adapter files (worldbank-wdi-modules.js,
+// un-comtrade-modules.js) declare a single `definition` export but expose
+// multiple tools, so the file count does not match the runtime
+// registration. Runtime is what the user actually calls against.
 const toolsIndexPath = join(ROOT, 'packages/quill-mcp/src/tools/index.ts');
 const toolsIndexContent = readFileSync(toolsIndexPath, 'utf-8');
-const toolImports = [...toolsIndexContent.matchAll(/from '\.\/([^']+)'/g)]
-  .map(m => m[1])
-  .filter(name => name !== 'types.js');
-const mcpToolDesc = mcpToolCount === toolImports.length
-  ? `${mcpToolCount} MCP tool definitions registered in tools/index.ts`
-  : `${mcpToolCount} tool definition files, ${toolImports.length} registered in tools/index.ts`;
+
+function countIdentifierLines(body) {
+  let n = 0;
+  for (const line of body.split('\n')) {
+    const t = line.trim();
+    if (!t || t.startsWith('//') || t.startsWith('/*') || t.startsWith('*')) continue;
+    if (t.startsWith('...')) continue; // spreads handled at call sites
+    if (/^[a-zA-Z_]\w*(?:\.\w+)?,?$/.test(t)) n++;
+  }
+  return n;
+}
+
+const wrapStart = toolsIndexContent.indexOf('return wrapTools([');
+const wrapEnd = wrapStart > -1 ? toolsIndexContent.indexOf(']);', wrapStart) : -1;
+let getAllToolsCount = 0;
+if (wrapStart > -1 && wrapEnd > -1) {
+  getAllToolsCount = countIdentifierLines(
+    toolsIndexContent.substring(wrapStart, wrapEnd)
+  );
+}
+
+const wdiMatch = toolsIndexContent.match(/const wdiModules = \[([\s\S]*?)\];/);
+const comtradeMatch = toolsIndexContent.match(
+  /const comtradeModules = \[([\s\S]*?)\];/
+);
+const wdiCount = wdiMatch ? countIdentifierLines(wdiMatch[1]) : 0;
+const comtradeCount = comtradeMatch
+  ? countIdentifierLines(comtradeMatch[1])
+  : 0;
+
+const mcpToolCount = getAllToolsCount + wdiCount + comtradeCount;
+const mcpToolDesc =
+  `${getAllToolsCount} single-tool entries in getAllTools() + ${wdiCount} WDI adapter ` +
+  `+ ${comtradeCount} Comtrade adapter = ${mcpToolCount} total tools registered at runtime ` +
+  `(matches server.getToolCount() at startup in quill-mcp/src/cli.ts:269)`;
 
 // ── 4. Detect packages ───────────────────────────────────────
 const packagesDir = join(ROOT, 'packages');

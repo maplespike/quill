@@ -43,8 +43,8 @@ Or manually:
 ```bash
 nix build .#quill-api-image -L
 podman load < result
-podman tag quill-api:latest ghcr.io/reverb256/quill/quill-api:dev
-podman push ghcr.io/reverb256/quill/quill-api:dev
+podman tag quill-api:latest nexus:5000/quill-api:dev
+podman push nexus:5000/quill-api:dev
 ```
 
 ## CI/CD

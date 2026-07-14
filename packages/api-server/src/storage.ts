@@ -5,7 +5,7 @@
  * of the QuillStorage interface.
  */
 
-import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams } from './types.js';
+import type { QuillStorage, QuillCache, Tenant, AuditEntry, AuditQueryParams, StripeOrder, StripeOrderInsert, StripeOrderUpdates, TenantStripeUpdates, PaymentReconciliation, PaymentReconciliationInsert, ExpiringTier } from './types.js';
 import { hashApiKey } from './auth.js';
 import type { Env } from './types.js';
 
@@ -25,6 +25,8 @@ export class D1Storage implements QuillStorage {
 
     const row = await this.db.prepare(`
       SELECT t.id AS tenant_id, t.name, t.email_hash, t.email_verified, t.tier, t.is_active, t.journalism_mode,
+             t.stripe_customer_id, t.stripe_subscription_id, t.stripe_subscription_status,
+             t.stripe_current_period_end,
              k.id AS key_id, k.is_active AS key_active, k.expires_at
       FROM api_keys k
       JOIN tenants t ON t.id = k.tenant_id
@@ -52,6 +54,11 @@ export class D1Storage implements QuillStorage {
         tier: row.tier as Tenant['tier'],
         isActive: Boolean(row.is_active),
         journalismMode: Boolean(row.journalism_mode),
+        stripeCustomerId: (row.stripe_customer_id as string | null) ?? undefined,
+        stripeSubscriptionId: (row.stripe_subscription_id as string | null) ?? undefined,
+        stripeSubscriptionStatus:
+          (row.stripe_subscription_status as Tenant['stripeSubscriptionStatus']) ?? undefined,
+        stripeCurrentPeriodEnd: (row.stripe_current_period_end as number | null) ?? undefined,
       },
       apiKeyId: row.key_id as string,
     };
@@ -146,6 +153,139 @@ export class D1Storage implements QuillStorage {
       lastUsedAt: row.last_used_at,
     }));
   }
+
+  /* ── Stripe billing persistence (D1) ───────────────────────────────── */
+
+  async createStripeOrder(order: StripeOrderInsert): Promise<void> {
+    await this.db.prepare(`
+      INSERT INTO stripe_orders (
+        order_id, tenant_id, plan_id, amount_cents, currency,
+        stripe_checkout_session_id, status, created_at, expires_at
+      ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, unixepoch(), ?8)
+    `).bind(
+      order.order_id,
+      order.tenant_id,
+      order.plan_id,
+      order.amount_cents,
+      order.currency,
+      order.stripe_checkout_session_id,
+      order.status,
+      order.expires_at,
+    ).run();
+  }
+
+  async getStripeOrderById(orderId: string): Promise<StripeOrder | null> {
+    const row = await this.db.prepare('SELECT * FROM stripe_orders WHERE order_id = ?1')
+      .bind(orderId).first<Record<string, unknown>>();
+    return row ? this.mapStripeOrderD1(row) : null;
+  }
+
+  async getStripeOrderBySessionId(sessionId: string): Promise<StripeOrder | null> {
+    const row = await this.db.prepare('SELECT * FROM stripe_orders WHERE stripe_checkout_session_id = ?1')
+      .bind(sessionId).first<Record<string, unknown>>();
+    return row ? this.mapStripeOrderD1(row) : null;
+  }
+
+  async updateStripeOrder(orderId: string, updates: StripeOrderUpdates): Promise<void> {
+    const sets: string[] = [];
+    const args: unknown[] = [];
+    if (updates.status !== undefined) { sets.push('status = ?' + (args.push(updates.status) + 1)); }
+    if (updates.stripe_customer_id !== undefined) { sets.push('stripe_customer_id = ?' + (args.push(updates.stripe_customer_id) + 1)); }
+    if (updates.stripe_subscription_id !== undefined) { sets.push('stripe_subscription_id = ?' + (args.push(updates.stripe_subscription_id) + 1)); }
+    if (updates.paid_at !== undefined) { sets.push('paid_at = ?' + (args.push(updates.paid_at) + 1)); }
+    if (updates.fulfilled_at !== undefined) { sets.push('fulfilled_at = ?' + (args.push(updates.fulfilled_at) + 1)); }
+    if (updates.cancelled_at !== undefined) { sets.push('cancelled_at = ?' + (args.push(updates.cancelled_at) + 1)); }
+    if (sets.length === 0) return;
+    args.push(orderId);
+    await this.db.prepare(`UPDATE stripe_orders SET ${sets.join(', ')} WHERE order_id = ?${args.length}`).bind(...args).run();
+  }
+
+  async updateTenantStripe(tenantId: string, updates: TenantStripeUpdates): Promise<void> {
+    const sets: string[] = [`stripe_updated_at = datetime('now')`];
+    const args: unknown[] = [];
+    if (updates.tier !== undefined) { sets.push('tier = ?' + (args.push(updates.tier) + 1)); }
+    if (updates.stripeCustomerId !== undefined) { sets.push('stripe_customer_id = ?' + (args.push(updates.stripeCustomerId) + 1)); }
+    if (updates.stripeSubscriptionId !== undefined) { sets.push('stripe_subscription_id = ?' + (args.push(updates.stripeSubscriptionId) + 1)); }
+    if (updates.stripeSubscriptionStatus !== undefined) { sets.push('stripe_subscription_status = ?' + (args.push(updates.stripeSubscriptionStatus) + 1)); }
+    if (updates.stripeCurrentPeriodEnd !== undefined) { sets.push('stripe_current_period_end = ?' + (args.push(updates.stripeCurrentPeriodEnd) + 1)); }
+    args.push(tenantId);
+    await this.db.prepare(`UPDATE tenants SET ${sets.join(', ')} WHERE id = ?${args.length}`).bind(...args).run();
+  }
+
+  async getTenantStripeCustomerId(tenantId: string): Promise<string | null> {
+    const row = await this.db.prepare('SELECT stripe_customer_id FROM tenants WHERE id = ?1')
+      .bind(tenantId).first<{ stripe_customer_id: string | null }>();
+    return row?.stripe_customer_id ?? null;
+  }
+
+  /** D1 sqlite row → StripeOrder canonicalisation */
+  private mapStripeOrderD1(row: Record<string, unknown>): StripeOrder {
+    return {
+      order_id: row.order_id as string,
+      tenant_id: row.tenant_id as string,
+      plan_id: row.plan_id as StripeOrder['plan_id'],
+      amount_cents: row.amount_cents as number,
+      currency: row.currency as string,
+      stripe_checkout_session_id: row.stripe_checkout_session_id as string,
+      stripe_customer_id: (row.stripe_customer_id as string | null) ?? undefined,
+      stripe_subscription_id: (row.stripe_subscription_id as string | null) ?? undefined,
+      status: row.status as StripeOrder['status'],
+      created_at: row.created_at as number,
+      expires_at: row.expires_at as number,
+      paid_at: (row.paid_at as number | null) ?? undefined,
+      fulfilled_at: (row.fulfilled_at as number | null) ?? undefined,
+      cancelled_at: (row.cancelled_at as number | null) ?? undefined,
+    };
+  }
+
+  /* ── AUDIT-LOG-3 + STRIPE-1 (D1) ── */
+
+  async ensureReconciliationsSchema(): Promise<void> {
+    await this.db.prepare(`
+      CREATE TABLE IF NOT EXISTS payment_reconciliations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        transaction_uid TEXT NOT NULL UNIQUE,
+        order_id TEXT,
+        amount_cents INTEGER,
+        reference TEXT,
+        channel TEXT NOT NULL DEFAULT 'stripe',
+        processed_at INTEGER DEFAULT (unixepoch())
+      )
+    `).bind().run();
+    await this.db.prepare(`
+      CREATE INDEX IF NOT EXISTS idx_reconciliations_processed ON payment_reconciliations(processed_at DESC)
+    `).bind().run();
+  }
+
+  async createPaymentReconciliation(rec: PaymentReconciliationInsert): Promise<void> {
+    await this.ensureReconciliationsSchema();
+    await this.db.prepare(`INSERT INTO payment_reconciliations (transaction_uid, order_id, amount_cents, reference, channel) VALUES (?1, ?2, ?3, ?4, ?5)`).bind(
+      rec.transactionUid, rec.orderId ?? null, rec.amountCents ?? null, rec.reference ?? null, rec.channel,
+    ).run();
+  }
+
+  async getPaymentReconciliations(limit: number = 50): Promise<PaymentReconciliation[]> {
+    await this.ensureReconciliationsSchema();
+    const result = await this.db.prepare(`SELECT id, transaction_uid AS transactionUid, order_id AS orderId, amount_cents AS amountCents, reference, channel, processed_at AS processedAt FROM payment_reconciliations ORDER BY processed_at DESC LIMIT ?1`).bind(limit).all<Record<string, unknown>>();
+    return (result.results || []).map((r) => ({
+      id: r.id as number,
+      transactionUid: r.transactionUid as string,
+      orderId: (r.orderId as string | null) ?? undefined,
+      amountCents: (r.amountCents as number | null) ?? undefined,
+      reference: (r.reference as string | null) ?? undefined,
+      channel: r.channel as PaymentReconciliation['channel'],
+      processedAt: (r.processedAt as number | null) ?? undefined,
+    }));
+  }
+
+  async findTenantsForTierExpiry(nowUnix: number): Promise<ExpiringTier[]> {
+    const result = await this.db.prepare(`SELECT id AS tenant_id, stripe_current_period_end, tier FROM tenants WHERE stripe_current_period_end IS NOT NULL AND stripe_current_period_end < ?1 AND tier != 'free'`).bind(nowUnix).all<{ tenant_id: string; stripe_current_period_end: number; tier: string }>();
+    return (result.results || []).map((r) => ({
+      tenant_id: r.tenant_id,
+      stripe_current_period_end: r.stripe_current_period_end,
+      tier: r.tier as ExpiringTier['tier'],
+    }));
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -186,6 +326,10 @@ export class MemoryStorage implements QuillStorage {
   private dailyUsage: Map<string, number> = new Map();
   private monthlyUsage: Map<string, number> = new Map();
   private auditLog: AuditEntry[] = [];
+  // Stripe billing (in-memory). Mirrors the persistent table semantics so
+  // tests can exercise the same code paths as production.
+  private stripeOrders: Map<string, StripeOrder> = new Map();
+  private stripeOrdersBySession: Map<string, string> = new Map();
 
   constructor() {
     // No hardcoded keys — demo keys are opt-in via ALLOW_DEMO_KEYS in auth.ts
@@ -253,6 +397,95 @@ export class MemoryStorage implements QuillStorage {
       }
     }
     return keys;
+  }
+
+  /* ── Stripe billing persistence (MemoryStorage) ─────────────────── */
+
+  async createStripeOrder(order: StripeOrderInsert): Promise<void> {
+    if (this.stripeOrdersBySession.has(order.stripe_checkout_session_id)) {
+      throw new Error(
+        `UNIQUE constraint: stripe_checkout_session_id=${order.stripe_checkout_session_id} already exists`,
+      );
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const full: StripeOrder = { ...order, created_at: now };
+    this.stripeOrders.set(order.order_id, full);
+    this.stripeOrdersBySession.set(order.stripe_checkout_session_id, order.order_id);
+  }
+
+  async getStripeOrderById(orderId: string): Promise<StripeOrder | null> {
+    return this.stripeOrders.get(orderId) ?? null;
+  }
+
+  async getStripeOrderBySessionId(sessionId: string): Promise<StripeOrder | null> {
+    const orderId = this.stripeOrdersBySession.get(sessionId);
+    return orderId ? this.stripeOrders.get(orderId) ?? null : null;
+  }
+
+  async updateStripeOrder(orderId: string, updates: StripeOrderUpdates): Promise<void> {
+    const existing = this.stripeOrders.get(orderId);
+    if (!existing) return;
+    this.stripeOrders.set(orderId, { ...existing, ...updates });
+    if (updates.stripe_customer_id) {
+      // Index by customer for defensive lookups.
+      const t = this.tenants.get(existing.tenant_id);
+      if (t && !t.stripeCustomerId) {
+        this.tenants.set(existing.tenant_id, { ...t, stripeCustomerId: updates.stripe_customer_id });
+      }
+    }
+  }
+
+  async updateTenantStripe(tenantId: string, updates: TenantStripeUpdates): Promise<void> {
+    const existing = this.tenants.get(tenantId);
+    if (!existing) return;
+    this.tenants.set(tenantId, {
+      ...existing,
+      tier: updates.tier ?? existing.tier,
+      stripeCustomerId: updates.stripeCustomerId ?? existing.stripeCustomerId,
+      stripeSubscriptionId: updates.stripeSubscriptionId ?? existing.stripeSubscriptionId,
+      stripeSubscriptionStatus: updates.stripeSubscriptionStatus ?? existing.stripeSubscriptionStatus,
+      stripeCurrentPeriodEnd: updates.stripeCurrentPeriodEnd ?? existing.stripeCurrentPeriodEnd,
+    });
+  }
+
+  async getTenantStripeCustomerId(tenantId: string): Promise<string | null> {
+    return this.tenants.get(tenantId)?.stripeCustomerId ?? null;
+  }
+
+  /* ── AUDIT-LOG-3 + STRIPE-1 (MemoryStorage) ── */
+
+  private reconciliations: Map<string, PaymentReconciliation> = new Map();
+  private reconciliationsSeq: number = 1;
+
+  async createPaymentReconciliation(rec: PaymentReconciliationInsert): Promise<void> {
+    if (this.reconciliations.has(rec.transactionUid)) {
+      throw new Error(`UNIQUE constraint: payment_reconciliations.transaction_uid=${rec.transactionUid} already exists`);
+    }
+    this.reconciliations.set(rec.transactionUid, {
+      id: this.reconciliationsSeq++,
+      transactionUid: rec.transactionUid,
+      orderId: rec.orderId,
+      amountCents: rec.amountCents,
+      reference: rec.reference,
+      channel: rec.channel,
+      processedAt: Math.floor(Date.now() / 1000),
+    });
+  }
+
+  async getPaymentReconciliations(limit: number = 50): Promise<PaymentReconciliation[]> {
+    const all = [...this.reconciliations.values()];
+    all.sort((a, b) => (b.processedAt ?? 0) - (a.processedAt ?? 0));
+    return all.slice(0, limit);
+  }
+
+  async findTenantsForTierExpiry(nowUnix: number): Promise<ExpiringTier[]> {
+    const out: ExpiringTier[] = [];
+    for (const t of this.tenants.values()) {
+      if (typeof t.stripeCurrentPeriodEnd === 'number' && t.stripeCurrentPeriodEnd < nowUnix && t.tier !== 'free') {
+        out.push({ tenant_id: t.id, stripe_current_period_end: t.stripeCurrentPeriodEnd, tier: t.tier });
+      }
+    }
+    return out;
   }
 }
 

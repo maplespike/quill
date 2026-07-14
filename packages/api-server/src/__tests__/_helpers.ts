@@ -5,7 +5,8 @@
  * test setup DRY across the OAuth/auth suite.
  */
 
-import type { RouteContext, QuillCache } from '../types.js';
+import type { RouteContext, QuillCache, Tenant } from '../types.js';
+import { MemoryStorage, MemoryCache } from '../storage.js';
 
 /**
  * In-memory implementation of QuillCache for tests.
@@ -47,27 +48,37 @@ export class InMemoryCache implements QuillCache {
   }
 }
 
+const DEFAULT_TENANT: Tenant = {
+  id: 'test-tenant',
+  name: 'Test User',
+  emailVerified: true,
+  tier: 'free',
+  isActive: true,
+  journalismMode: false,
+};
+
+export interface MakeCtxOptions {
+  cache?: QuillCache;
+  db?: unknown;
+  tenant?: Partial<Tenant>;
+}
+
 /**
- * Build a minimal RouteContext for handler-level tests.
- * db is left as `{} as any` because the OAuth handlers that only need
- * cache don't actually touch db. Callers that need a real db should
- * pass it via the second argument.
+ * Build a RouteContext for handler-level tests.
+ * Defaults to a real in-memory storage/cache and a free-tier tenant.
+ * Override `tenant.tier` to test Pro/Business feature gates.
  */
-export function makeCtx(opts: { cache?: QuillCache; db?: unknown } = {}): RouteContext {
+export function makeCtx(opts: MakeCtxOptions = {}): RouteContext {
+  const tenant: Tenant = { ...DEFAULT_TENANT, ...opts.tenant };
+  const db = opts.db ?? new MemoryStorage();
+  const cache = opts.cache ?? new MemoryCache();
   return {
-    tenant: {
-      id: 'anon',
-      name: 'Anonymous',
-      emailVerified: false,
-      tier: 'free',
-      isActive: true,
-      journalismMode: false,
-    },
-    apiKeyId: '',
+    tenant,
+    apiKeyId: 'test-key-id',
     requestId: 'test-req',
     startTime: Date.now(),
     env: {},
-    db: (opts.db ?? {}) as RouteContext['db'],
-    cache: opts.cache ?? new InMemoryCache(),
+    db: db as RouteContext['db'],
+    cache,
   };
 }
