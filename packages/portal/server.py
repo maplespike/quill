@@ -21,6 +21,9 @@ API_UPSTREAM = os.environ.get("API_UPSTREAM", "http://localhost:8082")
 # Reject request/response bodies larger than this to avoid memory exhaustion.
 MAX_BODY_BYTES = int(os.environ.get("PROXY_MAX_BODY_BYTES", "1048576"))
 
+# HSTS value — single source of truth, used by both static and API responses.
+HSTS_VALUE = "max-age=63072000; includeSubDomains; preload"
+
 PORT = int(os.environ.get("PORT", "4321"))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DOCS_DIR = os.path.join(DIRECTORY, "docs")
@@ -122,7 +125,7 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         "X-Content-Type-Options": "nosniff",
         "X-Frame-Options": "DENY",
         "Referrer-Policy": "strict-origin-when-cross-origin",
-        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+        "Strict-Transport-Security": HSTS_VALUE,
         "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
     }
 
@@ -206,7 +209,9 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         for key, value in self.headers.items():
             if key.lower() not in hop_by_hop:
                 headers[key] = value
-        headers["X-Forwarded-For"] = self.client_address[0]
+        # Append to existing X-Forwarded-For chain rather than overwriting it.
+        existing_xff = self.headers.get("X-Forwarded-For")
+        headers["X-Forwarded-For"] = f"{existing_xff}, {self.client_address[0]}" if existing_xff else self.client_address[0]
         # Default to http when no proxy header is present; the ingress/TLS
         # terminator sets X-Forwarded-Proto if the request came in over HTTPS.
         headers["X-Forwarded-Proto"] = self.headers.get("X-Forwarded-Proto", "http")
@@ -229,7 +234,7 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             # the static-site CSP. Only send HSTS when the request is actually
             # served over HTTPS (as signaled by the ingress/TLS terminator).
             if self.headers.get("X-Forwarded-Proto") == "https":
-                self.send_header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+                self.send_header("Strict-Transport-Security", HSTS_VALUE)
             self.send_header("X-Content-Type-Options", "nosniff")
             # The upstream may have sent chunked data; http.client decodes it.
             # Tell the client to close the connection so the streamed body end
