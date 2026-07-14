@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Quill — One-touch self-hosting
+# Quill — One-touch self-hosting (Podman Quadlets via Nix)
 # =============================================================================
 # Brings up the entire Quill stack (API + MCP + Portal) on any Linux box with
 # podman + Nix, using the Nix-generated Podman Quadlet units.
@@ -11,8 +11,10 @@
 #   ./selfhost.sh status  # quick health check
 #
 # Prereqs: podman, Nix (with flakes), systemd (user or system).
-# No Docker. No docker-compose. No manual YAML.
-# =============================================================================
+#
+# NOT on Nix / not on Linux? See also:
+#   docker compose up -d         (Docker / Podman compose — quill/docker-compose.yml)
+#   nix run .#selfhost up        (alias of this script)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

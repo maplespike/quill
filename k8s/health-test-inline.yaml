@@ -26,7 +26,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: test
-        image: bitnami/kubectl:latest
+        image: bitnami/kubectl:1.30.4
         command:
         - /bin/bash
         - -c

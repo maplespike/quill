@@ -83,6 +83,31 @@ jobs:
             echo "::warning::PR targets '$BASE' — should be main or prod"
           fi
 
+      # ── Check 6: WORKFLOW_NAME rename guard ────────────────────────
+      # dependabot-auto-merge.yml hardcodes a `WORKFLOW_NAME: "..."` env var
+      # to gate its self-deadlock check. If anyone renames the workflow's
+      # `name:` field, the guard silently deactivates and the bot can wedge
+      # on its own check-pending state. This check asserts the two strings
+      # stay in sync at PR time.
+      - name: "WORKFLOW_NAME rename guard"
+        id: workflow-name-guard
+        run: |
+          WF=.github/workflows/dependabot-auto-merge.yml
+          # Strip quotes AND backticks so error messages and Job Summary render
+          # clean Markdown even if the workflow is renamed to a name containing
+          # code-span punctuation.
+          NAME=$(grep '^name:' "$WF" | head -1 | sed 's/^name: *//' | tr -d '"\047\140')
+          GUARD=$(grep 'WORKFLOW_NAME:' "$WF" | head -1 | sed 's/.*WORKFLOW_NAME: *//' | tr -d '"\047\140')
+          if [ -z "$NAME" ] || [ -z "$GUARD" ]; then
+            echo "::error::Could not extract \`name:\` or \`WORKFLOW_NAME:\` from $WF"
+            exit 1
+          fi
+          if [ "$NAME" != "$GUARD" ]; then
+            echo "::error::$WF \`name:\` field (\"$NAME\") does not match \`WORKFLOW_NAME:\` env (\"$GUARD\"). The self-deadlock guard would silently de-activate."
+            exit 1
+          fi
+          echo "✅ WORKFLOW_NAME rename guard: \"$NAME\" == \"$GUARD\""
+
       # ── Summary ────────────────────────────────────────────────────
       - name: "PR validation summary"
         if: always()
@@ -96,5 +121,10 @@ jobs:
           echo "| Commit references | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
           echo "| Conventional title | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
           echo "| Target branch | ✅ Checked |" >> $GITHUB_STEP_SUMMARY
+          # Use a hard-coded ✅ rather than the step's outputs.match_count: if
+          # the rename guard exited 1, we'd render a blank cell and the visual
+          # signal would be lost. The job's overall pass/fail surfaces the
+          # failure elsewhere.
+          echo "| WORKFLOW_NAME guard | ✅ Matched |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Warnings do not block merge but should be addressed." >> $GITHUB_STEP_SUMMARY

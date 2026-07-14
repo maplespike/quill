@@ -38,7 +38,7 @@ read_secret() {
 
   # Fallback: sops -d the encrypted file directly
   if [ -f "${QUILL_REPO}/secrets/${sops_file}.yaml" ]; then
-    SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE}" \
+    SOPS_AGE_KEY="$(cat "${SOPS_AGE_KEY_FILE}")" \
       sops -d "${QUILL_REPO}/secrets/${sops_file}.yaml" \
       | yq -r ".${key}" 2>/dev/null
     return $?
@@ -89,6 +89,29 @@ if [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-
   echo "[sops-sync] ✓ maplespike-secrets synced"
 else
   echo "[sops-sync] ⚠ JWT_SECRET is placeholder — skipping maplespike-secrets"
+fi
+
+# ── Sync maplespike-stripe-secrets (Stripe monetization) ──
+# Mirror key names as secret data keys so api-server's secretKeyRef can find them.
+STRIPE_SECRET_KEY=$(read_secret STRIPE_SECRET_KEY runtime)
+STRIPE_WEBHOOK_SECRET=$(read_secret STRIPE_WEBHOOK_SECRET runtime)
+STRIPE_ACCOUNT_ID=$(read_secret STRIPE_ACCOUNT_ID runtime)
+STRIPE_PUBLISHABLE_KEY=$(read_secret STRIPE_PUBLISHABLE_KEY runtime)
+
+# Only sync if at least one real Stripe key has been provisioned. We accept
+# "sk_live_..." / "whsec_..." / "acct_..." / "pk_live_..." values. Placeholder
+# strings ("REPLACE_…" in runtime.yaml.example) are rejected so the Secret
+# is never created with empty/garbage values — that would cause a silent
+# 503 on /v1/billing/stripe/checkout.
+if echo "${STRIPE_SECRET_KEY:-}" | grep -qE '^sk_(live|test)_[A-Za-z0-9]{10,}'; then
+  apply_secret maplespike-stripe-secrets \
+    "stripe-secret-key=${STRIPE_SECRET_KEY}" \
+    "stripe-webhook-secret=${STRIPE_WEBHOOK_SECRET}" \
+    "stripe-account-id=${STRIPE_ACCOUNT_ID}" \
+    "stripe-publishable-key=${STRIPE_PUBLISHABLE_KEY}"
+  echo "[sops-sync] ✓ maplespike-stripe-secrets synced"
+else
+  echo "[sops-sync] ⚠ STRIPE_SECRET_KEY missing or placeholder — skipping maplespike-stripe-secrets (checkout will return 503)"
 fi
 
 # ── Sync postgres-secret ──
