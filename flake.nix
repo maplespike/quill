@@ -150,6 +150,8 @@
             "PORT=8080"
             "HOME=/tmp"
             "PYTHONUNBUFFERED=1"
+            # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
+            "API_UPSTREAM=http://quill-api:8082"
           ];
           Cmd = [ "python3" "/app/server.py" ];
           WorkingDir = "/app";
@@ -262,7 +264,7 @@ WantedBy=default.target
 [Container]
 Image=ghcr.io/reverb256/quill/quill-portal:${self.shortRev or "stable"}
 ContainerName=quill-portal
-Environment=PORT=8080,HOME=/tmp
+Environment=PORT=8080,HOME=/tmp,API_UPSTREAM=http://localhost:8082
 PodmanArgs=--network=host
 '')
           (pkgs.writeText "quill-portal.service" ''
@@ -491,6 +493,8 @@ services:
     environment:
       - PORT=8080
       - HOME=/tmp
+      # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
+      - API_UPSTREAM=http://quill-api:8082
     depends_on:
       - quill-api
     networks:
