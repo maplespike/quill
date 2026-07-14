@@ -153,6 +153,7 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
             self.send_header("Access-Control-Max-Age", "86400")
+            self.send_header("Content-Length", "0")
             SimpleHTTPRequestHandler.end_headers(self)
             return
 
@@ -207,6 +208,7 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         headers["X-Forwarded-Proto"] = self.headers.get("X-Forwarded-Proto", "http")
         headers["X-Forwarded-Host"] = self.headers.get("Host", host)
 
+        conn = None
         try:
             ConnClass = http.client.HTTPSConnection if is_https else http.client.HTTPConnection
             conn = ConnClass(host, port, timeout=30)
@@ -233,16 +235,19 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                     break
                 self.wfile.write(chunk)
         except Exception as e:
+            print(f"[portal] API proxy error: {e}", file=sys.stderr)
             self.send_response(502)
             self.send_header("Content-Type", "application/json")
-            self.end_headers()
+            # Avoid injecting the static-site CSP on the 502 error response.
+            SimpleHTTPRequestHandler.end_headers(self)
             err = json.dumps({"error": "Bad Gateway", "message": str(e)}).encode("utf-8")
             self.wfile.write(err)
         finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
     def do_POST(self):
         if self.path.startswith("/api/"):
