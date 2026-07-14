@@ -93,10 +93,8 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    networks:
-      - maplespike
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/')\""]
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/')\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
