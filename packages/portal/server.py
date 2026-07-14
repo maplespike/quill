@@ -9,7 +9,7 @@ Serves the static portal with:
   - SPA-style .md suffix rewriting for docs pages
 """
 
-import os, sys, json, re, html as html_mod
+import os, sys, json, re
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse
 import http.client
@@ -101,7 +101,7 @@ def html_to_md(html_path, full_path):
     try:
         with open(full_path) as f:
             extractor.feed(f.read())
-    except:
+    except Exception:
         return None
 
     # Post-process: clean up
@@ -399,7 +399,6 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                     return
 
             # ── Debug log for content negotiation ──
-        import sys
         accept = self.headers.get("Accept", "")
         dbg = f"[AI] path={path} accept={accept!r}"
 
