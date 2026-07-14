@@ -120,11 +120,11 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
 
     CSP = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://static.cloudflareinsights.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: blob:; "
-        "connect-src 'self' https://*.maplespike.ca https://static.cloudflareinsights.com; "
+        "connect-src 'self' https://*.maplespike.ca https://*.quill.maplespike.ca https://static.cloudflareinsights.com; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; "
         "worker-src 'self' blob:; media-src 'self' data: blob:; upgrade-insecure-requests"
     )
@@ -165,6 +165,19 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(body)
                 return
+
+        # ── Extensionless URL rewriting ────────────────────────
+        # Astro generates .html files but routes are extensionless (/dashboard/owasp → owasp.html)
+        # ── Trailing-slash normalization ────────────────────────
+        # Astro emits `<page>.html` (build.format='file'). A trailing-slash
+        # variant like `/fr/` would otherwise fall through to
+        # SimpleHTTPRequestHandler, which tries to serve a non-existent
+        # directory `/app/fr/`. Strip the slash so the extensionless lookup
+        # below resolves /app/fr.html. Length > 1 guards the root path.
+        # (Sits BEFORE the extensionless rewrite so the rewrite sees the
+        # stripped form.)
+        if len(p) > 1 and p.endswith("/"):
+            p = p[:-1]
 
         # ── Extensionless URL rewriting ────────────────────────
         # Astro generates .html files but routes are extensionless (/dashboard/owasp → owasp.html)
