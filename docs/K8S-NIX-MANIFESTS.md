@@ -34,7 +34,7 @@ TAG=stable nix run .#deploy-saas
 
 ## Image tagging
 
-The generator references `ghcr.io/reverb256/quill/{api,mcp,portal}:<tag>`.
+The generator references `nexus:5000/quill-{api,mcp,portal}:<tag>`.
 Push images first:
 
 ```bash

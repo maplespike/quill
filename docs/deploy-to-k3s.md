@@ -11,9 +11,11 @@ infrastructure with zero external cloud spend.
 
 > **Nix-first:** all container images, the SaaS K8s manifests, the one-touch
 > self-host units, and the bare-metal NixOS module are generated from the
-> repository's `flake.nix`. There is **no Dockerfile** and **no Helm chart** —
-> the build is reproducible and the deployment is a single `kubectl apply` of
-> generated YAML.
+> repository's `flake.nix`. Non-Nix installers also ship: **`docker-compose.yml`**
+> at the repo root for Docker / Podman Compose users, and **`render.yaml`** for
+> zero-config Render.com Blueprint deploys. The Helm chart in `charts/quill/`
+> is a parallel k8s option for clusters that prefer Helm over the Nix-generated
+> manifests.
 
 ---
 

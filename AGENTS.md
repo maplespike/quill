@@ -19,9 +19,21 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 **Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, public curl results are inconsistent**, sometimes matching the pod, sometimes returning `521`/intermittent `404` — see Known Issues § "Cloudflared tunnel flakiness".
 
+> **Install paths (all defined in this repo; production cluster ships via Nix manifests + Kustomize, not via any of these install paths directly).** The Nix-first build (`flake.nix`) is the source of truth and emits OCI images, K8s manifests, and Podman quadlets. The **canonical public registry is now `nexus:5000/quill-<svc>`** (was `ghcr.io/reverb256/quill/<svc>` pre-2026-07-10 systemic flip; GHCR push is dormant — see Known Issues § Image-tag). Compatible layers ship alongside for self-hosters:
+> 1. `selfhost.sh` / `nix run .#selfhost up` — Podman Quadlets via Nix (rootless, no registry needed). Install path documented; `nix run .#selfhost up` not exercised in this audit window.
+> 2. `docker compose up -d` or `podman compose up -d` (`docker-compose.yml` at repo root) — standard Docker/Compose path. **OPERATOR-ONLY post-flip**: targets `nexus:5000/quill-<svc>` which is the operator-host registry. External self-hosters without nexus access should use path 1 (nix self-host) or build images locally first (`nix build .#quill-<svc>-image && podman load < result`). The wrapper auto-builds a `nexus:5000/quill-<svc>:<TAG>` retag in `nix run .#push-images` if you have the registry on your own host.
+> 3. `render.yaml` Blueprint — Render.com deploy. **DEPRECATED post-flip** (Render can't reach `nexus:5000`); kept as a CfT template only. Use path 1 or path 2.
+> 4. `helm install quill charts/quill/` — Helm 3 chart (Chart.yaml + values-prod.yaml + 8 templates present) pointing at the operator-host registry; production cluster currently runs the Nix-generated manifests + Kustomize namePrefix, NOT this chart. Templates contain Helm `{{ }}` syntax; bare-Python YAML cannot validate them; install `helm` and run `helm template charts/quill` first before any `helm install`.
+> 5. `wrangler pages deploy packages/portal/dist --project-name quill` — Cloudflare Pages for the static portal (requires adding `pages_build_output_dir` to a Pages-flavor `wrangler.toml` and `wrangler pages project create quill` first; tracked separately from the existing `quill-edge` Worker). Unaffected by the registry flip.
+> 6. `nix run .#push-images` — publishes the Nix-built OCI images to `nexus:5000/quill-{api,mcp,portal}:<TAG>,<COMMIT>` (default `REGISTRY=nexus:5000`, `TAG=stable`); run on the operator host. The GHCR push path is RETIRED — see `docs/GHCR-CLEANUP.md` for archival context.
+>
+> Production cluster currently mirrors images from `nexus:5000/quill-<svc>:build-<ts>` (operator convention; `maplespike-portal` is the historical running tag being phased out per the rename wave); `nix run .#push-images` is the path to single-source so all six install paths converge on the same registry.
+
+**Browser rendering (lightpanda CLI):** For JS-rendered data sources — sites that ship an empty SSR shell and only populate meaningful HTML after client hydration (PBO Nuxt at `pbo-dpb.ca`, several provincial regulator portals, SEDI public listings) — pipeline-core ships `packages/pipeline-core/src/utils/browser-fetch.ts`, a thin wrapper around the `lightpanda` CLI binary (https://lightpanda.io). It spawns `lightpanda fetch --dump <fmt> <url>` per call and returns the post-render DOM as a string with the same shape as `httpGet()`. **The binary is not packaged with the OCI images** — operators install it on the host (default `/home/j_kro/.local/bin/lightpanda`, override with `LIGHTPANDA_BIN`; self-hosters pull the precompiled release from `github.com/lightpanda-io/lightpanda/releases`). No ingestion module is wired to `browserFetch()` yet — the wrapper exists so individual fetchers can opt in behind a feature flag per file. A `__MAPLESPIKE_MOCK_BROWSER` flag (mirrors `__MAPLESPIKE_MOCK_FETCH` in `utils/http.ts`) short-circuits the subprocess to canned HTML in unit tests.
+
 **Home lab cluster (`k3s`):** Both control-plane/etcd nodes (`nexus`, `sentry`) are `Unknown`; the two worker nodes (`forge`, `krash3`) are `Ready`. The portal pod (`maplespike-portal-79fc468865-wpksz`) is **currently scheduled directly on `nexus`** — so it's at higher-than-expected risk if `nexus` enrolls garbage collection. Verifying pod placement: `kubectl get pod -n maplespike <pod> -o wide`.
 
-**Deployed portal image:** `nexus:5000/maplespike-portal:build-20260707-2036` (built 2026-07-07). The Deployment manifest `k8s/base/17-portal-service.yaml` declares `ghcr.io/reverb256/quill/portal:dev` and a Kustomize **namePrefix** renames it `maplespike-portal`; the `images:` block additionally maps `localhost/quill-portal:latest`. The operator's actual path pushes to a **local registry on `nexus`** (`nexus:5000/...`) — see "Image-tag construction" below.
+**Deployed portal image:** `nexus:5000/maplespike-portal:build-20260707-2036` (built 2026-07-07; pre-flip tag). The Deployment manifest `k8s/base/17-portal-service.yaml` declares `nexus:5000/quill-portal:dev` (post-flip), and a Kustomize **namePrefix** in the `maplespike` overlay still renames the resource `quill-portal` → `maplespike-portal`; the operator's actual path pushes fresh images to `nexus:5000/quill-<svc>:build-<ts>` on the operator host and patches the overlay image spec to point at the new tag — see "Image-tag construction" below.
 
 ---
 
@@ -160,29 +172,27 @@ CMD ["python3", "/app/server.py"]
 
 This is why every link in `BaseLayout.astro` is written without a `.html` suffix and sometimes with or without a trailing slash — they all hit branch (2) above.
 
-See [./packages/portal/server.py](./packages/portal/server.py) for full logic. See [./packages/portal/astro.config.mjs](./packages/portal/astro.config.mjs) for the `format: 'file'` setting.
+See [./packages/portal/server.py](./packages/portal/server.py) for full logic. See [./packages/portal/astro.config.mjs](./packages/portal/astro.config.mjs) for the `format: 'file'` setting.### Image-tag construction (resolved post-flip)
 
-### Image-tag construction (the `ghcr.io` vs `localhost` vs `nexus:5000` mismatch)
-
-Three different image-spec conventions exist in this repo, **plus** a Kustomize **namePrefix** that re-names resources on apply. The actual running image is from a fourth path (a private registry on `nexus`):
+After the 2026-07-10 systemic registry flip, the canonical registry is `nexus:5000/quill-<svc>` and the cluster pulls from it directly (no separate overlay-patching needed). Two source-of-truth differences remain:
 
 | Location | Reference | Image spec |
 | --- | --- | --- |
-| `k8s/base/17-portal-service.yaml`, `10-api-deploy.yaml`, `11-mcp-deploy.yaml` | The Deployment specs | `ghcr.io/reverb256/quill/portal:dev` (and `:api:dev`, `:mcp:dev`) |
-| `k8s/base/kustomization.yaml` | The `images:` block (overrides) | `localhost/quill-portal:latest` (and `:api`, `:mcp`) |
+| `k8s/base/17-portal-service.yaml`, `10-api-deploy.yaml`, `11-mcp-deploy.yaml` | The Deployment specs | `nexus:5000/quill-portal:dev` (and `:api:dev`, `:mcp:dev`) |
+| `charts/quill/values*.yaml` | `image.registry: nexus:5000` + `image.tag: stable` — renders to `nexus:5000/quill-<svc>:stable` | post-flip |
 | Kustomize **namePrefix** (overlay, applied to `maplespike` overlay) | Renames `quill-*` Deployments/Services to `maplespike-*` | n/a — affects Service names, not image strings |
-| **Actual running image** in the cluster | What you see via `kubectl describe pod` | `nexus:5000/maplespike-portal:build-20260707-2036` |
+| **Actual running image** in the cluster | What you see via `kubectl describe pod` | `nexus:5000/maplespike-portal:build-20260707-2036` (pre-flip tag, rename wave pending) |
 
-The cluster does not pull from `ghcr.io/reverb256/quill/...` (no auth) and the `localhost/...` kustomize override is not what gets used either — the operator pushes to a **local registry on nexus** (`nexus:5000/maplespike-<service>:build-YYYYMMDD-HHMM`) and applies a separate overlay that re-points the Deployment image at it.
+The cluster DOES pull from `nexus:5000/quill-...` post-flip. The `localhost/...` kustomize override remains in `k8s/base/kustomization.yaml` `images:` block as a defensive override (CI/build pipelines that rely on a local load); it's harmless for `nexus:5000`-pulling overlays because the overlay image spec is what wins at apply time.
 
 When rolling out:
 
-1. Build on a docker-enabled node (`docker build --target <stage> -t nexus:5000/maplespike-<service>:build-$(date +%Y%m%d-%H%M) .`).
-2. Push to the local registry.
+1. Build on a docker-enabled node — `nix build .#quill-<svc>-image -L` (preferred, Nix-first), or `docker build --target <stage> -t nexus:5000/quill-<svc>:build-$(date +%Y%m%d-%H%M) .` for non-Nix operators.
+2. Push to the local registry: `nix run .#push-images` (defaults: `REGISTRY=nexus:5000`, `TAG=stable`, `COMMIT=$git_sha`), or `docker push nexus:5000/quill-<svc>:build-<ts>`.
 3. Either (a) edit the Deployment manifest's `image:` line in the `maplespike` overlay, or (b) run `scripts/deploy.sh --overlay prod`.
-4. `kubectl rollout restart deployment/maplespike-<service> -n maplespike` — **note the `maplespike-` prefix; the source manifests use `quill-` but the cluster has `maplespike-`.**
+4. `kubectl rollout restart deployment/maplespike-<service> -n maplespike` — **note the `maplespike-` prefix; the source manifests use `quill-` but the cluster has `maplespike-` until the rename rollout completes.**
 
-**Recommendation:** consolidate on a single path. Either (i) switch to `ghcr.io/reverb256/quill/...` with auth and remove both the kustomize `images:` override and the `nexus:5000/` rename, or (ii) keep the local registry and bring `k8s/base/kustomization.yaml` + the Deployment manifests in sync (image spec `nexus:5000/maplespike-<svc>:build-<ts>`, and drop the conflicting `localhost/...` override).
+**Resolved:** pre-flip three-way mismatch (`ghcr.io` vs `localhost` vs `nexus:5000`) is collapsed to a single canonical `nexus:5000/quill-<svc>` after the systemic flip. GHCR push is dormant; `docs/GHCR-CLEANUP.md` is now archival.
 
 ### Secrets (SOPS + age)
 
@@ -353,7 +363,7 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 - Triggers on push/PR to `main` and `prod`
 - Uses Node 22, pnpm (auto-detected version)
 - Runs `pnpm build` + `pnpm test`
-- On `prod` branch: pushes Docker images to GHCR (mirrored by the local registry on `nexus`)
+- On `prod` branch: **builds** Docker images for the operator-host registry `nexus:5000/quill-<svc>` (no-push; the operator runs `nix run .#push-images` on the bare metal host with the binary already built). GHCR push is RETIRED post-flip — `if: false` on the GHCR login + `push: false` on `build-push-action`. To restore GHCR push when PAT scope is bumped, swap `push: true` and retarget tags back to `ghcr.io`.
 
 ---
 
@@ -378,7 +388,7 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 | Cloudflared tunnel flakiness | `cloudflared` pod logs show `"failed to accept QUIC stream: timeout: no recent network activity"`. The reported `cloudflared` version is in the `2026.6.x` line (recommended: `≥ 2026.7.0`). Symptom: public curl results drift — a route verified `200` minutes ago may now return `521` or `404`. Direct pod access (`kubectl port-forward … 18080:8080`) consistently returns `200` for every route in `dist/`, confirming port-side is fine and the tunnel is the source. | Upgrade `cloudflared` image tag in `k8s/base/05-cloudflared.yaml` to `2026.7.0`+; redeploy |
 | `/fr/` (trailing-slash) → 404 | `/fr` works (200), `/en` works (200), but `/fr/` 404s because server.py's extensionless rewrite `if not os.path.splitext(p)[1] and not p.endswith("/")` does **not** strip the trailing slash, then `SimpleHTTPRequestHandler` falls through to look for the directory `/app/fr/` which doesn't exist (Astro `format: 'file'` flattens to `fr.html`, not `fr/index.html`). Note: during the flakiness window this row was unstable — both `/fr` and `/fr/` returned 404 briefly. | Patch `packages/portal/server.py` to strip trailing `/` before the extensionless lookup. Low risk, isolated. |
 | `/login`, `/oauth` → 404 | Not implemented in `packages/portal/src/pages/`. Nav never references them. | No action needed unless intentionally adding a login route. |
-| Image-tag mismatch (`ghcr.io` vs `localhost` vs `nexus:5000`) | Confusing for new operators — three different image specs in the same repo, none of which match the running pod. | Align all three on a single registry path (see [Local Infrastructure & Deployment § Image-tag construction](#image-tag-construction-the-ghrio-vs-localhost-vs-nexus5000-mismatch) above) |
+| Image-tag mismatch (`ghcr.io` vs `localhost` vs `nexus:5000`) | ✅ **RESOLVED 2026-07-10** (systemic registry flip: all sources now point at `nexus:5000/quill-<svc>`). The historical narrative above is preserved for context; the running install matrix converges on a single registry. | n/a |
 | OWASP dashboard merged | `packages/portal` now hosts the dashboard; no dedicated dashboard directory remains |
 | `packages/pretext-civic` removed | Was orphaned React library after the Next.js → Astro migration |
 | Sentry node occasionally NotReady | k3s etcd flapping (same row as `nexus`), non-blocking |
