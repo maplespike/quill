@@ -39,7 +39,7 @@ function getApiBase(): string {
     const host = window.location.hostname;
     const parts = host.split(".");
     let baseDomain;
-    if (parts.length > 2 && ["api", "portal", "www", "mcp", "dev", "data"].includes(parts[0])) {
+    if (parts.length > 2 && ["api", "portal", "www", "mcp", "dev", "data", "quill"].includes(parts[0])) {
       baseDomain = parts.slice(1).join(".");
     } else {
       baseDomain = host;

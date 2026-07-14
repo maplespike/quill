@@ -2,9 +2,9 @@ import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 
 describe('get_annotations', () => {
-  let handler: Function;
-  let _resetStore: Function;
-  let _seedStore: Function;
+  let handler: (...args: unknown[]) => unknown;
+  let _resetStore: () => void;
+  let _seedStore: (annotations: unknown[]) => void;
 
   beforeEach(async () => {
     const mod = await import('../tools/get-annotations.js');

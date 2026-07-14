@@ -163,7 +163,7 @@ export async function verifyPaymentTx(
       `Transaction failed on-chain: ${JSON.stringify(tx.meta.err)}`,
     );
   }
-  if (tx.blockTime == null) {
+  if (tx.blockTime === null) {
     throw new X402VerificationError(
       'tx_not_confirmed',
       'Transaction has no blockTime (not yet finalized — try again later).',

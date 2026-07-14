@@ -1,110 +1,105 @@
 # =============================================================================
-# MapleSpike — Local Development Docker Compose Stack
-# =============================================================================
-# Builds and runs the three MapleSpike services (API + MCP + Portal) from the
-# multi-stage Dockerfile at repo root.
-#
-# Usage:
-#   docker compose up -d --build     # boot detached, build images
-#   docker compose logs -f           # follow logs
-#   docker compose down              # tear down
-#
-# Or use the helper: scripts/dev-up.sh
+# ⚠️  OPERATOR-ONLY post-flip (2026-07-10) — see AGENTS.md install-matrix item 2
+# Default image URLs target `nexus:5000/quill-<svc>` which is the operator-host
+# registry on the bare metal cluster. External self-hosters without nexus access
+# should EITHER:
+#   (a) `nix build .#quill-<svc>-image && podman load < result && podman tag ...`
+#       then update the `image:` line below to your local registry path; OR
+#   (b) use `./scripts/dev-up.sh` (which wraps these same images but reads
+#       `IMAGE_REGISTRY` from .env — set it to `localhost` for a fully local
+#       build-and-load loop); OR
+#   (c) use the canonical Podman Quadlet path: `nix run .#selfhost up`.
 # =============================================================================
 
-name: maplespike
-
+# =============================================================================
+# Quill — One-touch self-hosting (Docker / Podman Compose)
+# =============================================================================
+# Bring up the entire Quill stack (API + MCP + Portal) on any host with Docker
+# or Podman. No Nix required. Mirrors the podman-quadlet generator at
+# quill/nix/selfhost.nix so behaviour stays equivalent across install paths.
+#
+#   docker compose up -d        # or: podman compose up -d
+#   docker compose ps
+#   docker compose logs -f
+#   docker compose down
+#
+# After startup: http://localhost:8080
+# =============================================================================
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: api-server
-    image: quill-api:local
+    image: nexus:5000/quill-api:${QUILL_TAG:-latest}
     container_name: quill-api
     restart: unless-stopped
     ports:
       - "8082:8082"
     environment:
       NODE_ENV: production
-      PORT: "8082"
-      QUILL_STORAGE: sqlite
-      QUILL_API_KEY: ${QUILL_API_KEY}
-      JWT_SECRET: ${JWT_SECRET}
+      PORT: 8082
+      QUILL_STORAGE: ${QUILL_STORAGE:-sqlite}
       QUILL_DB_PATH: /data/maplespike.db
-      QUILL_LOG_LEVEL: ${QUILL_LOG_LEVEL:-info}
-      APP_URL: http://localhost:8082
-      MAPLESPIKE_DOMAIN: ${MAPLESPIKE_DOMAIN:-localhost}
-      MAPLESPIKE_ORIGIN: ${MAPLESPIKE_ORIGIN:-http://localhost:8082}
+      # JWT_SECRET: optional; set via .env to enable real auth, defaults to dev.
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-in-production}
     volumes:
       - quill-api-data:/data
-    networks:
-      - maplespike
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8082/v1/health >/dev/null || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8082/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\" || exit 1"]
+      interval: 20s
       timeout: 5s
-      retries: 12
-      start_period: 30s
+      retries: 5
+      start_period: 10s
+    networks:
+      - quill-net
 
-  quill:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: quill-mcp
-    image: quill-mcp:local
+  mcp:
+    image: nexus:5000/quill-mcp:${QUILL_TAG:-latest}
     container_name: quill-mcp
     restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
     ports:
       - "3001:3001"
     environment:
       NODE_ENV: production
-      PORT: "3001"
-      QUILL_API_URL: http://api:8082/v1
-      QUILL_LOCALE: ${QUILL_LOCALE:-en-CA}
+      PORT: 3001
+      QUILL_API_URL: http://quill-api:8082/v1
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\" || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - quill-net
+
+  portal:
+    image: nexus:5000/quill-portal:${QUILL_TAG:-latest}
+    container_name: quill-portal
+    restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
-    networks:
-      - maplespike
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/health >/dev/null || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 20s
-
-  portal:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: portal
-    image: quill-portal:local
-    container_name: quill-portal
-    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      PORT: "8080"
-      HOME: /tmp
-      PYTHONUNBUFFERED: "1"
+      NODE_ENV: production
+      PORT: 8080
       # Same-origin /api proxy target (no /v1 suffix — the frontend sends /api/v1/...)
-      API_UPSTREAM: http://api:8082
-    depends_on:
-      api:
-        condition: service_healthy
+      API_UPSTREAM: http://quill-api:8082
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/')\" || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/')\" || exit 1"]
+      interval: 20s
       timeout: 5s
-      retries: 12
+      retries: 5
       start_period: 15s
-
-networks:
-  maplespike:
-    driver: bridge
-    name: maplespike
+    networks:
+      - quill-net
 
 volumes:
   quill-api-data:
-    name: quill-api-data
+    driver: local
+
+networks:
+  quill-net:
+    driver: bridge
+    name: quill-net

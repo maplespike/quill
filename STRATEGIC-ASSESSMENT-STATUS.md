@@ -64,7 +64,7 @@
 
 **Action items:**
 - [ ] Integrate quill-cronjobs.nix into host configuration
-- [ ] Build and push ingestion container: `docker build -t ghcr.io/reverb256/quill-ingest:2026-06-11`
+- [ ] Build and push ingestion container: `docker build -t nexus:5000/quill-ingest:2026-06-11`
 - [ ] Deploy with: `colmena apply --on <k3s-host>`
 - [ ] Verify CronJobs are running: `kubectl get cronjobs -n maplespike-...`
 

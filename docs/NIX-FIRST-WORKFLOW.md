@@ -32,22 +32,20 @@ The dev shell provides:
 
 ### Build All Packages
 ```bash
-# Build all images
-nix run .#apps.build-all
+# Build all runtime images (api, mcp, portal) — layered OCI images via dockerTools
+nix build .#quill-api-image .#quill-mcp-image .#quill-portal-image -L
 
-# Or build individually
-nix build .#quill-mcp-image
-nix build .#quill-api-image
-nix build .#quill-portal-image
+# Or all images (incl. ingest/engine)
+nix build .#quill-all -L
 
-# View build outputs
+# View build output
 ls -la result/
 ```
 
 ### Run Tests
 ```bash
 # Using nix run app
-nix run .#apps.test
+nix run .#test
 
 # Or manually in dev shell
 pnpm test
@@ -55,81 +53,45 @@ pnpm test
 
 ## Development Workflow
 
-### 1. Local Development (Container-based)
+### 1. Local Development (self-host, one-touch)
 
-#### Option A: Docker/Podman (reproducible)
+The recommended local path is the Podman Quadlet stack — no Docker, no
+docker-compose, no manual YAML. `nix/selfhost.nix` generates the
+`.container`/`.volume`/`.network` units; `./selfhost.sh` installs and starts
+them.
+
 ```bash
-# Load Nix-built images into container runtime
-nix run .#apps.load-all
+./selfhost.sh up      # build images (nix) + install quadlet units + start
+./selfhost.sh status  # health check (API/MCP/Portal)
+./selfhost.sh logs    # tail all three services
+./selfhost.sh down    # stop + disable
 
-# Start services via generated systemd quadlet files
-# These are pre-generated in flake.nix under systemd-services package
-sudo cp result/systemd-services/*.container /etc/containers/systemd/
-sudo cp result/systemd-services/*.service /etc/systemd/system/
-sudo systemctl daemon-reload
-
-# Start services
-sudo systemctl enable --now quill-mcp
-sudo systemctl enable --now quill-api
-sudo systemctl enable --now quill-portal
-
-# Verify
-curl http://localhost:3001/health
-curl http://localhost:8082/health
-curl http://localhost:8080
+# Equivalent nix app:
+nix run .#selfhost up
 ```
 
-#### Option B: Direct Node.js (fastest iteration)
-```bash
-# In dev shell
-pnpm install
-pnpm build
+Ports: API `8082`, MCP `3001` (SSE at `/sse`), Portal `8080`.
 
-# Run services directly (with hot reload where available)
-cd packages/quill-mcp && pnpm start:sse    # SSE mode on :3001
-cd packages/api-server && pnpm run dev      # Dev mode on :8082
-cd packages/portal && python3 server.py      # Python simple HTTP
+### 2. Cluster Development (SaaS, k3s)
+
+Manifests are generated from Nix (`nix/saas-manifests.nix`) and match the
+live cloudflared-routed cluster.
+
+```bash
+# Push images to GHCR
+REGISTRY=ghcr.io/reverb256 TAG=stable nix run .#push-images
+
+# Generate + apply manifests
+nix build .#saas-manifests -L
+kubectl apply -f result/manifests.yaml -n maplespike
+
+# Or one-shot:
+TAG=stable nix run .#deploy-saas
 ```
 
-### 2. Cluster Development
-
-#### Deploy to K3s Cluster
-```bash
-# Build manifests from Nix
-nix build .#k8s-manifests
-
-# Apply to cluster
-kubectl apply -f result/manifest.yaml -n maplespike
-
-# Or use generated dev/prod manifests
-kubectl apply -n maplespike-dev -f k8s/dev/
-kubectl apply -n quill-prod -f k8s/prod/
-```
-
-#### Push to Container Registry
-```bash
-# Build and push all images
-REGISTRY=ghcr.io/reverb256 TAG=dev nix run .#quill-push-all
-
-# Or manually
-nix build .#quill-mcp-image
-podman load < result
-podman tag quill-mcp:latest ghcr.io/reverb256/quill-mcp:dev
-podman push ghcr.io/reverb256/quill-mcp:dev
-```
-
-#### Verify Deployment
-```bash
-# Check pods
-kubectl get pods -n maplespike
-
-# Check logs
-kubectl logs -n maplespike deployment/quill-mcp
-
-# Port-forward for local testing
-kubectl port-forward -n maplespike svc/quill-mcp 3001:3001
-curl http://localhost:3001/health
-```
+This is the canonical replacement for the hand-maintained `k8s/base/*.yaml`
+and the old easykubenix modules (removed in PR #733). See
+`docs/K8S-NIX-MANIFESTS.md`.
 
 ### 3. MCP Server Testing
 
@@ -170,7 +132,7 @@ steps:
   - uses: cachix/install-nix-action@v25
   - run: nix build .#quill-mcp-image -L
   - run: podman load < result
-  - run: podman push ghcr.io/reverb256/quill-mcp:${{ github.sha }}
+  - run: podman push nexus:5000/quill-mcp:${{ github.sha }}
 ```
 
 ### Image Builds

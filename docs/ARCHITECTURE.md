@@ -255,7 +255,7 @@ GitHub Actions drives the two-environment deployment model:
 | `main` | Deploy Dev (deploy-dev.yml) | Build + deploy to `maplespike-dev` namespace |
 | `prod` | Deploy Prod (deploy-prod.yml) | Build + deploy to `quill-prod` namespace |
 
-Container images are tagged `:dev` for development builds and `:latest` for production. Each workflow builds the application, pushes to the container registry, and applies the corresponding Kubernetes manifests.
+Container images are tagged `:dev` from `deploy-dev.yml`, and `:sha` + `:stable` from `deploy-prod.yml` (both tags are **pushed on the same `push: prod` event**, so there is no automated `:sha → :stable` promotion gate today — operators re-tag with `docker buildx imagetools create ... --tag :stable` if a rollback is needed). The `:latest` tag was retired to avoid silent version drift; overlays pin the tag explicitly.
 
 ---
 

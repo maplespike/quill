@@ -140,7 +140,7 @@ Deploy path customers touch. Cloudflare Tunnel is the only canonical external-ex
 | Refresh `docs/metrics.json` via `node scripts/generate-metrics.mjs && git add` | P2 | 15m | ✅ Last run 2026-07-03 (see [docs/metrics.json](./docs/metrics.json)); repeat on schema change |
 | Capture `i18n` test count in the Status block + perPackage line for `i18n` in `docs/metrics.json` (files + lines already present at i18n { files: 7, lines: 1500 }) | P2 | 30m | 🟡 TODO — current `Tests: 856` does not include `i18n` suite per `packages/i18n/package.json` `test` script |
 | Integrate `quill-cronjobs.nix` into K3s host config; verify `DATABASE_URL` + secrets | P0 | 1h | 🟡 TODO |
-| Build + push `ghcr.io/reverb256/quill/quill-ingest:2026-07-*` | P0 | 30m | 🟡 TODO |
+| Build + push `nexus:5000/quill-ingest:2026-07-*` (post-flip tag, was `nexus:5000/quill-ingest` due to a chained-substitution typo — fixed) | P0 | 30m | 🟡 TODO |
 | `kubectl apply -f charts/quill/templates/cronjobs.yaml -n maplespike` | P0 | 30m | 🟡 TODO |
 | Provision `maplespike-dev` K3s namespace (ServiceAccounts + NetworkPolicy) | P2 | 4h | 🟡 TODO |
 | CI publish to GHCR on `main` merge | P2 | 1h | 🟡 TODO |
@@ -156,7 +156,7 @@ Deploy path customers touch. Cloudflare Tunnel is the only canonical external-ex
 | `nixos-rebuild switch` for Nix builder `/etc/nix/machines` | P2 | 30m | 🟡 TODO |
 | Resolve `issue-200-k3s-kubeconfig.md` (file contents = `[BLOCKED]`) | P1 | — | 🔴 BLOCKED |
 | NetworkPolicy + RBAC differentiation between `maplespike` and `maplespike-dev` namespaces | P2 | 2h | 🟡 TODO |
-| Re-publish old `ghcr.io/reverb256/maplespike/*` → `ghcr.io/reverb256/quill/*` (purge; see `docs/GHCR-CLEANUP.md`) | P2 | 1h | 🟡 TODO |
+| Re-publish old `nexus:5000/maplespike/*` → `nexus:5000/quill-*` (purge; see `docs/GHCR-CLEANUP.md`) | P2 | 1h | 🟡 TODO |
 
 ---
 
@@ -171,7 +171,8 @@ Deploy path customers touch. Cloudflare Tunnel is the only canonical external-ex
 | Email notifications (#130): `subscriptions` + `alert_history` tables; alert engine + K8s CronJob; portal UI; SendGrid + console fallback | P2 | 16h | `.sisyphus/plans/issue-130-email-notifications.md` | 🟡 Draft (rels `routes/subscriptions.ts`, send via existing `email.ts`) |
 | SEDAR+ corp filings (#137): full fetcher/parser/db/index per SEDI template | P2 | 16-20h | `.sisyphus/plans/issue-137-sedar-module.md` | 🟡 Draft (registry entry exists; 4-file stub; `parser.ts`/`db.ts` missing) |
 | Journalism mode (#138): annotations table; 4 API routes gated on `tenant.journalismMode`; 3 MCP tools (`get_annotations`/`annotate`/`search_annotations`); portal UI (citation override + Sheet panel); Frostbite Gazette integration | P2 | 24h | `.sisyphus/plans/issue-138-journalism-mode.md` | 🟡 Draft (flag exists in types/schemas; zero behavioral effect) |
-| NT/NU live tests (#194/#195): `LIVE_DATA_TEST=true` gated block on production endpoints; export `parseFederalRegistryHtml` for direct fixture tests | P2 | 4h | `.sisyphus/plans/issue-194-195-live-tests.md` | 🟡 Draft |
+| NT/NU live tests (#194/#195): `LIVE_DATA_TEST=true` gated block on production endpoints; export `parseFederalRegistryHtml` for direct fixture tests | P2 | 4h | `.sisyphus/plans/issue-194-195-live-tests-live-tests.md` | 🟡 Draft |
+| Stripe billing (checkout, webhooks, customer portal, payment reconciliation, tier expiry cron) | P1 | 16h | `packages/api-server/src/routes/billing-stripe.ts` | ✅ Live (2026-07-14 — D1/SQLite/Postgres/Memory storage backends implement `createPaymentReconciliation`, `getPaymentReconciliations`, `findTenantsForTierExpiry`; `/v1/billing/reconcile-expiry` route active; docs updated) |
 
 ### 5.2 Module coverage — registry → disk (22 missing)
 

@@ -1,0 +1,181 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import ManageSubscriptionButton from "@/components/billing/ManageSubscriptionButton";
+import StripeCheckoutButton from "@/components/billing/StripeCheckoutButton";
+import { createI18n } from "@maplespike/i18n";
+import { localeUrl } from "@/utils/localeUrl";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
+
+// URL query reflects where the user came from so we can brighten the
+// "Portal session has been cancelled/closed" banner.
+//   ?portal=return   → user clicked "Back to portal" inside Stripe's Customer Portal.
+// Anything else → normal "manage your subscription" view.
+const url = Astro.url;
+const portalReturn = url.searchParams.get("portal") === "return";
+---
+
+<BaseLayout
+  title={i18n.t('dashboard.billing.title') ?? "Billing"}
+  description="Manage your MapleSpike subscription"
+  lang={lang}
+>
+  <section class="container mx-auto px-4 py-16 md:py-20">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 reveal-on-scroll">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          <span class="text-gradient">{lang === "fr" ? "Facturation" : "Billing"}</span>
+        </h1>
+        <p class="mt-1.5 text-muted-foreground">
+          {lang === "fr"
+            ? "Gérez votre abonnement Stripe, vos paiements et vos reçus."
+            : "Manage your Stripe subscription, payments, and receipts."}
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <Button variant="outline" asChild className="press-feedback">
+          <a href={localeUrl('/dashboard', lang)}>
+            {lang === "fr" ? "Retour au tableau de bord" : "Back to dashboard"}
+          </a>
+        </Button>
+      </div>
+    </div>
+
+    {portalReturn && (
+      <div
+        role="status"
+        aria-live="polite"
+        class="mb-6 flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 reveal-on-scroll"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="mt-0.5 shrink-0 text-primary"
+          aria-hidden="true"
+        ><polyline points="20 6 9 17 4 12" /></svg>
+        <div>
+          <p class="font-medium">
+            {lang === "fr" ? "Vous revenez du portail client Stripe" : "Returned from Stripe Customer Portal"}
+          </p>
+          <p class="text-sm text-muted-foreground">
+            {lang === "fr"
+              ? "Vos modifications sont enregistrées. La page ci-dessous reflète maintenant votre abonnement à jour."
+              : "Your changes are saved. The page below now reflects your up-to-date subscription."}
+          </p>
+        </div>
+      </div>
+    )}
+
+    <!-- Active subscription card -->
+    <div class="mb-8 reveal-on-scroll">
+      <Card className="card-hover">
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <CardTitle>{lang === "fr" ? "Abonnement actuel" : "Current subscription"}</CardTitle>
+            <Badge variant="outline">{lang === "fr" ? "Stripe" : "Stripe"}</Badge>
+          </div>
+          <CardDescription>
+            {lang === "fr"
+              ? "Les modifications (annulation, changement de carte, reçus) passent par le portail Stripe."
+              : "Changes (cancel, update card, receipts) go through the Stripe portal."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p class="text-sm text-muted-foreground">
+            {lang === "fr"
+              ? "Pour voir le plan actuel, vos paiements et gérer votre abonnement, ouvrez le portail client Stripe."
+              : "To view your current plan, your payments, and manage your subscription, open the Stripe Customer Portal."}
+          </p>
+        </CardContent>
+        <CardFooter class="flex flex-wrap gap-3">
+          <ManageSubscriptionButton client:load label={{
+            en: "Manage subscription",
+            fr: "Gérer l'abonnement",
+          }} />
+          <Button variant="ghost" asChild className="press-feedback">
+            <a href={localeUrl('/pricing', lang)}>
+              {lang === "fr" ? "Voir les forfaits" : "See plans"}
+            </a>
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+
+    <!-- Quick subscribe fallback (only visible if user is on free tier and
+         wants to upgrade without poking the dashboard). -->
+    <div class="mb-8 reveal-on-scroll">
+      <Card className="card-hover">
+        <CardHeader>
+          <CardTitle>{lang === "fr" ? "Mettre à niveau" : "Upgrade"}</CardTitle>
+          <CardDescription>
+            {lang === "fr"
+              ? "Vous n'avez pas encore d'abonnement actif. Choisissez un plan pour commencer."
+              : "No active subscription yet. Choose a plan to get started."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div class="rounded-lg border border-border/60 p-4 transition-colors duration-200 ease-out hover:border-primary/40">
+            <h3 class="font-semibold">Pro</h3>
+            <p class="mt-1 text-sm text-muted-foreground">
+              {lang === "fr" ? "50 $/mois · 100 000 appels API" : "$50 CAD/mo · 100,000 API calls"}
+            </p>
+            <div class="mt-3">
+              <StripeCheckoutButton planId="pro" client:load label={{
+                en: "Subscribe to Pro",
+                fr: "S'abonner à Pro",
+              }} />
+            </div>
+          </div>
+          <div class="rounded-lg border border-border/60 p-4 transition-colors duration-200 ease-out hover:border-primary/40">
+            <h3 class="font-semibold">Business</h3>
+            <p class="mt-1 text-sm text-muted-foreground">
+              {lang === "fr" ? "200 $/mois · appels illimités" : "$200 CAD/mo · unlimited calls"}
+            </p>
+            <div class="mt-3">
+              <StripeCheckoutButton planId="business" client:load label={{
+                en: "Subscribe to Business",
+                fr: "S'abonner à Business",
+              }} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Receipts & history -->
+    <Card className="card-hover reveal-on-scroll">
+      <CardHeader>
+        <CardTitle>{lang === "fr" ? "Reçus et historique" : "Receipts & history"}</CardTitle>
+        <CardDescription>
+          {lang === "fr"
+            ? "Les reçus officiels sont émis par Stripe et téléchargeables depuis le portail client."
+            : "Official receipts are issued by Stripe and downloadable from the Customer Portal."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p class="text-sm text-muted-foreground">
+          {lang === "fr"
+            ? "Ouvrez le portail client pour télécharger les reçus PDF de chaque paiement."
+            : "Open the Customer Portal to download PDF receipts for each payment."}
+        </p>
+        <div class="mt-4">
+          <ManageSubscriptionButton client:load variant="outline" label={{
+            en: "Open receipts in Stripe",
+            fr: "Ouvrir les reçus dans Stripe",
+          }} />
+        </div>
+      </CardContent>
+    </Card>
+  </section>
+</BaseLayout>

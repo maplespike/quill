@@ -2,7 +2,7 @@
 # helm upgrade --install maplespike charts/maplespike -n maplespike -f charts/maplespike/values-prod.yaml
 
 image:
-  registry: ghcr.io/reverb256
+  registry: nexus:5000
   tag: stable
   pullPolicy: Always
 
@@ -110,3 +110,10 @@ secrets:
   apiKey: ""
   jwtSecret: ""
   dbPassword: ""
+  # Stripe keys → injected via externalSecretRef in templates/secrets.yaml.
+  # Do NOT put real keys here; populate the K8s Secret `maplespike-stripe-secrets`
+  # via sops-sync-k8s.sh from the SOPS-encrypted `quill/secrets/runtime.yaml`.
+  stripeSecretKey: ""
+  stripeWebhookSecret: ""
+  stripeAccountId: ""
+  stripePublishableKey: ""
