@@ -220,12 +220,16 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             resp = conn.getresponse()
 
             self.send_response(resp.status)
+            # http.client decodes chunked bodies, so drop hop-by-hop headers
+            # (including Transfer-Encoding) to avoid framing mismatches.
             for key, value in resp.getheaders():
                 if key.lower() not in hop_by_hop:
                     self.send_header(key, value)
             # Keep baseline security headers on API responses without injecting
-            # the static-site CSP.
-            self.send_header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+            # the static-site CSP. Only send HSTS when the request is actually
+            # served over HTTPS (as signaled by the ingress/TLS terminator).
+            if self.headers.get("X-Forwarded-Proto") == "https":
+                self.send_header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
             self.send_header("X-Content-Type-Options", "nosniff")
             # The upstream may have sent chunked data; http.client decodes it.
             # Tell the client to close the connection so the streamed body end
@@ -295,8 +299,13 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             super().do_HEAD()
 
     def end_headers(self):
-        # Inject security headers on every response
+        # Inject security headers on every response. Only send HSTS when the
+        # request is actually served over HTTPS (as signaled by the
+        # ingress/TLS terminator) to avoid pinning plain-HTTP dev instances.
+        is_https = self.headers.get("X-Forwarded-Proto") == "https"
         for k, v in self.SECURITY_HEADERS.items():
+            if k == "Strict-Transport-Security" and not is_https:
+                continue
             self.send_header(k, v)
         self.send_header("Content-Security-Policy", self.CSP)
         super().end_headers()
