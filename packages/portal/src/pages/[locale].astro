@@ -15,7 +15,7 @@ const { locale } = Astro.params;
 <BaseLayout
   title="Quill · Canada's open data, on tap for any AI"
   description="Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config."
-  lang={locale}
+  lang={locale as "en" | "fr"}
 >
   <LandingBody lang={locale} />
 </BaseLayout>

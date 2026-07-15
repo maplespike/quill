@@ -4,8 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { createI18n } from "@maplespike/i18n";
-import type { Locale } from "@maplespike/i18n";
 import {
   startRegistration,
   startAuthentication,
@@ -152,7 +150,7 @@ export default function SignupForm() {
       const { options, registrationId } = beginData.data;
 
       // Step 2: Browser creates credential
-      const credential = await startRegistration({ optionsJSON: options as PublicKeyCredentialCreationOptionsJSON });
+      const credential = await startRegistration({ optionsJSON: options as unknown as Parameters<typeof startRegistration>[0]['optionsJSON'] });
 
       // Step 3: Complete registration
       const completeResp = await fetch(`${base}/v1/auth/passkey/register/complete`, {
@@ -184,7 +182,7 @@ export default function SignupForm() {
         const { options: loginOptions, loginId } = loginBeginData.data;
 
         // Step 2: Authenticate with the newly created passkey
-        const authCredential = await startAuthentication({ optionsJSON: loginOptions as PublicKeyCredentialRequestOptionsJSON });
+        const authCredential = await startAuthentication({ optionsJSON: loginOptions as unknown as Parameters<typeof startAuthentication>[0]['optionsJSON'] });
 
         // Step 3: Complete login → get JWT
         const loginCompleteResp = await fetch(`${base}/v1/auth/passkey/login/complete`, {
@@ -231,7 +229,7 @@ export default function SignupForm() {
 
       const { options, loginId } = beginData.data;
 
-      const credential = await startAuthentication({ optionsJSON: options as PublicKeyCredentialRequestOptionsJSON });
+      const credential = await startAuthentication({ optionsJSON: options as unknown as Parameters<typeof startAuthentication>[0]['optionsJSON'] });
 
       const completeResp = await fetch(`${base}/v1/auth/passkey/login/complete`, {
         method: "POST",
@@ -266,7 +264,7 @@ export default function SignupForm() {
       if (!address) throw new Error("No account returned from wallet");
 
       const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
-      const chainId = parseInt(chainIdHex, 16);
+      const chainId = parseInt(chainIdHex[0], 16);
 
       const challengeResp = await fetch(`${base}/v1/auth/web3/challenge`, {
         method: "POST",

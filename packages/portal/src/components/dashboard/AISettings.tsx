@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 function getApiBase(): string {
   if (typeof window !== "undefined") {
@@ -28,9 +27,6 @@ declare global {
   }
 }
 
-import { createI18n } from "@maplespike/i18n";
-import type { Locale } from "@maplespike/i18n";
-
 const PROVIDERS = [
   { value: "default", label: "Cluster Default (local model)", description: "Use MapleSpike's hosted AI — no setup needed" },
   { value: "openai", label: "OpenAI", description: "GPT-4o, GPT-4 Turbo" },
@@ -41,9 +37,8 @@ const PROVIDERS = [
   { value: "custom", label: "Custom Endpoint", description: "Your own OpenAI-compatible server" },
 ];
 
-export default function AISettings({ lang: propLang }: { lang?: Locale }) {
-  const lang = propLang || (typeof window !== "undefined" ? ((window as unknown as Record<string, string>).__LANG as Locale || "en") : "en");
-  const i18n = createI18n(lang);
+export default function AISettings({ lang: propLang }: { lang?: string }) {
+  const lang = propLang || (typeof window !== "undefined" ? ((window as unknown as Record<string, string>).__LANG as string || "en") : "en");
   const [provider, setProvider] = useState("default");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
