@@ -439,4 +439,174 @@ for the full manifest +9-step recipe). The cliff-notes:
 
 ---
 
-*Ship fast. Get feedback. Iterate.*
+## Image Pinning Protocol
+
+> **Why pinning matters.** Deploying with `:latest` or any mutable tag (`prod`,
+> `v0.3.0-a1b2c3d` can be overwritten by a subsequent push) means two different
+> pods can pull different content for the same tag string. A digest pin
+> (`sha256:abc123...`) is immutable — it always resolves to the exact same
+> image layer. This section documents how to obtain, verify, and deploy
+> digest-pinned images.
+
+### Why `:latest` + `IfNotPresent` is a staleness trap
+
+The default `imagePullPolicy` in Kubernetes is `IfNotPresent` when the image
+tag is **not** `:latest`, and `Always` when it **is** `:latest`.
+
+This creates a subtle problem:
+
+| Configuration | Behaviour | Risk |
+|--------------|-----------|------|
+| `:latest` tag, `IfNotPresent` (overridden by policy default) | K8s overrides to `Always` — pulls every time | Slightly slower pod startup; no pin guarantee |
+| `:latest` tag, explicit `IfNotPresent` | K8s respects the explicit policy | **Stale image** — once pulled, node never re-pulls. A re-push to `:latest` is invisible. |
+| `:v0.3.0-a1b2c3d` tag, `IfNotPresent` (default) | Pulled once per node, cached forever | Tag is mutable — a re-push to the same tag name changes the content without changing the tag string |
+| `sha256:abc...` digest, `IfNotPresent` (default) | Pulled once per node, cached forever | **Immutable** — the digest is the content hash |
+
+**Rule:** Never use `:latest` in production manifests. Always pin to a digest
+after initial deployment, or at minimum use a unique tag (e.g. the git SHA)
+combined with a manual digest-pin step.
+
+### Extracting the manifest digest from a registry
+
+The Docker manifest V2 Schema 2 response includes a
+`Docker-Content-Digest` header that contains the SHA256 digest of the
+manifest. To get it, you need the correct `Accept` header to request the
+right manifest format.
+
+#### From GHCR (or any HTTPS registry)
+
+```bash
+# Set variables
+REGISTRY="ghcr.io"
+OWNER="reverb256"
+IMAGE="quill-api"
+TAG="v0.3.0-a1b2c3d"
+
+# Get the manifest digest using the Docker manifest format Accept header
+DIGEST=$(curl -sS \
+  -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+  -H "Accept: application/vnd.oci.image.manifest.v1+json" \
+  -H "Authorization: Bearer $(echo "$GITHUB_TOKEN" | base64 -d 2>/dev/null || echo "")" \
+  "https://${REGISTRY}/v2/${OWNER}/${IMAGE}/manifests/${TAG}" \
+  -D - -o /dev/null 2>/dev/null \
+  | grep -i "Docker-Content-Digest" \
+  | awk '{print $2}' \
+  | tr -d '\r')
+
+echo "$DIGEST"
+# → sha256:abc123def456...
+```
+
+> **Important:** The two `Accept` headers tell the registry you accept both
+> Docker V2 Schema 2 (`application/vnd.docker.distribution.manifest.v2+json`)
+> and OCI (`application/vnd.oci.image.manifest.v1+json`) manifests. The
+> registry responds with whichever format is stored, and the digest in
+> `Docker-Content-Digest` reflects that format. If you omit the OCI accept
+> and the stored manifest is OCI, the registry returns a
+> `415 Unsupported Media Type`.
+
+#### From a plain-HTTP registry (nexus:5000)
+
+```bash
+# Plain HTTP registries require explicit --insecure and the correct Accept
+# header. OCI format is corrupted by the HTTP transport (lack of TLS wrapping
+# can cause manifest blob corruption with OCI media types in some registries),
+# so request Docker format explicitly.
+DIGEST=$(curl -sS --insecure \
+  -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+  "http://nexus:5000/v2/quill-api/manifests/latest" \
+  -D - -o /dev/null \
+  | grep -i "Docker-Content-Digest" \
+  | awk '{print $2}' \
+  | tr -d '\r')
+
+echo "$DIGEST"
+```
+
+> **⚠️  OCI vs Docker format gotcha.** When pushing images with `docker buildx`
+> (which uses BuildKit internally), the default output format is OCI
+> (`application/vnd.oci.image.manifest.v1+json`). OCI manifests pushed to a
+> plain-HTTP registry (`nexus:5000`) are subject to transport-tampering risk
+> because the manifest layers are referenced by digest, but the envelope
+> itself has no TLS integrity check. Podman users MUST pass
+> `--format docker` on `podman build` to output Docker V2 Schema 2 manifests
+> instead of OCI. For Docker BuildKit, use
+> `--output type=image,oci-mediatypes=false` or set
+> `DOCKER_BUILDKIT=0` as a last resort:
+>
+> ```bash
+> # BuildKit → Docker format (safe for plain HTTP)
+> docker buildx build \
+>   --output type=image,name=nexus:5000/quill-api:v0.3.0-a1b2c3d,oci-mediatypes=false \
+>   .
+> ```
+>
+> GHCR (HTTPS) accepts both formats without corruption, so this only matters
+> when pushing to the local `nexus:5000` registry.
+
+### Pinning deployments to a digest
+
+Once you have the digest, update the K8s deployment manifest:
+
+```yaml
+# Before (mutable tag — can drift)
+image: ghcr.io/reverb256/quill-api:v0.3.0-a1b2c3d
+
+# After (immutable digest — guaranteed content)
+image: ghcr.io/reverb256/quill-api@sha256:abc123def456...
+imagePullPolicy: IfNotPresent
+```
+
+**Steps:**
+
+1. **Extract the digest** using the curl command above.
+2. **Update the deployment manifest** or run:
+   ```bash
+   kubectl set image deployment/maplespike-quill-api \
+     -n maplespike \
+     "*=ghcr.io/reverb256/quill-api@${DIGEST}"
+   ```
+3. **Verify the digest locally** (optional):
+   ```bash
+   docker pull ghcr.io/reverb256/quill-api@sha256:abc123def456...
+   docker inspect ghcr.io/reverb256/quill-api@sha256:abc123def456... \
+     | jq '.[0].RepoDigests'
+   ```
+4. **Confirm the deployment rolled out:**
+   ```bash
+   kubectl rollout status deployment/maplespike-quill-api -n maplespike
+   ```
+
+### Specifying the digest in Helm values
+
+When using the Helm chart (`charts/quill/`), set the image digest in
+`values.yaml` or override on the command line:
+
+```yaml
+# values.yaml
+image:
+  registry: ghcr.io/reverb256
+  tag: ""                    # empty when using digest
+  digest: sha256:abc123def456...
+  pullPolicy: IfNotPresent
+```
+
+Or via `--set`:
+
+```bash
+helm upgrade --install quill ./charts/quill \
+  --set image.digest=sha256:abc123def456... \
+  --set image.tag="" \
+  --set image.pullPolicy=IfNotPresent
+```
+
+### Quick reference
+
+| Format | Tag example | Digest example | Mutation risk |
+|--------|-----------|---------------|-------------|
+| `:latest` | `quill-api:latest` | — | High — overwritten by any push |
+| SHA tag | `quill-api:v0.3.0-a1b2c3d` | — | Medium — tag can be force-pushed |
+| Digest | `quill-api@sha256:abc...` | `sha256:abc...` | **None** — content-addressed |
+
+**Prefer digest pins in production manifests.** Use SHA tags only during
+development and canary deployment; pin to digest before promoting to stable.
