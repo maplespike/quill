@@ -266,30 +266,30 @@ export default function SignupForm() {
       const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
       const chainId = parseInt(chainIdHex[0], 16);
 
-      const challengeResp = await fetch(`${base}/v1/auth/web3/challenge`, {
+      const challengeResp = await fetch(`${base}/v1/astral/web3/nonce`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, chainId }),
       });
       const challengeData = await challengeResp.json();
-      if (!challengeData.success) throw new Error(challengeData.error?.message || "Challenge failed");
+      if (!challengeData || (!challengeData.nonce && !challengeData.message_template)) throw new Error(challengeData.error?.message || challengeData.error || "Challenge failed");
 
-      const { message } = challengeData.data;
+      const message = challengeData.message_template || challengeData.data?.message;
 
       const signature = await window.ethereum.request({
         method: "personal_sign",
         params: [message, address],
       });
 
-      const loginResp = await fetch(`${base}/v1/auth/web3/login`, {
+      const loginResp = await fetch(`${base}/v1/astral/web3/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, signature, address }),
       });
       const loginData = await loginResp.json();
-      if (!loginData.success) throw new Error(loginData.error?.message || "Web3 login failed");
+      if (!loginData || (!loginData.access_token && !loginData.token)) throw new Error(loginData.error?.message || loginData.error || "Web3 login failed");
 
-      const { token } = loginData.data;
+      const token = loginData.access_token || loginData.data?.token;
       setAuthState(token, address, "web3");
       setAuth({ token, userId: address, method: "web3" });
     } catch (e) {
