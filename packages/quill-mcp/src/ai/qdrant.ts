@@ -304,3 +304,74 @@ export async function countPoints(
     return 0;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Semantic Search Helper                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Embed a text string using the AI gateway's embeddings endpoint.
+ * (Inline helper — avoids cross-package dependency on gateway.ts)
+ */
+async function embedText(text: string, configOverride?: Partial<QdrantConfig>): Promise<number[] | null> {
+  const endpoint = process.env.QUILL_GATEWAY_URL || 'http://nexus:30880/v1';
+  const model = process.env.QUILL_EMBED_MODEL || 'nvidia/llama-3.2-nv-embedqa-1b-v2';
+  const apiKey = configOverride?.apiKey || process.env.QUILL_GATEWAY_API_KEY;
+
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
+    const resp = await fetch(`${endpoint}/embeddings`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ model, input: text }),
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    if (!resp.ok) return null;
+    const data = (await resp.json()) as Record<string, unknown>;
+    const embedding = (data as any)?.data?.[0]?.embedding;
+    return Array.isArray(embedding) ? (embedding as number[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Search Qdrant for points semantically similar to the given text.
+ *
+ * 1. Embeds the text via the AI gateway
+ * 2. Searches the collection with the resulting vector
+ * 3. Filters results by scoreThreshold if provided
+ * 4. Returns scored points with payload
+ *
+ * Gracefully degrades: returns empty array on failure.
+ */
+export async function searchSimilar(
+  text: string,
+  limit = 3,
+  scoreThreshold?: number,
+  configOverride?: Partial<QdrantConfig>,
+): Promise<QdrantScoredPoint[]> {
+  if (!text || text.trim().length === 0) return [];
+
+  // Step 1: Embed the query text
+  const vector = await embedText(text, configOverride);
+  if (!vector) {
+    console.error('[ai/qdrant] searchSimilar: embedding failed');
+    return [];
+  }
+
+  // Step 2: Search Qdrant
+  try {
+    const results = await searchCollection(vector, {
+      limit,
+      scoreThreshold,
+    }, configOverride);
+    return results;
+  } catch (error) {
+    console.error(`[ai/qdrant] searchSimilar: search failed —`, (error as Error).message);
+    return [];
+  }
+}

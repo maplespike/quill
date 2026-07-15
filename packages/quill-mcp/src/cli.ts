@@ -34,6 +34,7 @@ import {
   setCurrentIdentity,
   type QuotaIdentity,
 } from './quota.js';
+import logger from './logger.js';
 
 const server = new McpServer();
 
@@ -84,7 +85,7 @@ const requestTimingsMs: number[] = [];
 
 // ─── Graceful shutdown ─────────────────────────────────────────────────
 function gracefulShutdown(signal: 'SIGINT' | 'SIGTERM'): void {
-  console.error(`[quill] ${signal} received, shutting down`);
+  logger.warn('%s received, shutting down', signal);
   quota.flushSync();
   process.exit(0);
 }
@@ -229,12 +230,12 @@ if (PORT > 0) {
               // documented limitation that pushes operators toward Bearer).
               ip = req.socket.remoteAddress || 'unknown';
               if (process.env.NODE_ENV === 'production' && typeof fwd === 'string') {
-                console.error(`[quill] WARN: incoming call carries X-Forwarded-For but TRUST_PROXY=false — falling back to socket remoteAddress.`);
+                logger.warn('incoming call carries X-Forwarded-For but TRUST_PROXY=false — falling back to socket remoteAddress.');
               }
             }
             identity = buildIdentity('anonymous-ip', ip);
             if (process.env.NODE_ENV === 'production') {
-              console.error(`[quill] anonymous SSE (${identity.hashed}) — quota keyed by IP, easy to bypass without Bearer`);
+              logger.warn('anonymous SSE (%s) — quota keyed by IP, easy to bypass without Bearer', identity.hashed);
             }
           }
 
@@ -266,13 +267,13 @@ if (PORT > 0) {
   });
 
   srv.listen(PORT, '0.0.0.0', () => {
-    console.error(`[quill] SSE transport — ${server.getToolCount()} tools registered, listening on port ${PORT} (locale: ${CLI_LOCALE})`);
+    logger.info('SSE transport — %d tools registered, listening on port %d (locale: %s)', server.getToolCount(), PORT, CLI_LOCALE);
   });
 } else {
   // ─── stdio transport ───────────────────────────────────────────────────
-  console.error(`[quill] Starting stdio transport — ${server.getToolCount()} tools registered (locale: ${CLI_LOCALE})`);
+  logger.info('Starting stdio transport — %d tools registered (locale: %s)', server.getToolCount(), CLI_LOCALE);
   const gwTimeout = parseInt(process.env['QUILL_HANDLER_TIMEOUT_MS'] ?? '', 10) || 55_000;
-  console.error(`[quill] Handler timeout: ${gwTimeout}ms (QUILL_HANDLER_TIMEOUT_MS)`);
+  logger.info('Handler timeout: %dms (QUILL_HANDLER_TIMEOUT_MS)', gwTimeout);
 
   // stdio callers are self-hosted — quota is NOT enforced (they run the server).
   const selfHostedIdentity = buildIdentity('self-hosted', process.env.MAPLESPIKE_SESSION_ID || 'stdio');
@@ -298,10 +299,10 @@ if (PORT > 0) {
 
     server.handleMessage(parsed, CLI_LOCALE, (response) => {
       process.stdout.write(JSON.stringify(response) + '\n');
-    }, undefined, selfHostedIdentity).catch((err: unknown) => console.error('[quill] Error:', err));
+    }, undefined, selfHostedIdentity).catch((err: unknown) => logger.error(err, 'Error:'));
   });
 
   rl.on('close', () => {
-    console.error('[quill] stdin closed, waiting for pending operations…');
+    logger.info('stdin closed, waiting for pending operations…');
   });
 }
