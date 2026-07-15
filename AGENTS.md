@@ -69,6 +69,20 @@ pnpm test
 
 > **Note:** Quick Start above builds/packages. For *running* the stack locally (three services on localhost), use `./scripts/dev-up.sh` — see the next section.
 
+## ⚠️ MANDATORY WORKFLOW — OpenSpec First
+
+**Every feature, change, or addition in this repo uses OpenSpec.** Do not accept a request
+to build/change/add without following the propose→apply→archive cycle. Trivial one-line fixes
+(typo, single config value) are the only exceptions.
+
+- `/opsx:explore <topic>` — think it through first (required unless requirements are 100% concrete)
+- `/opsx:propose <name>` — creates change folder with proposal, specs, design, tasks
+- `/opsx:apply` — implement against the spec
+- `/opsx:archive` — specs merged, change filed
+
+Specs live in `openspec/specs/`. The `spec-driven-with-review` custom schema adds a pre-implementation
+review artifact. See `openspec/config.yaml` for repo context.
+
 ### Local dev recipes
 
 | Task | Command | Notes |
