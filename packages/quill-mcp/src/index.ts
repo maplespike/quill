@@ -19,6 +19,8 @@ import { McpServer } from './server.js';
 import { getAllTools } from './tools/index.js';
 import { parsePaymentHeader } from './x402-middleware.js';
 import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from './quota.js';
+import { authenticateToken, isCasdoorToken } from './auth/oidc.js';
+import logger from './logger.js';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 const API_KEY = process.env.QUILL_API_KEY ?? 'dev-key';
@@ -34,7 +36,7 @@ for (const tool of tools) {
   server.registerTool(tool.definition, tool.handler);
 }
 
-console.error(`[quill] SSE server starting on port ${PORT} — ${server.getToolCount()} tools registered`);
+logger.info('SSE server starting on port %d — %d tools registered', PORT, server.getToolCount());
 
 interface SseClient {
   id: string;
@@ -54,26 +56,38 @@ async function authenticate(req: IncomingMessage): Promise<boolean> {
   if (API_KEY === 'dev-key' && process.env.NODE_ENV !== 'production') return true; // dev mode — no auth
 
   const auth = req.headers.authorization ?? '';
+  const match = auth.match(/^Bearer\s+(.+)$/i);
+  if (!match) return false;
 
-  // If ASTRAL_KEY_URL is set, delegate token validation to astral-key
+  const token = match[1];
+
+  // Method 1: Check against configured API key
+  if (token === API_KEY || token === Buffer.from(API_KEY).toString('base64')) {
+    return true;
+  }
+
+  // Method 2: If ASTRAL_KEY_URL is set, delegate token validation to astral-key
   const astralKeyUrl = process.env.ASTRAL_KEY_URL;
   if (astralKeyUrl) {
-    const match = auth.match(/^Bearer\s+(.+)$/i);
-    if (!match) return false;
     try {
       const res = await fetch(`${astralKeyUrl}/auth/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: match[1] }),
+        body: JSON.stringify({ token }),
       });
       const data = await res.json() as { valid: boolean };
-      return data.valid === true;
+      if (data.valid === true) return true;
     } catch {
-      return false;
+      // Fall through to next method
     }
   }
 
-  return auth === `Bearer ${API_KEY}` || auth === `Bearer ${Buffer.from(API_KEY).toString('base64')}`;
+  // Method 3: Casdoor OIDC token validation via JWKS
+  if (isCasdoorToken(token)) {
+    return authenticateToken(token);
+  }
+
+  return false;
 }
 
 const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
@@ -120,7 +134,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 
     clients.set(clientId, { id: clientId, res, locale });
 
-    console.error(`[quill] SSE client connected: ${clientId} (total: ${clients.size})`);
+    logger.info('SSE client connected: %s (total: %d)', clientId, clients.size);
 
     // Heartbeat every 30s to keep connection alive
     const heartbeat = setInterval(() => {
@@ -134,7 +148,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
     req.on('close', () => {
       clearInterval(heartbeat);
       clients.delete(clientId);
-      console.error(`[quill] SSE client disconnected: ${clientId} (total: ${clients.size})`);
+      logger.info('SSE client disconnected: %s (total: %d)', clientId, clients.size);
     });
 
     return;
@@ -191,9 +205,9 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
           identity = buildIdentity('anonymous-ip', ip);
           if (process.env.NODE_ENV === 'production') {
             if (typeof fwd === 'string') {
-              console.error(`[quill] WARN: SSE without Bearer, X-Forwarded-For present, TRUST_PROXY=${trustProxy ? 'true' : 'false'} — using ${trustProxy ? 'XFF' : 'socket'} remoteAddress for IP-keyed quota.`);
+              logger.warn('SSE without Bearer, X-Forwarded-For present, TRUST_PROXY=%s — using %s remoteAddress for IP-keyed quota.', trustProxy ? 'true' : 'false', trustProxy ? 'XFF' : 'socket');
             } else {
-              console.error(`[quill] WARN: SSE without Bearer — quota keyed by IP (${identity.hashed}). Set TRUST_PROXY=true only behind a known proxy envelope.`);
+              logger.warn('SSE without Bearer — quota keyed by IP (%s). Set TRUST_PROXY=true only behind a known proxy envelope.', identity.hashed);
             }
           }
         }
@@ -208,7 +222,7 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
           (response.result as Record<string, unknown>)._quota = quotaStatus;
         }
         sendSse(client.res, 'message', response);
-      }, paymentProof, identity).catch((err: unknown) => console.error('[quill] Error handling message:', err));
+      }, paymentProof, identity).catch((err: unknown) => logger.error(err, 'Error handling message'));
 
       res.writeHead(202, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ accepted: true }));
@@ -222,14 +236,14 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`[quill] Hosted SSE server running on http://0.0.0.0:${PORT}`);
-  console.log(`[quill] SSE endpoint: http://0.0.0.0:${PORT}/sse`);
-  console.log(`[quill] Health check: http://0.0.0.0:${PORT}/health`);
-  console.log(`[quill] Tools loaded: ${tools.map(t => t.definition.name).join(', ')}`);
+  logger.info('Hosted SSE server running on http://0.0.0.0:%d', PORT);
+  logger.info('SSE endpoint: http://0.0.0.0:%d/sse', PORT);
+  logger.info('Health check: http://0.0.0.0:%d/health', PORT);
+  logger.info('Tools loaded: %s', tools.map(t => t.definition.name).join(', '));
 });
 
 process.on('SIGINT', () => {
-  console.error('[quill] SIGINT received, closing SSE connections');
+  logger.warn('SIGINT received, closing SSE connections');
   getQuotaTracker().flushSync();
   for (const { res } of clients.values()) {
     res.end();
@@ -238,7 +252,7 @@ process.on('SIGINT', () => {
 });
 
 process.on('SIGTERM', () => {
-  console.error('[quill] SIGTERM received, shutting down');
+  logger.warn('SIGTERM received, shutting down');
   getQuotaTracker().flushSync();
   httpServer.close(() => process.exit(0));
 });
