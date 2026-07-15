@@ -4,6 +4,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { getFrDescription } from './bilingual-descriptions.js';
+import logger from '../logger.js';
 import * as queryGovData from './query-gov-data.js';
 import * as factCheck from './fact-check.js';
 import * as getCitation from './get-citation.js';
@@ -222,7 +223,7 @@ function wrapHandler(name: string, handler: ToolHandler): ToolHandler {
       return await handler(args);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error(`[TOOL] ${name} threw: ${msg}`);
+      logger.error({ tool: name, err }, 'Tool threw: %s', msg);
       return {
         content: {
           tool: name,

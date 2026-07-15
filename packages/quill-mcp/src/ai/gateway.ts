@@ -130,7 +130,7 @@ export async function chatCompletion(
       lastError = error as Error;
       if (attempt < config.maxRetries!) {
         const delay = config.retryDelay! * Math.pow(2, attempt);
-        console.error(`[ai/gateway] Chat attempt ${attempt + 1} failed: ${lastError.message}. Retrying in ${delay}ms...`);
+        logger.warn({ err: lastError, attempt: attempt + 1, delay }, 'Chat attempt %d failed, retrying in %dms', attempt + 1, delay);
         await new Promise((r) => setTimeout(r, delay));
       }
     }
@@ -210,7 +210,7 @@ export async function embed(
       lastError = error as Error;
       if (attempt < config.maxRetries!) {
         const delay = config.retryDelay! * Math.pow(2, attempt);
-        console.error(`[ai/gateway] Embed attempt ${attempt + 1} failed: ${lastError.message}. Retrying in ${delay}ms...`);
+        logger.warn({ err: lastError, attempt: attempt + 1, delay }, 'Embed attempt %d failed, retrying in %dms', attempt + 1, delay);
         await new Promise((r) => setTimeout(r, delay));
       }
     }
