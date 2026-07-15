@@ -8,3 +8,22 @@ export type {
   TrackedActorMatch,
   FiveGWAnalysisResult,
 } from './fifth-gen-warfare.js';
+
+// ── Journalism Mode / Verification Badge System ─────────────────────
+export {
+  hasCapability,
+  meetsMinimumLevel,
+  badgeRank,
+  badgeLabel,
+  createBadgeState,
+  isBadgeActive,
+  getCapabilities,
+  isModuleAccessible,
+  DEFAULT_CAPABILITIES,
+  BADGE_LABELS,
+} from './journalism-mode.js';
+export type {
+  JournalismBadgeLevel,
+  JournalismCapabilities,
+  JournalismBadgeState,
+} from './journalism-mode.js';

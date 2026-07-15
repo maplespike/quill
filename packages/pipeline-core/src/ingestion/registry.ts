@@ -679,6 +679,17 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.sedi.ca',
   },
   {
+    name: 'sedar-plus',
+    description: 'SEDAR+ corporate filings — Canadian securities documents: annual reports, AIFs, financial statements, prospectuses, material changes for TSX/TSXV issuers',
+    category: 'corporate',
+    modulePath: './sedar-plus/index.js',
+    ingestFunctions: ['ingestAllSedar', 'ingestSedarByIssuer', 'ingestSedarRecent', 'searchFilings', 'searchFilingsByIssuer', 'fetchAifFilings'],
+    sources: [{ name: 'CD Plus API (sedarplus.ca)', format: 'JSON' }, { name: 'Legacy SEDAR (sedar.com)', format: 'HTML' }],
+    updateFrequency: 'daily',
+    testCallPattern: 'runModule',
+    healthCheckUrl: 'https://www.sedarplus.ca',
+  },
+  {
     name: 'crown-corporations',
     description: 'Crown corporations — annual reports, quarterly financials, governance data for CBC, Canada Post, CMHC, EDC, VIA Rail, BDC',
     category: 'corporate',
