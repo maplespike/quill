@@ -141,6 +141,89 @@ export const astralWeb3ChainsHandler: RouteHandler = async (_request, _ctx) => {
   return jsonResponse(result.data as any, result.status);
 };
 
+// Solana Web3: generate nonce
+export const astralSolanaNonceHandler: RouteHandler = async (request, ctx) => {
+  const body = await request.json().catch(() => ({}));
+  const publicKey = (body.publicKey || body.address || '').toString();
+  if (!publicKey) {
+    return jsonResponse(buildError('VALIDATION_ERROR', 'Solana public key is required', ctx), 400);
+  }
+
+  const nonce = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+  const message = `MapleSpike Quill wants you to sign in with your Solana account:\n${publicKey}\n\nSign in to MapleSpike Quill\n\nURI: https://quill.maplespike.ca\nVersion: 1\nNonce: ${nonce}`;
+
+  const nonceKey = `solana:nonce:${publicKey}`;
+  await ctx.cache.put(nonceKey, nonce, 300); // 5 min TTL
+
+  return jsonResponse(buildSuccess({ nonce, message, publicKey }, ctx));
+};
+
+// Solana Web3: verify signature and login
+export const astralSolanaVerifyHandler: RouteHandler = async (request, ctx) => {
+  const body = await request.json().catch(() => ({}));
+  const { publicKey, signature, message } = body as Record<string, string>;
+  if (!publicKey || !signature || !message) {
+    return jsonResponse(buildError('VALIDATION_ERROR', 'publicKey, signature, and message are required', ctx), 400);
+  }
+
+  // Verify nonce was requested
+  const nonceKey = `solana:nonce:${publicKey}`;
+  const storedNonce = await ctx.cache.get(nonceKey);
+  if (!storedNonce) {
+    return jsonResponse(buildError('AUTH_ERROR', 'No nonce found. Request a nonce first.', ctx), 400);
+  }
+  await ctx.cache.delete(nonceKey);
+
+  // Verify the message contains the stored nonce
+  if (!message.includes(storedNonce)) {
+    return jsonResponse(buildError('AUTH_ERROR', 'Nonce mismatch. Possible replay attack.', ctx), 403);
+  }
+
+  // Verify Ed25519 signature using tweetnacl
+  try {
+    const nacl = await import('tweetnacl');
+    const bs58 = await import('bs58');
+
+    const msgBytes = new TextEncoder().encode(message);
+    const sigBytes = bs58.decode(signature);
+    const pubKeyBytes = bs58.decode(publicKey);
+
+    const valid = nacl.sign.detached.verify(msgBytes, sigBytes, pubKeyBytes);
+    if (!valid) {
+      return jsonResponse(buildError('AUTH_ERROR', 'Invalid signature. Message was not signed by the claimed public key.', ctx), 401);
+    }
+
+    // Create/update tenant
+    const tenantId = 'sol_' + publicKey.slice(0, 32);
+    const { generateApiKey } = await import('../auth.js');
+    const { rawKey, keyHash } = await generateApiKey();
+    const keyId = 'key_' + Array.from(new Uint8Array(16)).map(() => Math.random().toString(16).slice(2, 4)).join('');
+    const tenant = {
+      id: tenantId, name: `Solana ${publicKey.slice(0, 8)}...`, email: '',
+      emailVerified: true, tier: 'free' as const, isActive: true, journalismMode: false,
+    };
+    const extDb = ctx.db as any;
+    if (typeof extDb.registerTenant === 'function') {
+      extDb.registerTenant(tenant, keyHash, keyId);
+    } else if (typeof extDb.createTenant === 'function') {
+      extDb.createTenant(tenant);
+      if (typeof extDb.createApiKey === 'function') {
+        extDb.createApiKey(keyId, tenantId, keyHash, 'default');
+      }
+    }
+
+    return jsonResponse(buildSuccess({
+      tenantId,
+      apiKey: { id: keyId, key: rawKey },
+      message: 'Solana authentication successful. Save your API key.',
+    }, ctx));
+  } catch (err) {
+    const message2 = err instanceof Error ? err.message : 'Signature verification failed';
+    return jsonResponse(buildError('AUTH_ERROR', message2, ctx), 401);
+  }
+};
+
 // Health check
 export const astralHealthHandler: RouteHandler = async (_request, _ctx) => {
   const result = await proxyToAstral('/health', 'GET');

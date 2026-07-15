@@ -89,6 +89,8 @@ import {
   astralFido2AuthOptionsHandler,
   astralFido2AuthVerifyHandler,
   astralHealthHandler,
+  astralSolanaNonceHandler,
+  astralSolanaVerifyHandler,
 } from './routes/astral-proxy.js';
 import {
   oauthProvidersHandler,
@@ -198,6 +200,9 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/astral\/fido2\/register\/verify\/?$/, method: 'POST', params: [], handler: astralFido2RegisterVerifyHandler },
   { pattern: /^\/v1\/astral\/fido2\/authenticate\/options\/?$/, method: 'POST', params: [], handler: astralFido2AuthOptionsHandler },
   { pattern: /^\/v1\/astral\/fido2\/authenticate\/verify\/?$/, method: 'POST', params: [], handler: astralFido2AuthVerifyHandler },
+  // Solana Web3 — direct Ed25519 signature verification (not proxied to Astral Key)
+  { pattern: /^\/v1\/astral\/web3\/solana\/nonce\/?$/, method: 'POST', params: [], handler: astralSolanaNonceHandler },
+  { pattern: /^\/v1\/astral\/web3\/solana\/verify\/?$/, method: 'POST', params: [], handler: astralSolanaVerifyHandler },
   { pattern: /^\/v1\/keys\/?$/, method: 'POST', params: [], handler: createKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/?$/, method: 'DELETE', params: ['id'], handler: deleteKeyHandler },
   { pattern: /^\/v1\/keys\/([^/]+)\/rotate\/?$/, method: 'POST', params: ['id'], handler: rotateKeyHandler },

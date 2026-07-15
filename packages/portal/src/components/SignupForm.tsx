@@ -83,6 +83,12 @@ declare global {
       request: (args: { method: string; params?: unknown[] }) => Promise<string[]>;
       on?: (event: string, handler: () => void) => void;
     };
+    solana?: {
+      connect: () => Promise<{ publicKey: { toBytes: () => Uint8Array; toBase58: () => string } }>;
+      signMessage: (msg: Uint8Array, encoding: string) => Promise<{ signature: Uint8Array }>;
+      isPhantom?: boolean;
+      publicKey?: { toBytes: () => Uint8Array; toBase58: () => string };
+    };
     MapleSpikeAuth?: {
       getAuth: () => { token: string | null; userId: string | null; method: string | null; isAuthenticated: boolean };
       setAuth: (token: string, userId: string, method: string) => void;
@@ -106,11 +112,13 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [webAuthnSupported, setWebAuthnSupported] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
+  const [hasSolanaWallet, setHasSolanaWallet] = useState(false);
 
   useEffect(() => {
     setAuth(getAuthState());
     setWebAuthnSupported(browserSupportsWebAuthn());
     setHasWallet(typeof window !== "undefined" && !!window.ethereum);
+    setHasSolanaWallet(typeof window !== "undefined" && !!(window.solana && window.solana.connect));
     loadProviders();
   }, []);
 
@@ -299,6 +307,56 @@ export default function SignupForm() {
     }
   }
 
+  /* ── Solana Wallet Login ────────────────────────────────────── */
+
+  async function handleSolanaLogin() {
+    setBusy("solana-login");
+    setError(null);
+    try {
+      if (!window.solana) throw new Error("No Solana wallet found. Install Phantom or Backpack.");
+
+      const base = getApiBase();
+      const resp = await window.solana.connect();
+      const publicKey = resp.publicKey.toBase58();
+
+      // Request nonce
+      const nonceResp = await fetch(`${base}/v1/astral/web3/solana/nonce`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicKey }),
+      });
+      const nonceData = await nonceResp.json();
+      if (!nonceData.success) throw new Error(nonceData.error?.message || "Nonce request failed");
+      const { message } = nonceData.data;
+
+      // Sign with wallet
+      const encoded = new TextEncoder().encode(message);
+      const { signature } = await window.solana.signMessage(encoded, "utf8");
+
+      // Convert signature to base58
+      const bs58 = await import("bs58");
+      const sigBase58 = bs58.encode(signature);
+
+      // Verify
+      const verifyResp = await fetch(`${base}/v1/astral/web3/solana/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publicKey, signature: sigBase58, message }),
+      });
+      const verifyData = await verifyResp.json();
+      if (!verifyData.success) throw new Error(verifyData.error?.message || "Solana login failed");
+
+      const apiKey = verifyData.data?.apiKey?.key || "";
+      if (apiKey) localStorage.setItem("quill-api-key", apiKey);
+      setAuthState(apiKey, publicKey, "solana");
+      setAuth({ token: apiKey, userId: publicKey, method: "solana" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Solana login failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   /* ── OAuth ───────────────────────────────────────────────────── */
 
   const casdoor = providers.find((p) => p.name === "casdoor");
@@ -325,6 +383,7 @@ export default function SignupForm() {
           </CardTitle>
           <CardDescription>
             {authState.method === "web3" && "Connected via Web3 wallet"}
+            {authState.method === "solana" && "Connected via Solana wallet"}
             {authState.method === "passkey" && "Registered with passkey"}
             {authState.method === "oauth" && "Signed in via OAuth"}
           </CardDescription>
@@ -428,30 +487,50 @@ export default function SignupForm() {
           </div>
         )}
 
-        {hasWallet && (
+        {(hasWallet || hasSolanaWallet) && (
           <div className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full"
-              disabled={busy !== null}
-              onClick={handleWeb3Login}
-            >
-              {busy === "web3-login" ? (
-                <span className="flex items-center gap-2">
-                  <Spinner /> Connect wallet...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <WalletIcon /> Connect Web3 wallet
-                </span>
-              )}
-            </Button>
+            {hasWallet && (
+              <Button
+                variant="outline"
+                className="w-full"
+                disabled={busy !== null}
+                onClick={handleWeb3Login}
+              >
+                {busy === "web3-login" ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner /> Connect wallet...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <WalletIcon /> Connect Web3 wallet
+                  </span>
+                )}
+              </Button>
+            )}
+            {hasSolanaWallet && (
+              <Button
+                variant="outline"
+                className="w-full"
+                disabled={busy !== null}
+                onClick={handleSolanaLogin}
+              >
+                {busy === "solana-login" ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner /> Connecting Solana wallet...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <SolanaIcon /> Connect Solana wallet
+                  </span>
+                )}
+              </Button>
+            )}
           </div>
         )}
 
         {!loading && providers.length > 0 && (
           <>
-            {(webAuthnSupported || hasWallet) && (
+            {(webAuthnSupported || hasWallet || hasSolanaWallet) && (
               <div className="flex items-center gap-3 py-4">
                 <Separator className="flex-1" />
                 <span className="text-xs text-muted-foreground">or</span>
@@ -541,6 +620,18 @@ function WalletIcon() {
       <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
       <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
       <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+    </svg>
+  );
+}
+
+function SolanaIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 8h16" />
+      <path d="M4 12h16" />
+      <path d="M4 16h16" />
+      <path d="M6 3l-3 3 3 3" />
+      <path d="M18 18l3-3-3-3" />
     </svg>
   );
 }
