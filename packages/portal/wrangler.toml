@@ -1,0 +1,18 @@
+# ── Quill Portal — Cloudflare Pages ─────────────────────────────
+#
+# Binds quill/packages/portal/dist/ to the existing `maplespike-quill`
+# Pages project so `pnpm run pages:deploy` (from this package) and the
+# wrangler CLI pick up the right project without flags.
+#
+# Custom domain bindings (`quill.maplespike.ca`, `www.quill.maplespike.ca`)
+# are NOT set here on purpose — they are attached out-of-band to the project
+# so that the apex Zone stays the single source of truth (matches
+# maplespike-brand/wrangler.toml convention; see comment block there).
+#
+# Attach with:
+#   wrangler pages domain add maplespike-quill quill.maplespike.ca
+#   wrangler pages domain add maplespike-quill www.quill.maplespike.ca
+# ─────────────────────────────────────────────────────────────────
+name = "maplespike-quill"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-06-30"
