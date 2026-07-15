@@ -224,6 +224,7 @@
   },
   "dependencies": {
     "@maplespike/database": "workspace:*",
+    "@qdrant/js-client-rest": "^1.12.0",
     "amqplib": "^0.10.5",
     "fast-xml-parser": "^5.8.0",
     "pg": "^8.20.0",
