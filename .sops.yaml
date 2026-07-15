@@ -18,7 +18,9 @@
 creation_rules:
   # Runtime secrets — decrypted by sops-nix on nexus at boot
   - path_regex: secrets/runtime\.yaml$
-    age: age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm
+    age: >-
+      age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm,
+      age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
 
   # Build-time secrets — decrypted on dev workstations + CI runners
   - path_regex: secrets/build\.yaml$
@@ -26,6 +28,12 @@ creation_rules:
 
   # Cloudflared tunnel credentials — needed at both build + runtime
   - path_regex: secrets/cloudflared\.yaml$
+    age: >-
+      age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm,
+      age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
+
+  # Billing/runtime secrets — both keys (dev workstations + nexus boot)
+  - path_regex: secrets/billing\.yaml$
     age: >-
       age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm,
       age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
