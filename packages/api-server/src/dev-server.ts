@@ -224,7 +224,7 @@ const server = http.createServer(async (req, res) => {
     });
 
     // Add cache status header
-    responseHeaders['X-Cache-Status'] = cacheStatus === 'hit' ? 'HIT' : cacheStatus === 'miss' ? 'MISS' : 'BYPASS';
+    responseHeaders['X-Cache-Status'] = cacheStatus === 'miss' ? 'MISS' : 'BYPASS';
 
     res.writeHead(response.status, responseHeaders);
 

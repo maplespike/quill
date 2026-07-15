@@ -10,6 +10,7 @@
  */
 
 import { scanPII } from '@maplespike/pipeline-core';
+import logger from '../logger.js';
 
 /* ------------------------------------------------------------------ */
 /*  Configuration                                                      */
