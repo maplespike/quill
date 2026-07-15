@@ -121,7 +121,7 @@ import { createI18n } from "@maplespike/i18n";
 import type { Locale } from "@maplespike/i18n";
 
 export default function BrowserExtraction({ lang: propLang }: { lang?: Locale }) {
-  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const lang = propLang || (typeof window !== "undefined" ? ((window as unknown as Record<string, string>).__LANG as Locale || "en") : "en");
   const i18n = createI18n(lang);
   const [tasks, setTasks] = useState<ExtractionTask[]>([]);
   const [statuses, setStatuses] = useState<Record<string, TaskStatus>>({});
