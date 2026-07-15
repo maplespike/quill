@@ -284,7 +284,7 @@ function DependencySecurityPanel() {
       const staticData = await loadStatic();
       if (cancelled) return;
       if (staticData) {
-        setAudit({ ...staticData, _meta: { ...staticData._meta, source: "static" } });
+        setAudit({ ...staticData, _meta: { source: "static", generatedAgeSeconds: staticData._meta?.generatedAgeSeconds ?? 0 } });
         setFetchSource("static");
         setLoadState("ok");
         return;
