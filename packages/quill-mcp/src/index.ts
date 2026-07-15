@@ -27,6 +27,30 @@ const API_KEY = process.env.QUILL_API_KEY ?? 'dev-key';
 const X402_ENABLED = process.env.X402_ENABLED === 'true';
 const X402_RECIPIENT = process.env.X402_RECIPIENT || '';
 
+// ── In-memory rate limiter (token bucket) ───────────────
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX_REQS = 60;       // 60 req/min
+const rateBuckets = new Map<string, { tokens: number; resetAt: number }>();
+
+function checkRateLimit(clientIp: string): boolean {
+  const now = Date.now();
+  let bucket = rateBuckets.get(clientIp);
+  if (!bucket || now > bucket.resetAt) {
+    bucket = { tokens: RATE_LIMIT_MAX_REQS, resetAt: now + RATE_LIMIT_WINDOW_MS };
+    rateBuckets.set(clientIp, bucket);
+  }
+  if (bucket.tokens <= 0) return false;
+  bucket.tokens--;
+  return true;
+}
+// Periodically purge stale entries to avoid memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, bucket] of rateBuckets) {
+    if (now > bucket.resetAt) rateBuckets.delete(ip);
+  }
+}, 60_000);
+
 const server = new McpServer();
 server.setQuota(getQuotaTracker());
 
@@ -164,8 +188,29 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
       return;
     }
 
+    // Rate limit by client IP
+    const clientIp = req.headers['x-forwarded-for'] as string
+      || req.socket.remoteAddress || 'unknown';
+    if (!checkRateLimit(clientIp)) {
+      res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': '60' });
+      res.end(JSON.stringify({ error: 'Rate limit exceeded. Try again in 60 seconds.' }));
+      return;
+    }
+
+    // Body size limit: reject >1MB before parsing
+    const MAX_BODY_SIZE = 1024 * 1024; // 1MB
+    let bodySize = 0;
     let body = '';
-    req.on('data', (chunk: string) => { body += chunk; });
+    req.on('data', (chunk: string) => {
+      bodySize += Buffer.byteLength(chunk, 'utf8');
+      if (bodySize > MAX_BODY_SIZE) {
+        req.destroy(new Error('Request body too large'));
+        res.writeHead(413, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Request body too large (max 1MB)' }));
+        return;
+      }
+      body += chunk;
+    });
     req.on('end', () => {
       let parsed: unknown;
       try {
