@@ -1,19 +1,46 @@
 # MapleSpike Quill API Server
-# Uses pre-built dist/ from host — no need to rebuild in container
-FROM node:24-alpine
-
-RUN apk add --no-cache ca-certificates
-
+# Multi-stage build: compile TypeScript in builder, run in slim runtime
+FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 
-# Copy pre-built dist and node_modules from local build
-COPY packages/api-server/dist/ /app/packages/api-server/dist/
-COPY packages/api-server/package.json /app/packages/api-server/
-COPY packages/pipeline-core/ /app/packages/pipeline-core/
-COPY packages/engine/ /app/packages/engine/
-COPY packages/database/ /app/packages/database/
-COPY node_modules/ /app/node_modules/
-COPY package.json /app/package.json
+# Install pnpm and build dependencies (python3, make, g++ for native modules like better-sqlite3)
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends \
+      ca-certificates \
+      python3 \
+      make \
+      g++ && \
+    corepack enable && corepack prepare pnpm@10.32.1 --activate && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy entire workspace (respects .dockerignore — excludes node_modules, dist, .git)
+COPY . .
+
+# Install all workspace dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build api-server and its workspace dependency chain (database → pipeline-core → engine → api-server)
+RUN pnpm --filter @maplespike/api-server... build
+
+# ─── Runtime stage ───────────────────────────────────────────────────────────
+FROM node:22-bookworm-slim
+WORKDIR /app
+
+RUN apt-get update -qq && \
+    apt-get install -y -qq --no-install-recommends ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy built artifacts and production dependencies from builder
+COPY --from=builder /app/package.json /app/
+COPY --from=builder /app/packages/api-server/dist/ /app/packages/api-server/dist/
+COPY --from=builder /app/packages/api-server/package.json /app/packages/api-server/
+COPY --from=builder /app/packages/database/dist/ /app/packages/database/dist/
+COPY --from=builder /app/packages/database/package.json /app/packages/database/
+COPY --from=builder /app/packages/pipeline-core/dist/ /app/packages/pipeline-core/dist/
+COPY --from=builder /app/packages/pipeline-core/package.json /app/packages/pipeline-core/
+COPY --from=builder /app/packages/engine/dist/ /app/packages/engine/dist/
+COPY --from=builder /app/packages/engine/package.json /app/packages/engine/
+COPY --from=builder /app/node_modules/ /app/node_modules/
 
 ENV NODE_ENV=production
 ENV PORT=8082
