@@ -118,6 +118,163 @@ async function gatewayChat(
   }
 }
 
+/* ================================================================== */
+/*  Fusion Gateway — Circuit Breaker                                   */
+/* ================================================================== */
+
+/**
+ * Circuit breaker state for the fusion gateway (/v1/chat/completions).
+ *
+ * When the fusion endpoint returns 5xx errors, we track them in a
+ * sliding 1-minute window. After `threshold` failures (default 3),
+ * we trip the breaker and fall back to direct Qdrant search + the
+ * existing gatewayChat LLM path.
+ */
+const FUSION_ENDPOINT = process.env.QUILL_FUSION_ENDPOINT
+  || 'http://ai-inference-gateway.ai-inference.svc.cluster.local:8080/v1';
+const FUSION_API_KEY = process.env.QUILL_GATEWAY_API_KEY || '';
+const FUSION_MODEL = process.env.QUILL_FUSION_MODEL
+  || process.env.QUILL_AI_MODEL
+  || 'qwen3.5-4b-local';
+
+interface CircuitBreakerState {
+  failureCount: number;
+  failureWindowStart: number;
+  threshold: number;
+  windowMs: number;
+  isOpen: boolean;
+  cooldownUntil: number;
+}
+
+const fusionBreaker: CircuitBreakerState = {
+  failureCount: 0,
+  failureWindowStart: Date.now(),
+  threshold: 3,
+  windowMs: 60_000,        // 1 minute sliding window
+  isOpen: false,
+  cooldownUntil: 0,
+};
+
+/**
+ * Check whether the fusion gateway circuit breaker is open.
+ * Resets the window if it has expired.
+ */
+function isFusionCircuitOpen(): boolean {
+  if (!fusionBreaker.isOpen) return false;
+  if (Date.now() > fusionBreaker.cooldownUntil) {
+    fusionBreaker.isOpen = false;
+    fusionBreaker.failureCount = 0;
+    fusionBreaker.failureWindowStart = Date.now();
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Record a fusion gateway failure. If the window has elapsed since
+ * the first failure, reset the count. If `threshold` is reached,
+ * trip the breaker for a 2-minute cooldown.
+ */
+function recordFusionFailure(): void {
+  const now = Date.now();
+
+  // Reset the window if it has elapsed
+  if (now - fusionBreaker.failureWindowStart > fusionBreaker.windowMs) {
+    fusionBreaker.failureCount = 0;
+    fusionBreaker.failureWindowStart = now;
+  }
+
+  fusionBreaker.failureCount++;
+
+  if (fusionBreaker.failureCount >= fusionBreaker.threshold) {
+    fusionBreaker.isOpen = true;
+    fusionBreaker.cooldownUntil = now + 120_000; // 2 min cooldown
+    console.error(`[ai/fusion] Circuit breaker OPEN — ${fusionBreaker.failureCount} failures in window. Cooling down until ${new Date(fusionBreaker.cooldownUntil).toISOString()}`);
+  }
+}
+
+/**
+ * Record a fusion gateway success (resets the failure window).
+ */
+function recordFusionSuccess(): void {
+  fusionBreaker.failureCount = 0;
+  fusionBreaker.failureWindowStart = Date.now();
+}
+
+/**
+ * Send a chat completion request to the fusion gateway.
+ *
+ * The fusion gateway is an OpenAI-compatible endpoint at
+ * /v1/chat/completions. It may host a different model than the
+ * existing gatewayChat path (e.g. Qwen3.5-4B local vs the gateway's
+ * default model).
+ *
+ * Returns the response text on success, or null on failure.
+ * On 5xx errors, records a circuit breaker failure.
+ */
+async function callFusionGateway(
+  messages: Array<{ role: string; content: string }>,
+  options: {
+    temperature?: number;
+    maxTokens?: number;
+    endpoint?: string;
+    model?: string;
+    signal?: AbortSignal;
+  } = {},
+): Promise<string | null> {
+  // Check circuit breaker
+  if (isFusionCircuitOpen()) {
+    console.warn('[ai/fusion] Circuit breaker is OPEN — skipping fusion gateway');
+    return null;
+  }
+
+  const endpoint = (options.endpoint || FUSION_ENDPOINT).replace(/\/$/, '');
+  const model = options.model || FUSION_MODEL;
+  const temperature = options.temperature ?? 0.3;
+  const maxTokens = options.maxTokens ?? 2048;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (FUSION_API_KEY) {
+    headers['Authorization'] = `Bearer ${FUSION_API_KEY}`;
+  }
+
+  try {
+    const resp = await fetch(`${endpoint}/chat/completions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature,
+        max_tokens: maxTokens,
+      }),
+      signal: options.signal ?? AbortSignal.timeout(60_000),
+    });
+
+    if (!resp.ok) {
+      // 5xx → circuit breaker failure
+      if (resp.status >= 500) {
+        recordFusionFailure();
+        console.error(`[ai/fusion] 5xx error (${resp.status}) — circuit breaker recorded`);
+      }
+      return null;
+    }
+
+    // Success — reset circuit breaker
+    recordFusionSuccess();
+
+    const data = (await resp.json()) as Record<string, unknown>;
+    const result = (data as any)?.choices?.[0]?.message?.content;
+    return typeof result === 'string' ? result : null;
+  } catch (err) {
+    // Network error — don't count toward circuit breaker (it's transient)
+    console.error(`[ai/fusion] Request failed: ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
 /**
  * Embed a query string using the AI Gateway's embeddings endpoint.
  * Returns the vector array on success, or null on failure.
@@ -467,17 +624,42 @@ Keep responses concise and factual.${ragContext}`;
     // ── Step 3: Resolve AI config (BYOK or cluster default) ──────────
     const aiConfig = resolveAIConfig(ctx.tenant.id);
 
-    // ── Step 4: Try AI Gateway with RAG context ──────────────────────
-    const aiAnswer = await gatewayChat([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Question: ${query}\n\nUse the context above (if any) to answer. Cite sources as [1], [2], etc.` },
-    ], 0.3, 2048, aiConfig);
+    // ── Step 4: Try Fusion Gateway with RAG context (primary) ────────
+    // Fusion gateway gets the full RAG-enhanced prompt and Qdrant context.
+    // If it succeeds, return the structured answer.
+    let aiAnswer: string | null = null;
+    let usedProvider = '';
+
+    if (searchSource === 'qdrant' && ragContext) {
+      aiAnswer = await callFusionGateway([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Question: ${query}\n\nUse the context above (if any) to answer. Cite sources as [1], [2], etc.` },
+      ], { temperature: 0.3, maxTokens: 2048 });
+
+      if (aiAnswer) {
+        usedProvider = 'fusion';
+      } else {
+        console.log('[ai/ask] Fusion gateway unavailable — falling back to standard gateway');
+      }
+    }
+
+    // ── Step 5: Fallback — try standard AI Gateway with RAG context ──
+    if (!aiAnswer) {
+      aiAnswer = await gatewayChat([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Question: ${query}\n\nUse the context above (if any) to answer. Cite sources as [1], [2], etc.` },
+      ], 0.3, 2048, aiConfig);
+
+      if (aiAnswer) {
+        usedProvider = aiConfig.source;
+      }
+    }
 
     if (aiAnswer) {
       return jsonResponse(buildSuccess({
         answer: aiAnswer,
-        source: aiConfig.source,
-        model: aiConfig.model,
+        source: usedProvider || aiConfig.source,
+        model: usedProvider === 'fusion' ? FUSION_MODEL : aiConfig.model,
         ragSource: searchSource,          // 'qdrant' or 'gov-search'
         contextSources: sourceCount,
         ...(searchSource === 'qdrant' && qdrantMeta ? { qdrant: qdrantMeta } : {}),

@@ -27,6 +27,7 @@ export {
   countPoints,
   getCollectionInfo,
   listCollections,
+  searchSimilar,
 } from './qdrant.js';
 
 export type {

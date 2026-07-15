@@ -37,7 +37,7 @@ import type { QuillStorage, QuillCache } from './types.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
-import pino from 'pino';
+import logger from './logger.js';
 
 interface Route {
   pattern: RegExp;
@@ -281,12 +281,7 @@ function generateRequestId(): string {
   return 'maplespike-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const log = pino({
-  level: process.env.QUILL_LOG_LEVEL || 'info',
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
-});
+const log = logger;
 
 // Signals route handler — lazy-loaded via eval to avoid tsc following cross-package imports
 ROUTES.push({
