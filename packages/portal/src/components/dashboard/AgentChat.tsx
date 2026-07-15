@@ -28,7 +28,7 @@ import { createI18n } from "@maplespike/i18n";
 import type { Locale } from "@maplespike/i18n";
 
 export default function AgentChat({ lang: propLang }: { lang?: Locale }) {
-  const lang = propLang || (typeof window !== "undefined" ? ((window as Record<string, string>).__LANG as Locale || "en") : "en");
+  const lang = propLang || (typeof window !== "undefined" ? ((window as unknown as Record<string, string>).__LANG as Locale || "en") : "en");
   const i18n = createI18n(lang);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -39,7 +39,7 @@ export default function AgentChat({ lang: propLang }: { lang?: Locale }) {
 
   // Resolve API base — same pattern as other portal components
   const apiBase =
-    (typeof window !== "undefined" && (window as Record<string, { apiBase?: string }>).MAPLESPIKE?.apiBase) ||
+    (typeof window !== "undefined" && (window as unknown as Record<string, { apiBase?: string }>).MAPLESPIKE?.apiBase) ||
     "http://127.0.0.1:8082";
 
   useEffect(() => {
