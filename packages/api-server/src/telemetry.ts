@@ -1,63 +1,84 @@
 /**
- * Quill — OpenTelemetry Tracing
+ * Quill — Telemetry
  *
- * Initializes the OpenTelemetry SDK with OTLP gRPC exporter to Tempo.
- * Auto-instruments Express HTTP routes and propagates W3C trace context.
- *
- * Must be imported BEFORE any other module to capture early spans.
- * Use: import './telemetry.js' as the first import in the entry point.
+ * Lightweight tracer setup for Tempo integration.
+ * Uses dynamic imports to handle optional OTel packages gracefully.
+ * Falls back to no-op if OTel packages aren't available.
  */
-import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
-import { getNodeAutoInstrumentations } from '@opentelemetry/instrumentation-http';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-otlp-grpc';
-import { Resource } from '@opentelemetry/resources';
-import { SEMRESATTRS_SERVICE_NAME, SEMRESATTRS_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-// Enable diagnostic logging in development
-if (process.env.NODE_ENV !== 'production') {
-  diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.WARN);
+// Try to load OTel API
+let otel: any = null;
+try {
+  otel = require('@opentelemetry/api');
+} catch {
+  // OTel not available — everything below is a no-op
 }
 
-const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT
-  || 'http://tempo.monitoring:4317';
+let provider: any = null;
 
-const sdk = new NodeSDK({
-  resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: 'quill-api',
-    [SEMRESATTRS_SERVICE_VERSION]: process.env.QUILL_VERSION || '0.1.0',
-  }),
-  spanProcessor: new BatchSpanProcessor(
-    new OTLPTraceExporter({
-      url: otlpEndpoint,
-    }),
-  ),
-  instrumentations: [
-    getNodeAutoInstrumentations({
-      '@opentelemetry/instrumentation-http': {
-        enabled: true,
+if (otel && process.env.OTEL_ENABLED !== 'false') {
+  const OTLP_ENDPOINT = process.env.OTEL_EXPORTER_OTLP_ENDPOINT
+    || 'http://tempo.monitoring:4318/v1/traces';
+
+  try {
+    // Create a basic tracer provider
+    const { BasicTracerProvider } = otel;
+
+    provider = new BasicTracerProvider({
+      resource: {
+        'service.name': process.env.OTEL_SERVICE_NAME || 'quill-api',
+        'service.version': process.env.QUILL_VERSION || '0.1.0',
       },
-    }),
-  ],
-});
+    });
+
+    // Try HTTP exporter (simpler than gRPC, no native deps)
+    try {
+      const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
+      if (OTLPTraceExporter) {
+        const exporter = new OTLPTraceExporter({ url: OTLP_ENDPOINT });
+        const { BatchSpanProcessor } = otel;
+        provider.addSpanProcessor(new BatchSpanProcessor(exporter));
+      }
+    } catch {
+      // No HTTP exporter — use console exporter in dev
+      if (process.env.NODE_ENV !== 'production') {
+        const { ConsoleSpanExporter, BatchSpanProcessor } = otel;
+        provider.addSpanProcessor(new BatchSpanProcessor(new ConsoleSpanExporter()));
+      }
+    }
+
+    provider.register();
+    console.error(`[telemetry] OTel initialized, endpoint: ${OTLP_ENDPOINT}`);
+  } catch (e) {
+    console.error(`[telemetry] Failed to initialize: ${e}`);
+    provider = null;
+  }
+}
+
+// Export tracer (no-op if OTel unavailable)
+export const tracer = otel && provider
+  ? otel.trace.getTracer('quill-api')
+  : {
+      startSpan: (name: string) => ({
+        end: () => {},
+        setAttribute: () => {},
+        setStatus: () => {},
+      }),
+    };
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  sdk.shutdown()
-    .then(() => console.error('OpenTelemetry SDK shut down'))
-    .catch((err: unknown) => console.error('Error shutting down OpenTelemetry SDK', err))
-    .finally(() => process.exit(0));
-});
+const shutdown = async () => {
+  if (provider) {
+    try {
+      await provider.shutdown();
+    } catch {
+      // ignore shutdown errors
+    }
+  }
+};
 
-process.on('SIGINT', () => {
-  sdk.shutdown()
-    .then(() => console.error('OpenTelemetry SDK shut down'))
-    .catch((err: unknown) => console.error('Error shutting down OpenTelemetry SDK', err))
-    .finally(() => process.exit(0));
-});
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
-// Start the SDK
-sdk.start();
-
-export default sdk;
+export default tracer;
