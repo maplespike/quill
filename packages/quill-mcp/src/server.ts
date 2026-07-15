@@ -37,12 +37,9 @@ interface ServerCapabilities {
 
 // ─── Logging ────────────────────────────────────────────────────────────
 
-import pino from 'pino';
+import logger from './logger.js';
 
-const log = pino({
-  level: process.env.QUILL_LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'silent'),
-  redact: ['req.headers.authorization', 'req.headers.cookie'],
-});
+const log = logger;
 
 // ─── Output Sanitization ─────────────────────────────────────────────────
 // OWASP LLM07: Insecure Output Handling — strip dangerous content before
@@ -437,6 +434,14 @@ function validateToolArgs(
       errors.push(`Invalid type for "${key}": expected string, got ${typeof value}`);
     } else if (propType === 'number' && typeof value !== 'number') {
       errors.push(`Invalid type for "${key}": expected number, got ${typeof value}`);
+    }
+
+    // Max length for strings (from schema or default 2000)
+    if (propType === 'string' && typeof value === 'string') {
+      const propMaxLength = (prop.maxLength as number | undefined) ?? 2000;
+      if (value.length > propMaxLength) {
+        errors.push(`Invalid value for "${key}": ${value.length} chars exceeds max ${propMaxLength}`);
+      }
     }
 
     // Enum check (for string values)
