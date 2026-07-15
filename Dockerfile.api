@@ -1,0 +1,23 @@
+# MapleSpike Quill API Server
+# Uses pre-built dist/ from host — no need to rebuild in container
+FROM node:24-alpine
+
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /app
+
+# Copy pre-built dist and node_modules from local build
+COPY packages/api-server/dist/ /app/packages/api-server/dist/
+COPY packages/api-server/package.json /app/packages/api-server/
+COPY packages/pipeline-core/ /app/packages/pipeline-core/
+COPY packages/engine/ /app/packages/engine/
+COPY packages/database/ /app/packages/database/
+COPY node_modules/ /app/node_modules/
+COPY package.json /app/package.json
+
+ENV NODE_ENV=production
+ENV PORT=8082
+EXPOSE 8082
+
+USER 1001
+CMD ["node", "packages/api-server/dist/dev-server.js"]
