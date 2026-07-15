@@ -11,20 +11,22 @@
  *   QUILL_DB_PATH=/tmp/my.db node dist/dev-server.js # custom SQLite path
  */
 
+// Telemetry must be imported first to capture early spans
+import './telemetry.js';
+
 import * as http from 'node:http';
 import { handleRequest } from './index.js';
 import { MemoryStorage, MemoryCache } from './storage.js';
 import type { QuillStorage, QuillCache } from './types.js';
 import { initEmailConfig } from './email.js';
 import { validateConfig } from './config.js';
-import pino from 'pino';
+import logger from './logger.js';
 
-const log = pino({
-  level: process.env.QUILL_LOG_LEVEL || 'info',
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss' } }
-    : undefined,
-});
+import { redisClient } from './cache/redis.js';
+import { rateLimiter, TIER_LIMITS } from './middleware/rate-limiter.js';
+import type { Tier } from './middleware/rate-limiter.js';
+
+const log = logger;
 
 const PORT = parseInt(process.env.PORT || "8082", 10);
 const AI_ENDPOINT = process.env.QUILL_AI_ENDPOINT || 'http://127.0.0.1:8080/v1';
@@ -86,6 +88,44 @@ if (QUILL_STORAGE === 'postgres') {
   db = memDb;
 }
 
+// ── Redis cache + rate-limiter initialisation ──
+await redisClient.connect();
+await rateLimiter.init();
+log.info('[cache] Redis cache client initialised');
+log.info('[rate-limiter] Redis rate limiter initialised');
+
+// ── Cache route configuration ──
+interface CacheRouteConfig {
+  pattern: RegExp;
+  ttl: number; // seconds
+}
+
+const CACHE_ROUTES: CacheRouteConfig[] = [
+  { pattern: /^\/v1\/modules\/?$/, ttl: 300 },       // 5 min
+  { pattern: /^\/v1\/health\/?$/, ttl: 10 },           // 10 s
+  { pattern: /^\/v1\/explorer\/?$/, ttl: 60 },         // 1 min
+];
+
+// Routes NEVER cached
+const NO_CACHE_PREFIXES = ['/v1/auth/', '/v1/billing/'];
+
+/**
+ * Check if a path matches a no-cache prefix.
+ */
+function isNoCachePath(pathname: string): boolean {
+  return NO_CACHE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+/**
+ * Find matching cache config for a request.
+ */
+function matchCacheRoute(pathname: string): CacheRouteConfig | null {
+  for (const cfg of CACHE_ROUTES) {
+    if (cfg.pattern.test(pathname)) return cfg;
+  }
+  return null;
+}
+
 function verifyStorageHealth(): boolean {
   try {
     // Check if db has a getTenant method (SqliteStorage pattern)
@@ -104,7 +144,56 @@ const server = http.createServer(async (req, res) => {
     const protocol = (req.socket as { encrypted?: boolean }).encrypted ? 'https' : 'http';
     const host = req.headers.host || 'localhost';
     const url = `${protocol}://${host}${req.url || '/'}`;
+    const parsedUrl = new URL(url);
+    const pathname = parsedUrl.pathname;
+    const search = parsedUrl.search;
 
+    // ── Rate limit check (skip health) ──
+    if (!pathname.startsWith('/v1/health')) {
+      const ip = rateLimiter.extractIP(req);
+      const tier = rateLimiter.extractTier(req);
+      const rlResult = await rateLimiter.check(ip, tier);
+
+      if (rlResult) {
+        // Set rate-limit headers on every response
+        res.setHeader('X-RateLimit-Limit', String(rlResult.limit));
+        res.setHeader('X-RateLimit-Remaining', String(rlResult.remaining));
+        res.setHeader('X-RateLimit-Reset', String(rlResult.resetTime));
+
+        if (!rlResult.allowed) {
+          res.setHeader('Retry-After', String(rlResult.retryAfter));
+          res.writeHead(429, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            error: 'rate_limit_exceeded',
+            retry_after: rlResult.retryAfter,
+          }));
+          return;
+        }
+      }
+    }
+
+    // ── Cache check (GET only, matching routes) ──
+    let cacheStatus: 'hit' | 'miss' | 'bypass' = 'bypass';
+
+    if (req.method === 'GET' && !isNoCachePath(pathname)) {
+      const cacheCfg = matchCacheRoute(pathname);
+      if (cacheCfg) {
+        const cacheKey = `v1:GET:${pathname}${search}`;
+        const cached = await redisClient.get<string>(cacheKey);
+        if (cached !== null) {
+          cacheStatus = 'hit';
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('X-Cache-Status', 'HIT');
+          res.end(cached);
+          return;
+        }
+
+        // Cache miss — capture the response, cache it, then serve
+        cacheStatus = 'miss';
+      }
+    }
+
+    // ── Normal request handling ──
     const headers = new Headers();
     for (const [key, value] of Object.entries(req.headers)) {
       if (value) {
@@ -133,10 +222,23 @@ const server = http.createServer(async (req, res) => {
     response.headers.forEach((value, key) => {
       responseHeaders[key] = value;
     });
+
+    // Add cache status header
+    responseHeaders['X-Cache-Status'] = cacheStatus === 'hit' ? 'HIT' : cacheStatus === 'miss' ? 'MISS' : 'BYPASS';
+
     res.writeHead(response.status, responseHeaders);
 
     const responseBody = await response.text();
     res.end(responseBody);
+
+    // ── Asynchronous cache store (after response is sent) ──
+    if (cacheStatus === 'miss' && response.status >= 200 && response.status < 300) {
+      const cacheCfg = matchCacheRoute(pathname);
+      if (cacheCfg && req.method === 'GET') {
+        const cacheKey = `v1:GET:${pathname}${search}`;
+        redisClient.set(cacheKey, responseBody, cacheCfg.ttl).catch(() => {});
+      }
+    }
   } catch (err) {
     log.error(`Fatal: ${err}`);
     res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -159,6 +261,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  Health:    http://localhost:${PORT}/v1/health`);
   console.log(`  Spec:      http://localhost:${PORT}/v1/openapi.json`);
   console.log(`  Storage:   ${QUILL_STORAGE}`);
+  console.log(`  Cache:     Redis (${redisClient.isConnected() ? 'connected' : 'degraded'})`);
+  console.log(`  Rate-limit: Redis (${rateLimiter.isConnected() ? 'connected' : 'pass-through'})`);
   if (QUILL_STORAGE === 'sqlite') {
     console.log(`  DB Path:   ${QUILL_DB_PATH}`);
   } else if (QUILL_STORAGE === 'postgres') {
@@ -172,14 +276,14 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  Authentication:`);
   console.log(`  ${'─'.repeat(45)}`);
   console.log(`  1. API Key (legacy):`);
-  console.log(`     curl -H "Authorization: Bearer ${devKey}" http://localhost:${PORT}/v1/health`);
-  console.log(`     curl -H "X-API-Key: ${devKey}" http://localhost:${PORT}/v1/health`);
+  console.log(`     curl -H "Authorization: Bearer ***" http://localhost:${PORT}/v1/health`);
+  console.log(`     curl -H "X-API-Key: *** http://localhost:${PORT}/v1/health`);
   console.log(``);
   console.log(`  2. GitHub OAuth (if configured):`);
   console.log(`     Open http://localhost:${PORT}/v1/auth/github in your browser`);
   console.log(``);
   console.log(`  3. JWT Token:`);
-  console.log(`     curl -H "Authorization: Bearer <jwt>" http://localhost:${PORT}/v1/auth/me`);
+  console.log(`     curl -H "Authorization: Bearer ***" http://localhost:${PORT}/v1/auth/me`);
   console.log(``);
   console.log(`  4. Registration:`);
   console.log(`     curl -X POST http://localhost:${PORT}/v1/register \\`);
