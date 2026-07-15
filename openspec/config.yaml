@@ -1,0 +1,22 @@
+schema: spec-driven
+
+context: |
+  Monorepo: 14 packages (pipeline-core, quill-mcp, api-server, portal, sdk, ingestion, engine)
+  198 modules, 164 MCP tools
+  Stack: TypeScript, pnpm, Turborepo, Astro, Node.js
+  CI: nix develop → pnpm build → pnpm test
+  Architecture: Monorepo with 3-profile review gate (thorough-coder → reviewer → verifier)
+  Deploy: k8s/ manifests → k3s cluster
+  Canadian public data platform — modules span federal, provincial, territorial, municipal
+
+rules:
+  proposal:
+    - Include affected packages and module count
+    - Note if new MCP tools or API endpoints are needed
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Reference existing spec patterns before inventing new ones
+    - Each requirement must be independently testable
+  design:
+    - Include data flow for pipeline changes
+    - Reference Qdrant schema changes if vector search is affected
