@@ -15,8 +15,8 @@
     "paths": {
       "@maplespike/database": ["./packages/database/dist"],
       "@maplespike/database/*": ["./packages/database/dist/*"],
-      "@maplespike/pipeline-core": ["./packages/pipeline-core/dist"],
-      "@maplespike/pipeline-core/*": ["./packages/pipeline-core/dist/*"],
+      "@maplespike/pipeline-core": ["./packages/pipeline-core/src/index.ts"],
+      "@maplespike/pipeline-core/*": ["./packages/pipeline-core/src/*"],
       "@maplespike/pipeline-core/ontario-provincial": ["./packages/pipeline-core/src/ingestion/ontario-provincial"],
       "@maplespike/pipeline-core/worldbank-wdi": ["./packages/pipeline-core/src/ingestion/worldbank-wdi"],
       "@maplespike/pipeline-core/un-comtrade": ["./packages/pipeline-core/src/ingestion/un-comtrade"],
