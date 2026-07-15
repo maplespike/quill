@@ -3,25 +3,25 @@ version: alpha
 name: Quill
 description: Sovereign MCP server + REST API for Canada's public record — 198 modules, 166 tools (incl. `x402-deposit`), dark-theme React + Tailwind dashboard
 colors:
+  background: "#090909"
+  foreground: "#fafafa"
+  card: "#111111"
+  popover: "#111111"
+  muted: "#1a1a1a"
+  muted-foreground: "#a3a3a3"
   primary: "#e84545"
   secondary: "#06b6d4"
-  tertiary: "#10b981"
-  warning: "#f59e0b"
-  neutral: "#0a0e17"
-  surface: "#111827"
-  surface-elevated: "#1a2332"
-  border: "#1e2d45"
-  text-primary: "#e2e8f0"
-  text-secondary: "#94a3b8"
-  text-muted: "#64748b"
-  chart-1: "#e84545"
-  chart-2: "#06b6d4"
-  chart-3: "#10b981"
-  chart-4: "#f59e0b"
-  chart-5: "#8b5cf6"
-  chart-6: "#ec4899"
-  chart-7: "#14b8a6"
-  chart-8: "#f97316"
+  tertiary: "#22c55e"
+  accent: "#6b1d1d"
+  destructive: "#8f2020"
+  border: "#262626"
+  input: "#292929"
+  ring: "#06b6d4"
+  chart-1: "#3b82f6"
+  chart-2: "#3bcc9a"
+  chart-3: "#e8923b"
+  chart-4: "#b366d9"
+  chart-5: "#e84d8c"
 typography:
   h1:
     fontFamily: Inter
@@ -176,11 +176,13 @@ The product landing page at `quill.maplespike.ca` follows a single-scroll narrat
 
 ### Section Sequence
 1. **TopBar** — JetBrains Mono nav links, GitHub + Sign-in CTAs
-2. **QuillHero** — Product name, one-line value prop, terminal-style install snippet
-3. **McpServerBlock** — Claude Desktop config JSON snippet, MCP SSE endpoint, REST base URL
-4. **ToolGrid** — 6-column responsive grid of module categories (Parliamentary, Federal open data, Oversight, Corporate + influence, Provincial + municipal, Justice + CanLII)
-5. **Sovereignty** — Tech stack badges: Nix, Cloudflare Pages, AGPL-3.0, SHA-256 provenance
-6. **QuillFooter** — Repo link, license, MapleSpike brand attribution
+2. **QuillHero** — Product name, one-line value prop, terminal-style install snippet, aurora + bg-grid effects
+3. **Stats bar** — Key metrics (208 modules, 175 tools, 13 jurisdictions, ~199K lines TS) as stat cards with tabular counters
+4. **McpServerBlock** — Claude Desktop config JSON snippet, MCP SSE endpoint, REST base URL, platform integration grid
+5. **ToolGrid** — 6-column responsive grid of module categories (Parliamentary, Federal open data, Oversight, Corporate + influence, Provincial + municipal, Justice + CanLII)
+6. **Sovereignty** — Tech stack badges: Nix, Cloudflare Pages, AGPL-3.0, SHA-256 provenance
+7. **CTA** — Call-to-action with "Get started free" linking to signup
+8. **QuillFooter** — Repo link, license, MapleSpike brand attribution
 
 ### Terminal Snippet Design
 ```
@@ -199,20 +201,19 @@ Each ToolGrid card:
 ## Color System & Tokens
 
 ### Background Hierarchy
-- **Neutral (#0a0e17):** Deep navy foundation. Never pure black.
-- **Surface (#111827):** Card and container backgrounds.
-- **Surface-elevated (#1a2332):** Elevated elements — inputs, hovered cards, modals.
+- **Background (#090909):** Near-black foundation (shadcn dark default).
+- **Card (#111111):** Card and container backgrounds.
+- **Muted (#1a1a1a):** Elevated elements — inputs, hovered cards, modals.
 
 ### Semantic Colors
 - **Primary (#e84545):** Red for CTAs, active states, severity.
-- **Secondary (#06b6d4):** Cyan for links, code highlighting, secondary actions.
-- **Tertiary (#10b981):** Green for success states.
-- **Warning (#f59e0b):** Amber for caution.
+- **Secondary (#06b6d4):** Cyan for links (ring focus, parliament accent), code highlighting, secondary actions.
+- **Tertiary (#22c55e):** Green for success states, moss accent.
+- **Accent (#6b1d1d):** Dark red for subtle accent surfaces.
 
 ### Text
-- **text-primary (#e2e8f0):** High-emphasis — headings, body, table cells.
-- **text-secondary (#94a3b8):** Medium-emphasis — metadata, labels.
-- **text-muted (#64748b):** Low-emphasis — placeholders.
+- **Foreground (#fafafa):** High-emphasis — headings, body, table cells.
+- **Muted-foreground (#a3a3a3):** Medium-emphasis — metadata, labels, placeholders.
 
 ### Contrast (WCAG AA)
 | Pair | Ratio | Pass |
@@ -382,39 +383,50 @@ Where Quill uses drag, sheets, or gesture-driven UI, follow these principles:
 ### Theme tokens
 
 ```css
-@theme {
-  --color-primary: #e84545;
-  --color-secondary: #06b6d4;
-  --color-surface: #111827;
-  --color-surface-elevated: #1a2332;
-  --color-border: #1e2d45;
-  --color-text: #e2e8f0;
+/* Actual globals.css uses shadcn-style HSL variable references */
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
-:root {
-  --color-primary: #e84545;
-  --color-secondary: #06b6d4;
-  --color-surface: #111827;
-  --color-surface-elevated: #1a2332;
-  --color-border: #1e2d45;
-  --color-text: #e2e8f0;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --font-ui: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
-  --spacing-xs: 4px; --spacing-sm: 8px; --spacing-md: 16px;
-  --spacing-lg: 24px; --spacing-xl: 32px;
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+/* Dark theme values (applied via .dark class) */
+:root.dark {
+  --background: 0 0% 3.5%;    --foreground: 0 0% 98%;
+  --card: 0 0% 6.5%;          --card-foreground: 0 0% 98%;
+  --popover: 0 0% 6.5%;       --popover-foreground: 0 0% 98%;
+  --primary: 0 72% 51%;       --primary-foreground: 0 0% 98%;
+  --secondary: 0 0% 11%;      --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 10%;          --muted-foreground: 0 0% 63.9%;
+  --accent: 0 72% 14%;        --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%; --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 15%;         --input: 0 0% 16%;
+  --ring: 191 96% 42%;
 }
 ```
 
 ### Animations
 ```css
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes staggerIn { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
 @keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
 ```
 
@@ -427,7 +439,7 @@ The spec above is the canonical design intent for Quill. Three implementation la
 * **Wired to spec**: Inter + JetBrains Mono (BaseLayout), dark-canvas default + light toggle, card pattern (12px radius, 24px padding), `.font-mono-num` utility, `aria-current="page"` nav highlight, i18n en-CA + fr-CA (`@maplespike/i18n`), mobile drawer, `prefers-reduced-motion` reset.
 * **Token reconciliation (in `globals.css`)**: `--ring` + `--sidebar-ring` use spec cyan `hsl(191 96% 42%)` (≈ `#06b6d4`, parliamentary).
 * **Animation tokens (in `globals.css`)**: custom easing variables `--ease-out`, `--ease-in-out`, `--ease-drawer`; `reveal-on-scroll`, `stagger-*`, and `press-feedback` utilities added.
-* **Quill Page Layout (in `LandingBody.astro`)**: section sequence now maps to `TopBar` (BaseLayout), `QuillHero`, `McpServerBlock`, `ToolGrid`, `Sovereignty`, and `QuillFooter` (BaseLayout). Added reveal-on-scroll, staggered card entrances, tabular-numeral stats, and terminal-style snippet copy.
+* **Quill Page Layout (in `LandingBody.astro`)**: section sequence now maps to `TopBar` (BaseLayout), `QuillHero`, `Stats bar`, `McpServerBlock`, `ToolGrid`, `Sovereignty`, `CTA`, and `QuillFooter` (BaseLayout). Added reveal-on-scroll, staggered card entrances, tabular-numeral stats, and terminal-style snippet copy.
 
 ### Canonical reference render (`packages/portal/public/readme.html`)
 

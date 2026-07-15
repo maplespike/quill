@@ -6,10 +6,10 @@ description: >-
   Astro 7 + React 19 + Tailwind v4 + shadcn/ui, 38 built pages, dark-theme-first,
   en-CA/fr-CA i18n, served at quill.maplespike.ca
 colors:
-  background: "hsl(240 10% 4%)"
-  foreground: "hsl(210 40% 98%)"
+  background: "hsl(0 0% 3.5%)"
+  foreground: "hsl(0 0% 98%)"
   card: "hsl(0 0% 6.5%)"
-  popover: "hsl(222 18% 8%)"
+  popover: "hsl(0 0% 6.5%)"
   primary: "hsl(0 72% 51%)"
   primary-foreground: "hsl(0 0% 98%)"
   secondary: "hsl(0 0% 11%)"
@@ -186,6 +186,7 @@ packages/portal/src/
 | `/terms` | Terms of Service | Static | No |
 | `/watcher` | Data Change Monitor | `client:load` | Yes |
 | `/workspace` | User Workspace | Static | Yes (auth.js) |
+| `/dashboard/checkout-success` | Stripe checkout success | Static | No |
 | `/auth/callback` | OAuth callback | Static | No |
 | `/design-demo` | Theme demo (dev) | Static | No |
 
