@@ -6,6 +6,7 @@ export default defineConfig({
   output: 'static',
   site: 'https://quill.maplespike.ca',
   build: { format: 'file' },
+  compressHTML: true,
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
