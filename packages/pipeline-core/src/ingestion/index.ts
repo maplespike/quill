@@ -343,5 +343,26 @@ export type {
   MunicipalIngestionResult,
 } from './municipal/types.js';
 
+// ── Corporate / Securities ─────────────────────────────────────────
+export {
+  searchFilings,
+  searchFilingsByIssuer,
+  fetchRecentFilings,
+  fetchAifFilings,
+  fetchIssuer,
+  ingestSedarByIssuer,
+  ingestSedarRecent,
+  ingestAllSedar,
+  findIssuerByTicker,
+  findIssuerByName,
+} from './sedar-plus/index.js';
+export type {
+  SedarFiling,
+  SedarSearchParams,
+  SedarSearchResult,
+  SedarIngestionResult,
+  SedarIssuer,
+} from './sedar-plus/types.js';
+
 
 
