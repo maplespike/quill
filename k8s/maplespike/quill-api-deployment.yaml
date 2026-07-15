@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quill-api
+  namespace: maplespike
+  labels:
+    app: quill-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quill-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: quill-api
+    spec:
+      containers:
+      - name: api
+        image: nexus:5000/quill-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8082
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: jwt-secret
+              name: quill-runtime-secrets
+              optional: true
+        - name: PORT
+          value: "8082"
+        - name: NODE_ENV
+          value: production
+        - name: QUILL_STORAGE
+          value: sqlite
+        - name: QUILL_DB_PATH
+          value: /data/maplespike.db
+        - name: QUILL_QDRANT_ENDPOINT
+          value: http://qdrant:6333
+        - name: QUILL_QDRANT_COLLECTION
+          value: maplespike
+        - name: QUILL_EMBED_MODEL
+          value: nvidia/llama-3.2-nv-embedqa-1b-v2
+        - name: AUTH_MODE
+          value: astral-key
+        - name: ASTRAL_KEY_URL
+          value: http://astral-key.astral-key.svc.cluster.local:8080
+        - name: QUILL_PII_HASH_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: pii-hash-secret
+              name: quill-runtime-secrets
+              optional: false
+        livenessProbe:
+          httpGet:
+            path: /v1/health
+            port: 8082
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /v1/health
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      volumes:
+      - name: data
+        emptyDir: {}
