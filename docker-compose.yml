@@ -28,6 +28,9 @@
 services:
   api:
     image: nexus:5000/quill-api:${QUILL_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     container_name: quill-api
     restart: unless-stopped
     ports:
@@ -52,6 +55,9 @@ services:
 
   mcp:
     image: nexus:5000/quill-mcp:${QUILL_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
     container_name: quill-mcp
     restart: unless-stopped
     depends_on:
@@ -74,6 +80,9 @@ services:
 
   portal:
     image: nexus:5000/quill-portal:${QUILL_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.portal
     container_name: quill-portal
     restart: unless-stopped
     depends_on:
@@ -92,6 +101,21 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    networks:
+      - quill-net
+
+  ingest:
+    image: nexus:5000/quill-ingest:${QUILL_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.ingest
+    container_name: quill-ingest
+    profiles:
+      - ingest
+    restart: "no"
+    environment:
+      NODE_ENV: production
+      QUILL_PIPELINE: ${QUILL_PIPELINE:-help}
     networks:
       - quill-net
 
