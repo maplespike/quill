@@ -1,0 +1,114 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: maplespike-canary
+  namespace: maplespike
+  labels:
+    app: maplespike
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: canary-health
+      interval: 30s
+      rules:
+        # ── Service health ───────────────────────────────────────────
+        - alert: CanaryPodDown
+          expr: |
+            count(kube_pod_status_phase{namespace="maplespike", phase="Running"}
+              * on(pod) group_left(label_track)
+              kube_pod_labels{namespace="maplespike", label_track="canary"}) == 0
+            and on(namespace)
+            count(kube_deployment_labels{namespace="maplespike", label_deployment=~".*-canary"}) > 0
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Canary deployment has no running pods"
+            description: >
+              Canary deployment has been running 0 replicas for 2+ minutes.
+              Check if the canary pod crashed or is stuck in Pending/CrashLoopBackOff.
+              Run: kubectl get pods -n maplespike -l track=canary
+
+        - alert: CanaryCrashLoopBackOff
+          expr: |
+            max by (pod) (kube_pod_status_phase{namespace="maplespike", phase="Running"}
+              * on(pod) group_left(label_track)
+              kube_pod_labels{namespace="maplespike", label_track="canary"}) == 0
+            and on(pod)
+            rate(kube_pod_container_status_restarts_total{namespace="maplespike"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Canary pod is crash-looping"
+            description: >
+              Pod {{ $labels.pod }} has restarted multiple times.
+              Check logs: kubectl logs {{ $labels.pod }} -n maplespike
+
+        # ── HTTP error rate ──────────────────────────────────────────
+        - alert: CanaryHighErrorRate
+          expr: |
+            sum by (service) (
+              rate(http_requests_total{namespace="maplespike", track="canary", status=~"5.."}[5m])
+            )
+            /
+            sum by (service) (
+              rate(http_requests_total{namespace="maplespike", track="canary"}[5m])
+            )
+            > 0.01
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Canary HTTP 5xx error rate > 1%"
+            description: >
+              Canary for service {{ $labels.service }} has
+              {{ $value | humanizePercentage }} error rate over 5 min.
+              Trigger auto-rollback.
+
+        - alert: CanaryLatencySpike
+          expr: |
+            histogram_quantile(0.95,
+              sum by (le, service) (
+                rate(http_request_duration_seconds_bucket{namespace="maplespike", track="canary"}[5m])
+              )
+            ) > 2
+          for: 3m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Canary p95 latency > 2s"
+            description: >
+              Canary p95 latency for {{ $labels.service }} is
+              {{ $value | humanizeDuration }} — significantly above baseline.
+
+        # ── Health endpoint ──────────────────────────────────────────
+        - alert: CanaryHealthEndpointFailing
+          expr: |
+            probe_success{namespace="maplespike", group="canary"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Canary health endpoint failing"
+            description: >
+              Canary health check probe has failed for 1+ minute.
+              The /v1/health endpoint is not returning HTTP 200.
+
+    - name: canary-lifecycle
+      interval: 1m
+      rules:
+        # ── Stale canary detection ───────────────────────────────────
+        - alert: CanaryDeploymentStale
+          expr: |
+            time() - max by (deployment) (
+              kube_deployment_created{namespace="maplespike", deployment=~".*-canary"}
+            ) > 86400
+          labels:
+            severity: warning
+          annotations:
+            summary: "Canary deployment older than 24 hours"
+            description: >
+              Canary {{ $labels.deployment }} has been running for
+              {{ $value | humanizeDuration }}. Either promote it to stable
+              or tear it down.

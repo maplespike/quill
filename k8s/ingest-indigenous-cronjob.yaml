@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: maplespike-ingest-indigenous
+  namespace: maplespike
+  labels:
+    app.kubernetes.io/managed-by: easykubenix
+spec:
+  schedule: "0 */12 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/hostname: sentry
+          containers:
+          - name: ingest
+            image: ghcr.io/reverb256/maplespike-ingest:2026-05-16
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: MAPLESPIKE_PIPELINE
+              value: indigenous
+            - name: NODE_ENV
+              value: production
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
