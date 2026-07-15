@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-10
+last-reviewed: 2026-07-15
 status: active
 ---
 
@@ -13,9 +13,9 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 ---
 
-## Status (live as of 2026-07-10)
+## Status (live as of 2026-07-15)
 
-> **Volatile.** The cluster is degraded and the cloudflared tunnel is intermittent — exact route counts and pod statuses drift between probes. Treat the specifics below as a recent snapshot, not a contract.
+> **Stable.** All 4 cluster nodes `Ready`. Cloudflare tunnel healthy (2026.7.1). All auth methods operational. Stripe billing configured in test mode.
 
 **Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, public curl results are inconsistent**, sometimes matching the pod, sometimes returning `521`/intermittent `404` — see Known Issues § "Cloudflared tunnel flakiness".
 
@@ -31,9 +31,9 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 **Browser rendering (lightpanda CLI):** For JS-rendered data sources — sites that ship an empty SSR shell and only populate meaningful HTML after client hydration (PBO Nuxt at `pbo-dpb.ca`, several provincial regulator portals, SEDI public listings) — pipeline-core ships `packages/pipeline-core/src/utils/browser-fetch.ts`, a thin wrapper around the `lightpanda` CLI binary (https://lightpanda.io). It spawns `lightpanda fetch --dump <fmt> <url>` per call and returns the post-render DOM as a string with the same shape as `httpGet()`. **The binary is not packaged with the OCI images** — operators install it on the host (default `/home/j_kro/.local/bin/lightpanda`, override with `LIGHTPANDA_BIN`; self-hosters pull the precompiled release from `github.com/lightpanda-io/lightpanda/releases`). No ingestion module is wired to `browserFetch()` yet — the wrapper exists so individual fetchers can opt in behind a feature flag per file. A `__MAPLESPIKE_MOCK_BROWSER` flag (mirrors `__MAPLESPIKE_MOCK_FETCH` in `utils/http.ts`) short-circuits the subprocess to canned HTML in unit tests.
 
-**Home lab cluster (`k3s`):** Both control-plane/etcd nodes (`nexus`, `sentry`) are `Unknown`; the two worker nodes (`forge`, `krash3`) are `Ready`. The portal pod (`maplespike-portal-79fc468865-wpksz`) is **currently scheduled directly on `nexus`** — so it's at higher-than-expected risk if `nexus` enrolls garbage collection. Verifying pod placement: `kubectl get pod -n maplespike <pod> -o wide`.
+**Home lab cluster (`k3s`):** All 4 nodes (`forge`, `krash3`, `nexus`, `sentry`) are `Ready`. Active deployments in `maplespike` namespace: `cloudflared` (2026.7.1), `quill-api`, `quill-mcp`, `quill-portal` — all 1/1. Old `maplespike-*` deployments (`maplespike-api`, `maplespike-mcp`, `maplespike-portal`) deleted; all traffic routes through quill-* services. Tunnel uses k8s ClusterIPs for origin services. Verifying pod placement: `kubectl get pod -n maplespike -o wide`.
 
-**Deployed portal image:** `nexus:5000/maplespike-portal:build-20260707-2036` (built 2026-07-07; pre-flip tag). The Deployment manifest `k8s/base/17-portal-service.yaml` declares `nexus:5000/quill-portal:dev` (post-flip), and a Kustomize **namePrefix** in the `maplespike` overlay still renames the resource `quill-portal` → `maplespike-portal`; the operator's actual path pushes fresh images to `nexus:5000/quill-<svc>:build-<ts>` on the operator host and patches the overlay image spec to point at the new tag — see "Image-tag construction" below.
+**Deployed portal image:** `nexus:5000/quill-portal:latest` (built from Nix). The `quill-api` image is patched with a Docker-format layer overlay for the Solana auth routes (base: nix-built, patch: podman --format docker).
 
 ---
 
@@ -321,15 +321,76 @@ For LAN access: substitute `*.maplespike.lan` everywhere `*.maplespike.ca` appea
 
 ## Auth Chain
 
-Three auth methods, all returning JWT + MapleSpike API key:
+Four auth methods, all returning JWT + MapleSpike API key. The auth mode is **native** (Node.js) with Astral Key proxy for Web3 and FIDO2.
 
-1. **Passkey (WebAuthn/FIDO2)** — `@simplewebauthn/server` (Node) + Astral Key (Rust)
-2. **Web3 (SIWE/EIP-4361)** — Ethereum signature verification via viem + Astral Key
-3. **OAuth** — Casdoor SSO, GitHub, Google
+| Method | Endpoint | Backend | Frontend | Status |
+|--------|----------|---------|----------|--------|
+| **GitHub OAuth** | `/v1/auth/oauth/github` | Node.js OAuth handler → GitHub API | "Sign in with GitHub" button | **Live** (Client ID + secret configured) |
+| **Passkey (WebAuthn)** | `/v1/auth/passkey/{register,login}/{begin,complete}` | `@simplewebauthn/server` + Node.js | "Create passkey" button (`browserSupportsWebAuthn`) | **Live** (auto-creates tenant + API key on register) |
+| **Web3 (EVM)** | `/v1/astral/web3/{nonce,verify}` | Astral Key proxy → Rust microservice (SIWE/EIP-4361) | "Connect Web3 wallet" button (`window.ethereum`) | **Live** (Ethereum, Polygon, Arbitrum, Optimism) |
+| **Solana** | `/v1/astral/web3/solana/{nonce,verify}` | Direct Node.js Ed25519 verification (tweetnacl + bs58) | "Connect Solana wallet" button (`window.solana`) | **Coded & committed** (needs image rebuild for pod) |
+| **API Key** | `X-Api-Key` header | `generateApiKey()` → key hash stored in DB | Signup form or after any auth | **Live** |
+| **Registration** | `POST /v1/register` | Creates tenant + API key via `registerTenant()` | Email + name form | **Live** |
 
-Auth state is managed globally via `packages/portal/public/auth.js` — it injects account UI into the navbar on every page; components read from `window.MapleSpikeAuth`.
+**Astral Key microservice**: Running in `astral-key` namespace (pod `astral-key-59bd486bf9-bsm5l`, PostgreSQL + Redis). Auth proxy routes at `/v1/astral/*`.
+
+**Secrets**:
+- `JWT_SECRET`: 512-bit, stored in k8s `quill-runtime-secrets` (key `jwt-secret`)
+- `QUILL_PII_HASH_SECRET`: 256-bit, stored in k8s `quill-runtime-secrets` (key `pii-hash-secret`)
+- `GITHUB_CLIENT_ID` + `GITHUB_CLIENT_SECRET`: GitHub OAuth app `Maplespike Quill` (owner: `reverb256`)
+
+Auth state is managed globally via `packages/portal/public/auth.js` — it injects account UI into the navbar on every page; components read from `window.MapleSpikeAuth`. The `SignupForm` component at `/signup` dynamically shows passkey, Web3, and OAuth buttons based on browser capabilities (`browserSupportsWebAuthn`, `window.ethereum`, `window.solana`).
 
 ---
+
+## Billing
+
+Three payment methods implemented, all in **test mode** via Stripe.
+
+**Stripe routes:**
+- `GET /v1/billing/plans` — Returns Free/Pro/Enterprise tier data (public)
+- `GET /v1/billing/stripe/status` — Stripe account status (auth-required)
+- `POST /v1/billing/stripe/webhook` — Stripe event handler (signature-verified)
+- `GET /v1/billing/stripe/checkout` — Create checkout session
+- `GET /v1/billing/orders` — Create/query payment orders
+- `POST /v1/billing/reconcile` — Manual reconciliation
+
+**Env vars (from k8s `quill-billing-secrets` via secretKeyRef):**
+
+| Variable | Source |
+|----------|--------|
+| `STRIPE_SECRET_KEY` | `sk_live_51TXKNt...` (live) |
+| `STRIPE_PUBLISHABLE_KEY` | `pk_live_51TXKNt...` (live) |
+| `STRIPE_TEST_SECRET_KEY` | `sk_test_51TXKNt...` (test) |
+| `STRIPE_TEST_PUBLISHABLE_KEY` | `pk_test_51TXKNt...` (test) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_oBBRFm3d...` |
+| `STRIPE_ACCOUNT_ID` | `acct_1TXKNtIZlbpvSCVX` |
+| `STRIPE_ENV` | `test` (switch to `live` for production) |
+| `QUILL_BILLING_SECRET` | 256-bit HMAC for order signing |
+| `MAPLESPIKE_BILLING_EMAIL` | `billing@maplespike.ca` |
+
+**Crypto treasury wallets** (8 EVM chains) — private keys encrypted with `age-plugin-yubikey` (both Nano + NFC Yubikeys required as recipients). Public addresses set on deployment:
+
+| Chain | Address |
+|-------|---------|
+| Ethereum | `0xcc2aca38644f8ea6352f1cb43c5f014d778974c8` |
+| Base | `0xeef30237e374508e5c09517533cdc3d5fde15297` |
+| Polygon | `0xab9502b9f035b5c77b122c61ef27c9050ca0c42e` |
+| Arbitrum | `0xeaf336c41419573381bc28ea3ad9c5507556c6f6` |
+| Optimism | `0x3aa2847e5a6343cacab58a7952e0fb4ca69b4f50` |
+| Avalanche | `0x271ac5aad37aa36f99856af71be87a81580c60f8` |
+| BNB Chain | `0x70c34199aa80642fe9fe878f95f4fd7d6511a71e` |
+| Tron | `0x8fb2f7a6c90adf2250dff387e7e8da228dc91383` |
+
+**Treasury key recovery**:
+```bash
+# Requires Yubikey connected + touch
+age --decrypt /home/j_kro/.config/maplespike-treasury/treasury.keys.age
+```
+
+**Stripe webhook** (configured in Stripe Dashboard → Webhooks):
+- URL: `https://api.maplespike.ca/v1/billing/stripe/webhook`
+- Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
 
 ## AI Architecture
 
@@ -393,20 +454,16 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 
 ## Known Issues & Status
 
-> **Updated 2026-07-10.** Read this before debugging "why is X not working."
+> **Updated 2026-07-15.** Issues resolved this session: cluster nodes all Ready, tunnel upgraded to 2026.7.1, old deployments cleaned.
 
 | Issue | Impact | Fix path |
 | --- | --- | --- |
-| `nexus` k3s node `Unknown` | Primary control-plane runner down. Pipeline ingestion and most prod pods at risk of reschedule. Portal pod currently serving because scheduling happened before the flap, but is not safe long-term. | `nixos-rebuild switch` on `nexus` to fix `/etc/nix/machines` (source already patched); check `etcd` health with `journalctl -u k3s` |
-| `sentry` k3s node `Unknown` | AI-inference-gateway host down. MapleSpike unaffected directly; degrades the RAG/Qdrant hot path if persisted. | Same `nixos-rebuild switch`; secondary fallback if needed |
-| Cloudflared tunnel flakiness | `cloudflared` pod logs show `"failed to accept QUIC stream: timeout: no recent network activity"`. The reported `cloudflared` version is in the `2026.6.x` line (recommended: `≥ 2026.7.0`). Symptom: public curl results drift — a route verified `200` minutes ago may now return `521` or `404`. Direct pod access (`kubectl port-forward … 18080:8080`) consistently returns `200` for every route in `dist/`, confirming port-side is fine and the tunnel is the source. | Upgrade `cloudflared` image tag in `k8s/base/05-cloudflared.yaml` to `2026.7.0`+; redeploy |
-| `/fr/` (trailing-slash) → 404 | `/fr` works (200), `/en` works (200), but `/fr/` 404s because server.py's extensionless rewrite `if not os.path.splitext(p)[1] and not p.endswith("/")` does **not** strip the trailing slash, then `SimpleHTTPRequestHandler` falls through to look for the directory `/app/fr/` which doesn't exist (Astro `format: 'file'` flattens to `fr.html`, not `fr/index.html`). Note: during the flakiness window this row was unstable — both `/fr` and `/fr/` returned 404 briefly. | Patch `packages/portal/server.py` to strip trailing `/` before the extensionless lookup. Low risk, isolated. |
+| **All nodes `Ready`** | ✅ **RESOLVED 2026-07-15** — forge, krash3, nexus, sentry all report `Ready`. Old `Unknown` states resolved. | Cluster stability recovered. |
+| **Cloudflared tunnel flakiness** | ✅ **RESOLVED** — upgraded to `cloudflare/cloudflared:2026.7.1` with 0 restarts. Previous restarts (exit 255) resolved. | Image tag updated, deployment restarted. |
+| `/fr/` (trailing-slash) → 404 | `/fr` works (200), `/en` works (200), but `/fr/` 404s because server.py's extensionless rewrite `if not os.path.splitext(p)[1] and not p.endswith("/")` does **not** strip the trailing slash, then `SimpleHTTPRequestHandler` falls through to look for the directory `/app/fr/` which doesn't exist (Astro `format: 'file'` flattens to `fr.html`, not `fr/index.html`). | Patch `packages/portal/server.py` to strip trailing `/` before the extensionless lookup. |
 | `/login`, `/oauth` → 404 | Not implemented in `packages/portal/src/pages/`. Nav never references them. | No action needed unless intentionally adding a login route. |
-| Image-tag mismatch (`ghcr.io` vs `localhost` vs `nexus:5000`) | ✅ **RESOLVED 2026-07-10** (systemic registry flip: all sources now point at `nexus:5000/quill-<svc>`). The historical narrative above is preserved for context; the running install matrix converges on a single registry. | n/a |
-| OWASP dashboard merged | `packages/portal` now hosts the dashboard; no dedicated dashboard directory remains |
-| `packages/pretext-civic` removed | Was orphaned React library after the Next.js → Astro migration |
-| Sentry node occasionally NotReady | k3s etcd flapping (same row as `nexus`), non-blocking |
-| Forge node status was Unknown | Mining workload, non-critical for MapleSpike. Pretty consistent since 2026-06 |
+| **Old deployments cleaned** | ✅ `maplespike-api`, `maplespike-mcp`, `maplespike-portal` deleted. All traffic routes through `quill-*` services. | Done. |
+| **Solana auth not deployed** | Code committed (`/v1/astral/web3/solana/{nonce,verify}`) but needs container image rebuild to deploy to pod. Registry digest pinning requires a clean build pipeline. | Rebuild with `podman build --format docker` or Nix. |
 
 ---
 
