@@ -11,6 +11,7 @@
 
 import type { Tenant } from './types.js';
 import { verifyToken, tokenFromRequest } from './auth/jwt.js';
+import { authenticateOidc } from './auth/oidc.js';
 import { getUser, getTenantForUser } from './auth/users.js';
 import type { QuillStorage } from './types.js';
 
@@ -67,7 +68,7 @@ const tenantDetails: Record<string, Tenant> = {
 export interface AuthResult {
   tenant: Tenant;
   apiKeyId: string;
-  authMethod: 'api-key' | 'jwt' | 'cookie';
+  authMethod: 'api-key' | 'jwt' | 'cookie' | 'oidc';
   rotatedKey?: { id: string; key: string; expiresAt: string };
 }
 
@@ -130,6 +131,25 @@ export async function authenticateRequest(
   // Method 2: Authorization header
   const bearerToken = extractBearerToken(request);
   if (bearerToken) {
+    // Method 2a: Try Casdoor OIDC first (RS256 signed JWTs verified via JWKS)
+    if (bearerToken.split('.').length === 3) {
+      const oidcResult = await authenticateOidc(request);
+      if (oidcResult) {
+        return {
+          tenant: {
+            id: oidcResult.sub,
+            name: oidcResult.preferredUsername || oidcResult.name || oidcResult.sub,
+            emailVerified: true,
+            tier: 'pro' as const,
+            isActive: true,
+            journalismMode: false,
+          },
+          apiKeyId: `oidc-${oidcResult.sub}`,
+          authMethod: 'oidc',
+        };
+      }
+    }
+
     // Check if it's a JWT (3 dot-separated parts)
     if (bearerToken.split('.').length === 3) {
       const result = authenticateWithJwt(bearerToken, 'jwt');
