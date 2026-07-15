@@ -152,7 +152,7 @@ export default function SignupForm() {
       const { options, registrationId } = beginData.data;
 
       // Step 2: Browser creates credential
-      const credential = await startRegistration({ optionsJSON: options as PublicKeyCredentialCreationJSON });
+      const credential = await startRegistration({ optionsJSON: options as PublicKeyCredentialCreationOptionsJSON });
 
       // Step 3: Complete registration
       const completeResp = await fetch(`${base}/v1/auth/passkey/register/complete`, {
@@ -184,7 +184,7 @@ export default function SignupForm() {
         const { options: loginOptions, loginId } = loginBeginData.data;
 
         // Step 2: Authenticate with the newly created passkey
-        const authCredential = await startAuthentication({ optionsJSON: loginOptions as PublicKeyCredentialRequestJSON });
+        const authCredential = await startAuthentication({ optionsJSON: loginOptions as PublicKeyCredentialRequestOptionsJSON });
 
         // Step 3: Complete login → get JWT
         const loginCompleteResp = await fetch(`${base}/v1/auth/passkey/login/complete`, {
@@ -231,7 +231,7 @@ export default function SignupForm() {
 
       const { options, loginId } = beginData.data;
 
-      const credential = await startAuthentication({ optionsJSON: options as PublicKeyCredentialRequestJSON });
+      const credential = await startAuthentication({ optionsJSON: options as PublicKeyCredentialRequestOptionsJSON });
 
       const completeResp = await fetch(`${base}/v1/auth/passkey/login/complete`, {
         method: "POST",
