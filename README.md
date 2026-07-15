@@ -242,14 +242,15 @@ The authoritative contributor recipe is **[Running the local development stack &
 
 For production-grade deployment notes, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md).
 
-**Infrastructure Status (2026-07-14):**
+**Infrastructure Status (2026-07-14, end of day):**
 - ✅ Docker Compose — Working (local development via `scripts/dev-up.sh`)
 - ✅ K3s + Cloudflare Tunnel — Live (`maplespike` namespace, `k8s/base/` Kustomize bundle, `cloudflared` pod with `--metrics 0.0.0.0:2000` for liveness probe; tunnel ID `66d76492-036b-4177-8fac-8682e0eda37e`)
 - ✅ Cloudflare Pages — Live for **`maplespike.ca` + `www.maplespike.ca`** (project `maplespike-brand`) AND **`*.maplespike-quill.pages.dev`** (project `maplespike-quill`, latest portal `dist/` deploy, alias `main.maplespike-quill.pages.dev`)
 - ✅ Cluster side: `cloudflared-config` ConfigMap has the ingress table for `quill`/`api`/`mcp`/`data`/`datafabric` `.maplespike.ca` subdomains pointing at `maplespike-portal:8080` / `maplespike-api:8082` / `maplespike-mcp:3001` ClusterIP Services (all `Running`)
-- 🟡 Public DNS CNAMEs — NOT YET attached for `quill.maplespike.ca` / `api.maplespike.ca` / `mcp.maplespike.ca` / `data.maplespike.ca` / `datafabric.maplespike.ca` / `mosaic.maplespike.ca`. One-liner in [`DEPLOY-CHECKLIST.md` Step 1d](./DEPLOY-CHECKLIST.md#1d-one-liner-to-wire-dns-run-from-quill-so-the-cloudflare-sdk-is-on-disk); requires either dashboard edit OR scope-widening of wrangler OAuth token (currently `account (read) + user (read) + workers (write)` — missing `zone:read` for DNS records updates).
-- 🟡 Mosiac K8s deploy — StatefulSet + 10Gi PVC + new ClusterIP `mosiac-svc:3000` + `mosaic.maplespike.ca` tunnel ingress row + DNS CNAME (full recipe: [`mosiac/DEPLOY-MAPLESPIKE.md`](../mosiac/DEPLOY-MAPLESPIKE.md), operator picked K8s cluster path on 2026-07-14).
-- 🟡 Production cutover — Track in [ROADMAP.md](./ROADMAP.md) Phase 4 (DNS wiring + Mosiac deploy + Stripe live + cronjobs + secrets = remaining gap)
+- ✅ Public DNS CNAMEs — Wired 2026-07-14 for `quill.maplespike.ca` / `api.maplespike.ca` / `mcp.maplespike.ca` / `data.maplespike.ca` / `datafabric.maplespike.ca`. End-to-end verified: `api/v1/health` → 200 status:ok, `mcp/health` → 200 tools:174, `api/v1/auth/oauth/providers` → 200. Lives in the Cloudflare zone `maplespike.ca`; root `maplespike.ca` / `www.maplespike.ca` continues to serve from Pages (not tunnel) per ADR 0004.
+- 🟡 `mosaic.maplespike.ca` DNS CNAME — pending operator action. Either Dashboard add (4 min) OR create a scoped Desktop Token with `Zone:DNS:Edit` at https://dash.cloudflare.com/profile/api-tokens and paste `api_token = "<token>"` into `~/.config/.wrangler/config/default.toml` then re-run `npx tsx scripts/ops/wire-tunnel-dns.mts`. The wrangler OAuth path alone still 403s (token scopes are `account:read + user:read + workers:write` per ROADMAP Known Drift — lacks `zone:read` + `zone:dns:edit`).
+- 🟡 Mosiac K8s deploy — StatefulSet + 10Gi PVC + new ClusterIP `mosiac-svc:3000` + `mosaic.maplespike.ca` tunnel ingress row (full recipe: [`mosiac/DEPLOY-MAPLESPIKE.md`](../mosiac/DEPLOY-MAPLESPIKE.md), operator picked K8s cluster path on 2026-07-14, `nodeAffinity NotIn [zephyr]` per `we NEVER deploy to zephyr` policy).
+- 🟡 Production cutover — Track in [ROADMAP.md](./ROADMAP.md) Phase 4 (Mosiac deploy + Stripe live + cronjobs + secrets = remaining gap; DNS piece resolved 2026-07-14)
 
 All backend data stays on Canadian infrastructure with zero external cloud spend.
 

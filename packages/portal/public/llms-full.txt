@@ -1,7 +1,7 @@
 # MapleSpike — Full Documentation Archive
 
 > Version: 0.3.0
-> Auto-generated: 2026-07-14
+> Auto-generated: 2026-07-15
 > License: AGPL-3.0 / MIT. Government data under OGL-C.
 > API Base URL: https://api.maplespike.ca/v1
 > MCP Server: https://mcp.maplespike.ca/sse

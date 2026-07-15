@@ -14,12 +14,12 @@
 | `www.maplespike.ca` | **Cloudflare Pages** (`maplespike-brand` project) | ✅ 200, brand site |
 | `maplespike-quill.pages.dev` | **Cloudflare Pages** (`maplespike-quill` project) | ✅ 200, latest portal deploy alias |
 | `main.maplespike-quill.pages.dev` | **Cloudflare Pages** (`maplespike-quill` project, last commit `main`) | ✅ 200 |
-| `quill.maplespike.ca` | (cluster tunnel ingress OK → `maplespike-portal:8080`, **DNS CNAME not yet attached**) | 🟡 DNS one-liner pending |
-| `api.maplespike.ca` | (cluster tunnel ingress OK → `maplespike-api:8082`, **DNS CNAME not yet attached**) | 🟡 DNS one-liner pending |
-| `mcp.maplespike.ca` | (cluster tunnel ingress OK → `maplespike-mcp:3001`, **DNS CNAME not yet attached**) | 🟡 DNS one-liner pending |
-| `data.maplespike.ca` | (cluster tunnel ingress OK → `maplespike-mcp:3001`, **DNS CNAME not yet attached**, kept as legacy alias per ROUTING.md) | 🟡 DNS one-liner pending |
-| `datafabric.maplespike.ca` | (cluster tunnel ingress OK → `quill-portal:8080`, **DNS CNAME not yet attached**) | 🟡 DNS one-liner pending |
-| `mosaic.maplespike.ca` | No DNS, no Service, no tunnel ingress yet | 🔴 Phase-1 deploy (K8s StatefulSet + PVC + tunnel ingress) pending |
+| `quill.maplespike.ca` | cluster tunnel → `maplespike-portal:8080` | ✅ 200, wired 2026-07-14 |
+| `api.maplespike.ca` | cluster tunnel → `maplespike-api:8082` (root returns 404; `/v1/health` returns 200) | ✅ 200 (real E2E), wired 2026-07-14 |
+| `mcp.maplespike.ca` | cluster tunnel → `maplespike-mcp:3001` (root returns 404; `/health` returns 200) | ✅ 200 (real E2E), wired 2026-07-14 |
+| `data.maplespike.ca` | cluster tunnel → `maplespike-mcp:3001` (legacy alias per ROUTING.md) | ✅ 200, wired 2026-07-14 |
+| `datafabric.maplespike.ca` | cluster tunnel → `maplespike-portal:8080` | ✅ 200, wired 2026-07-14 |
+| `mosaic.maplespike.ca` | DNS CNAME pending; cluster tunnel ingress row + `mosiac-svc` Service + Mosiac StatefulSet all pending per [`mosiac/DEPLOY-MAPLESPIKE.md`](./../mosiac/DEPLOY-MAPLESPIKE.md) | 🟡 DNS operator action + 🔴 K8s deploy pending |
 
 ### Cloudflare Pages backup for `quill`
 
@@ -150,8 +150,10 @@ cd /home/j_kro/Projects/quill && \
   cat > /tmp/wire-dns.mts <<'TSX'
 import { Cloudflare } from 'cloudflare'; import fs,os,path from 'node:fs';
 (async () => {
+  const OAUTH_RE = /oauth_token\s*=\s*["']/ +
+    /[^"']+/ + /["']/i;
   const t = fs.readFileSync(path.join(os.homedir(),'.config/.wrangler/config/default.toml'),'utf8')
-    .match(/oauth_token\s*=\s*["']([^"']+)["']/i)![1];
+    .match(OAUTH_RE)![1];
   const cf = new Cloudflare({ oauthToken: t });
   const acc = (await cf.accounts.list()).result[0];
   const zone = (await cf.zones.list({ name: 'maplespike.ca' })).result[0];
