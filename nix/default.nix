@@ -38,20 +38,20 @@ in
 
     api = {
       port = mkOption { type = types.port; default = 8082; description = "API server port"; };
-      host = mkOption { type = types.str; default = "dev-api.maplespike.lan"; description = "Dev API hostname"; };
-      prodHost = mkOption { type = types.str; default = "api.maplespike.lan"; description = "Prod API hostname"; };
+      host = mkOption { type = types.str; default = "dev-api.maplespike.ca"; description = "Dev API hostname"; };
+      prodHost = mkOption { type = types.str; default = "api.maplespike.ca"; description = "Prod API hostname"; };
     };
 
     mcp = {
       port = mkOption { type = types.port; default = 3001; description = "MCP server port"; };
-      host = mkOption { type = types.str; default = "dev-mcp.maplespike.lan"; description = "Dev MCP hostname"; };
-      prodHost = mkOption { type = types.str; default = "mcp.maplespike.lan"; description = "Prod MCP hostname"; };
+      host = mkOption { type = types.str; default = "dev-mcp.maplespike.ca"; description = "Dev MCP hostname"; };
+      prodHost = mkOption { type = types.str; default = "mcp.maplespike.ca"; description = "Prod MCP hostname"; };
     };
 
     portal = {
       port = mkOption { type = types.port; default = 8080; description = "Portal port"; };
-      host = mkOption { type = types.str; default = "dev.maplespike.lan"; description = "Dev portal hostname"; };
-      prodHost = mkOption { type = types.str; default = "maplespike.lan"; description = "Prod portal hostname"; };
+      host = mkOption { type = types.str; default = "dev.maplespike.ca"; description = "Dev portal hostname"; };
+      prodHost = mkOption { type = types.str; default = "maplespike.ca"; description = "Prod portal hostname"; };
     };
   };
 

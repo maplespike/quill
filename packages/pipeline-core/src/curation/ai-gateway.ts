@@ -24,7 +24,7 @@ export interface AIGatewayConfig {
   maxRetries?: number;
 }
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 
 const DEFAULT_CONFIG: AIGatewayConfig = {
   endpoint: 'http://127.0.0.1:8080/v1',

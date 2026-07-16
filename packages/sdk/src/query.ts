@@ -5,7 +5,7 @@ import type { MapleSpikeResponse, QueryOptions, MapleSpikeApiError } from './typ
 import { MapleSpikeError } from './types.js';
 import { getApiKey, getJwtToken } from './auth.js';
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://${process.env.MAPLESPIKE_DOMAIN:-maplespike.ca})';
 
 export const DEFAULT_BASE_URL = process.env.QUILL_API_URL || 'http://127.0.0.1:8085';
 const DEV_BASE_URL = process.env.QUILL_API_URL || 'http://127.0.0.1:8085';

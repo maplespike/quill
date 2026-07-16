@@ -1,10 +1,10 @@
 # Patch for cloudflared ConfigMap to add mosaic.maplespike.ca ingress row.
 # Apply with:
-#   kubectl patch configmap cloudflared-config -n maplespike --patch-file mosiac-ingress-patch.yaml
+#   kubectl patch configmap cloudflared-config -n maplespike --patch-file mosaic-ingress-patch.yaml
 #
-# The Mosiac server runs as a StatefulSet in maplespike namespace.
-# ClusterIP for mosiac service is dynamically allocated; update the IP below after creation:
-#   kubectl get svc mosiac -n maplespike -o jsonpath='{.spec.clusterIP}'
+# The Mosaic server runs as a StatefulSet in maplespike namespace.
+# ClusterIP for mosaic service is dynamically allocated; update the IP below after creation:
+#   kubectl get svc mosaic -n maplespike -o jsonpath='{.spec.clusterIP}'
 # Currently using the next available in the 10.43.100.x range.
 
 data:
@@ -30,9 +30,9 @@ data:
       # Legacy alias for MCP server (quill-mcp service)
       - hostname: data.maplespike.ca
         service: http://10.43.100.11:3001
-      # Mosiac sovereign identity platform
-      # ClusterIP: replace <MOSIAC_CLUSTER_IP> with actual after `kubectl get svc mosiac -n maplespike`
+      # Mosaic sovereign identity platform
+      # ClusterIP: replace <MOSAIC_CLUSTER_IP> with actual after `kubectl get svc mosaic -n maplespike`
       - hostname: mosaic.maplespike.ca
-        service: http://<MOSIAC_CLUSTER_IP>:8080
+        service: http://<MOSAIC_CLUSTER_IP>:8080
       # Catch-all: return 404 for unmatched routes
       - service: http_status:404

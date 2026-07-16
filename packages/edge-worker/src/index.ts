@@ -111,7 +111,7 @@ async function proxyToHomelab(
   path: string,
   search: string,
 ): Promise<Response> {
-  const base = env.HOMELAB_API || 'https://maplespike.lan';
+  const base = env.HOMELAB_API || 'https://maplespike.ca';
   const homelabUrl = `${base}${path}${search}`;
 
   const response = await fetch(homelabUrl, {

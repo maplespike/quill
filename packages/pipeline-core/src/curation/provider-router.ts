@@ -104,7 +104,7 @@ export interface RouterStatus {
 /*  Default Provider Definitions                                       */
 /* ------------------------------------------------------------------ */
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 const DEFAULT_GATEWAY = 'http://127.0.0.1:8080/v1';
 
 const DEFAULT_PROVIDERS: ProviderDefinition[] = [

@@ -12,7 +12,7 @@
 
 const API_BASE = process.env.QUILL_API_URL || '';
 const API_KEY = process.env.QUILL_API_KEY || 'maplespike-dev-key';
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 
 let serverAvailable: boolean | null = null;
 let lastServerCheck = 0;

@@ -45,7 +45,7 @@ test("oauthExchangeHandler redeems a fresh code once and returns the JWT payload
   const ctx = makeCtx({ cache });
   const { code } = await mintEntry(cache, { isNewUser: true, apiKey: "mp_live_test" });
 
-  const url = `https://api.maplespike.lan/v1/auth/oauth/exchange?code=${encodeURIComponent(code)}`;
+  const url = `https://api.maplespike.ca/v1/auth/oauth/exchange?code=${encodeURIComponent(code)}`;
   const res = await oauthExchangeHandler(
     new Request(url, { method: "GET", headers: { Accept: "application/json" } }),
     ctx,
@@ -65,7 +65,7 @@ test("oauthExchangeHandler rejects double-redemption (single-use)", async () => 
   const cache = new InMemoryCache();
   const ctx = makeCtx({ cache });
   const { code } = await mintEntry(cache);
-  const req = new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
+  const req = new Request(`https://api.maplespike.ca/v1/auth/oauth/exchange?code=${code}`, {
     method: "GET",
     headers: { Accept: "application/json" },
   });
@@ -90,7 +90,7 @@ test("oauthExchangeHandler rejects ALREADY_CONSUMED sentinel values", async () =
   const { code } = await mintEntry(cache, { sentinel: true });
 
   const res = await oauthExchangeHandler(
-    new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
+    new Request(`https://api.maplespike.ca/v1/auth/oauth/exchange?code=${code}`, {
       method: "GET",
       headers: { Accept: "application/json" },
     }),
@@ -111,7 +111,7 @@ test("oauthExchangeHandler rejects expired codes", async () => {
   // Backdate the TTL so the next read observes expiry without sleeping.
   await cache.expireAt(`oauth:exchange:${code}`, Date.now() - 10);
   const res = await oauthExchangeHandler(
-    new Request(`https://api.maplespike.lan/v1/auth/oauth/exchange?code=${code}`, {
+    new Request(`https://api.maplespike.ca/v1/auth/oauth/exchange?code=${code}`, {
       method: "GET",
       headers: { Accept: "application/json" },
     }),
@@ -129,7 +129,7 @@ test("oauthExchangeHandler rejects codes with wrong prefix namespace", async () 
   const ctx = makeCtx({ cache });
 
   const res = await oauthExchangeHandler(
-    new Request("https://api.maplespike.lan/v1/auth/oauth/exchange?code=some-other-key", {
+    new Request("https://api.maplespike.ca/v1/auth/oauth/exchange?code=some-other-key", {
       method: "GET",
       headers: { Accept: "application/json" },
     }),
@@ -141,7 +141,7 @@ test("oauthExchangeHandler rejects codes with wrong prefix namespace", async () 
 
 test("oauthExchangeHandler returns 400 for missing code", async () => {
   const res = await oauthExchangeHandler(
-    new Request("https://api.maplespike.lan/v1/auth/oauth/exchange", {
+    new Request("https://api.maplespike.ca/v1/auth/oauth/exchange", {
       method: "GET",
       headers: { Accept: "application/json" },
     }),

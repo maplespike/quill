@@ -14,7 +14,7 @@ test("GET /v1/auth/oauth/github/callback with Accept: text/html should be a 302 
   // Mock a request that comes from a browser redirect.
   // The actual handler dispatch lives in index.ts; here we just confirm
   // that our handler accepts the Accept header convention.
-  const req = new Request("https://api.maplespike.lan/v1/auth/oauth/casdoor/callback?code=fake&state=fake", {
+  const req = new Request("https://api.maplespike.ca/v1/auth/oauth/casdoor/callback?code=fake&state=fake", {
     method: "GET",
     headers: { Accept: "text/html,application/xhtml+xml", "X-Forwarded-State": "fake" },
   });

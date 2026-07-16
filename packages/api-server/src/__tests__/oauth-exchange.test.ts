@@ -9,7 +9,7 @@ import { oauthExchangeHandler } from "../routes/auth-oauth.js";
 import { makeCtx } from "./_helpers.js";
 
 test("oauthExchangeHandler returns 400 for missing code", async () => {
-  const url = "https://api.maplespike.lan/v1/auth/oauth/exchange";
+  const url = "https://api.maplespike.ca/v1/auth/oauth/exchange";
   const req = new Request(url, { method: "GET", headers: { Accept: "application/json" } });
   const res = await oauthExchangeHandler(req, makeCtx(), {});
   assert.equal(res.status, 400);
@@ -19,7 +19,7 @@ test("oauthExchangeHandler returns 400 for missing code", async () => {
 });
 
 test("oauthExchangeHandler returns 400 for invalid code", async () => {
-  const url = "https://api.maplespike.lan/v1/auth/oauth/exchange?code=invalid-random-code";
+  const url = "https://api.maplespike.ca/v1/auth/oauth/exchange?code=invalid-random-code";
   const req = new Request(url, { method: "GET", headers: { Accept: "application/json" } });
   const res = await oauthExchangeHandler(req, makeCtx(), {});
   assert.equal(res.status, 400);
@@ -29,7 +29,7 @@ test("oauthExchangeHandler returns 400 for invalid code", async () => {
 });
 
 test("oauthExchangeHandler rejects codes with extra path segments", async () => {
-  const url = "https://api.maplespike.lan/v1/auth/oauth/exchange/foo/bar?code=whatever";
+  const url = "https://api.maplespike.ca/v1/auth/oauth/exchange/foo/bar?code=whatever";
   const req = new Request(url, { method: "GET", headers: { Accept: "application/json" } });
   const res = await oauthExchangeHandler(req, makeCtx(), {});
   assert.equal(res.status, 400);

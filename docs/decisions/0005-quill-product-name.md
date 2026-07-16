@@ -4,7 +4,7 @@
 **Date:** 2026-07-02
 **Last-reviewed:** 2026-07-02 (post-Phase-C update)
 **Owner:** j_kro
-**Driver:** The data-layer MCP server was previously burdened with the generic `quill-mcp` package name and `@reverb256` npm scope. Internal references called it "MapleSpike Quill" or "the data layer" interchangeably. The brand SPA's three-spike list (Fabric, Mosiac, Social Bridge) had no entry for the data-layer MCP server, creating ambiguity about what brand name the MCP tool actually answers to.
+**Driver:** The data-layer MCP server was previously burdened with the generic `quill-mcp` package name and `@reverb256` npm scope. Internal references called it "MapleSpike Quill" or "the data layer" interchangeably. The brand SPA's three-spike list (Fabric, Mosaic, Social Bridge) had no entry for the data-layer MCP server, creating ambiguity about what brand name the MCP tool actually answers to.
 
 ## Decision
 

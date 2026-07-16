@@ -2,7 +2,7 @@
 set -euo pipefail
 
 NAMESPACE=maplespike
-DOMAIN=maplespike.lan
+DOMAIN=maplespike.ca
 TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-1384182343}
 AI_GATEWAY=ai-inference-gateway.ai-inference.svc.cluster.local:8080
 QDRANT=qdrant.ai-inference.svc.cluster.local:6333

@@ -50,7 +50,7 @@ function filterByTopic(records: NtOpenDataRecord[], query: string): NtOpenDataRe
 export async function ingestNtHealthSocial(): Promise<{ success: boolean; records: number }> {
   const resp = await httpGet(BASE, {
     timeoutMs: 15000,
-    headers: { Accept: "text/html", "User-Agent": "MapleSpike/0.2 (+https://maplespike.lan)" },
+    headers: { Accept: "text/html", "User-Agent": "MapleSpike/0.2 (+https://maplespike.ca)" },
   });
   if (resp.statusCode !== 200) return { success: false, records: 0 };
   try {
@@ -65,7 +65,7 @@ export async function ingestNtHealthSocial(): Promise<{ success: boolean; record
 export async function searchNtHealthSocial(query: string): Promise<NtOpenDataRecord[]> {
   const resp = await httpGet(BASE, {
     timeoutMs: 15000,
-    headers: { Accept: "text/html", "User-Agent": "MapleSpike/0.2 (+https://maplespike.lan)" },
+    headers: { Accept: "text/html", "User-Agent": "MapleSpike/0.2 (+https://maplespike.ca)" },
   });
   if (resp.statusCode !== 200) return [];
   try {

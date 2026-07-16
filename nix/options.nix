@@ -37,12 +37,12 @@ in
       };
       host = mkOption {
         type = types.str;
-        default = "dev-api.maplespike.lan";
+        default = "dev-api.maplespike.ca";
         description = "Dev API hostname";
       };
       prodHost = mkOption {
         type = types.str;
-        default = "api.maplespike.lan";
+        default = "api.maplespike.ca";
         description = "Prod API hostname";
       };
     };
@@ -65,12 +65,12 @@ in
       };
       host = mkOption {
         type = types.str;
-        default = "dev-mcp.maplespike.lan";
+        default = "dev-mcp.maplespike.ca";
         description = "Dev MCP hostname";
       };
       prodHost = mkOption {
         type = types.str;
-        default = "mcp.maplespike.lan";
+        default = "mcp.maplespike.ca";
         description = "Prod MCP hostname";
       };
     };
@@ -93,12 +93,12 @@ in
       };
       host = mkOption {
         type = types.str;
-        default = "dev.maplespike.lan";
+        default = "dev.maplespike.ca";
         description = "Dev portal hostname";
       };
       prodHost = mkOption {
         type = types.str;
-        default = "maplespike.lan";
+        default = "maplespike.ca";
         description = "Prod portal hostname";
       };
     };

@@ -5,7 +5,7 @@
  */
 import { extractFromZip } from './optimization/zip-util.js';
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 
 export async function fetchStatCanTable(tableId: string): Promise<{ header: string[]; rows: Record<string, string>[] }> {
   const resp = await fetch(`https://www150.statcan.gc.ca/n1/tbl/csv/${tableId}-eng.zip`, {

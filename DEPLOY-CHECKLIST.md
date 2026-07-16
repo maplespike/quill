@@ -19,7 +19,7 @@
 | `mcp.maplespike.ca` | cluster tunnel → `maplespike-mcp:3001` (root returns 404; `/health` returns 200) | ✅ 200 (real E2E), wired 2026-07-14 |
 | `data.maplespike.ca` | cluster tunnel → `maplespike-mcp:3001` (legacy alias per ROUTING.md) | ✅ 200, wired 2026-07-14 |
 | `datafabric.maplespike.ca` | cluster tunnel → `maplespike-portal:8080` | ✅ 200, wired 2026-07-14 |
-| `mosaic.maplespike.ca` | DNS CNAME pending; cluster tunnel ingress row + `mosiac-svc` Service + Mosiac StatefulSet all pending per [`mosiac/DEPLOY-MAPLESPIKE.md`](./../mosiac/DEPLOY-MAPLESPIKE.md) | 🟡 DNS operator action + 🔴 K8s deploy pending |
+| `mosaic.maplespike.ca` | DNS CNAME pending; cluster tunnel ingress row + `mosaic-svc` Service + Mosaic StatefulSet all pending per [`mosaic/DEPLOY-MAPLESPIKE.md`](./../mosaic/DEPLOY-MAPLESPIKE.md) | 🟡 DNS operator action + 🔴 K8s deploy pending |
 
 ### Cloudflare Pages backup for `quill`
 
@@ -133,7 +133,7 @@ DNS side is blocking.
 | `mcp.maplespike.ca` | CNAME | (same tunnel) | MCP SSE server |
 | `data.maplespike.ca` | CNAME | (same tunnel) | legacy alias (per `ROUTING.md` Phase D, will 301 to `quill.maplespike.ca`) |
 | `datafabric.maplespike.ca` | CNAME | (same tunnel) | legacy product alias |
-| `mosaic.maplespike.ca` | CNAME | (same tunnel) | Mosiac (after K8s StatefulSet + new tunnel ingress entry) |
+| `mosaic.maplespike.ca` | CNAME | (same tunnel) | Mosaic (after K8s StatefulSet + new tunnel ingress entry) |
 
 ### 1d. One-liner to wire DNS (run from `quill/` so the `cloudflare` SDK is on disk)
 
@@ -185,7 +185,7 @@ TUNNEL=$TUNNEL npx tsx /tmp/wire-dns.mts && \
 ```
 
 After it runs, the five subdomains should all return HTTP 200. (`mosaic` is
-left out of this list — see [Step 7](#step-7-mosiac-deploy-on-cluster-phased) for the
+left out of this list — see [Step 7](#step-7-mosaic-deploy-on-cluster-phased) for the
 K8s deployment that creates the matching Service + tunnel ingress first;
 then add `mosaic.maplespike.ca` to the same one-liner.)
 
@@ -390,27 +390,27 @@ curl -H "Authorization: Bearer YOUR_ADMIN_KEY" \
 
 ---
 
-## Step 7: Mosiac deploy on cluster (phased)
+## Step 7: Mosaic deploy on cluster (phased)
 
-`mosaic.maplespike.ca` is the operator-deployed Mosiac Express+WebSocket
-federation server (see [`mosiac/DEPLOY-MAPLESPIKE.md`](./../mosiac/DEPLOY-MAPLESPIKE.md)
+`mosaic.maplespike.ca` is the operator-deployed Mosaic Express+WebSocket
+federation server (see [`mosaic/DEPLOY-MAPLESPIKE.md`](./../mosaic/DEPLOY-MAPLESPIKE.md)
 for the full manifest +9-step recipe). The cliff-notes:
 
-1. **Build the image** (one-time) and push to `nexus:5000/mosiac:dev` so the
+1. **Build the image** (one-time) and push to `nexus:5000/mosaic:dev` so the
    cluster can pull it:
    ```bash
-   cd mosiac && docker build -t nexus:5000/mosiac:dev .
-   docker push nexus:5000/mosiac:dev
+   cd mosaic && docker build -t nexus:5000/mosaic:dev .
+   docker push nexus:5000/mosaic:dev
    ```
 2. **Create a PVC** (`10Gi` to start; resize if usage spikes) in the
    `maplespike` namespace for `/data` (SQLite, .env, certs, uploads).
 3. **Deploy** a `StatefulSet` (StorageClass local-path) with `nodeAffinity`
    that bans `zephyr` (per local operator policy: "we NEVER deploy to
-   zephyr, only the other nodes"). `FORCE_HTTP=true` so Mosiac doesn't
+   zephyr, only the other nodes"). `FORCE_HTTP=true` so Mosaic doesn't
    try to generate its own self-signed cert over the top of Cloudflare's.
-4. **Add a ClusterIP Service** `mosiac-svc:3000` in the same namespace.
+4. **Add a ClusterIP Service** `mosaic-svc:3000` in the same namespace.
 5. **Patch `cloudflared-config` ConfigMap** to add the `mosaic.maplespike.ca`
-   ingress row pointing at `http://mosiac-svc:3000` (above `http_status:404`).
+   ingress row pointing at `http://mosaic-svc:3000` (above `http_status:404`).
    Restart the `cloudflared` pod so it reloads ingress (`kubectl rollout
    restart deploy cloudflared -n maplespike`).
 6. **Add the DNS CNAME** for `mosaic.maplespike.ca` — extend the one-liner
@@ -421,8 +421,8 @@ for the full manifest +9-step recipe). The cliff-notes:
    curl -sS https://mosaic.maplespike.ca/api/health | jq .  # → 200 with server_name populated
    ```
 8. **Build Cloudflare Pages backup for the brand site**: not applicable
-   to Mosiac (Express + persistent disk, not static).
-9. **Backup / restore** falls out of Mosiac's built-in zip endpoint
+   to Mosaic (Express + persistent disk, not static).
+9. **Backup / restore** falls out of Mosaic's built-in zip endpoint
    (`GET /api/admin/backup?token=...`). No additional plumbing.
 
 ## What's NOT Needed Yet (Skip These)

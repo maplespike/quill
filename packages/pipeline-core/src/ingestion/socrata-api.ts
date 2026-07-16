@@ -44,7 +44,7 @@ export const PROVINCIAL_SOCRATA_SOURCES: Record<string, SocrataSource> = {
 /*  Socrata Catalog Fetcher                                            */
 /* ------------------------------------------------------------------ */
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 
 export async function fetchSocrataCatalog(
   endpoint: string,

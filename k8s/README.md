@@ -18,10 +18,10 @@ k8s/
 │   ├── quill-portal-service.yaml
 │   ├── quill-hpa.yaml
 │   └── quill-networkpolicy.yaml
-└── mosiac/                     # Mosiac server
-    ├── mosiac-deployment.yaml
-    ├── mosiac-service.yaml
-    └── mosiac-networkpolicy.yaml
+└── mosaic/                     # Mosaic server
+    ├── mosaic-deployment.yaml
+    ├── mosaic-service.yaml
+    └── mosaic-networkpolicy.yaml
 ```
 
 ## Namespace
@@ -33,7 +33,7 @@ All manifests deploy to the `maplespike` namespace.
 ```bash
 # Apply everything with kustomize
 kubectl apply -k k8s/maplespike/
-kubectl apply -k k8s/mosiac/   # if mosiac/ has kustomization.yaml
+kubectl apply -k k8s/mosaic/   # if mosaic/ has kustomization.yaml
 
 # Or apply individual files
 kubectl apply -f k8s/maplespike/quill-api-deployment.yaml
@@ -46,7 +46,7 @@ kubectl apply -f k8s/maplespike/quill-api-deployment.yaml
 | quill-api      | ClusterIP  | 8082 | 2        | nexus:5000/quill-api:latest     |
 | quill-mcp      | ClusterIP  | 3001 | 2        | nexus:5000/quill-mcp:latest     |
 | quill-portal   | ClusterIP  | 8080 | 2        | nexus:5000/quill-portal:latest  |
-| mosiac-server  | ClusterIP  | 8080 | 1        | nexus:5000/mosiac-server:latest |
+| mosaic-server  | ClusterIP  | 8080 | 1        | nexus:5000/mosaic-server:latest |
 
 ## Autoscaling
 
@@ -59,7 +59,7 @@ quill-api and quill-portal each have an HPA configured with:
 
 - **quill-network-policy**: Restricts ingress to quill-api pods from the
   cloudflared namespace. Allows DNS (port 53) and HTTP/S (80/443) egress.
-- **mosiac-network-policy**: Restricts ingress to mosiac pods from the
+- **mosaic-network-policy**: Restricts ingress to mosaic pods from the
   maplespike namespace. Allows DNS egress.
 
 ## Images

@@ -13,7 +13,7 @@ import { NRCAN_PACKAGES, CKAN_BASE } from './constants.js';
 async function fetchCkanPackage(packageId: string): Promise<any> {
   const url = `${CKAN_BASE}/api/3/action/package_show?id=${packageId}`;
   const resp = await httpGet(url, {
-    headers: { Accept: 'application/json', 'User-Agent': 'MapleSpike/0.2 (+https://maplespike.lan)' },
+    headers: { Accept: 'application/json', 'User-Agent': 'MapleSpike/0.2 (+https://maplespike.ca)' },
     timeoutMs: 15000,
   });
 
@@ -59,7 +59,7 @@ export async function fetchNrcanCsv(packageId: string): Promise<string> {
   }
 
   const resp = await httpGet(resource.url, {
-    headers: { Accept: 'text/csv', 'User-Agent': 'MapleSpike/0.2 (+https://maplespike.lan)' },
+    headers: { Accept: 'text/csv', 'User-Agent': 'MapleSpike/0.2 (+https://maplespike.ca)' },
     timeoutMs: 30000,
   });
 

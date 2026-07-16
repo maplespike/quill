@@ -79,10 +79,14 @@ motion:
   fast: 100ms
   normal: 200ms
   slow: 300ms
+  marketing: 500ms
   shimmer-duration: 1500ms
-  ease-out: "cubic-bezier(0.23, 1, 0.32, 1)"
-  ease-in-out: "cubic-bezier(0.77, 0, 0.175, 1)"
+  eased: "cubic-bezier(0.22, 1, 0.36, 1)"
+  ease-out: "cubic-bezier(0.22, 1, 0.36, 1)"
+  ease-in-out: "cubic-bezier(0.65, 0, 0.35, 1)"
   ease-drawer: "cubic-bezier(0.32, 0.72, 0, 1)"
+  spring-cta: "spring(stiffness 600, damping 30, mass 0.8)"
+  spring-drawer: "spring(damping 0.8, stiffness 320)"
 components:
   button-primary:
     backgroundColor: "{colors.primary}"

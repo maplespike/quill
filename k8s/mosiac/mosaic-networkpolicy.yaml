@@ -1,12 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: mosiac-network-policy
+  name: mosaic-network-policy
   namespace: maplespike
 spec:
   podSelector:
     matchLabels:
-      app: mosiac
+      app: mosaic
   policyTypes:
     - Ingress
     - Egress

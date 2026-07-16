@@ -134,7 +134,7 @@ export async function getMockResponse(
 
       citation = enrichCitation({
         source_name: `MapleSpike Pipeline — ${mod?.name ?? moduleName}`,
-        source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
+        source_url: `https://api.maplespike.ca/v1/${agent}/${action}`,
         retrieved_at: new Date().toISOString(),
         data_hash: '',
         license: 'https://open.canada.ca/en/open-government-licence-canada',
@@ -157,7 +157,7 @@ export async function getMockResponse(
 
       citation = enrichCitation({
         source_name: `MapleSpike Pipeline — ${moduleName}`,
-        source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
+        source_url: `https://api.maplespike.ca/v1/${agent}/${action}`,
         retrieved_at: new Date().toISOString(),
         data_hash: '',
         license: 'https://open.canada.ca/en/open-government-licence-canada',
@@ -176,7 +176,7 @@ export async function getMockResponse(
 
     citation = enrichCitation({
       source_name: 'MapleSpike Pipeline Data',
-      source_url: `https://api.maplespike.lan/v1/${agent}/${action}`,
+      source_url: `https://api.maplespike.ca/v1/${agent}/${action}`,
       retrieved_at: new Date().toISOString(),
       data_hash: '',
       license: 'https://open.canada.ca/en/open-government-licence-canada',

@@ -8,8 +8,8 @@ data:
     #!/bin/bash
     set -x
     echo "Testing basic connectivity..."
-    curl -sk -o /dev/null -w "%{http_code}" https://maplespike.lan/ && echo " Portal OK"
-    curl -sk -o /dev/null -w "%{http_code}" https://api.maplespike.lan/v1/health && echo " API OK"
+    curl -sk -o /dev/null -w "%{http_code}" https://maplespike.ca/ && echo " Portal OK"
+    curl -sk -o /dev/null -w "%{http_code}" https://api.maplespike.ca/v1/health && echo " API OK"
     kubectl get pods -n maplespike | grep -E "(Running|Succeeded)"
     echo "All tests done"
 ---
@@ -32,7 +32,7 @@ spec:
         - -c
         - |
           echo "Testing basic connectivity..."
-          curl -sk -o /dev/null -w "%{http_code}" https://maplespike.lan/
-          curl -sk -o /dev/null -w "%{http_code}" https://api.maplespike.lan/v1/health
+          curl -sk -o /dev/null -w "%{http_code}" https://maplespike.ca/
+          curl -sk -o /dev/null -w "%{http_code}" https://api.maplespike.ca/v1/health
           kubectl get pods -n maplespike | head -5
           echo "All tests done"

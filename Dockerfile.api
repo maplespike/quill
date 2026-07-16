@@ -58,7 +58,7 @@ EXPOSE 8082
 
 # Wrapper entrypoint exports NODE_EXTRA_CA_CERTS and execs node (issue #778)
 COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN chmod a+r /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 USER 1001
 ENTRYPOINT ["/app/entrypoint.sh"]

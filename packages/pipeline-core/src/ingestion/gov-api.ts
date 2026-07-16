@@ -46,7 +46,7 @@ export interface StatCanRelease {
 /*  Statistics Canada WDS REST API                                     */
 /* ------------------------------------------------------------------ */
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 const STATCAN_WDS_BASE = 'https://www150.statcan.gc.ca/t1/wds/rest';
 
 /**

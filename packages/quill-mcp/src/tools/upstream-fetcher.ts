@@ -2,7 +2,7 @@
 
 import { cacheGet, cacheSet, cacheKey } from '../optimization/cache.js';
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export async function fetchJson<T>(url: string, timeoutMs = 10_000, extraHeaders: Record<string, string> = {}): Promise<T> {

@@ -39,7 +39,7 @@ export interface FiveGWDefenseConfig {
   adversarialSources?: string[];
 }
 
-const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.lan)';
+const USER_AGENT = 'MapleSpike/0.2 (+https://maplespike.ca)';
 
 const DEFAULT_CONFIG: Required<FiveGWDefenseConfig> = {
   endpoint: 'http://127.0.0.1:8080/v1',

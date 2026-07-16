@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mosiac-server
+  name: mosaic-server
   namespace: maplespike
   labels:
-    app: mosiac
+    app: mosaic
     component: server
 spec:
-  serviceName: mosiac-server
+  serviceName: mosaic-server
   replicas: 1
   selector:
     matchLabels:
-      app: mosiac
+      app: mosaic
   template:
     metadata:
       labels:
-        app: mosiac
+        app: mosaic
         component: server
     spec:
       containers:
-        - name: mosiac
-          image: nexus:5000/mosiac-server:latest
+        - name: mosaic
+          image: nexus:5000/mosaic-server:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

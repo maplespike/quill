@@ -163,7 +163,7 @@ describe('API Key Management — registerApiKey + authenticate', () => {
     // Register with 'demo-tenant' so tenantDetails lookup succeeds
     registerApiKey(rawKey, 'demo-tenant', 'Test API Key');
 
-    const request = new Request('https://api.maplespike.lan/v1/test', {
+    const request = new Request('https://api.maplespike.ca/v1/test', {
       headers: { 'X-API-Key': rawKey },
     });
 
@@ -176,7 +176,7 @@ describe('API Key Management — registerApiKey + authenticate', () => {
   });
 
   it('authenticateRequest returns null for unregistered key', async () => {
-    const request = new Request('https://api.maplespike.lan/v1/test', {
+    const request = new Request('https://api.maplespike.ca/v1/test', {
       headers: { 'X-API-Key': 'maplespike_unregistered_nonexistent' },
     });
     const result = await authenticateRequest(request);
