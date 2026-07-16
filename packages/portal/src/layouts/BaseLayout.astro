@@ -109,6 +109,8 @@ const isActive = (match: string) =>
         }
       })();
     </script>
+    <!-- Plausible Analytics — privacy-first, no cookies, no cross-site tracking -->
+    <script defer is:inline data-domain="quill.maplespike.ca" src="https://plausible.io/js/script.js"></script>
   </head>
   <!-- Unified layout: all pages (including landing) use BaseLayout for
        consistent nav, footer, auth, and i18n chrome. The landing page's
@@ -417,5 +419,11 @@ const isActive = (match: string) =>
 
     <!-- Load script.js for pages that need it -->
     <script src="/script.js" is:inline></script>
+    <!-- Plausible: track Astro view-transition navigations (ClientRouter) -->
+    <script is:inline>
+      document.addEventListener("astro:page-load", () => {
+        if (window.plausible) window.plausible("pageview");
+      });
+    </script>
   </body>
 </html>
