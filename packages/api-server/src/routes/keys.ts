@@ -26,7 +26,7 @@ export const listKeysHandler: RouteHandler = async (_request, ctx) => {
   // ── Feature gate: API key management requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key management requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'API key management requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 
@@ -41,7 +41,7 @@ export const createKeyHandler: RouteHandler = async (_request, ctx) => {
   // ── Feature gate: API key creation requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key creation requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'API key creation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 
@@ -76,7 +76,7 @@ export const deleteKeyHandler: RouteHandler = async (_request, ctx, params) => {
   // ── Feature gate: API key revocation requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'API key revocation requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'API key revocation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 
@@ -111,7 +111,7 @@ export const rotateKeyHandler: RouteHandler = async (_request, ctx, params) => {
   // ── Feature gate: key rotation requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'developerConsole')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Key rotation requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'Key rotation requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 

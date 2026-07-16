@@ -928,7 +928,26 @@ const errorCodes = [
           <span class="font-semibold text-foreground">Errors</span>
         </div>
         <h2 class="text-2xl font-bold mb-4">One shape. Specific categories.</h2>
-        <p class="text-muted-foreground mb-6">All error responses carry <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">success: false</code>, a stable error code, and a human-readable message.</p>
+        <p class="text-muted-foreground mb-6">All error responses carry <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">success: false</code>, a stable error <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">code</code>, an English <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message</code>, and a French <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message_fr</code>. Every error includes both languages so your app can render the right locale without a separate request.</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">Bilingual Error Response</h3>
+        <p class="text-sm text-muted-foreground mb-3">Every API error returns both an English and a French message. Example 429 response:</p>
+        <Card class="mb-6">
+          <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
+            &#123;<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: false,<br />
+            &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;error&quot;</span>: &#123;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;code&quot;</span>: <span class="text-[#0891B2]">&quot;RATE_LIMITED&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;message&quot;</span>: <span class="text-[#0891B2]">&quot;Rate limit exceeded. Please slow down.&quot;</span>,<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;message_fr&quot;</span>: <span class="text-[#0891B2]">&quot;Limite de débit dépassée. Veuillez ralentir.&quot;</span><br />
+            &nbsp;&nbsp;&#125;<br />
+            &#125;
+          </CardContent>
+        </Card>
+
+        <p class="text-sm text-muted-foreground mb-3">When building a French-language UI, display <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message_fr</code> to your users. The <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message</code> field is always English and suitable for logging.</p>
+
+        <h3 class="text-lg font-semibold mt-8 mb-3">Error reference</h3>
 
         <Card>
           <CardContent class="p-0 overflow-x-auto">

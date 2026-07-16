@@ -27,6 +27,16 @@ api:
     QUILL_QDRANT_ENDPOINT: "http://qdrant:6333"
     QUILL_QDRANT_COLLECTION: "maplespike"
     QUILL_EMBED_MODEL: "nvidia/llama-3.2-nv-embedqa-1b-v2"
+    # WebAuthn / passkey — rp.id must match the browser origin domain
+    MAPLESPIKE_DOMAIN: "maplespike.ca"
+    MAPLESPIKE_ORIGIN: "https://quill.maplespike.ca"
+    # Portal URL for OAuth callback redirects
+    PORTAL_URL: "https://quill.maplespike.ca"
+    APP_URL: "https://quill.maplespike.ca"
+    # GitHub OAuth callback — must match GitHub App registration
+    GITHUB_REDIRECT_URI: "https://api.maplespike.ca/v1/auth/github/callback"
+    # Trust proxy headers from cloudflared tunnel
+    TRUST_PROXY: "true"
   ingress:
     host: api.maplespike.ca
     tls: true
@@ -95,9 +105,9 @@ cloudflared:
     limits:
       cpu: 200m
       memory: 128Mi
+  # quill.maplespike.ca is now served by Cloudflare Pages (free tier)
+  # — no tunnel ingress needed for the portal
   ingress:
-    - hostname: quill.maplespike.ca
-      service: http://maplespike-portal.maplespike.svc.cluster.local:8080
     - hostname: api.maplespike.ca
       service: http://maplespike-api.maplespike.svc.cluster.local:8082
     - hostname: mcp.maplespike.ca

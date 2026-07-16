@@ -242,7 +242,7 @@ const server = http.createServer(async (req, res) => {
   } catch (err) {
     log.error(`Fatal: ${err}`);
     res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Server error' } }));
+    res.end(JSON.stringify({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Server error', message_fr: 'Erreur interne du serveur' } }));
   }
 });
 

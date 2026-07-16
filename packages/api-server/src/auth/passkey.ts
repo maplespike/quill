@@ -35,8 +35,10 @@ import { generateNonce, setChallenge, consumeChallenge } from './challenges.js';
    ══════════════════════════════════════════════════════════════════ */
 
 const RP_NAME = 'MapleSpike';
-const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.lan';
-const ORIGIN = process.env.MAPLESPIKE_ORIGIN || `https://${RP_ID}`;
+const RP_ID = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
+// Production default: https://quill.maplespike.ca
+// Dev fallback: when RP_ID is localhost (no dots), use https://localhost
+const ORIGIN = process.env.MAPLESPIKE_ORIGIN || (RP_ID.includes('.') ? `https://quill.${RP_ID}` : `https://${RP_ID}`);
 
 /* ------------------------------------------------------------------ */
 /*  In-memory credential store (replace with DB in production)        */

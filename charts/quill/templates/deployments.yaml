@@ -37,6 +37,30 @@ spec:
           value: "{{ .Values.api.env.QUILL_QDRANT_COLLECTION | default "maplespike" }}"
         - name: QUILL_EMBED_MODEL
           value: "{{ .Values.api.env.QUILL_EMBED_MODEL | default "nvidia/llama-3.2-nv-embedqa-1b-v2" }}"
+        - name: MAPLESPIKE_DOMAIN
+          value: "{{ .Values.api.env.MAPLESPIKE_DOMAIN | default "maplespike.ca" }}"
+        - name: MAPLESPIKE_ORIGIN
+          value: "{{ .Values.api.env.MAPLESPIKE_ORIGIN | default "https://quill.maplespike.ca" }}"
+        - name: PORTAL_URL
+          value: "{{ .Values.api.env.PORTAL_URL | default "https://quill.maplespike.ca" }}"
+        - name: APP_URL
+          value: "{{ .Values.api.env.APP_URL | default "https://quill.maplespike.ca" }}"
+        - name: GITHUB_REDIRECT_URI
+          value: "{{ .Values.api.env.GITHUB_REDIRECT_URI | default "https://api.maplespike.ca/v1/auth/github/callback" }}"
+        - name: TRUST_PROXY
+          value: "{{ .Values.api.env.TRUST_PROXY | default "true" }}"
+        - name: GITHUB_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: maplespike-secrets
+              key: githubClientId
+              optional: true
+        - name: GITHUB_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: maplespike-secrets
+              key: githubClientSecret
+              optional: true
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:

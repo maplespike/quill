@@ -20,7 +20,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       description: `Canada's sovereign, AI-native government data layer. One API key gives you access to every major Canadian government dataset — Statistics Canada, open.canada.ca, provincial portals, AI-curated news from 43+ sources, citation verification, bias analysis, and immutable audit trails.`,
       contact: {
         name: 'MapleSpike',
-        url: 'https://maplespike.lan',
+        url: 'https://quill.maplespike.ca',
       },
       license: {
         name: 'AGPL-3.0 (pipeline-core) / Commercial (hosted API)',
@@ -28,7 +28,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       },
     },
     servers: [
-      { url: 'https://api.maplespike.lan/v1', description: 'Production' },
+      { url: 'https://api.maplespike.ca/v1', description: 'Production' },
       { url: 'http://localhost:8081/v1', description: 'Development' },
     ],
     security: [{ BearerAuth: [] }],
@@ -38,7 +38,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'API key (maplespike_ prefix)',
-          description: 'Get your API key at https://maplespike.lan',
+          description: 'Get your API key at https://quill.maplespike.ca',
         },
       },
       schemas: {

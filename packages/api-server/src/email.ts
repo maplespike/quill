@@ -48,9 +48,9 @@ export function initEmailConfig(env: Record<string, string | undefined>): EmailC
   _config = {
     provider: (env.EMAIL_PROVIDER as EmailConfig['provider']) || 'console',
     sendgridApiKey: env.SENDGRID_API_KEY,
-    fromEmail: env.EMAIL_FROM || 'noreply@maplespike.lan',
+    fromEmail: env.EMAIL_FROM || 'noreply@maplespike.ca',
     fromName: env.EMAIL_FROM_NAME || 'MapleSpike',
-    appUrl: env.APP_URL || 'https://maplespike.lan',
+    appUrl: env.APP_URL || 'https://quill.maplespike.ca',
     appName: env.APP_NAME || 'MapleSpike',
   };
   return _config;
@@ -60,9 +60,9 @@ export function getEmailConfig(): EmailConfig {
   if (!_config) {
     _config = {
       provider: 'console',
-      fromEmail: 'noreply@maplespike.lan',
+      fromEmail: 'noreply@maplespike.ca',
       fromName: 'MapleSpike',
-      appUrl: 'https://maplespike.lan',
+      appUrl: 'https://quill.maplespike.ca',
       appName: 'MapleSpike',
     };
   }

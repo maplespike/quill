@@ -37,6 +37,7 @@ import type { QuillStorage, QuillCache } from './types.js';
 import { recordIngestion, getFreshness, getConfidence, getCertainty } from './freshness.js';
 export type { ApiResponse } from './types.js';
 export type { QueryOptions } from './types.js';
+import { initEmailConfig } from './email.js';
 import logger from './logger.js';
 
 interface Route {
@@ -281,7 +282,8 @@ function generateRequestId(): string {
   return 'maplespike-' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const log = logger;
+// ── Pino structured logging for request lifecycle ──
+// Logger already imported at line 40
 
 // Signals route handler — lazy-loaded via eval to avoid tsc following cross-package imports
 ROUTES.push({
@@ -439,9 +441,15 @@ export async function handleRequest(
   const environment = config.environment || process.env.ENVIRONMENT;
   const requestId = generateRequestId();
   const startTime = Date.now();
+
+  // Initialise email config from env (SendGrid/console). Safe to call
+  // multiple times — subsequent calls are idempotent.
+  initEmailConfig(env);
   const url = new URL(request.url);
   const queryOptions = parseQueryOptions(url);
   const requestOrigin = request.headers.get('Origin');
+
+  logger.info({ requestId, method: request.method, pathname: url.pathname }, 'Incoming request');
 
   // --- CORS preflight ---
   if (request.method === 'OPTIONS') {
@@ -460,13 +468,15 @@ export async function handleRequest(
 
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
+    const durationMs = Date.now() - startTime;
     const ctx: BuildContext = {
       tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
       requestId,
       startTime,
       queryOptions,
-      metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
+      metaOverrides: { cacheStatus: 'miss', durationMs },
     };
+    logger.warn({ requestId, pathname: url.pathname, durationMs }, 'Route not found');
     return finalizeResponse(jsonResponse(buildError('NOT_FOUND', `No route matches ${request.method} ${new URL(request.url).pathname}`, ctx), 404, {}, undefined, environment), environment, requestOrigin);
   }
 
@@ -504,14 +514,16 @@ export async function handleRequest(
     : await authenticateRequest(request, db);
 
   if (!tenant && !authExempt) {
+    const durationMs = Date.now() - startTime;
     const ctx: BuildContext = {
       tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
       requestId,
       startTime,
       queryOptions,
-      metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
+      metaOverrides: { cacheStatus: 'miss', durationMs },
     };
-    return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://maplespike.lan/signup', ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
+    logger.warn({ requestId, pathname: url.pathname, durationMs }, 'Authentication failed');
+    return finalizeResponse(jsonResponse(buildError('UNAUTHORIZED', 'Valid API key required. Get one at https://quill.maplespike.ca/signup', ctx), 401, {}, requestOrigin, environment), environment, requestOrigin);
   }
 
   const baseTenant = tenant?.tenant || { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false };

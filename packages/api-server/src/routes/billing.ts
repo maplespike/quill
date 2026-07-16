@@ -208,7 +208,7 @@ export const billingOrderHandler: RouteHandler = async (request, ctx) => {
 
     if (!['free', 'pro', 'business'].includes(plan_id)) {
       if (plan_id === 'enterprise') {
-        return jsonResponse(buildError('CONTACT_SALES', 'Enterprise plans require a custom contract. Contact billing@maplespike.lan.', bc), 400);
+        return jsonResponse(buildError('CONTACT_SALES', 'Enterprise plans require a custom contract. Contact billing@maplespike.ca.', bc), 400);
       }
       return jsonResponse(buildError('BAD_REQUEST', 'Invalid plan', bc), 400);
     }
@@ -232,7 +232,7 @@ export const billingOrderHandler: RouteHandler = async (request, ctx) => {
       expires_at: expiresAt,
       signature,
       instructions: {
-        email: process.env.MAPLESPIKE_BILLING_EMAIL || 'billing@maplespike.lan',
+        email: process.env.MAPLESPIKE_BILLING_EMAIL || 'billing@maplespike.ca',
         amount: (plan.price_cents / 100).toFixed(2),
         message: orderId,
       },
