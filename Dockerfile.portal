@@ -19,9 +19,12 @@ COPY . .
 # Install all workspace dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build SDK first (needed by portal's gen:all scripts) and database/pipeline-core
-# (transitive deps of portal devDeps), then build the portal itself
-RUN pnpm --filter @maplespike/database build && \
+# Build workspace deps in dependency order. NOTE: @maplespike/i18n must be
+# built first — the portal (and sdk) import it, and it is a real compiled
+# package (main: ./dist/index.js); without building it here, vite/rolldown
+# cannot resolve the "@maplespike/i18n" import at astro build time.
+RUN pnpm --filter @maplespike/i18n build && \
+    pnpm --filter @maplespike/database build && \
     pnpm --filter @maplespike/pipeline-core build && \
     pnpm --filter @maplespike/sdk build && \
     pnpm --filter @maplespike/portal build
