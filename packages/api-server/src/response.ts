@@ -318,6 +318,12 @@ const ALLOWED_ORIGINS = [
   'https://api.maplespike.ca',
   'https://quill.maplespike.ca',
   'https://mcp.maplespike.ca',
+  'https://portal.maplespike.ca',
+  // In-cluster LAN aliases (.lan)
+  'https://quill-api.lan',
+  'https://quill-portal.lan',
+  'https://quill-mcp.lan',
+  'https://quill.lan',
   // Dev subdomains
   'https://dev.maplespike.ca',
   'https://dev-api.maplespike.ca',
