@@ -56,7 +56,7 @@ export function createChallenge(req: Web3ChallengeRequest): Web3ChallengeRespons
 
   const nonce = generateNonce();
   const address = getAddress(req.address); // Checksum the address
-  const domain = process.env.MAPLESPIKE_DOMAIN || 'maplespike.lan';
+  const domain = process.env.MAPLESPIKE_DOMAIN || 'maplespike.ca';
   const chainId = req.chainId || 1;
   const issuedAt = new Date().toISOString();
 

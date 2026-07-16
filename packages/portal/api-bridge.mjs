@@ -11,8 +11,17 @@ import url from 'node:url';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import pino from 'pino';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const logger = pino({
+  name: 'quill-portal-bridge',
+  level: process.env.QUILL_LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV !== 'production'
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'HH:MM:ss', ignore: 'pid,hostname' } }
+    : undefined,
+});
 
 // ─── Import compiled MCP tool handlers ───
 let tools = {};
@@ -20,24 +29,22 @@ let tools = {};
 async function loadTools() {
   const toolsDir = path.resolve(__dirname, '../mcp-server/dist/tools');
 
-  console.error(`[bridge] DEBUG: toolsDir=${toolsDir}`);
-  console.error(`[bridge] DEBUG: exists=${fs.existsSync(toolsDir)}`);
+  logger.debug({ toolsDir }, 'Loading MCP tools');
 
   if (!fs.existsSync(toolsDir)) {
-    console.error(`[bridge] Tools dir not found: ${toolsDir}`);
+    logger.error({ toolsDir }, 'Tools directory not found');
     return;
   }
 
   const files = fs.readdirSync(toolsDir)
     .filter(f => f.endsWith('.js') && f !== 'index.js' && f !== 'types.js');
 
-  console.error(`[bridge] DEBUG: found ${files.length} tool files: ${files.slice(0,5).join(', ')}`);
+  logger.info({ toolCount: files.length }, 'Found tool files');
 
   for (const file of files) {
     try {
       const filePath = path.join(toolsDir, file);
       const fileURL = url.pathToFileURL(filePath).href;
-      console.error(`[bridge] DEBUG: importing ${fileURL}`);
       const mod = await import(fileURL);
       if (mod.handler && mod.definition) {
         tools[mod.definition.name] = {
@@ -46,16 +53,15 @@ async function loadTools() {
           handler: mod.handler,
           inputSchema: mod.definition.inputSchema,
         };
-        console.error(`[bridge] DEBUG: loaded ${mod.definition.name}`);
+        logger.debug({ tool: mod.definition.name }, 'Loaded tool');
       } else {
-        console.error(`[bridge] DEBUG: ${file} missing handler or definition`);
+        logger.warn({ file }, 'Tool file missing handler or definition');
       }
     } catch (err) {
-      console.error(`[bridge] Failed to load ${file}:`, err.message);
-      console.error(`[bridge] Stack:`, err.stack?.split('\n').slice(0,3).join('\n'));
+      logger.error({ err, file }, 'Failed to load tool');
     }
   }
-  console.log(`[bridge] Loaded ${Object.keys(tools).length} tools from ${toolsDir}`);
+  logger.info({ loadedCount: Object.keys(tools).length }, 'Tool loading complete');
 }
 
 // ─── CORS headers ───
@@ -270,8 +276,5 @@ const server = http.createServer(async (req, res) => {
 // ─── Start ────────────────────────────────
 await loadTools();
 server.listen(PORT, HOST, () => {
-  console.log(`[bridge] MapleSpike API Bridge running on http://${HOST}:${PORT}`);
-  console.log(`[bridge] Try: curl http://localhost:${PORT}/api/health`);
-  console.log(`[bridge]      curl http://localhost:${PORT}/api/latest-releases?limit=3`);
-  console.log(`[bridge]      curl http://localhost:${PORT}/api/search-committees?q=finance`);
+  logger.info({ port: PORT, host: HOST }, 'API Bridge running');
 });

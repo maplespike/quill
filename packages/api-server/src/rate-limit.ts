@@ -116,7 +116,10 @@ export async function enforceRateLimit(
   rateLimitKey: string,
 ): Promise<RateLimitResult> {
   const windowMs = 60 * 1000;
-  const burstMax = isAuthenticated ? BURST_LIMITS[tier] : 5;
+  // Anonymous burst: 30 req/min — generous enough for portal browsing
+  // (page loads trigger ~5 API calls) while still mitigating abuse.
+  // Authenticated free tier gets 10/min (direct API calls, not page loads).
+  const burstMax = isAuthenticated ? BURST_LIMITS[tier] : 30;
 
   // 1. In-memory per-minute burst check
   const burstCheck = checkRateLimit(rateLimitKey, burstMax, windowMs);

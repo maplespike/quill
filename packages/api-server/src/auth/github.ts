@@ -20,7 +20,7 @@ import type { GitHubProfile } from '../types.js';
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
-const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI || 'http://localhost:8082/v1/auth/github/callback';
+const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI || 'https://api.maplespike.ca/v1/auth/github/callback';
 const JWT_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 
 /* ------------------------------------------------------------------ */

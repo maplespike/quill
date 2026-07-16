@@ -240,9 +240,11 @@ function wrapHandler(name: string, handler: ToolHandler): ToolHandler {
  */
 function wrapTools(modules: ToolModule[]): ToolModule[] {
   return modules.map(m => {
-    // Inject French description if available
-    const frDesc = getFrDescription(m.definition.name);
+    // Inject French description if one isn't already set inline in the tool definition.
+    // Inline fr-CA takes priority; JSON file is the fallback.
     const existing = m.definition.descriptions;
+    const alreadyHasFr = existing && existing['fr-CA'] && existing['fr-CA'].length > 0;
+    const frDesc = alreadyHasFr ? undefined : getFrDescription(m.definition.name);
     const descriptions = frDesc ? { ...existing, 'fr-CA': frDesc } : existing;
     const definition = { ...m.definition };
     if (descriptions) {
