@@ -6,6 +6,7 @@
  * Includes service name, pid, hostname, and level metadata.
  */
 import pino from 'pino';
+import { hostname } from 'node:os';
 
 const SERVICE_NAME = 'quill-api';
 
@@ -14,7 +15,7 @@ const logger = pino({
   level: process.env.QUILL_LOG_LEVEL || 'info',
   base: {
     pid: process.pid,
-    hostname: require('node:os').hostname(),
+    hostname: hostname(),
     service: SERVICE_NAME,
   },
   transport: process.env.NODE_ENV !== 'production'

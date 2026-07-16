@@ -28,7 +28,7 @@ export const entityResolveHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: entity resolution requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'allMcpTools')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Entity resolution requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'Entity resolution requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 
@@ -100,7 +100,7 @@ export const entityConnectionsHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: entity connections requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'allMcpTools')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Entity connections require a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'Entity connections require a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 

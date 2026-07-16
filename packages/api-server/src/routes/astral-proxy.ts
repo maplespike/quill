@@ -8,7 +8,7 @@
  */
 
 import type { RouteHandler } from '../types.js';
-import { jsonResponse, buildError, type BuildContext } from '../response.js';
+import { buildSuccess, jsonResponse, buildError, type BuildContext } from '../response.js';
 
 const ASTRAL_KEY_URL = process.env.ASTRAL_KEY_URL
   || 'http://astral-key.astral-key.svc.cluster.local:8080';
@@ -29,7 +29,7 @@ async function proxyToAstral(path: string, method: string, body?: unknown, authH
     const data = await resp.json().catch(() => ({}));
     return { status: resp.status, data };
   } catch (err) {
-    return { status: 502, data: { error: { code: 'ASTRAL_KEY_UNREACHABLE', message: 'Astral Key service is unavailable' } } };
+    return { status: 502, data: { error: { code: 'ASTRAL_KEY_UNREACHABLE', message: 'Astral Key service is unavailable', message_fr: 'Le service Astral Key est indisponible' } } };
   }
 }
 
@@ -186,8 +186,9 @@ export const astralSolanaVerifyHandler: RouteHandler = async (request, ctx) => {
     const bs58 = await import('bs58');
 
     const msgBytes = new TextEncoder().encode(message);
-    const sigBytes = bs58.decode(signature);
-    const pubKeyBytes = bs58.decode(publicKey);
+    const bs58Decode = (bs58 as any).default?.decode || (bs58 as any).decode;
+    const sigBytes = bs58Decode(signature);
+    const pubKeyBytes = bs58Decode(publicKey);
 
     const valid = nacl.sign.detached.verify(msgBytes, sigBytes, pubKeyBytes);
     if (!valid) {

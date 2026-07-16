@@ -13,7 +13,7 @@ export const usageHandler: RouteHandler = async (_request, ctx) => {
   // ── Feature gate: usage analytics require Business tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'usageAnalytics')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Usage analytics require a Business plan or higher. Upgrade at maplespike.lan/billing.',
+      'Usage analytics require a Business plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 

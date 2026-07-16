@@ -106,6 +106,14 @@ export const registerHandler: RouteHandler = async (request, ctx) => {
       log.error({ requestId: ctx.requestId }, `Failed to send verification email: ${err}`)
     );
 
+    // Send welcome/onboarding email immediately (the plaintext email
+    // is consumed here and never stored — Decision 0002 allows this
+    // one-time use). Welcome email is separate from verification so
+    // users get getting-started info even before clicking the link.
+    sendWelcomeEmail({ to: email, name }).catch(err =>
+      log.error({ requestId: ctx.requestId }, `Failed to send welcome email: ${err}`)
+    );
+
     // Decision 0002: response echoes `emailVerified: false` but
     // never the plaintext email. The hash is internal-only.
     return jsonResponse(buildSuccess({

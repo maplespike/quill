@@ -68,7 +68,7 @@ function redirectToPortal(code: string, appUrl: string): Response {
 }
 
 function portalUrl(): string {
-  return process.env.PORTAL_URL || process.env.APP_URL || 'http://localhost:4321';
+  return process.env.PORTAL_URL || process.env.APP_URL || 'https://quill.maplespike.ca';
 }
 
 /**
