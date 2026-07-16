@@ -1,0 +1,37 @@
+---
+// Issue #782: /signin route alias → /signup (the portal's canonical auth page).
+//
+// The portal login link points to /signin, but historically that route returned
+// 404. The canonical auth page is /signup, so we alias /signin to it.
+//
+// Why a meta-refresh page instead of `Astro.redirect()`:
+//   The portal is built with `output: 'static'` (see astro.config.mjs) and served
+//   by nginx via `try_files $uri $uri/ $uri.html =404`. In static output there is
+//   no server round-trip, so `Astro.redirect()` (an SSR-only API) cannot be used.
+//   Instead we ship a tiny self-contained HTML page. nginx serves it at /signin
+//   (resolving /signin → /signin.html), returning 200; the browser is then sent to
+//   /signup via an HTTP-equivalent meta refresh, with a JS fallback and a noscript
+//   link so the redirect works with scripting disabled.
+const SIGNIN_TARGET = '/signup';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Equivalent to a 302: send the client to the canonical auth page. -->
+    <meta http-equiv="refresh" content={`0; url=${SIGNIN_TARGET}`} />
+    <link rel="canonical" href={SIGNIN_TARGET} />
+    <title>Redirecting to sign in…</title>
+  </head>
+  <body>
+    <p>
+      Redirecting to <a href={SIGNIN_TARGET}>sign in</a>…
+    </p>
+    <script is:inline>
+      // Preferred redirect: replaces history entry so /signin doesn't linger.
+      window.location.replace('/signup');
+    </script>
+  </body>
+</html>
