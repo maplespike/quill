@@ -30,6 +30,14 @@ RUN apt-get update -qq && \
     apt-get install -y -qq --no-install-recommends ca-certificates && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Issue #778: GitHub OAuth token exchange fails with 'unable to get local issuer
+# certificate' because the running image had no usable CA bundle. Debian's
+# ca-certificates package installs the bundle at /etc/ssl/certs/ca-certificates.crt;
+# we consolidate it into a single, stable, parameterized file so Node (via
+# NODE_EXTRA_CA_CERTS, see entrypoint.sh) can validate outbound TLS.
+RUN mkdir -p /usr/local/share/ca-certificates && \
+    cp /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/ca-bundle.crt
+
 # Copy built artifacts and production dependencies from builder
 COPY --from=builder /app/package.json /app/
 COPY --from=builder /app/packages/api-server/dist/ /app/packages/api-server/dist/
@@ -44,7 +52,14 @@ COPY --from=builder /app/node_modules/ /app/node_modules/
 
 ENV NODE_ENV=production
 ENV PORT=8082
+# Parameterized CA bundle path consumed by entrypoint.sh -> NODE_EXTRA_CA_CERTS
+ENV CA_CERT_PATH=/usr/local/share/ca-certificates/ca-bundle.crt
 EXPOSE 8082
 
+# Wrapper entrypoint exports NODE_EXTRA_CA_CERTS and execs node (issue #778)
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 USER 1001
-CMD ["node", "packages/api-server/dist/dev-server.js"]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["packages/api-server/dist/dev-server.js"]
