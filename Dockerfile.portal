@@ -30,7 +30,7 @@ RUN pnpm --filter @maplespike/i18n build && \
     pnpm --filter @maplespike/portal build
 
 # ─── Runtime stage ───────────────────────────────────────────────────────────
-FROM nginx:stable-bookworm-slim
+FROM docker.io/library/nginx:stable-bookworm-slim
 
 # Copy nginx config to templates directory so envsubst processes ${API_UPSTREAM}
 COPY --from=builder /app/packages/portal/nginx.conf /etc/nginx/templates/default.conf.template
