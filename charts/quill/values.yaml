@@ -139,9 +139,9 @@ cloudflared:
     limits:
       cpu: 200m
       memory: 128Mi
+  # quill.maplespike.ca is now served by Cloudflare Pages (free tier)
+  # — no tunnel ingress needed for the portal
   ingress:
-    - hostname: quill.maplespike.ca
-      service: http://maplespike-portal.maplespike.svc.cluster.local:8080
     - hostname: api.maplespike.ca
       service: http://maplespike-api.maplespike.svc.cluster.local:8084
     - hostname: mcp.maplespike.ca

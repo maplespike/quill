@@ -151,5 +151,5 @@ function getSourceConfig(sourceKey: string): SourceInfo {
     oversight: { name: 'Oversight Bodies — OAG, PBO, Ethics, CB, CRTC', url: 'https://www.oag-bvg.gc.ca/' },
     canlii:    { name: 'CanLII — Canadian Legal Information Institute', url: 'https://www.canlii.org/' },
   };
-  return configs[sourceKey] || { name: `MapleSpike — ${sourceKey}`, url: 'https://maplespike.lan/' };
+  return configs[sourceKey] || { name: `MapleSpike — ${sourceKey}`, url: 'https://quill.maplespike.ca/' };
 }

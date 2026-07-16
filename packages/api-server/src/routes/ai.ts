@@ -520,7 +520,7 @@ export const aiAskHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: RAG-powered AI requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'aiRag')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'AI queries with RAG require a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'AI queries with RAG require a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       bc), 402);
   }
 
@@ -720,7 +720,7 @@ export const aiAnalyzeHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: AI analysis requires Pro tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'aiAnalyze')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'AI document analysis requires a Pro plan or higher. Upgrade at maplespike.lan/billing.',
+      'AI document analysis requires a Pro plan or higher. Upgrade at quill.maplespike.ca/billing.',
       bc), 402);
   }
 

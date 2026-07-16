@@ -313,18 +313,18 @@ const ALLOWED_ORIGINS = [
   'https://quill.maplespike.ca',
   'https://www.quill.maplespike.ca',
   // Production (LAN)
-  'https://maplespike.lan',
-  'https://www.maplespike.lan',
-  'https://api.maplespike.lan',
-  'https://portal.maplespike.lan',
-  'https://mcp.maplespike.lan',
+  'https://quill.maplespike.ca',
+  'https://www.quill.maplespike.ca',
+  'https://api.maplespike.ca',
+  'https://quill.maplespike.ca',
+  'https://mcp.maplespike.ca',
   // Dev subdomains
-  'https://dev.maplespike.lan',
-  'https://dev-api.maplespike.lan',
-  'https://dev-mcp.maplespike.lan',
+  'https://dev.maplespike.ca',
+  'https://dev-api.maplespike.ca',
+  'https://dev-mcp.maplespike.ca',
   // LAN aliases
-  'https://quill-api.lan',
-  'https://quill-portal.lan',
+  'https://quill.maplespike.ca',
+  'https://quill.maplespike.ca',
   // Auto-derived from MAPLESPIKE_DOMAIN env var
   ...(() => {
     const d = process.env.MAPLESPIKE_DOMAIN;

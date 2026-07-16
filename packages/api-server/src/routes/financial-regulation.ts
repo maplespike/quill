@@ -24,7 +24,7 @@ export const finRegCrossRefHandler: RouteHandler = async (request, ctx) => {
   // ── Feature gate: cross-reference reports require Business tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'crossReferenceReports')) {
     return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Cross-reference reports require a Business plan or higher. Upgrade at maplespike.lan/billing.',
+      'Cross-reference reports require a Business plan or higher. Upgrade at quill.maplespike.ca/billing.',
       ctx), 402);
   }
 
