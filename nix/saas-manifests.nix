@@ -23,9 +23,9 @@ let
 
   # Ingress hostnames for the LAN side (.lan) and external side (.ca)
   lanHosts = [
-    "maplespike.lan" "portal.maplespike.lan" "dev.maplespike.lan"
-    "api.maplespike.lan" "dev-api.maplespike.lan"
-    "mcp.maplespike.lan" "dev-mcp.maplespike.lan"
+    "maplespike.ca" "portal.maplespike.ca" "dev.maplespike.ca"
+    "api.maplespike.ca" "dev-api.maplespike.ca"
+    "mcp.maplespike.ca" "dev-mcp.maplespike.ca"
   ];
   caHosts = [ "quill.${domain}" "api.${domain}" "mcp.${domain}" ];
 
@@ -67,8 +67,6 @@ let
             service: http://10.43.100.12:8080
           - hostname: mcp.${domain}
             service: http://10.43.100.11:3001
-          - hostname: datafabric.${domain}
-            service: http://10.43.100.12:8080
           - hostname: data.${domain}
             service: http://10.43.100.12:8080
           - service: http_status:404
@@ -402,7 +400,7 @@ let
     apiVersion: networking.k8s.io/v1
     kind: Ingress
     metadata:
-      name: maplespike-lan
+      name: maplespike.ca
       namespace: maplespike
       annotations:
         cert-manager.io/cluster-issuer: stepca-lan
@@ -413,7 +411,7 @@ let
       tls:
       - hosts:
         ${pkgs.lib.concatMapStringsSep "\n    " (h: "  - ${h}") lanHosts}
-        secretName: maplespike-lan-tls
+        secretName: maplespike.ca-tls
       rules:
       ${pkgs.lib.concatMapStringsSep "\n  " (h: ''
         - host: ${h}

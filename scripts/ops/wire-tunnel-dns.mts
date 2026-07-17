@@ -23,12 +23,13 @@
 //   4 — auth worked, but the zone is unreachable due to token scopes (403) or
 //       token rejected (401). Prints an actionable 401-vs-403 message.
 //   99 — unhandled promise rejection (network failure, TLS error, etc.)
-//   0 — script ran; per-record summary is on stdout (created/updated/failed).
+//   130 — SIGINT (Ctrl-C); handler installed at module top
+//   0 — script ran; per-record summary is on stdout (created/updated/unchanged/failed).
 //
 // Usage:
 //   TUNNEL=66d76492-036b-4177-8fac-8682e0eda37e \
 //     npx tsx scripts/ops/wire-tunnel-dns.mts
-//   SUBDOMAINS=quill,api,mcp,data,datafabric,mosaic  npx tsx scripts/ops/wire-tunnel-dns.mts
+//   SUBDOMAINS=quill,api,mcp,data,mosaic  npx tsx scripts/ops/wire-tunnel-dns.mts
 //
 // DRY_RUN behaviour:
 //   DRY_RUN=1  —  Same auth probes + per-record list as a normal run (needed
@@ -50,7 +51,11 @@ import path from 'node:path';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 const tunnel = process.env.TUNNEL ?? '66d76492-036b-4177-8fac-8682e0eda37e';
-const subdomains = (process.env.SUBDOMAINS ?? 'quill,api,mcp,data,datafabric')
+if (process.env.TUNNEL === undefined) {
+  console.warn(`⚠️  TUNNEL env var not set — using hardcoded default "${tunnel}".`);
+  console.warn(`   Verify this is the active tunnel: \`wrangler tunnel info maplespike-k8s\`.`);
+}
+const subdomains = (process.env.SUBDOMAINS ?? 'quill,api,mcp,data')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean);
@@ -85,7 +90,7 @@ type CfResponse<T> = CfOk<T> | CfErr;
 
 interface AccountSummary { id: string; name: string }
 interface ZoneSummary { id: string; name: string }
-interface DnsRecordSummary { id: string; name: string; content: string }
+interface DnsRecordSummary { id: string; name: string; content: string; proxied: boolean }
 
 // ── Helpers (module-scope so hoisting is a non-issue at the call site). ─────
 
@@ -239,7 +244,7 @@ const main = async (): Promise<void> => {
 
   // ── Upsert CNAMEs ────────────────────────────────────────────────────────
   const target = `${tunnel}.cfargotunnel.com`;
-  let created = 0, updated = 0, failed = 0;
+  let created = 0, updated = 0, unchanged = 0, failed = 0;
   for (const sub of subdomains) {
     const name = `${sub}.${zoneName}`;
     const listResp = await cfFetch<DnsRecordSummary[]>(
@@ -253,6 +258,15 @@ const main = async (): Promise<void> => {
       continue;
     }
     const existing = listResp.result[0];
+    // No-op short-circuit: if a CNAME already exists at this name AND it already
+    // points at the right target AND it's already proxied, don't write. The CF
+    // DNS write rate-limit is ~1200/5min on free tier; this keeps CI re-runs
+    // (and the success-summary) from thrashing on records that are already correct.
+    if (existing && existing.content === target && existing.proxied === true) {
+      console.log(`✓ unchanged ${name} → ${target}`);
+      unchanged++;
+      continue;
+    }
     const payload = {
       type: 'CNAME',
       name,
@@ -261,7 +275,11 @@ const main = async (): Promise<void> => {
       comment: 'Wired to maplespike-k8s Cloudflare Tunnel via scripts/ops/wire-tunnel-dns.mts',
     };
     if (dryRunLevel === 1) {
-      console.log(`  would ${existing ? 'update' : 'create'} ${name} → ${target}`);
+      if (existing && existing.content === target && existing.proxied === true) {
+        console.log(`  would leave unchanged ${name} → ${target}`);
+      } else {
+        console.log(`  would ${existing ? 'update' : 'create'} ${name} → ${target}`);
+      }
       continue;
     }
     const writeResp = existing
@@ -277,7 +295,7 @@ const main = async (): Promise<void> => {
   }
 
   console.log('');
-  console.log(`[wire-tunnel-dns] summary: created=${created} updated=${updated} failed=${failed}`);
+  console.log(`[wire-tunnel-dns] summary: created=${created} updated=${updated} unchanged=${unchanged} failed=${failed}`);
   console.log('');
   console.log(`Provisioned CNAMEs at zone "${zoneName}" pointing at ${target}.`);
   console.log('Wait ~60s for Cloudflare edge cert, then verify:');
