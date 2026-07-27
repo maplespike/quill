@@ -50,6 +50,11 @@ import * as searchAgriculture from './search-agriculture.js';
 import * as searchCrownCorporations from './search-crown-corporations.js';
 import * as searchCharityT3010 from './search-charity-t3010.js';
 import * as searchBankOfCanada from './search-bank-of-canada.js';
+import * as queryDatastore from './query-datastore.js';
+import * as discoverTools from './discover-tools.js';
+import * as searchWeather from './search-weather.js';
+import * as searchNutrientFile from './search-nutrient-file.js';
+import * as searchValetApi from './search-valet-api.js';
 import * as searchHousingCmhc from './search-housing-cmhc.js';
 import * as searchCrtcDecisions from './search-crtc-decisions.js';
 import * as searchSocialPrograms from './search-social-programs.js';
@@ -305,6 +310,11 @@ export function getAllTools(): ToolModule[] {
     searchCrownCorporations,
     searchCharityT3010,
     searchBankOfCanada,
+  queryDatastore,
+  discoverTools,
+  searchWeather,
+  searchNutrientFile,
+  searchValetApi,
     searchHousingCmhc,
     searchCrtcDecisions,
     searchSocialPrograms,
