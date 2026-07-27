@@ -18,7 +18,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-json-datasource", "uid": "maplespike-json" },
+      "datasource": { "type": "grafana-json-datasource", "uid": "quill-json" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -168,7 +168,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-json-datasource", "uid": "maplespike-json" },
+      "datasource": { "type": "grafana-json-datasource", "uid": "quill-json" },
       "description": "Record count per pipeline module from the data quality API",
       "fieldConfig": {
         "defaults": {
@@ -328,7 +328,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-json-datasource", "uid": "maplespike-json" },
+      "datasource": { "type": "grafana-json-datasource", "uid": "quill-json" },
       "description": "Freshness status per pipeline: green=on-schedule, yellow=overdue, red=stale",
       "fieldConfig": {
         "defaults": {
@@ -502,7 +502,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-json-datasource", "uid": "maplespike-json" },
+      "datasource": { "type": "grafana-json-datasource", "uid": "quill-json" },
       "description": "Error rate per pipeline from the quality API",
       "fieldConfig": {
         "defaults": {
@@ -620,7 +620,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "grafana-json-datasource", "uid": "maplespike-json" },
+      "datasource": { "type": "grafana-json-datasource", "uid": "quill-json" },
       "description": "Health check pass/fail status per pipeline module",
       "fieldConfig": {
         "defaults": {
@@ -774,7 +774,7 @@
   "refresh": "30s",
   "schemaVersion": 40,
   "style": "dark",
-  "tags": ["maplespike", "data-quality", "pipeline"],
+  "tags": ["quill", "data-quality", "pipeline"],
   "templating": {
     "list": [
       {
@@ -802,8 +802,8 @@
   "time": { "from": "now-24h", "to": "now" },
   "timepicker": {},
   "timezone": "",
-  "title": "MapleSpike Data Quality",
-  "uid": "maplespike-data-quality",
+  "title": "Quill Data Quality",
+  "uid": "quill-data-quality",
   "version": 1,
   "weekStart": ""
 }
