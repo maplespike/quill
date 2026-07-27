@@ -507,7 +507,8 @@ export async function handleRequest(
     || path.startsWith('/v1/security/') // currently only /v1/security/audit-summary (public observability); tighten if more routes added under /v1/security/ need auth
     || path.startsWith('/v1/ai/ask')
     || path.startsWith('/v1/ai_ask')
-    || path.startsWith('/v1/astral/');
+    || path.startsWith('/v1/astral/')
+    ;
 
   const tenant = authExempt
     ? null
