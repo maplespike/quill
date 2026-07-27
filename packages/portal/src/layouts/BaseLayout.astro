@@ -419,6 +419,141 @@ const isActive = (match: string) =>
 
     <!-- Load script.js for pages that need it -->
     <script src="/script.js" is:inline></script>
+    <!-- WebMCP — register structured tools for AI agents -->
+    <script is:inline>
+/* ══════════════════════════════════════════════════════════════════
+   MapleSpike — WebMCP Tool Registration
+   Spec: https://webmachinelearning.github.io/webmcp/
+   
+   Registers structured tools that browser-based AI agents can call
+   directly instead of scraping the DOM. Gracefully degrades when
+   the WebMCP API is unavailable.
+   
+   Compatible with Chromium 146+ with #enable-webmcp-testing flag.
+   Feature-detects both document.modelContext (current spec) and
+   navigator.modelContext (earlier draft / MCP-B polyfill).
+   ══════════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  var ctx = document.modelContext ||
+             (typeof navigator !== 'undefined' && navigator.modelContext);
+  if (!ctx || typeof ctx.registerTool !== 'function') {
+    return;
+  }
+
+  function getApiBase() {
+    if (window.MAPLESPIKE && window.MAPLESPIKE.apiBase) return window.MAPLESPIKE.apiBase + '/v1';
+    return '/api/v1';
+  }
+  var API = getApiBase();
+
+  async function toolFetch(url, opts) {
+    try {
+      var res = await fetch(url, opts);
+      var data = await res.text();
+      if (!res.ok) {
+        return { content: [{ type: 'text', text: JSON.stringify({ error: true, status: res.status, message: data.slice(0, 500) }) }] };
+      }
+      return { content: [{ type: 'text', text: data }] };
+    } catch (err) {
+      return { content: [{ type: 'text', text: JSON.stringify({ error: true, message: err.message }) }] };
+    }
+  }
+
+  async function register(tool) {
+    try { await ctx.registerTool(tool); } catch (e) {}
+  }
+
+  register({
+    name: 'getHealth',
+    title: 'Check API Health',
+    description: 'Get the current health status, version, and usage of the MapleSpike Canadian government data API.',
+    inputSchema: { type: 'object', properties: {}, required: [] },
+    annotations: { readOnlyHint: true },
+    execute: async function () { return toolFetch(API + '/health'); },
+  });
+
+  register({
+    name: 'searchGovernmentData',
+    title: 'Search Government Data',
+    description: 'Search across 206 Canadian government datasets — federal, provincial, territorial, and municipal sources including Statistics Canada, open.canada.ca, and provincial portals.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search terms (e.g. "housing prices Ontario", "immigration statistics 2025")' },
+        category: { type: 'string', description: 'Filter by category or jurisdiction', enum: ['federal', 'provincial', 'territorial', 'municipal', 'health', 'education', 'economy', 'environment', 'immigration', 'transport'] },
+        limit: { type: 'number', description: 'Maximum results to return (1-50)', default: 10 },
+      },
+      required: ['query'],
+    },
+    annotations: { readOnlyHint: true },
+    execute: async function (input) {
+      var params = new URLSearchParams({ q: input.query });
+      if (input.category) params.set('category', input.category);
+      if (input.limit) params.set('limit', String(Math.min(Math.max(1, input.limit), 50)));
+      return toolFetch(API + '/gov/search?' + params);
+    },
+  });
+
+  register({
+    name: 'askMapleSpike',
+    title: 'Ask MapleSpike AI',
+    description: 'Ask a natural language question about Canadian government data, policy, legislation, or statistics. Returns a cited answer drawn from 206 data modules.',
+    inputSchema: { type: 'object', properties: { question: { type: 'string', description: 'Your question about Canadian government data or policy' } }, required: ['question'] },
+    annotations: { readOnlyHint: true },
+    execute: async function (input) {
+      return toolFetch(API + '/ai/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: input.question }) });
+    },
+  });
+
+  register({
+    name: 'getWatcherEvents',
+    title: 'Get Data Watcher Events',
+    description: 'List recent data-change events detected by MapleSpike watchers — new datasets published, updates, and removals across all tracked Canadian government sources.',
+    inputSchema: { type: 'object', properties: { limit: { type: 'number', description: 'Maximum events (1-50)', default: 20 }, since: { type: 'string', description: 'ISO date string filter' } }, required: [] },
+    annotations: { readOnlyHint: true },
+    execute: async function (input) {
+      var params = new URLSearchParams();
+      if (input.limit) params.set('limit', String(Math.min(Math.max(1, input.limit), 50)));
+      if (input.since) params.set('since', input.since);
+      return toolFetch(API + '/watcher/events?' + params);
+    },
+  });
+
+  register({
+    name: 'getBillingPlans',
+    title: 'List Billing Plans',
+    description: 'List all available MapleSpike subscription plans with pricing, API request limits, and supported payment methods.',
+    inputSchema: { type: 'object', properties: {}, required: [] },
+    annotations: { readOnlyHint: true },
+    execute: async function () { return toolFetch(API + '/billing/plans'); },
+  });
+
+  register({
+    name: 'listDataModules',
+    title: 'List Data Modules',
+    description: 'List all 206 Canadian government data modules available in MapleSpike, organized by category and jurisdiction.',
+    inputSchema: { type: 'object', properties: { category: { type: 'string', description: 'Filter by category', enum: ['federal', 'provincial', 'territorial', 'municipal', 'health', 'education', 'economy', 'environment', 'immigration', 'transport'] } }, required: [] },
+    annotations: { readOnlyHint: true },
+    execute: async function (input) {
+      var params = new URLSearchParams();
+      if (input.category) params.set('category', input.category);
+      return toolFetch(API + '/export/modules?' + params);
+    },
+  });
+
+  register({
+    name: 'getApiDocs',
+    title: 'Get API Documentation',
+    description: 'Get the OpenAPI specification for the MapleSpike REST API, including all available endpoints, parameters, authentication methods, and example requests.',
+    inputSchema: { type: 'object', properties: {}, required: [] },
+    annotations: { readOnlyHint: true },
+    execute: async function () { return toolFetch(API + '/openapi.json'); },
+  });
+})();
+    </script>
     <!-- Plausible: track Astro view-transition navigations (ClientRouter) -->
     <script is:inline>
       document.addEventListener("astro:page-load", () => {
