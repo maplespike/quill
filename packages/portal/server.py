@@ -25,8 +25,34 @@ MAX_BODY_BYTES = int(os.environ.get("PROXY_MAX_BODY_BYTES", "1048576"))
 HSTS_VALUE = "max-age=63072000; includeSubDomains; preload"
 
 PORT = int(os.environ.get("PORT", "4321"))
-DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+# Resolve the static-site root. Two layouts are supported:
+#   1. Production: Dockerfile.portal copies `dist/` contents + server.py into
+#      /app/, so server.py's directory contains the rendered .html files. The
+#      source-tree marker `src/` is absent.
+#   2. Source tree: server.py at packages/portal/server.py alongside `src/`,
+#      `public/`, and a sibling `dist/` with the built .html files we
+#      actually want to serve.
+# Discriminate by the presence of `src/` (a layout marker that only exists
+# in the source tree), and override via PORTAL_STATIC_DIR when set.
+
+def _pick_static_dir(override: str, here: str) -> str:
+    if override and os.path.isdir(override):
+        return override
+    # Source-tree marker: presence of `src/` indicates we are running against
+    # the unreleased workspace (server.py's checkout) and should serve the
+    # built sibling `dist/`. Production copies never include `src/`.
+    if os.path.isdir(os.path.join(here, "src")):
+        sibling_dist = os.path.join(here, "dist")
+        if os.path.isdir(sibling_dist):
+            return sibling_dist
+    return here
+
+DIRECTORY = _pick_static_dir(
+    os.environ.get("PORTAL_STATIC_DIR") or "",
+    os.path.dirname(os.path.abspath(__file__)),
+)
 DOCS_DIR = os.path.join(DIRECTORY, "docs")
+print(f"[portal] serving static from {DIRECTORY}", file=sys.stderr)
 
 # ── Markdown conversion helpers ─────────────────────────────────────
 
