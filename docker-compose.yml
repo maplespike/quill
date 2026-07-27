@@ -39,7 +39,7 @@ services:
       NODE_ENV: production
       PORT: 8082
       QUILL_STORAGE: ${QUILL_STORAGE:-sqlite}
-      QUILL_DB_PATH: /data/maplespike.db
+      QUILL_DB_PATH: /data/quill.db
       # JWT_SECRET: optional; set via .env to enable real auth, defaults to dev.
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-in-production}
     volumes:
