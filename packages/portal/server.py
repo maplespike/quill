@@ -212,9 +212,11 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
         # Append to existing X-Forwarded-For chain rather than overwriting it.
         existing_xff = self.headers.get("X-Forwarded-For")
         headers["X-Forwarded-For"] = f"{existing_xff}, {self.client_address[0]}" if existing_xff else self.client_address[0]
-        # Default to http when no proxy header is present; the ingress/TLS
-        # terminator sets X-Forwarded-Proto if the request came in over HTTPS.
-        headers["X-Forwarded-Proto"] = self.headers.get("X-Forwarded-Proto", "http")
+        # Default to https since all production traffic comes through the
+        # tunnel which terminates TLS. This prevents the upstream API from
+        # issuing a 307 redirect to HTTPS, which the portal proxy is not
+        # designed to follow.
+        headers["X-Forwarded-Proto"] = "https"
         headers["X-Forwarded-Host"] = self.headers.get("Host", host)
 
         conn = None
@@ -313,6 +315,13 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
                 continue
             self.send_header(k, v)
         self.send_header("Content-Security-Policy", self.CSP)
+        # Force no-cache on HTML pages so Cloudflare edge re-fetches from origin
+        if self.path.endswith(".html") or self.path == "/" or not os.path.splitext(self.path)[1]:
+            self.send_header("Cache-Control", "private, no-cache, no-store, must-revalidate, max-age=0, stale-while-revalidate=0, stale-if-error=0")
+            self.send_header("Vary", "*")
+            self.send_header("Expires", "Thu, 01 Jan 1970 00:00:00 GMT")
+            self.send_header("Last-Modified", self.date_time_string())
+            self.send_header("Pragma", "no-cache")
         super().end_headers()
 
     def do_GET(self):
