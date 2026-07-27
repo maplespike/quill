@@ -1,11 +1,11 @@
 {{/*
-  MapleSpike — Database StatefulSet + Service (PostgreSQL)
+  Quill — Database StatefulSet + Service (PostgreSQL)
 */}}
 {{- if .Values.database.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "maplespike.fullname" . }}-db
+  name: {{ include "quill.fullname" . }}-db
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-db
@@ -13,7 +13,7 @@ metadata:
     tier: data
 spec:
   replicas: 1
-  serviceName: {{ include "maplespike.fullname" . }}-db
+  serviceName: {{ include "quill.fullname" . }}-db
   selector:
     matchLabels:
       app: quill-db
@@ -82,7 +82,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "maplespike.fullname" . }}-db
+  name: {{ include "quill.fullname" . }}-db
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-db

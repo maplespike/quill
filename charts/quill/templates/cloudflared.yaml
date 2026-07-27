@@ -1,11 +1,11 @@
 {{/*
-  MapleSpike — Cloudflare Tunnel (cloudflared) Deployment
+  Quill — Cloudflare Tunnel (cloudflared) Deployment
 
   Routes external traffic from Cloudflare edge → in-cluster services:
-    quill.maplespike.ca   → maplespike-portal:8080
-    api.maplespike.ca     → maplespike-api:{{ .Values.api.port }}
-    mcp.maplespike.ca     → maplespike-mcp:{{ .Values.mcp.port }}
-    kanban.maplespike.ca  → maplespike-kanban-exec:8080
+    quill.maplespike.ca   → quill-portal:8080
+    api.maplespike.ca     → quill-api:{{ .Values.api.port }}
+    mcp.maplespike.ca     → quill-mcp:{{ .Values.mcp.port }}
+    kanban.maplespike.ca  → quill-kanban-exec:8080
 
   Authentication: credentials.json (mounted from cloudflared-creds secret,
   synced by scripts/sops-sync-k8s.sh from SOPS-encrypted secrets/cloudflared.yaml).
@@ -35,8 +35,8 @@ data:
       - service: http_status:404
 # NOTE: Ingress service names in .Values.cloudflared.ingress must match
 # the actual K8s Service names. Services are named via
-# {{ include "maplespike.fullname" . }}-<component>, so the Helm release
-# name MUST be "maplespike" for the default ingress rules to work.
+# {{ include "quill.fullname" . }}-<component>, so the Helm release
+# name MUST be "quill" for the default ingress rules to work.
 # If using a different release name, override cloudflared.ingress in your
 # values file with the correct service names.
 ---

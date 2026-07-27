@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "maplespike.fullname" . }}-api
+  name: {{ include "quill.fullname" . }}-api
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-api
@@ -52,19 +52,19 @@ spec:
         - name: GITHUB_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: maplespike-secrets
+              name: quill-secrets
               key: githubClientId
               optional: true
         - name: GITHUB_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: maplespike-secrets
+              name: quill-secrets
               key: githubClientSecret
               optional: true
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:
-              name: maplespike-secrets
+              name: quill-secrets
               key: apiKey
               optional: true
         {{- if eq .Values.api.env.QUILL_STORAGE "postgres" }}
@@ -88,7 +88,7 @@ spec:
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: maplespike-secrets
+              name: quill-secrets
               key: jwtSecret
               optional: true
         resources:
@@ -102,7 +102,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "maplespike.fullname" . }}-mcp
+  name: {{ include "quill.fullname" . }}-mcp
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-mcp
@@ -129,11 +129,11 @@ spec:
         - name: NODE_ENV
           value: production
         - name: QUILL_API_URL
-          value: "http://{{ include "maplespike.fullname" . }}-api:{{ .Values.api.port }}"
+          value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"
         - name: QUILL_API_KEY
           valueFrom:
             secretKeyRef:
-              name: maplespike-secrets
+              name: quill-secrets
               key: apiKey
               optional: true
         resources:
