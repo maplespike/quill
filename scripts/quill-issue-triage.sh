@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ISSUE_NUMBER="${1:?}"
-REPO="${2:-reverb256/maplespike}"
+REPO="${2:-reverb256/quill}"
 
 # Get issue data
 ISSUE_JSON=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json title,body)
