@@ -55,7 +55,15 @@ interface PerPortalJob {
   portalType: string;
 }
 
-/** Pick a subset of MUNICIPAL_PORTALS that match the caller's filter params. */
+/**
+ * Pick a subset of MUNICIPAL_PORTALS that match the caller's filter params.
+ * Hard-capped at MAX_JOBS to fit inside the 15s absolute ceiling enforced by
+ * runLivePipeline: at concurrency 4 with a 10s per-job timeout, MAX_JOBS=4
+ * guarantees one wave (≤10s) plus a margin for parsing — anything more would
+ * guarantee status=unavailable on unfiltered queries.
+ */
+const MAX_JOBS = 4;
+
 function selectPortals(
   city?: string | null,
   dataset?: string | null,
@@ -79,6 +87,7 @@ function selectPortals(
         baseUrl: portal.baseUrl,
         portalType: portal.portalType,
       });
+      if (jobs.length >= MAX_JOBS) return jobs;
     }
   }
   return jobs;
