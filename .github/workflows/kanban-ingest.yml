@@ -62,7 +62,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ Issues imported to Kanban board" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Board: \`maplespike\`" >> $GITHUB_STEP_SUMMARY
+          echo "Board: \`quill\`" >> $GITHUB_STEP_SUMMARY
           echo "Automation: Workers execute every 30 minutes" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Monitor: \`hermes kanban list --status running\`" >> $GITHUB_STEP_SUMMARY
