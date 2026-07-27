@@ -584,6 +584,10 @@ export async function handleRequest(
       rateLimitKey = `anon:${clientIp}`;
     }
 
+    // Skip rate limiting for health endpoints to prevent kubelet probes from exhausting the burst budget
+    if (url.pathname.startsWith('/v1/health') || url.pathname.startsWith('/v1/astral/health')) {
+      // Health endpoints bypass all rate limiting
+    } else {
     const check = await enforceRateLimit(db, ctx.tenant.id, ctx.tenant.tier, isAuthenticated, rateLimitKey);
     rateCheck = check;
     if (!check.allowed) {
@@ -617,6 +621,7 @@ export async function handleRequest(
       }
       addAttributionHeader(response);
       return finalizeResponse(response, environment, requestOrigin);
+    }
     }
   }
 
