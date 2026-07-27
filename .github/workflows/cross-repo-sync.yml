@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         repo:
-          - reverb256/maplespike
+          - reverb256/quill
           - reverb256/frostbite-gazette
           - reverb256/mcp-canada
     steps:

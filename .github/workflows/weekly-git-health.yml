@@ -23,7 +23,7 @@ jobs:
           echo '|------|--------|------|' >> $GITHUB_STEP_SUMMARY
           echo "| origin/main | ✅ reference | $HEAD |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Manual check required via SSH: \`for h in zephyr nexus forge sentry; do echo \"\$h: \$(ssh \$h 'bash --norc --noprofile -c \"cd /data/projects/own/maplespike && git log --oneline -1\"' 2>/dev/null)\"; done\`" >> $GITHUB_STEP_SUMMARY
+          echo "Manual check required via SSH: \`for h in zephyr nexus forge sentry; do echo \"\$h: \$(ssh \$h 'bash --norc --noprofile -c \"cd /data/projects/own/quill && git log --oneline -1\"' 2>/dev/null)\"; done\`" >> $GITHUB_STEP_SUMMARY
 
       - name: "Check for stale branches"
         run: |

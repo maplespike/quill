@@ -10,6 +10,6 @@ jobs:
     runs-on: [self-hosted, nixos]
     steps:
       - uses: actions/checkout@v4
-      - run: chmod +x scripts/maplespike-issue-triage.sh && bash scripts/maplespike-issue-triage.sh ${{ github.event.issue.number }} ${{ github.repository }}
+      - run: chmod +x scripts/quill-issue-triage.sh && bash scripts/quill-issue-triage.sh ${{ github.event.issue.number }} ${{ github.repository }}
         env:
           GH_TOKEN: ${{ github.token }}
