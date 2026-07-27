@@ -4,6 +4,8 @@ import type { ToolDefinition, ToolHandler } from './types.js';
 import { getToolNames, getAllTools } from './index.js';
 
 const SOURCE_CATEGORIES: Record<string, { description: string; tools: string[] }> = {
+  discovery: { description: 'Tool discovery and orchestration — find the right tool for any query', tools: ['discover_tools', 'datastore_query', 'datastore_stats'] },
+
   committees: { description: 'House of Commons and Senate committee evidence, transcripts, proceedings', tools: ['search_committees'] },
   gazette: { description: 'Canada Gazette regulations (Parts I, II, III)', tools: ['search_gazette'] },
   lobbying: { description: 'Federal lobbying registry registrations and communications', tools: ['search_corporate', 'search_provincial_lobbying'] },
@@ -14,10 +16,10 @@ const SOURCE_CATEGORIES: Record<string, { description: string; tools: string[] }
   elections: { description: 'Elections Canada third-party advertiser registry, spending', tools: ['search_elections'] },
   immigration: { description: 'IRCC immigration data: processing times, admissions, permits, citizenship', tools: ['search_immigration', 'search_ircc_citizenship', 'search_ircc_pr_admissions', 'search_ircc_work_permits', 'search_ircc_study_permits', 'search_ircc_processing_times', 'search_ircc_entry_exit', 'search_ircc_express_entry', 'search_ircc_family_sponsorship'] },
   indigenous: { description: 'Indigenous Services Canada: communities, health, education, housing, water', tools: ['search_indigenous_relations'] },
-  health: { description: 'Health Canada, CIHI, PHAC, CFIA: drug approvals, medical devices, recalls', tools: ['search_health', 'search_cra_charity'] },
+  health: { description: 'Health Canada, CIHI, PHAC, CFIA: drug approvals, medical devices, recalls', tools: ['search_health', 'search_cra_charity', 'search_nutrient_file'] },
   defence: { description: 'National Defence, veterans affairs', tools: ['search_defence', 'search_veterans'] },
   justice: { description: 'Criminal justice, corrections, parole, RCMP crime data', tools: ['search_criminal_justice'] },
-  finance: { description: 'Federal budget, Bank of Canada, CMHC, OSFI, FCAC', tools: ['search_federal_budget', 'search_bank_of_canada', 'search_cmhc'] },
+  finance: { description: 'Federal budget, Bank of Canada, CMHC, OSFI, FCAC', tools: ['search_federal_budget', 'search_bank_of_canada', 'search_cmhc', 'search_valet_api', 'search_weather'] },
   corporate: { description: 'Corporations Canada, SEDAR+ filings, SEDI insider trades', tools: ['search_corporate_filings', 'search_sedi'] },
   influence: { description: 'NGO/think tank publications, narrative tracking, influence actors', tools: ['search_influence', 'search_ngo_rss', 'search_narrative_tracker'] },
   labour: { description: 'LMIA data, unions, social programs', tools: ['search_lmia', 'search_unions', 'search_social_programs'] },
