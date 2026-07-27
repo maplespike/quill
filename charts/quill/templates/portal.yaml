@@ -1,11 +1,11 @@
 {{/*
-  MapleSpike — Portal Deployment + Service
+  Quill — Portal Deployment + Service
 */}}
 {{- if .Values.portal.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "maplespike.fullname" . }}-portal
+  name: {{ include "quill.fullname" . }}-portal
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-portal
@@ -26,7 +26,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
         - name: API_UPSTREAM
-          value: "http://{{ include "maplespike.fullname" . }}-api:{{ .Values.api.port }}"
+          value: "http://{{ include "quill.fullname" . }}-api:{{ .Values.api.port }}"
         ports:
         - containerPort: {{ .Values.portal.port | default 8080 }}
         resources:
@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "maplespike.fullname" . }}-portal
+  name: {{ include "quill.fullname" . }}-portal
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-portal

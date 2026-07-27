@@ -1,4 +1,4 @@
-# MapleSpike Helm Chart Values
+# Quill Helm Chart Values
 # Override per-environment: helm install -f values-prod.yaml
 
 # Image configuration
@@ -115,7 +115,7 @@ monitoring:
   alerting:
     slack:
       enabled: true
-      channel: "#alerts-maplespike"
+      channel: "#alerts-quill"
       # webhook_url set via Alertmanager config in k8s/infra.nix
     email:
       enabled: true
@@ -143,11 +143,11 @@ cloudflared:
   # — no tunnel ingress needed for the portal
   ingress:
     - hostname: api.maplespike.ca
-      service: http://maplespike-api.maplespike.svc.cluster.local:8084
+      service: http://quill-api.maplespike.svc.cluster.local:8084
     - hostname: mcp.maplespike.ca
-      service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+      service: http://quill-mcp.maplespike.svc.cluster.local:3001
     - hostname: kanban.maplespike.ca
-      service: http://maplespike-kanban-exec.maplespike.svc.cluster.local:8080
+      service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
 # Secrets (set via --set or external secrets)
 secrets:
