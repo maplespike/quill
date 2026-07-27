@@ -1,5 +1,5 @@
 # =============================================================================
-# MapleSpike — Deploy Portal + Docs to GitHub Pages
+# Quill — Deploy Portal + Docs to GitHub Pages
 #
 # Builds the docs (marked MD → HTML) and the Astro portal, then deploys
 # the static output to GitHub Pages using the official deploy-pages action.

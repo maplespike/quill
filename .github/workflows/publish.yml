@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────
-# MapleSpike Publish — publishes SDK packages to npm + PyPI
+# Quill Publish — publishes SDK packages to npm + PyPI
 # Triggered by:
 #   - npm publish on push to prod branch
 #   - PyPI publish on version tags (v*)

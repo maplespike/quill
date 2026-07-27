@@ -100,8 +100,8 @@ jobs:
       - name: Run integration tests (network-dependent)
         run: pnpm -r test:integration
         env:
-          MAPLESPIKE_HTTP_MAX_RETRIES: '1'
-          MAPLESPIKE_HTTP_TIMEOUT_MS: '15000'
+          QUILL_HTTP_MAX_RETRIES: '1'
+          QUILL_HTTP_TIMEOUT_MS: '15000'
 
   docker:
     needs: build-and-test

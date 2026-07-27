@@ -26,7 +26,7 @@ jobs:
         run: pnpm test
 
   deploy-dev:
-    name: Deploy to maplespike-dev
+    name: Deploy to quill-dev
     needs: ci
     runs-on: [self-hosted, nixos]
     if: github.ref == 'refs/heads/main'
@@ -45,9 +45,9 @@ jobs:
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/quill-api -n maplespike-dev --timeout=3m || true
-          kubectl rollout status deployment/quill-portal -n maplespike-dev --timeout=3m || true
-          kubectl rollout status deployment/cloudflared -n maplespike-dev --timeout=3m || true
+          kubectl rollout status deployment/quill-api -n quill-dev --timeout=3m || true
+          kubectl rollout status deployment/quill-portal -n quill-dev --timeout=3m || true
+          kubectl rollout status deployment/cloudflared -n quill-dev --timeout=3m || true
 
       - name: Smoke test
         run: |
@@ -88,5 +88,5 @@ jobs:
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/quill-api -n maplespike-dev --timeout=5m
-          kubectl rollout status deployment/quill-portal -n maplespike-dev --timeout=5m
+          kubectl rollout status deployment/quill-api -n quill-dev --timeout=5m
+          kubectl rollout status deployment/quill-portal -n quill-dev --timeout=5m

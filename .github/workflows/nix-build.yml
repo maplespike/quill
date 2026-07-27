@@ -42,10 +42,10 @@ jobs:
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           pushFilters: |
-            maplespike
+            quill
             nix
           pullFilters: |
-            maplespike
+            quill
             nix
 
       - name: Verify flake evaluates & app set is well-formed
@@ -92,10 +92,10 @@ jobs:
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           pushFilters: |
-            maplespike
+            quill
             nix
           pullFilters: |
-            maplespike
+            quill
             nix
 
       # The Nix sandbox must be disabled (`__noChroot = true` in flake.nix)
