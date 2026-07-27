@@ -1,0 +1,54 @@
+# MapleSpike (Quill) — Project Knowledge
+
+> **Mission**: Build the Library of Alexandria for Canadian public data — 208+ modules, 175 MCP tools, ~200K lines TS, 14 packages.
+
+## What it is
+
+An AI-native government data pipeline that ingests, verifies, and surfaces Canadian public-domain data (federal, provincial, territorial, municipal) across every sector. Ships as:
+
+- **pipeline-core** — ingestion/verification/audit library
+- **quill-mcp** — MCP server (175 tools, incl. `x402-deposit`)
+- **api-server** — REST API gateway (auth, rate limits, billing, AI)
+- **portal** — Astro + React + Tailwind v4 static site served by Python
+- **engine** — entity resolution, graph building, signals
+- **sdk** — typed TypeScript client (published to npm)
+- **sdk-python** — Python client (published to PyPI)
+- **database** — `node:sqlite` wrapper (better-sqlite3 builtin)
+- **legal-core / legislation** — legal data SDKs (published npm)
+
+Live at https://quill.maplespike.ca/
+
+## Commands
+
+| Task | Command |
+|------|---------|
+| Install | `pnpm install` |
+| Build all | `pnpm build` (turbo build) |
+| Test all | `pnpm test` (turbo test + doc link tests + external host tests) |
+| Test packages only | `pnpm test:packages` |
+| Dev stack (Docker Compose) | `./scripts/dev-up.sh` |
+| Smoke test | `./scripts/e2e-smoke.sh --mode=compose --up --down` |
+| Clean | `pnpm clean` |
+| Portal dev (hot-reload) | `cd packages/portal && pnpm dev` (port 4321) |
+| API server | `cd packages/api-server && pnpm build && node dist/dev-server.js` (port 8082) |
+| MCP server (SSE) | `cd packages/quill-mcp && PORT=3001 pnpm start:sse` (port 3001) |
+
+## Package test framework
+
+Most packages use `node --test` (via tsx). The `engine` package uses `vitest`.
+
+## Key conventions & gotchas
+
+- **pnpm@10.32.1** — enable via `corepack enable && corepack prepare pnpm@10.32.1 --activate`
+- **TypeScript strict mode**, ES2022 target, ESNext modules, bundler module resolution
+- **No ESLint/Prettier** — match existing code style manually
+- **OpenSpec mandatory** — every feature/change uses `propose → apply → archive` cycle via `/opsx:*` commands (exceptions: trivial one-line fixes)
+- **Changesets baseBranch**: `prod`, not `main`
+- **Nix-first build** — `flake.nix` is source of truth for OCI images; secondary paths: Docker Compose, `selfhost.sh`, Helm chart, Cloudflare Pages, `nix run .#push-images`
+- **Canonical registry**: `nexus:5000/quill-<svc>` (not GHCR anymore)
+- **Portal runtime is Python** (`server.py`), not nginx — Astro `format: 'file'` means pages are `<page>.html`, served extensionless
+- **`AGENTS.md` is the authoritative ops reference** — cluster topology, routing matrix, rebuild/rollout recipes, known issues
+- **Secrets**: SOPS + age, synced via `scripts/sops-sync-k8s.sh`
+- **Node ≥18** (CI uses 22)
+- **License**: AGPL-3.0 (pipeline-core) / MIT (others)
+- **Deploy**: `scripts/deploy.sh`; production K3s cluster with Kustomize namePrefix (`maplespike-*` at cluster, `quill-*` in source)
