@@ -218,6 +218,24 @@ export interface ApiResponse<T = unknown> {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Build Meta Overrides (per-route envelope deltas)                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Per-request meta overrides — set by route handlers to customise the
+ * response envelope without rebuilding the whole BuildContext. Typical
+ * use: live-data helpers flip `cacheStatus` to 'hit'/'miss' on cache events.
+ */
+export type BuildMetaOverrides = Partial<{
+  agent: string;
+  action: string;
+  authMethod: string;
+  creditsCharged: number;
+  cacheStatus: 'hit' | 'miss' | 'mock';
+  durationMs: number;
+}>;
+
+/* ------------------------------------------------------------------ */
 /*  Request Context (per-request state)                                */
 /* ------------------------------------------------------------------ */
 
@@ -229,6 +247,18 @@ export interface RouteContext {
   env: Record<string, string | undefined>;
   db: QuillStorage;
   cache: QuillCache;
+  /**
+   * Optional envelope deltas. Live-data helpers (e.g. packages/api-server/src/routes/_live.ts)
+   * write cacheStatus here after a cache lookup so the response meta envelope
+   * reports the correct cache state. Route handlers construct the response via
+   * `buildSuccess(data, ctx)`, which reads BuildMetaOverrides from this field.
+   */
+  metaOverrides?: BuildMetaOverrides;
+  /**
+   * Parsed query-string token-optimisation options. Set by handleRequest
+   * from the incoming URL and forwarded to BuildContext.queryOptions.
+   */
+  queryOptions?: QueryOptions;
 }
 
 /* ------------------------------------------------------------------ */
