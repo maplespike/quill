@@ -1,7 +1,7 @@
-{{- define "maplespike.fullname" -}}
+{{- define "quill.fullname" -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{- define "maplespike.cronjob.name" -}}
-{{- printf "%s-%s" (include "maplespike.fullname" .) .name | trunc 63 | trimSuffix "-" }}
+{{- define "quill.cronjob.name" -}}
+{{- printf "%s-%s" (include "quill.fullname" .) .name | trunc 63 | trimSuffix "-" }}
 {{- end }}

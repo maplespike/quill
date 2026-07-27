@@ -1,10 +1,10 @@
 {{/*
-  MapleSpike — API + MCP Services
+  Quill — API + MCP Services
 */}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "maplespike.fullname" . }}-api
+  name: {{ include "quill.fullname" . }}-api
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-api
@@ -20,7 +20,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "maplespike.fullname" . }}-mcp
+  name: {{ include "quill.fullname" . }}-mcp
   namespace: {{ .Release.Namespace }}
   labels:
     app: quill-mcp
