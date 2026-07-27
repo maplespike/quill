@@ -1,4 +1,4 @@
-# MapleSpike Grafana Contact Points — Alert Notification Channels
+# Quill Grafana Contact Points — Alert Notification Channels
 # Provisioned automatically on Grafana start.
 # Place in: /etc/grafana/provisioning/contact-points.yaml
 #
@@ -22,12 +22,12 @@ contactPoints:
           # TODO: Replace with real Slack webhook URL
           url: "https://hooks.slack.com/services/PLACEHOLDER"
           # Comma-separated channel overrides (optional, url default used if empty)
-          recipient: "#alerts-maplespike"
+          recipient: "#alerts-quill"
           title: |-
-            {{ template "slack.maplespike.title" . }}
+            {{ template "slack.quill.title" . }}
           text: |-
-            {{ template "slack.maplespike.text" . }}
-          username: "MapleSpike Alertmanager"
+            {{ template "slack.quill.text" . }}
+          username: "Quill Alertmanager"
           icon_emoji: ":warning:"
 
   # ── Email notification channel for warnings and general alerts ─
@@ -40,7 +40,7 @@ contactPoints:
           # TODO: Set real notification email address
           addresses: "admin@maplespike.ca"
           subject: |-
-            [MapleSpike] {{ .GroupLabels.alertname }} — {{ .Status }}
+            [Quill] {{ .GroupLabels.alertname }} — {{ .Status }}
           # Single address per Grafana email contact point; use multiple contact points
           # or a mailing-list address for multiple recipients.
 
@@ -53,4 +53,4 @@ contactPoints:
         settings:
           addresses: "ops@maplespike.ca"
           subject: |-
-            [MapleSpike Ops] {{ .GroupLabels.alertname }} — {{ .GroupLabels.namespace }}/{{ .GroupLabels.job }}
+            [Quill Ops] {{ .GroupLabels.alertname }} — {{ .GroupLabels.namespace }}/{{ .GroupLabels.job }}
