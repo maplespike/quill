@@ -18,7 +18,7 @@ What should happen vs what actually happens.
 ## Environment
 - **Package:** [pipeline-core / quill-mcp / api-server / portal / engine / sdk / other]
 - **Working node:** [zephyr / nexus / forge / sentry]
-- **Worktree path:** `/data/projects/own/maplespike-<NNN>`
+- **Worktree path:** `/data/projects/own/quill-<NNN>`
 - **Branch:** `issue-NNN-short-description`
 - **Commit:** `git log -1 --oneline`
 - **Node version:** `node --version`

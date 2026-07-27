@@ -19,7 +19,7 @@ Why is this needed?
 
 ## Workflow
 - [ ] Single PR per task
-- [ ] Work in worktree (`git worktree add -b issue-NNN-desc /data/projects/own/maplespike-NNN main`)
+- [ ] Work in worktree (`git worktree add -b issue-NNN-desc /data/projects/own/quill-NNN main`)
 - [ ] Branch: `issue-NNN-short-description`
 - [ ] Commit messages reference `(#NNN)`
 - [ ] PR body contains `Closes #NNN`
