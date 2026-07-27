@@ -34,7 +34,7 @@ const ALL_TOOLS: ToolEntry[] = [
   },
   {
     name: 'get_citation',
-    description: 'Retrieve and verify SHA-256 citation hashes for previously fetched MapleSpike records.',
+    description: 'Retrieve and verify SHA-256 citation hashes for previously fetched Quill records.',
     inputSchema: { type: 'object', properties: { hash: { type: 'string' } }, required: ['hash'] },
   },
   {
@@ -139,12 +139,12 @@ const ALL_TOOLS: ToolEntry[] = [
   },
   {
     name: 'ai_search_semantic',
-    description: 'Semantic search across all MapleSpike data sources using natural language queries.',
+    description: 'Semantic search across all Quill data sources using natural language queries.',
     inputSchema: { type: 'object', properties: { query: { type: 'string' }, limit: { type: 'number' }, source: { type: 'string' } }, required: ['query'] },
   },
   {
     name: 'system_health',
-    description: 'Check the MapleSpike API service health. Returns service status, version, tenant tier, and current API call usage.',
+    description: 'Check the Quill API service health. Returns service status, version, tenant tier, and current API call usage.',
     inputSchema: { type: 'object', properties: {} },
   },
 ];

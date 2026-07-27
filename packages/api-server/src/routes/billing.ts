@@ -58,7 +58,7 @@ const PLANS: Record<string, Plan> = {
     plan_id: 'free',
     tier: 'free',
     name: 'Free',
-    description: 'Hosted API — try MapleSpike with no credit card. 1,000 calls/month, public data modules only.',
+    description: 'Hosted API — try Quill with no credit card. 1,000 calls/month, public data modules only.',
     price_cents: 0,
     credits_per_month: 1000,
     rate_limit_per_min: 10,
