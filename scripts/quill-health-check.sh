@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# MapleSpike Cluster Health Monitor
+# Quill Cluster Health Monitor
 # Checks cluster state and creates GitHub issues for problems.
-# Usage: maplespike-health-check.sh [--create-issue]
+# Usage: quill-health-check.sh [--create-issue]
 set -euo pipefail
 
-REPO="reverb256/maplespike"
+REPO="reverb256/quill"
 ISSUES=""
 
 check_node() {
