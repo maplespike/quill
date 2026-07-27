@@ -4,6 +4,40 @@ import { httpGet } from '../../utils/http.js';
 import { MUNICIPAL_PORTALS, MUNICIPAL_TIMEOUT_MS, MUNICIPAL_USER_AGENT } from './constants.js';
 import type { PortalType } from './constants.js';
 
+/**
+ * Self-healing dataset ID discovery for CKAN portals.
+ *
+ * Some portal registries list datasets by *friendly slugs* (`'budget'`,
+ * `'permits'`) that are not valid CKAN package IDs — Toronto, Vancouver,
+ * Montreal, etc. use UUID-style IDs. When `package_show?id=<slug>` returns
+ * 404, we fall back to `package_search?q=<slug>&rows=1` and use the first
+ * matching package's real `id`. This keeps `MUNICIPAL_PORTALS` driven by
+ * human-readable names while still fetching live data correctly.
+ */
+async function resolveCkanPackageId(
+  baseUrl: string,
+  slug: string,
+  timeoutMs = MUNICIPAL_TIMEOUT_MS,
+): Promise<string | null> {
+  const searchUrl = `${baseUrl}/api/3/action/package_search?q=${encodeURIComponent(
+    slug,
+  )}&rows=1`;
+  try {
+    const resp = await httpGet(searchUrl, {
+      timeoutMs,
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+    });
+    if (resp.statusCode >= 400) return null;
+    const body = JSON.parse(resp.body) as {
+      result?: { results?: Array<{ id?: string; name?: string }> };
+    };
+    const top = body?.result?.results?.[0];
+    return top?.id ?? top?.name ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function detectPortalType(municipalityId: string): Promise<PortalType> {
   const portal = MUNICIPAL_PORTALS[municipalityId];
   if (!portal) return 'none';
@@ -57,8 +91,45 @@ export async function fetchMunicipalDataset(
   if (!portal) throw new Error(`Unknown municipality: ${municipalityId}`);
 
   let url: string;
+
   if (portal.portalType === 'ckan') {
-    url = `${portal.baseUrl}/api/3/action/package_show?id=${dataset}`;
+    // Primary: try friendly slug directly. Many CKAN portals (Toronto,
+    // Vancouver, Montreal) use UUID-style IDs so this often 404s.
+    const primaryUrl = `${portal.baseUrl}/api/3/action/package_show?id=${encodeURIComponent(dataset)}`;
+    const primary = await httpGet(primaryUrl, {
+      timeoutMs: MUNICIPAL_TIMEOUT_MS,
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+    });
+    if (primary.statusCode < 400) return JSON.parse(primary.body);
+
+    // Self-healing fallback: discover the real package ID via search.
+    if (primary.statusCode === 404) {
+      const realId = await resolveCkanPackageId(portal.baseUrl, dataset);
+      if (realId && realId !== dataset) {
+        const fallbackUrl = `${portal.baseUrl}/api/3/action/package_show?id=${encodeURIComponent(realId)}`;
+        const fallback = await httpGet(fallbackUrl, {
+          timeoutMs: MUNICIPAL_TIMEOUT_MS,
+          headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+        });
+        if (fallback.statusCode < 400) {
+          // Attach the discovered real ID alongside the friendly slug so
+          // downstream parsers can record what was actually fetched.
+          const payload = JSON.parse(fallback.body);
+          if (payload && typeof payload === 'object' && 'result' in payload) {
+            (payload as Record<string, unknown>).__resolvedFrom = dataset;
+          }
+          return payload;
+        }
+      }
+    }
+
+    throw new Error(
+      `HTTP ${primary.statusCode} fetching ${primaryUrl}${
+        primary.statusCode === 404
+          ? ' (and no matching package discovered via package_search)'
+          : ''
+      }`,
+    );
   } else if (portal.portalType === 'socrata') {
     url = `${portal.baseUrl}/resource/${dataset}.json`;
   } else if (portal.portalType === 'arcgis') {
