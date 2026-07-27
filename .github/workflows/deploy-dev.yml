@@ -39,9 +39,9 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_DEV }}" | base64 -d > ~/.kube/config
 
-      - name: Apply dev overlay
+      - name: Apply maplespike kustomize
         run: |
-          kubectl apply -k k8s/overlays/dev/
+          kubectl apply -k k8s/maplespike/
 
       - name: Wait for rollout
         run: |
@@ -68,7 +68,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.portal
           target: portal
           push: false
           tags: |
@@ -79,7 +79,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.api
           target: api-server
           push: false
           tags: |
