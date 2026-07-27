@@ -1,39 +1,133 @@
+/**
+ * Quill — GET /v1/financial-regulation
+ * Quill — GET /v1/financial-regulation/cross-reference
+ *
+ * Live financial regulator ingestion via pipeline-core. Pulls OSFI capital
+ * adequacy, CDIC member institutions, FCAC complaints, CSA enforcement,
+ * OBSI ombudsman data — and runs the banking/lobbying cross-reference report.
+ *
+ * The cross-reference BankingLobbyingReport returns institutionsScanned,
+ * matchedInstitutions, complaintsOnly, lobbyingOnly, generatedAt — we surface
+ * all of those via runLivePipeline().metadata rather than fabricating zeros.
+ */
+
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
+import { ingestAllFinancialRegulation } from '@maplespike/pipeline-core/financial-regulation';
+import { crossReferenceBankingLobbying } from '@maplespike/pipeline-core/financial-regulation';
 import { canAccess } from '../feature-gates.js';
+import { runLivePipeline, normalizeFilterString } from './_live.js';
 
-const SAMPLE_FINREG = [
-  { source: 'osfi', title: 'OSFI Regulatory Data', description: 'Financial institution regulatory filings and capital adequacy', regulator: 'OSFI', jurisdiction: 'federal', category: 'banking' },
-  { source: 'cdic', title: 'CDIC Member Institutions', description: 'Deposit insurance member list and coverage data', regulator: 'CDIC', jurisdiction: 'federal', category: 'deposit-insurance' },
-  { source: 'fcac', title: 'FCAC Consumer Complaints', description: 'Banking complaint data aggregated by institution', regulator: 'FCAC', jurisdiction: 'federal', category: 'consumer-protection' },
-  { source: 'csa', title: 'CSA Securities Regulation', description: 'Canadian Securities Administrators regulatory data', regulator: 'CSA', jurisdiction: 'federal-provincial', category: 'securities' },
-  { source: 'obsi', title: 'OBSI Banking Ombudsman', description: 'Banking and investment ombudsman complaint data', regulator: 'OBSI', jurisdiction: 'federal', category: 'ombudsman' },
-];
+const REGULATOR_ALIASES: Record<string, string> = {
+  osfi: 'osfi',
+  bank: 'osfi',
+  cdic: 'cdic',
+  deposit: 'cdic',
+  fcac: 'fcac',
+  consumer: 'fcac',
+  csa: 'csa',
+  securities: 'csa',
+  obsi: 'obsi',
+  ombudsman: 'obsi',
+};
 
 export const finRegDataHandler: RouteHandler = async (request, ctx) => {
   const url = new URL(request.url);
   const regulator = url.searchParams.get('regulator');
+  const category = url.searchParams.get('category');
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
-  let data = SAMPLE_FINREG;
-  if (regulator) data = data.filter(d => d.regulator?.toLowerCase() === regulator.toLowerCase());
-  data = data.slice(0, limit);
-  return jsonResponse(buildSuccess({ records: data, total: data.length, regulator }, ctx));
+
+  const cacheKey = `finreg:${url.searchParams.toString() || 'all'}`;
+
+  const live = await runLivePipeline(ctx, cacheKey, async () => ingestAllFinancialRegulation(), {
+    ttlSeconds: 600, // regulatory updates: every 10 min
+  });
+
+  let records = live.records;
+  if (regulator) {
+    const wantedRaw = REGULATOR_ALIASES[regulator.toLowerCase()] ?? regulator.toLowerCase();
+    const wantedNorm = normalizeFilterString(wantedRaw);
+    const wantedAlt = normalizeFilterString(regulator);
+    records = records.filter((r) => {
+      const rec = r as { regulator?: string; source?: string };
+      const regNorm = normalizeFilterString(rec.regulator ?? '');
+      const srcNorm = normalizeFilterString(rec.source ?? '');
+      return regNorm === wantedNorm || regNorm === wantedAlt || srcNorm === wantedNorm || srcNorm === wantedAlt;
+    });
+  }
+  if (category) {
+    const wantedNorm = normalizeFilterString(category);
+    records = records.filter((r) => {
+      const cat = (r as { category?: string }).category ?? '';
+      return normalizeFilterString(cat) === wantedNorm;
+    });
+  }
+  records = records.slice(0, limit);
+
+  return jsonResponse(
+    buildSuccess(
+      {
+        domain: 'financial-regulation',
+        regulators: ['osfi', 'cdic', 'fcac', 'csa', 'obsi'],
+        records,
+        provenance: live.provenance,
+        filters: { regulator: regulator || null, category: category || null, limit },
+      },
+      ctx,
+    ),
+  );
 };
 
 export const finRegCrossRefHandler: RouteHandler = async (request, ctx) => {
-  // ── Feature gate: cross-reference reports require Business tier or higher ──
   if (!canAccess(ctx.tenant.tier, 'crossReferenceReports')) {
-    return jsonResponse(buildError('UPGRADE_REQUIRED',
-      'Cross-reference reports require a Business plan or higher. Upgrade at quill.maplespike.ca/billing.',
-      ctx), 402);
+    return jsonResponse(
+      buildError(
+        'UPGRADE_REQUIRED',
+        'Cross-reference reports require a Business plan or higher. Upgrade at quill.maplespike.ca/billing.',
+        ctx,
+      ),
+      402,
+    );
   }
 
   const url = new URL(request.url);
   const institution = url.searchParams.get('institution');
-  return jsonResponse(buildSuccess({
-    crossReferenceAvailable: true,
-    description: 'Cross-references FCAC banking complaints against federal lobbying registry',
-    endpoint: '/v1/financial-regulation/cross-reference',
-    institution,
-  }, ctx));
+
+  const cacheKey = `finreg-xref:${institution ?? 'all'}`;
+
+  const live = await runLivePipeline(
+    ctx,
+    cacheKey,
+    async () => crossReferenceBankingLobbying(institution ? [institution] : undefined),
+    { ttlSeconds: 600 },
+  );
+
+  // Surface real meta from the cross-reference report (institutionsScanned,
+  // matchedInstitutions, complaintsOnly, lobbyingOnly, generatedAt) instead of
+  // fabricating zeros.
+  const meta = live.metadata as {
+    institutionsScanned?: number;
+    matchedInstitutions?: number;
+    complaintsOnly?: number;
+    lobbyingOnly?: number;
+    generatedAt?: string;
+  };
+
+  return jsonResponse(
+    buildSuccess(
+      {
+        domain: 'financial-regulation.cross-reference',
+        institution: institution || null,
+        records: live.records,
+        matched: meta.matchedInstitutions ?? live.records.length,
+        institutionsScanned: meta.institutionsScanned ?? 0,
+        complaintsOnly: meta.complaintsOnly ?? 0,
+        lobbyingOnly: meta.lobbyingOnly ?? 0,
+        generatedAt: meta.generatedAt ?? new Date().toISOString(),
+        provenance: live.provenance,
+        filters: { institution: institution || null },
+      },
+      ctx,
+    ),
+  );
 };
