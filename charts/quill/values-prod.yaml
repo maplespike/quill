@@ -1,5 +1,5 @@
-# MapleSpike — Production Values
-# helm upgrade --install maplespike charts/maplespike -n maplespike -f charts/maplespike/values-prod.yaml
+# Quill — Production Values
+# helm upgrade --install quill charts/quill -n maplespike -f charts/quill/values-prod.yaml
 
 image:
   registry: nexus:5000
@@ -109,11 +109,11 @@ cloudflared:
   # — no tunnel ingress needed for the portal
   ingress:
     - hostname: api.maplespike.ca
-      service: http://maplespike-api.maplespike.svc.cluster.local:8082
+      service: http://quill-api.maplespike.svc.cluster.local:8082
     - hostname: mcp.maplespike.ca
-      service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
+      service: http://quill-mcp.maplespike.svc.cluster.local:3001
     - hostname: kanban.maplespike.ca
-      service: http://maplespike-kanban-exec.maplespike.svc.cluster.local:8080
+      service: http://quill-kanban-exec.maplespike.svc.cluster.local:8080
 
 # Secrets (override via --set or external secret management)
 secrets:

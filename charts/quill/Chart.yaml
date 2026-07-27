@@ -3,7 +3,7 @@ apiVersion: v2
 # Helmspec requires Chart.yaml `name:` = dirname). Brand-level identifiers
 # (description, home, maintainer name) preserved.
 name: quill
-description: MapleSpike — Canada's sovereign government data pipeline
+description: Quill — Canada's sovereign government data pipeline
 type: application
 version: 0.1.0
 appVersion: "0.2.0"

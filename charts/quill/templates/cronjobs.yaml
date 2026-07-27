@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "maplespike.fullname" $ }}-ingest-{{ $name }}
+  name: {{ include "quill.fullname" $ }}-ingest-{{ $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
     app: quill-ingest
@@ -56,7 +56,7 @@ spec:
           {{- if $.Values.secrets.canliiApiKey }}
             envFrom:
             - secretRef:
-                name: maplespike-secrets
+                name: quill-secrets
           {{- end }}
 ---
 {{- end }}
