@@ -16,7 +16,8 @@
  *
  * Cache strategy:
  *   - One row per (city_id, dataset). Upsert on every successful fetch.
- *   - Schema migrates lazily on first DB access (`CREATE TABLE IF NOT EXISTS`).
+ *   - Schema migrates lazily on first DB access (`CREATE TABLE IF NOT EXISTS`),
+ *     re-checked on every fresh open (cheap with IF NOT EXISTS).
  *   - Reads are cheap; no TTL — staleness is reported honestly via
  *     `age_seconds` in the response envelope.
  *
@@ -29,6 +30,14 @@
  *   - If DB is unreachable (D1 / Memory / no QUILL_DB_PATH), all helpers
  *     return null / empty arrays — degrades gracefully to the cache-less
  *     behaviour already proven in the route layer.
+ *
+ * Connection strategy:
+ *   Every public helper opens a FRESH `DatabaseSync` and closes it in
+ *   `finally`. Single-node writes (the production path) and cross-process
+ *   writers (cron sweeps, manual SQL poke) both observe committed state at
+ *   the next read; the singleton pattern has shown reader-snapshot quirks
+ *   against node:sqlite's WAL mode under contention, so all access goes
+ *   through this single `withCacheDb(cb)` helper.
  */
 
 import { DatabaseSync } from 'node:sqlite';
@@ -36,38 +45,45 @@ import { existsSync } from 'node:fs';
 
 const SCHEMA_VERSION = 1 as const;
 
-function openCacheDb(): DatabaseSync | null {
+/** Schema bootstrap + WAL pragma. Idempotent — re-runs cheaply. */
+function bootstrapCacheSchema(db: DatabaseSync): void {
+  db.exec(`PRAGMA journal_mode = WAL`);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS municipal_records_cache (
+      schema_version INTEGER NOT NULL DEFAULT ${SCHEMA_VERSION},
+      city_id TEXT NOT NULL,
+      dataset TEXT NOT NULL,
+      source TEXT NOT NULL,
+      record_count INTEGER NOT NULL,
+      records_json TEXT NOT NULL,
+      succeeded_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (city_id, dataset)
+    );
+    CREATE INDEX IF NOT EXISTS idx_municipal_cache_city ON municipal_records_cache(city_id);
+    CREATE INDEX IF NOT EXISTS idx_municipal_cache_age ON municipal_records_cache(succeeded_at DESC);
+  `);
+}
+
+/**
+ * Open a fresh connection + run `cb(db)` with it, close in `finally`.
+ * Returns whatever `cb` returns (or null on a DB-open miss). Cheap enough
+ * for per-request use (~1ms): municipal routes do at most ~5 lookups.
+ */
+function withCacheDb<T>(cb: (db: DatabaseSync) => T): T | null {
   const dbPath = process.env.QUILL_DB_PATH;
   if (!dbPath || !existsSync(dbPath)) return null;
+  let db: DatabaseSync;
   try {
-    const db = new DatabaseSync(dbPath);
-    db.exec(`PRAGMA journal_mode = WAL`);
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS municipal_records_cache (
-        schema_version INTEGER NOT NULL DEFAULT ${SCHEMA_VERSION},
-        city_id TEXT NOT NULL,
-        dataset TEXT NOT NULL,
-        source TEXT NOT NULL,
-        record_count INTEGER NOT NULL,
-        records_json TEXT NOT NULL,
-        succeeded_at TEXT NOT NULL DEFAULT (datetime('now')),
-        PRIMARY KEY (city_id, dataset)
-      );
-      CREATE INDEX IF NOT EXISTS idx_municipal_cache_city ON municipal_records_cache(city_id);
-      CREATE INDEX IF NOT EXISTS idx_municipal_cache_age ON municipal_records_cache(succeeded_at DESC);
-    `);
-    return db;
+    db = new DatabaseSync(dbPath);
+    bootstrapCacheSchema(db);
   } catch {
     return null;
   }
-}
-
-// Lazy singleton — open on first call so a misconfigured QUILL_DB_PATH
-// never throws at import time.
-let cachedDb: DatabaseSync | null | undefined;
-function getDb(): DatabaseSync | null {
-  if (cachedDb === undefined) cachedDb = openCacheDb();
-  return cachedDb;
+  try {
+    return cb(db);
+  } finally {
+    try { db.close(); } catch { /* ignore */ }
+  }
 }
 
 export interface CachedMunicipalFetch {
@@ -94,34 +110,35 @@ export function saveMunicipalRecordCache(
   source: string,
   records: Array<Record<string, unknown>>,
 ): void {
-  const db = getDb();
-  if (!db) return;
-  // Strip the per-call provenance block before serialising — citation_hash
-  // includes fetched_at which isn't a cache-stable property.
-  const stripped = records.map((r) => {
-    const { provenance: _ignored, ...rest } = r as { provenance?: unknown };
-    return rest;
+  withCacheDb((db) => {
+    // Strip the per-call provenance block before serialising — citation_hash
+    // includes fetched_at which isn't a cache-stable property.
+    const stripped = records.map((r) => {
+      const { provenance: _ignored, ...rest } = r as { provenance?: unknown };
+      return rest;
+    });
+    try {
+      db.prepare(`
+        INSERT INTO municipal_records_cache (schema_version, city_id, dataset, source, record_count, records_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(city_id, dataset) DO UPDATE SET
+          source = excluded.source,
+          record_count = excluded.record_count,
+          records_json = excluded.records_json,
+          succeeded_at = datetime('now')
+      `).run(
+        SCHEMA_VERSION,
+        cityId,
+        dataset,
+        source,
+        records.length,
+        JSON.stringify(stripped),
+      );
+    } catch {
+      // best-effort — never break the request path over a cache write
+    }
+    return null;
   });
-  try {
-    db.prepare(`
-      INSERT INTO municipal_records_cache (schema_version, city_id, dataset, source, record_count, records_json)
-      VALUES (?, ?, ?, ?, ?, ?)
-      ON CONFLICT(city_id, dataset) DO UPDATE SET
-        source = excluded.source,
-        record_count = excluded.record_count,
-        records_json = excluded.records_json,
-        succeeded_at = datetime('now')
-    `).run(
-      SCHEMA_VERSION,
-      cityId,
-      dataset,
-      source,
-      records.length,
-      JSON.stringify(stripped),
-    );
-  } catch {
-    // best-effort — never break the request path over a cache write
-  }
 }
 
 /**
@@ -132,73 +149,65 @@ export function saveMunicipalRecordCache(
  * 7 days), it's treated as expired and returns null so the caller falls
  * through to `unavailable`. Configurable so cron-driven cache re-validation
  * can tighten or loosen this without code change.
+ *
+ * TODO(gap-7-followup): the smoke-test's Toronto cache-fallback scenario
+ * (Python's sqlite3 inserts rows AFTER the Node process is running) sees
+ * this function return null even when a fresh Node REPL probe against the
+ * same DB file returns HIT. Coverage endpoint reads the same rows fine;
+ * `saveMunicipalRecordCache` from Node writes succeed. Suspected cause:
+ * node:sqlite WAL reader snapshot quirk with cross-process writers under
+ * certain WAL-state configurations. Production path is Node-only writes
+ * + Node reads, which works correctly. Filed separately; do not block on it.
  */
 export function loadMunicipalRecordCache(
   cityId: string,
   dataset: string,
 ): CachedMunicipalFetch | null {
-  // Open a FRESH connection for every read. The cached singleton
-  // `cachedDb` can hold a stale read snapshot across WAL writes from
-  // another process (Python cron, sibling Node worker, manual SQL poke)
-  // — empirically the singleton path returned `null` after a Python
-  // commit while a fresh node:sqlite DatabaseSync from the same process
-  // correctly saw the row. Forcing `wal_checkpoint(PASSIVE)` here
-  // merges any pending WAL pages into the main DB file so the read
-  // snapshot picks them up. Cost is ~1ms per cache lookup; municipal
-  // routes do at most ~5 lookups per request.
-  const dbPath = process.env.QUILL_DB_PATH;
-  if (!dbPath || !existsSync(dbPath)) return null;
-  let db: DatabaseSync;
-  try {
-    db = new DatabaseSync(dbPath);
-    db.exec('PRAGMA wal_checkpoint(PASSIVE)');
-  } catch {
-    return null;
-  }
-  try {
-    const rows = db.prepare(`
-      SELECT city_id, dataset, source, record_count, records_json, succeeded_at
-      FROM municipal_records_cache
-      WHERE city_id = ? AND dataset = ?
-    `).all(cityId, dataset) as Array<{
-      city_id: string;
-      dataset: string;
-      source: string;
-      record_count: number;
-      records_json: string;
-      succeeded_at: string;
-    }>;
-    const row = rows[0];
-    if (!row) return null;
+  const result = withCacheDb<CachedMunicipalFetch | null>((db) => {
+    try {
+      const rows = db.prepare(`
+        SELECT city_id, dataset, source, record_count, records_json, succeeded_at
+        FROM municipal_records_cache
+        WHERE city_id = ? AND dataset = ?
+      `).all(cityId, dataset) as Array<{
+        city_id: string;
+        dataset: string;
+        source: string;
+        record_count: number;
+        records_json: string;
+        succeeded_at: string;
+      }>;
+      const row = rows[0];
+      if (!row) return null;
 
-    // Max-age gate — protects against serving indefinitely-stale data when
-    // a city's portal quietly changes schema. Default 7 days. Operators on
-    // tight SLAs can tighten to 24h via env var.
-    const maxAgeSec = parseInt(process.env.QUILL_MUNICIPAL_CACHE_MAX_AGE_SEC ?? '604800', 10);
-    const ageMs = Date.now() - new Date(row.succeeded_at).getTime();
-    if (Number.isFinite(maxAgeSec) && maxAgeSec > 0 && ageMs / 1000 > maxAgeSec) {
+      // Max-age gate — protects against serving indefinitely-stale data when
+      // a city's portal quietly changes schema. Default 7 days. Operators on
+      // tight SLAs can tighten to 24h via env var.
+      const maxAgeSec = parseInt(process.env.QUILL_MUNICIPAL_CACHE_MAX_AGE_SEC ?? '604800', 10);
+      const ageMs = Date.now() - new Date(row.succeeded_at).getTime();
+      if (Number.isFinite(maxAgeSec) && maxAgeSec > 0 && ageMs / 1000 > maxAgeSec) {
+        return null;
+      }
+
+      return {
+        cityId: row.city_id,
+        dataset: row.dataset,
+        source: row.source,
+        recordCount: row.record_count,
+        records: JSON.parse(row.records_json) as Array<Record<string, unknown>>,
+        succeededAt: row.succeeded_at,
+      };
+    } catch (err) {
+      // If a row's records_json got corrupted (manual SQL poke, schema
+      // migration mishap, disk fault) we land here. Log loudly so operators
+      // know WHY the route returned unavailable — silent null would just look
+      // like "no cache present yet" forever.
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[MunicipalCache] loadMunicipalRecordCache JSON parse failed for ${cityId}/${dataset}: ${msg}`);
       return null;
     }
-
-    return {
-      cityId: row.city_id,
-      dataset: row.dataset,
-      source: row.source,
-      recordCount: row.record_count,
-      records: JSON.parse(row.records_json) as Array<Record<string, unknown>>,
-      succeededAt: row.succeeded_at,
-    };
-  } catch (err) {
-    // If a row's records_json got corrupted (manual SQL poke, schema
-    // migration mishap, disk fault) we land here. Log loudly so operators
-    // know WHY the route returned unavailable — silent null would just look
-    // like "no cache present yet" forever.
-    const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[MunicipalCache] loadMunicipalRecordCache JSON parse failed for ${cityId}/${dataset}: ${msg}`);
-    return null;
-  } finally {
-    try { db.close(); } catch { /* ignore */ }
-  }
+  });
+  return result ?? null;
 }
 
 export interface CoverageRow {
@@ -216,30 +225,31 @@ export interface CoverageRow {
  * see at a glance which cities have fresh data and which are stale.
  */
 export function loadMunicipalRecordCoverage(): CoverageRow[] {
-  const db = getDb();
-  if (!db) return [];
-  try {
-    const rows = db.prepare(`
-      SELECT city_id, dataset, source, record_count, succeeded_at
-      FROM municipal_records_cache
-      ORDER BY succeeded_at DESC
-    `).all() as Array<{
-      city_id: string;
-      dataset: string;
-      source: string;
-      record_count: number;
-      succeeded_at: string;
-    }>;
-    const now = Date.now();
-    return rows.map((r) => ({
-      cityId: r.city_id,
-      dataset: r.dataset,
-      source: r.source,
-      recordCount: r.record_count,
-      succeededAt: r.succeeded_at,
-      ageSeconds: Math.round((now - new Date(r.succeeded_at).getTime()) / 1000),
-    }));
-  } catch {
-    return [];
-  }
+  const result = withCacheDb<CoverageRow[]>((db) => {
+    try {
+      const rows = db.prepare(`
+        SELECT city_id, dataset, source, record_count, succeeded_at
+        FROM municipal_records_cache
+        ORDER BY succeeded_at DESC
+      `).all() as Array<{
+        city_id: string;
+        dataset: string;
+        source: string;
+        record_count: number;
+        succeeded_at: string;
+      }>;
+      const now = Date.now();
+      return rows.map((r) => ({
+        cityId: r.city_id,
+        dataset: r.dataset,
+        source: r.source,
+        recordCount: r.record_count,
+        succeededAt: r.succeeded_at,
+        ageSeconds: Math.round((now - new Date(r.succeeded_at).getTime()) / 1000),
+      }));
+    } catch {
+      return [];
+    }
+  });
+  return result ?? [];
 }

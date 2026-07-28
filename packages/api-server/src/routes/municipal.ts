@@ -384,6 +384,16 @@ function buildEnvelope(
     if (r.fromCache && r.cacheNote) cacheNotes.push(r.cacheNote);
     if (r.fromCache) {
       cachedSuccess++;
+    } else if (r.records && r.records.length > 0) {
+      // Partial success: live fetch returned SOME records but also logged
+      // errors (e.g. 1 of 3 sub-requests succeeded). Count as liveSuccess so
+      // the live records contribute to the totals, and surface any errors
+      // so operators can see the partial-failure story. Boosts overall
+      // `status` resolution toward 'partial' rather than 'unavailable'.
+      liveSuccess++;
+      if (r.errors && r.errors.length > 0) {
+        errors.push(...r.errors.map((e) => `[${r.municipality}] ${e}`));
+      }
     } else if (r.errors && r.errors.length > 0) {
       failed++;
       errors.push(...r.errors.map((e) => `[${r.municipality}] ${e}`));
