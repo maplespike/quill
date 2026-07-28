@@ -4,39 +4,109 @@ import { httpGet } from '../../utils/http.js';
 import { MUNICIPAL_PORTALS, MUNICIPAL_TIMEOUT_MS, MUNICIPAL_USER_AGENT } from './constants.js';
 import type { PortalType } from './constants.js';
 
+/* -------------------------------------------------------------------------- */
+/*  CKAN package-ID resolution: two-tier memoization                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Two-tier cache for resolved CKAN package IDs.
+ *
+ *   `idResultCache` — successful discoveries (slug → real UUID). Survives until
+ *                     evicted by stale-404 detection. Eliminated the round-trip
+ *                     for every subsequent request.
+ *
+ *   `idInflightCache` — in-flight Promise<string | null>. Concurrent callers
+ *                       all await the same discovery, eliminating duplicate
+ *                       package_search traffic when 4 jobs target the same
+ *                       `{baseUrl, slug}` simultaneously.
+ *
+ * Failed discoveries (resolved to `null`) are NOT persisted in `idResultCache`
+ * so the next sequential request retries — but they ARE deduplicated during
+ * the in-flight window via `idInflightCache`. This means a CKAN portal that
+ * returns empty search results will be re-probed on the next call rather than
+ * permanently stale-bucketed.
+ */
+const idResultCache = new Map<string, string>();
+const idInflightCache = new Map<string, Promise<string | null>>();
+
+/**
+ * Drop the cache entry for `{baseUrl, slug}`. Called when a stored UUID
+ * 404s on the fast path so the next request re-discovers.
+ */
+export function evictMunicipalIdCache(baseUrl: string, slug: string): void {
+  idResultCache.delete(`${baseUrl}|${slug}`);
+}
+
+/**
+ * Clear both caches. Useful for cron-driven cache re-validation jobs or
+ * test fixtures that need a fresh slate.
+ */
+export function clearMunicipalIdCache(): void {
+  idResultCache.clear();
+  idInflightCache.clear();
+}
+
 /**
  * Self-healing dataset ID discovery for CKAN portals.
  *
- * Some portal registries list datasets by *friendly slugs* (`'budget'`,
- * `'permits'`) that are not valid CKAN package IDs — Toronto, Vancouver,
- * Montreal, etc. use UUID-style IDs. When `package_show?id=<slug>` returns
- * 404, we fall back to `package_search?q=<slug>&rows=1` and use the first
- * matching package's real `id`. This keeps `MUNICIPAL_PORTALS` driven by
- * human-readable names while still fetching live data correctly.
+ * Resolves a friendly slug (`'budget'`, `'permits'`) to the actual CKAN
+ * `id` via `package_search?q=<slug>&rows=1`. Results are memoized across
+ * the process so subsequent calls are instant.
+ *
+ * Cache key format: `${baseUrl}|${slug}` — strict keying avoids collisions
+ * when multiple cities happen to share a slug like `budget`.
  */
-async function resolveCkanPackageId(
+export async function resolveCkanPackageId(
   baseUrl: string,
   slug: string,
-  timeoutMs = MUNICIPAL_TIMEOUT_MS,
+  timeoutMs: number = MUNICIPAL_TIMEOUT_MS,
 ): Promise<string | null> {
-  const searchUrl = `${baseUrl}/api/3/action/package_search?q=${encodeURIComponent(
-    slug,
-  )}&rows=1`;
-  try {
-    const resp = await httpGet(searchUrl, {
-      timeoutMs,
-      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
-    });
-    if (resp.statusCode >= 400) return null;
-    const body = JSON.parse(resp.body) as {
-      result?: { results?: Array<{ id?: string; name?: string }> };
-    };
-    const top = body?.result?.results?.[0];
-    return top?.id ?? top?.name ?? null;
-  } catch {
-    return null;
-  }
+  const cacheKey = `${baseUrl}|${slug}`;
+
+  // Fast path: previously-discovered result.
+  const cached = idResultCache.get(cacheKey);
+  if (cached) return cached;
+
+  // In-flight dedup: concurrent callers all await the same discovery.
+  const inflight = idInflightCache.get(cacheKey);
+  if (inflight) return inflight;
+
+  // Cold path: kick off discovery.
+  const searchUrl = `${baseUrl}/api/3/action/package_search?q=${encodeURIComponent(slug)}&rows=1`;
+  const promise = (async (): Promise<string | null> => {
+    try {
+      const resp = await httpGet(searchUrl, {
+        timeoutMs,
+        headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+      });
+      if (resp.statusCode >= 400) return null;
+      const body = JSON.parse(resp.body) as {
+        result?: { results?: Array<{ id?: string; name?: string }> };
+      };
+      const top = body?.result?.results?.[0];
+      return top?.id ?? top?.name ?? null;
+    } catch {
+      return null;
+    }
+  })();
+
+  idInflightCache.set(cacheKey, promise);
+  // Promise self-cleans from inflight cache once settled — failed
+  // discoveries (null) remove themselves so the next caller retries.
+  promise.finally(() => {
+    if (idInflightCache.get(cacheKey) === promise) {
+      idInflightCache.delete(cacheKey);
+    }
+  });
+
+  const result = await promise;
+  if (result) idResultCache.set(cacheKey, result);
+  return result;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Portal type detection                                                     */
+/* -------------------------------------------------------------------------- */
 
 export async function detectPortalType(municipalityId: string): Promise<PortalType> {
   const portal = MUNICIPAL_PORTALS[municipalityId];
@@ -83,6 +153,55 @@ export async function detectPortalType(municipalityId: string): Promise<PortalTy
   return 'custom';
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Single-dataset fetch — cache-aware, slug-or-UUID-tolerant                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Common HTTP GET against a CKAN package_show URL. Returns:
+ *   { ok: true, body }    — status < 400 and JSON parses
+ *   { ok: false, status } — non-2xx (status preserved for retry decisions)
+ */
+async function ckanPackageShow(
+  baseUrl: string,
+  idOrSlug: string,
+): Promise<{ ok: true; body: unknown } | { ok: false; status: number }> {
+  const url = `${baseUrl}/api/3/action/package_show?id=${encodeURIComponent(idOrSlug)}`;
+  try {
+    const resp = await httpGet(url, {
+      timeoutMs: MUNICIPAL_TIMEOUT_MS,
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
+    });
+    if (resp.statusCode < 400) return { ok: true, body: JSON.parse(resp.body) };
+    return { ok: false, status: resp.statusCode };
+  } catch {
+    return { ok: false, status: -1 };
+  }
+}
+
+/**
+ * Attach the original friendly slug to a CKAN payload so downstream
+ * parsers/audit-trail can record what was actually requested vs fetched.
+ */
+function annotateResolved(payload: unknown, slug: string): unknown {
+  if (payload && typeof payload === 'object' && 'result' in payload) {
+    (payload as Record<string, unknown>).__resolvedFrom = slug;
+  }
+  return payload;
+}
+
+/**
+ * Fetch the metadata for a single (municipality, dataset) pair.
+ *
+ * CKAN branch strategy (cache-aware):
+ *   1. Try `package_show?id=<slug>` directly (works for registries using slugs).
+ *   2. On 404 → call resolveCkanPackageId() which checks the cached UUID and
+ *      triggers a `package_search?q=<slug>&rows=1` discovery if needed.
+ *   3. With the discovered UUID, retry `package_show?id=<realId>`.
+ *   4. If the cached UUID returns 404 (stale), evict it and re-discover once.
+ *
+ * The Socrata / ArcGIS / custom branches are unchanged from before.
+ */
 export async function fetchMunicipalDataset(
   municipalityId: string,
   dataset: string,
@@ -90,51 +209,37 @@ export async function fetchMunicipalDataset(
   const portal = MUNICIPAL_PORTALS[municipalityId];
   if (!portal) throw new Error(`Unknown municipality: ${municipalityId}`);
 
-  let url: string;
-
   if (portal.portalType === 'ckan') {
-    // Primary: try friendly slug directly. Many CKAN portals (Toronto,
-    // Vancouver, Montreal) use UUID-style IDs so this often 404s.
-    const primaryUrl = `${portal.baseUrl}/api/3/action/package_show?id=${encodeURIComponent(dataset)}`;
-    const primary = await httpGet(primaryUrl, {
-      timeoutMs: MUNICIPAL_TIMEOUT_MS,
-      headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
-    });
-    if (primary.statusCode < 400) return JSON.parse(primary.body);
+    // Phase 1: try the friendly slug directly — free if registry uses slugs.
+    const direct = await ckanPackageShow(portal.baseUrl, dataset);
+    if (direct.ok) return direct.body;
 
-    // Self-healing fallback: discover the real package ID via search.
-    if (primary.statusCode === 404) {
+    // Phase 2: self-heal via cached discovery.
+    if (direct.status === 404) {
       const realId = await resolveCkanPackageId(portal.baseUrl, dataset);
       if (realId && realId !== dataset) {
-        const fallbackUrl = `${portal.baseUrl}/api/3/action/package_show?id=${encodeURIComponent(realId)}`;
-        const fallback = await httpGet(fallbackUrl, {
-          timeoutMs: MUNICIPAL_TIMEOUT_MS,
-          headers: { 'User-Agent': MUNICIPAL_USER_AGENT },
-        });
-        if (fallback.statusCode < 400) {
-          // Attach the discovered real ID alongside the friendly slug so
-          // downstream parsers can record what was actually fetched.
-          const payload = JSON.parse(fallback.body);
-          if (payload && typeof payload === 'object' && 'result' in payload) {
-            (payload as Record<string, unknown>).__resolvedFrom = dataset;
-          }
-          return payload;
-        }
-      }
-    }
+        const realResp = await ckanPackageShow(portal.baseUrl, realId);
+        if (realResp.ok) return annotateResolved(realResp.body, dataset);
 
-    throw new Error(
-      `HTTP ${primary.statusCode} fetching ${primaryUrl}${
-        primary.statusCode === 404
-          ? ' (and no matching package discovered via package_search)'
-          : ''
-      }`,
-    );
-  } else if (portal.portalType === 'socrata') {
+        // Stale cached UUID — evict and try the slug one more time as
+        // a last resort before re-discovering (which we already did).
+        evictMunicipalIdCache(portal.baseUrl, dataset);
+        const slugRetry = await ckanPackageShow(portal.baseUrl, dataset);
+        if (slugRetry.ok) return slugRetry.body;
+      }
+      throw new Error(
+        `HTTP 404 fetching ${portal.baseUrl}/api/3/action/package_show?id=${dataset} ` +
+          `(no matching package discovered via package_search)`,
+      );
+    }
+    throw new Error(`HTTP ${direct.status} fetching dataset "${dataset}" from ${portal.baseUrl}`);
+  }
+
+  // Non-CKAN portals keep their original behaviour.
+  let url: string;
+  if (portal.portalType === 'socrata') {
     url = `${portal.baseUrl}/resource/${dataset}.json`;
   } else if (portal.portalType === 'arcgis') {
-    // Use OGC API Records endpoint for ArcGIS Hub portals
-    // Returns GeoJSON FeatureCollection with dataset metadata
     url = `${portal.baseUrl}/api/search/v1/collections/all/items?limit=100`;
   } else if (portal.portalType === 'custom') {
     url = `${portal.baseUrl}/api/${dataset}`;
@@ -153,6 +258,10 @@ export async function fetchMunicipalDataset(
 
   return JSON.parse(resp.body);
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Bulk enumeration — used by ingestAllMunicipal / cron sweeps               */
+/* -------------------------------------------------------------------------- */
 
 export async function fetchAllMunicipalities(): Promise<Record<string, unknown>[]> {
   const results: Record<string, unknown>[] = [];

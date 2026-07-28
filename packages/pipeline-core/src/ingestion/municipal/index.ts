@@ -86,5 +86,11 @@ export function searchMunicipal(
 
 export * from './types.js';
 export * from './constants.js';
-export { detectPortalType, fetchMunicipalDataset } from './fetcher.js';
+export {
+  detectPortalType,
+  fetchMunicipalDataset,
+  resolveCkanPackageId,
+  evictMunicipalIdCache,
+  clearMunicipalIdCache,
+} from './fetcher.js';
 export { searchToronto, searchVancouver, searchMontreal, searchCalgary, searchOttawa, searchEdmonton, searchWinnipeg, searchMississauga, searchBurnaby, searchSurrey, getCityFetcher, CITY_FETCHERS } from './fetchers/index.js';
