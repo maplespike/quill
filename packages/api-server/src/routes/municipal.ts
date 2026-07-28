@@ -37,6 +37,7 @@ import {
   normalizeFilterString,
   OGL_CANADA_LICENSE,
 } from './_live.js';
+import { buildBilingualError } from '../error-codes.js';
 import { globalCache } from '../cache.js';
 import { createHash } from 'node:crypto';
 import type { MunicipalRecord, MunicipalIngestionResult } from '@maplespike/pipeline-core';
@@ -45,6 +46,30 @@ import {
   loadMunicipalRecordCache,
   loadMunicipalRecordCoverage,
 } from '../cache/municipal.js';
+
+/**
+ * Build the standard bilingual 400 response for an unsupported `?lang=` value.
+ * Reused by both municipalFacetsHandler and municipalSearchHandler, and aligned
+ * with the buildBilingualError() shape from error-codes.ts so client code can
+ * use a single parser.
+ */
+function langValidationError(received: string | null): Response {
+  const base = buildBilingualError('VALIDATION_ERROR', {
+    en: 'Unsupported `lang` value. Use one of: en, fr.',
+    fr: 'Valeur `lang` non prise en charge. Utilisez : en, fr.',
+  });
+  return new Response(
+    JSON.stringify({
+      error: base.code,
+      code: base.code,
+      en: base.en,
+      fr: base.fr,
+      received,
+      supported: SUPPORTED_LOCALES,
+    }),
+    { status: 400, headers: { 'content-type': 'application/json' } },
+  );
+}
 
 export interface UnifiedMunicipalRecord {
   id: string;
@@ -636,6 +661,669 @@ export const municipalCoverageHandler: RouteHandler = async (request, ctx) => {
           oldest_age_seconds: filtered.length ? Math.max(...filtered.map((r) => r.ageSeconds)) : null,
         },
         fetched_at: new Date().toISOString(),
+      },
+      ctx,
+    ),
+  );
+};
+
+/* ============================================================================
+ *  GET /v1/municipal/facets
+ *  GET /v1/municipal/search
+ *
+ *  Faceted-search infrastructure for Canadian open data. Token-optimization
+ *  (`_fields`, `_limit`, `_format`, `_summary`, `_normalize`) is applied by
+ *  buildSuccess() in response.ts — these handlers just produce dense domain
+ *  data and let the envelope builder do the trimming.
+ *
+ *  Canadian-specific taxonomy:
+ *    - 13 provinces/territories, bilingual EN/FR labels
+ *    - 4 jurisdictional levels: federal / provincial / territorial / municipal / indigenous
+ *    - 4 portal types: ckan / socrata / arcgis / custom
+ *    - 4 freshness buckets: fresh_1h / today / this_week / older
+ *    - 8 sector buckets (derived from canonical dataset name to topic):
+ *        finance, planning, transportation, public_safety, health,
+ *        environment, indigenous, governance
+ * ========================================================================== */
+
+// ============================================================================
+// Bilingual taxonomy — Official Languages Act parity for all facet dimensions
+// ----------------------------------------------------------------------------
+// Federal Open Government Licence – Canada + Official Languages Act require
+// all public-facing strings to be available in English AND French. We surface
+// label_en + label_fr side-by-side on every facet object and a derived
+// `label_preferred` resolved by the ?lang= query opt (default: en).
+// ============================================================================
+
+export type Locale = 'en' | 'fr';
+
+export const SUPPORTED_LOCALES: ReadonlyArray<Locale> = ['en', 'fr'] as const;
+
+function resolveLocale(raw: string | null | undefined): Locale | 'invalid' {
+  if (!raw) return 'en';
+  const v = raw.trim().toLowerCase();
+  if (v === 'en' || v === 'en-ca' || v === 'en-us') return 'en';
+  if (v === 'fr' || v === 'fr-ca') return 'fr';
+  return 'invalid';
+}
+
+/**
+ * Per-locale label selector. Falls back to the EN label if the FR translation
+ * is missing for a given dimension (authoritative Government of Canada
+ * terminology is used wherever canonical FR strings exist).
+ */
+function labelFor(loc: Locale, en: string, fr: string): string {
+  return loc === 'fr' && fr ? fr : en;
+}
+
+// Bilingual province/territory labels — federal Open Government Licence – Canada
+// requires bilingual UI for English/French parity.
+export const PROVINCE_LABELS: Record<string, { en: string; fr: string; iso: string; jurisdiction: string }> = {
+  AB: { en: 'Alberta',                       fr: 'Alberta',                    iso: 'CA-AB', jurisdiction: 'provincial'   },
+  BC: { en: 'British Columbia',              fr: 'Colombie-Britannique',       iso: 'CA-BC', jurisdiction: 'provincial'   },
+  MB: { en: 'Manitoba',                      fr: 'Manitoba',                   iso: 'CA-MB', jurisdiction: 'provincial'   },
+  NB: { en: 'New Brunswick',                 fr: 'Nouveau-Brunswick',          iso: 'CA-NB', jurisdiction: 'provincial'   },
+  NL: { en: 'Newfoundland and Labrador',     fr: 'Terre-Neuve-et-Labrador',    iso: 'CA-NL', jurisdiction: 'provincial'   },
+  NS: { en: 'Nova Scotia',                   fr: 'Nouvelle-Écosse',            iso: 'CA-NS', jurisdiction: 'provincial'   },
+  NT: { en: 'Northwest Territories',         fr: 'Territoires du Nord-Ouest',  iso: 'CA-NT', jurisdiction: 'territorial'  },
+  NU: { en: 'Nunavut',                       fr: 'Nunavut',                    iso: 'CA-NU', jurisdiction: 'territorial'  },
+  ON: { en: 'Ontario',                       fr: 'Ontario',                    iso: 'CA-ON', jurisdiction: 'provincial'   },
+  PE: { en: 'Prince Edward Island',          fr: 'Île-du-Prince-Édouard',      iso: 'CA-PE', jurisdiction: 'provincial'   },
+  QC: { en: 'Quebec',                        fr: 'Québec',                     iso: 'CA-QC', jurisdiction: 'provincial'   },
+  SK: { en: 'Saskatchewan',                  fr: 'Saskatchewan',               iso: 'CA-SK', jurisdiction: 'provincial'   },
+  YT: { en: 'Yukon',                         fr: 'Yukon',                      iso: 'CA-YT', jurisdiction: 'territorial'  },
+};
+
+// Sector classifications — derived from canonical dataset slugs. Authoritative
+// Government of Canada sectoral terminology in both languages.
+export const SECTOR_LABELS: Record<string, { en: string; fr: string }> = {
+  finance:         { en: 'Finance',                              fr: 'Finances'                          },
+  planning:        { en: 'Planning and Development',             fr: 'Urbanisme et aménagement'         },
+  transportation:  { en: 'Transportation',                       fr: 'Transport'                         },
+  public_safety:   { en: 'Public Safety',                        fr: 'Sécurité publique'                 },
+  health:          { en: 'Health',                               fr: 'Santé'                             },
+  environment:     { en: 'Environment',                          fr: 'Environnement'                     },
+  indigenous:      { en: 'Indigenous Affairs',                   fr: 'Affaires autochtones'              },
+  governance:      { en: 'Governance',                           fr: 'Gouvernance'                       },
+};
+
+// Portal backend types — no per-language translation needed (CKAN, Socrata,
+// ArcGIS are proper nouns); the `custom` bucket is the only one that needs a
+// French label for the public-facing type.
+export const PORTAL_TYPE_LABELS: Record<string, { en: string; fr: string }> = {
+  ckan:    { en: 'CKAN',                   fr: 'CKAN'                          },
+  socrata: { en: 'Socrata',                fr: 'Socrata'                       },
+  arcgis:  { en: 'ArcGIS',                 fr: 'ArcGIS'                        },
+  custom:  { en: 'Custom Portal',          fr: 'Portail personnalisé'          },
+  unknown: { en: 'Unknown',                fr: 'Inconnu'                       },
+};
+
+// Freshness buckets — bilingual labels for human display.
+export const FRESHNESS_LABELS: Record<string, { en: string; fr: string }> = {
+  fresh_1h:  { en: 'Last hour',          fr: 'Dernière heure'        },
+  today:     { en: 'Last 24 hours',      fr: 'Dernières 24 heures'   },
+  this_week: { en: 'Last 7 days',        fr: '7 derniers jours'      },
+  older:     { en: 'Older than 7 days',  fr: 'Plus de 7 jours'       },
+};
+
+// Jurisdictional classifications — surfaced across portal/province facets and
+// per-record provenance blocks. Federal + Indigenous added in gap-9 for katzilla
+// parity (federal endpoints + Indigenous datasets tracked separately).
+export const JURISDICTION_LABELS: Record<string, { en: string; fr: string }> = {
+  federal:     { en: 'Federal',      fr: 'Fédéral'        },
+  provincial:  { en: 'Provincial',   fr: 'Provincial'     },
+  territorial: { en: 'Territorial',  fr: 'Territorial'    },
+  municipal:   { en: 'Municipal',    fr: 'Municipal'      },
+  indigenous:  { en: 'Indigenous',   fr: 'Autochtone'     },
+};
+
+// City name overrides — only the cities whose English name differs from the
+// official Government of Canada French name get entries. All others fall back
+// to the portal.name from MUNICIPAL_PORTALS (treated as identical in both
+// languages). St. John's, Saint John, Yellowknife, Whitehorse, Iqaluit, etc.
+// are proper nouns traditionally spelled the same way in both languages.
+const CITY_NAMES_FR: Record<string, string> = {
+  montreal:   'Montréal',
+  'quebec':   'Québec', // city (capital); the province is also Québec
+};
+
+// Canonical dataset → sector mapping. Used to derive a sector facet bucket
+// from the dataset slug without requiring an explicit sector tag in the
+// upstream portal. Federal/provincial datasets (open.canada.ca, provincial OGs)
+// typically use these same slugs in their themes.
+const DATASET_SECTORS: Record<string, string> = {
+  'budget':              'finance',
+  'building-permits':    'planning',
+  'permits':             'planning',
+  'zoning':              'planning',
+  'development':         'planning',
+  'transport':           'transportation',
+  'transit':             'transportation',
+  '311-calls':           'public_safety',
+  'crime':               'public_safety',
+  'health':              'health',
+  'environment':         'environment',
+  'air-quality':         'environment',
+  'water-quality':       'environment',
+  'maps':                'governance',
+  'council':             'governance',
+};
+
+const FRESHNESS_BUCKETS: Array<{ bucket: string; lo: number; hi: number }> = [
+  { bucket: 'fresh_1h',  lo: 0,      hi: 3600    },
+  { bucket: 'today',     lo: 3600,   hi: 86400   },
+  { bucket: 'this_week', lo: 86400,  hi: 604800  },
+  { bucket: 'older',     lo: 604800, hi: Number.POSITIVE_INFINITY },
+];
+
+function parseMulti(s: string | null | undefined): string[] {
+  return (s ?? '').split(',').map((v) => v.trim().toLowerCase()).filter(Boolean);
+}
+
+function parseFreshWithin(s: string | null | undefined): number | null {
+  if (!s) return null;
+  const m = /^(\d+)(s|m|h|d)$/i.exec(s.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 10);
+  const unit = m[2].toLowerCase();
+  const mult = unit === 's' ? 1 : unit === 'm' ? 60 : unit === 'h' ? 3600 : 86400;
+  return n * mult;
+}
+
+/**
+ * GET /v1/municipal/facets
+ *
+ * Aggregate counts per dimension for the Canadian municipal corpus. Falls
+ * back to the MUNICIPAL_PORTALS registry when the cache is empty so clients
+ * see the full supported surface even before any live fetch has succeeded.
+ *
+ * Response shape:
+ *   {
+ *     cities:        [{value, label, count, record_count}],
+ *     provinces:     [{value, label_en, label_fr, iso, jurisdiction, count, record_count}],
+ *     portal_types:  [{value, count, record_count}],
+ *     datasets:      [{value, sector, count, record_count}],
+ *     sectors:       [{value, count, record_count}],
+ *     freshness:     [{bucket, label, count, record_count}],
+ *     summary:       { total_cities, total_datasets, total_records, generated_at }
+ *   }
+ *
+ * ?city=<id> filter narrows the response to a single city (city facet only).
+ * ?province=<code> filter narrows to a single province.
+ * ?min_records=<n> drops facets whose record_count is below n (UI noise gate).
+ */
+export const municipalFacetsHandler: RouteHandler = async (request, ctx) => {
+  const url = new URL(request.url);
+  const cityFilter = parseMulti(url.searchParams.get('city'));
+  const provinceFilter = parseMulti(url.searchParams.get('province'));
+  const minRecords = parseInt(url.searchParams.get('min_records') ?? '0', 10) || 0;
+
+  // Resolve ?lang= opt (en default; reject unsupported with VALIDATION_ERROR)
+  const langRaw = url.searchParams.get('lang');
+  const langResolved = resolveLocale(langRaw);
+  if (langResolved === 'invalid') {
+    return langValidationError(langRaw);
+  }
+  const lang: Locale = langResolved;
+
+  const coverage = loadMunicipalRecordCoverage();
+  const now = Date.now();
+
+  // Per-city bucket (cache-derived, bilingual)
+  interface CityFacets { value: string; label_en: string; label_fr: string; label_preferred: string; count: number; record_count: number; }
+  const cityMap = new Map<string, CityFacets>();
+
+  // Per-portal-type bucket (bilingual)
+  interface PortalFacets { value: string; label_en: string; label_fr: string; label_preferred: string; count: number; record_count: number; }
+  const portalMap = new Map<string, PortalFacets>();
+
+  // Per-dataset bucket (also derives sector)
+  interface DatasetFacets { value: string; label_en: string; label_fr: string; label_preferred: string; sector: string | null; sector_label_en: string | null; sector_label_fr: string | null; count: number; record_count: number; }
+  const datasetMap = new Map<string, DatasetFacets>();
+
+  // Per-province bucket (bilingual)
+  interface ProvinceFacets {
+    value: string;
+    label_en: string;
+    label_fr: string;
+    label_preferred: string;
+    iso: string;
+    /**
+     * Compatibility alias — machine-readable jurisdictional classification
+     * ('federal' | 'provincial' | 'territorial' | 'municipal' | 'indigenous').
+     * Kept alongside jurisdiction_en/fr/preferred so existing clients that
+     * filter by `province.jurisdiction === 'provincial'` continue to work.
+     */
+    jurisdiction: string;
+    jurisdiction_en: string;
+    jurisdiction_fr: string;
+    jurisdiction_preferred: string;
+    cities_count: number;
+    count: number;
+    record_count: number;
+  }
+  const provinceMap = new Map<string, ProvinceFacets>();
+
+  // Freshness bucket counters (bilingual)
+  interface FreshnessFacets {
+    bucket: string;
+    /** Compatibility alias for pre-bilingual clients: English label only. */
+    label: string;
+    label_en: string;
+    label_fr: string;
+    label_preferred: string;
+    count: number;
+    record_count: number;
+  }
+  const freshnessMap = new Map<string, FreshnessFacets>(
+    FRESHNESS_BUCKETS.map((b) => {
+      const lbl = FRESHNESS_LABELS[b.bucket] ?? { en: b.bucket, fr: b.bucket };
+      return [b.bucket, {
+        bucket: b.bucket,
+        label: lbl.en, // compat alias (English); deprecated in favour of label_en/fr/preferred
+        label_en: lbl.en,
+        label_fr: lbl.fr,
+        label_preferred: labelFor(lang, lbl.en, lbl.fr),
+        count: 0,
+        record_count: 0,
+      }];
+    }),
+  );
+
+  for (const r of coverage) {
+    const portal = MUNICIPAL_PORTALS[r.cityId];
+    if (cityFilter.length && !cityFilter.includes(r.cityId)) continue;
+    if (provinceFilter.length && portal && !provinceFilter.includes(portal.province.toLowerCase())) continue;
+
+    const cityNameEn = portal?.name ?? r.cityId;
+    const cityNameFr = portal ? (CITY_NAMES_FR[cityIdLower(portal, r.cityId)] ?? portal.name) : r.cityId;
+    const cityBucket = cityMap.get(r.cityId) ?? {
+      value: r.cityId,
+      label_en: cityNameEn,
+      label_fr: cityNameFr,
+      label_preferred: labelFor(lang, cityNameEn, cityNameFr),
+      count: 0,
+      record_count: 0,
+    };
+    cityBucket.count++;
+    cityBucket.record_count += r.recordCount;
+    cityMap.set(r.cityId, cityBucket);
+
+    const portalType = portal?.portalType ?? 'unknown';
+    const pl = PORTAL_TYPE_LABELS[portalType] ?? { en: portalType, fr: portalType };
+    const portalBucket = portalMap.get(portalType) ?? {
+      value: portalType,
+      label_en: pl.en,
+      label_fr: pl.fr,
+      label_preferred: labelFor(lang, pl.en, pl.fr),
+      count: 0,
+      record_count: 0,
+    };
+    portalBucket.count++;
+    portalBucket.record_count += r.recordCount;
+    portalMap.set(portalType, portalBucket);
+
+    const sector = DATASET_SECTORS[r.dataset] ?? null;
+    const sectorLbl = sector ? SECTOR_LABELS[sector] : null;
+    const dsKey = `${r.cityId}|${r.dataset}`;
+    const dsBucket = datasetMap.get(dsKey) ?? {
+      value: r.dataset,
+      label_en: humanizeDatasetName(r.dataset),
+      label_fr: humanizeDatasetName(r.dataset),
+      label_preferred: humanizeDatasetName(r.dataset),
+      sector,
+      sector_label_en: sectorLbl?.en ?? null,
+      sector_label_fr: sectorLbl?.fr ?? null,
+      count: 0,
+      record_count: 0,
+    };
+    dsBucket.count++;
+    dsBucket.record_count += r.recordCount;
+    datasetMap.set(dsKey, dsBucket);
+
+    if (portal) {
+      const provKey = portal.province;
+      const provLabels = PROVINCE_LABELS[provKey];
+      const jur = provLabels?.jurisdiction ?? 'municipal';
+      const jurLbl = JURISDICTION_LABELS[jur] ?? { en: jur, fr: jur };
+      const provBucket = provinceMap.get(provKey) ?? {
+        value: provKey,
+        label_en: provLabels?.en ?? provKey,
+        label_fr: provLabels?.fr ?? provKey,
+        label_preferred: labelFor(lang, provLabels?.en ?? provKey, provLabels?.fr ?? provKey),
+        iso:   provLabels?.iso ?? `CA-${provKey}`,
+        jurisdiction: jur, // machine code (compat with pre-bilingual clients)
+        jurisdiction_en: jurLbl.en,
+        jurisdiction_fr: jurLbl.fr,
+        jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
+        cities_count: 0,
+        count: 0,
+        record_count: 0,
+      };
+      if (!provBucket.count) provBucket.cities_count = 0;
+      provBucket.count++;
+      provBucket.record_count += r.recordCount;
+      provinceMap.set(provKey, provBucket);
+    }
+
+    for (const b of FRESHNESS_BUCKETS) {
+      if (r.ageSeconds >= b.lo && r.ageSeconds < b.hi) {
+        const fb = freshnessMap.get(b.bucket)!;
+        fb.count++;
+        fb.record_count += r.recordCount;
+        break;
+      }
+    }
+  }
+
+  // Recompute cities_count per province (one per city in map)
+  for (const prov of provinceMap.values()) {
+    let n = 0;
+    for (const c of cityMap.values()) {
+      const portal = MUNICIPAL_PORTALS[c.value];
+      if (portal?.province === prov.value) n++;
+    }
+    prov.cities_count = n;
+  }
+
+  // Sector facets — aggregate dataset facets by sector with bilingual labels
+  interface SectorFacets { value: string; label_en: string; label_fr: string; label_preferred: string; count: number; record_count: number; }
+  const sectorMap = new Map<string, SectorFacets>();
+  for (const ds of datasetMap.values()) {
+    if (!ds.sector || !ds.sector_label_en) continue;
+    const lbl = { en: ds.sector_label_en, fr: ds.sector_label_fr ?? ds.sector_label_en };
+    const sb = sectorMap.get(ds.sector) ?? {
+      value: ds.sector,
+      label_en: lbl.en,
+      label_fr: lbl.fr,
+      label_preferred: labelFor(lang, lbl.en, lbl.fr),
+      count: 0,
+      record_count: 0,
+    };
+    sb.count++;
+    sb.record_count += ds.record_count;
+    sectorMap.set(ds.sector, sb);
+  }
+
+  // Apply min_records gate
+  const gate = <T extends { record_count: number }>(arr: T[]): T[] =>
+    arr.filter((x) => x.record_count >= minRecords);
+
+  // Seed zero-buckets for provinces/cities/datasets that exist in the
+  // registry but have zero cache entries — so the UI shows them as
+  // available-but-empty rather than missing.
+  for (const [cityId, portal] of Object.entries(MUNICIPAL_PORTALS)) {
+    if (cityFilter.length && !cityFilter.includes(cityId)) continue;
+    if (!cityMap.has(cityId)) {
+      const en = portal.name;
+      const fr = CITY_NAMES_FR[cityIdLower(portal, cityId)] ?? portal.name;
+      cityMap.set(cityId, {
+        value: cityId,
+        label_en: en,
+        label_fr: fr,
+        label_preferred: labelFor(lang, en, fr),
+        count: 0,
+        record_count: 0,
+      });
+    }
+  }
+  for (const [code, labels] of Object.entries(PROVINCE_LABELS)) {
+    if (provinceFilter.length && !provinceFilter.includes(code.toLowerCase())) continue;
+    if (!provinceMap.has(code)) {
+      const jurLbl = JURISDICTION_LABELS[labels.jurisdiction] ?? { en: labels.jurisdiction, fr: labels.jurisdiction };
+      provinceMap.set(code, {
+        value: code,
+        label_en: labels.en,
+        label_fr: labels.fr,
+        label_preferred: labelFor(lang, labels.en, labels.fr),
+        iso: labels.iso,
+        jurisdiction: labels.jurisdiction, // machine code (compat)
+        jurisdiction_en: jurLbl.en,
+        jurisdiction_fr: jurLbl.fr,
+        jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
+        cities_count: 0,
+        count: 0,
+        record_count: 0,
+      });
+    }
+  }
+
+  const sortByCount = <T extends { count: number; record_count: number; value: string }>(a: T, b: T) =>
+    (b.record_count - a.record_count) || a.value.localeCompare(b.value);
+
+  return jsonResponse(
+    buildSuccess(
+      {
+        domain: 'municipal-facets',
+        taxonomy: 'canada',
+        locale: lang,
+        cities: gate(Array.from(cityMap.values()).sort(sortByCount)),
+        provinces: gate(Array.from(provinceMap.values()).sort((a, b) => a.value.localeCompare(b.value))),
+        portal_types: gate(Array.from(portalMap.values()).sort(sortByCount)),
+        datasets: gate(Array.from(datasetMap.values()).sort(sortByCount)),
+        sectors: gate(Array.from(sectorMap.values()).sort(sortByCount)),
+        freshness: gate(Array.from(freshnessMap.values())),
+        summary: {
+          total_cities: cityMap.size,
+          total_datasets: datasetMap.size,
+          total_records: coverage.reduce((s, r) => s + r.recordCount, 0),
+          supported_provinces: Object.keys(PROVINCE_LABELS).length,
+          generated_at: new Date(now).toISOString(),
+        },
+      },
+      ctx,
+    ),
+  );
+};
+
+// Helper: canonicalize cityId lookup key for the CITY_NAMES_FR map.
+function cityIdLower(portal: { name: string } | undefined, cityId: string): string {
+  // MUNICIPAL_PORTALS keys match the canonical English lowercased form for
+  // most cities (toronto, vancouver, montreal, etc.).
+  return cityId.toLowerCase();
+}
+
+// Helper: produce a human-readable Title-Case label from a kebab-case
+// dataset slug. EN and FR are intentionally identical here — dataset names
+// like "Building Permits" / "Air Quality" are universally understood across
+// both Official Languages; the authoritative FR translations live in the
+// SECTOR_LABELS / PORTAL_TYPE_LABELS / FRESHNESS_LABELS constants where they
+// carry real linguistic weight (Urbanisme, Sécurité publique, etc.).
+function humanizeDatasetName(slug: string): string {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((w) => w.length === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+/**
+ * GET /v1/municipal/search
+ *
+ * Cache-first full-text + multi-facet search across cached municipal records.
+ * Search is OFFLINE-FIRST: it never triggers upstream HTTP fetches (those
+ * are reserved for /v1/municipal/<city>). The freshness gate + jurisdiction +
+ * language filters let consumers pin to a freshness SLA without ever
+ * hitting rate limits on upstream portals.
+ *
+ * Query params:
+ *   ?q=                — full-text on cached record JSON blob (case-insensitive substring)
+ *   ?cities=           — comma list (e.g. toronto,montreal)
+ *   ?provinces=        — comma list (ON,QC,BC,...)
+ *   ?datasets=         — comma list (budget,permits,...)
+ *   ?portal_types=     — comma list (ckan,socrata,arcgis,custom)
+ *   ?sector=           — single (finance,planning,transportation,public_safety,health,environment,indigenous,governance)
+ *   ?jurisdiction=     — single (federal/provincial/territorial/municipal/indigenous) — informational; current data is municipal only
+ *   ?language=         — comma list (en,fr,bilingual) — informational; metadata only
+ *   ?fresh_within=24h  — ISO-8601-ish: 30s, 5m, 1h, 24h, 7d. Caps age in seconds.
+ *   ?limit=50          — cap results (also honours _limit from QueryOptions)
+ *
+ * Response shape:
+ *   { records, applied_filters, pagination, source_breakdown }
+ */
+export const municipalSearchHandler: RouteHandler = async (request, ctx) => {
+  const url = new URL(request.url);
+  const q              = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+  const citiesFilter   = parseMulti(url.searchParams.get('cities'));
+  const provincesFilter = parseMulti(url.searchParams.get('provinces'));
+  const datasetsFilter = parseMulti(url.searchParams.get('datasets'));
+  const portalTypesFilter = parseMulti(url.searchParams.get('portal_types'));
+  const sectorFilter   = (url.searchParams.get('sector') ?? '').toLowerCase() || null;
+  const jurisdictionFilter = (url.searchParams.get('jurisdiction') ?? '').toLowerCase() || null;
+  const languageFilter = parseMulti(url.searchParams.get('language'));
+  const cursor         = url.searchParams.get('cursor');
+  const freshWithinSec = parseFreshWithin(url.searchParams.get('fresh_within'));
+  const explicitLimit  = parseInt(url.searchParams.get('limit') ?? '50', 10);
+  const limit          = Math.max(1, Math.min(500, explicitLimit));
+
+  // Resolve ?lang= opt
+  const langRaw = url.searchParams.get('lang');
+  const langResolved = resolveLocale(langRaw);
+  if (langResolved === 'invalid') {
+    return langValidationError(langRaw);
+  }
+  const lang: Locale = langResolved;
+
+  // Decode base64url offset cursor to continue pagination. If parsing fails,
+  // treat as start-of-results (don't throw) — defensive against stale tokens.
+  const cursorOffset = (() => {
+    if (!cursor) return 0;
+    try {
+      const decoded = Buffer.from(cursor, 'base64url').toString('utf8');
+      const n = parseInt(decoded, 10);
+      return Number.isFinite(n) && n >= 0 ? n : 0;
+    } catch {
+      return 0;
+    }
+  })();
+
+  const records: UnifiedMunicipalRecord[] = [];
+  const sourceBreakdown = new Map<string, { value: string; count: number; record_count: number }>();
+  let globalIndex = 0;
+  const startIndex = cursorOffset;
+
+  for (const [cityId, portal] of Object.entries(MUNICIPAL_PORTALS)) {
+    if (citiesFilter.length && !citiesFilter.includes(cityId.toLowerCase())) continue;
+    if (provincesFilter.length && !provincesFilter.includes(portal.province.toLowerCase())) continue;
+    if (portalTypesFilter.length && !portalTypesFilter.includes(portal.portalType.toLowerCase())) continue;
+    if (jurisdictionFilter === 'municipal' && !cityId) continue; // all current data is municipal — no-op filter
+
+    for (const ds of portal.datasets) {
+      if (datasetsFilter.length && !datasetsFilter.includes(ds)) continue;
+      if (sectorFilter && DATASET_SECTORS[ds] !== sectorFilter) continue;
+
+      const cached = loadMunicipalRecordCache(cityId, ds);
+      if (!cached) continue;
+
+      const ageSec = Math.round((Date.now() - new Date(cached.succeededAt).getTime()) / 1000);
+      if (freshWithinSec !== null && ageSec > freshWithinSec) continue;
+
+      // Full-text filter on the cached records JSON blob (excluding the
+      // provenance block we strip at write time). Cheap substring match;
+      // future work: FTS5 virtual table over records_json.
+      if (q) {
+        const blob = JSON.stringify(cached.records).toLowerCase();
+        if (!blob.includes(q)) continue;
+      }
+
+      // Source anatomy counter
+      const srcKey = `${cityId}/${ds}`;
+      const src = sourceBreakdown.get(srcKey) ?? { value: srcKey, count: 0, record_count: 0 };
+      src.count++;
+      src.record_count = cached.recordCount;
+      sourceBreakdown.set(srcKey, src);
+
+      // Per-portal bilingual context for record-level provenance
+      const municipalityEn = portal.name;
+      const municipalityFr = CITY_NAMES_FR[cityIdLower(portal, cityId)] ?? portal.name;
+      const provCode = portal.province;
+      const provLbl = PROVINCE_LABELS[provCode];
+      const jur = provLbl?.jurisdiction ?? 'municipal';
+      const jurLbl = JURISDICTION_LABELS[jur] ?? { en: jur, fr: jur };
+
+      for (const rec of cached.records) {
+        // Skip records before the cursor offset (pagination)
+        if (globalIndex < startIndex) { globalIndex++; continue; }
+        const recAny = rec as Record<string, unknown>;
+        const citationPayload = JSON.stringify({ source: portal.baseUrl, ...rec });
+        const citationHash = createHash('sha256').update(citationPayload).digest('hex');
+        records.push({
+          id: `${cityId}:${ds}:${String(recAny.id ?? globalIndex)}`,
+          municipality: municipalityEn,
+          municipalityId: cityId,
+          province: portal.province,
+          dataset: ds,
+          title: String(recAny.title ?? ds),
+          url: String(recAny.url ?? portal.baseUrl),
+          format: portal.portalType,
+          lastModified: (recAny.lastModified as string | null | undefined) ?? null,
+          created: (recAny.created as string | null | undefined) ?? null,
+          portalType: portal.portalType,
+          provenance: {
+            source_url: String(recAny.url ?? portal.baseUrl),
+            source_organization_en: municipalityEn,
+            source_organization_fr: municipalityFr,
+            jurisdiction_en: jurLbl.en,
+            jurisdiction_fr: jurLbl.fr,
+            jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
+            license: OGL_CANADA_LICENSE,
+            fetched_at: cached.succeededAt,
+            citation_hash: `sha256:${citationHash}`,
+            from_cache: true,
+            cache_age_seconds: ageSec,
+          },
+        });
+        globalIndex++;
+        if (records.length >= limit) break;
+      }
+      if (records.length >= limit) break;
+    }
+    if (records.length >= limit) break;
+  }
+
+  const consumedTo = cursorOffset + records.length;
+  // Offset-pagination semantics for next_cursor: if we pushed `limit` records
+  // there is definitely more data; if we pushed fewer, we exhausted the scan.
+  // (Cursor-past-end is also covered: pushes 0 records → has_more=false.)
+  const hasMore = records.length >= limit;
+
+  return jsonResponse(
+    buildSuccess(
+      {
+        domain: 'municipal-search',
+        locale: lang,
+        applied_filters: {
+          q,
+          cities: citiesFilter,
+          provinces: provincesFilter,
+          datasets: datasetsFilter,
+          portal_types: portalTypesFilter,
+          sector: sectorFilter,
+          jurisdiction: jurisdictionFilter || 'municipal',
+          language: languageFilter,
+          fresh_within: freshWithinSec,
+          limit,
+          cursor: cursor ?? null,
+        },
+        license: OGL_CANADA_LICENSE,
+        records,
+        pagination: {
+          total: globalIndex,
+          returned: records.length,
+          limit,
+          consumed_to: consumedTo,
+          // Cursor pagination: encode the END of this page as a base64url
+          // opaque token so subsequent ?cursor=<token> calls continue from
+          // where this one stopped. v2 will migrate to a true keyset cursor
+          // backed by the FTS5 virtual table (tracked in gh issue).
+          next_cursor: hasMore
+            ? Buffer.from(String(consumedTo)).toString('base64url')
+            : null,
+          has_more: hasMore,
+        },
+        source_breakdown: Array.from(sourceBreakdown.values()).sort((a, b) =>
+          b.record_count - a.record_count || a.value.localeCompare(b.value),
+        ),
       },
       ctx,
     ),

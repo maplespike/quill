@@ -68,6 +68,20 @@ export interface RecordProvenance {
    */
   from_cache?: boolean;
   cache_age_seconds?: number;
+  /**
+   * Bilingual source-organization labels (added gap-9, Official Languages Act parity).
+   * `source_organization_en` is the English name of the originating publisher;
+   * `source_organization_fr` is the official French form (where different).
+   * `jurisdiction_*` mirrors the same logic for jurisdictional classification.
+   * `jurisdiction_preferred` is the resolved-by-?lang= form for current consumer locale.
+   * All fields are optional and additive — older clients that only read the
+   * legacy fields are unaffected.
+   */
+  source_organization_en?: string;
+  source_organization_fr?: string;
+  jurisdiction_en?: string;
+  jurisdiction_fr?: string;
+  jurisdiction_preferred?: string;
 }
 
 /** Aggregate provenance block returned once per response. */

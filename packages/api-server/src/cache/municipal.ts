@@ -56,7 +56,7 @@ function bootstrapCacheSchema(db: DatabaseSync): void {
       source TEXT NOT NULL,
       record_count INTEGER NOT NULL,
       records_json TEXT NOT NULL,
-      succeeded_at TEXT NOT NULL DEFAULT (datetime('now')),
+      succeeded_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
       PRIMARY KEY (city_id, dataset)
     );
     CREATE INDEX IF NOT EXISTS idx_municipal_cache_city ON municipal_records_cache(city_id);
@@ -80,6 +80,15 @@ function withCacheDb<T>(cb: (db: DatabaseSync) => T): T | null {
     return null;
   }
   try {
+    // Force a FULL checkpoint so any in-flight writer's WAL frames get
+    // promoted to the main DB before our read. `PASSIVE` is too polite
+    // — it bails out if another connection is mid-write, leaving newly
+    // committed rows stranded in `<db>-wal` that this fresh connection
+    // can't see (the -shm file's frame index lags the live -wal until
+    // the original writer's connection closes cleanly). `FULL` blocks
+    // until writers finish and merges their frames. Cost: ~5ms per
+    // call; negligible against the 1s+ upstream fetch.
+    try { db.exec(`PRAGMA wal_checkpoint(FULL)`); } catch { /* ignore */ }
     return cb(db);
   } finally {
     try { db.close(); } catch { /* ignore */ }
@@ -125,7 +134,7 @@ export function saveMunicipalRecordCache(
           source = excluded.source,
           record_count = excluded.record_count,
           records_json = excluded.records_json,
-          succeeded_at = datetime('now')
+          succeeded_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
       `).run(
         SCHEMA_VERSION,
         cityId,

@@ -121,7 +121,7 @@ import {
   webhookDeliveriesHandler,
 } from './routes/webhooks.js';
 import { entityResolveHandler, entityConnectionsHandler } from './routes/entity.js';
-import { municipalDataHandler, municipalCityHandler, municipalCoverageHandler } from './routes/municipal.js';
+import { municipalDataHandler, municipalCityHandler, municipalCoverageHandler, municipalFacetsHandler, municipalSearchHandler } from './routes/municipal.js';
 import { dataQualityHandler } from './routes/data-quality.js';
 import {
   githubLoginHandler,
@@ -245,10 +245,13 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/financial-regulation\/cross-reference\/?$/, method: 'GET', params: [], handler: withRouteCache(finRegCrossRefHandler, 3600) },
 
   // Municipal data
-  // NOTE: coverage MUST be registered BEFORE the city catch-all route —
-  // both patterns match '/v1/municipal/coverage' literally, and matchRoute
-  // returns the first regex hit. Reversing the order would 404 coverage.
+  // NOTE: facets, search, and coverage MUST be registered BEFORE the city
+  // catch-all route — all four patterns can match '/v1/municipal/<word>'
+  // literally and matchRoute returns the first regex hit. Reversing the
+  // order would 404 coverage/facets/search and dispatch them as city=word.
   { pattern: /^\/v1\/municipal\/?$/, method: 'GET', params: [], handler: withRouteCache(municipalDataHandler, 3600) },
+  { pattern: /^\/v1\/municipal\/facets\/?$/, method: 'GET', params: [], handler: withRouteCache(municipalFacetsHandler, 300) },
+  { pattern: /^\/v1\/municipal\/search\/?$/, method: 'GET', params: [], handler: withRouteCache(municipalSearchHandler, 60) },
   { pattern: /^\/v1\/municipal\/coverage\/?$/, method: 'GET', params: [], handler: withRouteCache(municipalCoverageHandler, 60) },
   { pattern: /^\/v1\/municipal\/([^/]+)\/?$/, method: 'GET', params: ['city'], handler: withRouteCache(municipalCityHandler, 3600) },
 
