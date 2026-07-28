@@ -1,19 +1,128 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { httpGet } from '../../utils/http.js';
 import { MUNICIPAL_PORTALS, MUNICIPAL_TIMEOUT_MS, MUNICIPAL_USER_AGENT } from './constants.js';
 import type { PortalType } from './constants.js';
+
+/* -------------------------------------------------------------------------- */
+/*  Hydration from git-tracked build-time registry                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Resolve the build-time registry path. The file lives at
+ * `packages/pipeline-core/data/municipal-discovered-ids.json` and is
+ * regenerated weekly by `.github/workflows/discover-municipal-ids.yml`.
+ *
+ * The fetcher.js compiled output sits at
+ *   packages/pipeline-core/dist/ingestion/municipal/fetcher.js
+ * so the registry is THREE levels up — not two. Earlier revisions used
+ * `../../data/...` which silently resolved to `dist/data/...` (a non-existent
+ * path the try/catch swallowed). The `path.resolve(here, '..', '..', '..',
+ * 'data', 'municipal-discovered-ids.json')` form is explicit so future
+ * refactors can't get the dot-count wrong without a TS error.
+ *
+ * Both monorepo-local (`packages/pipeline-core/`) and npm-installed
+ * (`node_modules/@maplespike/pipeline-core/`) layouts share the same
+ * depth-after-dist, so the same `../../../data/...` math works in both.
+ *
+ * Falls back to a cwd-guess when `import.meta.url` is unavailable
+ * (tsx watch mode, jest, ad-hoc REPL).
+ */
+function resolveRegistryPath(): string | null {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    return path.resolve(here, '..', '..', '..', 'data', 'municipal-discovered-ids.json');
+  } catch {
+    const cwdGuess = path.resolve(
+      process.cwd(),
+      'packages/pipeline-core/data/municipal-discovered-ids.json',
+    );
+    return fs.existsSync(cwdGuess) ? cwdGuess : null;
+  }
+}
+
+/**
+ * Idempotent cache seeder. Reads the build-time registry on first import
+ * and primes the in-process `idResultCache` with every previously-discovered
+ * `(baseUrl, slug) → id` mapping.
+ *
+ * NEVER throws — missing or malformed registry files are silent no-ops so a
+ * fresh clone (with no checked-in discoveries yet) boots cleanly. The
+ * runtime self-healing resolvers will still discover every key on first
+ * cold request; the prebaked layer is purely a latency optimization.
+ */
+function hydrateFromRegistry(): void {
+  const registryPath = resolveRegistryPath();
+  if (!registryPath) return;
+  let raw: string;
+  try {
+    raw = fs.readFileSync(registryPath, 'utf8');
+  } catch {
+    return;
+  }
+  let parsed: { entries?: Record<string, { id?: string; portalType?: string }> };
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return;
+  }
+  const entries = parsed.entries;
+  if (!entries || typeof entries !== 'object') return;
+  let hydrated = 0;
+  for (const [compositeKey, value] of Object.entries(entries)) {
+    if (typeof value?.id !== 'string' || value.id.length === 0) continue;
+    // Trust the registry — a stale entry that 404s will be evicted by the
+    // existing stale-404 detection in fetchMunicipalDataset, then live-
+    // re-discovered and re-cached.
+    idResultCache.set(compositeKey, value.id);
+    hydrated++;
+  }
+  if (hydrated > 0) {
+    console.log(`[Municipal] hydrated ${hydrated} pre-discovered IDs from build-time registry`);
+  }
+}
+
+// Run the seeding exactly once per process. The two-tier resolvers
+// consult `idResultCache` synchronously on every fast-path lookup, so
+// hydration must complete BEFORE module consumers (`fetchMunicipalDataset`)
+// are called — which is guaranteed by this top-of-module execution order.
+const idResultCache = new Map<string, string>();
+const idInflightCache = new Map<string, Promise<string | null>>();
+hydrateFromRegistry();
+
+/* -------------------------------------------------------------------------- */
+/*  Re-export the registry hydrate function so test fixtures / admin tools    */
+/*  can re-seed the cache after `clearMunicipalIdCache()`.                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Re-read the build-time registry and seed `idResultCache`. Useful when tests
+ * have cleared the cache but want to simulate "process just started with
+ * registry present" state. Defensive — same no-throw guarantees as the
+ * internal hydrator.
+ */
+export function hydrateMunicipalIdCacheFromRegistry(): number {
+  hydrateFromRegistry();
+  return idResultCache.size;
+}
 
 /* -------------------------------------------------------------------------- */
 /*  CKAN package-ID resolution: two-tier memoization                          */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Two-tier cache for resolved CKAN package IDs.
+ * Two-tier cache semantics — `idResultCache` and `idInflightCache` are
+ * declared above this comment (and seeded by `hydrateFromRegistry()` before
+ * any resolver can run). They are the single source of truth for resolved
+ * CKAN package IDs across the entire process.
  *
  *   `idResultCache` — successful discoveries (slug → real UUID). Survives until
  *                     evicted by stale-404 detection. Eliminated the round-trip
- *                     for every subsequent request.
+ *                     for every subsequent request. Hydrated from
+ *                     `data/municipal-discovered-ids.json` on module load.
  *
  *   `idInflightCache` — in-flight Promise<string | null>. Concurrent callers
  *                       all await the same discovery, eliminating duplicate
@@ -26,8 +135,6 @@ import type { PortalType } from './constants.js';
  * returns empty search results will be re-probed on the next call rather than
  * permanently stale-bucketed.
  */
-const idResultCache = new Map<string, string>();
-const idInflightCache = new Map<string, Promise<string | null>>();
 
 /**
  * Drop the cache entry for `{baseUrl, slug}`. Called when a stored UUID

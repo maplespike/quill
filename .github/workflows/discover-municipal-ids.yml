@@ -1,0 +1,128 @@
+# =============================================================================
+# Quill — Discover Municipal IDs (weekly cron + on-demand)
+#
+# Refreshes `packages/pipeline-core/data/municipal-discovered-ids.json`,
+# the build-time registry the runtime fetcher hydrates from at module load.
+#
+# Re-running this weekly (instead of per-request) eliminates the cold-call
+# latency for every (municipality, dataset) pair the first time the API
+# is hit. Failures are non-fatal: the script preserves last-known-good
+# entries when a probe returns null (bot-block, 404, timeout, parse error).
+#
+# Triggers:
+#   - cron         Monday 06:00 UTC — keep registries fresh through portal renames
+#   - workflow_dispatch — manual refresh after a portal migration
+#
+# PR behaviour:
+#   - git diff non-empty after re-running → open a draft PR via
+#     peter-evans/create-pull-request. The PR body summarises which keys
+#     were added / refreshed. Author review required before merge.
+#   - git diff empty              → exit 0, no PR. Step summary logs "no
+#     changes" so the run shows up in Actions history.
+# =============================================================================
+
+name: Discover Municipal IDs
+
+on:
+  schedule:
+    # Monday 06:00 UTC — well before business hours; gives reviewers all day
+    # to spot-check before any weekly traffic peak.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force re-run even if the script says no changes (used after portal migrations)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  discover:
+    name: Probe portals + refresh registry
+    runs-on: [self-hosted, nixos]
+    concurrency:
+      # Single in-flight run; a slow probe session shouldn't queue another.
+      group: discover-municipal-ids
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enable pnpm 10.32.1
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+
+      - name: Install workspace deps (pipeline-core needs build for httpGet ductwork)
+        run: pnpm install --frozen-lockfile --filter @maplespike/pipeline-core... --filter @maplespike/api-server...
+
+      - name: Run discover script
+        id: discover
+        # 90 probes at ~5–10s each, 8 wide → worst case ~120s. Allow 5min
+        # for headroom against transient upstream slowness.
+        run: |
+          echo "[discover] starting probe pass"
+          npx tsx scripts/discover-municipal-ids.ts
+          echo ""
+          echo "[discover] writing summary"
+          echo "## Discover Municipal IDs — $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          QUILL_TOTAL=$(jq '.entries | length' packages/pipeline-core/data/municipal-discovered-ids.json)
+          QUILL_NEW=$(jq '.discoveries' packages/pipeline-core/data/municipal-discovered-ids.json)
+          QUILL_KEPT=$(jq '.keptFromPrevious' packages/pipeline-core/data/municipal-discovered-ids.json)
+          echo "- Total registry entries: **${QUILL_TOTAL}**" >> $GITHUB_STEP_SUMMARY
+          echo "- New discoveries this run: **${QUILL_NEW}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Carried forward from previous run: **${QUILL_KEPT}**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Refreshed \`packages/pipeline-core/data/municipal-discovered-ids.json\`." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for diffs
+        id: diff
+        run: |
+          # Exit 0 = no diff, exit 1 = diff present. We use --quiet so the
+          # output stays out of the step summary unless we want it.
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            echo "[diff] FORCE=true — treating as changed for PR purposes"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          elif git diff --quiet packages/pipeline-core/data/municipal-discovered-ids.json; then
+            echo "[diff] no changes — skipping PR creation"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "[diff] changes detected — opening draft PR"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Open draft PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: 'chore(municipal): refresh discovered IDs registry'
+          branch: chore/refresh-municipal-ids-${{ github.run_id }}
+          commit-message: 'chore(municipal): refresh discovered IDs registry'
+          body: |
+            Automated weekly refresh of `packages/pipeline-core/data/municipal-discovered-ids.json`.
+
+            The [discover-municipal-ids workflow](.github/workflows/discover-municipal-ids.yml) probes every (municipality, dataset) pair in `MUNICIPAL_PORTALS` and merges the results into the registry. This PR was opened because the run observed changes — usually:
+            - a portal renamed a dataset and the friendly-slug → UUID mapping changed
+            - a previously bot-blocked portal started responding
+            - a newly-onboarded city requires a brand-new entry
+
+            **Review checklist:**
+            - [ ] Spot-check at least 2 entries for expected cities (look for your home town)
+            - [ ] Verify `schemaVersion` is `1`
+            - [ ] Confirm run logs show `[discover-municipal-ids] wrote registry to …` without unhandled errors
+            - [ ] Land via merge commit once happy (do NOT squash — preserves the bookkeeping)
+          labels: |
+            automated
+            municipal
+          draft: true
