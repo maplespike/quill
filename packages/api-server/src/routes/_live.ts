@@ -60,15 +60,31 @@ export interface RecordProvenance {
   /** Full 64-hex SHA-256, prefix "sha256:" — matches /v1/citation endpoint validation. */
   citation_hash: string;
   license: string;
+  /**
+   * Optional cache markers — only set on records served from the persistent
+   * municipal_records_cache fallback (added by gap-7). Stale CacheEntries
+   * always carry `fetched_at` matching the ORIGINAL upstream fetch timestamp,
+   * not the current-request timestamp, so consumers can compute real age.
+   */
+  from_cache?: boolean;
+  cache_age_seconds?: number;
 }
 
 /** Aggregate provenance block returned once per response. */
 export interface AggregateProvenance {
-  status: 'live' | 'partial' | 'unavailable';
+  status: 'live' | 'partial' | 'unavailable' | 'cached';
   freshness_seconds: number;
   source_count: number;
   fetched_at: string;
   errors: string[];
+  /**
+   * Optional per-bucket job splits — only returned by routes that emit
+   * multi-source results (e.g. /v1/municipal which mixes CKAN + Socrata
+   * + cache between calls). Single-source endpoints may omit these.
+   */
+  live_jobs?: number;
+  cached_jobs?: number;
+  failed_jobs?: number;
 }
 
 /** Shape of any ingestion module's per-source result. */
