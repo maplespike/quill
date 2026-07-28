@@ -1329,3 +1329,151 @@ export const municipalSearchHandler: RouteHandler = async (request, ctx) => {
     ),
   );
 };
+
+/**
+ * GET /v1/municipal/health
+ *
+ * Per-city liveness roll-up across the registry. Three buckets:
+ *   - "cached"        : cache row exists and is younger than ?stale_after (default 7d)
+ *   - "stale"         : cache row exists but older than the staleness threshold
+ *   - "uncached"      : no cache row yet — first live fetch has never succeeded
+ *
+ * The endpoint is read-only and never triggers upstream HTTP fetches —
+ * it inspects the persistent SQLite cache that the live route layer
+ * populates. Callers can opt into a stricter freshness gate via
+ * ?stale_after=24h (returns 5xx gate logic at the freshness bucket level);
+ * ?city=toronto narrows the response to one city; ?lang=en|fr wires through.
+ *
+ * Powers the public status page at /status and the operational dashboard.
+ * Together with /v1/municipal/coverage this is the canonical "is the
+ * data plane healthy?" surface.
+ */
+export const municipalHealthHandler: RouteHandler = async (request, ctx) => {
+  const url = new URL(request.url);
+  const cityFilter = parseMulti(url.searchParams.get('city'));
+  const staleAfterRaw = url.searchParams.get('stale_after');
+  // Reject invalid ?stale_after= values loudly so callers can't silently
+  // fall back to the 7-day default when their SLA expectation is wrong.
+  let staleAfterSec: number;
+  if (staleAfterRaw === null || staleAfterRaw === '') {
+    staleAfterSec = 7 * 24 * 3600;
+  } else {
+    const parsed = parseFreshWithin(staleAfterRaw);
+    if (parsed === null) {
+      return langValidationError(staleAfterRaw); // same shape; explicit non-fr routing here is fine
+    }
+    staleAfterSec = parsed;
+  }
+  const summaryOnly = url.searchParams.get('summary') === 'true' || url.searchParams.get('summary') === '1';
+
+  // Resolve ?lang= opt (en default; reject unsupported with VALIDATION_ERROR)
+  const langRaw = url.searchParams.get('lang');
+  const langResolved = resolveLocale(langRaw);
+  if (langResolved === 'invalid') return langValidationError(langRaw);
+  const lang: Locale = langResolved;
+
+  const coverage = loadMunicipalRecordCoverage();
+  const now = Date.now();
+  const sinceMs = now - staleAfterSec * 1000;
+
+  // Index coverage by (cityId, dataset) for fast lookup
+  const cacheByCity = new Map<string, Array<{ dataset: string; recordCount: number; ageSeconds: number; succeededAt: string }>>();
+  for (const row of coverage) {
+    const arr = cacheByCity.get(row.cityId) ?? [];
+    arr.push({ dataset: row.dataset, recordCount: row.recordCount, ageSeconds: row.ageSeconds, succeededAt: row.succeededAt });
+    cacheByCity.set(row.cityId, arr);
+  }
+
+  interface CityHealth {
+    city_id: string;
+    label_en: string;
+    label_fr: string;
+    label_preferred: string;
+    province: string;
+    portal_type: string;
+    portal_type_label_en: string;
+    portal_type_label_fr: string;
+    portal_url: string;
+    jurisdiction_en: string;
+    jurisdiction_fr: string;
+    jurisdiction_preferred: string;
+    status: 'cached' | 'stale' | 'uncached';
+    cached_datasets: number;
+    cached_records: number;
+    freshest_age_seconds: number | null;
+    last_succeeded_at: string | null;
+  }
+  const citiesHealth: CityHealth[] = [];
+
+  const statusCounts = { cached: 0, stale: 0, uncached: 0 } as Record<'cached' | 'stale' | 'uncached', number>;
+
+  for (const [cityId, portal] of Object.entries(MUNICIPAL_PORTALS)) {
+    if (cityFilter.length && !cityFilter.includes(cityId.toLowerCase())) continue;
+    const rows = cacheByCity.get(cityId) ?? [];
+    const totalRecords = rows.reduce((s, r) => s + r.recordCount, 0);
+    const freshest = rows.length
+      ? rows.reduce((m, r) => (r.succeededAt > m ? r.succeededAt : m), '')
+      : null;
+    const freshestAge = freshest ? Math.round((now - new Date(freshest).getTime()) / 1000) : null;
+    const status: 'cached' | 'stale' | 'uncached' =
+      rows.length === 0 ? 'uncached' : freshestAge !== null && freshestAge > staleAfterSec ? 'stale' : 'cached';
+    statusCounts[status]++;
+    const provCode = portal.province;
+    const provLbl = PROVINCE_LABELS[provCode];
+    const jur = provLbl?.jurisdiction ?? 'municipal';
+    const jurLbl = JURISDICTION_LABELS[jur] ?? { en: jur, fr: jur };
+    const cityNameEn = portal.name;
+    const cityNameFr = CITY_NAMES_FR[cityIdLower(portal, cityId)] ?? portal.name;
+    const portalType = portal.portalType ?? 'unknown';
+    const portalLbl = PORTAL_TYPE_LABELS[portalType] ?? { en: portalType, fr: portalType };
+
+    citiesHealth.push({
+      city_id: cityId,
+      label_en: cityNameEn,
+      label_fr: cityNameFr,
+      label_preferred: labelFor(lang, cityNameEn, cityNameFr),
+      province: provCode,
+      portal_type: portalType,
+      portal_type_label_en: portalLbl.en,
+      portal_type_label_fr: portalLbl.fr,
+      portal_url: portal.baseUrl,
+      jurisdiction_en: jurLbl.en,
+      jurisdiction_fr: jurLbl.fr,
+      jurisdiction_preferred: labelFor(lang, jurLbl.en, jurLbl.fr),
+      status,
+      cached_datasets: rows.length,
+      cached_records: totalRecords,
+      freshest_age_seconds: freshestAge,
+      last_succeeded_at: freshest,
+    });
+  }
+
+  const cities_total = citiesHealth.length;
+  const total_cached_records = citiesHealth.reduce((s, c) => s + c.cached_records, 0);
+
+  // Surface actively-fetching cities first (more cached records = higher rank).
+  // Tie-break alphabetically so the order is deterministic.
+  const sortByActivity = (a: CityHealth, b: CityHealth) =>
+    (b.cached_records - a.cached_records) || a.city_id.localeCompare(b.city_id);
+
+  const responseBody = {
+    domain: 'municipal-health',
+    locale: lang,
+    threshold: {
+      stale_after_seconds: staleAfterSec,
+      // cutoff_iso marks the wall-clock instant; rows with succeeded_at
+      // strictly before this instant are considered stale.
+      cutoff_iso: new Date(now - staleAfterSec * 1000).toISOString(),
+    },
+    summary: {
+      cities_total,
+      cities_by_status: statusCounts,
+      total_cached_records,
+      last_check_at: new Date(now).toISOString(),
+      applied_filter: cityFilter.length ? cityFilter : null,
+    },
+    ...(summaryOnly ? {} : { cities: citiesHealth.sort(sortByActivity) }),
+  };
+
+  return jsonResponse(buildSuccess(responseBody, ctx));
+};
