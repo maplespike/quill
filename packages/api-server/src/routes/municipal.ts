@@ -72,8 +72,18 @@ interface PerPortalJob {
  * City-filtered (e.g. `/v1/municipal/toronto`) and dataset-filtered queries
  * are bounded by their own dataset counts (≤5 datasets/city) so MAX_JOBS
  * rarely trims them.
+ *
+ * Tunable via `QUILL_MUNICIPAL_MAX_JOBS` env var (default 12, max 50).
+ * Operators raise this once the upstream CKAN/Socrata portals are Cloudflare-
+ * allowlisted and 4-concurrency fetches reliably finish in <1s each.
  */
-const MAX_JOBS = 12;
+function readMaxJobs(): number {
+  const raw = process.env.QUILL_MUNICIPAL_MAX_JOBS ?? '12';
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n)) return 12;
+  return Math.max(1, Math.min(50, n));
+}
+const MAX_JOBS = readMaxJobs();
 
 function selectPortals(
   city?: string | null,
