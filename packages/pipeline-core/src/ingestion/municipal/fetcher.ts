@@ -104,6 +104,75 @@ export async function resolveCkanPackageId(
   return result;
 }
 
+/**
+ * Self-healing dataset ID discovery for Socrata portals.
+ *
+ * Socrata portals (Vancouver, Calgary, Edmonton, Ottawa, Winnipeg, etc.)
+ * register datasets by friendly name (`'budget'`, `'permits'`, `'311-calls'`)
+ * but the actual asset IDs are 4×4-hex codes only available via the catalog:
+ * `GET <baseUrl>/api/views.json?search=<slug>&limit=1` returns a flat array
+ * — we just take the first match's `id`.
+ *
+ * Shares the same two-tier memoization as `resolveCkanPackageId`. Results
+ * stay cached process-wide; concurrent callers ride one in-flight request.
+ */
+export async function resolveSocrataDatasetId(
+  baseUrl: string,
+  slug: string,
+  timeoutMs: number = MUNICIPAL_TIMEOUT_MS,
+): Promise<string | null> {
+  const cacheKey = `${baseUrl}|${slug}`;
+
+  // Fast path: previously-discovered result.
+  const cached = idResultCache.get(cacheKey);
+  if (cached) return cached;
+
+  // In-flight dedup: concurrent callers all await the same discovery.
+  const inflight = idInflightCache.get(cacheKey);
+  if (inflight) return inflight;
+
+  const searchUrl = `${baseUrl}/api/views.json?search=${encodeURIComponent(slug)}&limit=1`;
+  const promise = (async (): Promise<string | null> => {
+    try {
+      const resp = await httpGet(searchUrl, {
+        timeoutMs,
+        headers: { 'User-Agent': MUNICIPAL_USER_AGENT, 'Accept': 'application/json' },
+      });
+      if (resp.statusCode >= 400) return null;
+      const body = JSON.parse(resp.body);
+      // Socrata catalog shape varies across portal deployments:
+      //   - Classic Socrata (Vancouver, Calgary, Edmonton): flat [viewobj, ...]
+      //   - Newer / OData portals: { results: [viewobj, ...] }
+      //   - Some instances: { views: [...] } or { datasets: [...] }
+      const flat = Array.isArray(body)
+        ? body
+        : Array.isArray((body as { results?: unknown[] })?.results)
+          ? (body as { results: unknown[] }).results
+          : Array.isArray((body as { views?: unknown[] })?.views)
+            ? (body as { views: unknown[] }).views
+            : Array.isArray((body as { datasets?: unknown[] })?.datasets)
+              ? (body as { datasets: unknown[] }).datasets
+              : [];
+      const top = flat[0] as { id?: string; name?: string } | undefined;
+      if (!top) return null;
+      return top.id ?? top.name ?? null;
+    } catch {
+      return null;
+    }
+  })();
+
+  idInflightCache.set(cacheKey, promise);
+  promise.finally(() => {
+    if (idInflightCache.get(cacheKey) === promise) {
+      idInflightCache.delete(cacheKey);
+    }
+  });
+
+  const result = await promise;
+  if (result) idResultCache.set(cacheKey, result);
+  return result;
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Portal type detection                                                     */
 /* -------------------------------------------------------------------------- */
@@ -235,11 +304,51 @@ export async function fetchMunicipalDataset(
     throw new Error(`HTTP ${direct.status} fetching dataset "${dataset}" from ${portal.baseUrl}`);
   }
 
-  // Non-CKAN portals keep their original behaviour.
-  let url: string;
   if (portal.portalType === 'socrata') {
-    url = `${portal.baseUrl}/resource/${dataset}.json`;
-  } else if (portal.portalType === 'arcgis') {
+    // Try the friendly name directly — works when it's already a 4×4 ID.
+    const directUrl = `${portal.baseUrl}/resource/${dataset}.json`;
+    const direct = await httpGet(directUrl, {
+      timeoutMs: MUNICIPAL_TIMEOUT_MS,
+      headers: { 'User-Agent': MUNICIPAL_USER_AGENT, 'Accept': 'application/json' },
+    });
+    if (direct.statusCode < 400) {
+      return JSON.parse(direct.body);
+    }
+
+    // Phase 2: friendly-name didn't resolve — discover the real 4×4 ID.
+    if (direct.statusCode === 404) {
+      const realId = await resolveSocrataDatasetId(portal.baseUrl, dataset);
+      if (realId && realId !== dataset) {
+        const realUrl = `${portal.baseUrl}/resource/${realId}.json`;
+        const realResp = await httpGet(realUrl, {
+          timeoutMs: MUNICIPAL_TIMEOUT_MS,
+          headers: { 'User-Agent': MUNICIPAL_USER_AGENT, 'Accept': 'application/json' },
+        });
+        if (realResp.statusCode < 400) {
+          const payload = JSON.parse(realResp.body);
+          if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+            (payload as Record<string, unknown>).__resolvedFrom = dataset;
+          }
+          return payload;
+        }
+        // Stale cached ID — evict and retry the slug once before giving up.
+        evictMunicipalIdCache(portal.baseUrl, dataset);
+        const slugRetry = await httpGet(directUrl, {
+          timeoutMs: MUNICIPAL_TIMEOUT_MS,
+          headers: { 'User-Agent': MUNICIPAL_USER_AGENT, 'Accept': 'application/json' },
+        });
+        if (slugRetry.statusCode < 400) return JSON.parse(slugRetry.body);
+      }
+      throw new Error(
+        `HTTP 404 fetching ${directUrl} (no matching view discovered via /api/views.json)`,
+      );
+    }
+    throw new Error(`HTTP ${direct.statusCode} fetching dataset "${dataset}" from ${portal.baseUrl}`);
+  }
+
+  // ArcGIS and custom portals keep their original behaviour.
+  let url: string;
+  if (portal.portalType === 'arcgis') {
     url = `${portal.baseUrl}/api/search/v1/collections/all/items?limit=100`;
   } else if (portal.portalType === 'custom') {
     url = `${portal.baseUrl}/api/${dataset}`;

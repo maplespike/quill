@@ -90,6 +90,7 @@ export {
   detectPortalType,
   fetchMunicipalDataset,
   resolveCkanPackageId,
+  resolveSocrataDatasetId,
   evictMunicipalIdCache,
   clearMunicipalIdCache,
 } from './fetcher.js';

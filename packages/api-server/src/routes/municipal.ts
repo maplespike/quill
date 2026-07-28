@@ -29,6 +29,7 @@ import {
   ingestMunicipalDataset,
   MUNICIPAL_PORTALS,
   resolveCkanPackageId,
+  resolveSocrataDatasetId,
 } from '@maplespike/pipeline-core/municipal';
 import {
   runLivePipeline,
@@ -115,30 +116,36 @@ function selectPortals(
 }
 
 /**
- * Pre-flight: warm pipeline-core's per-process CKAN id cache so subsequent
- * package_show fetches skip the 404 → search round-trip. Dedupes by
- * `{baseUrl, dataset}` so the worst case is ~N unique CKAN portals and call
- * count barely grows with job count.
+ * Pre-flight: warm pipeline-core's per-process portal-id cache so subsequent
+ * fetches skip the 404 → discovery round-trip. Dedupes by `{baseUrl, dataset}`
+ * so worst-case call count barely grows with job count.
  *
- * The discovery Promises are internally memoized by resolveCkanPackageId,
+ * CKAN portals call resolveCkanPackageId; Socrata portals call
+ * resolveSocrataDatasetId. Both resolvers internally memoize Promises,
  * so concurrent pre-flight calls for the same key share a single upstream
  * request (no duplicate traffic).
  *
- * Non-CKAN portals (socrata / arcgis / custom) skip discovery — their URL
- * shape is fixed by portal type and Maven only needs the dataset slug.
+ * ArcGIS and custom portals skip discovery (their URL shape is fixed).
  */
 async function prewarmIdCache(jobs: PerPortalJob[]): Promise<void> {
   const ckanKeys = new Map<string, { baseUrl: string; dataset: string }>();
+  const socrataKeys = new Map<string, { baseUrl: string; dataset: string }>();
   for (const job of jobs) {
-    if (job.portalType !== 'ckan') continue;
     const key = `${job.baseUrl}|${job.dataset}`;
-    if (!ckanKeys.has(key)) ckanKeys.set(key, { baseUrl: job.baseUrl, dataset: job.dataset });
+    if (job.portalType === 'ckan') {
+      if (!ckanKeys.has(key)) ckanKeys.set(key, { baseUrl: job.baseUrl, dataset: job.dataset });
+    } else if (job.portalType === 'socrata') {
+      if (!socrataKeys.has(key)) socrataKeys.set(key, { baseUrl: job.baseUrl, dataset: job.dataset });
+    }
   }
-  await Promise.allSettled(
-    Array.from(ckanKeys.values()).map(({ baseUrl, dataset }) =>
+  await Promise.allSettled([
+    ...Array.from(ckanKeys.values()).map(({ baseUrl, dataset }) =>
       resolveCkanPackageId(baseUrl, dataset).catch(() => null),
     ),
-  );
+    ...Array.from(socrataKeys.values()).map(({ baseUrl, dataset }) =>
+      resolveSocrataDatasetId(baseUrl, dataset).catch(() => null),
+    ),
+  ]);
 }
 
 /**
