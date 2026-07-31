@@ -117,7 +117,7 @@ spec:
               key: quill-billing-secret
               optional: true
         - name: STRIPE_ENV
-          value: "{{ .Values.api.env.STRIPE_ENV | default \"test\" }}"
+          value: "{{ .Values.api.env.STRIPE_ENV | default "test" }}"
         resources:
           requests:
             cpu: {{ .Values.api.resources.requests.cpu }}
