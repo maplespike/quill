@@ -21,6 +21,7 @@ import { TIER_LIMITS, parseQueryOptions } from './types.js';
 import type { QueryOptions } from './types.js';
 import { authenticateRequest } from './auth.js';
 import { enforceRateLimit } from './rate-limit.js';
+import { isFreeTierRoute } from './feature-gates.js';
 import {
   buildError,
   buildSuccess,
@@ -556,6 +557,52 @@ export async function handleRequest(
     db,
     cache,
   };
+
+  // ── Free-tier boundary (decision #803) ──
+  // Free = discovery/metadata only. Data queries + AI + tool execution are Pro+.
+  // Single-place enforcement: anything not on the Free whitelist is blocked
+  // for free tenants with UPGRADE_REQUIRED. (Pro+ gating per-route still
+  // applies via canAccess for individual features.)
+  if (ctx.tenant.tier === 'free' && !isFreeTierRoute(path)) {
+    const bc: BuildContext = {
+      tenant: ctx.tenant,
+      requestId,
+      startTime,
+      queryOptions,
+      metaOverrides: {
+        cacheStatus: 'miss',
+        creditsCharged: 0,
+        authMethod: tenant?.authMethod || 'api-key',
+        durationMs: Date.now() - startTime,
+      },
+    };
+    logger.warn({ requestId, pathname: path, tier: 'free' }, 'Free-tier route blocked (upgrade required)');
+    await db.logAudit({
+      tenantId: ctx.tenant.id,
+      apiKeyId: ctx.apiKeyId,
+      operation: 'free_tier_block',
+      endpoint: path,
+      outputSummary: 'Blocked: requires Pro+ (data query / AI / tools)',
+      confidence: null,
+      success: false,
+      durationMs: Date.now() - startTime,
+    });
+    return finalizeResponse(
+      jsonResponse(
+        buildError(
+          'UPGRADE_REQUIRED',
+          'This endpoint requires a Pro or Business plan. The Free tier includes discovery & metadata only (catalog, citations, compliance). Upgrade at https://quill.maplespike.ca/pricing',
+          bc,
+        ),
+        402,
+        { 'Upgrade-Hint': 'pro' },
+        requestOrigin,
+        environment,
+      ),
+      environment,
+      requestOrigin,
+    );
+  }
 
   // Determine auth method from the AuthResult
   const authMethod: string = tenant?.authMethod || 'api-key';
