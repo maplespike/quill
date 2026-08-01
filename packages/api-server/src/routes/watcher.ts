@@ -1,31 +1,142 @@
-import type { RouteHandler } from '../types.js';
-import { buildSuccess, buildError, jsonResponse } from '../response.js';
+/**
+ * Quill — Change Watcher Endpoints
+ *
+ * GET /v1/watcher/status   — Live status of the change watcher
+ * GET /v1/watcher/events   — Real change events from the changelog
+ *
+ * HONEST DATA POLICY: All data comes from pipeline-core's real watcher
+ * store (InMemoryWatcherStore by default, SqliteWatcherStore if a DB
+ * path is configured). No hardcoded source lists. No fabricated events.
+ *
+ * CONTRACT: The camelCase keys (watchedSources, totalSources, sourceId)
+ * are preserved from the previous contract — clients reading those
+ * fields keep working. The `provenance` block is the only new top-level
+ * addition.
+ */
 
-export const watcherStatusHandler: RouteHandler = async (request, ctx) => {
-  return jsonResponse(buildSuccess({
-    status: 'operational',
+import type { RouteHandler } from '../types.js';
+import { buildSuccess, jsonResponse } from '../response.js';
+import {
+  getWatchedSources,
+  getChangeLog,
+  getWatcherStatus,
+  getWatcherStore,
+  type WatchedSource,
+  type ChangeEvent,
+} from '@maplespike/pipeline-core';
+
+interface WatcherStatusProvenance {
+  status: 'live' | 'unavailable';
+  source_count: number;
+  fetched_at: string;
+  errors: string[];
+  changesDetected: string;
+  lastCheck: string | null;
+}
+
+interface WatcherStatusResponse {
+  status: 'operational' | 'degraded';
+  description: string;
+  watchedSources: WatchedSource[];
+  totalSources: number;
+  changesDetected: string;
+  lastCheck: string | null;
+  provenance: WatcherStatusProvenance;
+}
+
+/** GET /v1/watcher/status */
+export const watcherStatusHandler: RouteHandler = async (_req, ctx) => {
+  const fetchedAt = new Date().toISOString();
+
+  // Real source list + audit trail from pipeline-core — no hardcoded arrays.
+  let sources: WatchedSource[] = [];
+  const errors: string[] = [];
+  let changesDetected = 'none';
+  let lastCheck: string | null = null;
+
+  try {
+    sources = getWatchedSources();
+  } catch (err) {
+    errors.push(
+      `getWatchedSources failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  try {
+    const audit = getWatcherStatus(getWatcherStore());
+    changesDetected = audit.changesDetected;
+    lastCheck = audit.lastCheck;
+  } catch (err) {
+    errors.push(
+      `getWatcherStatus failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  const response: WatcherStatusResponse = {
+    status: sources.length > 0 ? 'operational' : 'degraded',
     description: 'Real-time change watcher monitors data sources for updates',
-    watchedSources: [
-      { id: 'lobbying', name: 'Lobbying Registry', type: 'csv', intervalMs: 3600000 },
-      { id: 'procurement', name: 'CanadaBuys Procurement', type: 'rss', intervalMs: 3600000 },
-      { id: 'committees', name: 'House Committees', type: 'xml', intervalMs: 1800000 },
-      { id: 'gazette', name: 'Canada Gazette', type: 'rss', intervalMs: 3600000 },
-      { id: 'eccc-alerts', name: 'ECCC Weather Alerts', type: 'cap', intervalMs: 600000 },
-    ],
-    totalSources: 5,
-  }, ctx));
+    watchedSources: sources, // camelCase preserved
+    totalSources: sources.length, // camelCase preserved
+    changesDetected,
+    lastCheck,
+    provenance: {
+      status: sources.length > 0 ? 'live' : 'unavailable',
+      source_count: sources.length,
+      fetched_at: fetchedAt,
+      errors,
+      changesDetected,
+      lastCheck,
+    },
+  };
+
+  return jsonResponse(buildSuccess(response, ctx));
 };
 
-export const watcherEventsHandler: RouteHandler = async (request, ctx) => {
-  const url = new URL(request.url);
-  const sourceId = url.searchParams.get('sourceId');
-  const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+interface WatcherEventsResponse {
+  events: ChangeEvent[];
+  total: number;
+  sourceId: string | null; // camelCase preserved
+  limit: number;
+  provenance: {
+    status: 'live' | 'unavailable';
+    source_count: number;
+    fetched_at: string;
+    errors: string[];
+  };
+}
 
-  return jsonResponse(buildSuccess({
-    events: [],
-    total: 0,
-    sourceId: sourceId || null,
+/** GET /v1/watcher/events */
+export const watcherEventsHandler: RouteHandler = async (req, ctx) => {
+  const url = new URL(req.url);
+  const sourceId = url.searchParams.get('sourceId');
+  const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 500);
+
+  const fetchedAt = new Date().toISOString();
+  const errors: string[] = [];
+  let events: ChangeEvent[] = [];
+
+  try {
+    const all = getChangeLog(500, getWatcherStore()); // over-fetch for post-filter
+    events = sourceId ? all.filter((e) => e.sourceId === sourceId) : all;
+    events = events.slice(0, limit);
+  } catch (err) {
+    errors.push(
+      `getChangeLog failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  const response: WatcherEventsResponse = {
+    events,
+    total: events.length,
+    sourceId, // camelCase preserved
     limit,
-    message: 'Change events are stored in the SQLite watcher_changelog table. Access via pipeline-core SqliteWatcherStore.',
-  }, ctx));
+    provenance: {
+      status: 'live',
+      source_count: 1,
+      fetched_at: fetchedAt,
+      errors,
+    },
+  };
+
+  return jsonResponse(buildSuccess(response, ctx));
 };

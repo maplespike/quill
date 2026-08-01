@@ -127,12 +127,59 @@ export function isHostedTier(_tier: Tier): boolean {
   return true;
 }
 
+// ─── Free Tier Boundary (decision #803) ─────────────────────────────────
+//
+// Free = DISCOVERY / METADATA ONLY. Actual data queries + AI + tool execution
+// are Pro+. This whitelist is the single source of truth for what a Free
+// tenant may call (per spec ADR: the Free/Pro line lives in ONE place).
+//
+// Allowed: health, version, spec, onboarding, catalog/compliance (metadata),
+// citations, gov releases/list (discovery), billing portal/checkout/plans
+// (so Free users can upgrade), auth/register/verify, usage (see own limit),
+// contact, security audit-summary (observability).
+//
+// Blocked: all data-query routes (gov/search, entity, energy, real-estate,
+// financial-regulation, municipal, audit/query, watcher, extraction,
+// annotations, AI, ai-settings), API-key management (keys), export, modules
+// data — these require Pro+.
+
+export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
+  '/v1/health',
+  '/v1/version',
+  '/v1/onboarding',
+  '/v1/compliance',
+  '/v1/citation/',
+  '/v1/gov/releases',
+  '/v1/billing/plans',
+  '/v1/billing/stripe/checkout',
+  '/v1/billing/stripe/portal',
+  '/v1/billing/stripe/status',
+  '/v1/billing/stripe/order',
+  '/v1/billing/seed-plans',
+  '/v1/auth/',
+  '/v1/register',
+  '/v1/verify/',
+  '/v1/usage',
+  '/v1/contact',
+  '/v1/security/audit-summary',
+  '/v1/engine/status',
+  '/v1/data/quality',
+];
+
+/**
+ * Returns true if a Free-tier tenant is permitted to call `path`.
+ * Anything not on the discovery/metadata whitelist is Pro+.
+ */
+export function isFreeTierRoute(path: string): boolean {
+  return FREE_TIER_ALLOWED_PREFIXES.some((p) => path.startsWith(p));
+}
+
 // ─── Tier Metadata ───────────────────────────────────────────────────────
 
 export const TIER_METADATA: Record<Tier, { name: string; description: string; isSelfHosted: boolean }> = {
   free: {
     name: 'Free',
-    description: 'Hosted API — 1,000 calls/month, public data modules',
+    description: 'Hosted API — 1,000 calls/month. Discovery & metadata only (catalog, citations, compliance). Data queries + AI require Pro.',
     isSelfHosted: false,
   },
   pro: {
