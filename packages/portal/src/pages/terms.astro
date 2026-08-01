@@ -57,12 +57,16 @@ const i18n = createI18n(lang);
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">4. Plans & Billing</CardTitle>
+          <CardTitle class="text-lg">4. Plans, Billing & Refunds</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>Free tier includes 1,000 API calls per month with no credit card required. Pro ($49/mo) and Business ($199/mo) tiers include higher limits and additional features as described on our <a href="/pricing" class="text-primary hover:underline">pricing page</a>.</p>
-          <p>Paid plans can be cancelled at any time. Changes take effect on your next billing cycle. Refunds are issued at our discretion for service outages exceeding the stated SLA.</p>
-          <p>We accept credit card, Interac e-Transfer (Canada), and cryptocurrency (BTC/ETH) for annual plans.</p>
+          <p>Free tier includes 1,000 API calls per month with no credit card required. Paid plans — Pro ($50 CAD/month) and Business ($200 CAD/month) — unlock higher rate limits and additional features as described on our <a href="/pricing" class="text-primary hover:underline">pricing page</a>.</p>
+          <p><strong>Payment.</strong> Subscriptions are processed by <a href="https://stripe.com" class="text-primary hover:underline" rel="noopener">Stripe</a>. Prices are in Canadian dollars (CAD). Taxes (e.g. GST/HST) are added at checkout where applicable.</p>
+          <p><strong>Billing cycle.</strong> Paid plans are billed in advance on a monthly cycle. Your subscription renews automatically until cancelled.</p>
+          <p><strong>Cancellation.</strong> You may cancel at any time from your account dashboard. Cancellation takes effect at the end of the current billing period; you retain paid access until then. No partial-period refund is issued on cancellation, but you keep what you paid for through period end.</p>
+          <p id="refunds"><strong>Refunds.</strong> If you are dissatisfied within <strong>14 days</strong> of your first payment on a new paid plan, contact <a href="mailto:billing@maplespike.ca" class="text-primary hover:underline">billing@maplespike.ca</a> for a full refund of that charge — no questions asked. Renewal charges beyond the first 14 days are non-refundable, except where required by law or where a service outage breaches our stated SLA.</p>
+          <p><strong>Failed payments.</strong> If a renewal charge fails, we retry and may downgrade your tier to Free at the end of the grace period; no data is deleted.</p>
+          <p>Our refund and cancellation terms are also summarized at checkout. By subscribing you acknowledge having read this section and our <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>.</p>
         </CardContent>
       </Card>
 

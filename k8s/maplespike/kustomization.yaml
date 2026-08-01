@@ -13,3 +13,4 @@ resources:
   - quill-portal-service.yaml
   - quill-hpa.yaml
   - quill-networkpolicy.yaml
+  - quill-reconcile-expiry-cron.yaml
