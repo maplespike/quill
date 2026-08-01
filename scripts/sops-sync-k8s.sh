@@ -92,11 +92,11 @@ else
 fi
 
 # ── Sync maplespike-stripe-secrets (Stripe monetization) ──
-# Mirror key names as secret data keys so api-server's secretKeyRef can find them.
-STRIPE_SECRET_KEY=$(read_secret STRIPE_SECRET_KEY runtime)
-STRIPE_WEBHOOK_SECRET=$(read_secret STRIPE_WEBHOOK_SECRET runtime)
-STRIPE_ACCOUNT_ID=$(read_secret STRIPE_ACCOUNT_ID runtime)
-STRIPE_PUBLISHABLE_KEY=$(read_secret STRIPE_PUBLISHABLE_KEY runtime)
+# Stripe keys live in secrets/billing.yaml (NOT runtime.yaml). Read from there.
+STRIPE_SECRET_KEY=$(read_secret STRIPE_SECRET_KEY billing)
+STRIPE_WEBHOOK_SECRET=$(read_secret STRIPE_WEBHOOK_SECRET billing)
+STRIPE_ACCOUNT_ID=$(read_secret STRIPE_ACCOUNT_ID billing)
+STRIPE_PUBLISHABLE_KEY=$(read_secret STRIPE_PUBLISHABLE_KEY billing)
 
 # Only sync if at least one real Stripe key has been provisioned. We accept
 # "sk_live_..." / "whsec_..." / "acct_..." / "pk_live_..." values. Placeholder
