@@ -35,7 +35,7 @@ spec:
           valueFrom:
             secretKeyRef:
               key: jwt-secret
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               optional: true
         - name: PORT
           value: "8082"
@@ -59,27 +59,27 @@ spec:
           valueFrom:
             secretKeyRef:
               key: pii-hash-secret
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               optional: false
         # #806: Stripe billing secrets, delivered via quill-owned secret
-        # `quill-runtime-secrets` (see secrets/secrets.nix + k8s/maplespike/README.md).
+        # `maplespike-secrets` (see secrets/secrets.nix + k8s/maplespike/README.md).
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
               key: stripe-secret-key
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               optional: true
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
               key: stripe-webhook-secret
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               optional: true
         - name: QUILL_BILLING_SECRET
           valueFrom:
             secretKeyRef:
               key: quill-billing-secret
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               optional: true
         # STRIPE_ENV defaults to 'test'; flip to 'live' at go-live (human step).
         - name: STRIPE_ENV
