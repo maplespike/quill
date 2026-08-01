@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-28T19:26:42.720Z",
+  "source": "discover-municipal-ids",
+  "discoveries": 12,
+  "keptFromPrevious": 0,
+  "entries": {
+    "https://data.winnipeg.ca|permits": {
+      "id": "e29y-me8j",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:40.128Z"
+    },
+    "https://data.winnipeg.ca|budget": {
+      "id": "e29y-me8j",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:40.283Z"
+    },
+    "https://data.edmonton.ca|building-permits": {
+      "id": "jh8a-ipea",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:40.284Z"
+    },
+    "https://data.edmonton.ca|budget": {
+      "id": "jh8a-ipea",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:40.313Z"
+    },
+    "https://donnees.montreal.ca|transport": {
+      "id": "ac3515d6-2753-47a5-8575-35be7d127f43",
+      "portalType": "ckan",
+      "discoveredAt": "2026-07-28T19:26:41.296Z"
+    },
+    "https://donnees.montreal.ca|budget": {
+      "id": "2b7dcae7-a3e5-4f5d-81de-ccde2c518e55",
+      "portalType": "ckan",
+      "discoveredAt": "2026-07-28T19:26:41.400Z"
+    },
+    "https://donnees.montreal.ca|permits": {
+      "id": "667342f7-f667-4c3c-9837-65e81312cd8d",
+      "portalType": "ckan",
+      "discoveredAt": "2026-07-28T19:26:41.484Z"
+    },
+    "https://data.edmonton.ca|311-calls": {
+      "id": "jh8a-ipea",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:41.687Z"
+    },
+    "https://data.calgary.ca|budget": {
+      "id": "3u7d-jj5c",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:42.495Z"
+    },
+    "https://data.winnipeg.ca|311-calls": {
+      "id": "e29y-me8j",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:42.543Z"
+    },
+    "https://data.calgary.ca|transit": {
+      "id": "3u7d-jj5c",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:42.580Z"
+    },
+    "https://data.calgary.ca|permits": {
+      "id": "3u7d-jj5c",
+      "portalType": "socrata",
+      "discoveredAt": "2026-07-28T19:26:42.706Z"
+    }
+  }
+}

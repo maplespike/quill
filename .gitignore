@@ -2,6 +2,11 @@ node_modules/
 dist/
 .wrangler/
 data/
+# The municipal-discovered-ids registry IS checked in — it's the build-time
+# cache that eliminates first-call discovery latency on every pod restart.
+# Without this exception the root-level `data/` rule swallows it (git treats
+# that pattern as `**/data/`, so any nested data/ directory would be ignored).
+!packages/pipeline-core/data/municipal-discovered-ids.json
 *.db
 *.db-shm
 *.db-wal
