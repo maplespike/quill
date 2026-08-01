@@ -6,15 +6,19 @@ metadata:
   labels:
     app: quill-api
 spec:
-  replicas: 1
+  # #816: 2 replicas so the cloudflared tunnel always has a healthy origin
+  # behind the ClusterIP Service (quill-api.maplespike.svc.cluster.local).
+  # Single-replica + tunnel pinned to a literal ClusterIP was the 521 root cause.
+  replicas: 2
   selector:
     matchLabels:
       app: quill-api
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
+      # #816: zero-downtime rollouts — never drop below desired replicas.
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -57,6 +61,29 @@ spec:
               key: pii-hash-secret
               name: quill-runtime-secrets
               optional: false
+        # #806: Stripe billing secrets, delivered via quill-owned secret
+        # `quill-runtime-secrets` (see secrets/secrets.nix + k8s/maplespike/README.md).
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: stripe-secret-key
+              name: quill-runtime-secrets
+              optional: true
+        - name: STRIPE_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: stripe-webhook-secret
+              name: quill-runtime-secrets
+              optional: true
+        - name: QUILL_BILLING_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: quill-billing-secret
+              name: quill-runtime-secrets
+              optional: true
+        # STRIPE_ENV defaults to 'test'; flip to 'live' at go-live (human step).
+        - name: STRIPE_ENV
+          value: "test"
         livenessProbe:
           httpGet:
             path: /v1/health
