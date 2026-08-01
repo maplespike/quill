@@ -101,23 +101,23 @@ spec:
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               key: stripe-secret-key
               optional: true
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               key: stripe-webhook-secret
               optional: true
         - name: QUILL_BILLING_SECRET
           valueFrom:
             secretKeyRef:
-              name: quill-runtime-secrets
+              name: maplespike-secrets
               key: quill-billing-secret
               optional: true
         - name: STRIPE_ENV
-          value: "{{ .Values.api.env.STRIPE_ENV | default \"test\" }}"
+          value: "{{ .Values.api.env.STRIPE_ENV | default "test" }}"
         resources:
           requests:
             cpu: {{ .Values.api.resources.requests.cpu }}
