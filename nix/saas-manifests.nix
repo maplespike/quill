@@ -176,7 +176,7 @@ let
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: quill-runtime-secrets
+                  name: maplespike-secrets
                   key: jwt-secret
                   optional: true
             # Stripe monetization — secret + webhook signing keys. All read
