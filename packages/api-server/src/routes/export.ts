@@ -2,162 +2,207 @@
  * Quill — Export API
  *
  * REST/JSON export for external clients.
- * GET /v1/export/modules      — List all modules with record counts
- * GET /v1/export/:module      — Export records as JSON array
- * GET /v1/export/:module/:id  — Export single record with provenance
+ * GET /v1/export/modules      — List all modules with metadata
+ * GET /v1/export/:module      — Live export records as JSON array
+ * GET /v1/export/:module/:id  — Live export single record with provenance
  *
- * Query params: ?format=json|csv, ?limit=N&offset=N, ?since=ISO_DATE
+ * HONEST DATA POLICY: Module records come from real pipeline-core
+ * `runModule(name, ...args)` ingestion. The module list comes from the
+ * real registry (`getAllModules()`). No fabricated record counts. No
+ * hardcoded sample records.
  *
- * Now derives module list from @maplespike/pipeline-core's ingestion registry
- * instead of using mock data.
+ * CONTRACT (camelCase keys preserved):
+ *   - listModulesHandler returns { total, modules: [{ name, description,
+ *     recordCount, lastUpdated, ... }] }   — recordCount and lastUpdated
+ *     are now `null` since no live count is pre-computed.
+ *   - exportModuleHandler still returns { module, total, limit, offset,
+ *     records, exportUrl } on the happy path.
  */
 
 import type { RouteHandler } from '../types.js';
 import { buildSuccess, buildError, jsonResponse } from '../response.js';
-import { getAllModules } from '@maplespike/pipeline-core';
-import type { ModuleInfo } from '@maplespike/pipeline-core';
+import {
+  getAllModules,
+  runModule,
+  getModule,
+  type ModuleInfo,
+} from '@maplespike/pipeline-core';
 
-interface ModuleEntry {
+interface ModuleExportEntry {
+  // camelCase keys preserved for client back-compat
   name: string;
   description: string;
-  recordCount: number;
-  lastUpdated: string;
+  recordCount: number | null; // null = no live count available
+  lastUpdated: string | null; // null = never run
+  category: string;
+  status: string;
+  sources: { name: string; format: string }[];
+  updateFrequency: string;
+  endpoint: string;
 }
 
-// Build MODULE_LIST from pipeline-core's ingestion registry
-const MODULE_LIST: ModuleEntry[] = getAllModules().map((mod: ModuleInfo) => ({
-  name: mod.name,
-  description: mod.description,
-  recordCount: 100, // placeholder — actual counts require running the module
-  lastUpdated: new Date().toISOString(),
-})).concat([
-  {
-    name: 'committees',
-    description: 'House of Commons and Senate committee evidence and transcripts',
-    recordCount: 2500,
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    name: 'lobbying',
-    description: 'Federal lobbying registry data',
-    recordCount: 5000,
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    name: 'procurement',
-    description: 'Federal contract awards and proactive disclosure',
-    recordCount: 3000,
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    name: 'gazette',
-    description: 'Canada Gazette regulations and notices',
-    recordCount: 1500,
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    name: 'canlii',
-    description: 'Canadian court decisions',
-    recordCount: 10000,
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    name: 'gic',
-    description: 'Governor-in-Council appointments',
-    recordCount: 800,
-    lastUpdated: new Date().toISOString(),
-  },
-  {
-    name: 'elections',
-    description: 'Elections Canada third-party advertising reports',
-    recordCount: 600,
-    lastUpdated: new Date().toISOString(),
-  },
-]);
-
-/** GET /v1/export/modules */
+/** GET /v1/export/modules — real catalog from pipeline-core registry */
 export const listModulesHandler: RouteHandler = async (_req, ctx) => {
+  const modules = getAllModules() as ModuleInfo[];
+  const entries: ModuleExportEntry[] = modules.map((mod) => ({
+    name: mod.name,
+    description: mod.description,
+    // No fake `100` placeholder — explicitly null until a live run
+    // populates the count. Clients reading this field get a typed null
+    // instead of an undefined.
+    recordCount: null,
+    lastUpdated: null,
+    category: mod.category,
+    status: mod.status ?? 'active',
+    sources: mod.sources ?? [],
+    updateFrequency: mod.updateFrequency,
+    endpoint: `/v1/export/${mod.name}`,
+  }));
+
   return jsonResponse(
-    buildSuccess({
-      total: MODULE_LIST.length,
-      modules: MODULE_LIST.map((m) => ({
-        name: m.name,
-        description: m.description,
-        recordCount: m.recordCount,
-        lastUpdated: m.lastUpdated,
-        endpoint: `/v1/export/${m.name}`,
-      })),
-    }, ctx),
+    buildSuccess(
+      {
+        total: entries.length,
+        modules: entries,
+        provenance: {
+          status: 'live',
+          source_count: 1,
+          fetched_at: new Date().toISOString(),
+          errors: [],
+        },
+      },
+      ctx,
+    ),
   );
 };
 
-/** GET /v1/export/:module, GET /v1/export/:module/:id */
-export const exportModuleHandler: RouteHandler = async (_req, ctx, params) => {
+/**
+ * GET /v1/export/:module, GET /v1/export/:module/:id
+ *
+ * Invokes pipeline-core's `runModule(name, params)` to fetch real
+ * records. `runModule` is variadic (`...args: unknown[]`) and the
+ * underlying ingest functions only honor `{ limit }`. We pass only
+ * `limit` and apply `offset` client-side over the returned records —
+ * paginating beyond what live ingestion returns is not supported.
+ */
+export const exportModuleHandler: RouteHandler = async (req, ctx, params) => {
   const moduleName = params.module ?? '';
   const recordId = params.id;
+  const url = new URL(req.url);
+  const limit = Math.min(
+    parseInt(url.searchParams.get('limit') ?? '50', 10),
+    500,
+  );
+  const offset = parseInt(url.searchParams.get('offset') ?? '0', 10);
 
-  const mod = MODULE_LIST.find((m) => m.name === moduleName);
-  if (!mod) {
+  const moduleInfo = getModule(moduleName) as ModuleInfo | undefined;
+  if (!moduleInfo) {
     return jsonResponse(
-      buildError('MODULE_NOT_FOUND', `Unknown module: "${moduleName}". Use /v1/export/modules to list available modules.`, ctx),
+      buildError(
+        'MODULE_NOT_FOUND',
+        `Unknown module: "${moduleName}". Use /v1/export/modules to list available modules.`,
+        ctx,
+      ),
       404,
     );
   }
 
-  // Look up the module in the pipeline-core registry for real data
-  const pipelineModule = getAllModules().find((m: ModuleInfo) => m.name === moduleName);
+  const fetchedAt = new Date().toISOString();
+  const errors: string[] = [];
+  let rawRecords: unknown[] = [];
 
-  if (!pipelineModule) {
-    return jsonResponse(
-      buildError('MODULE_NOT_AVAILABLE', `Module "${moduleName}" found in catalog but no pipeline ingestion module available.`, ctx),
-      503,
+  // Live ingestion via pipeline-core. Same code path the cronjobs use.
+  try {
+    const result = await runModule(moduleName, { limit });
+    const candidate =
+      (result as { records?: unknown[] }).records ??
+      (result as { items?: unknown[] }).items ??
+      (Array.isArray(result) ? (result as unknown[]) : []);
+    if (Array.isArray(candidate)) {
+      rawRecords = candidate as unknown[];
+    } else if (result && typeof result === 'object') {
+      // Some modules return { count, sample, ... } envelopes — surface
+      // the whole envelope as one synthetic "record" so callers can see
+      // what the module returned.
+      rawRecords = [result];
+    } else {
+      errors.push(
+        `runModule(${moduleName}) returned non-array result — check pipeline-core contract`,
+      );
+    }
+  } catch (err) {
+    errors.push(
+      `runModule(${moduleName}) failed: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 
-  // For now, return module metadata — real data ingestion requires running the pipeline
-  // which is done by the engine, not the API server.
-  const records: Record<string, unknown>[] = [
-    {
-      module: pipelineModule.name,
-      description: pipelineModule.description,
-      category: pipelineModule.category,
-      status: pipelineModule.status || 'active',
-      sources: pipelineModule.sources,
-      updateFrequency: pipelineModule.updateFrequency,
-      note: 'Data export via pipeline ingestion. Run the engine to populate real records.',
-    },
-  ];
+  // Client-side offset/limit — the upstream ingestion is a single call.
+  const paginatedRecords = rawRecords.slice(offset, offset + limit) as Record<
+    string,
+    unknown
+  >[];
 
+  const provenance = {
+    status:
+      rawRecords.length > 0 ? ('live' as const) : ('unavailable' as const),
+    source_count: 1,
+    fetched_at: fetchedAt,
+    errors,
+    module: moduleInfo.name,
+    module_status: moduleInfo.status ?? 'active',
+  };
+
+  // Single-record view — search the FULL result set, not the
+  // offset/limit page slice, so a recordId lookup works regardless
+  // of the caller's current pagination cursor.
   if (recordId) {
-    const record = records.find((r: any) => r.id === recordId || r._id === recordId);
+    const record = (rawRecords as Record<string, unknown>[]).find(
+      (r) =>
+        (r.id as string | undefined) === recordId ||
+        (r._id as string | undefined) === recordId ||
+        (r.recordId as string | undefined) === recordId,
+    );
     if (!record) {
       return jsonResponse(
-        buildError('RECORD_NOT_FOUND', `Record "${recordId}" not found in module "${moduleName}".`, ctx),
+        buildError(
+          'RECORD_NOT_FOUND',
+          `Record "${recordId}" not found in module "${moduleName}"`,
+          ctx,
+        ),
         404,
       );
     }
-    return jsonResponse(buildSuccess({
-      module: moduleName,
-      record,
-      provenance: {
-        source: `MapleSpike ${moduleName}`,
-        retrievedAt: new Date().toISOString(),
-        license: 'Open Government Licence – Canada',
-      },
-    }, ctx));
+    return jsonResponse(
+      buildSuccess(
+        {
+          module: moduleName,
+          record,
+          provenance,
+        },
+        ctx,
+      ),
+    );
   }
 
-  // Pagination
-  const limit = parseInt(new URL(_req.url).searchParams.get('limit') ?? '50', 10);
-  const offset = parseInt(new URL(_req.url).searchParams.get('offset') ?? '0', 10);
-  const paginated = records.slice(offset, offset + limit);
-
-  return jsonResponse(buildSuccess({
-    module: moduleName,
-    total: records.length,
-    limit,
-    offset,
-    records: paginated,
-    exportUrl: `${new URL(_req.url).origin}/v1/export/${moduleName}`,
-  }, ctx));
+  // Paginated list view
+  return jsonResponse(
+    buildSuccess(
+      {
+        module: moduleName,
+        module_info: {
+          description: moduleInfo.description,
+          category: moduleInfo.category,
+          status: moduleInfo.status ?? 'active',
+          updateFrequency: moduleInfo.updateFrequency,
+        },
+        total: rawRecords.length,
+        limit,
+        offset,
+        records: paginatedRecords,
+        exportUrl: `${url.origin}/v1/export/${moduleName}`,
+        provenance,
+      },
+      ctx,
+    ),
+  );
 };
