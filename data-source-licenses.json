@@ -1,0 +1,1034 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "wayfinder #812 licensing audit (preliminary, name-based)",
+  "classification_scheme": {
+    "open": "Fully open, no restriction (rare).",
+    "open_attribution": "Open data (OGL-C / provincial equivalent) \u2014 commercial use OK WITH attribution.",
+    "restricted": "Redistribution or commercial use restricted \u2014 requires legal sign-off before paywalling.",
+    "unknown": "Unclassified \u2014 manual review required before go-live."
+  },
+  "go_live_gate": "Free tier (discovery/metadata only, per #815) MUST only expose open/open_attribution sources. Restricted/unknown sources must NOT be in the Free subset and require legal review before Pro gating.",
+  "sources": [
+    {
+      "id": "a2aj",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ab-courts",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "ab-economic",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ab-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ab-energy-regulator",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ab-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ab-immigration",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ab-infrastructure",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "agriculture",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ati",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "attestation",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "au-abs",
+      "license_class": "restricted",
+      "note": "Non-Canadian / international source \u2014 verify license before commercial use."
+    },
+    {
+      "id": "bank-of-canada",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-assessment",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-corporate-registry",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "bc-courts",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "bc-economic",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-immigration",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-infrastructure",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "bc-translink",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "calgary-transit",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "canlii",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "cipo",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "cmhc",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "committees",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "corporate",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "corporate-filings",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "cra-charity",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "criminal-justice",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "cross-reference",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "crown-corporations",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "crtc",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "culture",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "defence",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "edmonton-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "edmonton-transit",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "education-research",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "elections",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "emergency-management",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "energy",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "eurostat",
+      "license_class": "restricted",
+      "note": "Non-Canadian / international source \u2014 verify license before commercial use."
+    },
+    {
+      "id": "fao-faostat",
+      "license_class": "restricted",
+      "note": "Non-Canadian / international source \u2014 verify license before commercial use."
+    },
+    {
+      "id": "federal",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-auditor-general",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-budget",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-grants",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-immigration-irb",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-lobbying-monthly",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-parliamentary-budget",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-privacy-commissioner",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-procurement",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "federal-tribunals",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "financial-regulation",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "fire-emergency",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "fisheries",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "gazette",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "gc-standards",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "geospatial",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "gic",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "global-canada",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "goc-spending",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "gtfs-transit",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "health-canada",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "health-data",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "housing-data",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ilo-labour",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "immigration",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "impact-assessment",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "indigenous-demographics",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "indigenous-financial-transparency",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "indigenous-land-claims",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "indigenous-relations",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "indigenous-services-directory",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "influence",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ircc",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ircc-family-sponsorship",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "isc",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "isc-programs",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "legislation",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "library",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "lmia",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "mb-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "mb-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "mb-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "mb-hydro",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "mb-labour",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "mb-mpi",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "media-broadcasting",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "montreal-council",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "municipal",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "municipal-long-tail",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "municipal-portals",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nb-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nb-energy",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nb-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nb-labour",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ngo-influence-rss",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "nl-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nl-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nl-energy",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nl-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "npri",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "nrcan",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ns-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ns-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ns-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ns-labour",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nt-health-social",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nt-open-government",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nu-bureau-statistics",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nu-statcan",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "nz-stats",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "oecd",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "oecd-stat",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "on-courts",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "on-economic",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "on-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "on-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "on-immigration",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "on-infrastructure",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ontario-land-registry",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ontario-lobbying",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ontario-provincial",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "ontario-securities-commission",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "opencorporates",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "ottawa-oc-transpo",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "oversight",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "parks",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "parliamentary-voting",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "pe-agriculture",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "pe-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "pe-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "pe-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "pharmaceuticals",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "police-data",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "policing-security",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "political-donations",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "proactive-disclosure",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "provincial",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "provincial-legislatures",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "provincial-lobbying",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "provincial-orgs",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "provincial-regulators",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "public-accounts",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "qc-courts",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "qc-economic",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "qc-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "qc-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "qc-immigration",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "qc-infrastructure",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "quebec-lobbying",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "real-estate",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "real-time-feeds",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "regional-authorities",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "science-research",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "sedar-plus",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "sedi",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "sk-agriculture",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "sk-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "sk-crown-corps",
+      "license_class": "restricted",
+      "note": "Legal/registry source \u2014 verify redistribution + attribution terms before paywalling."
+    },
+    {
+      "id": "sk-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "sk-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "sk-labour",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "social-programs",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "species-at-risk",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "statcan",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "telecommunications",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "toronto-budget",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "toronto-building-permits",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "toronto-police",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "transport-infrastructure",
+      "license_class": "open_attribution",
+      "note": "Federal open data (OGL-C) \u2014 attribution required (enforced by citation block)."
+    },
+    {
+      "id": "ttc",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "uk-hansard",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "uk-ons",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "un",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "un-comtrade",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "undp-hdi",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "undp-hdr",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "unesco-uis",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "unhcr-refugee",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "unhcr-refugees",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "unions",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "universities",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "us-cia",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "us-sec-edgar",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "utilities",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "vancouver-council",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "veterans",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "who-gho",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "winnipeg-budget",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "winnipeg-transit",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "worldbank-ids",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "worldbank-wdi",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "worldbank-wgi",
+      "license_class": "unknown",
+      "note": "Source type not auto-classified \u2014 manual review required."
+    },
+    {
+      "id": "yt-education",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "yt-energy-mines",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "yt-environment",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "yt-geological",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "yt-government",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "yt-health",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    },
+    {
+      "id": "yt-statistics",
+      "license_class": "open_attribution",
+      "note": "Provincial/municipal open data \u2014 OGL-C or provincial equivalent; attribution required (enforced by citation block)."
+    }
+  ],
+  "summary": {
+    "unknown": 83,
+    "restricted": 19,
+    "open_attribution": 101
+  },
+  "total": 203
+}
