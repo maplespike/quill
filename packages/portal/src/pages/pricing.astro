@@ -315,8 +315,9 @@ const featureValues: Record<string, (string | boolean)[]> = {
         <div>
           <h3 class="mb-2 font-semibold">What data modules are included?</h3>
           <p class="text-sm text-muted-foreground">
-            All 206 modules across federal, provincial, municipal, corporate, legal, and regulatory
-            sources are available on every plan.
+            The Free tier includes discovery and metadata access (catalog, citations, compliance)
+            across all sources. Pro and Business unlock full data queries and AI analysis on every
+            module.
           </p>
         </div>
         <div>
@@ -335,10 +336,19 @@ const featureValues: Record<string, (string | boolean)[]> = {
         <div>
           <h3 class="mb-2 font-semibold">What payment methods do you accept?</h3>
           <p class="text-sm text-muted-foreground">
-            Credit card, Interac e-Transfer (Canada), and cryptocurrency (BTC/ETH) for annual plans.
+            All paid plans are processed securely by Stripe (credit card). Prices are in CAD. See our
+            <a href="/terms" class="text-primary hover:underline">Terms</a> for the full refund and cancellation policy.
           </p>
         </div>
       </div>
     </div>
   </section>
+
+  <footer class="border-t py-8">
+    <div class="container mx-auto px-4 text-center text-sm text-muted-foreground space-x-4">
+      <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>
+      <a href="/terms" class="text-primary hover:underline">Terms of Service</a>
+      <a href="/terms#refunds" class="text-primary hover:underline">Refund Policy</a>
+    </div>
+  </footer>
 </BaseLayout>

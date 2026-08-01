@@ -1,0 +1,56 @@
+# #807: Nightly reconcile-expiry job.
+# Calls POST /v1/billing/reconcile-expiry on the quill-api Service, authenticating
+# with the X-Billing-Secret header sourced from QUILL_BILLING_SECRET (the same
+# quill-owned secret `quill-runtime-secrets` the API pod reads). Targets the
+# ClusterIP Service DNS (not a pod IP), so it survives rollouts/rescheduling.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: quill-reconcile-expiry
+  namespace: maplespike
+  labels:
+    app: quill-api
+    component: billing-reconcile
+spec:
+  schedule: "17 3 * * *"   # 03:17 daily (off-peak)
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app: quill-api
+            component: billing-reconcile
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: reconcile
+            image: curlimages/curl:8.11.1
+            env:
+            - name: QUILL_BILLING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: quill-runtime-secrets
+                  key: quill-billing-secret
+                  optional: false
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              curl -fsS -X POST \
+                -H "X-Billing-Secret: ${QUILL_BILLING_SECRET}" \
+                -H "Content-Type: application/json" \
+                http://quill-api.maplespike.svc.cluster.local:8082/v1/billing/reconcile-expiry
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                cpu: 100m
+                memory: 64Mi
