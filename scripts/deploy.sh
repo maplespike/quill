@@ -10,20 +10,17 @@ set -euo pipefail
 # Usage:
 #   ./deploy.sh                    # Deploy using .env.deployment
 #   ./deploy.sh --build            # Build Docker images first
-#   ./deploy.sh --overlay prod     # Use prod overlay
 # ─────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ENV_FILE="${SCRIPT_DIR}/.env.deployment"
-OVERLAY="${OVERLAY:-dev}"
 
 # Parse args
 DO_BUILD=false
 while [[ $# -gt 0 ]]; do
   case $1 in
     --build) DO_BUILD=true; shift ;;
-    --overlay) OVERLAY="$2"; shift 2 ;;
     *) echo "Unknown arg: $1"; exit 1 ;;
   esac
 done
@@ -65,7 +62,6 @@ echo "  Namespace:  $NAMESPACE"
 echo "  Storage:    $QUILL_STORAGE"
 echo "  Registry:   $IMAGE_REGISTRY"
 echo "  Tag:        $IMAGE_TAG"
-echo "  Overlay:    $OVERLAY"
 echo ""
 
 # ── Build ────────────────────────────────────────────────────────
@@ -112,17 +108,16 @@ else
 fi
 
 # ── Deploy ───────────────────────────────────────────────────────
-echo "── Applying k8s manifests ($OVERLAY overlay) ──"
-OVERLAY_DIR="${PROJECT_ROOT}/k8s/overlays/${OVERLAY}"
+# #825 DRY: the old overlay/manual split (k8s/overlays/, k8s/manual/) no longer
+# exists — k8s/maplespike/ (kustomize) is the reference manifest source.
+# NOTE: this kustomize bundle is the namespace-scoped reference set. The FULL
+# prod deploy (cloudflared, LAN ingress, GNP, VAP, PSA labels, ai-inference
+# namespace) is emitted by the canonical `nix build .#saas-manifests` generator
+# (nix/saas-manifests.nix) — use `nix run .#deploy-saas` for complete deploys.
+echo "── Applying k8s manifests (k8s/maplespike) ──"
+kubectl apply -k "${PROJECT_ROOT}/k8s/maplespike/"
 
-if [[ -d "$OVERLAY_DIR" ]]; then
-  kubectl apply -k "$OVERLAY_DIR"
-else
-  echo "  Overlay $OVERLAY_DIR not found, using manual manifests"
-  kubectl apply -f "${PROJECT_ROOT}/k8s/manual/"
-fi
-
-echo "  ✓ Manifests applied"
+echo "  ✓ Manifests applied (reference set — see nix/saas-manifests.nix for the full bundle)"
 
 # ── Wait for rollout ─────────────────────────────────────────────
 # ── Verify ──────────────────────────────────────────────────────

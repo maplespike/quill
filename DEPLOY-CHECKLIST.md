@@ -250,7 +250,7 @@ docker build --target quill-mcp -t quill-mcp:prod .
 #   # repeat for build.yaml + cloudflared.yaml
 #
 # Sync to K8s (one-shot or via systemd timer):
-#   QUILL_REPO=/opt/quill /opt/quill/scripts/sops-sync-k8s.sh
+#   QUILL_REPO=/home/j_kro/Projects/quill /home/j_kro/Projects/quill/scripts/sops-sync-k8s.sh
 #
 # The old manual flow was:
 #   kubectl create secret generic maplespike-secrets \
