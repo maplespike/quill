@@ -41,10 +41,20 @@ spec:
         ports:
         - containerPort: 8082
         env:
+        # Single-source contract (see k8s/maplespike/README.md + secrets/SECRETSPEC-CONTRACT.md):
+        #   maplespike-secrets         → JWT_SECRET, QUILL_BILLING_SECRET (upper, from runtime.yaml)
+        #   maplespike-stripe-secrets  → stripe-secret-key, stripe-webhook-secret,
+        #                                 stripe-account-id, stripe-publishable-key
+        #                                 (lower, from billing.yaml)
+        # Provisioned by BOTH the quill scripts/sops-sync-k8s.sh (5-min timer in
+        # nix/sops-nix-module.nix) and nixos-config's k8s-secret-sync — two writers still
+        # exist because the script carries the live-verified PII-hash logic; R2 (single
+        # secret-sync) is pending in #825. Key case MUST match the sync output exactly;
+        # K8s Secret data keys are case-sensitive.
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              key: jwt-secret
+              key: JWT_SECRET
               name: maplespike-secrets
               optional: true
         - name: PORT
@@ -67,30 +77,46 @@ spec:
           value: astral-key
         - name: ASTRAL_KEY_URL
           value: http://astral-key.astral-key.svc.cluster.local:8080
+        # PII hash: app auto-generates an ephemeral secret when unset (pii-hash.ts), so
+        # optional: true — a hard-required key that NO sync mechanism writes would block
+        # pod start (CreateContainerConfigError). For stable emailHash across restarts,
+        # provision `pii-hash-secret` (64-hex) into maplespike-secrets before go-live.
         - name: QUILL_PII_HASH_SECRET
           valueFrom:
             secretKeyRef:
               key: pii-hash-secret
               name: maplespike-secrets
-              optional: false
-        # #806: Stripe billing secrets, delivered via quill-owned secret
-        # `maplespike-secrets` (see secrets/secrets.nix + k8s/maplespike/README.md).
+              optional: true
+        # #806: Stripe billing secrets — live in maplespike-stripe-secrets (NOT
+        # maplespike-secrets). Provisioned from secrets/billing.yaml by k8s-secret-sync.
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
               key: stripe-secret-key
-              name: maplespike-secrets
+              name: maplespike-stripe-secrets
               optional: true
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
               key: stripe-webhook-secret
-              name: maplespike-secrets
+              name: maplespike-stripe-secrets
+              optional: true
+        - name: STRIPE_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              key: stripe-account-id
+              name: maplespike-stripe-secrets
+              optional: true
+        - name: STRIPE_PUBLISHABLE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: stripe-publishable-key
+              name: maplespike-stripe-secrets
               optional: true
         - name: QUILL_BILLING_SECRET
           valueFrom:
             secretKeyRef:
-              key: quill-billing-secret
+              key: QUILL_BILLING_SECRET
               name: maplespike-secrets
               optional: true
         # STRIPE_ENV defaults to 'test'; flip to 'live' at go-live (human step).

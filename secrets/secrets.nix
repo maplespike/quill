@@ -7,9 +7,9 @@ let
 in {
   "github-pat.age".publicKeys = users;
 
-  # #806/#808: Quill owns its billing secret delivery — these are NOT sourced
-  # from nixos-config's k8s-secret-sync / sops-secrets-registry. They land in
-  # the k8s Secret `quill-runtime-secrets` (see k8s/maplespike/README.md).
+  # Stripe keys live in secrets/billing.yaml (R3 ownership, #825) and are
+  # synced into the k8s Secret `maplespike-stripe-secrets` (lower case keys).
+  # See k8s/maplespike/README.md for the full secret contract.
   #
   # Placeholder definitions only: the operator must supply real ciphertext with
   # `sops -e --in-place secrets/<name>.age` (or seed via `sops secrets/<name>.age`).

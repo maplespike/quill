@@ -203,7 +203,7 @@ When rolling out:
 
 1. Build on a docker-enabled node — `nix build .#quill-<svc>-image -L` (preferred, Nix-first), or `docker build --target <stage> -t nexus:5000/quill-<svc>:build-$(date +%Y%m%d-%H%M) .` for non-Nix operators.
 2. Push to the local registry: `nix run .#push-images` (defaults: `REGISTRY=nexus:5000`, `TAG=stable`, `COMMIT=$git_sha`), or `docker push nexus:5000/quill-<svc>:build-<ts>`.
-3. Either (a) edit the Deployment manifest's `image:` line in the `maplespike` overlay, or (b) run `scripts/deploy.sh --overlay prod`.
+3. Either (a) edit the Deployment manifest's `image:` line in `k8s/maplespike/`, or (b) run `scripts/deploy.sh` (applies the `k8s/maplespike` reference set; the full bundle incl. cloudflared/GNP/VAP comes from `nix run .#deploy-saas`).
 4. `kubectl rollout restart deployment/maplespike-<service> -n maplespike` — **note the `maplespike-` prefix; the source manifests use `quill-` but the cluster has `maplespike-` until the rename rollout completes.**
 
 **Resolved:** pre-flip three-way mismatch (`ghcr.io` vs `localhost` vs `nexus:5000`) is collapsed to a single canonical `nexus:5000/quill-<svc>` after the systemic flip. GHCR push is dormant; `docs/GHCR-CLEANUP.md` is now archival.
@@ -393,8 +393,8 @@ Four auth methods, all returning JWT + MapleSpike API key. The auth mode is **na
 **Astral Key microservice**: Running in `astral-key` namespace (pod `astral-key-59bd486bf9-bsm5l`, PostgreSQL + Redis). Auth proxy routes at `/v1/astral/*`.
 
 **Secrets**:
-- `JWT_SECRET`: 512-bit, stored in k8s `quill-runtime-secrets` (key `jwt-secret`)
-- `QUILL_PII_HASH_SECRET`: 256-bit, stored in k8s `quill-runtime-secrets` (key `pii-hash-secret`)
+- `JWT_SECRET`: 512-bit, stored in k8s `maplespike-secrets` (key `JWT_SECRET`, upper case — sync writes uppercase, see `k8s/maplespike/quill-api-deployment.yaml`)
+- `QUILL_PII_HASH_SECRET`: 256-bit, stored in k8s `maplespike-secrets` (key `pii-hash-secret`)
 - `GITHUB_CLIENT_ID` + `GITHUB_CLIENT_SECRET`: GitHub OAuth app `Maplespike Quill` (owner: `reverb256`)
 
 Auth state is managed globally via `packages/portal/public/auth.js` — it injects account UI into the navbar on every page; components read from `window.MapleSpikeAuth`. The `SignupForm` component at `/signup` dynamically shows passkey, Web3, and OAuth buttons based on browser capabilities (`browserSupportsWebAuthn`, `window.ethereum`, `window.solana`).

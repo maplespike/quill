@@ -67,7 +67,7 @@ SOPS_AGE_KEY_FILE=/etc/nixos/.age/key.txt \
 On the nexus host:
 ```bash
 # One-shot: sync all secrets to K8s
-QUILL_REPO=/opt/quill /opt/quill/scripts/sops-sync-k8s.sh
+QUILL_REPO=/home/j_kro/Projects/quill /home/j_kro/Projects/quill/scripts/sops-sync-k8s.sh
 
 # Or rely on the systemd timer (every 5min) — it runs automatically.
 ```
