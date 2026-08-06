@@ -18,7 +18,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 # ── Configuration ───────────────────────────────────────────────────
 INCIDENT_LOG="${INCIDENT_LOG:-/tmp/incidents-$(date +%Y%m%d).json}"
-GITHUB_REPO="${GITHUB_REPO:-reverb256/maplespike}"
+GITHUB_REPO="${GITHUB_REPO:-reverb256/quill}"
 SLACK_WEBHOOK="${SLACK_WEBHOOK_URL:-}"
 PAGERDUTY_KEY="${PAGERDUTY_ROUTING_KEY:-}"
 

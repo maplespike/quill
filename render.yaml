@@ -12,7 +12,7 @@
 # Quill — Render Blueprint (one-click cloud deploy)
 # =============================================================================
 # Deploy the entire Quill stack to Render.com with a single click:
-#   https://render.com/deploy?repo=https://github.com/reverb256/maplespike
+#   https://render.com/deploy?repo=https://github.com/reverb256/quill
 # Once Render provisions, the Portal URL is given on the dashboard.
 #
 # Same image tags and port conventions as docker-compose.yml.
