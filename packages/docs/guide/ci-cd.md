@@ -116,7 +116,7 @@ Auto-generated issues use labels: `documentation`, `auto-generated`, `ci-cd`, `p
 
 ### Checks across repositories
 
-Runs against `reverb256/maplespike`, `reverb256/frostbite-gazette`, and `reverb256/mcp-canada`:
+Runs against `reverb256/quill`, `reverb256/frostbite-gazette`, and `reverb256/mcp-canada`:
 
 - **AGENTS.md** — exists, has `last-reviewed` and `status` fields
 - **Workflows** — lists all `.github/workflows/*.yml` files
