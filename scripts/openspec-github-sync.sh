@@ -15,7 +15,7 @@ set -euo pipefail
 ACTION="${1:?Usage: openspec-github-sync.sh <propose|archive|status> <change-name> <repo-path>}"
 CHANGE_NAME="${2:?}"
 REPO_PATH="${3:?}"
-GH_REPO="reverb256/maplespike"
+GH_REPO="reverb256/quill"
 
 CHANGE_DIR="$REPO_PATH/openspec/changes/$CHANGE_NAME"
 META_FILE="$CHANGE_DIR/.openspec.yaml"
