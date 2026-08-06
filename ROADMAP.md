@@ -9,7 +9,7 @@ status: active
 > **Build:** ✅ `pnpm build` passes (14/14 packages — `i18n` added since the prior 13-package baseline)
 > **Tests:** 910 passing (pipeline-core 339, quill-mcp 429 +54 from x402 Phase 2/3, api-server 66, engine 56, sdk 7, notification-service 13, i18n ~TBD) — regen via `node scripts/generate-metrics.mjs && git add` if drift is suspected. Confirmed via `pnpm test` after commit `95c8b52` (54 new) + commit `8c2e794` (infra reconciliation).
 > **Modules:** 208 registry entries, 203 standalone ingestion subdirs — see [`docs/metrics.json`](./docs/metrics.json)
-> **MCP tools:** **166** registered in `tools/index.ts` (added `x402-deposit` MCP tool for Solana USDC pre-pay credits per Phase 3 of [#750](https://github.com/reverb256/maplespike/issues/750); 168 tool files; 2 disabled for incomplete handlers per `RELEASES.md` §v0.3.0 Known Issues — `search-oecd`, `search-undp-hdr`) — `docs/metrics.json` `mcpTools.count`
+> **MCP tools:** **166** registered in `tools/index.ts` (added `x402-deposit` MCP tool for Solana USDC pre-pay credits per Phase 3 of [#750](https://github.com/reverb256/quill/issues/750); 168 tool files; 2 disabled for incomplete handlers per `RELEASES.md` §v0.3.0 Known Issues — `search-oecd`, `search-undp-hdr`) — `docs/metrics.json` `mcpTools.count`
 > **TypeScript:** 198,841 lines across 1,537 files, 14 packages
 > **MVP tracker:** [#665](https://github.com/reverb256/quill/issues/665) — Real readiness: ~30%
 > **Open issues:** 4 strategic (the 3 quality sub-issues from the v0.3.0 cleanup are closed; full list at bottom)

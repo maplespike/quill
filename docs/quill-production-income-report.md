@@ -4,7 +4,7 @@
 **Author:** j_kro (with Hermes agent)
 **Scope:** Take Quill from a Stripe-test-mode demo to a reliably-deployed, income-generating SaaS (Free / Pro / Business via Stripe), with a decoupled, secretspec-based secret pipeline.
 
-**Status: ALL CODE/INFRA PRs MERGED to `main` (quill + nixos-config).** Remaining = operator go-live steps tracked in issue [#823](https://github.com/reverb256/maplespike/issues/823).
+**Status: ALL CODE/INFRA PRs MERGED to `main` (quill + nixos-config).** Remaining = operator go-live steps tracked in issue [#823](https://github.com/reverb256/quill/issues/823).
 
 ---
 
@@ -39,15 +39,15 @@ Resolved via grilling + research during the wayfinder pass:
 
 | Ticket | PR | What shipped | Repo |
 |--------|-----|--------------|------|
-| #815 | [#817](https://github.com/reverb256/maplespike/pull/817) | Free = discovery/metadata only — `feature-gates.ts` + `index.ts` 402 gate + 36-test suite | quill |
-| #813 | [#818](https://github.com/reverb256/maplespike/pull/818) | PIPEDA privacy notice + Stripe refund policy (/privacy, /terms#refunds, /pricing footer) | quill |
-| #812 | [#820](https://github.com/reverb256/maplespike/pull/820) | Crown-copyright audit of 203 sources → `data-source-licenses.json` + `docs/licensing-audit.md` | quill |
-| #810 | [#821](https://github.com/reverb256/maplespike/pull/821) | Legal-entity decision doc (`docs/legal-entity.md`) — sole-prop minimum holds Stripe account | quill |
-| #808/#806/#807/#816 | [#819](https://github.com/reverb256/maplespike/pull/819) | Tunnel HA (replicas=2, maxUnavailable=0), Quill owns runtime (decoupled from nixos-config), billing secrets wired, reconcile-expiry CronJob, secret-name + source fixes | quill |
-| #805 | [#822](https://github.com/reverb256/maplespike/pull/822) | Go-live runbook (`docs/go-live-runbook.md`) + test-mode readiness check script | quill |
+| #815 | [#817](https://github.com/reverb256/quill/pull/817) | Free = discovery/metadata only — `feature-gates.ts` + `index.ts` 402 gate + 36-test suite | quill |
+| #813 | [#818](https://github.com/reverb256/quill/pull/818) | PIPEDA privacy notice + Stripe refund policy (/privacy, /terms#refunds, /pricing footer) | quill |
+| #812 | [#820](https://github.com/reverb256/quill/pull/820) | Crown-copyright audit of 203 sources → `data-source-licenses.json` + `docs/licensing-audit.md` | quill |
+| #810 | [#821](https://github.com/reverb256/quill/pull/821) | Legal-entity decision doc (`docs/legal-entity.md`) — sole-prop minimum holds Stripe account | quill |
+| #808/#806/#807/#816 | [#819](https://github.com/reverb256/quill/pull/819) | Tunnel HA (replicas=2, maxUnavailable=0), Quill owns runtime (decoupled from nixos-config), billing secrets wired, reconcile-expiry CronJob, secret-name + source fixes | quill |
+| #805 | [#822](https://github.com/reverb256/quill/pull/822) | Go-live runbook (`docs/go-live-runbook.md`) + test-mode readiness check script | quill |
 | (secretspec layer) | [#340](https://github.com/reverb256/nixos-config/pull/340) | nixos-config provisions quill Stripe secrets via secretspec (different-layer model) | nixos-config |
 
-Map: [#798](https://github.com/reverb256/maplespike/issues/798) · Spec: [#814](https://github.com/reverb256/maplespike/issues/814)
+Map: [#798](https://github.com/reverb256/quill/issues/798) · Spec: [#814](https://github.com/reverb256/quill/issues/814)
 
 ---
 
@@ -146,4 +146,4 @@ Contract documented in **`quill/secrets/SECRETSPEC-CONTRACT.md`**.
 | Free-tier gating | `quill/packages/api-server/src/feature-gates.ts`, `quill/packages/api-server/src/index.ts` |
 | Deploy (billing/tunnel) | `quill/k8s/maplespike/quill-api-deployment.yaml`, `quill/k8s/maplespike/quill-reconcile-expiry-cron.yaml`, `quill/charts/quill/templates/deployments.yaml`, `quill/scripts/sops-sync-k8s.sh` |
 | nixos-config secretspec | `nixos-config/hosts/nexus/secretspec-creds-wiring.nix`, `nixos-config/hosts/nexus/services.nix` |
-| Wayfinder map / spec | Issue [#798](https://github.com/reverb256/maplespike/issues/798), PR [#814](https://github.com/reverb256/maplespike/issues/814) |
+| Wayfinder map / spec | Issue [#798](https://github.com/reverb256/quill/issues/798), PR [#814](https://github.com/reverb256/quill/issues/814) |
