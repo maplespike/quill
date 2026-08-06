@@ -19,7 +19,7 @@ spec:
             kubernetes.io/hostname: forge
           containers:
           - name: ingest
-            image: ghcr.io/reverb256/maplespike-ingest:2026-05-16
+            image: nexus:5000/quill-ingest:2026-05-16
             imagePullPolicy: IfNotPresent
             env:
             - name: MAPLESPIKE_PIPELINE
