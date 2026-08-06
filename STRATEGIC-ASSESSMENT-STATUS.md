@@ -10,7 +10,7 @@
 | Task | Status | Evidence |
 |------|--------|----------|
 | P0: Foundation testing | ✅ 19 tests (http: 4, hashing: 15) | `packages/pipeline-core/test/*.test.ts` |
-| P1: Issues triage | ✅ 9 GitHub issues labeled | `gh issue list -R reverb256/maplespike` |
+| P1: Issues triage | ✅ 9 GitHub issues labeled | `gh issue list -R reverb256/quill` |
 | P1: MCP tool cleanup | ✅ 87/87 tools registered | `packages/quill-mcp/src/tools/index.ts` |
 | P1: Parser implementation | ✅ 32 modules implemented | `packages/pipeline-core/MODULE_IMPLEMENTATION_STATUS.md` |
 | P2: SDK expansion | ✅ 7 tests, entity resolution client | `packages/sdk/examples/` |

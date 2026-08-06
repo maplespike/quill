@@ -4,7 +4,7 @@
 
 set -e
 
-REPO="${1:-reverb256/maplespike}"
+REPO="${1:-reverb256/quill}"
 MODE="${2:-agent-ready}"
 SINGLE_NUMBER="${3:-}"
 
@@ -199,6 +199,6 @@ if [ "$MODE" = "all" ]; then
 fi
 
 echo "Usage: $0 <repo> [mode]"
-echo "  repo: GitHub repo (default: reverb256/maplespike)"
+echo "  repo: GitHub repo (default: reverb256/quill)"
 echo "  mode: foundation|agent-ready|all (default: agent-ready)"
 exit 1
