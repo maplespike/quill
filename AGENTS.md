@@ -480,3 +480,18 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 - **`AGENTS.md` is the source of truth.** Sibling `AGENTS.html` is an outdated static snapshot (Jul 3, 2026); do not edit.
 - **Counts that align (as of 2026-07-10):** `docs/metrics.json.mcpTools.count` reads **175** from a fresh `scripts/generate-metrics.mjs run; the script now parses `getAllTools()` directly (166 single-tool entries) and adds 6 WDI + 3 Comtrade adapter expansions. `LandingBody.astro` and `AGENTS.md` repository-identity line both reflect **175**. If a future caller sees drift, the cause is no longer the script — it would be a real change in `tools/index.ts`.
 - **Live route / pod state** changes between probes (cloudflared flap, etcd flap). Treat the Status section as a *recent snapshot*. To refresh: `curl -sI https://quill.maplespike.ca/<route>` + `kubectl get pods -n maplespike -o wide`.
+
+
+## Writing style — ASD-STE100 + Zinsser
+
+Write all user-facing prose in this repo in ASD-STE100 (Simplified Technical English) plus
+Zinsser's four principles. This governs grammar and tone only. It does NOT override the
+repo's hard rules (declarative-only, no-stubs, OpenSpec-first, root-cause-first).
+
+- Use the imperative for instructions. "Run the build." Not "You should run the build."
+- One idea per sentence. Short. Active voice.
+- Plain words: use, do, run, make, check, show. Not utilize, execute, perform, demonstrate.
+- No gerunds as nouns. No vague modals. Use "must / will / do not" for clear obligation.
+- Zinsser's four principles: Simplicity. Brevity. Clarity. Humanity.
+- Conclusion first. Then evidence. Then action.
+- When you do not know, say so. Never fabricate.
