@@ -238,6 +238,22 @@ Each batch follows the SEDI template (`constants.ts` + `types.ts` + `fetcher.ts`
 
 ---
 
+## Phase 7 — Ecosystem & Verification Layer (PLANNED) 🆕
+
+> **Plan:** [`docs/ECOSYSTEM-EXECUTION-PLAN.md`](./docs/ECOSYSTEM-EXECUTION-PLAN.md) — the full file-level plan to make Quill the trusted, verifiable, agent-first Canadian data substrate (claim stack, composition hub, MCP resources/prompts, ecosystem guide, skills). Audited 2026-08-09: verification layer is currently the weakest-implemented part of the stack (pseudo-hash `get_citation`, stubbed `/v1/citation`, no claim bundles on responses) — this phase makes it real, verification-first.
+
+| Milestone | Scope | Status |
+|-----------|-------|--------|
+| M0 — Stabilize | Finish Phase 4 deploy path + informal free-tier SLA + status page + fill empty `docs/products/quill.md`. **Parallel track, not a hard gate** (several Phase 4 blockers are operator-only: `forge` node, sops secrets) | 🟢 **Partial 2026-08-09**: `/v1/status` endpoint (SLA + freshness) + `docs/products/quill.md` filled; public health + portal status page still behind operator infra |
+| M1 — Claim Stack | Real SHA-256 claim bundles + SQLite-backed citation store + fix `get_citation` + fix `/v1/citation/:hash` + `verify_claim` tool/endpoint + claim bundles on 7 high-signal tools | 🟡 **Code done 2026-08-09** (`pipeline-core/src/claims/`, `citation_records` table, `verify-claim` tool, `/v1/claims/verify` routes, `withClaims` in 7 tools); pending live-endpoint verification |
+| M2 — Composition hub | Graph-backed `search_cross_reference` + `linked_entities` tool + documented entity ID scheme + versioned schemas | 🟡 **Code done 2026-08-09** (`linked_entities`, graph-backed `search_cross_reference` w/ keyword fallback, `quill://entity/{id}` scheme, `quill://schemas` MCP resources); acceptance needs populated entity graph (WS-1b ingestion + Phase 5.3 §Ph10) |
+| M3 — Agent-native | `resources/*` + `prompts/*` in MCP server (`quill://entities`, `quill://citations`, `influence-map`, `provenance-brief`) + progress/streaming + live-built tool index | 🟡 **Code done 2026-08-09** (`resources/list|templates|read`, `prompts/list|get`, `notifications/progress`, dynamic `discover_tools`); pending client smoke |
+| M4 — Ecosystem | `docs/building-on-quill.md` + Quill Lite mode + reusable ingestion patterns + x402 `_meta` alignment + 2 agent skills + Hermes profile | 🟡 **Mostly done 2026-08-09** (guide, Quill Lite doc, 2 skills, Hermes profile + example); x402 `_meta` alignment deferred |
+
+First execution slice: **M1 (Claim Stack)** — ~10-15 focused file changes (new `pipeline-core/src/claims/`, `packages/database` citation schema, `get-citation.ts`, `citation.ts` route, `withClaims` helper + 7 tool files, `verify-claim.ts`, `/v1/verify` route, `agent-card.json`) reusing existing attestation machinery (`hashing.ts`, `attestation/index.ts`). Gate = locally verified claim stack, so it never stalls on operator infra. See plan §WS-1 for file-level tasks.
+
+---
+
 ## Open Issues (Strategic)
 
 | # | Title | Priority | Status | Notes |

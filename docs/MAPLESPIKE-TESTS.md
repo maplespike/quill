@@ -289,7 +289,7 @@ Created `packages/quill-mcp/src/sse-protocol.test.ts` with 5 tests:
 **Verification Steps**:
 1. Increase mcp_timeout to 60s in Hermes config
 2. Reconnect Hermes session to reload MCP servers
-3. Test tools via Hermes directly: `maplespike_system_health`
+3. Test tools via Hermes directly: `system_health`
 4. Verify responses arrive within timeout
 
 **Expected Result**: Tool responses should arrive within 60s timeout.
