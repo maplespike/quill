@@ -84,7 +84,7 @@ describe('verifyCitationHash', () => {
   });
 
   it('verifies correct SHA-256', async () => {
-    const { computeHash } = await import('../../../verification/hashing.js');
+    const { computeHash } = await import('../../verification/hashing.js');
     const content = 'verify me please';
     const hash = await computeHash(content, 'sha256');
     const result = await verifyCitationHash({

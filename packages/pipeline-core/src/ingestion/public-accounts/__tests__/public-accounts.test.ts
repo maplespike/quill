@@ -11,7 +11,7 @@ describe('public-accounts Module', () => {
 
   it('parser handles empty records', async () => {
     const { parseAccountRecords, summarizeAccounts } = await import('../parser.js');
-    const entries = parseAccountRecords([], 'federal');
+    const entries = await parseAccountRecords([], 'federal');
     assert.equal(entries.length, 0);
     const summary = summarizeAccounts(entries);
     assert.equal(summary.totalEntries, 0);
@@ -22,7 +22,7 @@ describe('public-accounts Module', () => {
     const records = [
       { category: 'revenue', fiscalYear: 2023, amount: 500000, description: 'Tax Revenue' },
     ];
-    const entries = parseAccountRecords(records, 'federal');
+    const entries = await parseAccountRecords(records, 'federal');
     assert.equal(entries.length, 1);
     assert.equal(entries[0].category, 'revenue');
     assert.equal(entries[0].fiscalYear, 2023);
@@ -37,7 +37,7 @@ describe('public-accounts Module', () => {
       { description: 'Test' },
       {},
     ];
-    const entries = parseAccountRecords(records, 'ON');
+    const entries = await parseAccountRecords(records, 'ON');
     assert.equal(entries.length, 0);
   });
 
@@ -48,7 +48,7 @@ describe('public-accounts Module', () => {
       { category: 'revenue', fiscalYear: 2023, amount: 2000, description: 'Revenue B' },
       { category: 'expense', fiscalYear: 2023, amount: 500, description: 'Expense A' },
     ];
-    const entries = parseAccountRecords(records, 'federal');
+    const entries = await parseAccountRecords(records, 'federal');
     const summary = summarizeAccounts(entries);
     assert.equal(summary.totalEntries, 3);
     assert.equal(summary.totalAmount, 3500);

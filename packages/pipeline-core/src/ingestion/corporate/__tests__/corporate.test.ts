@@ -24,7 +24,12 @@ describe('corporate Module', () => {
     }
   });
 
-  it('ingestLobbying returns expected structure', async () => {
+  // Live-network tests: only run when RUN_LIVE_TESTS=1 so the unit suite
+  // stays offline-stable (these hit live lobbying/procurement APIs).
+  const runLive = !!process.env.RUN_LIVE_TESTS;
+  const liveIt = runLive ? it : it.skip;
+
+  liveIt('ingestLobbying returns expected structure', async () => {
     const { ingestLobbying } = await import('../index.js');
     const result = await ingestLobbying(null, { limit: 1 });
     assert.ok(result);
@@ -34,7 +39,7 @@ describe('corporate Module', () => {
     assert.ok(typeof result.durationMs === 'number');
   });
 
-  it('ingestProcurement returns expected structure', async () => {
+  liveIt('ingestProcurement returns expected structure', async () => {
     const { ingestProcurement } = await import('../index.js');
     const result = await ingestProcurement(null, { limit: 1 });
     assert.ok(result);
@@ -43,7 +48,7 @@ describe('corporate Module', () => {
     assert.ok(Array.isArray(result.errors));
   });
 
-  it('ingestExecutiveStatements returns expected structure', async () => {
+  liveIt('ingestExecutiveStatements returns expected structure', async () => {
     const { ingestExecutiveStatements } = await import('../index.js');
     const result = await ingestExecutiveStatements(null, { limit: 1 });
     assert.ok(result);

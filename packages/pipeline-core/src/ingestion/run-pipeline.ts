@@ -16,7 +16,7 @@
  *   JWT_SECRET            — required for API calls (set in k8s secrets)
  */
 
-import { runModule, getModule, getAllModules } from './registry.js';
+import { runModule, getModule, getAllModules, healthCheckModule } from './registry.js';
 import type { ModuleCategory } from './registry.js';
 
 /**
@@ -213,32 +213,14 @@ async function main() {
     console.log('[ingestion] No DATABASE_URL set — running without persistence');
   }
 
-  // Health check before running
+  // Health check before running. Delegates to registry.healthCheckModule,
+  // which treats 2xx-4xx as alive — a 404 on HEAD of a landing page means
+  // the server is reachable, not that the module is unhealthy. (The old
+  // inline fetch treated any non-2xx as fatal and blocked healthy modules.)
   if (module.healthCheckUrl) {
-    try {
-      const resp = await fetch(module.healthCheckUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
-      if (!resp.ok) {
-        console.warn(`[ingestion] Health check FAILED for ${module.healthCheckUrl} (${resp.status}) — skipping`);
-        if (pool) {
-          await persistResult(pool, {
-            id: `${pipelineName}-${Date.now()}`,
-            pipeline_name: pipelineName,
-            category: module.category,
-            source: module.sources.map(s => s.name).join(', '),
-            records_count: 0,
-            summary: `Upstream health check failed: ${resp.status}`,
-            status: 'skipped',
-            error_message: `Health check returned ${resp.status}`,
-            duration_ms: 0,
-          });
-        }
-        await pool?.end().catch(() => {});
-        process.exit(0);
-      }
-      console.log(`[ingestion] Health check OK: ${module.healthCheckUrl} → ${resp.status}`);
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : String(err);
-      console.warn(`[ingestion] Health check error for ${module.healthCheckUrl}: ${errMsg} — skipping`);
+    const healthy = await healthCheckModule(module);
+    if (!healthy) {
+      console.warn(`[ingestion] Health check FAILED for ${module.healthCheckUrl} — skipping`);
       if (pool) {
         await persistResult(pool, {
           id: `${pipelineName}-${Date.now()}`,
@@ -246,15 +228,16 @@ async function main() {
           category: module.category,
           source: module.sources.map(s => s.name).join(', '),
           records_count: 0,
-          summary: `Upstream unreachable: ${errMsg}`,
+          summary: 'Upstream health check failed',
           status: 'skipped',
-          error_message: errMsg,
+          error_message: 'Upstream unreachable or unhealthy (see [HEALTH] log)',
           duration_ms: 0,
         });
       }
       await pool?.end().catch(() => {});
       process.exit(0);
     }
+    console.log(`[ingestion] Health check OK: ${module.healthCheckUrl}`);
   } else {
     console.log('[ingestion] No health check URL configured — proceeding directly');
   }

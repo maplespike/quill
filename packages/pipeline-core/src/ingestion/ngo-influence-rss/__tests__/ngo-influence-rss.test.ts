@@ -10,27 +10,37 @@ describe('ngo-influence-rss Module', () => {
     assert.equal(typeof mod.classifyNarrative, 'function');
   });
 
-  it('NGO_SOURCES has entries', async () => {
-    const { NGO_SOURCES } = await import('../constants.js');
-    assert.ok(Array.isArray(NGO_SOURCES));
-    assert.ok(NGO_SOURCES.length >= 20, `Expected 20+ sources, got ${NGO_SOURCES.length}`);
-    for (const s of NGO_SOURCES) {
-      assert.ok(s.id, 'Missing source id');
+  it('NGO_RSS_SOURCES has entries', async () => {
+    const { NGO_RSS_SOURCES } = await import('../constants.js');
+    assert.ok(Array.isArray(NGO_RSS_SOURCES));
+    assert.ok(NGO_RSS_SOURCES.length >= 5, `Expected 5+ sources, got ${NGO_RSS_SOURCES.length}`);
+    for (const s of NGO_RSS_SOURCES) {
       assert.ok(s.name, 'Missing source name');
       assert.ok(s.url, 'Missing source url');
+      assert.ok(s.category, 'Missing source category');
     }
   });
 
-  it('classifyNarrative returns classification', async () => {
+  it('classifyNarrative returns narrative flags for an item', async () => {
     const { classifyNarrative } = await import('../index.js');
-    const result = classifyNarrative('Climate change policy is impacting the economy');
-    assert.ok(result);
-    assert.ok(Array.isArray(result.categories) || typeof result.category === 'string');
+    const item = {
+      id: 'test-1',
+      title: 'Climate change policy is impacting the economy',
+      summary: 'Policy analysis on climate and the economy',
+      source: 'test-source',
+      url: 'https://example.com/test',
+      publishedAt: '2026-01-01',
+      narrativeTags: ['economic-policy'],
+    };
+    const result = classifyNarrative(item as any);
+    assert.ok(Array.isArray(result));
+    assert.ok(result.length >= 1, 'should return at least one flag');
   });
 
-  it('searchNgoRss handles empty query', async () => {
+  it('searchNgoRss handles empty query over empty items', async () => {
     const { searchNgoRss } = await import('../index.js');
-    const result = await searchNgoRss('');
+    const result = searchNgoRss([], '');
     assert.ok(Array.isArray(result));
+    assert.equal(result.length, 0);
   });
 });

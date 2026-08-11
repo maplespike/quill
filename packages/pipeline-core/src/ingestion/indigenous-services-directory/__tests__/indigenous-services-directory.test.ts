@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 
 describe('ingestion/indigenous-services-directory', () => {
   it('constants module loads with correct exports', async () => {
-    const constantsMod = await import('./constants.js');
+    const constantsMod = await import('../constants.js');
     assert.ok(constantsMod, 'constants should load');
     assert.equal(typeof constantsMod, 'object', 'constants should be an object');
     assert.ok(Object.keys(constantsMod).length > 0, 'constants should export at least one value');
@@ -15,12 +15,12 @@ describe('ingestion/indigenous-services-directory', () => {
   });
 
   it('types module loads correctly', async () => {
-    const typesMod = await import('./types.js');
+    const typesMod = await import('../types.js');
     assert.ok(typesMod, 'types should load');
   });
 
   it('fetcher module loads and exports functions', async () => {
-    const fetcherMod = await import('./fetcher.js');
+    const fetcherMod = await import('../fetcher.js');
     assert.ok(fetcherMod, 'fetcher should load');
     const keys = Object.keys(fetcherMod);
     assert.ok(keys.length > 0, 'fetcher should export at least one item');
@@ -29,7 +29,7 @@ describe('ingestion/indigenous-services-directory', () => {
   });
 
   it('parser module loads and exports functions', async () => {
-    const parserMod = await import('./parser.js');
+    const parserMod = await import('../parser.js');
     assert.ok(parserMod, 'parser should load');
     const keys = Object.keys(parserMod);
     assert.ok(keys.length > 0, 'parser should export at least one item');
@@ -38,7 +38,7 @@ describe('ingestion/indigenous-services-directory', () => {
   });
 
   it('index module exports the expected public API', async () => {
-    const indexMod = await import('./index.js');
+    const indexMod = await import('../index.js');
     const keys = Object.keys(indexMod);
     assert.ok(keys.length > 0, 'index should export at least one item');
     keys.forEach(k => {
@@ -54,14 +54,14 @@ describe('ingestion/indigenous-services-directory', () => {
 
   describe('normalizeProvince', () => {
     it('normalizes Ontario names', async () => {
-      const { normalizeProvince } = await import('./parser.js');
+      const { normalizeProvince } = await import('../parser.js');
       assert.equal(normalizeProvince('ONTARIO'), 'ON');
       assert.equal(normalizeProvince('Ontario'), 'ON');
       assert.equal(normalizeProvince('ON'), 'ON');
     });
 
     it('normalizes all provinces and territories', async () => {
-      const { normalizeProvince } = await import('./parser.js');
+      const { normalizeProvince } = await import('../parser.js');
       assert.equal(normalizeProvince('ALBERTA'), 'AB');
       assert.equal(normalizeProvince('MANITOBA'), 'MB');
       assert.equal(normalizeProvince('SASKATCHEWAN'), 'SK');
@@ -75,7 +75,7 @@ describe('ingestion/indigenous-services-directory', () => {
     });
 
     it('returns CA for unknown province', async () => {
-      const { normalizeProvince } = await import('./parser.js');
+      const { normalizeProvince } = await import('../parser.js');
       assert.equal(normalizeProvince('Unknown'), 'CA');
       assert.equal(normalizeProvince(null), 'CA');
     });
@@ -87,7 +87,7 @@ describe('ingestion/indigenous-services-directory', () => {
 
   describe('parseIndigenousServicesDirectory (basic structure)', () => {
     it('returns array for valid JSON array with data', async () => {
-      const { parseIndigenousServicesDirectory } = await import('./parser.js');
+      const { parseIndigenousServicesDirectory } = await import('../parser.js');
       const json = JSON.stringify([
         { name: 'Test Service', organization: 'Test Org', province: 'ON' }
       ]);
@@ -97,7 +97,7 @@ describe('ingestion/indigenous-services-directory', () => {
     });
 
     it('returns empty array for empty JSON array', async () => {
-      const { parseIndigenousServicesDirectory } = await import('./parser.js');
+      const { parseIndigenousServicesDirectory } = await import('../parser.js');
       const json = JSON.stringify([]);
       const result = await parseIndigenousServicesDirectory(json);
       assert.ok(Array.isArray(result));
@@ -105,7 +105,7 @@ describe('ingestion/indigenous-services-directory', () => {
     });
 
     it('returns empty array for empty string', async () => {
-      const { parseIndigenousServicesDirectory } = await import('./parser.js');
+      const { parseIndigenousServicesDirectory } = await import('../parser.js');
       const json = '';
       const result = await parseIndigenousServicesDirectory(json);
       assert.ok(Array.isArray(result));
@@ -113,7 +113,7 @@ describe('ingestion/indigenous-services-directory', () => {
     });
 
     it('creates records with SHA-256 IDs', async () => {
-      const { parseIndigenousServicesDirectory } = await import('./parser.js');
+      const { parseIndigenousServicesDirectory } = await import('../parser.js');
       const json = JSON.stringify([
         { name: 'Test Service', organization: 'Test Org', province: 'ON' }
       ]);
@@ -125,7 +125,7 @@ describe('ingestion/indigenous-services-directory', () => {
     });
 
     it('filters records with missing service names', async () => {
-      const { parseIndigenousServicesDirectory } = await import('./parser.js');
+      const { parseIndigenousServicesDirectory } = await import('../parser.js');
       const json = JSON.stringify([
         { organization: 'Test Org', province: 'ON' }
       ]);
@@ -135,7 +135,7 @@ describe('ingestion/indigenous-services-directory', () => {
     });
 
     it('preserves organization field', async () => {
-      const { parseIndigenousServicesDirectory } = await import('./parser.js');
+      const { parseIndigenousServicesDirectory } = await import('../parser.js');
       const json = JSON.stringify([
         { name: 'Test Service', organization: 'Test Org', province: 'ON' }
       ]);
