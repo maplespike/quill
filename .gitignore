@@ -75,3 +75,8 @@ packages/portal/public/data/security/
 # Experimental nested-git subdirectory (own .git/.gitignore inside).
 # Excluded from upstream workspace to keep build clean; treat as local-only.
 packages/flywheel-agent/
+
+# Runtime SQLite claim/entity stores (generated at ingestion/seed time)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
