@@ -95,16 +95,25 @@ podman load < result
 ## Push Images to a Registry
 
 The images are tagged `quill-<svc>:latest` locally after `podman load`. Push
-them to a registry your cluster can pull from:
+them to a registry your cluster can pull from (production uses the local
+`nexus:5000` registry — see `docs/GHCR-CLEANUP.md` for the retired GHCR path):
 
 ```bash
-REGISTRY=registry.example.com REPO=quill TAG=stable \
+REGISTRY=registry.example.com TAG=stable \
   nix run .#push-images
 ```
 
 `push-images` tags and pushes `quill-api`, `quill-mcp`, `quill-portal` (as
 well as `ingest`/`engine` if built) to
-`$REGISTRY/$REPO/<svc>:$TAG`.
+`$REGISTRY/quill-<svc>:$TAG`.
+
+> **Pinned tags, not `latest`:** the generated manifests reference the
+> per-service image tags baked into `flake.nix` (the `saas-manifests` package's
+> `apiTag`/`mcpTag`/`portalTag`). If your cluster runs the
+> `deny-latest-tag-deployments` admission policy (as the Quill production
+> cluster does), `:latest` in a Deployment is rejected — pin concrete tags.
+> To point the manifests at your own pushed tags, override the parameters when
+> calling `saasManifests` in `flake.nix`.
 
 For a **single-node / air-gapped** cluster you can skip the registry: load the
 images directly onto the node and set `imagePullPolicy: Never` in the
@@ -141,11 +150,12 @@ The generated manifest uses these Service names:
 | `quill-mcp`    | 3001 | MCP server (SSE)   |
 | `quill-portal` | 8080 | Developer portal   |
 
-> If your cluster already runs older `maplespike-*`-prefixed resources (from a
-> previous Kustomize deploy), delete them first so the new `quill-*` resources
-> take over, then update the `cloudflared-config` ConfigMap to point at the
-> `quill-*` Service names. `nix run .#deploy-saas` is idempotent for the
-> generated resources themselves.
+> The production cluster pins its Service ClusterIPs (`10.43.100.10/11/12`)
+> because cloudflared dials literal IPs, not DNS names — cloudflared's Go
+> resolver NXDOMAINs `*.svc.cluster.local`, which regresses the tunnel to edge
+> 502s. If you change the Service specs, update the `cloudflared-config`
+> ConfigMap upstreams to match. `nix run .#deploy-saas` is idempotent for the
+> generated resources.
 
 ### Ingress
 
