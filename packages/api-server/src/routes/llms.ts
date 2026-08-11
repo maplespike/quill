@@ -242,7 +242,7 @@ function generateLlmFullTxt(config: { name: string; version: string }): string {
     'Authorization: Bearer <your-api-key>',
     '```',
     '',
-    'API keys have the prefix `maplespike_`. Get your key at https://quill.maplespike.ca.',
+    'API keys have the prefix `quill_`. Get your key at https://quill.maplespike.ca.',
     '',
     'Authentication methods supported:',
     '- API key (Bearer token)',
