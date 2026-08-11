@@ -2,6 +2,7 @@ import type { ToolDefinition, ToolHandler } from './types.js';
 import { chatCompletion } from '../ai/gateway.js';
 import { searchGovData } from './api-client.js';
 import { scanPII } from '@maplespike/pipeline-core';
+import { withClaims } from './claims-helper.js';
 
 /**
  * AI Ask Tool
@@ -130,7 +131,7 @@ Rules:
 
     if (aiResult) {
       return {
-        content: {
+        content: await withClaims({
           tool: 'ai_ask',
           query,
           sourceFilter: sourceFilter || undefined,
@@ -140,13 +141,19 @@ Rules:
           pipelineRecordsUsed: searchResults.length,
           model: (aiResult as any)?.model ?? '',
           usage: (aiResult as any)?.usage ?? {},
-        },
+        }, citations.map(c => ({
+          claim: `Citation: ${c.title}`,
+          value: c,
+          sourceName: c.source,
+          sourceUrl: c.url || '',
+          transformations: ['semantic-search'],
+        }))),
       };
     }
 
     // Search-only fallback (no AI gateway available)
     return {
-      content: {
+      content: await withClaims({
         tool: 'ai_ask',
         query,
         sourceFilter: sourceFilter || undefined,
@@ -163,7 +170,13 @@ Rules:
           url: (r.url || '') as string,
           summary: scanPII(((r.summary || r.description || '') as string).slice(0, 500)).redacted,
         })),
-      },
+      }, citations.map(c => ({
+        claim: `Citation: ${c.title}`,
+        value: c,
+        sourceName: c.source,
+        sourceUrl: c.url || '',
+        transformations: ['semantic-search'],
+      }))),
     };
   } catch (error) {
     return {

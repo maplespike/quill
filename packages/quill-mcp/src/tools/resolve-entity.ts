@@ -10,7 +10,8 @@
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { resolveEntity } from './entity-resolver-lib.js';
+import { resolveEntity } from '@maplespike/pipeline-core';
+import { withClaims } from './claims-helper.js';
 
 export const definition: ToolDefinition = {
   name: 'resolve_entity',
@@ -61,7 +62,7 @@ export const handler: ToolHandler = async (args) => {
   try {
     const result = resolveEntity(name, type, threshold);
     return {
-      content: {
+      content: await withClaims({
         tool: 'resolve_entity',
         query: name,
         type: result.type,
@@ -71,7 +72,13 @@ export const handler: ToolHandler = async (args) => {
         appearances: result.appearances,
         totalAppearances: result.appearances.length,
         summary: `${result.canonicalName} appears in ${result.appearances.length} record(s) across ${new Set(result.appearances.map(a => a.module)).size} module(s).`,
-      },
+      }, result.appearances.map(a => ({
+        claim: `Appearance in ${a.module}: ${a.role || 'mentioned'}${a.date ? ` (${a.date})` : ''}`,
+        value: a,
+        sourceName: a.module,
+        sourceUrl: a.sourceUrl || '',
+        transformations: ['entity-resolution'],
+      }))),
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Entity resolution failed';

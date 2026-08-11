@@ -5,16 +5,38 @@ import assert from 'node:assert/strict';
 interface MockDB {
   prepare(sql: string): {
     all(...params: any[]): Promise<any[]>;
-    all(...params: any[]): any[];
     get(sql: string): any;
   };
 }
 
-function mockDB(result: any = {}): MockDB {
+/**
+ * SQL-aware mock: emulates the subset of SQL the service actually uses.
+ *  - `all()` filters rows by `entity_normalized LIKE '<prefix>%'` and
+ *    `entity_type IN (...)` params when present.
+ *  - `get()` dispatches on aggregate SQL to return per-query counts.
+ */
+function mockDB(rows: any[] = [], counts: Record<string, number> = {}): MockDB {
   return {
-    prepare: () => ({
-      all: async (...params: any[]) => Array.isArray(result) ? result : [],
-      get: () => result,
+    prepare: (sql: string) => ({
+      all: async (...params: any[]) => {
+        let out = rows;
+        const likeParam = params.find(p => typeof p === 'string' && p.includes('%'));
+        if (likeParam) {
+          const prefix = String(likeParam).replace('%', '');
+          out = out.filter(r => (r.entity_normalized ?? '').startsWith(prefix));
+        }
+        if (sql.includes('entity_type IN')) {
+          const types = params.filter(p => typeof p === 'string' && !p.includes('%'));
+          out = out.filter(r => types.includes(r.entity_type));
+        }
+        return out;
+      },
+      get: async () => {
+        if (sql.includes('COUNT(DISTINCT entity_id)')) return { count: counts.unique ?? 0 };
+        if (sql.includes('COUNT(DISTINCT module_id)')) return { count: counts.modules ?? 0 };
+        if (sql.includes('COUNT(*)')) return { count: counts.total ?? 0 };
+        return { count: 0 };
+      },
     }),
   } as unknown as MockDB;
 }
@@ -94,18 +116,13 @@ describe('EntityResolutionService', () => {
   });
 
   it('builds entity graph with relationships', async () => {
-    const db = mockDB([
+    const rows = [
       { entity_id: 'abc-123', entity_name: 'ABC Corp', entity_type: 'organization', entity_normalized: 'abc corp', module_id: 'corporate', confidence_score: 0.9, record_date: '2026-01-01' },
       { entity_id: 'john-456', entity_name: 'John Smith', entity_type: 'person', entity_normalized: 'john smith', module_id: 'committees', confidence_score: 0.9, record_date: '2026-01-01' },
-    ]);
+    ];
+    const db = mockDB(rows, { total: 5 });
     const { EntityResolutionService } = await import('../service.js');
     const service = new EntityResolutionService({ db: db as any });
-
-    // Mock co-occurrence by returning results in the inner query
-    db.prepare = () => ({
-      all: async () => [],
-      get: async () => ({ count: 5 }),
-    }) as any;
 
     const graph = await service.buildEntityGraph();
     assert.equal(graph.totalMentions, 5);
@@ -132,10 +149,7 @@ describe('EntityResolutionService', () => {
   });
 
   it('gets statistics', async () => {
-    const db = mockDB({
-      count: 327,
-      'DISTINCT': 89,
-    });
+    const db = mockDB([], { total: 327, unique: 89, modules: 5 });
     const { EntityResolutionService } = await import('../service.js');
     const service = new EntityResolutionService({ db: db as any });
 

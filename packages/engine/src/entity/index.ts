@@ -6,6 +6,13 @@ export { AliasManager } from "./aliases";
 export { DisambiguationEngine } from "./disambiguation";
 export { CrossModuleLinker, LINKING_RULES } from "./linker";
 export { EntityResolver } from "./resolver";
+export {
+  ENTITY_URI_PREFIX,
+  ENTITY_REGISTRIES,
+  toEntityUri,
+  fromEntityUri,
+  isEntityUri,
+} from "./types";
 export type {
   AliasEntry,
   ConfidenceLevel,
