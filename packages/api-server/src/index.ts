@@ -52,12 +52,13 @@ interface Route {
 
 import { healthHandler } from './routes/health.js';
 import { versionHandler } from './routes/version.js';
+import { statusHandler } from './routes/status.js';
 import { addAttributionHeader } from './middleware/attribution.js';
 import { applySecurityHeaders } from './middleware/security-headers.js';
 import { withRouteCache } from './middleware/cache-middleware.js';
 import { complianceHandler } from './routes/compliance.js';
 import { listReleasesHandler, searchGovHandler } from './routes/gov.js';
-import { getCitationHandler } from './routes/citation.js';
+import { getCitationHandler, getVerifyClaimHandler, postVerifyClaimHandler, getLatestClaimsHandler } from './routes/citation.js';
 import { auditQueryHandler } from './routes/audit.js';
 import { auditGetHandler } from './routes/audit-get.js';
 import { securityAuditSummaryHandler } from './routes/security-audit.js';
@@ -122,6 +123,7 @@ import {
   webhookDeliveriesHandler,
 } from './routes/webhooks.js';
 import { entityResolveHandler, entityConnectionsHandler } from './routes/entity.js';
+import { entityByIdHandler, entityLinksHandler } from './routes/entities-detail.js';
 import { municipalDataHandler, municipalCityHandler, municipalCoverageHandler, municipalFacetsHandler, municipalHealthHandler, municipalSearchHandler } from './routes/municipal.js';
 import { dataQualityHandler } from './routes/data-quality.js';
 import {
@@ -140,6 +142,7 @@ import {
 const ROUTES: Route[] = [
   { pattern: /^\/v1\/health\/?$/, method: 'GET', params: [], handler: withRouteCache(healthHandler, 30) },
   { pattern: /^\/v1\/version\/?$/, method: 'GET', params: [], handler: withRouteCache(versionHandler, 30) },
+  { pattern: /^\/v1\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(statusHandler, 30) },
   { pattern: /^\/v1\/compliance\/?$/, method: 'GET', params: [], handler: withRouteCache(complianceHandler, 3600) },
   { pattern: /^\/v1\/onboarding\/?$/, method: 'GET', params: [], handler: withRouteCache(onboardingHandler, 3600) },
   { pattern: /^\/v1\/contact\/?$/, method: 'POST', params: [], handler: contactHandler },
@@ -150,6 +153,11 @@ const ROUTES: Route[] = [
   { pattern: /^\/v1\/gov\/search\/?$/, method: 'GET', params: [], handler: withRouteCache(searchGovHandler, 300) },
 
   { pattern: /^\/v1\/citation\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: withRouteCache(getCitationHandler, 3600) },
+  // Claim Stack WS-1f: independent claim verification
+  { pattern: /^\/v1\/claims\/verify\/([^/]+)\/?$/, method: 'GET', params: ['hash'], handler: withRouteCache(getVerifyClaimHandler, 60) },
+  { pattern: /^\/v1\/claims\/verify\/?$/, method: 'POST', params: [], handler: postVerifyClaimHandler },
+  // Claims discovery (public): what has Quill attested recently?
+  { pattern: /^\/v1\/claims\/latest\/?$/, method: 'GET', params: [], handler: withRouteCache(getLatestClaimsHandler, 60) },
   { pattern: /^\/v1\/audit\/query\/?$/, method: 'POST', params: [], handler: auditQueryHandler },
   { pattern: /^\/v1\/audit\/?$/, method: 'GET', params: [], handler: withRouteCache(auditGetHandler, 60) },
   // Live dependency security — runs pnpm audit server-side, falls back to static snapshot
@@ -260,6 +268,19 @@ const ROUTES: Route[] = [
   // Entity resolution
   { pattern: /^\/v1\/entity\/resolve\/?$/, method: 'POST', params: [], handler: entityResolveHandler },
   { pattern: /^\/v1\/entity\/connections\/?$/, method: 'GET', params: [], handler: withRouteCache(entityConnectionsHandler, 300) },
+  // Entity composition surface — quill://entity/{id} scheme + linked_entities results
+  // (WS-2 cross-reference hub exposed to non-MCP clients). links MUST be registered
+  // before {id} — both patterns can match '/v1/entities/<word>'; matchRoute returns
+  // the first regex hit, so ordering links first is safe either way.
+  //
+  // NOTE: intentionally NOT wrapped in withRouteCache — these routes are tier-gated
+  // (Pro+/Business+) and the route cache keys on method:path:search WITHOUT a tenant
+  // dimension, so a cached response from a higher-tier caller would bypass the gate
+  // for a lower-tier caller (surfaced in live verification: a Pro-key call received
+  // the cached internal-tier 200 instead of UPGRADE_REQUIRED). Tier gates must run
+  // on every request.
+  { pattern: /^\/v1\/entities\/([^/]+)\/links\/?$/, method: 'GET', params: ['id'], handler: entityLinksHandler },
+  { pattern: /^\/v1\/entities\/([^/]+)\/?$/, method: 'GET', params: ['id'], handler: entityByIdHandler },
 
   // Watcher (real-time monitoring)
   { pattern: /^\/v1\/watcher\/status\/?$/, method: 'GET', params: [], handler: withRouteCache(watcherStatusHandler, 60) },
@@ -497,12 +518,21 @@ export async function handleRequest(
   const authExempt =
     path.startsWith('/v1/health')
     || path.startsWith('/v1/version')
+    || path.startsWith('/v1/status')
     || path.startsWith('/v1/compliance')
     || path.startsWith('/v1/onboarding')
     || path.startsWith('/v1/gov/search')
     || path.startsWith('/v1/gov/releases')
     || path.startsWith('/v1/openapi')
     || path.startsWith('/v1/citation/')
+    // Claim verification is a public trust primitive — anyone (journalists,
+    // other MCP authors, downstream pipelines) must be able to re-verify a
+    // SHA-256 without an API key. Same rationale as /v1/citation/ above.
+    || path.startsWith('/v1/claims/verify')
+    // Claim discovery is public too — the index of attested claims (hash +
+    // provenance, no payloads) exists so the ecosystem can find something to
+    // verify. Same trust-primitive rationale.
+    || path.startsWith('/v1/claims/latest')
     || path.startsWith('/v1/auth/')
     || path.startsWith('/v1/register')
     || path.startsWith('/v1/verify/')

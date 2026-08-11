@@ -57,3 +57,60 @@ export interface ResolvedEntity {
   /** Confidence in the resolution (lowest confidence among merged names) */
   confidence: number;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Canonical Entity URI scheme (WS-2)                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Stable, addressable identifier for every resolved entity.
+ *
+ * Format: `quill://entity/{id}` where `{id}` is the raw entity id
+ * (e.g. the `entities.id` column). The scheme is the composition contract
+ * for other MCP servers and agent stacks: any tool or resource that names
+ * an entity MUST expose this URI so clients can link registries against it
+ * without re-implementing resolution.
+ *
+ * Resource template: `quill://entities/{name}` resolves a name to a URI;
+ * `quill://crossref/{entityId}` returns the relationship subgraph.
+ */
+export const ENTITY_URI_PREFIX = "quill://entity/";
+
+/** Canonical registry buckets used by cross-reference grouping. */
+export const ENTITY_REGISTRIES = [
+  "lobbying",
+  "gic",
+  "committees",
+  "corporate",
+  "canlii",
+  "elections",
+  "oversight",
+  "proactive-disclosure",
+  "municipal",
+  "provincial",
+  "other",
+] as const;
+
+export type EntityRegistry = (typeof ENTITY_REGISTRIES)[number];
+
+/** Build the canonical URI for an entity id. */
+export function toEntityUri(id: string): string {
+  return `${ENTITY_URI_PREFIX}${encodeURIComponent(id)}`;
+}
+
+/** Extract the raw entity id from a `quill://entity/{id}` URI (or return input unchanged if not a URI). */
+export function fromEntityUri(uri: string): string {
+  if (uri.startsWith(ENTITY_URI_PREFIX)) {
+    try {
+      return decodeURIComponent(uri.slice(ENTITY_URI_PREFIX.length));
+    } catch {
+      return uri.slice(ENTITY_URI_PREFIX.length);
+    }
+  }
+  return uri;
+}
+
+/** True when the string is a canonical `quill://entity/...` URI. */
+export function isEntityUri(value: string): boolean {
+  return value.startsWith(ENTITY_URI_PREFIX);
+}

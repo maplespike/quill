@@ -1,0 +1,224 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
+---
+
+<BaseLayout
+  title={i18n.t('claims.title')}
+  description="A live index of the verifiable claim bundles Quill has registered — discover what has been attested, then verify any hash independently."
+  lang={lang}
+>
+  <!-- Hero -->
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4">
+      <div class="max-w-3xl">
+        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground">
+          <span class="h-1.5 w-1.5 rounded-full bg-[var(--moss)]"></span>
+          Public discovery — no API key required
+        </div>
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          <span class="text-gradient">{i18n.t('claims.title')}</span>
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
+          {i18n.t('claims.subtitle')}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Index -->
+  <section class="py-16 md:py-20">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div id="claims-status" class="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <span class="h-2 w-2 animate-pulse rounded-full bg-[var(--maple)]"></span>
+        <span id="claims-loading">{i18n.t('claims.loading')}</span>
+      </div>
+
+      <div id="claims-error" class="hidden rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500"></div>
+
+      <div id="claims-empty" class="hidden rounded-xl border border-border/60 bg-card/40 p-8 text-center">
+        <div class="text-2xl mb-2">🗂️</div>
+        <p class="text-sm text-muted-foreground">{i18n.t('claims.empty')}</p>
+      </div>
+
+      <div id="claims-list" class="hidden space-y-3"></div>
+
+      <!-- How it works -->
+      <Card class="mt-12">
+        <CardHeader>
+          <CardTitle class="text-base">📚 {i18n.t('claims.how.title')}</CardTitle>
+          <CardDescription>
+            {i18n.t('claims.how.body')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div class="overflow-x-auto rounded-md bg-muted p-3">
+            <code class="text-xs text-muted-foreground block">
+              curl -s https://api.maplespike.ca/v1/claims/latest
+            </code>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      "use strict";
+
+      var cfg = window.MAPLESPIKE || {};
+      var apiBase = (cfg.apiBase || "https://api.maplespike.ca") + "/v1";
+
+      var statusEl = document.getElementById("claims-status");
+      var loadingEl = document.getElementById("claims-loading");
+      var errorEl = document.getElementById("claims-error");
+      var emptyEl = document.getElementById("claims-empty");
+      var listEl = document.getElementById("claims-list");
+
+      function i18n(key) {
+        var dict = {
+          "en": {
+            "claims.empty": "No claims registered yet. Run an ingestion or call an MCP tool that registers claim bundles, then check back.",
+            "claims.error": "Could not load the claim index. Try again shortly, or use the API directly: GET /v1/claims/latest",
+            "claims.source": "Source",
+            "claims.retrieved": "Retrieved",
+            "claims.verify": "Verify this claim",
+            "claims.loading": "Loading…",
+            "claims.live": "live from",
+            "claims.bundle": "claim bundle",
+            "claims.bundles": "claim bundles",
+          },
+          "fr": {
+            "claims.empty": "Aucune allégation enregistrée pour le moment. Lancez une ingestion ou appelez un outil MCP qui enregistre des bundles d'allégations, puis revenez plus tard.",
+            "claims.error": "Impossible de charger l'index des allégations. Réessayez bientôt, ou utilisez l'API directement : GET /v1/claims/latest",
+            "claims.source": "Source",
+            "claims.retrieved": "Consulté le",
+            "claims.verify": "Vérifier cette allégation",
+            "claims.loading": "Chargement…",
+            "claims.live": "en direct depuis",
+            "claims.bundle": "bundle d'allégations",
+            "claims.bundles": "bundles d'allégations",
+          }
+        };
+        var lang = (window.__LANG === "fr") ? "fr" : "en";
+        return dict[lang][key] || key;
+      }
+
+      function sanitizeUrl(u) {
+        try {
+          var parsed = new URL(u, window.location.origin);
+          return parsed.href;
+        } catch (e) {
+          return "#";
+        }
+      }
+
+      function renderRow(c) {
+        var verifyUrl = "/verify?hash=" + encodeURIComponent(c.sha256);
+        var sourceName = c.source_name || "—";
+        var host = "";
+        if (c.source_url) {
+          try { host = new URL(sanitizeUrl(c.source_url)).hostname; } catch (e) { host = ""; }
+        }
+
+        var el = document.createElement("a");
+        el.href = verifyUrl;
+        el.className = "group block rounded-xl border border-border/60 bg-card/40 p-4 transition-all duration-200 hover:border-[var(--maple)]/40 hover:bg-card hover:shadow-sm";
+
+        var top = document.createElement("div");
+        top.className = "flex items-start justify-between gap-4";
+
+        var claimWrap = document.createElement("div");
+        claimWrap.className = "min-w-0 flex-1";
+        var claim = document.createElement("p");
+        claim.className = "text-sm font-medium leading-snug text-foreground";
+        claim.textContent = c.claim || "(no claim statement)";
+        claimWrap.appendChild(claim);
+
+        var meta = document.createElement("div");
+        meta.className = "mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground";
+        var src = document.createElement("span");
+        src.textContent = i18n("claims.source") + ": " + sourceName + (host ? " · " + host : "");
+        var ret = document.createElement("span");
+        ret.textContent = i18n("claims.retrieved") + ": " + (c.retrieved_at ? new Date(c.retrieved_at).toLocaleString("en-CA") : "—");
+        meta.appendChild(src);
+        meta.appendChild(ret);
+        claimWrap.appendChild(meta);
+
+        top.appendChild(claimWrap);
+
+        var action = document.createElement("span");
+        action.className = "shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors group-hover:border-[var(--maple)]/40 group-hover:text-foreground";
+        action.textContent = i18n("claims.verify");
+        action.appendChild(arrow());
+        top.appendChild(action);
+
+        el.appendChild(top);
+
+        var hashRow = document.createElement("div");
+        hashRow.className = "mt-3 border-t border-border/40 pt-2.5 font-mono text-xs text-muted-foreground";
+        hashRow.textContent = c.sha256;
+        el.appendChild(hashRow);
+
+        return el;
+      }
+
+      function arrow() {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", "10");
+        svg.setAttribute("height", "10");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor");
+        svg.setAttribute("stroke-width", "2");
+        svg.setAttribute("stroke-linecap", "round");
+        svg.setAttribute("stroke-linejoin", "round");
+        var p1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p1.setAttribute("d", "M7 17 17 7");
+        var p2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p2.setAttribute("d", "M7 7h10v10");
+        svg.appendChild(p1);
+        svg.appendChild(p2);
+        return svg;
+      }
+
+      async function load() {
+        try {
+          var resp = await fetch(apiBase + "/claims/latest");
+          var body = await resp.json();
+          if (!resp.ok) throw new Error(body.error?.message || "failed");
+          var data = body.data || body;
+          var claims = (data && data.claims) || [];
+
+          var unit = data.count === 1 ? i18n("claims.bundle") : i18n("claims.bundles");
+          loadingEl.textContent = data.count + " " + unit + " · " + i18n("claims.live") + " /v1/claims/latest";
+          statusEl.classList.remove("hidden");
+
+          if (claims.length === 0) {
+            statusEl.classList.add("hidden");
+            emptyEl.classList.remove("hidden");
+            return;
+          }
+
+          var frag = document.createDocumentFragment();
+          for (var i = 0; i < claims.length; i++) {
+            frag.appendChild(renderRow(claims[i]));
+          }
+          listEl.appendChild(frag);
+          listEl.classList.remove("hidden");
+        } catch (err) {
+          statusEl.classList.add("hidden");
+          errorEl.textContent = i18n("claims.error");
+          errorEl.classList.remove("hidden");
+        }
+      }
+
+      load();
+    })();
+  </script>
+</BaseLayout>

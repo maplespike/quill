@@ -1,54 +1,20 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { computeHash, generateVerifyCommand } from '@maplespike/pipeline-core';
+import { computeHash, canonicalJson, generateVerifyCommand, citationStore } from '@maplespike/pipeline-core';
+import type { ClaimBundle } from '@maplespike/pipeline-core';
 
 /**
- * In-memory citation store.
- * Populated by other tools when they produce data; queryable by hash.
- */
-interface CitationRecord {
-  hash: string;
-  content: string;
-  timestamp: string;
-  source: string;
-  license: string;
-}
-
-const citationStore = new Map<string, CitationRecord>();
-
-/**
- * Register a citation in the store.
- * Called by other tools to record their outputs.
- */
-export function registerCitation(source: string, content: string, license: string = 'Open Government Licence – Canada'): string {
-  // Hash is computed inline synchronously for storage key
-  // (computeHash is async but we store synchronously; hash is set on retrieval)
-  const timestamp = new Date().toISOString();
-  const pseudoHash = `sha256-${Math.abs(
-    content.split('').reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0),
-  ).toString(36).padStart(16, '0')}`;
-
-  citationStore.set(pseudoHash, {
-    hash: pseudoHash,
-    content,
-    timestamp,
-    source,
-    license,
-  });
-
-  return pseudoHash;
-}
-
-/**
- * Retrieve a citation by its SHA-256 content hash.
- * Returns the original data, timestamp, source attribution, and a ready-to-run shell command
- * for independent hash verification.
+ * Get / Verify a citation by its SHA-256 content hash.
+ *
+ * Uses the shared CitationStore (SQLite-backed, in-memory fallback) so
+ * records persist across sessions when a database is present. Every tool
+ * that registers claim bundles via withClaims() is queryable here.
  */
 export const definition: ToolDefinition = {
   name: 'get_citation',
   description:
-    'Retrieve a citation record by its SHA-256 content hash. Returns the original data, timestamp, ' +
-    'source attribution, and a ready-to-run shell command for independent hash verification. ' +
-    'Use this to verify that content has not been altered since publication.',
+    'Retrieve and verify a citation record by its SHA-256 content hash. Returns the original data, timestamp, ' +
+    'source attribution, license, and a ready-to-run shell command for independent verification. ' +
+    'Use this to prove that content has not been altered since Quill published it.',
   descriptions: {
     "fr-CA": "Récupérer et vérifier un hachage de citation SHA-256 pour un enregistrement de données spécifique. Permet de vérifier l’intégrité des données en recomputant le hachage à partir de la source originale.",
   },
@@ -57,78 +23,118 @@ export const definition: ToolDefinition = {
     properties: {
       hash: {
         type: 'string',
-        description: 'SHA-256 citation hash (e.g., "sha256-abc123...")',
+        description: 'SHA-256 citation hash (e.g. "sha256:<64 hex chars>")',
       },
     },
     required: ['hash'],
   },
 };
 
+/**
+ * Register a citation in the store. Kept as the programmatic entry point
+ * used by tests and by other tools that want to attest raw content.
+ * Returns the canonical "sha256:<hex>" hash.
+ */
+export async function registerCitation(
+  source: string,
+  content: string,
+  license: string = 'Open Government Licence – Canada',
+): Promise<string> {
+  // The store persists canonicalJson(value), so the hash MUST be computed
+  // over the same canonical form — otherwise get_citation's recompute
+  // (computeHash(stored.serialized)) would not match the registered hash.
+  const serialized = canonicalJson(content);
+  const sha256 = await computeHash(serialized, 'sha256');
+  const bundle: ClaimBundle = {
+    claim: content.length > 200 ? `${content.slice(0, 200)}…` : content,
+    value: content,
+    sha256,
+    sourceName: source,
+    sourceUrl: '',
+    retrievedAt: new Date().toISOString(),
+    license,
+    transformations: [],
+  };
+  citationStore.put(bundle);
+  return `sha256:${sha256}`;
+}
+
 export const handler: ToolHandler = async (args) => {
-  const hash = (args.hash as string) ?? '';
-  if (!hash) {
+  const rawHash = (args.hash as string) ?? '';
+  if (!rawHash) {
     return {
       content: {
         tool: 'get_citation',
         hash: '',
         citation: null,
         verifyCommand: 'echo "Usage: provide a SHA-256 citation hash"',
-        message: 'No citation hash provided. Pass a hash parameter (e.g., "sha256-abc123...") to retrieve a citation record.',
+        message: 'No citation hash provided. Pass a hash (e.g. "sha256:abc…") to retrieve a citation record.',
       },
     };
   }
-  const cleanHash = hash.replace(/^sha256-/, '');
 
-  // Look up in memory store
-  const record = citationStore.get(hash) ?? citationStore.get(`sha256-${cleanHash}`);
+  const cleanHash = rawHash.toLowerCase().replace(/^sha256[:\-]/, '');
+  if (!/^[a-f0-9]{64}$/.test(cleanHash)) {
+    return {
+      content: {
+        tool: 'get_citation',
+        hash: rawHash,
+        citation: null,
+        verifyCommand: 'echo "Invalid hash format"',
+        message: `"${rawHash}" is not a valid SHA-256 hash. Expected "sha256:<64 hex chars>".`,
+      },
+    };
+  }
 
-  if (record) {
-    // Verify the stored content hash
-    const computedHex = await computeHash(record.content);
-    const computedShort = `sha256-${computedHex.slice(0, 16)}`;
-    const verified = computedShort === hash || computedHex === cleanHash;
+  const stored = citationStore.get(cleanHash);
+  const canonical = `sha256:${cleanHash}`;
+
+  if (stored) {
+    // Recompute to be sure the serialized value still matches.
+    const recomputed = await computeHash(stored.serialized, 'sha256');
+    const verified = recomputed === cleanHash;
+    const data = stored.serialized;
 
     return {
       content: {
         tool: 'get_citation',
-        hash,
+        hash: canonical,
         citation: {
-          hash,
-          timestamp: record.timestamp,
-          source: record.source,
-          license: record.license,
+          hash: canonical,
+          timestamp: stored.bundle.retrievedAt ?? stored.createdAt,
+          source: stored.bundle.sourceName,
+          license: stored.bundle.license,
           verified,
-          data: record.content.length > 500
-            ? record.content.slice(0, 500) + '... [truncated — use verify command for full verification]'
-            : record.content,
+          data: data.length > 500
+            ? data.slice(0, 500) + '... [truncated — use verify command for full verification]'
+            : data,
         },
-        verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${hash}`),
+        verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${canonical}`),
         message: verified
-          ? 'Citation verified — content hash matches stored record.'
-          : 'Citation found but content hash could not be independently verified (stored hash differs or no content store).',
+          ? 'Citation verified — content hash matches the stored record.'
+          : 'Stored record found but its content hash no longer matches (integrity failure).',
       },
     };
   }
 
-  // Not found in memory — return verification instructions
+  // Not found — give the caller an independent verification recipe.
   return {
     content: {
       tool: 'get_citation',
-      hash,
+      hash: canonical,
       citation: {
-        hash,
+        hash: canonical,
         timestamp: null,
         source: 'unknown',
         license: 'unknown',
         verified: false,
         data: null,
       },
-      verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${hash}`),
+      verifyCommand: generateVerifyCommand(`https://api.maplespike.ca/v1/citation/${canonical}`),
       message:
-        'Citation not found in current session store. ' +
-        'This hash may correspond to data ingested in a previous session or by the MapleSpike pipeline. ' +
-        'To verify independently, use the shell command above with the original data source.',
-      note: 'Citations are stored per-server-session. For persistent citation storage, deploy with a database-backed audit logger.',
+        'Citation not found in the current store. It may correspond to data ingested by a previous ' +
+        'pipeline run. Verify independently against the original source using the shell command above, ' +
+        'or re-run the tool that produced the data (it re-registers fresh claim bundles).',
     },
   };
 };

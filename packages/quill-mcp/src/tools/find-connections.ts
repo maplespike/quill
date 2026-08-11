@@ -10,7 +10,8 @@
  */
 
 import type { ToolDefinition, ToolHandler } from './types.js';
-import { resolveEntity, findConnections } from './entity-resolver-lib.js';
+import { resolveEntity, findConnections } from '@maplespike/pipeline-core';
+import { withClaims } from './claims-helper.js';
 
 export const definition: ToolDefinition = {
   name: 'find_connections',
@@ -75,7 +76,7 @@ export const handler: ToolHandler = async (args) => {
     const limited = connections.slice(0, maxConnections);
 
     return {
-      content: {
+      content: await withClaims({
         tool: 'find_connections',
         query: name,
         center: {
@@ -98,7 +99,13 @@ export const handler: ToolHandler = async (args) => {
           connections.length > 0
             ? `${center.canonicalName} has ${connections.length} connection(s) across ${new Set(connections.map((c) => c.sourceModule)).size} source module(s).`
             : `${center.canonicalName} has no known connections in the entity graph.`,
-      },
+      }, limited.map(c => ({
+        claim: `Connection: ${center.canonicalName} —${c.relationshipType}→ ${c.target.canonicalName}`,
+        value: c,
+        sourceName: c.sourceModule,
+        sourceUrl: '',
+        transformations: ['entity-graph-traversal'],
+      }))),
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Connection discovery failed';

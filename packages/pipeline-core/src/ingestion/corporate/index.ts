@@ -1,5 +1,6 @@
 /**
 export { parseLobbyingRecord, parseLobbyingRecords } from './parser.js';
+export { CORPORATE_DDL } from './db.js';
  * Corporate Ingestion — MapleSpike Pipeline
  *
  * Orchestrates corporate/business data ingestion across all sources:
