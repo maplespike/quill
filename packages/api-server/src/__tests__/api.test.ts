@@ -43,7 +43,7 @@ describe('API Server Routes', () => {
     assert.equal(resp.status, 201);
     const body = await resp.json();
     assert.ok(body.success);
-    assert.ok(body.data.apiKey.key.startsWith('maplespike_'));
+    assert.ok(body.data.apiKey.key.startsWith('quill_'));
   });
 
   it('keys endpoint returns list', async () => {
@@ -121,7 +121,7 @@ describe('API Server Routes', () => {
     assert.ok([200, 201, 500].includes(createResp.status));
     if (createResp.status === 201 || createResp.status === 200) {
       const createBody = await createResp.json();
-      assert.ok(createBody.data?.key?.startsWith('maplespike_'));
+      assert.ok(createBody.data?.key?.startsWith('quill_'));
     }
   });
 

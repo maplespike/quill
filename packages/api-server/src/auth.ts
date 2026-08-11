@@ -253,14 +253,14 @@ function authenticateWithJwt(
 /* ------------------------------------------------------------------ */
 
 /**
- * Generate a new API key (maplespike_ prefix + 32 random hex chars).
+ * Generate a new API key (quill_ prefix + 32 random hex chars).
  * Returns both the raw key (shown once) and the hash (stored).
  */
 export async function generateApiKey(): Promise<{ rawKey: string; keyHash: string }> {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
   const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
-  const rawKey = `maplespike_${hex}`;
+  const rawKey = `quill_${hex}`;
   const keyHash = await hashApiKey(rawKey);
   return { rawKey, keyHash };
 }
