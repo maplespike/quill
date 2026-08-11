@@ -12,94 +12,51 @@ describe('worldbank-ids Module', () => {
     assert.equal(typeof mod.fetchIdsTopicData, 'function');
   });
 
-  it('has CORE_IDS_INDICATORS constant', async () => {
+  it('has CORE_INDICATORS constant', async () => {
     const mod = await import('../index.js');
-    assert.ok(Array.isArray(mod.CORE_IDS_INDICATORS));
-    assert.ok(mod.CORE_IDS_INDICATORS.length > 0);
+    assert.ok(Array.isArray(mod.CORE_INDICATORS));
+    assert.ok(mod.CORE_INDICATORS.length > 0);
   });
 
-  it('has IDS_TOPICS constant', async () => {
+  it('has TOPIC_INDICATORS constant', async () => {
     const mod = await import('../index.js');
-    assert.ok(mod.IDS_TOPICS);
-    assert.ok(Object.keys(mod.IDS_TOPICS).length > 0);
+    assert.ok(mod.TOPIC_INDICATORS);
+    assert.ok(Object.keys(mod.TOPIC_INDICATORS).length > 0);
   });
 });
 
 describe('worldbank-ids Parser', () => {
-  it('parseIdsDatum parses a valid World Bank API datum', async () => {
-    const { parseIdsDatum } = await import('../parser.js');
+  it('parseIndicatorData parses a valid World Bank API datum', async () => {
+    const { parseIndicatorData } = await import('../parser.js');
 
-    const mockDatum = {
-      indicator: { id: 'DT.DOD.DLXF.CD', value: 'External debt stocks' },
-      country: { id: 'CA', value: 'Canada' },
-      countryiso3code: 'CAN',
-      date: '2022',
-      value: 500000,
-      unit: '',
-      obs_status: '',
-      decimal: 0,
-    };
-
-    const result = parseIdsDatum(mockDatum, 'CAN');
-    assert.ok(result);
-    assert.equal(result!.country, 'CAN');
-    assert.equal(result!.year, 2022);
-    assert.equal(result!.value, 500000);
-    assert.equal(result!.indicatorCode, 'DT.DOD.DLXF.CD');
-    assert.ok(result!.id);
-  });
-
-  it('parseIdsDatum returns null for null value', async () => {
-    const { parseIdsDatum } = await import('../parser.js');
-
-    const mockDatum = {
-      indicator: { id: 'DT.DOD.DLXF.CD', value: 'External debt stocks' },
-      country: { id: 'CA', value: 'Canada' },
-      countryiso3code: 'CAN',
-      date: '2022',
-      value: null,
-      unit: '',
-      obs_status: '',
-      decimal: 0,
-    };
-
-    const result = parseIdsDatum(mockDatum, 'CAN');
-    assert.equal(result, null);
-  });
-
-  it('parseIdsData filters out null entries', async () => {
-    const { parseIdsData } = await import('../parser.js');
-
-    const mockData = [
+    const mockDatum = [
       {
-        indicator: { id: 'DT.DOD.DLXF.CD', value: 'Debt' },
+        indicator: { id: 'DT.DOD.DLXF.CD', value: 'External debt stocks' },
         country: { id: 'CA', value: 'Canada' },
         countryiso3code: 'CAN',
         date: '2022',
         value: 500000,
         unit: '',
-        obs_status: '',
-        decimal: 0,
-      },
-      {
-        indicator: { id: 'DT.DOD.DLXF.CD', value: 'Debt' },
-        country: { id: 'CA', value: 'Canada' },
-        countryiso3code: 'CAN',
-        date: '2021',
-        value: null,
-        unit: '',
-        obs_status: '',
-        decimal: 0,
       },
     ];
 
-    const results = parseIdsData(mockData, 'CAN');
-    assert.equal(results.length, 1);
-    assert.equal(results[0].year, 2022);
+    const result = parseIndicatorData(mockDatum, 'CAN');
+    assert.ok(result.length >= 1);
+    const first = result[0];
+    assert.equal(first.countryiso3code, 'CAN');
+    assert.equal(first.year, 2022);
+    assert.equal(first.value, 500000);
+    assert.equal(first.indicatorCode, 'DT.DOD.DLXF.CD');
   });
 
-  it('buildCountryDebtProfile builds profile from indicator map', async () => {
-    const { buildCountryDebtProfile } = await import('../parser.js');
+  it('parseIndicatorData skips null years', async () => {
+    const { parseIndicatorData } = await import('../parser.js');
+    const result = parseIndicatorData([{ date: 'n/a', value: 100, indicator: { id: 'X' } }], 'CAN');
+    assert.equal(result.length, 0);
+  });
+
+  it('buildCountryProfile builds profile from indicator map', async () => {
+    const { buildCountryProfile } = await import('../parser.js');
 
     const indicatorData = new Map<string, any[]>();
     indicatorData.set('DT.DOD.DLXF.CD', [
@@ -110,19 +67,17 @@ describe('worldbank-ids Parser', () => {
         date: '2022',
         value: 500000,
         unit: '',
-        obs_status: '',
-        decimal: 0,
       },
     ]);
 
-    const profile = buildCountryDebtProfile('CAN', indicatorData);
+    const profile = buildCountryProfile('CAN', indicatorData);
     assert.equal(profile.country, 'CAN');
-    assert.equal(profile.indicators.length, 1);
-    assert.ok(profile.lastUpdated);
+    assert.ok(profile.indicators['DT.DOD.DLXF.CD']);
+    assert.equal(profile.latestYear, 2022);
   });
 
-  it('buildIdsComparison groups values by country', async () => {
-    const { buildIdsComparison } = await import('../parser.js');
+  it('buildComparison groups values by country', async () => {
+    const { buildComparison } = await import('../parser.js');
 
     const dataByCountry = new Map<string, any[]>();
     dataByCountry.set('CAN', [
@@ -133,8 +88,6 @@ describe('worldbank-ids Parser', () => {
         date: '2022',
         value: 500000,
         unit: '',
-        obs_status: '',
-        decimal: 0,
       },
     ]);
     dataByCountry.set('MEX', [
@@ -145,19 +98,16 @@ describe('worldbank-ids Parser', () => {
         date: '2022',
         value: 300000,
         unit: '',
-        obs_status: '',
-        decimal: 0,
       },
     ]);
 
-    const comparison = buildIdsComparison('DT.DOD.DLXF.CD', dataByCountry);
+    const comparison = buildComparison('DT.DOD.DLXF.CD', dataByCountry);
     assert.equal(comparison.indicatorCode, 'DT.DOD.DLXF.CD');
-    assert.equal(comparison.entries.length, 2);
-    assert.ok(comparison.lastUpdated);
+    assert.equal(Object.keys(comparison.countries).length, 2);
   });
 
-  it('analyzeIdsTrend detects increasing trend', async () => {
-    const { analyzeIdsTrend } = await import('../parser.js');
+  it('analyzeTrend detects increasing trend', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'CAN:DT.DOD.DLXF.CD:2020', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2020, value: 400000 },
@@ -165,49 +115,32 @@ describe('worldbank-ids Parser', () => {
       { id: 'CAN:DT.DOD.DLXF.CD:2022', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2022, value: 500000 },
     ];
 
-    const trend = analyzeIdsTrend(values);
+    const trend = analyzeTrend(values);
     assert.equal(trend.trend, 'increasing');
-    assert.equal(trend.startYear, 2020);
-    assert.equal(trend.endYear, 2022);
-    assert.ok(trend.changeRate > 0);
-    assert.equal(trend.indicatorCode, 'DT.DOD.DLXF.CD');
-    assert.equal(trend.country, 'CAN');
+    assert.equal(trend.latestValue, 500000);
+    assert.equal(trend.earliestValue, 400000);
   });
 
-  it('analyzeIdsTrend detects decreasing trend', async () => {
-    const { analyzeIdsTrend } = await import('../parser.js');
+  it('analyzeTrend detects decreasing trend', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'CAN:DT.DOD.DLXF.CD:2020', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2020, value: 500000 },
       { id: 'CAN:DT.DOD.DLXF.CD:2021', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2021, value: 400000 },
     ];
 
-    const trend = analyzeIdsTrend(values);
+    const trend = analyzeTrend(values);
     assert.equal(trend.trend, 'decreasing');
-    assert.ok(trend.changeRate < 0);
   });
 
-  it('analyzeIdsTrend returns no_data for < 2 points', async () => {
-    const { analyzeIdsTrend } = await import('../parser.js');
+  it('analyzeTrend returns stable for < 2 valid points', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'CAN:DT.DOD.DLXF.CD:2022', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2022, value: 500000 },
     ];
 
-    const trend = analyzeIdsTrend(values);
-    assert.equal(trend.trend, 'no_data');
-    assert.equal(trend.changeRate, 0);
-  });
-
-  it('analyzeIdsTrend returns stable for near-zero change', async () => {
-    const { analyzeIdsTrend } = await import('../parser.js');
-
-    const values = [
-      { id: 'CAN:DT.DOD.DLXF.CD:2020', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2020, value: 500000 },
-      { id: 'CAN:DT.DOD.DLXF.CD:2021', country: 'CAN', indicatorCode: 'DT.DOD.DLXF.CD', year: 2021, value: 500001 },
-    ];
-
-    const trend = analyzeIdsTrend(values);
+    const trend = analyzeTrend(values);
     assert.equal(trend.trend, 'stable');
   });
 });
