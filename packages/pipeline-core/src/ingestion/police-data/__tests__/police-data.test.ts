@@ -6,12 +6,12 @@ describe('police-data Module', () => {
     const mod = await import('../index.js');
     assert.ok(mod, 'Module loaded');
     assert.equal(typeof mod.ingestPoliceCity, 'function', 'Should export ingestPoliceCity');
-    assert.equal(typeof mod.ingestAllPoliceAgencies, 'function', 'Should export ingestAllPoliceAgencies');
+    assert.equal(typeof mod.ingestAllPolice, 'function', 'Should export ingestAllPolice');
   });
 
   it('parser handles empty records', async () => {
     const { parseCrimeRecords } = await import('../parser.js');
-    const crimes = parseCrimeRecords([], 'Edmonton', 'AB');
+    const crimes = await parseCrimeRecords([], 'Edmonton', 'AB');
     assert.equal(crimes.length, 0);
   });
 
@@ -20,7 +20,7 @@ describe('police-data Module', () => {
     const records = [
       { type: 'Theft', year: 2023, count: 150 },
     ];
-    const crimes = parseCrimeRecords(records, 'Edmonton', 'AB');
+    const crimes = await parseCrimeRecords(records, 'Edmonton', 'AB');
     assert.equal(crimes.length, 1);
     assert.equal(crimes[0].crimeType, 'Theft');
     assert.equal(crimes[0].year, 2023);
@@ -34,7 +34,7 @@ describe('police-data Module', () => {
       { type: 'Theft' },
       {},
     ];
-    const crimes = parseCrimeRecords(records, 'Edmonton', 'AB');
+    const crimes = await parseCrimeRecords(records, 'Edmonton', 'AB');
     assert.equal(crimes.length, 0);
   });
 
@@ -43,7 +43,7 @@ describe('police-data Module', () => {
     const records = [
       { crime_type: 'Assault', report_year: 2023, incident_count: 80, rate: 120.5 },
     ];
-    const crimes = parseCrimeRecords(records, 'Vancouver', 'BC');
+    const crimes = await parseCrimeRecords(records, 'Vancouver', 'BC');
     assert.equal(crimes.length, 1);
     assert.equal(crimes[0].crimeType, 'Assault');
     assert.equal(crimes[0].ratePer100k, 120.5);

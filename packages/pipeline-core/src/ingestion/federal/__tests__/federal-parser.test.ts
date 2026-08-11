@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { describe, it, expect } from 'node:test';
-import { toFederalDatasetFromCkan, toFederalDatasetFromCihi, parseCkanSearchResults } from './parser.js';
-import type { FederalDataset } from './types.js';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { toFederalDatasetFromCkan, toFederalDatasetFromCihi, parseCkanSearchResults } from '../parser.js';
 
 describe('federal parser', () => {
   describe('toFederalDatasetFromCihi', () => {
     it('should create a CIHI dataset', async () => {
       const result = await toFederalDatasetFromCihi('wait-times.csv');
-      
-      expect(result.agency).toBe('CIHI');
-      expect(result.dataset).toBe('wait-times.csv');
-      expect(result.format).toBe('XLSX');
-      expect(result.year).toBeGreaterThan(2020);
-      expect(result.title).toContain('CIHI Wait Times');
-      expect(result.url).toContain('wait-times.csv');
+
+      assert.equal(result.agency, 'CIHI');
+      assert.equal(result.dataset, 'wait-times.csv');
+      assert.equal(result.format, 'XLSX');
+      assert.ok(result.year > 2020);
+      assert.ok(result.title.includes('CIHI Wait Times'));
+      assert.ok(result.url.includes('wait-times.csv'));
     });
   });
 
@@ -29,19 +29,19 @@ describe('federal parser', () => {
       };
 
       const result = await toFederalDatasetFromCkan('ESDC', pkg);
-      
-      expect(result).not.toBeNull();
-      expect(result?.agency).toBe('ESDC');
-      expect(result?.dataset).toBe('Test Dataset');
-      expect(result?.year).toBe(2023);
-      expect(result?.format).toBe('CKAN');
-      expect(result?.url).toContain('test-dataset-123');
-      expect(result?.description).toBe('This is a test dataset');
+
+      assert.notEqual(result, null);
+      assert.equal(result?.agency, 'ESDC');
+      assert.equal(result?.dataset, 'Test Dataset');
+      assert.equal(result?.year, 2023);
+      assert.equal(result?.format, 'CKAN');
+      assert.ok(result?.url?.includes('test-dataset-123'));
+      assert.equal(result?.description, 'This is a test dataset');
     });
 
     it('should return null for null package', async () => {
       const result = await toFederalDatasetFromCkan('ESDC', null);
-      expect(result).toBeNull();
+      assert.equal(result, null);
     });
 
     it('should handle missing year from metadata', async () => {
@@ -52,7 +52,7 @@ describe('federal parser', () => {
       };
 
       const result = await toFederalDatasetFromCkan('ESDC', pkg);
-      expect(result?.year).toBe(new Date().getFullYear());
+      assert.equal(result?.year, new Date().getFullYear());
     });
   });
 
@@ -64,9 +64,9 @@ describe('federal parser', () => {
       ];
 
       const parsed = await parseCkanSearchResults('PHAC', results, 10, 0);
-      expect(parsed).toHaveLength(2);
-      expect(parsed[0].agency).toBe('PHAC');
-      expect(parsed[1].agency).toBe('PHAC');
+      assert.equal(parsed.length, 2);
+      assert.equal(parsed[0].agency, 'PHAC');
+      assert.equal(parsed[1].agency, 'PHAC');
     });
 
     it('should respect maxRecords limit', async () => {
@@ -77,7 +77,7 @@ describe('federal parser', () => {
       ];
 
       const parsed = await parseCkanSearchResults('PHAC', results, 2, 0);
-      expect(parsed).toHaveLength(2);
+      assert.equal(parsed.length, 2);
     });
 
     it('should handle current count when enforcing maxRecords', async () => {
@@ -86,13 +86,14 @@ describe('federal parser', () => {
         { id: 'pkg2', title: 'Package 2', notes: 'Notes 2', metadata_created: '2023-06-01' },
       ];
 
-      const parsed = await parseCkanSearchResults('PHAC', results, 5, 1);
-      expect(parsed).toHaveLength(1);
+      // maxRecords=2 with currentCount=1 means only 1 more fits (1 + 1 >= 2 breaks).
+      const parsed = await parseCkanSearchResults('PHAC', results, 2, 1);
+      assert.equal(parsed.length, 1);
     });
 
     it('should handle empty array', async () => {
       const parsed = await parseCkanSearchResults('PHAC', [], 10, 0);
-      expect(parsed).toEqual([]);
+      assert.deepEqual(parsed, []);
     });
 
     it('should filter out invalid packages', async () => {
@@ -104,7 +105,7 @@ describe('federal parser', () => {
       ];
 
       const parsed = await parseCkanSearchResults('PHAC', results, 10, 0);
-      expect(parsed).toHaveLength(2);
+      assert.equal(parsed.length, 2);
     });
   });
 });

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { describe, it, expect } from 'node:test';
-import { toPersonnelRecord, parsePersonnelRecords, toProcurementRecord, parseProcurementRecords } from './parser.js';
-import type { DndPersonnelRecord, DndProcurementRecord } from './types.js';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { toPersonnelRecord, parsePersonnelRecords, toProcurementRecord, parseProcurementRecords } from '../parser.js';
 
 describe('defence parser', () => {
   describe('toPersonnelRecord', () => {
@@ -11,27 +11,27 @@ describe('defence parser', () => {
       const cols = ['2023', '6', 'Officer', 'Regular Force', 'Male', '150'];
 
       const result = toPersonnelRecord(headers, cols);
-      expect(result).not.toBeNull();
-      expect(result?.year).toBe(2023);
-      expect(result?.month).toBe(6);
-      expect(result?.rank).toBe('Officer');
-      expect(result?.component).toBe('Regular Force');
-      expect(result?.gender).toBe('Male');
-      expect(result?.count).toBe(150);
+      assert.notEqual(result, null);
+      assert.equal(result?.year, 2023);
+      assert.equal(result?.month, 6);
+      assert.equal(result?.rank, 'Officer');
+      assert.equal(result?.component, 'Regular Force');
+      assert.equal(result?.gender, 'Male');
+      assert.equal(result?.count, 150);
     });
 
     it('should return null for invalid count', () => {
       const headers = ['year', 'month', 'rank', 'component', 'count'];
       const cols = ['2023', '6', 'Officer', 'Regular Force', 'invalid'];
 
-      expect(toPersonnelRecord(headers, cols)).toBeNull();
+      assert.equal(toPersonnelRecord(headers, cols), null);
     });
 
     it('should return null for zero or negative count', () => {
       const headers = ['year', 'month', 'rank', 'component', 'count'];
       const cols = ['2023', '6', 'Officer', 'Regular Force', '0'];
 
-      expect(toPersonnelRecord(headers, cols)).toBeNull();
+      assert.equal(toPersonnelRecord(headers, cols), null);
     });
 
     it('should use default component when missing', () => {
@@ -39,7 +39,7 @@ describe('defence parser', () => {
       const cols = ['2023', '6', 'Officer', '100'];
 
       const result = toPersonnelRecord(headers, cols);
-      expect(result?.component).toBe('Regular Force');
+      assert.equal(result?.component, 'Regular Force');
     });
   });
 
@@ -50,17 +50,17 @@ describe('defence parser', () => {
 2023,1,Sailor,Naval Reserve,50`;
 
       const results = parsePersonnelRecords(csv);
-      expect(results).toHaveLength(2);
-      expect(results[0].rank).toBe('Officer');
-      expect(results[1].rank).toBe('Sailor');
+      assert.equal(results.length, 2);
+      assert.equal(results[0].rank, 'Officer');
+      assert.equal(results[1].rank, 'Sailor');
     });
 
     it('should handle empty CSV', () => {
-      expect(parsePersonnelRecords('')).toEqual([]);
+      assert.deepEqual(parsePersonnelRecords(''), []);
     });
 
     it('should handle header-only CSV', () => {
-      expect(parsePersonnelRecords('year,month,rank,count')).toEqual([]);
+      assert.deepEqual(parsePersonnelRecords('year,month,rank,count'), []);
     });
 
     it('should filter out invalid records', () => {
@@ -69,7 +69,7 @@ describe('defence parser', () => {
 2023,1,Invalid,Regular Force,invalid`;
 
       const results = parsePersonnelRecords(csv);
-      expect(results).toHaveLength(1);
+      assert.equal(results.length, 1);
     });
   });
 
@@ -79,18 +79,18 @@ describe('defence parser', () => {
       const cols = ['2023', 'Acme Corp', 'Test Contract', '50000'];
 
       const result = toProcurementRecord(headers, cols);
-      expect(result).not.toBeNull();
-      expect(result?.year).toBe(2023);
-      expect(result?.vendor).toBe('Acme Corp');
-      expect(result?.description).toBe('Test Contract');
-      expect(result?.value).toBe(50000);
+      assert.notEqual(result, null);
+      assert.equal(result?.year, 2023);
+      assert.equal(result?.vendor, 'Acme Corp');
+      assert.equal(result?.description, 'Test Contract');
+      assert.equal(result?.value, 50000);
     });
 
     it('should return null for invalid numeric value', () => {
       const headers = ['year', 'vendor', 'description', 'value'];
       const cols = ['2023', 'Acme Corp', 'Test Contract', 'invalid'];
 
-      expect(toProcurementRecord(headers, cols)).toBeNull();
+      assert.equal(toProcurementRecord(headers, cols), null);
     });
 
     it('should handle monetary values with $ and commas', () => {
@@ -98,7 +98,7 @@ describe('defence parser', () => {
       const cols = ['2023', 'Acme Corp', 'Test Contract', '$50,000.00'];
 
       const result = toProcurementRecord(headers, cols);
-      expect(result?.value).toBe(50000);
+      assert.equal(result?.value, 50000);
     });
   });
 
@@ -109,9 +109,9 @@ describe('defence parser', () => {
 2023,Beta Inc,Contract B,20000`;
 
       const results = parseProcurementRecords(csv);
-      expect(results).toHaveLength(2);
-      expect(results[0].vendor).toBe('Acme');
-      expect(results[1].vendor).toBe('Beta Inc');
+      assert.equal(results.length, 2);
+      assert.equal(results[0].vendor, 'Acme');
+      assert.equal(results[1].vendor, 'Beta Inc');
     });
   });
 });

@@ -11,7 +11,7 @@ describe('political-donations Module', () => {
 
   it('parser handles empty records', async () => {
     const { parseContributions, summarizeContributions } = await import('../parser.js');
-    const records = parseContributions([], 'federal');
+    const records = await parseContributions([], 'federal');
     assert.equal(records.length, 0);
     const summary = summarizeContributions(records);
     assert.equal(summary.totalContributions, 0);
@@ -22,7 +22,7 @@ describe('political-donations Module', () => {
     const records = [
       { donor: 'John Doe', amount: 1000, date: '2024-01-15', party: 'Liberal' },
     ];
-    const contributions = parseContributions(records, 'federal');
+    const contributions = await parseContributions(records, 'federal');
     assert.equal(contributions.length, 1);
     assert.equal(contributions[0].donor, 'John Doe');
     assert.equal(contributions[0].amount, 1000);
@@ -36,7 +36,7 @@ describe('political-donations Module', () => {
       { amount: 500 },
       {},
     ];
-    const contributions = parseContributions(records, 'ON');
+    const contributions = await parseContributions(records, 'ON');
     assert.equal(contributions.length, 0);
   });
 
@@ -47,7 +47,7 @@ describe('political-donations Module', () => {
       { donor: 'B', amount: 200 },
       { donor: 'C', amount: 300 },
     ];
-    const contributions = parseContributions(records, 'federal');
+    const contributions = await parseContributions(records, 'federal');
     const summary = summarizeContributions(contributions);
     assert.equal(summary.totalContributions, 3);
     assert.equal(summary.totalAmount, 600);

@@ -660,17 +660,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     testCallPattern: 'skip',
   },
   {
-    name: 'corporate-filings',
-    status: 'active',
-    description: 'Corporate filings — Federal Corporations Registry (CBCA) — 400K+ active and inactive corporations from open.canada.ca',
-    category: 'corporate',
-    modulePath: './corporate-filings/index.js',
-    ingestFunctions: ['ingestAllFilings', 'fetchAllFilings'],
-    sources: [{ name: 'Federal Corporations Registry CKAN', format: 'CSV' }],
-    updateFrequency: 'daily',
-    testCallPattern: 'runModule',
-  },
-  {
     name: 'sedi',
     description: 'SEDI insider trading — TSX-listed executive/director stock transactions',
     category: 'corporate',
@@ -794,18 +783,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://www.cra-arc.gc.ca',
   },
 
-  {
-    name: 'ngo-influence-rss',
-    status: 'active',
-    description: 'NGO influence RSS — RSS feeds from advocacy organizations, think tanks, and policy influencers',
-    category: 'influence',
-    modulePath: './ngo-influence-rss/index.js',
-    ingestFunctions: ['ingestAllNgoRss', 'ingestNgoSource', 'searchNgoRss', 'classifyNarrative'],
-    sources: [{ name: 'Advocacy org RSS feeds', format: 'RSS' }],
-    updateFrequency: 'daily',
-    testCallPattern: 'fetchFeed',
-  },
-
   // ── Media ────────────────────────────────────────────────
   {
     name: 'crtc',
@@ -820,18 +797,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'weekly',
     testCallPattern: 'fetchFeed',
     healthCheckUrl: 'https://crtc.gc.ca',
-  },
-
-  {
-    name: 'media-broadcasting',
-    status: 'active',
-    description: 'Media & broadcasting — CRTC ownership, government ad spending, BBM audience data',
-    category: 'media',
-    modulePath: './media-broadcasting/index.js',
-    ingestFunctions: ['ingestAllMedia'],
-    sources: [{ name: 'CRTC/ISED open data', format: 'CSV' }],
-    updateFrequency: 'monthly',
-    testCallPattern: 'runModule',
   },
 
   // ── Geospatial ────────────────────────────────────────────
@@ -1746,20 +1711,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     updateFrequency: 'annual',
     testCallPattern: 'runModule',
     healthCheckUrl: 'https://api.worldbank.org/v2/country/CAN/indicator/NY.GDP.MKTP.CD?format=json&date=2000:2023',
-    },
-    {
-    name: 'eurostat',
-    description: 'Eurostat — EU statistical data: economy, population, trade, agriculture, energy, and social indicators',
-    category: 'international',
-    modulePath: './eurostat/index.js',
-    ingestFunctions: ['ingestEurostatDataset', 'getEurostatCountryProfile', 'compareEurostatGeos', 'analyzeEurostatDatasetTrend'],
-    sources: [
-    { name: 'Eurostat JSON-stat API', format: 'JSON-stat 2.0' },
-    { name: 'Eurostat SDMX-JSON API', format: 'SDMX-JSON 2.1' },
-    ],
-    updateFrequency: 'monthly',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_pc?format=SDMX-JSON',
     },
     {
     name: 'worldbank-ids',
