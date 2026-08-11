@@ -10,8 +10,30 @@ export type TranslationKeys =
   | 'nav.signup' | 'nav.login' | 'nav.blog' | 'nav.contact'
   | 'nav.billing' | 'nav.extraction' | 'nav.settings'
   | 'nav.api_keys' | 'nav.watcher' | 'nav.owasp' | 'nav.explorer'
-  | 'nav.signal' | 'nav.status' | 'nav.citation' | 'nav.agents'
+  | 'nav.signal' | 'nav.status' | 'nav.citation' | 'nav.verify' | 'nav.claims' | 'nav.agents'
   | 'nav.workspace' | 'nav.changelog' | 'nav.privacy' | 'nav.terms'
+
+  // Verify a Claim
+  | 'verify.title' | 'verify.subtitle'
+  | 'verify.input.placeholder' | 'verify.input.label'
+  | 'verify.button' | 'verify.button.working'
+  | 'verify.invalid' | 'verify.notfound' | 'verify.error'
+  | 'verify.verified' | 'verify.unverified'
+  | 'verify.result.source' | 'verify.result.retrieved' | 'verify.result.license'
+  | 'verify.result.updated' | 'verify.result.claim' | 'verify.result.command'
+  | 'verify.result.sha256' | 'verify.result.hash'
+  | 'verify.how.title' | 'verify.how.body'
+  | 'verify.public.title' | 'verify.public.body'
+  | 'verify.other.title' | 'verify.other.body' | 'verify.other.input'
+  | 'verify.other.hash' | 'verify.other.button'
+  | 'verify.other.matches' | 'verify.other.mismatch' | 'verify.other.recomputed'
+
+  // Claims index (public discovery)
+  | 'claims.title' | 'claims.subtitle'
+  | 'claims.empty' | 'claims.error'
+  | 'claims.source' | 'claims.retrieved' | 'claims.verify'
+  | 'claims.loading' | 'claims.live' | 'claims.bundle' | 'claims.bundles'
+  | 'claims.how.title' | 'claims.how.body'
 
   // Footer
   | 'footer.tagline' | 'footer.privacy' | 'footer.terms'

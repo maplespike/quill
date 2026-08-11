@@ -2,6 +2,7 @@
 
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { extractSchemas, schemaToMarkdown } from '@maplespike/pipeline-core/doc-generator';
+import { PIPELINE_CORE_SRC } from '../pipeline-root.js';
 
 export const definition: ToolDefinition = {
   name: 'qa_schema',
@@ -31,8 +32,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const moduleFilter = String(args.moduleName ?? '').toLowerCase();
     const format = String(args.format ?? 'json');
 
-    const pipelineRoot = new URL('../../pipeline-core/src', import.meta.url).pathname;
-    const schemas = extractSchemas(pipelineRoot);
+    const schemas = extractSchemas(PIPELINE_CORE_SRC);
 
     const filtered = moduleFilter
       ? schemas.filter(s => s.file.toLowerCase().includes(moduleFilter) || s.name.toLowerCase().includes(moduleFilter))

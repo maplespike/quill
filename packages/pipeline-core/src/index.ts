@@ -8,7 +8,34 @@
 
 export * from './ingestion/index.js';
 export * from './curation/index.js';
+// Shared entity graph access + cross-reference composition surface — consumed by
+// BOTH the MCP server (resolve_entity / linked_entities) and the REST API
+// (GET /v1/entities/{id}, GET /v1/entities/{id}/links). Re-exported explicitly
+// (not via ./entity/index.js) to avoid the EntityResolutionService name clash
+// with the ingestion barrel's own entity-resolution-service.
+export {
+  ENTITY_URI_PREFIX,
+  toEntityUri,
+  fromEntityUri,
+  isEntityUri,
+  entityGraphAvailable,
+  resolveEntity,
+  getEntityById,
+  findConnections,
+  buildRegistryBreakdown,
+  crossReferenceEntity,
+  registryForModule,
+  MODULE_TO_REGISTRY,
+} from './entity/resolver-lib.js';
+export type {
+  EntityAppearance,
+  ResolvedEntityResult,
+  ConnectionResult,
+  RegistryBreakdown,
+  CrossReferenceResult,
+} from './entity/resolver-lib.js';
 export * from './verification/index.js';
+export * from './claims/index-barrel.js';
 export * from './audit/index.js';
 export * from './legal-compliance.js';
 export * from './validation/index.js';

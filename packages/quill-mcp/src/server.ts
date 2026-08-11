@@ -12,6 +12,11 @@ import { getToolPrice } from './pricing.js';
 import { getQuotaTracker, type QuotaIdentity, type QuotaTracker } from './quota.js';
 import { runWithIdentity } from './context.js';
 
+// ── Claim Stack + Agent-native surfaces (WS-1/WS-3) ──────────────
+import { citationStore } from '@maplespike/pipeline-core';
+import { getEntityById, resolveEntity, findConnections } from '@maplespike/pipeline-core';
+import { PIPELINE_CORE_SRC } from './pipeline-root.js';
+
 // ─── Types ──────────────────────────────────────────────────────────────
 
 interface JsonRpcRequest {
@@ -23,9 +28,13 @@ interface JsonRpcRequest {
 
 interface JsonRpcResponse {
   jsonrpc: '2.0';
-  id: string | number | null;
+  /** Absent on notifications (MCP spec: notifications carry no id) */
+  id?: string | number | null;
   result?: unknown;
   error?: { code: number; message: string; data?: unknown };
+  /** Present only on server->client notifications (e.g. notifications/progress) */
+  method?: string;
+  params?: Record<string, unknown>;
 }
 
 interface ServerCapabilities {
@@ -161,6 +170,22 @@ export class McpServer {
       case 'tools/call':
         await this.handleToolCall(id, params, send, paymentProof, identity);
         break;
+      // ── Agent-native surfaces (WS-3) ──────────────────────────────
+      case 'resources/list':
+        this.handleResourcesList(id, params, send);
+        break;
+      case 'resources/templates/list':
+        this.handleResourcesTemplatesList(id, params, send);
+        break;
+      case 'resources/read':
+        await this.handleResourcesRead(id, params, send);
+        break;
+      case 'prompts/list':
+        this.handlePromptsList(id, params, send);
+        break;
+      case 'prompts/get':
+        this.handlePromptsGet(id, params, send);
+        break;
       default:
         if (id !== null && id !== undefined) {
           send(this.error(id, -32601, `Method not found: ${method}`));
@@ -209,6 +234,8 @@ export class McpServer {
 
     const capabilities: ServerCapabilities = {
       tools: {}, // tools/list is supported
+      resources: { listChanged: false }, // resources/list + read + templates
+      prompts: {}, // prompts/list + get
     };
 
     send(this.result(id ?? null, {
@@ -237,6 +264,321 @@ export class McpServer {
     }
 
     send(this.result(id ?? null, { tools: definitions }));
+  }
+
+  // ── Agent-native surfaces (WS-3) ────────────────────────────────────
+
+  private handleResourcesList(
+    id: string | number | undefined,
+    _params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    const resources = [
+      {
+        uri: 'quill://tool-index',
+        name: 'Quill tool index',
+        description: 'Live list of every tool the server exposes, with descriptions — the agent-native replacement for the static discover_tools index.',
+        mimeType: 'application/json',
+      },
+      {
+        uri: 'quill://schemas',
+        name: 'Module schema index',
+        description: 'Index of every ingestion module schema (name, file, field count) — the versioned data contract for composition.',
+        mimeType: 'application/json',
+      },
+      {
+        uri: 'quill://claims/latest',
+        name: 'Recent claim bundles',
+        description: 'Most recently registered verifiable claim bundles (hash, claim, source, retrievedAt, license) — lets agents discover what Quill has attested before verifying any single hash.',
+        mimeType: 'application/json',
+      },
+    ];
+    send(this.result(id ?? null, { resources }));
+  }
+
+  private handleResourcesTemplatesList(
+    id: string | number | undefined,
+    _params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    const resourceTemplates = [
+      {
+        uriTemplate: 'quill://entities/{name}',
+        name: 'Entity profile',
+        description: 'Resolved entity profile (aliases, appearances, confidence) for a person or organization.',
+        mimeType: 'application/json',
+      },
+      {
+        uriTemplate: 'quill://citations/{hash}',
+        name: 'Claim bundle',
+        description: 'Verifiable claim bundle by SHA-256 hash — hash, source, retrievedAt, license.',
+        mimeType: 'application/json',
+      },
+      {
+        uriTemplate: 'quill://crossref/{name}',
+        name: 'Entity connections',
+        description: 'Relationship network around a person or organization (lobbying, committees, corporate, GIC).',
+        mimeType: 'application/json',
+      },
+      {
+        uriTemplate: 'quill://schemas/{module}',
+        name: 'Module schema',
+        description: 'Versioned field-level schema for a single ingestion module — name, type, required, description per field.',
+        mimeType: 'application/json',
+      },
+    ];
+    send(this.result(id ?? null, { resourceTemplates }));
+  }
+
+  private async handleResourcesRead(
+    id: string | number | undefined,
+    params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): Promise<void> {
+    const uri = (params?.uri as string) ?? '';
+    if (!uri) {
+      send(this.error(id ?? null, -32602, 'Invalid params: must include "uri"'));
+      return;
+    }
+
+    try {
+      // quill://tool-index — live registry dump
+      if (uri === 'quill://tool-index') {
+        const tools = Array.from(this.tools.values()).map(({ definition }) => ({
+          name: definition.name,
+          description: definition.description,
+        }));
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify(tools, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://entities/{name}
+      const entityMatch = uri.match(/^quill:\/\/entities\/(.+)$/);
+      if (entityMatch) {
+        const name = decodeURIComponent(entityMatch[1]);
+        const byId = getEntityById(name);
+        const result = byId ?? resolveEntity(name);
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify(result, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://citations/{hash}
+      const citationMatch = uri.match(/^quill:\/\/citations\/(.+)$/);
+      if (citationMatch) {
+        const hash = citationMatch[1].toLowerCase().replace(/^sha256[:\-]/, '');
+        const stored = citationStore.get(hash);
+        if (!stored) {
+          send(this.error(id ?? null, -32602, `Citation not found: ${hash}`));
+          return;
+        }
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify(stored.bundle, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://claims/latest — recently registered claim bundles
+      if (uri === 'quill://claims/latest') {
+        const claims = citationStore.latest(25);
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify({
+              count: claims.length,
+              claims: claims.map(c => ({
+                sha256: `sha256:${c.hash}`,
+                claim: c.claim,
+                source_name: c.sourceName,
+                source_url: c.sourceUrl,
+                retrieved_at: c.retrievedAt,
+                license: c.license,
+                update_frequency: c.updateFrequency,
+                created_at: c.createdAt,
+              })),
+            }, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://schemas — module schema index (cached; extractSchemas is filesystem-heavy)
+      if (uri === 'quill://schemas') {
+        const schemas = await this.getSchemaIndex();
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify({
+              schemaCount: schemas.length,
+              schemas: schemas.map(s => ({
+                name: s.name,
+                file: s.file,
+                fieldCount: s.fields.length,
+                requiredFields: s.fields.filter(f => !f.optional).map(f => f.name),
+              })),
+            }, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://schemas/{module} — single module schema
+      const schemaMatch = uri.match(/^quill:\/\/schemas\/(.+)$/);
+      if (schemaMatch) {
+        const moduleFilter = decodeURIComponent(schemaMatch[1]).toLowerCase();
+        const schemas = (await this.getSchemaIndex())
+          .filter(s => s.file.toLowerCase().includes(moduleFilter) || s.name.toLowerCase().includes(moduleFilter));
+        if (schemas.length === 0) {
+          send(this.error(id ?? null, -32602, `No schema found matching "${schemaMatch[1]}"`));
+          return;
+        }
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify(schemas.map(s => ({
+              name: s.name,
+              file: s.file,
+              fields: s.fields.map(f => ({
+                name: f.name,
+                type: f.type,
+                required: !f.optional,
+                description: f.description,
+              })),
+            })), null, 2),
+          }],
+        }));
+        return;
+      }
+
+      // quill://crossref/{name}
+      const crossrefMatch = uri.match(/^quill:\/\/crossref\/(.+)$/);
+      if (crossrefMatch) {
+        const name = decodeURIComponent(crossrefMatch[1]);
+        const byId = getEntityById(name);
+        const resolved = byId ?? resolveEntity(name);
+        if (!resolved.id) {
+          send(this.error(id ?? null, -32602, `Entity not found: ${name}`));
+          return;
+        }
+        const { connections } = findConnections(resolved.canonicalName);
+        send(this.result(id ?? null, {
+          contents: [{
+            uri,
+            mimeType: 'application/json',
+            text: JSON.stringify({ center: resolved, connections }, null, 2),
+          }],
+        }));
+        return;
+      }
+
+      send(this.error(id ?? null, -32602, `Unknown resource URI: ${uri}`));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      send(this.error(id ?? null, -32602, `Resource read failed: ${msg}`));
+    }
+  }
+
+  /** Lazily-loaded module schema index (extractSchemas is a filesystem + AST scan — cache it). */
+  private schemaIndexPromise: Promise<
+    Array<{ name: string; file: string; fields: Array<{ name: string; type: string; optional: boolean; description: string }> }>
+  > | null = null;
+
+  private getSchemaIndex(): Promise<
+    Array<{ name: string; file: string; fields: Array<{ name: string; type: string; optional: boolean; description: string }> }>
+  > {
+    if (!this.schemaIndexPromise) {
+      this.schemaIndexPromise = import('@maplespike/pipeline-core/doc-generator')
+        .then(({ extractSchemas }) => extractSchemas(PIPELINE_CORE_SRC))
+        .catch((err) => {
+          // Reset so a transient failure retries instead of caching a
+          // rejected promise forever (mirrors citation.ts pipelineHashIndex).
+          this.schemaIndexPromise = null;
+          throw err;
+        });
+    }
+    return this.schemaIndexPromise;
+  }
+
+  private handlePromptsList(
+    id: string | number | undefined,
+    _params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    const prompts = [
+      {
+        name: 'influence-map',
+        description: 'Map a lobbyist or organization influence trail across lobbying, committees, GIC appointments, and corporate records.',
+      },
+      {
+        name: 'provenance-brief',
+        description: 'Produce a provenance-backed briefing on a regulation, bill, or policy area with verifiable claim bundles.',
+      },
+      {
+        name: 'narrative-shift',
+        description: 'Detect narrative shift across Gazette notices and committee evidence for a topic or entity.',
+      },
+    ];
+    send(this.result(id ?? null, { prompts }));
+  }
+
+  private handlePromptsGet(
+    id: string | number | undefined,
+    params: Record<string, unknown> | undefined,
+    send: (r: JsonRpcResponse) => void,
+  ): void {
+    const name = (params?.name as string) ?? '';
+    const args = (params?.arguments as Record<string, unknown>) ?? {};
+    const target = (args.target as string) ?? '<entity>';
+
+    const promptMessages = (messages: Array<{ role: 'user' | 'assistant'; content: string }>) =>
+      messages.map(m => ({ role: m.role, content: { type: 'text', text: m.content } }));
+
+    switch (name) {
+      case 'influence-map':
+        send(this.result(id ?? null, {
+          description: `Map the influence trail of ${target}`,
+          messages: promptMessages([
+            { role: 'user', content: `Map the influence trail of ${target} across Canadian federal data.\n\nWorkflow:\n1. resolve_entity name=${target} — get canonical identity + aliases + all appearances.\n2. get_entity_profile name=<canonicalName> — MP, lobbying, and GIC records.\n3. find_connections name=<canonicalName> — relationship network (employs, lobbies, directs, owns).\n4. Search committees + debates for appearances: search_committees query=<name>.\n5. Check regulatory/financial threads: search_financial_regulation, search_proactive_disclosure.\n6. Synthesize: produce a timeline of influence events with claim hashes from each response.` },
+          ]),
+        }));
+        return;
+      case 'provenance-brief':
+        send(this.result(id ?? null, {
+          description: `Produce a provenance-backed briefing on ${target}`,
+          messages: promptMessages([
+            { role: 'user', content: `Produce a provenance-backed briefing on ${target}.\n\nWorkflow:\n1. fact_check claim=<target> — gather corroborating/contradicting official evidence.\n2. search_gazette + search_legislation — regulatory status.\n3. search_committees — parliamentary consideration.\n4. track_bill query=<target> — bill lifecycle if applicable.\n5. For every factual claim in the briefing, attach the sha256 claim hash from the tool response and the source URL.` },
+          ]),
+        }));
+        return;
+      case 'narrative-shift':
+        send(this.result(id ?? null, {
+          description: `Detect narrative shift across Gazette + committee evidence for ${target}`,
+          messages: promptMessages([
+            { role: 'user', content: `Detect narrative shift for ${target}.\n\nWorkflow:\n1. search_gazette query=${target} — official regulatory notices over time.\n2. search_committees query=${target} — witness statements and testimony.\n3. search_narrative_tracker / search_ngo_rss query=${target} — policy-actor messaging.\n4. Compare terminology, framing, and positions across time windows; flag shifts with dated evidence + claim hashes.` },
+          ]),
+        }));
+        return;
+      default:
+        send(this.error(id ?? null, -32602, `Unknown prompt: ${name || '(none)'}`));
+    }
   }
 
   private async handleToolCall(
@@ -316,6 +658,26 @@ export class McpServer {
       return;
     }
 
+    // ── Progress notifications (WS-3) ──────────────────────────────
+    // If the caller supplied a progressToken (per MCP _meta), emit
+    // notifications/progress at start and completion so heavy
+    // cross-reference calls (linked_entities, track_bill, signal_check)
+    // can stream progress to the agent without blocking.
+    const meta = (params?._meta as Record<string, unknown>) ?? {};
+    const progressToken = meta.progressToken;
+    const sendProgress = (progress: number) => {
+      if (progressToken !== undefined) {
+        // MCP spec: notifications/progress carries the payload in `params`,
+        // has no `id`, and never has a `result`.
+        const notification: JsonRpcResponse = {
+          jsonrpc: '2.0',
+          method: 'notifications/progress',
+          params: { progressToken, progress, tool: toolName },
+        };
+        send(notification);
+      }
+    };
+
     // Run handler with timeout; catch sync and async errors.
     // The handler runs inside an AsyncLocalStorage.run() context so that
     // system_health (and any future tool that reads getCurrentIdentity())
@@ -323,6 +685,8 @@ export class McpServer {
     // tools/call concurrently and their handlers interleave on `await`.
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
+      sendProgress(0);
+      const started = Date.now();
       const resultPromise = identity
         ? runWithIdentity(identity, () => tool.handler(args))
         : tool.handler(args);
@@ -335,6 +699,10 @@ export class McpServer {
       });
       const rawResult: ToolResponse = await Promise.race([resultPromise, timeoutPromise]);
       clearTimeout(timer);
+      sendProgress(1);
+      if (Date.now() - started > 2000) {
+        log.info('Slow tool %s took %dms', toolName, Date.now() - started);
+      }
       const result: ToolResponse = sanitizeOutput(rawResult);
 
       // Quota accounting happens on successful calls only — errors and

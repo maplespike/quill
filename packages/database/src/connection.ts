@@ -25,7 +25,12 @@ const DEFAULT_DB_PATH = "maplespike.sqlite";
 
 function buildConnection(config: DbConfig): { sqlite: Database.Database; db: DbClient } {
   const isMemory = config.memory ?? false;
-  const dbPath = config.path ?? (isMemory ? ":memory:" : DEFAULT_DB_PATH);
+  // Respect QUILL_DB_PATH so shared stores (claims, entity links) land in the
+  // same SQLite file the api-server's NodeSqliteStorage uses (/data/maplespike.db
+  // in prod). Without this, CitationStore opened a relative maplespike.sqlite in
+  // the pod cwd — ephemeral, so claims never survived a restart. Explicit
+  // config.path always wins; QUILL_DB_PATH is the environment default.
+  const dbPath = config.path ?? (process.env.QUILL_DB_PATH || (isMemory ? ":memory:" : DEFAULT_DB_PATH));
 
   const sqlite = new Database(dbPath, {
     readonly: config.readonly ?? false,
@@ -484,6 +489,14 @@ export function runMigrations(db?: DbClient): void {
     status TEXT NOT NULL DEFAULT 'pending',
     error TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    -- Claim Stack: verifiable claim bundles (ECOSYSTEM-EXECUTION-PLAN WS-1)
+    CREATE TABLE IF NOT EXISTS citation_records (
+      hash TEXT PRIMARY KEY,
+      serialized TEXT NOT NULL,
+      citation_json TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
     `);
 }

@@ -3,6 +3,7 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { getNewItems, getSourceStats, registerSeen } from './signal-store.js';
 import { searchCkan, fetchGazette, fetchCommittees } from './upstream-fetcher.js';
+import { withClaims } from './claims-helper.js';
 
 const WATCHED_SOURCES = [
   { key: 'committees', label: 'House/Senate Committees', fetch: () => fetchCommittees('', 20) },
@@ -87,7 +88,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const stats = getSourceStats();
 
     return {
-      content: {
+      content: await withClaims({
         tool: 'signal_check',
         summary: {
           checkedAt: new Date().toISOString(),
@@ -97,7 +98,13 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         },
         findings: findings.filter(f => f.newItems !== 0),
         sourceStats: stats,
-      },
+      }, findings.map(f => ({
+        claim: `New items in ${f.label}: ${f.newItems}`,
+        value: f,
+        sourceName: f.label,
+        sourceUrl: '',
+        transformations: ['signal-detection'],
+      }))),
     };
   } catch (error) {
     return {

@@ -688,28 +688,28 @@ function tokenize(text: string): string[] {
     .filter(t => t.length > 2);
 }
 
-// Pre-compute term frequencies
-const N = toolIndex.length;
-const df = new Map<string, number>();
-
-for (const entry of toolIndex) {
-  const terms = new Set(tokenize(entry.description));
-  for (const term of terms) {
-    df.set(term, (df.get(term) || 0) + 1);
-  }
-}
-
-const AVG_DL = toolIndex.reduce((s, e) => s + tokenize(e.description).length, 0) / N;
-const K1 = 1.2;
-const B = 0.75;
-
-function bm25(query: string, limit: number): Array<{ toolName: string; description: string }> {
+function bm25(
+  query: string,
+  limit: number,
+  index: Array<{ toolName: string; description: string }> = toolIndex,
+): Array<{ toolName: string; description: string }> {
   const queryTerms = tokenize(query);
   if (queryTerms.length === 0) return [];
 
+  const N = index.length;
+  const df = new Map<string, number>();
+  for (const entry of index) {
+    for (const term of new Set(tokenize(entry.description))) {
+      df.set(term, (df.get(term) || 0) + 1);
+    }
+  }
+  const AVG_DL = index.reduce((s, e) => s + tokenize(e.description).length, 0) / Math.max(1, N);
+  const K1 = 1.2;
+  const B = 0.75;
+
   const scores: Array<{ entry: { toolName: string; description: string }; score: number }> = [];
 
-  for (const entry of toolIndex) {
+  for (const entry of index) {
     const dl = tokenize(entry.description).length;
     let score = 0;
     const entryTerms = new Set(tokenize(entry.description));
@@ -752,6 +752,33 @@ export const definition: ToolDefinition = {
   },
 };
 
+/**
+ * Merge the curated static index with the live tool registry so newly
+ * registered tools are always discoverable. Curated descriptions win
+ * (they're hand-tuned); live entries fill gaps. Dynamic import avoids a
+ * load-time cycle (tools/index.ts statically imports this module).
+ */
+async function getEffectiveIndex(): Promise<Array<{ toolName: string; description: string }>> {
+  let live: Array<{ toolName: string; description: string }> = [];
+  try {
+    const { getAllTools } = await import('./index.js');
+    live = getAllTools().map(t => ({
+      toolName: t.definition.name,
+      description: t.definition.description,
+    }));
+  } catch {
+    // registry unavailable (edge case) — fall back to curated only
+  }
+
+  if (live.length === 0) return toolIndex;
+
+  const byName = new Map(toolIndex.map(e => [e.toolName, e]));
+  for (const entry of live) {
+    if (!byName.has(entry.toolName)) byName.set(entry.toolName, entry);
+  }
+  return Array.from(byName.values());
+}
+
 export const handler: ToolHandler = async (args: Record<string, unknown>) => {
   const query = String(args.query ?? '');
   const limit = Math.min(Number(args.limit ?? 10), 30);
@@ -763,7 +790,8 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     };
   }
 
-  const results = bm25(query, limit);
+  const effective = await getEffectiveIndex();
+  const results = bm25(query, limit, effective);
 
   return {
     content: {
