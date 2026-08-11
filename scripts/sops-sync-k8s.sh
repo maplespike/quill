@@ -78,15 +78,41 @@ apply_secret() {
   | ${KUBECTL} apply -f -
 }
 
-# ── Sync maplespike-secrets (JWT + billing) ──
+# ── Sync maplespike-secrets (JWT + billing + PII hash) ──
 JWT_SECRET=$(read_secret JWT_SECRET runtime)
 BILLING_SECRET=$(read_secret QUILL_BILLING_SECRET runtime)
+PII_HASH_SECRET=$(read_secret QUILL_PII_HASH_SECRET runtime)
 
 if [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-value" ]; then
-  apply_secret maplespike-secrets \
-    "JWT_SECRET=${JWT_SECRET}" \
-    "QUILL_BILLING_SECRET=${BILLING_SECRET}"
-  echo "[sops-sync] ✓ maplespike-secrets synced"
+  # QUILL_PII_HASH_SECRET is REQUIRED (Decision 0002): the api-server refuses
+  # the register flow in production without a stable 64-char hex secret.
+  # read_secret pipes through `yq -r`, which prints the literal string
+  # `null` for a missing key — treat that as missing. If SOPS lacks the
+  # key, fall back to the in-cluster value so a sync never clears it.
+  if [ -z "${PII_HASH_SECRET}" ] || [ "${PII_HASH_SECRET}" = "null" ]; then
+    PII_HASH_SECRET=$(${KUBECTL} -n "${NAMESPACE}" get secret maplespike-secrets \
+      -o jsonpath='{.data.pii-hash-secret}' 2>/dev/null | base64 -d 2>/dev/null)
+    echo "[sops-sync] ⚠ QUILL_PII_HASH_SECRET missing from SOPS — reusing in-cluster value"
+  fi
+  if [ -z "${PII_HASH_SECRET}" ] || [ "${PII_HASH_SECRET}" = "null" ]; then
+    # Neither SOPS nor the cluster has a usable value. Applying a partial
+    # secret could drop the key via 3-way merge, so refuse the sync and
+    # leave the cluster untouched. Add QUILL_PII_HASH_SECRET to
+    # secrets/runtime.yaml first, then re-run.
+    echo "[sops-sync] ⚠ pii-hash-secret empty in SOPS and cluster — skipping maplespike-secrets (add QUILL_PII_HASH_SECRET to runtime.yaml first)"
+  elif ! echo "${PII_HASH_SECRET}" | grep -qE '^[0-9a-f]{64}$'; then
+    # The api-server (Decision 0002) only accepts a 64-char hex secret.
+    # Refuse to apply an invalid value (e.g. the legacy 44-char base64-ish
+    # value found on the live cluster 2026-08-10) — that would silently
+    # preserve the exact bug this sync exists to fix.
+    echo "[sops-sync] ⚠ pii-hash-secret is NOT a 64-char hex string (len=${#PII_HASH_SECRET}) — refusing to apply; fix runtime.yaml with a valid value first"
+  else
+    apply_secret maplespike-secrets \
+      "JWT_SECRET=${JWT_SECRET}" \
+      "QUILL_BILLING_SECRET=${BILLING_SECRET}" \
+      "pii-hash-secret=${PII_HASH_SECRET}"
+    echo "[sops-sync] ✓ maplespike-secrets synced"
+  fi
 else
   echo "[sops-sync] ⚠ JWT_SECRET is placeholder — skipping maplespike-secrets"
 fi

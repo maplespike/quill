@@ -1,0 +1,18 @@
+# quill-seed-neighbors.service — re-seed Calico permanent host neighbor
+# entries for pod IPs (durable ARP recovery after pod churn / node reboot).
+#
+# NixOS PATH is required: systemd's default PATH does not include
+# /run/current-system/sw/bin where kubectl/ip/grep/awk live. Without it the
+# service fails with exit 127 (command not found) — verified 2026-08-11.
+# Install: copy to /etc/systemd/system/, run with the timer
+# (quill-seed-neighbors.timer) in this same directory.
+[Unit]
+Description=Re-seed Calico permanent host neighbor entries for pod IPs
+After=network-online.target k3s.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=PATH=/run/current-system/sw/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+Environment=KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+ExecStart=/opt/quill-ops/seed-pod-neighbors.sh

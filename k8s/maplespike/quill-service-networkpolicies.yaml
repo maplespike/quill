@@ -1,0 +1,92 @@
+# NetworkPolicies for the quill-mcp and quill-portal workloads.
+#
+# WHY THIS FILE EXISTS:
+# The cluster carries a Calico GlobalNetworkPolicy `default-deny-enforced`
+# (applyOnForward: true) that denies traffic to any pod NOT covered by a
+# policy. quill-api is covered by quill-network-policy (same dir), but
+# quill-mcp and quill-portal had no covering policy — so the global
+# default-deny silently dropped ALL their traffic, including kubelet
+# liveness/readiness probes, leaving the pods perpetually 0/1 Ready.
+#
+# These policies give the MCP and portal the minimal surface they need:
+#   - ingress from the cloudflared namespace (their public endpoints via the
+#     tunnel: mcp.maplespike.ca / quill.maplespike.ca)
+#   - egress to quill-api:8082 (MCP QUILL_API_URL + portal /api proxy),
+#     DNS, and outbound 80/443 (MCP tools fetch external sources)
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-mcp-network-policy
+  namespace: maplespike
+spec:
+  podSelector:
+    matchLabels:
+      app: quill-mcp
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudflared
+      ports:
+        - port: 3001
+          protocol: TCP
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: quill-api
+      ports:
+        - port: 8082
+          protocol: TCP
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+        # MCP tools reach external data sources (80/443)
+        - port: 80
+          protocol: TCP
+        - port: 443
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: quill-portal-network-policy
+  namespace: maplespike
+spec:
+  podSelector:
+    matchLabels:
+      app: quill-portal
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudflared
+      ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: quill-api
+      ports:
+        - port: 8082
+          protocol: TCP
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

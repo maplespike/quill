@@ -1,0 +1,121 @@
+# Cloudflare Tunnel (cloudflared) for the Quill public endpoints.
+#
+# Routed hostnames (ingress rules below):
+#   quill.maplespike.ca  -> quill-portal:8080
+#   api.maplespike.ca    -> quill-api:8082
+#   mcp.maplespike.ca    -> quill-mcp:3001
+#
+# The Namespace carries the label `app.kubernetes.io/name: cloudflared`
+# because k8s/maplespike/quill-networkpolicy.yaml allows ingress to the API
+# ONLY from that namespace.
+#
+# The `cloudflared-creds` Secret (credentials.json) is created imperatively
+# from the SOPS-decrypted secrets/cloudflared.yaml (scripts/sops-sync-k8s.sh
+# is the source of truth for that sync) — it is intentionally NOT committed.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudflared
+  labels:
+    app.kubernetes.io/name: cloudflared
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: cloudflared
+  labels:
+    app: cloudflared
+    component: tunnel
+data:
+  config.yaml: |
+    tunnel: 66d76492-036b-4177-8fac-8682e0eda37e
+    credentials-file: /etc/cloudflared/credentials.json
+    # QUIC (UDP 7844) is dropped by the LAN firewall; force HTTP/2 over 443.
+    # Upstreams use PINNED literal ClusterIPs (NOT DNS names): cloudflared's Go
+    # resolver on the minimal image dials 1.1.1.1 for *.svc.cluster.local and
+    # gets NXDOMAIN, which regresses the tunnel to edge 502s. These IPs must
+    # match nix/saas-manifests.nix AND the Service spec clusterIP pins in
+    # k8s/maplespike/*-service.yaml.
+    protocol: http2
+    metrics: 0.0.0.0:2000
+    ingress:
+      - hostname: quill.maplespike.ca
+        service: http://10.43.100.12:8080
+      - hostname: api.maplespike.ca
+        service: http://10.43.100.10:8082
+      - hostname: mcp.maplespike.ca
+        service: http://10.43.100.11:3001
+      - service: http_status:404
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared
+  namespace: cloudflared
+  labels:
+    app: cloudflared
+    component: tunnel
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudflared
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: nexus
+      volumes:
+      - name: creds
+        secret:
+          secretName: cloudflared-creds
+      - name: config
+        configMap:
+          name: cloudflared-config
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:2025.4.0
+        imagePullPolicy: IfNotPresent
+        args:
+        - tunnel
+        - --no-autoupdate
+        - --config
+        - /etc/cloudflared/config.yaml
+        - --metrics
+        - 0.0.0.0:2000
+        - run
+        volumeMounts:
+        - name: creds
+          mountPath: /etc/cloudflared/credentials.json
+          subPath: credentials.json
+          readOnly: true
+        - name: config
+          mountPath: /etc/cloudflared/config.yaml
+          subPath: config.yaml
+          readOnly: true
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
+        # Admission policy requires non-root + no privilege escalation.
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
+        # The metrics server only reports /ready=200 once the tunnel is
+        # connected, so use it as a readiness gate (not liveness — a flapping
+        # tunnel would otherwise be killed).
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 2000
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5

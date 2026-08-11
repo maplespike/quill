@@ -7,6 +7,11 @@ metadata:
     app: quill-api
 spec:
   type: ClusterIP
+  # PINNED — must match nix/saas-manifests.nix AND the cloudflared ConfigMap
+  # ingress literal IPs (cloudflared's Go resolver NXDOMAINs DNS-name upstreams
+  # on the minimal image, so the tunnel dials these by IP). If you change this,
+  # update BOTH the nix cloudflared block and k8s/cloudflared/cloudflared.yaml.
+  clusterIP: 10.43.100.10
   ports:
     - port: 8082
       targetPort: 8082

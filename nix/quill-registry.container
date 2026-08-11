@@ -1,0 +1,46 @@
+# quill-registry.container — Podman Quadlet unit for the nexus:5000 OCI
+# registry. The registry is the image source for the k3s cluster
+# (containerd mirror `nexus:5000` -> http://nexus:5000). It used to be a
+# bare `podman run` container that did NOT survive node reboots — on the
+# 2026-08-11 nexus reboot it stayed stopped, every pod hit ImagePullBackOff
+# (imagePullPolicy was Always at the time) and the public site 502'd until
+# `sudo podman start registry` was run by hand.
+#
+# Install (system-level, on the nexus k3s node):
+#   sudo cp nix/quill-registry.container /etc/containers/systemd/
+#   sudo systemctl daemon-reload
+#   sudo systemctl start quill-registry.service   # podman generator creates it
+#   sudo systemctl enable quill-registry.service  # survives reboots
+#
+# NOTE: the image tag below must match the image the registry container was
+# originally created from. Find it with:
+#   sudo podman inspect registry --format '{{.Image}}'
+#
+# VOLUME WARNING (2026-08-11): the live `registry` container mounts an
+# ANONYMOUS hash-named volume (b856a84abe... on nexus), NOT a named
+# `registry-data` volume. Following this quadlet verbatim would create a
+# fresh empty volume and lose every pushed image. On the live host the
+# plain systemd unit /etc/systemd/system/quill-registry.service is what is
+# actually installed (podman start registry; the NixOS podman systemd
+# generator is not wired on nexus). Keep this file as the reference for a
+# clean NixOS rebuild; when using it, first rename/repair the volume to a
+# named one (`podman volume create registry-data && podman run ... -v
+# registry-data:/var/lib/registry`) so images survive.
+[Unit]
+Description=Quill OCI registry (nexus:5000) — image source for the k3s cluster
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=registry
+# NOTE: must be a NAMED volume — the live container uses an anonymous
+# hash-named volume (see warning above); migrate before adopting this unit.
+Volume=registry-data:/var/lib/registry
+PublishPort=5000:5000
+
+[Service]
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -6,10 +6,11 @@ metadata:
   labels:
     app: quill-api
 spec:
-  # #816: 2 replicas so the cloudflared tunnel always has a healthy origin
-  # behind the ClusterIP Service (quill-api.maplespike.svc.cluster.local).
-  # Single-replica + tunnel pinned to a literal ClusterIP was the 521 root cause.
-  replicas: 2
+  # replicas: 1 — /data is a shared ReadWriteOnce PVC holding one SQLite
+  # file (claims + api_keys + tenants); two replicas would mean two processes
+  # writing the same WAL-mode DB (lock contention). The cloudflared tunnel
+  # pins the ClusterIP Service, so 1 replica is a healthy origin.
+  replicas: 1
   selector:
     matchLabels:
       app: quill-api
@@ -26,8 +27,17 @@ spec:
     spec:
       containers:
       - name: api
-        image: nexus:5000/quill-api:latest
-        imagePullPolicy: Always
+        # nix/saas-manifests.nix is the canonical image source (apiTag param).
+        # This file is the secondary/kustomize path — keep the tag in sync or
+        # applying it rolls back the quill_ rename + better-sqlite3 binding.
+        image: nexus:5000/quill-api:2026-08-10-9
+        # NOTE: the cluster ValidatingAdmissionPolicy 'deny-latest-tag-deployments'
+        # forbids :latest tags — bump this date tag on every image rebuild.
+        # IfNotPresent: images are pinned tags in the local containerd store;
+        # the nexus:5000 registry is a bare podman container that does NOT
+        # survive reboots, and Always round-tripped the dead registry ->
+        # ImagePullBackOff -> site 502 (2026-08-11 reboot). Do NOT revert.
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8082
         env:
@@ -45,8 +55,10 @@ spec:
           value: sqlite
         - name: QUILL_DB_PATH
           value: /data/maplespike.db
+        # qdrant-service lives in the ai-inference namespace (not `qdrant`,
+        # which does not resolve in the maplespike namespace).
         - name: QUILL_QDRANT_ENDPOINT
-          value: http://qdrant:6333
+          value: http://qdrant-service.ai-inference.svc.cluster.local:6333
         - name: QUILL_QDRANT_COLLECTION
           value: maplespike
         - name: QUILL_EMBED_MODEL
@@ -84,18 +96,22 @@ spec:
         # STRIPE_ENV defaults to 'test'; flip to 'live' at go-live (human step).
         - name: STRIPE_ENV
           value: "test"
+        # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
+        # kills healthy pods during CPU-throttled cold start (2026-08-11 incident).
         livenessProbe:
           httpGet:
             path: /v1/health
             port: 8082
           initialDelaySeconds: 10
           periodSeconds: 20
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /v1/health
             port: 8082
           initialDelaySeconds: 5
           periodSeconds: 10
+          timeoutSeconds: 5
         resources:
           requests:
             cpu: 50m
@@ -103,9 +119,21 @@ spec:
           limits:
             cpu: 200m
             memory: 256Mi
+        # Admission policy 'require-resources-and-security-deployments'
+        # requires non-root + no privilege escalation.
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
         volumeMounts:
         - mountPath: /data
           name: data
+      # Claims store + sqlite DB persist across pod restarts on the
+      # local-path StorageClass (single-node k3s).
+      securityContext:
+        fsGroup: 1001
       volumes:
       - name: data
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: quill-api-data
