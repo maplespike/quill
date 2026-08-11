@@ -123,14 +123,14 @@ describe('API Key Management — generateApiKey', () => {
     assert.equal(typeof result.keyHash, 'string');
   });
 
-  it('rawKey starts with the maplespike_ prefix', async () => {
+  it('rawKey starts with the quill_ prefix', async () => {
     const { rawKey } = await generateApiKey();
     assert.ok(
-      rawKey.startsWith('maplespike_'),
-      `Expected maplespike_ prefix, got: ${rawKey}`,
+      rawKey.startsWith('quill_'),
+      `Expected quill_ prefix, got: ${rawKey}`,
     );
     // 32 random bytes → 64 hex chars after prefix
-    const hexPart = rawKey.slice('maplespike_'.length);
+    const hexPart = rawKey.slice('quill_'.length);
     assert.equal(hexPart.length, 64, 'Should have 64 hex chars (32 bytes)');
     assert.match(hexPart, /^[0-9a-f]{64}$/, 'Should be lowercase hex');
   });
@@ -138,7 +138,7 @@ describe('API Key Management — generateApiKey', () => {
 
 describe('API Key Management — hashApiKey', () => {
   it('is deterministic (same input produces same hash)', async () => {
-    const input = 'maplespike_testkey_abc123';
+    const input = 'quill_testkey_abc123';
     const hash1 = await hashApiKey(input);
     const hash2 = await hashApiKey(input);
     assert.equal(hash1, hash2);
@@ -177,7 +177,7 @@ describe('API Key Management — registerApiKey + authenticate', () => {
 
   it('authenticateRequest returns null for unregistered key', async () => {
     const request = new Request('https://api.maplespike.lan/v1/test', {
-      headers: { 'X-API-Key': 'maplespike_unregistered_nonexistent' },
+      headers: { 'X-API-Key': 'quill_unregistered_nonexistent' },
     });
     const result = await authenticateRequest(request);
     assert.equal(result, null);
