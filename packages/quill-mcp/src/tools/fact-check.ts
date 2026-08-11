@@ -1,5 +1,6 @@
 import type { ToolDefinition, ToolHandler } from './types.js';
 import { fetchStatCanReleases, fetchCKANPackages } from '@maplespike/pipeline-core';
+import { withClaims } from './claims-helper.js';
 
 /**
  * Check a specific claim, statement, or statistic against official Canadian government data sources.
@@ -122,7 +123,7 @@ export const handler: ToolHandler = async (args) => {
     }
 
     return {
-      content: {
+      content: await withClaims({
         tool: 'fact_check',
         claim,
         keywords,
@@ -135,7 +136,13 @@ export const handler: ToolHandler = async (args) => {
               ? `Found ${evidence.length} relevant government data sources for the claim "${claim}". Review the evidence to compare against the stated figures. For precise numeric verification, query specific StatCan cubes or CKAN datasets listed above.`
               : `No direct government data matches found for "${claim}". Try rephrasing or focusing on specific statistics (e.g., "unemployment rate 2024", "GDP growth").`,
         },
-      },
+      }, evidence.map(e => ({
+        claim: `Evidence from ${e.source}: ${e.title}`,
+        value: { source: e.source, type: e.type, title: e.title, summary: e.summary, url: e.url },
+        sourceName: e.source,
+        sourceUrl: e.url || '',
+        transformations: ['keyword-extraction', 'search'],
+      }))),
     };
   } catch (error) {
     return {

@@ -149,6 +149,8 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/onboarding',
   '/v1/compliance',
   '/v1/citation/',
+  '/v1/claims/verify/',
+  '/v1/claims/latest',
   '/v1/gov/releases',
   '/v1/billing/plans',
   '/v1/billing/stripe/checkout',
@@ -164,6 +166,8 @@ export const FREE_TIER_ALLOWED_PREFIXES: readonly string[] = [
   '/v1/security/audit-summary',
   '/v1/engine/status',
   '/v1/data/quality',
+  '/v1/status',
+  '/v1/openapi',
 ];
 
 /**

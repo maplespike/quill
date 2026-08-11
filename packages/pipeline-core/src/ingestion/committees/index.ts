@@ -388,3 +388,4 @@ export async function ingestInCameraMeetings(
 export { detectInCameraMeetings } from './alerts.js';
 export type { InCameraAlert } from './types.js';
 export { type EvidenceStory, buildEvidenceStories, searchCommitteeEvidence } from './pipeline.js';
+export { COMMITTEE_DDL } from './db.js';

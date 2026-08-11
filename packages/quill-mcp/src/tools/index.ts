@@ -189,6 +189,10 @@ import * as signalCheck from './signal-check.js';
 import * as systemHealth from './system-health.js';
 import * as resolveEntity from './resolve-entity.js';
 import * as findConnections from './find-connections.js';
+import * as linkedEntities from './linked-entities.js';
+
+// ── Claim Stack (WS-1) — verification & provenance ──────────────
+import * as verifyClaim from './verify-claim.js';
 
 // ── x402 payments (Phase 3) ──────────────────────────────────
 import * as x402Deposit from './x402-deposit.js';
@@ -453,6 +457,10 @@ export function getAllTools(): ToolModule[] {
     systemHealth,
     resolveEntity,
     findConnections,
+    linkedEntities,
+
+    // Claim Stack: independent claim verification (free tier)
+    verifyClaim,
 
     // x402 deposit tool (Phase 3). Always available; deposit is a no-op
     // when X402_ENABLED is unset — see x402-deposit.ts.
