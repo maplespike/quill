@@ -1,0 +1,131 @@
+# Canonical cluster-wide Calico GlobalNetworkPolicy: default-deny-enforced.
+#
+# APPLIED TO: the nexus k3s cluster (kubectl apply -f this file).
+# WHY THIS FILE EXISTS: the cluster originally shipped with this GNP in a
+# 12-rule form that did NOT allow egress to TCP/UDP 7844 (the Cloudflare edge
+# port cloudflared dials even in http2 mode). During the 2026-08-10 Quill
+# redeploy a duplicate GNP object was created mid-fix, leaving the enforcer
+# reading inconsistent rules. This canonical version preserves the original
+# semantics exactly (order 1000, all() selector, applyOnForward, final
+# 0.0.0.0/0 deny on both directions) and adds TCP+UDP 7844 egress/ingress so
+# the cloudflared tunnel can reach the edge.
+#
+# Keep this file in sync with whatever the cluster actually enforces — it is
+# the single source of truth for the default-deny posture on rebuilds.
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: default-deny-enforced
+spec:
+  applyOnForward: true
+  order: 1000
+  namespaceSelector: all()
+  types: [Ingress, Egress]
+  egress:
+    - action: Allow
+      destination:
+        nets: [10.1.1.0/24]
+    - action: Allow
+      destination:
+        nets: [10.42.0.0/16]
+    - action: Allow
+      destination:
+        nets: [10.43.0.0/16]
+    - action: Allow
+      destination:
+        nets: [100.64.0.0/10]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [30080]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [80]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [30443]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [443]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [6443]
+    - action: Allow
+      protocol: UDP
+      destination:
+        ports: [53]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [53]
+    # cloudflared edge connections (TCP+UDP 7844) — added 2026-08-10 for the
+    # Quill public tunnel; QUIC/HTTP2 to the Cloudflare edge uses 7844.
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [7844]
+    - action: Allow
+      protocol: UDP
+      destination:
+        ports: [7844]
+    - action: Deny
+      destination:
+        nets: [0.0.0.0/0]
+  ingress:
+    - action: Allow
+      source:
+        nets: [10.1.1.0/24]
+    - action: Allow
+      source:
+        nets: [10.42.0.0/16]
+    - action: Allow
+      source:
+        nets: [10.43.0.0/16]
+    - action: Allow
+      source:
+        nets: [100.64.0.0/10]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [30080]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [80]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [30443]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [443]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [6443]
+    - action: Allow
+      protocol: UDP
+      destination:
+        ports: [53]
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [53]
+    # symmetric 7844 allow (return traffic is conntrack-established; kept for
+    # consistency with the mirrored egress/ingress structure)
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports: [7844]
+    - action: Allow
+      protocol: UDP
+      destination:
+        ports: [7844]
+    - action: Deny
+      source:
+        nets: [0.0.0.0/0]

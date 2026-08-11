@@ -50,6 +50,38 @@ COPY --from=builder /app/packages/engine/dist/ /app/packages/engine/dist/
 COPY --from=builder /app/packages/engine/package.json /app/packages/engine/
 COPY --from=builder /app/node_modules/ /app/node_modules/
 
+# pnpm workspaces with inject-workspace-packages=true: each package's runtime
+# deps (pino, better-sqlite3, etc.) live as symlinks under the *per-package*
+# node_modules dir, pointing into the .pnpm store at the workspace root. The
+# root /app/node_modules copy above contains the .pnpm store, but ESM module
+# resolution starts at the importing file's own node_modules — so copy each
+# package's node_modules (symlink trees) into the runtime stage too.
+COPY --from=builder /app/packages/api-server/node_modules/ /app/packages/api-server/node_modules/
+COPY --from=builder /app/packages/database/node_modules/ /app/packages/database/node_modules/
+COPY --from=builder /app/packages/pipeline-core/node_modules/ /app/packages/pipeline-core/node_modules/
+COPY --from=builder /app/packages/engine/node_modules/ /app/packages/engine/node_modules/
+
+# pnpm workspaces: the runtime stage only copies dist+package.json for
+# workspace deps, so the @maplespike/* links pnpm normally creates under
+# node_modules are missing. Recreate them so ESM resolution works.
+RUN mkdir -p /app/node_modules/@maplespike \
+ && ln -s /app/packages/pipeline-core /app/node_modules/@maplespike/pipeline-core \
+ && ln -s /app/packages/database /app/node_modules/@maplespike/database \
+ && ln -s /app/packages/engine /app/node_modules/@maplespike/engine
+
+# inject-workspace-packages=true: pnpm materializes *injected copies* of
+# workspace deps inside each .pnpm store package's node_modules/@maplespike/.
+# Those copies are taken at `pnpm install` time — before tsc builds dist/ — so
+# they only contain .turbo and ESM resolution fails (ERR_MODULE_NOT_FOUND for
+# @maplespike/database imported from the store's pipeline-core copy). Replace
+# every injected workspace leaf with a symlink to the built /app/packages/*.
+RUN set -e; for d in /app/node_modules/.pnpm/@maplespike+*@*/node_modules/@maplespike; do \
+      [ -d "$d" ] || continue; \
+      for p in database pipeline-core engine; do \
+        rm -rf "$d/$p"; ln -s "/app/packages/$p" "$d/$p"; \
+      done; \
+    done
+
 ENV NODE_ENV=production
 ENV PORT=8082
 # Parameterized CA bundle path consumed by entrypoint.sh -> NODE_EXTRA_CA_CERTS

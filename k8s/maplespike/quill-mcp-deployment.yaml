@@ -22,8 +22,10 @@ spec:
     spec:
       containers:
       - name: mcp
-        image: nexus:5000/quill-mcp:latest
-        imagePullPolicy: Always
+        image: nexus:5000/quill-mcp:2026-08-10-4
+        # NOTE: cluster admission policy forbids :latest tags.
+        # IfNotPresent — see quill-api-deployment.yaml (2026-08-11 reboot incident).
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3001
         env:
@@ -33,18 +35,22 @@ spec:
           value: production
         - name: QUILL_API_URL
           value: http://quill-api:8082/v1
+        # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
+        # kills healthy pods during CPU-throttled cold start (2026-08-11 incident).
         livenessProbe:
           httpGet:
             path: /health
             port: 3001
           initialDelaySeconds: 15
           periodSeconds: 20
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /health
             port: 3001
           initialDelaySeconds: 5
           periodSeconds: 10
+          timeoutSeconds: 5
         resources:
           requests:
             cpu: 50m
@@ -52,3 +58,9 @@ spec:
           limits:
             cpu: 200m
             memory: 256Mi
+        # Admission policy requires non-root + no privilege escalation.
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          allowPrivilegeEscalation: false
