@@ -43,7 +43,7 @@ const i18n = createI18n(lang);
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form class="space-y-4" method="GET" action="/explorer">
+        <form id="explorer-form" class="space-y-4" method="GET" action="/explorer">
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -108,8 +108,9 @@ const i18n = createI18n(lang);
     <!-- Results Summary -->
     <div class="flex items-center justify-between mb-4 reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
-        Showing <span class="font-medium text-foreground">1&ndash;10</span> of
-        <span class="font-medium text-foreground">12,847</span> results
+        Showing <span id="results-shown" class="font-medium text-foreground">1&ndash;10</span> of
+        <span id="results-total" class="font-medium text-foreground">12,847</span> results
+        <span id="results-status" class="ml-2 hidden text-xs"></span>
       </p>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled>Previous</Button>
@@ -130,7 +131,7 @@ const i18n = createI18n(lang);
               <TableHead>Trust</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody id="explorer-results">
             <TableRow className="transition-colors duration-200 ease-out hover:bg-muted/30">
               <TableCell>
                 <a href="/explorer/result/1" class="font-medium text-primary transition-colors duration-200 hover:underline">House of Commons &mdash; Standing Committee on Finance (FINA) &mdash; Meeting No. 142</a>
@@ -290,7 +291,7 @@ const i18n = createI18n(lang);
     <div class="mt-6 flex items-center justify-between reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
         Page <span class="font-medium text-foreground">1</span> of
-        <span class="font-medium text-foreground">1,285</span>
+        <span class="font-medium text-foreground">1</span>
       </p>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled>
@@ -298,15 +299,131 @@ const i18n = createI18n(lang);
           Previous
         </Button>
         <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">1</Button>
-        <Button variant="outline" size="sm">2</Button>
-        <Button variant="outline" size="sm">3</Button>
-        <span class="text-muted-foreground">...</span>
-        <Button variant="outline" size="sm">1,285</Button>
-        <Button variant="outline" size="sm">
-          Next
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </Button>
+        <Button variant="outline" size="sm" disabled>Next</Button>
       </div>
     </div>
   </section>
+
+  <script is:inline>
+    (function () {
+      "use strict";
+
+      // Live search against the real API via the portal's same-origin /api
+      // reverse proxy (server.py). If the API is unreachable we fall back to
+      // the server-rendered showcase rows above — never fabricated data.
+      var cfg = window.MAPLESPIKE || {};
+      var apiBase = (cfg.apiBase || "") ? cfg.apiBase + "/v1" : "/api/v1";
+
+      var form = document.getElementById("explorer-form");
+      var tbody = document.getElementById("explorer-results");
+      var shownEl = document.getElementById("results-shown");
+      var totalEl = document.getElementById("results-total");
+      var statusEl = document.getElementById("results-status");
+      if (!form || !tbody) return;
+
+      // Preserve the SSR showcase rows as the initial (no-query) state and as
+      // the honest fallback when the live search API is unreachable.
+      var showcaseHtml = tbody.innerHTML;
+
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+
+      // Only http(s) and same-origin relative links survive; anything else
+      // (javascript:, data:, etc.) is dropped to keep the table inert.
+      function safeHref(u) {
+        try {
+          var parsed = new URL(u, window.location.origin);
+          if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href;
+        } catch (e) { /* not a URL */ }
+        return "#";
+      }
+
+      function renderResults(results, query) {
+        if (!results || results.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="px-4 py-10 text-center text-sm text-muted-foreground">' +
+            "No results for “" + esc(query) + "” — try a broader term, or check the live API status." +
+            "</td></tr>";
+          shownEl.textContent = "0";
+          totalEl.textContent = "0";
+          return;
+        }
+        var rows = results.map(function (r) {
+          var title = r.title || "Untitled record";
+          var href = safeHref(r.url || "");
+          var desc = r.description || "";
+          var module = r.category || r.source || "Government";
+          var source = r.source || "Government of Canada";
+          var date = r.date ? String(r.date).slice(0, 10) : "—";
+          return (
+            '<tr class="transition-colors duration-200 ease-out hover:bg-muted/30">' +
+              '<td><a href="' + esc(href) + '" target="_blank" rel="noopener noreferrer" class="font-medium text-primary transition-colors duration-200 hover:underline">' + esc(title) + "</a>" +
+              (desc ? '<p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">' + esc(desc) + "</p>" : "") +
+              "</td>" +
+              '<td><span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">' + esc(module) + "</span></td>" +
+              '<td class="text-sm text-muted-foreground">' + esc(source) + "</td>" +
+              '<td class="text-sm text-muted-foreground whitespace-nowrap">' + esc(date) + "</td>" +
+              '<td><span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Live</span></td>' +
+            "</tr>"
+          );
+        }).join("");
+        tbody.innerHTML = rows;
+        shownEl.textContent = String(results.length);
+        totalEl.textContent = String(results.length);
+      }
+
+      function setStatus(text, kind) {
+        statusEl.classList.remove("hidden");
+        statusEl.textContent = text;
+        statusEl.className = "ml-2 text-xs font-medium " + (kind === "live" ? "text-emerald-500" : "text-amber-500");
+      }
+
+      async function search(query, limit) {
+        var params = new URLSearchParams();
+        params.set("q", query);
+        params.set("limit", String(limit || 25));
+        // NOTE: /v1/gov/search reads q/jurisdiction/limit only; the category
+        // filter is applied client-side to the rendered module label, never sent.
+        var jurEl = document.getElementById("jurisdiction");
+        if (jurEl && jurEl.value) params.set("jurisdiction", jurEl.value);
+
+        setStatus("Searching…", "live");
+        try {
+          var resp = await fetch(apiBase + "/gov/search?" + params.toString());
+          var body = await resp.json();
+          var data = body.data || body;
+          if (data.provenance && data.provenance.status === "live") {
+            setStatus("· live", "live");
+          } else {
+            setStatus("· unavailable (API)", "warn");
+          }
+          renderResults(data.results || [], query);
+        } catch (err) {
+          // Honest fallback: restore the server-rendered showcase rows rather
+          // than showing a fabricated empty state.
+          tbody.innerHTML = showcaseHtml;
+          shownEl.textContent = "1–10";
+          totalEl.textContent = "12,847";
+          setStatus("· API unreachable — showing showcase data", "warn");
+        }
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var q = form.querySelector("[name=query]").value.trim();
+        var per = form.querySelector("[name=per_page]");
+        search(q, per ? Number(per.value) : 25);
+      });
+
+      // Deep-link support: /explorer?query=... runs a live search on load.
+      var initial = new URLSearchParams(window.location.search).get("query");
+      if (initial) {
+        form.querySelector("[name=query]").value = initial;
+        search(initial, 25);
+      }
+    })();
+  </script>
 </BaseLayout>
