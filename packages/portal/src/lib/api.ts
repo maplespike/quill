@@ -22,6 +22,87 @@ export async function getHealth(): Promise<HealthData | null> {
   try { const r = await fetch(`${API_BASE}/health`); const d = await r.json(); return d.data || d } catch { return null }
 }
 
+// ── Claim verification (public trust primitive) ──
+
+export interface ClaimVerifyResult {
+  verified: boolean;
+  found: boolean;
+  sha256: string;
+  source?: string;
+  source_name?: string;
+  source_url?: string;
+  retrieved_at?: string | null;
+  license?: string | null;
+  update_frequency?: string;
+  claim?: string;
+  verify_command?: string;
+  recomputed_sha256?: string;
+  matches_claimed?: boolean | null;
+}
+
+/**
+ * Check a SHA-256 claim hash against the public Quill claim store.
+ * No API key required — this is the journalist-facing trust primitive.
+ */
+export async function verifyClaimHash(hash: string): Promise<ClaimVerifyResult | null> {
+  try {
+    const clean = hash.trim().replace(/^sha256[:-]/, '');
+    const r = await fetch(`${API_BASE}/claims/verify/${encodeURIComponent(clean)}`);
+    const d = await r.json();
+    if (!r.ok) {
+      return { verified: false, found: false, sha256: clean, ...(d.error?.message ? { source: d.error.message } : {}) };
+    }
+    return d.data || d;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Recompute the SHA-256 of arbitrary JSON data and compare to a claimed hash.
+ * Pure computation — verifies claims without needing Quill to have seen them.
+ */
+export async function verifyClaimData(data: unknown, sha256?: string): Promise<ClaimVerifyResult | null> {
+  try {
+    const r = await fetch(`${API_BASE}/claims/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data, sha256 }),
+    });
+    const d = await r.json();
+    return d.data || d;
+  } catch {
+    return null;
+  }
+}
+
+// ── Claims index (public discovery) ──
+
+export interface RecentClaim {
+  sha256: string;
+  claim: string;
+  source_name: string;
+  source_url: string;
+  retrieved_at?: string | null;
+  license?: string | null;
+  update_frequency?: string;
+  created_at: string;
+}
+
+/**
+ * List the most recently registered verifiable claim bundles.
+ * Public — no API key required. Lets journalists discover what Quill has
+ * attested, then deep-link into the verifier via /verify?hash=sha256:...
+ */
+export async function listRecentClaims(): Promise<{ count: number; claims: RecentClaim[] } | null> {
+  try {
+    const r = await fetch(`${API_BASE}/claims/latest`);
+    const d = await r.json();
+    if (!r.ok) return null;
+    return d.data || d;
+  } catch { return null }
+}
+
 export async function getUsage(): Promise<{ daily: number; monthly: number } | null> {
   try { const r = await fetch(`${API_BASE}/usage`); const d = await r.json(); return d.data || d } catch { return null }
 }

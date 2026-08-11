@@ -1,0 +1,19 @@
+# Hermes profile: quill-civic
+# Connect Quill (Canadian government data substrate) with verifiable claims.
+
+name: quill-civic
+
+mcp:
+  servers:
+    quill:
+      transport: stdio
+      command: npx
+      args: ["@maplespike/quill-mcp"]
+
+skills:
+  # Quill skills (copy from the repo, or point external_dirs at it)
+  external_dirs:
+    - /path/to/quill/.agents/skills
+
+personality:
+  soul: SOUL.md

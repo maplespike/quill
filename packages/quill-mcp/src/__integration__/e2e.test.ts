@@ -77,16 +77,19 @@ describe('e2e: fact_check', () => {
 /* ------------------------------------------------------------------ */
 describe('e2e: get_citation', () => {
   it('returns not-found response for a nonexistent hash', async () => {
+    // Valid-format (64 hex) hash that is not in the store — must hit the
+    // not-found branch, not the invalid-format branch.
+    const missingHash = `sha256:${'f'.repeat(64)}`;
     let result: unknown;
     try {
-      result = await getCitation.handler({ hash: 'sha256-abcdef0123456789' });
+      result = await getCitation.handler({ hash: missingHash });
     } catch (err) {
       assert.fail(`get_citation handler threw: ${(err as Error).message}`);
     }
 
     assertToolResponse(result, 'get_citation');
     const c = (result as Record<string, unknown>).content as Record<string, unknown>;
-    assert.equal(c.hash, 'sha256-abcdef0123456789');
+    assert.equal(c.hash, missingHash);
     assert.ok(c.citation !== null && typeof c.citation === 'object', 'citation must be an object');
     const citation = c.citation as Record<string, unknown>;
     assert.equal(citation.verified, false);
@@ -113,7 +116,7 @@ describe('e2e: get_citation', () => {
   it('can retrieve a citation after registering one', async () => {
     // Register a citation via the exported function
     const { registerCitation } = await import('../tools/get-citation.js');
-    const hash = registerCitation('test-source', 'This is test content for citation verification');
+    const hash = await registerCitation('test-source', 'This is test content for citation verification');
 
     let result: unknown;
     try {
@@ -126,7 +129,9 @@ describe('e2e: get_citation', () => {
     const c = (result as Record<string, unknown>).content as Record<string, unknown>;
     assert.equal(c.hash, hash);
     const citation = c.citation as Record<string, unknown>;
-    assert.ok(citation.verified === true || citation.verified === false);
+    // registerCitation hashes canonicalJson(content) and the store persists the
+    // same canonical form — so the round-trip must recompute to verified: true.
+    assert.equal(citation.verified, true);
     assert.equal(citation.source, 'test-source');
     assert.ok(typeof citation.timestamp === 'string');
     assert.ok(typeof citation.data === 'string');

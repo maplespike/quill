@@ -1,11 +1,48 @@
 /**
- * Entity Resolution Library for MCP Tools
+ * Quill — Entity Resolution Library (shared)
  *
  * Queries the pipeline database for entity resolution via @maplespike/database.
+ *
+ * This is the composition surface of the WS-2 cross-reference hub. It lives in
+ * pipeline-core (not quill-mcp) because BOTH the MCP server and the REST API
+ * server depend on pipeline-core — non-MCP clients get the same entity graph
+ * and the same linked_entities composition results.
+ *
+ * Mirrors the canonical URI helpers in packages/engine/src/entity/types.ts;
+ * the engine package is not a runtime dep of every consumer, so the helpers
+ * are mirrored here. Keep in sync.
  */
 
 import { getRawDb } from '@maplespike/database';
 import type { Database } from '@maplespike/database';
+
+/* ------------------------------------------------------------------ */
+/*  Canonical Entity URI scheme (WS-2)                                 */
+/* ------------------------------------------------------------------ */
+
+export const ENTITY_URI_PREFIX = 'quill://entity/';
+
+/** Build the canonical URI for an entity id. */
+export function toEntityUri(id: string): string {
+  return `${ENTITY_URI_PREFIX}${encodeURIComponent(id)}`;
+}
+
+/** Extract the raw entity id from a `quill://entity/{id}` URI (or return input unchanged if not a URI). */
+export function fromEntityUri(uri: string): string {
+  if (uri.startsWith(ENTITY_URI_PREFIX)) {
+    try {
+      return decodeURIComponent(uri.slice(ENTITY_URI_PREFIX.length));
+    } catch {
+      return uri.slice(ENTITY_URI_PREFIX.length);
+    }
+  }
+  return uri;
+}
+
+/** True when the string is a canonical `quill://entity/...` URI. */
+export function isEntityUri(value: string): boolean {
+  return value.startsWith(ENTITY_URI_PREFIX);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Database connection                                                 */
@@ -18,6 +55,18 @@ function getSqlite(): Database {
     _sqlite = getRawDb();
   }
   return _sqlite;
+}
+
+/** True when the entity graph tables exist in the shared database. */
+export function entityGraphAvailable(): boolean {
+  try {
+    const tables = getSqlite()
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='entities'")
+      .get() as { name: string } | undefined;
+    return Boolean(tables);
+  } catch {
+    return false;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -58,6 +107,70 @@ export interface ConnectionResult {
   sourceModule: string;
 }
 
+/** Canonical registry bucket for an appearance module. */
+export const MODULE_TO_REGISTRY: Record<string, string> = {
+  // Lobbying
+  lobbying: 'lobbying',
+  'provincial-lobbying': 'lobbying',
+  'ontario-lobbying': 'lobbying',
+  'quebec-lobbying': 'lobbying',
+  // GIC
+  gic: 'gic',
+  // Committees / parliament
+  committees: 'committees',
+  'parliamentary-voting': 'committees',
+  debates: 'committees',
+  // Corporate
+  corporate: 'corporate',
+  'corporate-filings': 'corporate',
+  sedi: 'corporate',
+  'sedar-plus': 'corporate',
+  'crown-corporations': 'corporate',
+  'cra-charity': 'corporate',
+  'proactive-disclosure': 'corporate',
+  procurement: 'corporate',
+  contracts: 'corporate',
+  // Legal
+  canlii: 'canlii',
+  a2aj: 'canlii',
+  legislation: 'canlii',
+  // Elections
+  elections: 'elections',
+  // Oversight
+  oversight: 'oversight',
+  // Municipal / regional
+  municipal: 'municipal',
+  'municipal-long-tail': 'municipal',
+  'regional-authorities': 'municipal',
+  // Provincial
+  provincial: 'provincial',
+  'provincial-ckan': 'provincial',
+  'provincial-legislatures': 'provincial',
+};
+
+export function registryForModule(moduleName: string): string {
+  return MODULE_TO_REGISTRY[moduleName] ?? 'other';
+}
+
+/** Per-registry evidence breakdown for the cross-reference surface. */
+export interface RegistryBreakdown {
+  registry: string;
+  count: number;
+  modules: string[];
+  firstDate: string | null;
+  lastDate: string | null;
+}
+
+/** Full cross-reference composition result (linked_entities surface). */
+export interface CrossReferenceResult {
+  entity: ResolvedEntityResult;
+  uri: string;
+  registries: RegistryBreakdown[];
+  totalAppearances: number;
+  connections: ConnectionResult[];
+  connectionCount: number;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Entity Resolution                                                   */
 /* ------------------------------------------------------------------ */
@@ -70,6 +183,17 @@ export function resolveEntity(
   typeHint: string = 'auto',
   threshold: number = 0.7,
 ): ResolvedEntityResult {
+  if (!entityGraphAvailable()) {
+    return {
+      id: '',
+      canonicalName: name,
+      type: typeHint === 'auto' ? 'unknown' : typeHint as 'person' | 'organization',
+      confidence: 0,
+      aliases: [],
+      appearances: [],
+    };
+  }
+
   const db = getSqlite();
   const normalized = name.toLowerCase().trim();
 
@@ -103,6 +227,38 @@ export function resolveEntity(
     type: best.type as 'person' | 'organization',
     confidence: best.confidence,
     aliases: [...new Set([best.canonical_name, ...aliases])],
+    appearances: appearances.map((a) => ({
+      module: a.module_name,
+      sourceTable: a.source_table,
+      role: a.role,
+      date: a.date || '',
+      summary: `${a.module_name}: ${a.role || 'mentioned'}${a.date ? ` (${a.date})` : ''}`,
+      sourceUrl: a.source_url || '',
+    })),
+  };
+}
+
+/**
+ * Look up an entity directly by its database id.
+ * Returns the same ResolvedEntityResult shape as resolveEntity().
+ */
+export function getEntityById(id: string): ResolvedEntityResult | null {
+  if (!entityGraphAvailable()) return null;
+
+  const db = getSqlite();
+  const row = db
+    .prepare('SELECT id, canonical_name, type, confidence FROM entities WHERE id = ?')
+    .get(id) as EntityRow | undefined;
+  if (!row) return null;
+
+  const appearances = findEntityAppearances(db, row.id);
+  const aliases = findEntityAliases(db, row.id);
+  return {
+    id: row.id,
+    canonicalName: row.canonical_name,
+    type: row.type as 'person' | 'organization',
+    confidence: row.confidence,
+    aliases: [...new Set([row.canonical_name, ...aliases])],
     appearances: appearances.map((a) => ({
       module: a.module_name,
       sourceTable: a.source_table,
@@ -183,6 +339,70 @@ export function findConnections(
   });
 
   return { center, connections };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Cross-reference composition (linked_entities surface)              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Build the per-registry breakdown for a resolved entity.
+ * Groups appearances by canonical registry bucket (lobbying, gic,
+ * committees, corporate, canlii, elections, oversight, municipal,
+ * provincial, other).
+ */
+export function buildRegistryBreakdown(entity: ResolvedEntityResult): RegistryBreakdown[] {
+  const byRegistry = new Map<string, typeof entity.appearances>();
+  for (const appearance of entity.appearances) {
+    const registry = registryForModule(appearance.module);
+    const list = byRegistry.get(registry) ?? [];
+    list.push(appearance);
+    byRegistry.set(registry, list);
+  }
+
+  return Array.from(byRegistry.entries())
+    .map(([registry, appearances]) => ({
+      registry,
+      count: appearances.length,
+      modules: Array.from(new Set(appearances.map((a) => a.module))),
+      firstDate: appearances.map((a) => a.date).filter(Boolean).sort()[0] ?? null,
+      lastDate: appearances.map((a) => a.date).filter(Boolean).sort().slice(-1)[0] ?? null,
+    }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Cross-reference an entity (by id or by name) across every registry.
+ * This is the shared composition surface behind the linked_entities MCP
+ * tool AND the REST endpoints GET /v1/entities/{id} and
+ * GET /v1/entities/{id}/links — non-MCP clients get identical results.
+ */
+export function crossReferenceEntity(input: {
+  id?: string;
+  name?: string;
+  type?: string;
+  threshold?: number;
+}): CrossReferenceResult | null {
+  const threshold = input.threshold ?? 0.7;
+  const entity = input.id
+    ? getEntityById(fromEntityUri(input.id))
+    : input.name
+      ? resolveEntity(input.name, input.type ?? 'auto', threshold)
+      : null;
+
+  if (!entity || !entity.id) return null;
+
+  const registries = buildRegistryBreakdown(entity);
+  const { connections } = findConnections(entity.canonicalName, 1, threshold);
+
+  return {
+    entity,
+    uri: toEntityUri(entity.id),
+    registries,
+    totalAppearances: entity.appearances.length,
+    connections,
+    connectionCount: connections.length,
+  };
 }
 
 /* ------------------------------------------------------------------ */

@@ -12,6 +12,8 @@
  */
 
 import { httpGet } from '../utils/http.js';
+import { registerModuleResultClaims } from '../claims/index-barrel.js';
+import { createSqliteD1Adapter } from './sqlite-d1.js';
 
 export type ModuleCategory =
   | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
@@ -2611,6 +2613,29 @@ export function getCategories(): ModuleCategory[] {
 }
 
 /**
+ * True when a module's main ingest function is declared db-first, i.e.
+ * its first parameter is `db` (committees, influence, corporate, …).
+ * Detected from the function source so runModule can inject a SQLite
+ * D1 adapter instead of passing an options object into the db slot.
+ */
+function isDbFirstSignature(fn: unknown): boolean {
+  if (typeof fn !== 'function') return false;
+  try {
+    const src = Function.prototype.toString.call(fn);
+    // Matches `async function ingestAllX(db, options) { ... }` after tsc
+    // strips types: the first parameter token is `db`.
+    // Every db-first module declares its handle as `db` (committees,
+    // influence, corporate, ab-health, …). Note: this matches `function`
+    // declarations (all current modules); an arrow-function ingestAll
+    // would not match and would simply skip adapter injection.
+    const m = src.match(/^\s*(?:async\s+)?function[^(]*\(\s*([^,)\s]+)/);
+    return m?.[1] === 'db';
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Lightweight upstream health check for an ingestion module.
  * Sends a HEAD request to the module's healthCheckUrl (if configured).
  * Returns true if the endpoint responds 2xx-4xx (alive), false otherwise.
@@ -2662,18 +2687,76 @@ export async function runModule(
     throw new Error(`Failed to load module "${name}" from ${info.modulePath}: ${err}`);
   }
 
-  // Find the main ingest function — try ingestAll<Name> or ingest<Name> first
-  const mainFn = info.ingestFunctions.find(f =>
-    f.startsWith('ingestAll') || f.startsWith('ingest')
-  );
+  // Find the main ingest function — prefer the full ingestAll<Name> entry
+  // point, falling back to a single ingest<Name> function. (The old `.find`
+  // with an OR predicate returned whichever appeared first in the array,
+  // e.g. ingestCommittee instead of ingestAllCommittees.)
+  const mainFn =
+    info.ingestFunctions.find(f => f.startsWith('ingestAll')) ??
+    info.ingestFunctions.find(f => f.startsWith('ingest'));
+
+  // db-first modules (committees, influence, corporate, …) declare
+  // `(db, options)`. When the caller passes only an options object — the
+  // CLI/run-pipeline/smoke-test convention `runModule(name, { limit })` —
+  // inject a SQLite-backed D1 adapter so the module actually runs and
+  // persists locally instead of silently receiving the options object as
+  // its `db` parameter. Tables are created from any exported *_DDL.
+  const resolveCallArgs = async (fn: string): Promise<unknown[]> => {
+    const fnRef = mod[fn];
+    const first = args[0];
+    const callerPassedDb =
+      first !== null && typeof first === 'object' &&
+      typeof (first as { prepare?: unknown }).prepare === 'function';
+    if (!isDbFirstSignature(fnRef) || callerPassedDb) return args;
+    let adapter: ReturnType<typeof createSqliteD1Adapter>;
+    try {
+      adapter = createSqliteD1Adapter();
+    } catch (err) {
+      console.warn(`[registry] D1 adapter creation failed for '${name}': ${err instanceof Error ? err.message : String(err)}`);
+      return args;
+    }
+    // Best-effort table creation from any exported *_DDL. A DDL failure
+    // must NOT drop the adapter — that would re-introduce the original bug
+    // (options object landing in the db slot). Modules that self-create
+    // their tables (influence) or tolerate missing ones still get the db.
+    for (const [key, value] of Object.entries(mod)) {
+      if (key.endsWith('_DDL') && typeof value === 'string') {
+        try {
+          await adapter.exec(value);
+        } catch (err) {
+          console.warn(`[registry] ${name}: failed to exec ${key}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    }
+    return [adapter, ...args];
+  };
+
+  const run = async (fn: string, callArgs: unknown[] = args): Promise<unknown> => {
+    const result = await mod[fn](...callArgs);
+    // WS-1b: content-address every parsed record at parse time so hashes
+    // exist in the citation store before any query. Failure-safe by design.
+    try {
+      const registered = await registerModuleResultClaims(
+        name,
+        result,
+        info.sources[0]?.name ?? '',
+      );
+      if (registered > 0) {
+        console.log(`[claims] Registered ${registered} claim bundle(s) for module '${name}'`);
+      }
+    } catch (claimErr) {
+      console.warn(`[claims] Skipped claim registration for '${name}': ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
+    }
+    return result;
+  };
   if (mainFn && typeof mod[mainFn] === 'function') {
-    return mod[mainFn](...args);
+    return run(mainFn, await resolveCallArgs(mainFn));
   }
 
   // Fallback: try first ingest function
   for (const fn of info.ingestFunctions) {
     if (typeof mod[fn] === 'function') {
-      return mod[fn](...args);
+      return run(fn, await resolveCallArgs(fn));
     }
   }
 

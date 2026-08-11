@@ -27,6 +27,8 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   // ── Free tools — discovery, metadata, health ─────────────────────
   'list_tools':           { tier: 'free', priceUsd: 0 },
   'explore-catalog':      { tier: 'free', priceUsd: 0 },
+  'verify-claim':         { tier: 'free', priceUsd: 0 }, // trust primitive — always free
+  'verify_claim':         { tier: 'free', priceUsd: 0 }, // underscore-named variant (tool registry names)
   'cache-status':         { tier: 'free', priceUsd: 0 },
   'system-health':        { tier: 'free', priceUsd: 0 },
   'get-module-health':    { tier: 'free', priceUsd: 0 },
@@ -39,6 +41,11 @@ const PRICE_MAP: Record<string, ToolPrice> = {
   'get-entity-profile':   { tier: 'micro', priceUsd: 0.001 },
   'get-citation':         { tier: 'micro', priceUsd: 0.001 },
   'resolve-entity':       { tier: 'micro', priceUsd: 0.001 },
+  // Composition hub — cross-registry evidence. Registry names are
+  // underscore-kebab (linked_entities); price both spellings so the paid
+  // tier actually applies (getToolPrice falls back to DEFAULT_PRICE on miss).
+  'linked-entities':      { tier: 'premium', priceUsd: 0.10 },
+  'linked_entities':      { tier: 'premium', priceUsd: 0.10 },
   'get-annotations':      { tier: 'micro', priceUsd: 0.001 },
   'get-member-info':      { tier: 'micro', priceUsd: 0.001 },
   'get-politician-influence': { tier: 'micro', priceUsd: 0.001 },
@@ -223,14 +230,23 @@ const DEFAULT_PRICE: ToolPrice = { tier: 'standard', priceUsd: 0.01 };
 
 /**
  * Resolve the price for a given tool name.
- * Falls back to DEFAULT_PRICE for unknown tools.
+ *
+ * MCP tool registry names are underscore-kebab (resolve_entity, fact_check,
+ * track_bill) while PRICE_MAP keys are kebab-case (resolve-entity,
+ * fact-check, track-bill). Normalize the lookup so the intended tier
+ * actually applies — otherwise underscore-named tools silently fall back
+ * to DEFAULT_PRICE. Exact match wins; normalized match second.
  */
 export function getToolPrice(toolName: string): ToolPrice {
   // 1. Exact match
   const exact = PRICE_MAP[toolName];
   if (exact) return exact;
 
-  // 2. No fallback — return default
+  // 2. Normalized match: resolve_entity → resolve-entity
+  const normalized = PRICE_MAP[toolName.replace(/_/g, '-')];
+  if (normalized) return normalized;
+
+  // 3. No match — return default
   return DEFAULT_PRICE;
 }
 

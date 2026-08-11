@@ -1,6 +1,6 @@
 {
   "name": "MapleSpike",
-  "description": "Canadian government data pipeline — 65+ modules, 30+ MCP tools, SHA-256 verified citations across federal, provincial, and municipal sources",
+  "description": "Canadian government data pipeline — 208 modules, 167 MCP tools, SHA-256 verifiable claim bundles on cross-reference tools (resolve_entity, find_connections, get_entity_profile, track_bill, signal_check, fact_check, ai_ask), entity resolution across federal, provincial, and municipal sources",
   "url": "https://maplespike.ca",
   "author": {
     "name": "Reverb256",
@@ -9,7 +9,8 @@
   "capabilities": {
     "dataSources": ["Parliament", "Lobbying", "Procurement", "Gazette", "Courts", "Oversight", "Immigration", "Indigenous", "Criminal Justice", "Defence", "Health", "Environment", "Energy", "Transport", "Trade", "Elections", "Corporate"],
     "apiStyles": ["REST", "MCP"],
-    "verification": "SHA-256 citation hashes on every response"
+    "verification": "SHA-256 claim bundles on 7 cross-reference tools; verify via get_citation / verify_claim MCP tools or GET /v1/claims/verify/:hash",
+    "agentSurfaces": ["resources", "prompts", "skills", "x402-micropayments"]
   },
-  "updatedAt": "2026-05-14T05:32:37.765Z"
+  "updatedAt": "2026-08-09T00:00:00.000Z"
 }

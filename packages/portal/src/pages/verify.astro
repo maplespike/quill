@@ -1,0 +1,432 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { createI18n } from "@maplespike/i18n";
+
+const lang = (Astro.props.lang as "en" | "fr") || "en";
+const i18n = createI18n(lang);
+---
+
+<BaseLayout
+  title={i18n.t('verify.title')}
+  description="Verify any SHA-256 claim hash against the Quill claim store — public, no API key required. See the source, retrieval time, and license behind every data point."
+  lang={lang}
+>
+  <!-- Hero -->
+  <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
+    <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="relative z-10 container mx-auto px-4">
+      <div class="max-w-3xl">
+        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground">
+          <span class="h-1.5 w-1.5 rounded-full bg-[var(--moss)]"></span>
+          Public trust primitive — no API key required
+        </div>
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+          <span class="text-gradient">{i18n.t('verify.title')}</span>
+        </h1>
+        <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
+          {i18n.t('verify.subtitle')}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Verifier -->
+  <section class="py-16 md:py-20">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <!-- Hash input -->
+      <Card class="mb-8">
+        <CardHeader>
+          <CardTitle class="text-base">{i18n.t('verify.input.label')}</CardTitle>
+          <CardDescription>
+            Paste a SHA-256 claim hash — with or without the <code class="font-mono">sha256:</code> prefix.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form id="verify-form" class="flex flex-col gap-3 sm:flex-row">
+            <input
+              id="verify-hash"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder={i18n.t('verify.input.placeholder')}
+              class="flex-1 rounded-lg border border-border bg-muted/40 px-4 py-2.5 font-mono text-sm outline-none transition-colors focus:border-[var(--maple)] focus:ring-2 focus:ring-maple/20"
+            />
+            <button
+              id="verify-submit"
+              type="submit"
+              class="btn-sheen press-feedback inline-flex h-11 shrink-0 items-center justify-center rounded-lg px-6 text-sm font-medium text-primary-foreground transition-all duration-200 disabled:opacity-50"
+            >
+              {i18n.t('verify.button')}
+            </button>
+          </form>
+          <p id="verify-error" class="mt-3 hidden text-sm text-red-500"></p>
+        </CardContent>
+      </Card>
+
+      <!-- Result -->
+      <div id="verify-result" class="hidden">
+        <!-- Verified banner -->
+        <div id="result-verified" class="mb-4 hidden rounded-xl border border-green-500/30 bg-green-500/5 p-4">
+          <div class="flex items-center gap-3">
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-green-500/15 text-green-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <div>
+              <div class="text-sm font-semibold text-green-600">✓ {i18n.t('verify.verified')}</div>
+              <div class="text-xs text-muted-foreground font-mono" id="result-hash-label"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Not found banner -->
+        <div id="result-notfound" class="mb-4 hidden rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">
+          <div class="flex items-center gap-3">
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500/15 text-yellow-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </span>
+            <div>
+              <div class="text-sm font-semibold text-yellow-600">{i18n.t('verify.unverified')}</div>
+              <div class="text-xs text-muted-foreground font-mono" id="result-hash-label-nf"></div>
+            </div>
+          </div>
+          <p class="mt-3 text-sm text-muted-foreground">{i18n.t('verify.notfound')}</p>
+        </div>
+
+        <!-- Provenance card -->
+        <Card class="mb-4" id="result-provenance">
+          <CardHeader>
+            <CardTitle class="text-base">Provenance</CardTitle>
+            <CardDescription>Where the claim came from, when it was retrieved, and under what license.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+              <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{i18n.t('verify.result.source')}</div>
+                <div id="result-source" class="text-sm font-medium"></div>
+                <a id="result-source-link" href="#" target="_blank" rel="noopener noreferrer" class="mt-0.5 inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                  <span id="result-source-url-text"></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+              <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{i18n.t('verify.result.retrieved')}</div>
+                <div id="result-retrieved" class="text-sm font-medium font-mono"></div>
+              </div>
+              <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{i18n.t('verify.result.license')}</div>
+                <div id="result-license" class="text-sm font-medium"></div>
+              </div>
+              <div>
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{i18n.t('verify.result.updated')}</div>
+                <div id="result-update" class="text-sm font-medium"></div>
+              </div>
+            </div>
+            <div id="result-claim-wrap" class="mt-5 hidden rounded-md bg-muted/40 p-4">
+              <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{i18n.t('verify.result.claim')}</div>
+              <p id="result-claim" class="text-sm"></p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Reproduce hash -->
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-base">{i18n.t('verify.result.command')}</CardTitle>
+            <CardDescription>Reproduce the SHA-256 yourself from the original data — if the hashes match, the record is intact.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="flex items-start gap-2">
+              <div class="flex-1 overflow-x-auto rounded-md bg-muted p-3">
+                <code id="result-command" class="text-xs text-muted-foreground break-all"></code>
+              </div>
+              <button id="copy-command" class="press-feedback shrink-0 inline-flex h-9 items-center rounded-md border px-3 text-xs font-medium transition-colors hover:bg-foreground/[0.04]" type="button">
+                Copy
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- How it works -->
+      <div class="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-base">🔍 {i18n.t('verify.how.title')}</CardTitle>
+            <CardDescription>
+              {i18n.t('verify.how.body')}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-base">⚙️ {i18n.t('verify.public.title')}</CardTitle>
+            <CardDescription>
+              {i18n.t('verify.public.body')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="overflow-x-auto rounded-md bg-muted p-3">
+              <code class="text-xs text-muted-foreground block">
+                curl -s https://api.maplespike.ca/v1/claims/verify/sha256:&lt;hash&gt;
+              </code>
+            </div>
+            <div class="mt-2 overflow-x-auto rounded-md bg-muted p-3">
+              <code class="text-xs text-muted-foreground block">
+                curl -s -X POST https://api.maplespike.ca/v1/claims/verify \<br />
+                &nbsp;&nbsp;-H "Content-Type: application/json" \<br />
+                &nbsp;&nbsp;-d '&#123;"data": &#123;...&#125;, "sha256": "&lt;hash&gt;"&#125;'
+              </code>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Verify your own data -->
+      <Card class="mt-8">
+        <CardHeader>
+          <CardTitle class="text-base">🧮 {i18n.t('verify.other.title')}</CardTitle>
+          <CardDescription>
+            {i18n.t('verify.other.body')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="flex flex-col gap-3">
+            <label for="data-input" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{i18n.t('verify.other.input')}</label>
+            <textarea
+              id="data-input"
+              rows="4"
+              spellcheck="false"
+              placeholder='&#123;"unemployment_rate": 6.5, "period": "2025-01"&#125;'
+              class="w-full rounded-lg border border-border bg-muted/40 px-4 py-2.5 font-mono text-sm outline-none transition-colors focus:border-[var(--maple)] focus:ring-2 focus:ring-maple/20"
+            ></textarea>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div class="flex-1">
+              <label for="data-hash" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{i18n.t('verify.other.hash')}</label>
+              <input
+                id="data-hash"
+                type="text"
+                spellcheck="false"
+                placeholder="sha256:…"
+                class="mt-1 w-full rounded-lg border border-border bg-muted/40 px-4 py-2.5 font-mono text-sm outline-none transition-colors focus:border-[var(--maple)] focus:ring-2 focus:ring-maple/20"
+              />
+            </div>
+            <button
+              id="recompute-btn"
+              type="button"
+              class="btn-sheen press-feedback inline-flex h-11 shrink-0 items-center justify-center rounded-lg px-6 text-sm font-medium text-primary-foreground transition-all duration-200 disabled:opacity-50"
+            >
+              {i18n.t('verify.other.button')}
+            </button>
+          </div>
+          <div id="recompute-result" class="hidden rounded-md p-4 text-sm"></div>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      "use strict";
+
+      var cfg = window.MAPLESPIKE || {};
+      var apiBase = (cfg.apiBase || "https://api.maplespike.ca") + "/v1";
+
+      var form = document.getElementById("verify-form");
+      var input = document.getElementById("verify-hash");
+      var submit = document.getElementById("verify-submit");
+
+      // Deep-link support: /verify?hash=sha256:... pre-fills and auto-verifies
+      // (the /claims index and any newsroom link can point straight here).
+      var initialHash = new URLSearchParams(window.location.search).get("hash");
+      if (initialHash) {
+        input.value = initialHash;
+      }
+      var errorEl = document.getElementById("verify-error");
+      var resultWrap = document.getElementById("verify-result");
+      var verifiedBanner = document.getElementById("result-verified");
+      var notfoundBanner = document.getElementById("result-notfound");
+      var provenanceCard = document.getElementById("result-provenance");
+
+      function setWorking(on) {
+        submit.disabled = on;
+        submit.textContent = i18n(on ? "verify.button.working" : "verify.button");
+      }
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.classList.remove("hidden");
+      }
+
+      function clearError() {
+        errorEl.classList.add("hidden");
+        errorEl.textContent = "";
+      }
+
+      function sanitizeUrl(u) {
+        try {
+          var parsed = new URL(u, window.location.origin);
+          return parsed.href;
+        } catch (e) {
+          return "#";
+        }
+      }
+
+      function fill(id, value) {
+        var el = document.getElementById(id);
+        if (el && value != null) el.textContent = String(value);
+      }
+
+      function render(result) {
+        resultWrap.classList.remove("hidden");
+
+        if (result.verified && result.found) {
+          verifiedBanner.classList.remove("hidden");
+          notfoundBanner.classList.add("hidden");
+          provenanceCard.classList.remove("hidden");
+          fill("result-hash-label", i18n("verify.result.hash") + " · " + result.sha256);
+          fill("result-source", result.source_name || result.source || "—");
+          if (result.source_url) {
+            var link = document.getElementById("result-source-link");
+            link.href = sanitizeUrl(result.source_url);
+            document.getElementById("result-source-url-text").textContent = link.hostname || result.source_url;
+          } else {
+            document.getElementById("result-source-link").classList.add("hidden");
+          }
+          fill("result-retrieved", result.retrieved_at ? new Date(result.retrieved_at).toLocaleString("en-CA") : "—");
+          fill("result-license", result.license || "—");
+          fill("result-update", result.update_frequency || "—");
+          if (result.claim) {
+            document.getElementById("result-claim-wrap").classList.remove("hidden");
+            fill("result-claim", result.claim);
+          }
+          fill("result-command", result.verify_command || "");
+        } else {
+          verifiedBanner.classList.add("hidden");
+          notfoundBanner.classList.remove("hidden");
+          provenanceCard.classList.add("hidden");
+          fill("result-hash-label-nf", i18n("verify.result.sha256") + " · " + (result.sha256 || ""));
+        }
+      }
+
+      function i18n(key) {
+        var dict = {
+          "en": {
+            "verify.result.hash": "Verified against",
+            "verify.result.sha256": "SHA-256",
+            "verify.button.working": "Verifying…",
+            "verify.button": "Verify",
+            "verify.invalid": "That does not look like a SHA-256 hash.",
+            "verify.error": "Verification service unreachable.",
+            "verify.other.matches": "Hashes match — the data reproduces the claimed SHA-256.",
+            "verify.other.mismatch": "Hashes do not match. The data has been altered, or the claimed hash is wrong.",
+            "verify.other.recomputed": "Recomputed",
+          },
+          "fr": {
+            "verify.result.hash": "Vérifié contre",
+            "verify.result.sha256": "SHA-256",
+            "verify.button.working": "Vérification…",
+            "verify.button": "Vérifier",
+            "verify.invalid": "Ceci ne ressemble pas à un hachage SHA-256.",
+            "verify.error": "Service de vérification injoignable.",
+            "verify.other.matches": "Les hachages correspondent — les données reproduisent le SHA-256 allégué.",
+            "verify.other.mismatch": "Les hachages ne correspondent pas. Les données ont été modifiées, ou le hachage allégué est erroné.",
+            "verify.other.recomputed": "Recalculé",
+          }
+        };
+        var lang = (window.__LANG === "fr") ? "fr" : "en";
+        return dict[lang][key] || key;
+      }
+
+      function normalizeHash(raw) {
+        var clean = String(raw || "").trim();
+        if (clean.startsWith("sha256:")) clean = clean.slice(7);
+        else if (clean.startsWith("sha256-")) clean = clean.slice(7);
+        return clean.toLowerCase();
+      }
+
+      var HASH_RE = /^[a-f0-9]{64}$/;
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        clearError();
+        var clean = normalizeHash(input.value);
+        if (!HASH_RE.test(clean)) {
+          showError(i18n("verify.invalid"));
+          return;
+        }
+        setWorking(true);
+        try {
+          var resp = await fetch(apiBase + "/claims/verify/" + encodeURIComponent(clean));
+          var body = await resp.json();
+          var data = body.data || body;
+          render(data);
+        } catch (err) {
+          showError(i18n("verify.error"));
+        } finally {
+          setWorking(false);
+        }
+      });
+
+      if (initialHash) {
+        form.dispatchEvent(new Event("submit", { cancelable: true }));
+      }
+
+      // Copy command
+      document.getElementById("copy-command").addEventListener("click", function () {
+        var cmd = document.getElementById("result-command").textContent;
+        if (!cmd) return;
+        navigator.clipboard.writeText(cmd).catch(function () {});
+      });
+
+      // Recompute own data
+      document.getElementById("recompute-btn").addEventListener("click", async function () {
+        var dataEl = document.getElementById("data-input");
+        var hashEl = document.getElementById("data-hash");
+        var outEl = document.getElementById("recompute-result");
+        var btn = this;
+
+        var parsed;
+        try {
+          parsed = JSON.parse(dataEl.value || "");
+        } catch (err) {
+          outEl.className = "hidden rounded-md p-4 text-sm border border-red-500/30 bg-red-500/5 text-red-500";
+          outEl.textContent = "Invalid JSON";
+          outEl.classList.remove("hidden");
+          return;
+        }
+
+        btn.disabled = true;
+        try {
+          var resp = await fetch(apiBase + "/claims/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: parsed, sha256: normalizeHash(hashEl.value) || undefined }),
+          });
+          var body = await resp.json();
+          var d = body.data || body;
+          if (d.matches_claimed === true) {
+            outEl.className = "rounded-md p-4 text-sm border border-green-500/30 bg-green-500/5 text-green-600";
+            outEl.textContent = i18n("verify.other.matches");
+            outEl.classList.remove("hidden");
+          } else if (d.matches_claimed === false) {
+            outEl.className = "rounded-md p-4 text-sm border border-red-500/30 bg-red-500/5 text-red-500";
+            outEl.textContent = i18n("verify.other.mismatch");
+            outEl.classList.remove("hidden");
+          } else {
+            outEl.className = "rounded-md p-4 text-sm bg-muted/40 text-muted-foreground";
+            outEl.innerHTML = i18n("verify.other.recomputed") + ": <code class=\"font-mono\">" + d.recomputed_sha256 + "</code>";
+            outEl.classList.remove("hidden");
+          }
+        } catch (err) {
+          outEl.className = "rounded-md p-4 text-sm border border-red-500/30 bg-red-500/5 text-red-500";
+          outEl.textContent = i18n("verify.error");
+          outEl.classList.remove("hidden");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</BaseLayout>
