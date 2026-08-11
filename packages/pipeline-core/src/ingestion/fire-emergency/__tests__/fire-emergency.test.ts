@@ -11,7 +11,7 @@ describe('fire-emergency Module', () => {
 
   it('parser handles empty records', async () => {
     const { parseFireRecords } = await import('../parser.js');
-    const results = parseFireRecords([], 'Edmonton', 'AB');
+    const results = await parseFireRecords([], 'Edmonton', 'AB');
     assert.equal(results.length, 0);
   });
 
@@ -20,7 +20,7 @@ describe('fire-emergency Module', () => {
     const records = [
       { date: '2024-01-15', type: 'Structure Fire', description: 'House fire' },
     ];
-    const results = parseFireRecords(records, 'Edmonton', 'AB');
+    const results = await parseFireRecords(records, 'Edmonton', 'AB');
     assert.equal(results.length, 1);
     assert.equal(results[0].city, 'Edmonton');
     assert.equal(results[0].province, 'AB');
@@ -30,11 +30,13 @@ describe('fire-emergency Module', () => {
   it('parser skips records missing required fields', async () => {
     const { parseFireRecords } = await import('../parser.js');
     const records = [
+      { date: '2024-01-15', type: 'Structure Fire', description: 'Valid incident' },
       { type: 'Fire' },
       { date: '2024-01-15' },
       {},
     ];
-    const results = parseFireRecords(records, 'Edmonton', 'AB');
+    const results = await parseFireRecords(records, 'Edmonton', 'AB');
     assert.equal(results.length, 1);
+    assert.equal(results[0].incidentType, 'Structure Fire');
   });
 });

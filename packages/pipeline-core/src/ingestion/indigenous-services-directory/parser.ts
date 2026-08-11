@@ -6,6 +6,8 @@ export function normalizeProvince(province: string | null): string {
   if (!province) return 'CA';
 
   const prov = province.toUpperCase().trim();
+  const CODE_SET = new Set(['AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT']);
+  if (CODE_SET.has(prov)) return prov;
   const map: Record<string, string> = {
     'ALBERTA': 'AB',
     'BRITISH COLUMBIA': 'BC',

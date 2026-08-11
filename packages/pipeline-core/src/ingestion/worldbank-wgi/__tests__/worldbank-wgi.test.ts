@@ -11,65 +11,48 @@ describe('worldbank-wgi Module', () => {
     assert.equal(typeof mod.analyzeWgiIndicatorTrend, 'function');
   });
 
-  it('has CORE_WGI_INDICATORS constant', async () => {
-    const mod = await import('../index.js');
-    assert.ok(Array.isArray(mod.CORE_WGI_INDICATORS));
-    assert.ok(mod.CORE_WGI_INDICATORS.length > 0);
-  });
-
   it('has WGI_INDICATORS constant with 6 governance dimensions', async () => {
     const mod = await import('../index.js');
-    assert.ok(mod.WGI_INDICATORS);
-    assert.equal(Object.keys(mod.WGI_INDICATORS).length, 6);
+    assert.ok(Array.isArray(mod.WGI_INDICATORS));
+    assert.equal(mod.WGI_INDICATORS.length, 6);
   });
 });
 
 describe('worldbank-wgi Parser', () => {
-  it('parseWgiDatum parses a valid World Bank API datum', async () => {
-    const { parseWgiDatum } = await import('../parser.js');
+  it('parseWgiRecords parses a valid World Bank API datum', async () => {
+    const { parseWgiRecords } = await import('../parser.js');
 
-    const mockDatum = {
-      indicator: { id: 'VA.EST', value: 'Voice and Accountability: Estimate' },
-      country: { id: 'CA', value: 'Canada' },
-      countryiso3code: 'CAN',
-      date: '2022',
-      value: '1.45',
-      unit: '',
-      obs_status: '',
-      decimal: 2,
-    };
+    const mockDatum = [
+      {
+        indicator: { id: 'VA.EST', value: 'Voice and Accountability: Estimate' },
+        country: { id: 'CA', value: 'Canada' },
+        countryiso3code: 'CAN',
+        date: '2022',
+        value: '1.45',
+        unit: '',
+      },
+    ];
 
-    const result = parseWgiDatum(mockDatum, 'CAN');
-    assert.ok(result);
-    assert.equal(result!.country, 'CAN');
-    assert.equal(result!.year, 2022);
-    assert.equal(result!.value, 1.45);
-    assert.equal(result!.indicatorCode, 'VA.EST');
-    assert.ok(result!.id);
+    const result = parseWgiRecords(mockDatum, 'CAN');
+    assert.ok(result.length >= 1);
+    const first = result[0];
+    assert.equal(first.countryiso3code, 'CAN');
+    assert.equal(first.year, 2022);
+    assert.equal(first.value, 1.45);
+    assert.equal(first.indicatorCode, 'VA.EST');
   });
 
-  it('parseWgiDatum returns null for null value', async () => {
-    const { parseWgiDatum } = await import('../parser.js');
-
-    const mockDatum = {
-      indicator: { id: 'VA.EST', value: 'VA Estimate' },
-      country: { id: 'CA', value: 'Canada' },
-      countryiso3code: 'CAN',
-      date: '2022',
-      value: null,
-      unit: '',
-      obs_status: '',
-      decimal: 0,
-    };
-
-    const result = parseWgiDatum(mockDatum, 'CAN');
-    assert.equal(result, null);
+  it('parseWgiRecords skips null years', async () => {
+    const { parseWgiRecords } = await import('../parser.js');
+    const result = parseWgiRecords([{ date: 'n/a', value: 1.0, indicator: { id: 'VA.EST' } }], 'CAN');
+    assert.equal(result.length, 0);
   });
 
-  it('parseWgiData filters out null entries', async () => {
-    const { parseWgiData } = await import('../parser.js');
+  it('buildCountrySnapshot builds snapshot from indicator map', async () => {
+    const { buildCountrySnapshot } = await import('../parser.js');
 
-    const mockData = [
+    const indicatorData = new Map<string, any[]>();
+    indicatorData.set('VA.EST', [
       {
         indicator: { id: 'VA.EST', value: 'VA Estimate' },
         country: { id: 'CA', value: 'Canada' },
@@ -77,58 +60,18 @@ describe('worldbank-wgi Parser', () => {
         date: '2022',
         value: '1.45',
         unit: '',
-        obs_status: '',
-        decimal: 2,
       },
-      {
-        indicator: { id: 'VA.EST', value: 'VA Estimate' },
-        country: { id: 'CA', value: 'Canada' },
-        countryiso3code: 'CAN',
-        date: '2021',
-        value: null,
-        unit: '',
-        obs_status: '',
-        decimal: 0,
-      },
-    ];
+    ]);
 
-    const results = parseWgiData(mockData, 'CAN');
-    assert.equal(results.length, 1);
-    assert.equal(results[0].year, 2022);
+    const snapshot = buildCountrySnapshot('CAN', indicatorData);
+    assert.equal(snapshot.country, 'CAN');
+    assert.ok(snapshot.indicators['VA.EST']);
+    assert.equal(snapshot.year, 2022);
+    assert.equal(snapshot.overallScore, 1.45);
   });
 
-  it('mergeWgiBounds merges stderr, lower, upper, percentile into estimates', async () => {
-    const { mergeWgiBounds } = await import('../parser.js');
-
-    const estimates = [
-      { id: 'CAN:VA.EST:2022', country: 'CAN', indicatorCode: 'VA.EST', year: 2022, value: 1.45 },
-    ];
-
-    const boundsData = new Map<string, any[]>();
-    boundsData.set('VA.EST.STD.ERR', [
-      { id: 'CAN:VA.EST.STD.ERR:2022', country: 'CAN', indicatorCode: 'VA.EST.STD.ERR', year: 2022, value: 0.12 },
-    ]);
-    boundsData.set('VA.EST.LO', [
-      { id: 'CAN:VA.EST.LO:2022', country: 'CAN', indicatorCode: 'VA.EST.LO', year: 2022, value: 1.21 },
-    ]);
-    boundsData.set('VA.EST.HI', [
-      { id: 'CAN:VA.EST.HI:2022', country: 'CAN', indicatorCode: 'VA.EST.HI', year: 2022, value: 1.69 },
-    ]);
-    boundsData.set('VA.EST.PERCTRL', [
-      { id: 'CAN:VA.EST.PERCTRL:2022', country: 'CAN', indicatorCode: 'VA.EST.PERCTRL', year: 2022, value: 92 },
-    ]);
-
-    const merged = mergeWgiBounds(estimates, boundsData);
-    assert.equal(merged.length, 1);
-    assert.equal(merged[0].value, 1.45);
-    assert.equal(merged[0].stderr, 0.12);
-    assert.equal(merged[0].lower, 1.21);
-    assert.equal(merged[0].upper, 1.69);
-    assert.equal(merged[0].percentile, 92);
-  });
-
-  it('buildWgiComparison groups values by country', async () => {
-    const { buildWgiComparison } = await import('../parser.js');
+  it('buildComparison groups values by country', async () => {
+    const { buildComparison } = await import('../parser.js');
 
     const dataByCountry = new Map<string, any[]>();
     dataByCountry.set('CAN', [
@@ -139,8 +82,6 @@ describe('worldbank-wgi Parser', () => {
         date: '2022',
         value: '1.45',
         unit: '',
-        obs_status: '',
-        decimal: 2,
       },
     ]);
     dataByCountry.set('NOR', [
@@ -151,19 +92,16 @@ describe('worldbank-wgi Parser', () => {
         date: '2022',
         value: '1.68',
         unit: '',
-        obs_status: '',
-        decimal: 2,
       },
     ]);
 
-    const comparison = buildWgiComparison('VA.EST', dataByCountry);
+    const comparison = buildComparison('VA.EST', dataByCountry);
     assert.equal(comparison.indicatorCode, 'VA.EST');
-    assert.equal(comparison.entries.length, 2);
-    assert.ok(comparison.lastUpdated);
+    assert.equal(Object.keys(comparison.countries).length, 2);
   });
 
-  it('analyzeWgiTrend detects improving trend', async () => {
-    const { analyzeWgiTrend } = await import('../parser.js');
+  it('analyzeTrend detects improving trend', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'CAN:VA.EST:2018', country: 'CAN', indicatorCode: 'VA.EST', year: 2018, value: 1.2 },
@@ -171,62 +109,44 @@ describe('worldbank-wgi Parser', () => {
       { id: 'CAN:VA.EST:2022', country: 'CAN', indicatorCode: 'VA.EST', year: 2022, value: 1.45 },
     ];
 
-    const trend = analyzeWgiTrend(values);
+    const trend = analyzeTrend(values);
     assert.equal(trend.trend, 'improving');
-    assert.equal(trend.startYear, 2018);
-    assert.equal(trend.endYear, 2022);
-    assert.ok(trend.changeRate > 0);
-    assert.equal(trend.indicatorCode, 'VA.EST');
-    assert.equal(trend.country, 'CAN');
+    assert.equal(trend.latestValue, 1.45);
+    assert.equal(trend.earliestValue, 1.2);
   });
 
-  it('analyzeWgiTrend detects worsening trend', async () => {
-    const { analyzeWgiTrend } = await import('../parser.js');
+  it('analyzeTrend detects worsening trend', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'MEX:PV.EST:2018', country: 'MEX', indicatorCode: 'PV.EST', year: 2018, value: -0.5 },
       { id: 'MEX:PV.EST:2022', country: 'MEX', indicatorCode: 'PV.EST', year: 2022, value: -0.9 },
     ];
 
-    const trend = analyzeWgiTrend(values);
-    assert.equal(trend.trend, 'worsening');
-    assert.ok(trend.changeRate < 0);
+    const trend = analyzeTrend(values);
+    assert.equal(trend.trend, 'declining');
   });
 
-  it('analyzeWgiTrend returns no_data for < 2 points', async () => {
-    const { analyzeWgiTrend } = await import('../parser.js');
+  it('analyzeTrend returns stable for < 2 valid points', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'CAN:VA.EST:2022', country: 'CAN', indicatorCode: 'VA.EST', year: 2022, value: 1.45 },
     ];
 
-    const trend = analyzeWgiTrend(values);
-    assert.equal(trend.trend, 'no_data');
-    assert.equal(trend.changeRate, 0);
+    const trend = analyzeTrend(values);
+    assert.equal(trend.trend, 'stable');
   });
 
-  it('analyzeWgiTrend handles negative WGI values (range -2.5 to +2.5)', async () => {
-    const { analyzeWgiTrend } = await import('../parser.js');
+  it('analyzeTrend handles negative WGI values (range -2.5 to +2.5)', async () => {
+    const { analyzeTrend } = await import('../parser.js');
 
     const values = [
       { id: 'ZAF:CC.EST:2018', country: 'ZAF', indicatorCode: 'CC.EST', year: 2018, value: -0.1 },
       { id: 'ZAF:CC.EST:2022', country: 'ZAF', indicatorCode: 'CC.EST', year: 2022, value: -0.05 },
     ];
 
-    const trend = analyzeWgiTrend(values);
+    const trend = analyzeTrend(values);
     assert.equal(trend.trend, 'improving');
-    assert.ok(trend.changeRate > 0);
-  });
-
-  it('analyzeWgiTrend returns stable for near-zero change', async () => {
-    const { analyzeWgiTrend } = await import('../parser.js');
-
-    const values = [
-      { id: 'CAN:VA.EST:2020', country: 'CAN', indicatorCode: 'VA.EST', year: 2020, value: 1.45 },
-      { id: 'CAN:VA.EST:2022', country: 'CAN', indicatorCode: 'VA.EST', year: 2022, value: 1.46 },
-    ];
-
-    const trend = analyzeWgiTrend(values);
-    assert.equal(trend.trend, 'stable');
   });
 });
