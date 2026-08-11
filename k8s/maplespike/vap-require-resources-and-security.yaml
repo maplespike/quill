@@ -1,0 +1,82 @@
+# require-resources-and-security ValidatingAdmissionPolicy + binding.
+#
+# Cluster-scoped. Enforces on EVERY pod (CREATE/UPDATE, all namespaces):
+#   - CPU + memory limits and requests on all containers
+#   - runAsNonRoot: true
+#   - allowPrivilegeEscalation: false
+#
+# matchConditions EXCLUSION (2026-08-11): the local-path-provisioner creates
+# its helper pods with generateName `helper-pod-create-pvc-*` /
+# `helper-pod-delete-*`. Those helper pods inherently run as root with a
+# hostPath volume and privilege escalation — impossible under this policy —
+# and they ALWAYS run in kube-system regardless of the PVC's namespace.
+# Without this exclusion every local-path PVC is Pending cluster-wide
+# (2026-08-11 incident: quill-api-data, nix-store-nix-cache-0, qdrant all
+# stuck; fixed live via kubectl patch, persisted here so a rebuild keeps it).
+#
+# Tightened 2026-08-11 (reviewer): the exclusion now ALSO requires
+# namespace == "kube-system" — the provisioner ALWAYS creates helper pods
+# there (verified in its logs), so the generateName prefix alone is no
+# longer a spoofable bypass: a pod named helper-pod-create-pvc-evil in any
+# other namespace still gets the full policy. Do NOT widen. Do NOT remove.
+#
+# Apply: kubectl apply -f k8s/maplespike/vap-require-resources-and-security.yaml
+# (or it ships inside the nix saas-manifests bundle — see nix/saas-manifests.nix).
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: require-resources-and-security
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]
+  matchConditions:
+  - name: exclude-local-path-provisioner-helper-pods
+    expression: >-
+      !(object.metadata.namespace == "kube-system" &&
+        has(object.metadata.generateName) &&
+        (object.metadata.generateName.startsWith("helper-pod-create-pvc-") ||
+         object.metadata.generateName.startsWith("helper-pod-delete-")))
+  validations:
+  - expression: >-
+      object.spec.containers.all(c,
+        has(c.resources) && has(c.resources.limits) &&
+        has(c.resources.limits.cpu) && has(c.resources.limits.memory))
+    message: "All containers must specify CPU and memory limits in resources.limits"
+  - expression: >-
+      object.spec.containers.all(c,
+        has(c.resources) && has(c.resources.requests) &&
+        has(c.resources.requests.cpu) && has(c.resources.requests.memory))
+    message: "All containers must specify CPU and memory requests in resources.requests"
+  - expression: >-
+      object.spec.containers.all(c,
+        has(c.securityContext) && c.securityContext.runAsNonRoot == true)
+    message: "All containers must run as non-root (securityContext.runAsNonRoot: true)"
+  - expression: >-
+      object.spec.containers.all(c,
+        has(c.securityContext) &&
+        has(c.securityContext.allowPrivilegeEscalation) &&
+        c.securityContext.allowPrivilegeEscalation == false)
+    message: >-
+      Containers must not allow privilege escalation
+      (securityContext.allowPrivilegeEscalation: false)
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: require-resources-and-security-binding
+spec:
+  policyName: require-resources-and-security
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector: {}
+    objectSelector: {}
+    resourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["CREATE", "UPDATE"]
+      resources: ["pods"]

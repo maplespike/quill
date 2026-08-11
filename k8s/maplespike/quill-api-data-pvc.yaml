@@ -1,0 +1,15 @@
+# Persistent volume for the Quill API claims store + sqlite DB.
+# Single-node k3s uses the local-path StorageClass (hostPath-backed).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: quill-api-data
+  namespace: maplespike
+  labels:
+    app: quill-api
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

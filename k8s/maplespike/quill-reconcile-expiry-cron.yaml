@@ -1,7 +1,7 @@
 # #807: Nightly reconcile-expiry job.
 # Calls POST /v1/billing/reconcile-expiry on the quill-api Service, authenticating
 # with the X-Billing-Secret header sourced from QUILL_BILLING_SECRET (the same
-# quill-owned secret `quill-runtime-secrets` the API pod reads). Targets the
+# quill-owned secret `maplespike-secrets` the API pod reads). Targets the
 # ClusterIP Service DNS (not a pod IP), so it survives rollouts/rescheduling.
 apiVersion: batch/v1
 kind: CronJob
@@ -35,7 +35,7 @@ spec:
             - name: QUILL_BILLING_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: quill-runtime-secrets
+                  name: maplespike-secrets
                   key: quill-billing-secret
                   optional: false
             command:

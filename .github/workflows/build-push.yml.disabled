@@ -1,0 +1,34 @@
+# =============================================================================
+# MapleSpike — Build & Push (DISABLED)
+# =============================================================================
+# ⚠️  DISABLED 2026-08-10: GHCR push is RETIRED post-flip (2026-07-10 systemic
+# registry flip). The canonical registry is `nexus:5000/quill-<svc>` and images
+# are pushed operator-side via `nix run .#push-images` (see ci.yml + ADR 0007 +
+# docs/GHCR-CLEANUP.md).
+#
+# If this workflow ran it would push `:latest` + version-tagged images to the
+# retired ghcr.io/reverb256/quill/<svc> registry — the exact drift this repo
+# collapsed in the 2026-07-10 flip. Keep disabled.
+#
+# To restore when GHCR push is needed again:
+#   - swap the registry back to ghcr.io
+#   - re-add docker/login-action with a PAT
+#   - rename this file back to build-push.yml
+# =============================================================================
+name: Build & Push (DISABLED - See header)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Workflow Disabled
+        run: |
+          echo "❌ This workflow is disabled — GHCR push is retired (2026-07-10 flip)."
+          echo "Use: nix run .#push-images  (pushes to nexus:5000/quill-<svc>)"
+          exit 1

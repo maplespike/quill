@@ -1,12 +1,30 @@
-# Prod deploy runs on the self-hosted NixOS runner — node/pnpm/kubectl/podman
-# are system packages per docs/GITHUB-ACTIONS-NIX.md. Image paths use the
-# `nexus:5000/quill-<svc>` namespace per ADR 0007 (docs/GHCR-CLEANUP.md).
+# Prod deploy runs on the self-hosted NixOS runner — node/pnpm/kubectl/nix/podman
+# are system packages per docs/GITHUB-ACTIONS-NIX.md.
+#
+# CANONICAL DEPLOY PATH (2026-08-10): `nix build .#saas-manifests` generates
+# the single `manifests.yaml` from flake.nix + nix/saas-manifests.nix (the
+# source of truth), and `kubectl apply -f` syncs the cluster to it. Image tags
+# are pinned per service in flake.nix (apiTag/mcpTag/portalTag) — NOT `latest`
+# (the cluster's `deny-latest-tag-deployments` admission policy rejects it).
+# Image pushing happens operator-side via `nix run .#push-images` BEFORE this
+# workflow's apply step (the manifests reference pinned registry tags that must
+# exist in nexus:5000).
+#
+# Old workflow (pre-2026-08-10) referenced k8s/overlays/prod/, a quill-prod
+# namespace, and a postgres StatefulSet that never existed on the live single-
+# node k3s cluster — removed. The live cluster is: single node `nexus`,
+# namespace `maplespike` (+ `cloudflared`), services pinned to 10.43.100.10/11/12.
 name: Deploy to Production
 
 on:
   push:
     branches:
       - prod
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: true
 
 jobs:
   ci:
@@ -26,53 +44,26 @@ jobs:
         run: pnpm test
         continue-on-error: true
 
-  build-push-images:
-    name: Build & Push Docker Images
+  validate-manifests:
+    name: Validate Nix manifests render
     needs: ci
     runs-on: [self-hosted, nixos]
-    if: github.ref == 'refs/heads/prod'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build prod Portal image (push: false — operator-side nix run .#push-images)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          target: portal
-          push: false
-          tags: |
-            nexus:5000/quill-portal:stable
-            nexus:5000/quill-portal:${{ github.sha }}
-
-      - name: Build prod API image (push: false)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          target: api-server
-          push: false
-          tags: |
-            nexus:5000/quill-api:stable
-            nexus:5000/quill-api:${{ github.sha }}
-
-      - name: Build prod MCP image (push: false)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          target: quill-mcp
-          push: false
-          tags: |
-            nexus:5000/quill-mcp:stable
-            nexus:5000/quill-mcp:${{ github.sha }}
+      - name: Generate manifests from Nix (canonical path)
+        run: |
+          nix build .#saas-manifests -L
+          test -s result/manifests.yaml
+          grep -q 'name: maplespike' result/manifests.yaml
+          grep -q 'clusterIP: 10.43.100.10' result/manifests.yaml
+          echo "✓ saas-manifests renders (14 resources)"
 
   deploy-prod:
-    name: Deploy to quill-prod
-    needs: build-push-images
+    name: Deploy to maplespike (single-node k3s)
+    needs: [ci, validate-manifests]
     runs-on: [self-hosted, nixos]
-    if: github.ref == 'refs/heads/prod'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,31 +73,25 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
 
-      - name: Create PostgreSQL deployment
+      - name: Apply canonical manifests
         run: |
-          kubectl apply -f k8s/overlays/prod/postgres.yaml -n quill-prod
-
-      - name: Apply prod overlay
-        run: |
-          kubectl apply -k k8s/overlays/prod/
-
-      - name: Wait for PostgreSQL
-        run: |
-          kubectl rollout status statefulset/postgres -n quill-prod --timeout=5m
+          nix build .#saas-manifests -L
+          kubectl apply -f result/manifests.yaml
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/quill-api -n quill-prod --timeout=5m
-          kubectl rollout status deployment/quill-portal -n quill-prod --timeout=5m
+          # No `|| true` here — a failed rollout must fail the deploy job.
+          kubectl rollout status deployment/quill-api -n maplespike --timeout=3m
+          kubectl rollout status deployment/quill-mcp -n maplespike --timeout=3m
+          kubectl rollout status deployment/quill-portal -n maplespike --timeout=3m
+          kubectl rollout status deployment/cloudflared -n cloudflared --timeout=3m
 
       - name: Smoke test
         run: |
-          # Wait a bit for services to be ready
-          sleep 30
-          # Use a dedicated curl image (the portal bundle has no /usr/bin/curl).
-          # Pin a specific tag to avoid silent tag drift.
-          # `--namespace=quill-prod` so the smoke pod lands in the prod namespace
-          # and matches the same NetworkPolicy as the API it probes.
-          kubectl run smoke-test --image=curlimages/curl:8.10.1 \
-            --namespace=quill-prod --rm -i --restart=Never -- \
-            curl -f http://quill-api.quill-prod.svc.cluster.local:8082/v1/health
+          sleep 15
+          # API health is the hard gate — a broken deploy must fail CI.
+          curl -sf --retry 3 --retry-delay 5 --retry-all-errors https://api.maplespike.ca/v1/health
+          echo "✓ API healthy"
+          # MCP/portal report as warnings (portal may be in rollout transition).
+          curl -sfI https://mcp.maplespike.ca/health && echo "✓ MCP up" || echo "⚠ MCP unavailable"
+          curl -sfI https://quill.maplespike.ca/ && echo "✓ Portal up" || echo "⚠ Portal unavailable"

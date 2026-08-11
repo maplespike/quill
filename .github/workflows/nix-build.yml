@@ -125,3 +125,74 @@ jobs:
             result*
           retention-days: 3
           if-no-files-found: warn
+
+  saas-manifests:
+    name: nix build .#saas-manifests (canonical deploy artifact)
+    runs-on: ubuntu-latest
+    needs: flake-check
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Nix store
+        uses: cachix/cachix-action@v15
+        if: env.CACHIX_AUTH_TOKEN != ''
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          pushFilters: |
+            quill
+            nix
+          pullFilters: |
+            quill
+            nix
+
+      # The canonical deploy artifact is `nix build .#saas-manifests` →
+      # result/manifests.yaml, applied to the k3s cluster by deploy-prod.yml.
+      # Guard the critical invariants: all 14 objects render, the maplespike
+      # namespace exists, ClusterIPs are pinned (cloudflared dials literals,
+      # NOT DNS names — DNS-name upstreams NXDOMAIN in cloudflared's Go
+      # resolver and regress the tunnel to edge 502s), and the GNP with
+      # TCP/UDP 7844 for the cloudflared edge is included.
+      - name: Build + validate saas-manifests
+        run: |
+          nix --extra-experimental-features 'nix-command flakes' \
+              build .#saas-manifests --no-link --print-out-paths
+          manifests=$(nix --extra-experimental-features 'nix-command flakes' \
+              build .#saas-manifests --no-link --print-out-paths)
+          m="$manifests/manifests.yaml"
+          test -s "$m" || { echo "manifests.yaml empty"; exit 1; }
+          # Stage the artifact to a known path (the store path is --no-link,
+          # so there is no `result/` symlink on the runner).
+          cp "$m" "$RUNNER_TEMP/manifests.yaml"
+          # manifests.yaml is raw concatenated YAML — grep YAML-level
+          # identifiers (kind: + metadata.name), NOT kubectl resource-type
+          # strings (e.g. deployment.apps/quill-api only exists in apply output).
+          # Each app name appears in BOTH its Deployment and Service (>=2).
+          grep -q 'name: maplespike' "$m" || { echo "missing maplespike ns"; exit 1; }
+          grep -q 'name: cloudflared' "$m" || { echo "missing cloudflared"; exit 1; }
+          grep -q 'kind: GlobalNetworkPolicy' "$m" || { echo "missing GNP"; exit 1; }
+          grep -q 'name: default-deny-enforced' "$m" || { echo "missing GNP name"; exit 1; }
+          for app in quill-api quill-mcp quill-portal; do
+            [ "$(grep -c "name: $app" "$m")" -ge 2 ] || { echo "$app Deployment+Service not both present"; exit 1; }
+          done
+          grep -q 'clusterIP: 10.43.100.10' "$m" || { echo "api ClusterIP not pinned"; exit 1; }
+          grep -q 'clusterIP: 10.43.100.11' "$m" || { echo "mcp ClusterIP not pinned"; exit 1; }
+          grep -q 'clusterIP: 10.43.100.12' "$m" || { echo "portal ClusterIP not pinned"; exit 1; }
+          grep -q '7844' "$m" || { echo "GNP missing 7844 (cloudflared edge)"; exit 1; }
+          grep -q 'runAsNonRoot: true' "$m" || { echo "securityContext missing"; exit 1; }
+          echo "✓ saas-manifests: 14 objects, pinned IPs, GNP 7844, non-root"
+
+      - name: Upload manifests artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: saas-manifests
+          path: |
+            ${{ runner.temp }}/manifests.yaml
+          retention-days: 7
+          if-no-files-found: error
