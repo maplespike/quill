@@ -1,7 +1,7 @@
 # Deployment Guide
 
 > **Local development:** Docker Compose via `scripts/dev-up.sh` (this guide).
-> **Production:** K3s manifests in `k8s/base/` + Cloudflare Tunnel expose `*.maplespike.ca`. Production cutover under [ROADMAP.md Phase 4](./../ROADMAP.md); DNS CNAME records tracked under [issue #746](https://github.com/reverb256/quill/issues/746).
+> **Production:** Nix-generated K8s manifests (`nix build .#saas-manifests` → `kubectl apply -f result/manifests.yaml`) + Cloudflare Tunnel expose `*.maplespike.ca` on the single-node k3s cluster (`nexus`). See `docs/K8S-NIX-MANIFESTS.md` and `docs/deploy-to-k3s.md`.
 
 ## Current Deployment: Docker Compose
 
@@ -157,14 +157,31 @@ pnpm run build
 ./scripts/dev-up.sh --rebuild         # rebuilds containers --no-cache
 ```
 
-## Planned K8s Deployment
+## Production K8s Deployment (LIVE)
 
-K8s deployment is planned for ROADMAP.md Phase 3. See:
-- `docs/K8S-NIX-MANIFESTS.md` — Planned K8s manifests (Nix-based)
-- `k8s/` — K8s configuration files (not currently deployed)
-- `ROADMAP.md` — Implementation timeline
+The production cluster is a **single-node k3s** on `nexus` (NixOS 26.11, k3s v1.36.1). The canonical deploy path is Nix-first — there is no `k8s/base/` (that path was retired; the reference manifests live in `k8s/maplespike/` and are kept in lockstep with the Nix generator):
 
-**Current Status:** K8s manifests live in `k8s/base/` (apply via `kubectl apply -k k8s/base/`); cloudflared tunnel is exposed via `k8s/base/05-cloudflared.yaml` (with `--metrics 0.0.0.0:2000` added per #744); only public DNS CNAMEs remain pending (issue #746).
+```bash
+# Generate the single manifest bundle from Nix (source of truth)
+nix build .#saas-manifests -L
+
+# Sync the cluster to it
+kubectl apply -f result/manifests.yaml
+
+# Or one-shot
+nix run .#deploy-saas
+```
+
+The bundle contains 14 resources: `maplespike` + `ai-inference` + `cloudflared` namespaces, the canonical Calico GNP (`k8s/gnp-default-deny.yaml`, read via `builtins.readFile` — includes TCP+UDP 7844 for the cloudflared edge), the `cloudflared` Deployment + ConfigMap (2 replicas, protocol http2, **pinned ClusterIP upstreams** — see below), the three service Deployments + pinned-ClusterIP Services, and a LAN Traefik Ingress.
+
+Key operational facts (2026-08-10):
+
+- **Image tags are pinned per service in `flake.nix`** (`apiTag`/`mcpTag`/`portalTag`), NOT `latest`. The cluster's `deny-latest-tag-deployments` ValidatingAdmissionPolicy rejects `:latest`. Push new images operator-side with `nix run .#push-images` before applying.
+- **All Deployments carry `securityContext`** (`runAsNonRoot: true`, `runAsUser/Group: 1001`, `allowPrivilegeEscalation: false`) — required by the `require-resources-and-security-deployments` admission policy.
+- **Cloudflared upstreams are literal pinned ClusterIPs** (`10.43.100.10/11/12`), NOT DNS names — cloudflared's Go resolver NXDOMAINs `*.svc.cluster.local`, which regresses the tunnel to edge 502s.
+- `cloudflared` runs in its own `cloudflared` namespace (label `app.kubernetes.io/name: cloudflared` gates API NetworkPolicy ingress).
+
+See `docs/K8S-NIX-MANIFESTS.md` for the full resource inventory and `docs/deploy-to-k3s.md` for the from-scratch walkthrough. CI enforces manifest correctness in `.github/workflows/nix-build.yml` (job `saas-manifests`) and deploys via `.github/workflows/deploy-prod.yml`.
 
 ## Monitoring and Logs
 
