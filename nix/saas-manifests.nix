@@ -11,15 +11,21 @@
 #
 # Output: a derivation with `manifests.yaml` (all objects concatenated,
 # `---` separated) ready for `kubectl apply -f`.
-{ pkgs, registry, tag, domain }:
+{ pkgs, registry, tag, apiTag ? tag, mcpTag ? tag, portalTag ? tag, domain }:
 let
   # Image paths MUST match `flake.nix packages.push-all`'s tag scheme
   # (`${REGISTRY}/quill-${svc}:${TAG}`) AND `mkImage { name = "quill-${svc}" }` —
   # otherwise the registry hosts nexus:5000/quill-<svc>:*  while the
   # manifests request nexus:5000/<svc>:* (flip drifted; resolved 2026-07-11).
-  apiImage = "${registry}/quill-api:${tag}";
-  mcpImage = "${registry}/quill-mcp:${tag}";
-  portalImage = "${registry}/quill-portal:${tag}";
+  #
+  # Each service allows its own tag override (apiTag/mcpTag/portalTag) so
+  # images can be pinned independently. The shared `tag` param is the default
+  # for any service without a specific override. This avoids cluster admission
+  # policies that deny `:latest` tags and lets per-service build revisions
+  # coexist (e.g. api/mcp on -3, portal on base date tag).
+  apiImage = "${registry}/quill-api:${apiTag}";
+  mcpImage = "${registry}/quill-mcp:${mcpTag}";
+  portalImage = "${registry}/quill-portal:${portalTag}";
 
   # Ingress hostnames for the LAN side (.lan) and external side (.ca)
   lanHosts = [
@@ -30,56 +36,135 @@ let
   caHosts = [ "quill.${domain}" "api.${domain}" "mcp.${domain}" ];
 
   # ── YAML fragments (heredocs → store paths) ─────────────────────
+  # PSA labels on these namespaces are REQUIRED for local-path provisioning:
+  # the local-path-provisioner creates its helper pod (hostPath + root +
+  # privilege escalation — impossible under `restricted`/`baseline`) in the
+  # PVC's namespace for maplespike, and ALWAYS in kube-system regardless of
+  # claim namespace. kube-system ships privileged by default in k3s; the
+  # `restricted` label that appeared on it broke local-path provisioning
+  # cluster-wide (2026-08-11: quill-api-data, nix-store, qdrant all Pending;
+  # fixed live by relabeling). A rebuild must reproduce these labels or
+  # storage breaks again.
   namespace = pkgs.writeText "00-namespace.yaml" ''
     apiVersion: v1
     kind: Namespace
     metadata:
       name: maplespike
+      labels:
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/audit-version: latest
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/warn: privileged
+        pod-security.kubernetes.io/warn-version: latest
     ---
     apiVersion: v1
     kind: Namespace
     metadata:
       name: ai-inference
+    ---
+    # kube-system is where local-path helper pods ALWAYS run (verified in
+    # provisioner logs 2026-08-11). Must stay privileged or storage breaks.
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: kube-system
+      labels:
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/audit-version: latest
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/warn: privileged
+        pod-security.kubernetes.io/warn-version: latest
   '';
 
+  # Cluster-wide Calico GlobalNetworkPolicy (default-deny-enforced).
+  # SINGLE SOURCE OF TRUTH: k8s/gnp-default-deny.yaml — read directly so the
+  # nix pipeline and the committed file can never drift. Included in the
+  # manifest bundle so every `nix build .#saas-manifests` + `kubectl apply`
+  # ships the canonical default-deny posture (incl. TCP/UDP 7844 for the
+  # cloudflared edge), so a cluster rebuild can never regress to the broken
+  # 12-rule form that blocked the tunnel. Cluster-scoped CRD — applies
+  # cleanly alongside the namespace resources below.
+  gnpDefaultDeny = pkgs.writeText "03-gnp-default-deny.yaml" (
+    builtins.readFile ../k8s/gnp-default-deny.yaml
+  );
+
+  # Cluster-wide ValidatingAdmissionPolicy (resources + security) WITH the
+  # local-path helper-pod matchConditions exclusion. SINGLE SOURCE OF TRUTH:
+  # k8s/maplespike/vap-require-resources-and-security.yaml — read directly so
+  # the nix pipeline and the committed file never drift. The exclusion is
+  # REQUIRED for local-path provisioning (helper pods run as root + hostPath
+  # in kube-system); without it every local-path PVC is Pending cluster-wide
+  # (2026-08-11 incident). Included in the manifest bundle so a rebuild
+  # reproduces it.
+  vapResourcesSecurity = pkgs.writeText "08-vap-require-resources.yaml" (
+    builtins.readFile ../k8s/maplespike/vap-require-resources-and-security.yaml
+  );
+
+  # ── Cloudflared (tunnel) ───────────────────────────────────────────
+  # MUST stay in lockstep with k8s/cloudflared/cloudflared.yaml — the live
+  # cluster runs THAT manifest (namespace `cloudflared`), and the nix
+  # pipeline exists so a rebuild ships the SAME object. Two cloudflareds
+  # with the same tunnel ID (one in maplespike, one in cloudflared) would
+  # fight for tunnel registration and take the public site down.
+  #
+  # Requirements (validated by the 2026-08-10 redeploy):
+  #   - Namespace `cloudflared` MUST carry the label
+  #     app.kubernetes.io/name: cloudflared — the API NetworkPolicy
+  #     (k8s/maplespike/quill-networkpolicy.yaml) allows ingress ONLY from
+  #     that namespaceSelector. Missing label = tunnel connects but every
+  #     API host 502s.
+  #   - protocol: http2 — QUIC (UDP 7844) is dropped by the LAN firewall;
+  #     the modern edge also serves HTTP/2 on 7844/TCP, and the GNP allows
+  #     TCP+UDP 7844 egress.
+  #   - Upstreams are literal PINNED ClusterIPs (NOT DNS names):
+  #     cloudflared's Go resolver on the minimal image dials 1.1.1.1 for
+  #     *.svc.cluster.local and gets NXDOMAIN -> edge 502s. The IPs must
+  #     match the Service clusterIP pins in k8s/maplespike/*-service.yaml.
   cloudflared = pkgs.writeText "05-cloudflared.yaml" ''
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: cloudflared
+      labels:
+        app.kubernetes.io/name: cloudflared
+    ---
     apiVersion: v1
     kind: ConfigMap
     metadata:
       name: cloudflared-config
-      namespace: maplespike
+      namespace: cloudflared
+      labels:
+        app: cloudflared
+        component: tunnel
     data:
       config.yaml: |
         tunnel: 66d76492-036b-4177-8fac-8682e0eda37e
         credentials-file: /etc/cloudflared/credentials.json
+        # QUIC (UDP 7844) dropped by LAN firewall; force HTTP/2 over 443.
+        # Upstreams use pinned literal ClusterIPs (see file header).
+        protocol: http2
+        metrics: 0.0.0.0:2000
         ingress:
-          # service URLs use literal ClusterIPs (DNS bypass for upstream).
-          # cloudflared's Go resolver on the minimal Alpine image dials
-          # 1.1.1.1 for *.svc.cluster.local lookups (does not honor the
-          # /etc/resolv.conf nameserver order from the kubelet admission
-          # controller), getting NXDOMAIN. Static IPs in this block avoid
-          # that failure mode. ClusterIPs are pinned in the matching
-          # Service specs below so they survive service restarts.
-          # Recovery 2026-07-12 from 530/1033 + 502 in-cluster DNS failure.
-          - hostname: api.${domain}
-            service: http://10.43.100.10:8082
           - hostname: quill.${domain}
             service: http://10.43.100.12:8080
+          - hostname: api.${domain}
+            service: http://10.43.100.10:8082
           - hostname: mcp.${domain}
             service: http://10.43.100.11:3001
-          - hostname: data.${domain}
-            service: http://10.43.100.12:8080
           - service: http_status:404
     ---
     apiVersion: apps/v1
     kind: Deployment
     metadata:
       name: cloudflared
-      namespace: maplespike
+      namespace: cloudflared
       labels:
         app: cloudflared
+        component: tunnel
     spec:
-      replicas: 1
+      replicas: 2
       selector:
         matchLabels:
           app: cloudflared
@@ -88,53 +173,48 @@ let
           labels:
             app: cloudflared
         spec:
-          # dnsPolicy intentionally defaults to ClusterFirst so CoreDNS
-          # resolves in-cluster upstreams (*.svc.cluster.local -> A record).
-          # The api.cloudflare.com A-record-stripping bug in Tailscale
-          # MagicDNS upstream is sidestepped entirely by --edge-ip-version 4
-          # below — Go uses a compiled-in list of Cloudflare IPv4 edge IPs
-          # for tunnel-edge dialing, not DNS, so the bogus AAAA-only
-          # response from the local upstream resolver is irrelevant here.
-          # Verified TCP 7844 / UDP 7844 reachable to 198.41.0.0/16 from nexus.
+          nodeSelector:
+            kubernetes.io/hostname: nexus
           containers:
           - name: cloudflared
-            image: cloudflare/cloudflared:2026.7.1
-            # --edge-ip-version 4 forces IPv4-only tunnel-edge dialing.
-            # Without it, Go's resolver prefers IPv6 when AAAA is returned,
-            # but the pod network (cluster-cidr 10.42.0.0/16) is IPv4-only
-            # so IPv6 dials get blackholed. TCP/UDP 7844 to 198.41.0.0/16
-            # verified reachable from nexus. Surviving cluster restart:
-            # 2026-07-12 recovery from 530/1033.
+            image: cloudflare/cloudflared:2025.4.0
+            imagePullPolicy: IfNotPresent
             args:
             - tunnel
             - --no-autoupdate
-            - --edge-ip-version
-            - "4"
-            - --metrics
-            - 0.0.0.0:2000
             - --config
             - /etc/cloudflared/config.yaml
+            - --metrics
+            - 0.0.0.0:2000
             - run
-            livenessProbe:
+            readinessProbe:
               httpGet:
                 path: /ready
                 port: 2000
               initialDelaySeconds: 15
-              periodSeconds: 30
+              periodSeconds: 15
+              timeoutSeconds: 5
             resources:
               limits:
-                cpu: 500m
-                memory: 256Mi
-              requests:
                 cpu: 100m
-                memory: 128Mi
+                memory: 64Mi
+              requests:
+                cpu: 25m
+                memory: 32Mi
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1001
+              runAsGroup: 1001
+              allowPrivilegeEscalation: false
             volumeMounts:
             - name: creds
               mountPath: /etc/cloudflared/credentials.json
               subPath: credentials.json
+              readOnly: true
             - name: config
               mountPath: /etc/cloudflared/config.yaml
               subPath: config.yaml
+              readOnly: true
           volumes:
           - name: creds
             secret:
@@ -142,6 +222,28 @@ let
           - name: config
             configMap:
               name: cloudflared-config
+  '';
+
+  # Persistent volume for the Quill API claims store + sqlite DB.
+  # Single-node k3s uses the local-path StorageClass (hostPath-backed).
+  # MUST stay in lockstep with k8s/maplespike/quill-api-data-pvc.yaml.
+  # NOT emptyDir: /data holds citation_records + api_keys + tenants, so a
+  # pod rollout or node reboot must not wipe it (2026-08-11 incident — claims
+  # and registrations silently vanished on every rollout).
+  apiDataPvc = pkgs.writeText "09-api-data-pvc.yaml" ''
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: quill-api-data
+      namespace: maplespike
+      labels:
+        app: quill-api
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
   '';
 
   apiDeploy = pkgs.writeText "10-api-deploy.yaml" ''
@@ -165,7 +267,13 @@ let
           containers:
           - name: api
             image: ${apiImage}
-            imagePullPolicy: Always
+            # IfNotPresent: images are pinned tags loaded into the local
+            # containerd store; the nexus:5000 registry is a bare podman
+            # container that does NOT survive node reboots, and with Always
+            # every restart round-tripped the (dead) registry -> ImagePullBackOff
+            # took the whole site down (2026-08-11 reboot). IfNotPresent is the
+            # sovereign/local-first posture. Do NOT revert to Always.
+            imagePullPolicy: IfNotPresent
             ports:
             - containerPort: 8082
             env:
@@ -179,6 +287,18 @@ let
                   name: maplespike-secrets
                   key: jwt-secret
                   optional: true
+            # Decision 0002: registration/Auth REQUIRES a stable 64-char hex
+            # QUILL_PII_HASH_SECRET in production — the api-server refuses to
+            # start the register flow without it. MUST stay in lockstep with
+            # k8s/maplespike/quill-api-deployment.yaml. The value lives in
+            # `maplespike-secrets/pii-hash-secret` (synced by
+            # scripts/sops-sync-k8s.sh from secrets/runtime.yaml).
+            - name: QUILL_PII_HASH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-secrets
+                  key: pii-hash-secret
+                  optional: false
             # Stripe monetization — secret + webhook signing keys. All read
             # from the `maplespike-stripe-secrets` K8s Secret, itself populated
             # by scripts/sops-sync-k8s.sh from quill/secrets/runtime.yaml.
@@ -221,18 +341,28 @@ let
               value: "maplespike"
             - name: QUILL_EMBED_MODEL
               value: "nvidia/llama-3.2-nv-embedqa-1b-v2"
+            # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
+            # kills healthy pods during CPU-throttled cold start (2026-08-11
+            # incident). Do NOT "clean up" these to defaults.
             livenessProbe:
               httpGet:
                 path: /v1/health
                 port: 8082
               initialDelaySeconds: 10
               periodSeconds: 20
+              timeoutSeconds: 5
             readinessProbe:
               httpGet:
                 path: /v1/health
                 port: 8082
               initialDelaySeconds: 5
               periodSeconds: 10
+              timeoutSeconds: 5
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsGroup: 1001
+              runAsNonRoot: true
+              runAsUser: 1001
             resources:
               limits:
                 cpu: 200m
@@ -243,9 +373,12 @@ let
             volumeMounts:
             - name: data
               mountPath: /data
+          securityContext:
+            fsGroup: 1001
           volumes:
           - name: data
-            emptyDir: {}
+            persistentVolumeClaim:
+              claimName: quill-api-data
     ---
     apiVersion: v1
     kind: Service
@@ -283,7 +416,8 @@ let
           containers:
           - name: mcp
             image: ${mcpImage}
-            imagePullPolicy: Always
+            # IfNotPresent — see apiDeploy comment (2026-08-11 reboot incident).
+            imagePullPolicy: IfNotPresent
             ports:
             - containerPort: 3001
             env:
@@ -293,18 +427,28 @@ let
               value: "production"
             - name: QUILL_API_URL
               value: "http://quill-api:8082/v1"
+            # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
+            # kills healthy pods during CPU-throttled cold start (2026-08-11
+            # incident). Do NOT "clean up" these to defaults.
             livenessProbe:
               httpGet:
                 path: /health
                 port: 3001
               initialDelaySeconds: 15
               periodSeconds: 20
+              timeoutSeconds: 5
             readinessProbe:
               httpGet:
                 path: /health
                 port: 3001
               initialDelaySeconds: 5
               periodSeconds: 10
+              timeoutSeconds: 5
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsGroup: 1001
+              runAsNonRoot: true
+              runAsUser: 1001
             resources:
               limits:
                 cpu: 200m
@@ -349,7 +493,8 @@ let
           containers:
           - name: portal
             image: ${portalImage}
-            imagePullPolicy: Always
+            # IfNotPresent — see apiDeploy comment (2026-08-11 reboot incident).
+            imagePullPolicy: IfNotPresent
             ports:
             - name: http
               containerPort: 8080
@@ -360,18 +505,28 @@ let
               value: "8080"
             - name: API_UPSTREAM
               value: "http://quill-api:8082"
+            # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
+            # kills healthy pods during CPU-throttled cold start (2026-08-11
+            # incident). Do NOT "clean up" these to defaults.
             livenessProbe:
               httpGet:
                 path: /
                 port: http
-              initialDelaySeconds: 15
+              initialDelaySeconds: 20
               periodSeconds: 30
+              timeoutSeconds: 5
             readinessProbe:
               httpGet:
                 path: /
                 port: http
-              initialDelaySeconds: 5
+              initialDelaySeconds: 8
               periodSeconds: 10
+              timeoutSeconds: 5
+            securityContext:
+              allowPrivilegeEscalation: false
+              runAsGroup: 1001
+              runAsNonRoot: true
+              runAsUser: 1001
             resources:
               limits:
                 cpu: 200m
@@ -431,7 +586,7 @@ let
   manifest = pkgs.runCommand "saas-manifests.yaml" { } ''
     mkdir -p $out
     : > $out/manifests.yaml
-    for f in ${namespace} ${cloudflared} ${apiDeploy} ${mcpDeploy} ${portalDeploy} ${lanIngress}; do
+    for f in ${namespace} ${gnpDefaultDeny} ${vapResourcesSecurity} ${cloudflared} ${apiDataPvc} ${apiDeploy} ${mcpDeploy} ${portalDeploy} ${lanIngress}; do
       echo "---" >> $out/manifests.yaml
       cat "$f" >> $out/manifests.yaml
     done

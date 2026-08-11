@@ -1,6 +1,9 @@
 FROM alpine:3.20 AS portal
 RUN apk add --no-cache python3 bash coreutils
 COPY packages/portal/dist /app/
+# server.py is the runtime (serves static files + /api reverse proxy) — it
+# lives in the source tree, NOT in the Astro dist output.
+COPY packages/portal/server.py /app/server.py
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080

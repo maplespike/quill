@@ -1,0 +1,15 @@
+# quill-seed-neighbors.timer — run the ARP recovery seed every 2 minutes.
+# OnBootSec=60 covers the post-reboot window where ALL permanent neighbor
+# entries are gone and pods would otherwise crash-loop on liveness probes
+# until a human re-seeds. Idempotent (`ip neigh replace`).
+[Unit]
+Description=Re-seed Calico host neighbor entries every 2 minutes (durable ARP recovery)
+After=network-online.target k3s.service
+
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=2min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

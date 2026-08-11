@@ -4,13 +4,20 @@ metadata:
   name: maplespike
 namespace: maplespike
 
+# NOTE: k8s/gnp-default-deny.yaml is NOT listed here — it is a Calico CRD
+# GlobalNetworkPolicy (cluster-scoped) and must be applied separately with
+# `kubectl apply -f k8s/gnp-default-deny.yaml` (or via the nix saas-manifests
+# pipeline, which includes it). See nix/saas-manifests.nix.
+
 resources:
   - quill-api-deployment.yaml
   - quill-api-service.yaml
+  - quill-api-data-pvc.yaml
   - quill-mcp-deployment.yaml
   - quill-mcp-service.yaml
   - quill-portal-deployment.yaml
   - quill-portal-service.yaml
   - quill-hpa.yaml
   - quill-networkpolicy.yaml
+  - quill-service-networkpolicies.yaml
   - quill-reconcile-expiry-cron.yaml

@@ -18,6 +18,34 @@ spec:
       ports:
         - port: 8082
           protocol: TCP
+    # The nightly billing reconcile CronJob (app: quill-api,
+    # component: billing-reconcile) POSTs to the API on 8082.
+    - from:
+        - podSelector:
+            matchLabels:
+              app: quill-api
+              component: billing-reconcile
+      ports:
+        - port: 8082
+          protocol: TCP
+    # The portal (app: quill-portal) proxies /api/* to the API on 8082
+    # (server.py API_UPSTREAM) and the MCP server (app: quill-mcp) calls
+    # QUILL_API_URL=http://quill-api:8082/v1. Without these rules their
+    # traffic is silently dropped and /claims + /verify + MCP tools fail.
+    - from:
+        - podSelector:
+            matchLabels:
+              app: quill-portal
+      ports:
+        - port: 8082
+          protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
+              app: quill-mcp
+      ports:
+        - port: 8082
+          protocol: TCP
   egress:
     - to:
         - namespaceSelector: {}
@@ -29,4 +57,10 @@ spec:
         - port: 443
           protocol: TCP
         - port: 80
+          protocol: TCP
+        # qdrant-service (ai-inference ns) on 6333 for vector search/embeddings
+        - port: 6333
+          protocol: TCP
+        # billing-reconcile cron -> quill-api on 8082
+        - port: 8082
           protocol: TCP
