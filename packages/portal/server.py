@@ -10,7 +10,7 @@ Serves the static portal with:
 """
 
 import os, sys, json, re
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import urlparse
 import http.client
 
@@ -518,7 +518,14 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
 # ── Main ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    server = HTTPServer(("0.0.0.0", PORT), MapleSpikeHandler)
+    # ThreadingHTTPServer (not HTTPServer): the handler streams /api/ proxy
+    # responses and serves SSE, which can occupy the handler for the lifetime of
+    # an upstream request. A single-threaded server would then block kubelet's
+    # liveness probe (timeout 1s) behind an in-flight stream → 3 timeouts →
+    # SIGKILL (exit 137) crash loop, exactly what was observed in prod.
+    # ThreadingHTTPServer also sets daemon_threads=True, so stuck upstream
+    # connections never block pod shutdown.
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), MapleSpikeHandler)
     print(f"[portal] MapleSpike dev server → http://localhost:{PORT}")
     print(f"[portal] Serving: {DIRECTORY}")
     print(f"[portal] AI-friendly: llms.txt | llms-full.txt | Accept: text/markdown | /page.md")
