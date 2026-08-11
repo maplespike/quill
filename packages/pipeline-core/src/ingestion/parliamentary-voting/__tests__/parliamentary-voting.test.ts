@@ -10,7 +10,7 @@ describe('parliamentary-voting Module', () => {
 
   it('parser handles empty votes', async () => {
     const { parseVoteRecords, summarizeVotes } = await import('../parser.js');
-    const votes = parseVoteRecords([], 'house');
+    const votes = await parseVoteRecords([], 'house');
     assert.equal(votes.length, 0);
     const summary = summarizeVotes(votes);
     assert.equal(summary.totalVotes, 0);
@@ -21,7 +21,7 @@ describe('parliamentary-voting Module', () => {
     const records = [
       { voteNumber: 1, date: '2024-01-15', title: 'Budget Bill', yea: 200, nay: 150, result: 'passed' },
     ];
-    const votes = parseVoteRecords(records, 'house');
+    const votes = await parseVoteRecords(records, 'house');
     assert.equal(votes.length, 1);
     assert.equal(votes[0].voteNumber, 1);
     assert.equal(votes[0].chamber, 'house');
@@ -37,7 +37,7 @@ describe('parliamentary-voting Module', () => {
       { title: 'Bill' },
       {},
     ];
-    const votes = parseVoteRecords(records, 'house');
+    const votes = await parseVoteRecords(records, 'house');
     assert.equal(votes.length, 0);
   });
 
@@ -47,7 +47,7 @@ describe('parliamentary-voting Module', () => {
       { voteNumber: 1, date: '2024-01-15', title: 'Bill A', yea: 200, nay: 100, result: 'passed' },
       { voteNumber: 2, date: '2024-01-16', title: 'Bill B', yea: 150, nay: 200, result: 'defeated' },
     ];
-    const votes = parseVoteRecords(records, 'house');
+    const votes = await parseVoteRecords(records, 'house');
     const summary = summarizeVotes(votes);
     assert.equal(summary.passed, 1);
     assert.equal(summary.failed, 1);

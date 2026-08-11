@@ -1938,20 +1938,6 @@ const MODULE_REGISTRY: ModuleInfo[] = [
     healthCheckUrl: 'https://api.worldbank.org/v2/country/CAN/indicator/NY.GDP.MKTP.CD?format=json&date=2000:2023',
     },
     {
-    name: 'eurostat',
-    description: 'Eurostat — EU statistical data: economy, population, trade, agriculture, energy, and social indicators',
-    category: 'international',
-    modulePath: './eurostat/index.js',
-    ingestFunctions: ['ingestEurostatDataset', 'getEurostatCountryProfile', 'compareEurostatGeos', 'analyzeEurostatDatasetTrend'],
-    sources: [
-    { name: 'Eurostat JSON-stat API', format: 'JSON-stat 2.0' },
-    { name: 'Eurostat SDMX-JSON API', format: 'SDMX-JSON 2.1' },
-    ],
-    updateFrequency: 'monthly',
-    testCallPattern: 'runModule',
-    healthCheckUrl: 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_pc?format=SDMX-JSON',
-    },
-    {
     name: 'worldbank-ids',
     description: 'World Bank IDS — International Debt Statistics: external debt stocks, debt service, financial flows, IBRD/IDA',
     category: 'international',

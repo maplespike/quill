@@ -37,7 +37,12 @@ describe('Veterans Module', () => {
     });
   });
 
-  describe('ingestAllVeterans', () => {
+  // Live-network tests: only run when RUN_LIVE_TESTS=1 so the unit suite
+  // stays offline-stable (ingestAllVeterans hits live VAC/OSISS APIs).
+  const runLive = !!process.env.RUN_LIVE_TESTS;
+  const liveDescribe = runLive ? describe : describe.skip;
+
+  liveDescribe('ingestAllVeterans', () => {
     it('returns expected structure', async () => {
       const result = await ingestAllVeterans();
       assert.ok(result, 'Result should exist');
@@ -61,7 +66,7 @@ describe('Veterans Module', () => {
     });
   });
 
-  describe('searchVeterans', () => {
+  liveDescribe('searchVeterans', () => {
     it('returns search results structure', async () => {
       const result = await searchVeterans('benefits');
       assert.ok(result, 'Result should exist');

@@ -16,7 +16,7 @@ import assert from 'node:assert/strict';
 
 describe('provincial lobbying constants', () => {
   it('SASKATCHEWAN_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.SASKATCHEWAN_LOBBYING.BASE,
       'https://www.sasklobbyistregistry.ca/',
@@ -28,7 +28,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('MANITOBA_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.MANITOBA_LOBBYING.BASE,
       'https://www.lobbyistregistrar.mb.ca/',
@@ -37,7 +37,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('NOVA_SCOTIA_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.NOVA_SCOTIA_LOBBYING.BASE,
       'https://novascotia.ca/sns/Lobbyist/',
@@ -46,7 +46,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('NEW_BRUNSWICK_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.NEW_BRUNSWICK_LOBBYING.BASE,
       'https://www.oic-bci.ca/',
@@ -58,7 +58,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('NEWFOUNDLAND_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.NEWFOUNDLAND_LOBBYING.BASE,
       'https://www.gov.nl.ca/gs/registries/lobbyists/',
@@ -67,7 +67,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('PEI_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.PEI_LOBBYING.BASE,
       'https://www.princeedwardisland.ca/en/feature/lobbyist-registry',
@@ -76,7 +76,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('YUKON_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.YUKON_LOBBYING.BASE,
       'https://yukonlobbyistregistry.ca/',
@@ -85,7 +85,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('NWT_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.NWT_LOBBYING.BASE,
       'https://www.gov.nt.ca/',
@@ -95,7 +95,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('NUNAVUT_LOBBYING has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.NUNAVUT_LOBBYING.BASE,
       'https://www.gov.nu.ca/',
@@ -105,7 +105,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('ONTARIO_LOBBYING still has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.ONTARIO_LOBBYING.BASE,
       'https://lobbyist.oico.on.ca/lobbyistregistry/',
@@ -113,7 +113,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('BC_LOBBYING still has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.BC_LOBBYING.BASE,
       'https://lobbyists.bc.ca/',
@@ -121,7 +121,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('ALBERTA_LOBBYING still has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.ALBERTA_LOBBYING.BASE,
       'https://www.albertalobbyistregistry.ca/',
@@ -129,7 +129,7 @@ describe('provincial lobbying constants', () => {
   });
 
   it('QUEBEC_LOBBYING still has correct BASE URL', async () => {
-    const mod = await import('./provincial-lobbying/constants.js');
+    const mod = await import('../constants.js');
     assert.equal(
       mod.QUEBEC_LOBBYING.BASE,
       'https://www.lobbyists.quebec/',
@@ -143,12 +143,12 @@ describe('provincial lobbying constants', () => {
 
 describe('PROVINCE_CONFIGS', () => {
   it('has exactly 13 entries', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     assert.equal(PROVINCE_CONFIGS.length, 13);
   });
 
   it('includes SK config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const sk = PROVINCE_CONFIGS.find(c => c.code === 'SK');
     assert.ok(sk, 'SK config exists');
     assert.equal(sk!.name, 'Saskatchewan');
@@ -157,7 +157,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes MB config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const mb = PROVINCE_CONFIGS.find(c => c.code === 'MB');
     assert.ok(mb, 'MB config exists');
     assert.equal(mb!.name, 'Manitoba');
@@ -166,7 +166,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes NS config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const ns = PROVINCE_CONFIGS.find(c => c.code === 'NS');
     assert.ok(ns, 'NS config exists');
     assert.equal(ns!.name, 'Nova Scotia');
@@ -175,7 +175,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes NB config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const nb = PROVINCE_CONFIGS.find(c => c.code === 'NB');
     assert.ok(nb, 'NB config exists');
     assert.equal(nb!.name, 'New Brunswick');
@@ -184,7 +184,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes NL config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const nl = PROVINCE_CONFIGS.find(c => c.code === 'NL');
     assert.ok(nl, 'NL config exists');
     assert.equal(nl!.name, 'Newfoundland and Labrador');
@@ -193,7 +193,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes PE config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const pe = PROVINCE_CONFIGS.find(c => c.code === 'PE');
     assert.ok(pe, 'PE config exists');
     assert.equal(pe!.name, 'Prince Edward Island');
@@ -202,7 +202,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes YT config with correct values', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const yt = PROVINCE_CONFIGS.find(c => c.code === 'YT');
     assert.ok(yt, 'YT config exists');
     assert.equal(yt!.name, 'Yukon');
@@ -211,7 +211,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes NT config with N/A commissioner', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const nt = PROVINCE_CONFIGS.find(c => c.code === 'NT');
     assert.ok(nt, 'NT config exists');
     assert.equal(nt!.name, 'Northwest Territories');
@@ -220,7 +220,7 @@ describe('PROVINCE_CONFIGS', () => {
   });
 
   it('includes NU config with N/A commissioner', async () => {
-    const { PROVINCE_CONFIGS } = await import('./provincial-lobbying/types.js');
+    const { PROVINCE_CONFIGS } = await import('../types.js');
     const nu = PROVINCE_CONFIGS.find(c => c.code === 'NU');
     assert.ok(nu, 'NU config exists');
     assert.equal(nu!.name, 'Nunavut');
@@ -235,7 +235,7 @@ describe('PROVINCE_CONFIGS', () => {
 
 describe('normalizeSaskatchewanRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizeSaskatchewanRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeSaskatchewanRecord } = await import('../parser.js');
     const result = await normalizeSaskatchewanRecord({
       lobbyistName: 'SK Lobbyist Inc.',
       clientName: 'SK Client Corp.',
@@ -248,7 +248,7 @@ describe('normalizeSaskatchewanRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizeSaskatchewanRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeSaskatchewanRecord } = await import('../parser.js');
     const result = await normalizeSaskatchewanRecord({});
     assert.equal(result, null);
   });
@@ -256,7 +256,7 @@ describe('normalizeSaskatchewanRecord', () => {
 
 describe('normalizeManitobaRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizeManitobaRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeManitobaRecord } = await import('../parser.js');
     const result = await normalizeManitobaRecord({
       lobbyistName: 'MB Lobbyist Inc.',
       clientName: 'MB Client Corp.',
@@ -269,7 +269,7 @@ describe('normalizeManitobaRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizeManitobaRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeManitobaRecord } = await import('../parser.js');
     const result = await normalizeManitobaRecord({});
     assert.equal(result, null);
   });
@@ -277,7 +277,7 @@ describe('normalizeManitobaRecord', () => {
 
 describe('normalizeNovaScotiaRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizeNovaScotiaRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNovaScotiaRecord } = await import('../parser.js');
     const result = await normalizeNovaScotiaRecord({
       lobbyistName: 'NS Lobbyist Inc.',
       clientName: 'NS Client Corp.',
@@ -290,7 +290,7 @@ describe('normalizeNovaScotiaRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizeNovaScotiaRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNovaScotiaRecord } = await import('../parser.js');
     const result = await normalizeNovaScotiaRecord({});
     assert.equal(result, null);
   });
@@ -298,7 +298,7 @@ describe('normalizeNovaScotiaRecord', () => {
 
 describe('normalizeNewBrunswickRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizeNewBrunswickRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNewBrunswickRecord } = await import('../parser.js');
     const result = await normalizeNewBrunswickRecord({
       lobbyistName: 'NB Lobbyist Inc.',
       clientName: 'NB Client Corp.',
@@ -311,7 +311,7 @@ describe('normalizeNewBrunswickRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizeNewBrunswickRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNewBrunswickRecord } = await import('../parser.js');
     const result = await normalizeNewBrunswickRecord({});
     assert.equal(result, null);
   });
@@ -319,7 +319,7 @@ describe('normalizeNewBrunswickRecord', () => {
 
 describe('normalizeNewfoundlandRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizeNewfoundlandRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNewfoundlandRecord } = await import('../parser.js');
     const result = await normalizeNewfoundlandRecord({
       lobbyistName: 'NL Lobbyist Inc.',
       clientName: 'NL Client Corp.',
@@ -332,7 +332,7 @@ describe('normalizeNewfoundlandRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizeNewfoundlandRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNewfoundlandRecord } = await import('../parser.js');
     const result = await normalizeNewfoundlandRecord({});
     assert.equal(result, null);
   });
@@ -340,7 +340,7 @@ describe('normalizeNewfoundlandRecord', () => {
 
 describe('normalizePEIRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizePEIRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizePEIRecord } = await import('../parser.js');
     const result = await normalizePEIRecord({
       lobbyistName: 'PE Lobbyist Inc.',
       clientName: 'PE Client Corp.',
@@ -353,7 +353,7 @@ describe('normalizePEIRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizePEIRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizePEIRecord } = await import('../parser.js');
     const result = await normalizePEIRecord({});
     assert.equal(result, null);
   });
@@ -361,7 +361,7 @@ describe('normalizePEIRecord', () => {
 
 describe('normalizeYukonRecord', () => {
   it('returns normalized record with correct province field', async () => {
-    const { normalizeYukonRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeYukonRecord } = await import('../parser.js');
     const result = await normalizeYukonRecord({
       lobbyistName: 'YT Lobbyist Inc.',
       clientName: 'YT Client Corp.',
@@ -374,7 +374,7 @@ describe('normalizeYukonRecord', () => {
   });
 
   it('returns null when both registrantName and clientName are empty', async () => {
-    const { normalizeYukonRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeYukonRecord } = await import('../parser.js');
     const result = await normalizeYukonRecord({});
     assert.equal(result, null);
   });
@@ -386,13 +386,13 @@ describe('normalizeYukonRecord', () => {
 
 describe('normalizeNWTRecord', () => {
   it('returns null without communicationDate', async () => {
-    const { normalizeNWTRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNWTRecord } = await import('../parser.js');
     const result = await normalizeNWTRecord({ lobbyistName: 'Anyone' });
     assert.equal(result, null);
   });
 
   it('returns record with communicationDate', async () => {
-    const { normalizeNWTRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNWTRecord } = await import('../parser.js');
     const result = await normalizeNWTRecord({
       lobbyistName: 'Minister Name',
       clientName: 'Outside Party Corp',
@@ -409,13 +409,13 @@ describe('normalizeNWTRecord', () => {
 
 describe('normalizeNunavutRecord', () => {
   it('returns null for empty input', async () => {
-    const { normalizeNunavutRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNunavutRecord } = await import('../parser.js');
     const result = await normalizeNunavutRecord({});
     assert.equal(result, null);
   });
 
   it('returns federal proxy record with correct province', async () => {
-    const { normalizeNunavutRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeNunavutRecord } = await import('../parser.js');
     const result = await normalizeNunavutRecord({
       lobbyistName: 'Jen Hayward',
       clientName: 'Nunavut Tunngavik Incorporated',
@@ -432,7 +432,7 @@ describe('normalizeNunavutRecord', () => {
 
 describe('established province normalizers', () => {
   it('normalizeOntarioRecord works', async () => {
-    const { normalizeOntarioRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeOntarioRecord } = await import('../parser.js');
     const result = await normalizeOntarioRecord({
       lobbyistName: 'ON Lobbyist',
       clientName: 'ON Client',
@@ -443,7 +443,7 @@ describe('established province normalizers', () => {
   });
 
   it('normalizeBCRecord works', async () => {
-    const { normalizeBCRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeBCRecord } = await import('../parser.js');
     const result = await normalizeBCRecord({
       lobbyistName: 'BC Lobbyist',
       clientName: 'BC Client',
@@ -454,7 +454,7 @@ describe('established province normalizers', () => {
   });
 
   it('normalizeAlbertaRecord works', async () => {
-    const { normalizeAlbertaRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeAlbertaRecord } = await import('../parser.js');
     const result = await normalizeAlbertaRecord({
       lobbyistName: 'AB Lobbyist',
       clientName: 'AB Client',
@@ -465,7 +465,7 @@ describe('established province normalizers', () => {
   });
 
   it('normalizeQuebecRecord works', async () => {
-    const { normalizeQuebecRecord } = await import('./provincial-lobbying/parser.js');
+    const { normalizeQuebecRecord } = await import('../parser.js');
     const result = await normalizeQuebecRecord({
       lobbyistName: 'QC Lobbyist',
       clientName: 'QC Client',
@@ -482,7 +482,7 @@ describe('established province normalizers', () => {
 
 describe('normalizeToFederalSchema', () => {
   it('dispatches SK correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('SK', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -492,7 +492,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches MB correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('MB', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -502,7 +502,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches NS correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('NS', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -512,7 +512,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches NB correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('NB', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -522,7 +522,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches NL correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('NL', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -532,7 +532,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches PE correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('PE', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -542,7 +542,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches YT correctly', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('YT', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -552,7 +552,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches NT (returns null)', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('NT', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -561,7 +561,7 @@ describe('normalizeToFederalSchema', () => {
   });
 
   it('dispatches NU (returns federal proxy record)', async () => {
-    const { normalizeToFederalSchema } = await import('./provincial-lobbying/parser.js');
+    const { normalizeToFederalSchema } = await import('../parser.js');
     const result = await normalizeToFederalSchema('NU', {
       lobbyistName: 'Test',
       clientName: 'Test',
@@ -577,42 +577,42 @@ describe('normalizeToFederalSchema', () => {
 
 describe('fetcher exports', () => {
   it('fetchOntarioLobbying is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.fetchOntarioLobbying, 'function');
   });
 
   it('fetchBCLobbying is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.fetchBCLobbying, 'function');
   });
 
   it('fetchAlbertaLobbying is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.fetchAlbertaLobbying, 'function');
   });
 
   it('fetchQuebecLobbying is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.fetchQuebecLobbying, 'function');
   });
 
   it('ingestOntarioLobbying is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.ingestOntarioLobbying, 'function');
   });
 
   it('ingestOntarioLobbying accepts db and options', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.ok(mod.ingestOntarioLobbying.length >= 1);
   });
 
   it('searchProvincialLobbying is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.searchProvincialLobbying, 'function');
   });
 
   it('ingestAllProvincial is a function', async () => {
-    const mod = await import('./provincial-lobbying/index.js');
+    const mod = await import('../index.js');
     assert.equal(typeof mod.ingestAllProvincial, 'function');
   });
 });

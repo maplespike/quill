@@ -38,12 +38,14 @@ import { DatabaseSync } from 'node:sqlite';
       PRIMARY KEY (city_id, dataset)
     )
   `);
+  // Seed dates are relative to Date.now() so rows never age out of the
+  // 7-day cache freshness window (QUILL_MUNICIPAL_CACHE_MAX_AGE_SEC).
   const seedRows = [
-    ['montreal', 'budget',     'https://donnees.montreal.ca', 16, JSON.stringify([{id:'m-bdg-1',title:'Montreal Operating Budget 2026',url:'https://donnees.montreal.ca/dataset/budget-2026'},{id:'m-bdg-2',title:'Montreal Capital Budget 2025',url:'https://donnees.montreal.ca/dataset/budget-2025'}]), '2026-07-28T12:00:00.000Z'],
-    ['montreal', 'permits',    'https://donnees.montreal.ca',  3, JSON.stringify([{id:'m-prm-1',title:'Permit #2024-12345',url:'https://donnees.montreal.ca/dataset/permits'}]), '2026-07-28T12:00:00.000Z'],
-    ['montreal', 'transport',  'https://donnees.montreal.ca',  2, JSON.stringify([{id:'m-trn-1',title:'STM Ridership',url:'https://donnees.montreal.ca/dataset/transport'}]), '2026-07-28T12:00:00.000Z'],
-    ['toronto',  'budget',     'https://open.toronto.ca',      2, '[{"id":"b1"}]', '2026-07-28T10:00:00.000Z'],
-    ['toronto',  'permits',    'https://open.toronto.ca',      2, '[]', '2026-07-28T10:00:00.000Z'],
+    ['montreal', 'budget',     'https://donnees.montreal.ca', 16, JSON.stringify([{id:'m-bdg-1',title:'Montreal Operating Budget 2026',url:'https://donnees.montreal.ca/dataset/budget-2026'},{id:'m-bdg-2',title:'Montreal Capital Budget 2025',url:'https://donnees.montreal.ca/dataset/budget-2025'}]), new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()],
+    ['montreal', 'permits',    'https://donnees.montreal.ca',  3, JSON.stringify([{id:'m-prm-1',title:'Permit #2024-12345',url:'https://donnees.montreal.ca/dataset/permits'}]), new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()],
+    ['montreal', 'transport',  'https://donnees.montreal.ca',  2, JSON.stringify([{id:'m-trn-1',title:'STM Ridership',url:'https://donnees.montreal.ca/dataset/transport'}]), new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()],
+    ['toronto',  'budget',     'https://open.toronto.ca',      2, '[{"id":"b1"}]', new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()],
+    ['toronto',  'permits',    'https://open.toronto.ca',      2, '[]', new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString()],
     ['vancouver','budget',     'https://opendata.vancouver.ca',5, JSON.stringify([{id:'v-bdg-1',title:'Vancouver Operating Budget',url:'https://opendata.vancouver.ca/dataset/budget'}]), new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString()],
   ];
   for (const [city_id, dataset, source, record_count, records_json, succeeded_at] of seedRows) {
