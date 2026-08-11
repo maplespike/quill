@@ -37,7 +37,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
         BearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'API key (maplespike_ prefix)',
+          bearerFormat: 'API key (quill_ prefix)',
           description: 'Get your API key at https://quill.maplespike.ca',
         },
       },
@@ -134,6 +134,56 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
           description: 'Returns the SHA-256 hash for an article, enabling independent verification that content has not been altered.',
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
           responses: { '200': { description: 'Citation details with verification command' } },
+        },
+      },
+      '/v1/claims/verify/{hash}': {
+        get: {
+          tags: ['Citations'],
+          summary: 'Verify a claim hash (public)',
+          description: 'Public trust primitive — checks a SHA-256 claim hash against the Quill claim store and pipeline index. No API key required. Returns verified status plus full provenance: source name, source URL, retrieval time, license, and a shell command to independently reproduce the hash.',
+          parameters: [{ name: 'hash', in: 'path', required: true, schema: { type: 'string' }, description: 'SHA-256 hash, with or without the sha256: prefix (e.g. sha256:a1b2... or bare hex)' }],
+          responses: {
+            '200': { description: 'Claim verification result with provenance (source, retrieved_at, license, verify_command)' },
+            '400': { description: 'Invalid SHA-256 hash format' },
+            '500': { description: 'Claim verification failed' },
+          },
+        },
+      },
+      '/v1/claims/latest': {
+        get: {
+          tags: ['Citations'],
+          summary: 'List recent claim bundles (public)',
+          description: 'Public discovery — returns the most recently registered verifiable claim bundles (hash, claim, source, retrieval time, license). Lets journalists and other MCP authors find what Quill has attested, then verify any single hash via GET /v1/claims/verify/{hash}. No API key required.',
+          responses: {
+            '200': { description: 'Recent claims with provenance (count + claims[])' },
+            '500': { description: 'Claims index failed' },
+          },
+        },
+      },
+      '/v1/claims/verify': {
+        post: {
+          tags: ['Citations'],
+          summary: 'Recompute a claim hash (public)',
+          description: 'Public trust primitive — recomputes the SHA-256 of canonical JSON of the submitted data and compares it to an optional claimed hash. No Quill storage required; the trust primitive for non-MCP callers.',
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: { description: 'Any JSON value to hash' },
+                    sha256: { type: 'string', description: 'Optional claimed hash to compare against' },
+                  },
+                  required: ['data'],
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Recomputed hash and match result' },
+            '400': { description: 'Invalid body' },
+            '500': { description: 'Claim verification failed' },
+          },
         },
       },
       '/v1/usage': {
@@ -460,6 +510,49 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
           responses: { '200': { description: 'Passkey deleted' } },
         },
       },
+
+      // ── Entity composition surface (quill://entity/{id} + linked_entities) ──
+
+      '/v1/entities/{id}': {
+        get: {
+          tags: ['Entities'],
+          summary: 'Get entity profile by ID',
+          description:
+            'Returns the resolved entity profile for a canonical entity id: canonical name, type, confidence, aliases, appearances, and the canonical `quill://entity/{id}` URI. ' +
+            'Accepts either a raw entity id or a full quill://entity/{id} URI. Requires Pro tier or higher (mirrors resolve_entity — micro, $0.001).',
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Raw entity id or quill://entity/{id} URI' },
+          ],
+          responses: {
+            '200': { description: 'Entity profile with canonical quill:// URI' },
+            '400': { description: 'Missing id' },
+            '402': { description: 'UPGRADE_REQUIRED — Pro tier or higher' },
+            '404': { description: 'Entity not found, or entity graph not populated' },
+          },
+        },
+      },
+      '/v1/entities/{id}/links': {
+        get: {
+          tags: ['Entities'],
+          summary: 'Cross-reference an entity across all registries',
+          description:
+            'Cross-references an entity across every registry Quill tracks (lobbying, GIC, committees, corporate, CanLII, elections, oversight, municipal, provincial). ' +
+            'Returns per-registry evidence buckets (count, modules, date range), total appearances, and the relationship connections layer — the same surface as the linked_entities MCP tool. ' +
+            'Requires Business tier or higher (mirrors linked_entities — premium, $0.10). Optional ?type=person|organization|auto filter.',
+          security: [{ BearerAuth: [] }],
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' }, description: 'Raw entity id or quill://entity/{id} URI' },
+            { name: 'type', in: 'query', required: false, schema: { type: 'string', enum: ['auto', 'person', 'organization'] }, description: 'Entity type hint (default: auto)' },
+          ],
+          responses: {
+            '200': { description: 'Per-registry cross-reference + connections' },
+            '400': { description: 'Missing id or invalid type' },
+            '402': { description: 'UPGRADE_REQUIRED — Business tier or higher' },
+            '404': { description: 'Entity not found, or entity graph not populated' },
+          },
+        },
+      },
     },
     tags: [
       { name: 'Health', description: 'Service health and status' },
@@ -472,6 +565,7 @@ export const openApiHandler: RouteHandler = async (_request, ctx) => {
       { name: 'Billing', description: 'Plans and checkout' },
       { name: 'AI', description: 'AI-powered analysis and Q&A' },
       { name: 'Signals', description: 'Engine-detected signals and alerts' },
+      { name: 'Entities', description: 'Entity resolution + cross-registry composition (quill://entity/{id})' },
     ],
   };
 
