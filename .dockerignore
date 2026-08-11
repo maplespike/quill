@@ -1,5 +1,8 @@
 # Build artifacts — rebuilt inside container
 **/dist/
+# The portal image (Dockerfile.portal) copies the PRE-BUILT Astro dist
+# (packages/portal/dist), so it must NOT be excluded from the build context.
+!packages/portal/dist/
 **/.next/
 **/*.tsbuildinfo
 

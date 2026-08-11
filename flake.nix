@@ -234,10 +234,22 @@
 
       # ── SaaS K8s manifests (cloudflared-shaped, matches k8s/base) ─
       # Generated YAML you can `kubectl apply -f` directly.
+      #
+      # Tag pins match what is LIVE in the cluster (verified 2026-08-11):
+      #   api   = 2026-08-10-9  (quill_ key rename + QUILL_DB_PATH binding fix)
+      #   mcp   = 2026-08-10-4  (GNP 7844 fix, secret ref sync, module-resolution fix)
+      #   portal= 2026-08-10-3  (ThreadingHTTPServer + explorer fix)
+      # These MUST track live rollouts — a canonical `nix build .#saas-manifests`
+      # that pins an older tag regresses the cluster (2026-08-11 incident:
+      # api -4 pin would have rolled back the quill_ rename). The admission
+      # policy `deny-latest-tag-deployments` forbids :latest.
       saas-manifests = saasManifests {
         inherit pkgs;
         registry = "nexus:5000";
-        tag = "latest";
+        tag = "2026-08-10-9";
+        apiTag = "2026-08-10-9";
+        mcpTag = "2026-08-10-4";
+        portalTag = "2026-08-10-3";
         domain = "maplespike.ca";
       };
     };

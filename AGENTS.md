@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-15
+last-reviewed: 2026-08-11
 status: active
 ---
 
@@ -13,11 +13,11 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 ---
 
-## Status (live as of 2026-07-15)
+## Status (live as of 2026-08-11)
 
 > **Stable.** All 4 cluster nodes `Ready`. Cloudflare tunnel healthy (2026.7.1). All auth methods operational. Stripe billing configured in test mode.
 
-**Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, public curl results are inconsistent**, sometimes matching the pod, sometimes returning `521`/intermittent `404` — see Known Issues § "Cloudflared tunnel flakiness".
+**Public site:** https://quill.maplespike.ca/ — all 22 main nav routes (`/`, `/explorer`, `/agents`, `/pricing`, `/docs`, `/signup`, `/api-explorer`, `/changelog`, `/signal`, `/watcher`, `/blog`, `/contact`, `/citation`, `/ask`, `/status`, `/privacy`, `/terms`, `/workspace`, `/dashboard`, `/llms.txt`, `/robots.txt`, `/sitemap.xml`) return `200 OK` directly from the pod. Three paths return `404` by design: `/fr/` (trailing-slash variant; see Known Issues), `/login`, `/oauth` (never implemented). **Via the cloudflared tunnel, all public endpoints verified 200/301/401-as-expected on 2026-08-10**: portal `/` and `/verify` (public claim-verify page) 200; API `/v1/health`, `/v1/status`, `/v1/claims/latest` 200 and `/v1/claims/verify/{hash}` live; MCP `/health` 200 and `/sse` 401 (auth-gated).
 
 > **Install paths (all defined in this repo; production cluster ships via Nix manifests + Kustomize, not via any of these install paths directly).** The Nix-first build (`flake.nix`) is the source of truth and emits OCI images, K8s manifests, and Podman quadlets. The **canonical public registry is now `nexus:5000/quill-<svc>`** (was `ghcr.io/reverb256/quill/<svc>` pre-2026-07-10 systemic flip; GHCR push is dormant — see Known Issues § Image-tag). Compatible layers ship alongside for self-hosters:
 > 1. `selfhost.sh` / `nix run .#selfhost up` — Podman Quadlets via Nix (rootless, no registry needed). Install path documented; `nix run .#selfhost up` not exercised in this audit window.
@@ -31,9 +31,9 @@ Quick reference for agents working in this repo. Don't guess — check here firs
 
 **Browser rendering (lightpanda CLI):** For JS-rendered data sources — sites that ship an empty SSR shell and only populate meaningful HTML after client hydration (PBO Nuxt at `pbo-dpb.ca`, several provincial regulator portals, SEDI public listings) — pipeline-core ships `packages/pipeline-core/src/utils/browser-fetch.ts`, a thin wrapper around the `lightpanda` CLI binary (https://lightpanda.io). It spawns `lightpanda fetch --dump <fmt> <url>` per call and returns the post-render DOM as a string with the same shape as `httpGet()`. **The binary is not packaged with the OCI images** — operators install it on the host (default `/home/j_kro/.local/bin/lightpanda`, override with `LIGHTPANDA_BIN`; self-hosters pull the precompiled release from `github.com/lightpanda-io/lightpanda/releases`). No ingestion module is wired to `browserFetch()` yet — the wrapper exists so individual fetchers can opt in behind a feature flag per file. A `__MAPLESPIKE_MOCK_BROWSER` flag (mirrors `__MAPLESPIKE_MOCK_FETCH` in `utils/http.ts`) short-circuits the subprocess to canned HTML in unit tests.
 
-**Home lab cluster (`k3s`):** All 4 nodes (`forge`, `krash3`, `nexus`, `sentry`) are `Ready`. Active deployments in `maplespike` namespace: `cloudflared` (2026.7.1), `quill-api`, `quill-mcp`, `quill-portal` — all 1/1. Old `maplespike-*` deployments (`maplespike-api`, `maplespike-mcp`, `maplespike-portal`) deleted; all traffic routes through quill-* services. Tunnel uses k8s ClusterIPs for origin services. Verifying pod placement: `kubectl get pod -n maplespike -o wide`.
+**Home lab cluster (`k3s`):** Single node `nexus` (control-plane + etcd, NixOS 26.11, k3s v1.36.1). Active deployments in `maplespike` namespace: `quill-api`, `quill-mcp`, `quill-portal` (pinned image tags from flake.nix, NOT `latest` — the `deny-latest-tag-deployments` admission policy rejects it). `cloudflared` runs in the separate `cloudflared` namespace (2 replicas, protocol http2, dials pinned ClusterIPs). Old `maplespike-*` deployments deleted; all traffic routes through quill-* services. Verifying pod placement: `kubectl get pod -n maplespike -o wide`.
 
-**Deployed portal image:** `nexus:5000/quill-portal:latest` (built from Nix). The `quill-api` image is patched with a Docker-format layer overlay for the Solana auth routes (base: nix-built, patch: podman --format docker).
+**Deployed images (pinned in flake.nix, 2026-08-11):** `nexus:5000/quill-api:2026-08-10-9` (quill_ key rename + QUILL_DB_PATH binding fix), `nexus:5000/quill-mcp:2026-08-10-4` (eurostat removal + normalizeProvince fix), `nexus:5000/quill-portal:2026-08-10-3` (ThreadingHTTPServer + explorer fix). **These pins MUST track live rollouts** — a canonical `nix build .#saas-manifests` that pins an older tag regresses the cluster (2026-08-11: api `-4` pin would have rolled back the quill_ rename). All three deployments use `imagePullPolicy: IfNotPresent` (images are pinned tags in the local containerd store; the nexus:5000 registry is a bare podman container that does not survive reboots — see Known Issues).
 
 ---
 
@@ -113,23 +113,22 @@ Portal serves Astro static + a custom Python HTTP server (`server.py`) that adds
 | Environment | Where | What runs | How to start |
 | --- | --- | --- | --- |
 | **Dev** | This machine / a workstation | `docker compose` — api:8082, mcp:3001, portal:8080 | `./scripts/dev-up.sh` (wraps `docker compose` v1+v2) |
-| **Prod** | k3s cluster on homelab (4 nodes: forge, krash3, nexus, sentry) | `nix build .#saas-manifests && kubectl apply -f result/manifests.yaml` — 5 pods in `maplespike` namespace + cloudflared tunnel | `nix run .#deploy-saas` (or `nix build .#saas-manifests -L && kubectl apply -f result/manifests.yaml`) |
+| **Prod** | k3s cluster on homelab (single node: nexus) | `nix build .#saas-manifests && kubectl apply -f result/manifests.yaml` — pods in `maplespike` + `cloudflared` namespaces | `nix run .#deploy-saas` (or `nix build .#saas-manifests -L && kubectl apply -f result/manifests.yaml`) |
 
 ### Cluster topology (current)
 
 | Node | Current status | Role in this stack |
 | --- | --- | --- |
-| **forge** | `Ready` | Worker node; mining workload. Non-critical for MapleSpike. |
-| **krash3** | `Ready` | Worker node; healthy. |
-| **nexus** | `Unknown` ⚠️ | **Control-plane + etcd** node; 46 GB RAM, GPU; primary host of `etcd` for the cluster. Currently also runs the portal pod. The `Unknown` is symptomatic of `etcd` flapping (kubelet heartbeat lost). |
-| **sentry** | `Unknown` ⚠️ | Second **control-plane + etcd** node; GPU; AI-inference-gateway host. Same flapping. |
+| **nexus** | `Ready` (2026-08-10; earlier `Unknown` from etcd flap) | **Single control-plane + etcd node**; 46 GB RAM, GPU; runs all `maplespike` + `cloudflared` pods. K3s v1.36.1, NixOS 26.11 (Zokor). |
+| forge / krash3 / sentry | NOT part of the Quill deploy | Other homelab nodes; Quill deploys only to nexus. |
 
-Run state of prod: 5/7 pods in the `maplespike` namespace are `Running` (`cloudflared`, `maplespike-api`, `maplespike-ingress`, `maplespike-mcp`, `maplespike-portal`); the remaining two `maplespike-ingest-*` are `Completed` (one-shot cronjob runs).
+Run state of prod: pods in `maplespike` (`quill-api`, `quill-mcp`, `quill-portal`) + `cloudflared` namespaces. `maplespike-ingest-*` one-shot CronJobs are `Completed`.
 
 To check yourself:
 ```bash
 kubectl get nodes -o wide
 kubectl get pods -n maplespike -o wide
+kubectl get pods -n cloudflared -o wide
 ```
 
 ### Routing matrix (split-hostname, prod)
@@ -145,18 +144,18 @@ The pattern is "**split hostname routing**" — see [docs/ROUTING.md](./docs/ROU
 
 **One upstream, two entry points.** Both entry points terminate at the same three k3s Services.
 
-#### Hostname → Service table (active `cloudflared-config` ConfigMap in `maplespike`)
+#### Hostname → Service table (active `cloudflared-config` ConfigMap in `cloudflared` ns)
+
+> Upstreams are literal PINNED ClusterIPs (NOT DNS names): cloudflared's Go resolver on the minimal Alpine image dials 1.1.1.1 for `*.svc.cluster.local` and gets NXDOMAIN, which regresses the tunnel to edge 502s. The IPs are pinned in the Service specs (k8s/maplespike/*-service.yaml + nix/saas-manifests.nix) and MUST match.
 
 ```yaml
 ingress:
   - hostname: quill.maplespike.ca
-    service: http://maplespike-portal.maplespike.svc.cluster.local:8080
+    service: http://10.43.100.12:8080
   - hostname: api.maplespike.ca
-    service: http://maplespike-api.maplespike.svc.cluster.local:8082
+    service: http://10.43.100.10:8082
   - hostname: mcp.maplespike.ca
-    service: http://maplespike-mcp.maplespike.svc.cluster.local:3001
-  - hostname: kanban.maplespike.ca
-    service: http://maplespike-kanban-exec.maplespike.svc.cluster.local:8080
+    service: http://10.43.100.11:3001
   - service: http_status:404   # catch-all
 ```
 
@@ -216,42 +215,97 @@ Production secrets are managed with **SOPS + age**; plaintext templates live in 
 QUILL_REPO=/opt/quill /opt/quill/scripts/sops-sync-k8s.sh
 ```
 
-…or via the sops-nix systemd timer on `nexus` (see `nix/sops-sync-k8s.timer` + `.service`).
+> **⚠ Key-path reality (2026-08-10):** the documented `/etc/nixos/.age/nexus-prod-key.txt` does **NOT** exist on nexus — the age key that exists is `/etc/nixos/.age/key.txt`, and it does **NOT** decrypt `secrets/runtime.yaml` (recipient mismatch). Until the correct nexus-prod key is restored, `sops-sync-k8s.sh` cannot decrypt `runtime.yaml` on nexus; secrets must be patched directly (`kubectl create secret generic maplespike-secrets --from-file=...`). The `nix/sops-sync-k8s.timer/.service` unit is documented but **not installed** on nexus (`systemctl status sops-sync-k8s` → not found); the sync has been run manually. Fix path: restore the nexus-prod age key, `sops set secrets/runtime.yaml '["QUILL_PII_HASH_SECRET"]' <64-hex>`, then run the sync.
+
+**`QUILL_PII_HASH_SECRET` (Decision 0002):** registration/Auth **requires** a stable **64-char hex** secret in production — the api-server refuses `POST /v1/register` without it (fixed 2026-08-10; was unset because the nix manifests never injected it). It is now wired in `nix/saas-manifests.nix` (`optional: false`, so a fresh cluster **MUST run `scripts/sops-sync-k8s.sh` before `kubectl apply`** or the api pod wedges in ContainerCreating) and `scripts/sops-sync-k8s.sh` syncs it as `maplespike-secrets/pii-hash-secret` with a 64-hex validation guard. **Scope caveat:** the sync's PII fallback only engages when SOPS decrypts but lacks the key; when no decrypting age key exists at all (current nexus reality), the whole `maplespike-secrets` block is skipped as a safe no-op — patch the secret directly in that case.
 
 See [./secrets/README.md](./secrets/README.md) for the full workflow (encrypt, decrypt, rotate, the per-file age recipients).
 
-### Rebuild & roll out (operator recipe)
+### Rebuild & roll out (canonical Nix deploy path)
+
+The canonical production deploy path is **Nix-first**: the `flake.nix` drives OCI image builds (via `dockerTools.buildLayeredImage`), the `nix/saas-manifests.nix` generator produces a single `manifests.yaml` bundling all K8s resources, and `kubectl apply` syncs the cluster to the nix source of truth. No Dockerfiles or Kustomize overlays are needed.
 
 ```bash
-# 1. Build on a docker-enabled node (forge or krash3):
-docker build --target portal  -t nexus:5000/maplespike-portal:build-$(date +%Y%m%d-%H%M)  .
-docker build --target api-server -t nexus:5000/maplespike-api:build-$(date +%Y%m%d-%H%M) .
-docker build --target quill-mcp -t nexus:5000/maplespike-mcp:build-$(date +%Y%m%d-%H%M) .
+# Build and apply all manifests from Nix (single command):
+nix build .#saas-manifests -L
+kubectl apply -f result/manifests.yaml
 
-# 2. Push to local registry:
-docker push nexus:5000/maplespike-portal:build-...
-docker push nexus:5000/maplespike-api:build-...
-docker push nexus:5000/maplespike-mcp:build-...
-
-# 3. Apply the matching overlay (re-points Deployment image at the new tag):
-#    - k8s/overlays/prod/  for production
-#    - k8s/overlays/dev/   for the dev cluster
-kubectl apply -k k8s/overlays/prod      # or: scripts/deploy.sh --overlay prod
-
-# 4. Roll out (cluster names are `maplespike-*`, NOT `quill-*`):
-kubectl rollout restart deployment/maplespike-portal -n maplespike
-kubectl rollout restart deployment/maplespike-api    -n maplespike
-kubectl rollout restart deployment/maplespike-mcp    -n maplespike
+# Or use the convenience app (wraps the two commands above):
+nix run .#deploy-saas
 ```
 
-**Verify the rolling image actually changed** (use the actual cluster label, verified via `kubectl get pod <pod> --show-labels` → `app=maplespike-portal`):
+**What the manifest bundle contains** (14 resources):
+| Order | Resource | Notes |
+|-------|----------|-------|
+| 00 | `Namespace/maplespike` | Application namespace |
+| 00 | `Namespace/ai-inference` | AI gateway namespace |
+| 03 | `GlobalNetworkPolicy/default-deny-enforced` | Calico GNP from `k8s/gnp-default-deny.yaml` (single source of truth via `builtins.readFile`). Allows TCP+UDP 7844 for cloudflared edge. |
+| 05 | `Namespace/cloudflared` | Must carry label `app.kubernetes.io/name: cloudflared` for API NetworkPolicy |
+| 05 | `ConfigMap/cloudflared-config` | Tunnel config with pinned ClusterIP upstreams (NOT DNS names) |
+| 05 | `Deployment/cloudflared` | 2 replicas, `cloudflare/cloudflared:2025.4.0`, protocol http2 |
+| 10 | `Deployment/quill-api` | Pinned image tag: `nexus:5000/quill-api:<apiTag>` |
+| 10 | `Service/quill-api` | ClusterIP `10.43.100.10` (pinned) |
+| 11 | `Deployment/quill-mcp` | Pinned image tag: `nexus:5000/quill-mcp:<mcpTag>` |
+| 11 | `Service/quill-mcp` | ClusterIP `10.43.100.11` (pinned) |
+| 17 | `Deployment/quill-portal` | Pinned image tag: `nexus:5000/quill-portal:<portalTag>` |
+| 17 | `Service/quill-portal` | ClusterIP `10.43.100.12` (pinned) |
+| 15 | `Ingress/maplespike.ca` | LAN traefik ingress (cluster uses caddy for external routing; this is a future-path resource) |
+
+**Per-service image tags and securityContext:**
+
+The `nix/saas-manifests.nix` generator accepts per-service tag overrides (`apiTag`, `mcpTag`, `portalTag`) defaulting to the shared `tag`. The flake pins these to match the registry:
+```nix
+saas-manifests = saasManifests {
+  inherit pkgs;
+  registry = "nexus:5000";
+  tag = "2026-08-10-9";          # shared default
+  apiTag = "2026-08-10-9";       # quill_ key rename + QUILL_DB_PATH binding fix
+  mcpTag = "2026-08-10-4";       # eurostat removal + normalizeProvince fix
+  portalTag = "2026-08-10-3";    # ThreadingHTTPServer + explorer fix
+  domain = "maplespike.ca";
+};
+```
+
+All three deploy containers carry `securityContext` (required by the cluster's `require-resources-and-security-deployments` admission policy):
+```yaml
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsGroup: 1001
+  runAsNonRoot: true
+  runAsUser: 1001
+```
+
+**Cluster admission policies to be aware of:**
+| Policy | What it blocks | Status |
+|--------|---------------|--------|
+| `deny-latest-tag-deployments` | Deployments using `:latest` image tag | ✅ Fixed — per-service pinned tags |
+| `require-resources-and-security` (pods) + VAP `matchConditions` exclusion for local-path helper pods | Pods missing resources/securityContext — the exclusion lets `helper-pod-create-pvc-*` / `helper-pod-delete-*` through (they run as root with hostPath, impossible under the policy) | ✅ Exclusion is LIVE + tightened to `namespace == "kube-system"` (2026-08-11, spoof-proof); committed + shipped in the nix bundle; `git add` NEW files referenced by `readFile` or the flake source fetch silently drops them (that failure mode took 3 build cycles to find) |
+| `require-resources-and-security-deployments` | Deployments missing `securityContext.runAsNonRoot` or resource limits | ✅ Fixed — all containers have securityContext + resources |
+
+**Push new images to the registry:**
 ```bash
-kubectl get pod -n maplespike -l app=maplespike-portal -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[0].image}{"\n"}{end}'
+# Build and push all three images from Nix:
+nix run .#push-images
+# Override defaults: REGISTRY=nexus:5000 TAG=stable
 ```
 
-> **Source manifest vs. cluster name mismatch:** `k8s/base/*.yaml` declares Deployments named `quill-portal`, `quill-api`, `quill-mcp`. The cluster has `maplespike-portal`, `maplespike-api`, `maplespike-mcp` because a **Kustomize namePrefix** is applied at deploy time. The recipe above uses the cluster-side names. If you `kubectl get deploy` to confirm, expect the `maplespike-` pattern; the `app=maplespike-<svc>` label selector is what matches the running pods.
+**Verify after deploy:**
+```bash
+# Public endpoints through the tunnel:
+curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/v1/health    # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://mcp.maplespike.ca/health       # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://quill.maplespike.ca/           # 200
 
-The corresponding `scripts/deploy.sh --build --overlay prod` (or `--overlay dev`) automates most of this. See [./docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) and [./DEPLOY-CHECKLIST.md](./DEPLOY-CHECKLIST.md).
+# Cluster state:
+kubectl get pods -n maplespike -o wide
+kubectl get pods -n cloudflared -o wide
+kubectl rollout status deployment/quill-api -n maplespike --timeout=60s
+
+# Check image tags are correct:
+kubectl get deploy -n maplespike -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].image}{"\n"}{end}'
+```
+
+> **Replica count note:** The nix manifests set `replicas: 1` for api, mcp, and portal. The broken `maplespike-*` HPAs were **deleted 2026-08-10**, so no HPA can override the manifest replica count. If autoscaling is wanted later, fix the metrics server first (see k3s encryption issue below), then recreate the HPAs.
 
 ### Verification after deploy
 
@@ -260,8 +314,11 @@ Public:
 curl -I                          https://quill.maplespike.ca/            # 200
 curl -I                          https://quill.maplespike.ca/agents      # 200
 curl -I                          https://quill.maplespike.ca/explorer    # 200
-curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/v1/health   # 200
-curl -sI -o /dev/null -w '%{http_code}\n' https://mcp.maplespike.ca/health      # 200 (or SSE 200)
+curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/v1/health      # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://api.maplespike.ca/v1/claims/latest  # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://mcp.maplespike.ca/health         # 200
+curl -sI -o /dev/null -w '%{http_code}\n' https://mcp.maplespike.ca/sse            # 401 = auth-gated (endpoint live)
+curl -sI -o /dev/null -w '%{http_code}\n' https://quill.maplespike.ca/verify       # 200 (public claim-verify page)
 ```
 
 Bypass the cloudflared tunnel to verify the pod itself (avoids tunnel flakiness):
@@ -454,16 +511,23 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 
 ## Known Issues & Status
 
-> **Updated 2026-07-15.** Issues resolved this session: cluster nodes all Ready, tunnel upgraded to 2026.7.1, old deployments cleaned.
+> **Updated 2026-08-10.** Issues resolved this session: cluster nodes all Ready, tunnel upgraded to 2026.7.1, old deployments cleaned, calico upgraded to v3.32.1, `/fr/` trailing-slash 404 fixed.
 
 | Issue | Impact | Fix path |
 | --- | --- | --- |
 | **All nodes `Ready`** | ✅ **RESOLVED 2026-07-15** — forge, krash3, nexus, sentry all report `Ready`. Old `Unknown` states resolved. | Cluster stability recovered. |
 | **Cloudflared tunnel flakiness** | ✅ **RESOLVED** — upgraded to `cloudflare/cloudflared:2026.7.1` with 0 restarts. Previous restarts (exit 255) resolved. | Image tag updated, deployment restarted. |
-| `/fr/` (trailing-slash) → 404 | `/fr` works (200), `/en` works (200), but `/fr/` 404s because server.py's extensionless rewrite `if not os.path.splitext(p)[1] and not p.endswith("/")` does **not** strip the trailing slash, then `SimpleHTTPRequestHandler` falls through to look for the directory `/app/fr/` which doesn't exist (Astro `format: 'file'` flattens to `fr.html`, not `fr/index.html`). | Patch `packages/portal/server.py` to strip trailing `/` before the extensionless lookup. |
+| `/fr/` (trailing-slash) → 404 | ✅ **RESOLVED** — `server.py` now strips trailing `/` before the extensionless lookup (`if len(p) > 1 and p.endswith("/"): p = p[:-1]`). Verified live 2026-08-10: `/fr`, `/fr/`, `/en` all 200 through the tunnel. | Done (in deployed portal image). |
 | `/login`, `/oauth` → 404 | Not implemented in `packages/portal/src/pages/`. Nav never references them. | No action needed unless intentionally adding a login route. |
 | **Old deployments cleaned** | ✅ `maplespike-api`, `maplespike-mcp`, `maplespike-portal` deleted. All traffic routes through `quill-*` services. | Done. |
 | **Solana auth not deployed** | Code committed (`/v1/astral/web3/solana/{nonce,verify}`) but needs container image rebuild to deploy to pod. Registry digest pinning requires a clean build pipeline. | Rebuild with `podman build --format docker` or Nix. |
+| **Calico host→pod ARP (2026-08-10 incident)** | ✅ **RESOLVED** — calico upgraded `v3.31.4 → v3.32.1` (tigera-operator `v1.40.7 → v1.42.4`). Two root causes: (1) calico-node `v3.31.4`/`v3.32.0` bundle `nft` `v1.0.x`, which segfaults on the NixOS 26.11 kernel (nftables-only, no legacy iptables); `v3.32.1` bundles `nft v1.1.1`, which works. (2) Pods run `arp_ignore=2`, so host→pod traffic depends on CNI-seeded host neighbor entries that lapse on pod churn or reboot. | If pods become unreachable after churn/reboot: `sudo bash scripts/ops/seed-pod-neighbors.sh` (re-seeds permanent neighbor entries). Re-run after any pod recreation or node reboot. Do NOT downgrade calico below v3.32.1. A systemd timer `quill-seed-neighbors.timer` (every 2 min) on nexus automates this; `systemctl list-timers | grep quill` to check. **VALIDATED 2026-08-11 reboot**: the timer fired 60s after boot (exit 0, 15 PERMANENT entries) — the durable ARP fix works unattended. |
+| **Claims store wiped on rollout (2026-08-11)** | ✅ **RESOLVED** — `/data` (claims + api_keys + tenants, `QUILL_DB_PATH=/data/maplespike.db`) was an `emptyDir` in the nix source of truth, so every canonical deploy wiped it. Fixed: `nix/saas-manifests.nix` now mounts the `quill-api-data` PVC (10Gi local-path, matches `k8s/maplespike/quill-api-data-pvc.yaml`), added `fsGroup: 1001`. Verified live: claims survive `kubectl rollout restart` (7/7 after restart, 2026-08-11). | Re-seed claims after a DB wipe: `sudo bash scripts/ops/seed-claims.sh` (uses the real citationStore + awaited buildClaimBundle; idempotent). Keep `replicas: 1` on quill-api — two writers on one WAL SQLite file contends. |
+| **Local-path PVCs Pending cluster-wide (2026-08-11 root cause)** | ✅ **RESOLVED** — the `local-path-provisioner` creates its helper pod (hostPath + root + privilege escalation — impossible under `restricted`/`baseline`) **in kube-system for ALL claims**, and kube-system carried `pod-security.kubernetes.io/enforce=restricted`. Every local-path PVC (quill-api-data, nix-store-nix-cache-0, qdrant-storage) was Pending with `violates PodSecurity "restricted:latest"`. Also, the `require-resources-and-security` VAP blocked helper pods cluster-wide. | Fix (live + persisted in nix/saas-manifests.nix namespace fragments): label BOTH `kube-system` and `maplespike` `pod-security.kubernetes.io/enforce=privileged` (k3s default for kube-system; the restricted label was a hardening overstep), and add the VAP `matchConditions` exclusion for `helper-pod-create-pvc-*`/`helper-pod-delete-*`. A rebuild MUST reproduce both or storage breaks again. Posture tradeoff: kube-system is now `privileged` cluster-wide — acceptable because it only affects the provisioner helper pod, but the clean long-term fix is running local-path-provisioner in its own privileged namespace (or a different CSI). | The kube-system Namespace labels are **apply-only**: if a future bundle omits them, `kubectl apply` will NOT remove them — drift is silent, not failing. The VAP exclusion was **tightened 2026-08-11** to require `namespace == "kube-system"` (generateName alone was a spoofable bypass: any pod named `helper-pod-create-pvc-evil` skipped the whole policy). |
+| **Nexus reboot 2026-08-11: registry down → ImagePullBackOff → site 502/530** | ✅ **RESOLVED** — nexus rebooted; the `nexus:5000` OCI registry is a bare podman container (`registry`) that did NOT survive the reboot, and deployments used `imagePullPolicy: Always`, so every restart round-tripped the dead registry → ImagePullBackOff → 502/530 on both domains. `port 50000` is nix-serve (Nix binary cache), NOT the registry — the registry is `10.1.1.120:5000`. | Two-part fix (both live): (1) `imagePullPolicy: Always → IfNotPresent` on all three deployments (pinned tags already in the local containerd store — sovereign/local-first; do NOT revert), persisted in nix + k8s manifests; (2) `quill-registry.service` systemd unit on nexus (`podman start registry` on boot, `Restart=always`) so the registry survives reboots — `nix/quill-registry.container` is the quadlet reference (NixOS podman generator not wired on this host, plain unit used). |
+| **better-sqlite3 “binding missing” false alarm (2026-08-11)** | The api image ships the native binding under `.pnpm/better-sqlite3@*/node_modules/better-sqlite3/build/Release/better_sqlite3.node`. `require("/app/node_modules/better-sqlite3")` FAILS because pnpm never symlinks a top-level module — that is a WRONG test, not a missing binding. The correct runtime check is `cd /app/packages/api-server && node -e "require('better-sqlite3')"` (resolves via the package-local symlink). | Use the runtime-path require when verifying the binding. The `onlyBuiltDependencies` entry in `pnpm-workspace.yaml` is what makes the binding build in the image. |
+| **Registration broken in prod (2026-08-10 journey finding)** | ✅ **RESOLVED** — `POST /v1/register` failed with `QUILL_PII_HASH_SECRET must be set to a stable 32-byte hex string in production` because the nix manifests never injected the env var (running pod had it UNSET). Fixed by wiring it in `nix/saas-manifests.nix` + `scripts/sops-sync-k8s.sh` and applying a valid 64-hex value to `maplespike-secrets/pii-hash-secret` (direct kubectl patch; DB was empty so rotation safe). Verified live: register → `success:true` + real API key through the tunnel. | Root fix is the nix wiring (survives rebuilds). See Secrets section for the missing age-key caveat + recovery sequence. |
+| **`nix build .#saas-manifests` fails on nexus (2026-08-10)** | Running nix build as root on nexus fails with `Path "/nix" is world-writable or a symlink. That's not allowed for security.` — so the canonical deploy path cannot run as root on nexus. The 2026-08-10 PII env fix was applied via direct `kubectl patch` (now also in the nix source, so no permanent drift). | Try as non-root (`su j_kro -c 'nix build ...'`) or fix `/nix` store perms; otherwise apply changes via `kubectl patch` mirroring the nix source and verify with the checks in "Verification after deploy". |
 
 ---
 
