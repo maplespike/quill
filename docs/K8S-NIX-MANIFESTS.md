@@ -34,6 +34,49 @@ kubectl apply -f result/manifests.yaml
 nix run .#deploy-saas
 ```
 
+## Dev call site (`quill-dev` namespace)
+
+The generator takes `namespace` and `dev` params, so a LAN-only dev/staging
+namespace is a different call site in `flake.nix` (`packages.dev-manifests`):
+
+```nix
+dev-manifests = saasManifests {
+  inherit pkgs;
+  registry = "nexus:5000";
+  tag = self.shortRev or "dev";   # per-service pins default to this
+  domain = "maplespike.ca";
+  namespace = "quill-dev";
+  dev = true;
+};
+```
+
+What `dev = true` changes vs prod:
+
+| Aspect | Prod (`maplespike`) | Dev (`quill-dev`) |
+|--------|---------------------|-------------------|
+| cloudflared tunnel | Included | **Excluded** (LAN-only) |
+| GNP default-deny + VAP | Included (cluster-scoped) | **Excluded** (prod owns them) |
+| Service ClusterIPs | Pinned `10.43.100.10/11/12` (cloudflared dials IPs) | **Dynamic** (Traefik resolves DNS) |
+| Ingress hosts | `maplespike.ca`, `portal/api/mcp.maplespike.ca` | `dev.maplespike.ca`, `dev-api.…`, `dev-mcp.…` |
+| API secrets ref | `maplespike-secrets` (`pii-hash-secret` **required**) | `quill-dev-secrets` (`pii-hash-secret` **optional**, bootstrapped with random values) |
+| ai-inference / kube-system labels | Included | Excluded |
+
+```bash
+# Render-only (inspect before applying)
+nix build .#dev-manifests -L
+
+# Deploy (push images first — the bundle pins the git short-sha tag):
+nix run .#push-images
+nix run .#deploy-dev
+
+# CI: .github/workflows/deploy-dev.yml deploys on every push to main.
+```
+
+> Dev pods still obey the cluster-wide admission policies
+> (`deny-latest-tag-deployments`, `require-resources-and-security`) — pinned
+> tags + securityContext + resources come from the same generator, so dev
+> behaves exactly like prod under policy.
+
 ## Image tagging
 
 The generator references `nexus:5000/quill-{api,mcp,portal}:<tag>` with
