@@ -44,7 +44,7 @@ concurrency:
 jobs:
   build-and-deploy:
     name: Build Portal + Deploy to CF Pages
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
