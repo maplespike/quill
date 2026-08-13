@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — metric, province, or year (e.g., "housing starts Ontario 2024", "rental vacancy rate Toronto")',
       },
       limit: {

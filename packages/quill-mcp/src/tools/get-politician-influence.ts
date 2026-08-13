@@ -9,7 +9,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      name: { type: 'string', description: 'Politician name (e.g., "Justin Trudeau", "Pierre Poilievre", "Chrystia Freeland")' },
+      name: { type: 'string', maxLength: 2000, description: 'Politician name (e.g., "Justin Trudeau", "Pierre Poilievre", "Chrystia Freeland")' },
     },
     required: ['name'],
   },

@@ -11,7 +11,8 @@ export const getDonationsByJurisdictionDefinition: ToolDefinition = {
     properties: {
       jurisdiction: {
         type: 'string',
-        description: 'Province or territory (e.g., BC, Ontario)',
+        maxLength: 500,
+description: 'Province or territory (e.g., BC, Ontario)',
       },
       year: { type: 'number' },
     },

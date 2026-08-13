@@ -13,6 +13,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — act name, keyword, or jurisdiction (e.g., "Canada Elections Act", "carbon tax", "privacy law")',
       },
       limit: {

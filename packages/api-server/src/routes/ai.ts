@@ -17,6 +17,35 @@ import { validateBody } from '../validate.js';
 import { resolveAIConfig } from './ai-settings.js';
 import { canAccess } from '../feature-gates.js';
 
+/**
+ * Strip HTML tags and dangerous URI schemes from AI-generated text.
+ *
+ * The REST API returns JSON, not HTML, but downstream consumers may render
+ * `answer`/`analysis` fields in a web UI. LLM output can contain arbitrary
+ * markup (e.g. `<script>` injected via prompt injection, or `javascript:`
+ * URIs in markdown links). This is a defense-in-depth HTML-strip; it is NOT
+ * a full XSS sanitizer.
+ *
+ * Mirrors the MCP layer's `sanitizeString` (server.ts) but scoped to the
+ * HTML-injection threat model — the REST layer does NOT do PII redaction
+ * (that belongs to the MCP/pipeline layer where tool results carry PII).
+ */
+function sanitizeString(val: string): string {
+  if (typeof val !== 'string') return val as unknown as string;
+  return val
+    // Strip <script>, <style>, <iframe>, <object>, <embed> blocks first
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<object\b[^>]*>[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed\b[^>]*>/gi, '')
+    // Strip all remaining tags
+    .replace(/<[^>]+>/g, '')
+    // Strip javascript: and data: URI schemes from attributes / links
+    .replace(/(?:href|src|action|on\w+)\s*=\s*["']?\s*javascript:[^"' ]*/gi, '')
+    .replace(/(?:href|src|action)\s*=\s*["']?\s*data:[^"' ]*/gi, '');
+}
+
 // ── AI Gateway ──────────────────────────────────────────────────────
 // Order: QUILL_AI_ENDPOINT > QUILL_GATEWAY_URL > AI_ENDPOINT > default
 const GATEWAY_ENDPOINT = process.env.QUILL_AI_ENDPOINT
@@ -656,8 +685,9 @@ Keep responses concise and factual.${ragContext}`;
     }
 
     if (aiAnswer) {
+      const sanitizedAnswer = sanitizeString(aiAnswer);
       return jsonResponse(buildSuccess({
-        answer: aiAnswer,
+        answer: sanitizedAnswer,
         source: usedProvider || aiConfig.source,
         model: usedProvider === 'fusion' ? FUSION_MODEL : aiConfig.model,
         ragSource: searchSource,          // 'qdrant' or 'gov-search'
@@ -746,8 +776,9 @@ Be concise and structured.`;
     ]);
 
     if (aiAnswer) {
+      const sanitizedAnalysis = sanitizeString(aiAnswer);
       return jsonResponse(buildSuccess({
-        analysis: aiAnswer,
+        analysis: sanitizedAnalysis,
         model: CHAT_MODEL,
         mode,
       }, bc));

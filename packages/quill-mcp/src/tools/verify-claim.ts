@@ -24,9 +24,12 @@ export const definition: ToolDefinition = {
     properties: {
       sha256: {
         type: 'string',
+        maxLength: 64,
         description: 'SHA-256 hash to verify (accepts "sha256:<hex>" or bare hex)',
       },
       data: {
+        type: 'string',
+        maxLength: 2000,
         description: 'Optional original data — the hash is recomputed from canonical JSON of this value and compared',
       },
     },

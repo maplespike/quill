@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — facility name, substance, or location (e.g., "mercury", "Syncrude", "chemical release Ontario")',
       },
       limit: {

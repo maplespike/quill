@@ -20,6 +20,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 500,
         description: 'Natural language search query (e.g., "regulatory impacts on small business", "ethics investigations into political staff")',
       },
       limit: {

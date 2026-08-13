@@ -17,6 +17,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — condition, drug, procedure, agency, or province (e.g., "hip replacement wait times Ontario", "opioid deaths BC", "food recall salmonella")',
       },
       category: {

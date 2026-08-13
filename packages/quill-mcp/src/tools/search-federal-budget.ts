@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — program, department, or fiscal year (e.g., "infrastructure", "defence spending 2024")',
       },
       limit: {

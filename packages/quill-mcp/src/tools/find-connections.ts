@@ -26,6 +26,7 @@ export const definition: ToolDefinition = {
     properties: {
       name: {
         type: 'string',
+        maxLength: 2000,
         description: 'Name to center the network on — person or organization',
       },
       type: {

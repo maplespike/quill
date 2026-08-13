@@ -739,6 +739,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 500,
         description: 'Natural language description of what you want to find',
       },
       limit: {

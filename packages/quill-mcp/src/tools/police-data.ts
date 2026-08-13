@@ -11,7 +11,8 @@ export const getPoliceByCityDefinition: ToolDefinition = {
     properties: {
       city: {
         type: 'string',
-        description: 'City name (e.g., Edmonton, Montreal)',
+        maxLength: 500,
+description: 'City name (e.g., Edmonton, Montreal)',
       },
     },
     required: ['city'],
@@ -59,7 +60,7 @@ export const searchPoliceAgenciesDefinition: ToolDefinition = {
     properties: {
       city: { type: 'string', description: 'City name' },
       province: { type: 'string', description: 'Province code (ON, AB, BC, QC, MB, NS)' },
-      query: { type: 'string', description: 'Search agency name or city' },
+      query: { type: 'string', maxLength: 2000, description: 'Search agency name or city' },
     },
   },
 };

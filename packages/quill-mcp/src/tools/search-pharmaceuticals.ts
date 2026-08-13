@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — drug name, manufacturer, active ingredient, or therapeutic class (e.g., "insulin pricing", "drug shortage Canada", "PMPRB")',
       },
       limit: {

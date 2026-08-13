@@ -23,6 +23,7 @@ export const getDepartmentSpendingDefinition: ToolDefinition = {
     properties: {
       department: {
         type: 'string',
+        maxLength: 500,
         description: 'Department name',
       },
       year: { type: 'number' },

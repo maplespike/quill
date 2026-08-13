@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Food name to search for (e.g., "cheddar cheese", "whole wheat bread", "apple")',
       },
       lang: {

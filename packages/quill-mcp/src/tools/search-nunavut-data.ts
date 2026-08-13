@@ -6,7 +6,7 @@ export const definition: ToolDefinition = {
   name: 'search_nunavut_data',
   description: 'Search government data about Nunavut from federal CKAN, Statistics Canada, and the Nunavut Bureau of Statistics.',
   inputSchema: { type: 'object', properties: {
-    query: { type: 'string', description: 'Search terms' },
+    query: { type: 'string', maxLength: 2000, description: 'Search terms' },
     limit: { type: 'number', minimum: 1, maximum: 50 },
   }, required: ['query'] },
 };

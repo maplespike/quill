@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — topic, date, or speaker (e.g., "overnight rate 2024", "inflation outlook", "Tiff Macklem")',
       },
       limit: {
