@@ -17,6 +17,6 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const { rows, header } = await fetchStatCanTable('18100004');
     return { content: { tool: 'query_cpi', data: rows.slice(0, limit), total: rows.length, source: 'https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=18100004' } };  
   } catch (error) {
-    return { content: { tool: 'query_cpi', error: (error as Error).message }, isError: true };
+    return { content: { tool: 'query_cpi', error: (error instanceof Error && error.message) || String(error) }, isError: true };
   }
 };

@@ -97,16 +97,28 @@
     # ── OCI image builder ───────────────────────────────────────────
     # Image names match the live SaaS registry layout:
     #   nexus:5000/quill-api  · /mcp  · /portal
+    #
+    # Issue #778 (GitHub OAuth 502 — missing CA bundle): EVERY image ships
+    # the Nix CA bundle (pkgs.cacert) and points Node/OpenSSL at it via
+    # NODE_EXTRA_CA_CERTS + SSL_CERT_FILE. Without it, outbound TLS (GitHub
+    # token exchange, source ingestion) fails with "unable to get local
+    # issuer certificate". The path is parameterized by ${pkgs.cacert} — not
+    # a hardcoded store path — so a nixpkgs bump follows automatically. The
+    # Docker build path got the same treatment in Dockerfile.api
+    # (commit a24d3eab, live-verified 2026-07-16).
     mkImage = { name, cmd, port, extraEnv, contents }: pkgs.dockerTools.buildLayeredImage {
       inherit name;
       tag = "latest";
       created = "now";
-      contents = contents;
+      contents = contents ++ [ pkgs.cacert ];
       config = {
         Env = [
           "NODE_ENV=production"
           "PORT=${toString port}"
           "HOME=/tmp"
+          # #778: outbound TLS trust for Node (fetch/https) + OpenSSL tools
+          "NODE_EXTRA_CA_CERTS=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+          "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
         ] ++ extraEnv;
         Cmd = cmd;
         # WorkingDir = "/" so relative cmd paths like

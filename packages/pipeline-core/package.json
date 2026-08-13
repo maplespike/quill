@@ -10,6 +10,10 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./utils/http": {
+      "import": "./dist/utils/http.js",
+      "types": "./dist/utils/http.d.ts"
+    },
     "./test-framework": {
       "import": "./dist/test-framework/index.js",
       "types": "./dist/test-framework/index.d.ts"

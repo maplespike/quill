@@ -48,6 +48,49 @@ const MAX_RETRIES = process.env['MAPLESPIKE_HTTP_MAX_RETRIES'] !== undefined
   ? parseInt(process.env['MAPLESPIKE_HTTP_MAX_RETRIES'], 10)
   : 3;
 
+/**
+ * Process-level guard for undici stream-decompression crashes.
+ *
+ * undici's internal gzip inflate can emit an *uncaught* error when an
+ * upstream truncates a gzip / HTTP/2 response mid-transfer (observed with
+ * cbc.ca closing with NGHTTP2_INTERNAL_ERROR; surfaced by the live MCP tool
+ * smoke run). The error is thrown from Node's internal webstreams adapter
+ * (`node:internal/webstreams/adapters` → `Z_BUF_ERROR`, "unexpected end of
+ * file") rather than as a promise rejection, so it escapes httpGet()'s
+ * try/catch and would otherwise kill the whole process.
+ *
+ * Installs a narrowly-scoped `uncaughtException` handler that swallows ONLY
+ * that known-benign signature and lets everything else crash loudly as
+ * usual. Idempotent — safe to call from multiple entry points (MCP SSE
+ * server, CLI, one-shot drivers, ingestion runners).
+ */
+export interface GuardLogger {
+  warn(obj: Record<string, unknown>, msg?: string): void;
+  error(obj: Record<string, unknown>, msg?: string): void;
+}
+
+let streamGuardInstalled = false;
+
+export function installStreamErrorGuard(log: GuardLogger): void {
+  if (streamGuardInstalled) return;
+  streamGuardInstalled = true;
+
+  process.on('uncaughtException', (err: Error) => {
+    const code = (err as NodeJS.ErrnoException).code;
+    const msg = err instanceof Error ? err.message : String(err);
+    const benign = code === 'Z_BUF_ERROR' || /unexpected end of file/i.test(msg);
+    if (benign) {
+      log.warn({ err }, 'Ignoring benign upstream decompression error (truncated gzip/HTTP2 body)');
+      return;
+    }
+    log.error({ err }, 'Uncaught exception — exiting (not the benign stream-decompression signature)');
+    // Exit loudly for anything that is NOT the known stream-decompression
+    // signature. NOTE: re-throwing inside/after this handler would re-enter
+    // it (infinite loop), so an explicit exit is the correct crash pattern.
+    process.exit(1);
+  });
+}
+
 /** HTTP status codes considered transient (retriable). */
 const TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
 

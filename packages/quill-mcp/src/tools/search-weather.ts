@@ -45,17 +45,27 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
 
   try {
     const baseUrl = 'https://api.weather.gc.ca';
+    // Real MSC GeoMet OGC-API collection IDs (verified live 2026-08-13). The
+    // previous typeMap pointed at bare paths (/conditions, /forecasts, …)
+    // that do not exist in the OGC-API layout — every call 404'd (surfaced
+    // by the live MCP tool smoke run).
     const typeMap: Record<string, string> = {
-      conditions: 'conditions',
-      forecast: 'forecasts',
-      alerts: 'alerts',
-      aqhi: 'aqhi/observations',
-      climate: 'climate/daily',
+      conditions: 'citypageweather-realtime',
+      forecast: 'public-standard-forecast-zones',
+      alerts: 'weather-alerts',
+      aqhi: 'aqhi-observations-realtime',
+      climate: 'climate-daily',
     };
-    const endpoint = typeMap[type] || 'conditions';
+    const collection = typeMap[type] || 'citypageweather-realtime';
 
-    const result = await cached(`weather_${type}`, { location, limit }, async () => {
-      const url = `${baseUrl}/${endpoint}?limit=${limit}&lang=en`;
+    const result = await cached(`weather_${type}_${location}`, { location, limit }, async () => {
+      // GeoMet filters by `name` (place name) or `lat`/`lon` (coordinates),
+      // not `location`. Accepts either input form per the schema.
+      const coordMatch = /^([-+]?\d+\.?\d*),\s*([-+]?\d+\.?\d*)$/.exec(location.trim());
+      const locParam = coordMatch
+        ? `lat=${coordMatch[1]}&lon=${coordMatch[2]}`
+        : `name=${encodeURIComponent(location.trim())}`;
+      const url = `${baseUrl}/collections/${collection}/items?${locParam}&limit=${limit}&lang=en`;
       const data = await fetchJson<WeatherResponse>(url);
       return {
         results: data?.features?.slice(0, limit).map(f => f.properties) ?? [],
@@ -71,7 +81,7 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
         ...result,
         _citation: {
           source_name: 'Environment Canada MSC GeoMet',
-          source_url: `${baseUrl}/${endpoint}`,
+          source_url: `${baseUrl}/collections/${collection}/items`,
           license: 'Open Government Licence - Canada',
           retrieved_at: new Date().toISOString(),
         },
