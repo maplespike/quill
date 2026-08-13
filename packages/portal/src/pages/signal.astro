@@ -11,16 +11,19 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { localeUrl } from "@/utils/localeUrl";
 import { createI18n } from "@maplespike/i18n";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 
 interface Signal {
   id: string;
-  title: string;
-  description: string;
+  title: { en: string; fr: string };
+  description: { en: string; fr: string };
   severity: "critical" | "high" | "medium" | "low";
-  source: string;
+  source: { en: string; fr: string };
   timestamp: string;
   category: string;
   module: string;
@@ -29,104 +32,120 @@ interface Signal {
 const signals: Signal[] = [
   {
     id: "SIG-001",
-    title: "Lobbying surge detected on Competition Act amendments",
-    description:
+    title: { en: "Lobbying surge detected on Competition Act amendments", fr: "Hausse du lobbying détectée sur les modifications de la Loi sur la concurrence" },
+    description: { en:
       "Thirteen new lobbying registrations filed this week targeting Bill C-59 amendments. Top 5 financial institutions account for 68% of engagements.",
+      fr:
+      "Treize nouvelles inscriptions de lobbying déposées cette semaine visant les modifications du projet de loi C-59. Les 5 plus grandes institutions financières représentent 68 % des engagements." },
     severity: "high",
-    source: "Office of the Commissioner of Lobbying",
+    source: { en: "Office of the Commissioner of Lobbying", fr: "Commissariat au lobbying" },
     timestamp: "2026-05-18T08:30:00Z",
     category: "corporate",
     module: "lobbying",
   },
   {
     id: "SIG-002",
-    title: "CRTC opens consultation on AI-generated content disclosure",
-    description:
+    title: { en: "CRTC opens consultation on AI-generated content disclosure", fr: "Le CRTC ouvre une consultation sur la divulgation du contenu généré par IA" },
+    description: { en:
       "New regulatory proceeding seeks mandatory labeling for AI-generated broadcast content. Comment period closes July 15.",
+      fr:
+      "Nouvelle instance réglementaire visant l'étiquetage obligatoire du contenu de diffusion généré par IA. La période de commentaires se termine le 15 juillet." },
     severity: "high",
-    source: "CRTC",
+    source: { en: "CRTC", fr: "CRTC" },
     timestamp: "2026-05-17T14:00:00Z",
     category: "regulatory",
     module: "crtc",
   },
   {
     id: "SIG-003",
-    title: "Committee hearing: Privacy implications of federal facial recognition",
-    description:
+    title: { en: "Committee hearing: Privacy implications of federal facial recognition", fr: "Audience en comité : implications pour la vie privée de la reconnaissance faciale fédérale" },
+    description: { en:
       "ETHI committee hearing scheduled with testimony from OPC, RCMP, and civil liberties groups. In-camera session flagged for operational details.",
+      fr:
+      "Audience du comité ETHI prévue avec des témoignages du CPVP, de la GRC et de groupes de libertés civiles. Séance à huis clos signalée pour des détails opérationnels." },
     severity: "critical",
-    source: "House of Commons — ETHI Committee",
+    source: { en: "House of Commons — ETHI Committee", fr: "Chambre des communes — Comité ETHI" },
     timestamp: "2026-05-17T11:15:00Z",
     category: "parliament",
     module: "committees",
   },
   {
     id: "SIG-004",
-    title: "OAG performance audit finds gaps in Phoenix pay system remediation",
-    description:
+    title: { en: "OAG performance audit finds gaps in Phoenix pay system remediation", fr: "L'audit de performance du BVG révèle des lacunes dans la correction du système de paie Phénix" },
+    description: { en:
       "Auditor General report identifies 14 unresolved recommendations from 2023. Estimated liability exposure revised upward to $3.2B.",
+      fr:
+      "Le rapport du vérificateur général identifie 14 recommandations non résolues de 2023. L'exposition estimée au passif révisée à la hausse à 3,2 G$." },
     severity: "high",
-    source: "Office of the Auditor General",
+    source: { en: "Office of the Auditor General", fr: "Bureau du vérificateur général" },
     timestamp: "2026-05-16T09:00:00Z",
     category: "oversight",
     module: "oag",
   },
   {
     id: "SIG-005",
-    title: "SEDI insider trade filings spike ahead of telecom policy announcement",
-    description:
+    title: { en: "SEDI insider trade filings spike ahead of telecom policy announcement", fr: "Pic de déclarations d'opérations d'initiés SEDI avant une annonce de politique des télécommunications" },
+    description: { en:
       "Eight insider trades filed by telecom executives in 48-hour window preceding ISED spectrum policy update.",
+      fr:
+      "Huit opérations d'initiés déclarées par des dirigeants de télécommunications dans une fenêtre de 48 heures précédant la mise à jour de la politique sur le spectre d'ISDE." },
     severity: "medium",
-    source: "SEDI / CSA",
+    source: { en: "SEDI / CSA", fr: "SEDI / ACVM" },
     timestamp: "2026-05-16T07:45:00Z",
     category: "corporate",
     module: "sedi",
   },
   {
     id: "SIG-006",
-    title: "Canada Gazette Part I: Proposed Clean Electricity Regulations",
-    description:
+    title: { en: "Canada Gazette Part I: Proposed Clean Electricity Regulations", fr: "Gazette du Canada, partie I : Règlement sur l'électricité propre (projet)" },
+    description: { en:
       "New regulatory framework for net-zero electricity grid by 2035. 120-day comment period. Provincial impact assessments beginning.",
+      fr:
+      "Nouveau cadre réglementaire pour un réseau électrique carboneutre d'ici 2035. Période de commentaires de 120 jours. Début des évaluations d'impact provinciales." },
     severity: "medium",
-    source: "Canada Gazette",
+    source: { en: "Canada Gazette", fr: "Gazette du Canada" },
     timestamp: "2026-05-15T10:30:00Z",
     category: "regulatory",
     module: "gazette",
   },
   {
     id: "SIG-007",
-    title: "PBO fiscal sustainability report flags long-term demographic pressure",
-    description:
+    title: { en: "PBO fiscal sustainability report flags long-term demographic pressure", fr: "Le rapport de viabilité financière du DPR signale une pression démographique à long terme" },
+    description: { en:
       "34th fiscal sustainability report projects dependency ratio to reach 52% by 2045. Health and seniors' benefits identified as primary cost drivers.",
+      fr:
+      "Le 34e rapport de viabilité financière projette un ratio de dépendance de 52 % d'ici 2045. La santé et les prestations aux aînés identifiées comme principaux moteurs de coûts." },
     severity: "low",
-    source: "Parliamentary Budget Officer",
+    source: { en: "Parliamentary Budget Officer", fr: "Directeur parlementaire du budget" },
     timestamp: "2026-05-14T13:00:00Z",
     category: "oversight",
     module: "pbo",
   },
   {
     id: "SIG-008",
-    title: "New IRCC immigration levels plan tabled — 500K annual target maintained",
-    description:
+    title: { en: "New IRCC immigration levels plan tabled — 500K annual target maintained", fr: "Nouveau plan des niveaux d'immigration d'IRCC déposé — cible annuelle de 500 K maintenue" },
+    description: { en:
       "2027-2029 Immigration Levels Plan tabled in Parliament. Economic class remains at 60% allocation. Asylum processing backlog target reduced.",
+      fr:
+      "Plan des niveaux d'immigration 2027-2029 déposé au Parlement. La catégorie économique conserve une allocation de 60 %. Cible d'arriéré de traitement des demandes d'asile réduite." },
     severity: "medium",
-    source: "IRCC",
+    source: { en: "IRCC", fr: "IRCC" },
     timestamp: "2026-05-14T09:30:00Z",
     category: "federal",
     module: "ircc",
   },
 ];
 
-const severityConfig: Record<string, { label: string; variant: "destructive" | "default" | "secondary" | "outline" }> = {
-  critical: { label: "Critical", variant: "destructive" },
-  high: { label: "High", variant: "default" },
-  medium: { label: "Medium", variant: "secondary" },
-  low: { label: "Low", variant: "outline" },
+const severityConfig: Record<string, { label: { en: string; fr: string }; variant: "destructive" | "default" | "secondary" | "outline" }> = {
+  critical: { label: { en: "Critical", fr: "Critique" }, variant: "destructive" },
+  high: { label: { en: "High", fr: "Élevée" }, variant: "default" },
+  medium: { label: { en: "Medium", fr: "Moyenne" }, variant: "secondary" },
+  low: { label: { en: "Low", fr: "Faible" }, variant: "outline" },
 };
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-CA", {
+  return d.toLocaleDateString(lang === "fr" ? "fr-CA" : "en-CA", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -136,11 +155,11 @@ function formatDate(iso: string): string {
 }
 
 const tabs = [
-  { value: "all", label: "All Signals" },
-  { value: "critical", label: "Critical" },
-  { value: "high", label: "High Severity" },
-  { value: "regulatory", label: "Regulatory" },
-  { value: "corporate", label: "Corporate" },
+  { value: "all", label: { en: "All Signals", fr: "Tous les signaux" } },
+  { value: "critical", label: { en: "Critical", fr: "Critiques" } },
+  { value: "high", label: { en: "High Severity", fr: "Gravité élevée" } },
+  { value: "regulatory", label: { en: "Regulatory", fr: "Réglementaires" } },
+  { value: "corporate", label: { en: "Corporate", fr: "Entreprises" } },
 ] as const;
 ---
 
@@ -149,13 +168,15 @@ const tabs = [
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
-      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">Real-time engine signals</Badge>
+      <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">{t("Real-time engine signals", "Signaux moteur en temps réel")}</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
         Intelligence&nbsp;<span class="text-gradient">Signals</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-        Cross-referenced signals from 206 data modules — lobbying spikes, regulatory changes,
-        committee activity, and corporate influence patterns detected by the MapleSpike engine.
+        {t(
+          "Cross-referenced signals from 206 data modules — lobbying spikes, regulatory changes, committee activity, and corporate influence patterns detected by the MapleSpike engine.",
+          "Signaux recoupés provenant de 206 modules de données — pics de lobbying, changements réglementaires, activité des comités et schémas d'influence des entreprises détectés par le moteur MapleSpike.",
+        )}
       </p>
     </div>
   </section>
@@ -175,7 +196,7 @@ const tabs = [
               )}
               data-signaltab={tab.value}
             >
-              {tab.label}
+              {tb(tab.label)}
             </button>
           ))}
         </div>
@@ -197,13 +218,13 @@ const tabs = [
                       <CardHeader>
                         <div class="flex items-start justify-between gap-4">
                           <div class="space-y-1">
-                            <CardTitle class="text-lg">{signal.title}</CardTitle>
+                            <CardTitle class="text-lg">{tb(signal.title)}</CardTitle>
                             <CardDescription class="line-clamp-2">
-                              {signal.description}
+                              {tb(signal.description)}
                             </CardDescription>
                           </div>
                           <Badge variant={sev.variant} class="shrink-0">
-                            {sev.label}
+                            {tb(sev.label)}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -224,7 +245,7 @@ const tabs = [
                               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                               <circle cx="12" cy="7" r="4" />
                             </svg>
-                            {signal.source}
+                            {tb(signal.source)}
                           </span>
                           <span class="flex items-center gap-1">
                             <svg
@@ -282,8 +303,10 @@ const tabs = [
 
       <div class="mt-12 text-center">
         <p class="text-sm text-muted-foreground">
-          Signals are generated by the MapleSpike cross-reference engine, correlating data across
-          all 206 ingestion modules with trust-score validation ≥60%.
+          {t(
+            "Signals are generated by the MapleSpike cross-reference engine, correlating data across all 206 ingestion modules with trust-score validation ≥60%.",
+            "Les signaux sont générés par le moteur de recoupement de MapleSpike, corrélant les données de l'ensemble des 206 modules d'ingestion avec une validation de score de confiance ≥60 %.",
+          )}
         </p>
       </div>
     </div>
@@ -295,19 +318,19 @@ const tabs = [
       <div class="mx-auto grid max-w-4xl grid-cols-2 gap-8 md:grid-cols-4">
         <div class="text-center">
           <div class="text-3xl font-bold text-primary">8</div>
-          <div class="mt-1 text-sm text-muted-foreground">Active signals today</div>
+          <div class="mt-1 text-sm text-muted-foreground">{t("Active signals today", "Signaux actifs aujourd'hui")}</div>
         </div>
         <div class="text-center">
           <div class="text-3xl font-bold text-primary">206</div>
-          <div class="mt-1 text-sm text-muted-foreground">Monitored data modules</div>
+          <div class="mt-1 text-sm text-muted-foreground">{t("Monitored data modules", "Modules de données surveillés")}</div>
         </div>
         <div class="text-center">
           <div class="text-3xl font-bold text-primary">273</div>
-          <div class="mt-1 text-sm text-muted-foreground">Tracked regulators</div>
+          <div class="mt-1 text-sm text-muted-foreground">{t("Tracked regulators", "Organismes de réglementation suivis")}</div>
         </div>
         <div class="text-center">
           <div class="text-3xl font-bold text-primary">15m</div>
-          <div class="mt-1 text-sm text-muted-foreground">Avg detection latency</div>
+          <div class="mt-1 text-sm text-muted-foreground">{t("Avg detection latency", "Latence moyenne de détection")}</div>
         </div>
       </div>
     </div>
@@ -318,15 +341,17 @@ const tabs = [
     <div class="absolute inset-0 bg-grid opacity-60" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
-        Get real-time government intelligence
+        {t("Get real-time government intelligence", "Obtenez de l'intelligence gouvernementale en temps réel")}
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
-        Pro plan includes real-time cross-referencing, unlimited history, and priority API access.
-        Start your free trial today — no credit card required.
+        {t(
+          "Pro plan includes real-time cross-referencing, unlimited history, and priority API access. Start your free trial today — no credit card required.",
+          "Le forfait Pro inclut le recoupement en temps réel, un historique illimité et un accès API prioritaire. Commencez votre essai gratuit aujourd'hui — aucune carte de crédit requise.",
+        )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href={localeUrl('/signup?plan=pro', lang)} class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">Start Free Trial</a>
-        <a href={localeUrl('/pricing', lang)} class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Compare Plans</a>
+        <a href={localeUrl('/signup?plan=pro', lang)} class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">{t("Start Free Trial", "Commencer l'essai gratuit")}</a>
+        <a href={localeUrl('/pricing', lang)} class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">{t("Compare Plans", "Comparer les forfaits")}</a>
       </div>
     </div>
   </section>

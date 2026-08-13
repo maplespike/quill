@@ -3,79 +3,97 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
 interface BlogPost {
-  title: string;
-  date: string;
-  excerpt: string;
-  category: string;
+  title: Bi;
+  date: Bi;
+  excerpt: Bi;
+  category: Bi;
   slug: string;
-  author: string;
+  author: Bi;
 }
 
 const posts: BlogPost[] = [
   {
-    title: "Introducing the Corporate Influence Tracker",
-    date: "March 15, 2026",
-    excerpt:
+    title: { en: "Introducing the Corporate Influence Tracker", fr: "Présentation du Suivi de l'influence des entreprises" },
+    date: { en: "March 15, 2026", fr: "15 mars 2026" },
+    excerpt: { en:
       "A deep dive into our new module that maps corporate influence networks across lobbying registries, procurement contracts, and SEDI insider trades — connecting the dots between corporate activity and government decisions.",
-    category: "New Module",
+      fr:
+      "Une analyse approfondie de notre nouveau module qui cartographie les réseaux d'influence des entreprises à travers les registres de lobbying, les contrats d'approvisionnement et les opérations d'initiés SEDI — reliant les points entre l'activité des entreprises et les décisions gouvernementales." },
+    category: { en: "New Module", fr: "Nouveau module" },
     slug: "corporate-influence-tracker",
-    author: "MapleSpike Team",
+    author: { en: "MapleSpike Team", fr: "Équipe MapleSpike" },
   },
   {
-    title: "Cross-Reference Engine Now Live",
-    date: "March 1, 2026",
-    excerpt:
+    title: { en: "Cross-Reference Engine Now Live", fr: "Le moteur de recoupement est en ligne" },
+    date: { en: "March 1, 2026", fr: "1er mars 2026" },
+    excerpt: { en:
       "Our new cross-reference engine links committee evidence to lobbying records, GIC appointments, and regulatory changes. Track the full lifecycle of policy decisions across all 144 data modules.",
-    category: "Feature Launch",
+      fr:
+      "Notre nouveau moteur de recoupement relie les témoignages en comité aux dossiers de lobbying, aux nominations par décret et aux changements réglementaires. Suivez le cycle de vie complet des décisions politiques dans les 144 modules de données." },
+    category: { en: "Feature Launch", fr: "Lancement de fonctionnalité" },
     slug: "cross-reference-engine",
-    author: "MapleSpike Team",
+    author: { en: "MapleSpike Team", fr: "Équipe MapleSpike" },
   },
   {
-    title: "Q4 2025 Module Coverage Report",
-    date: "February 15, 2026",
-    excerpt:
+    title: { en: "Q4 2025 Module Coverage Report", fr: "Rapport de couverture des modules T4 2025" },
+    date: { en: "February 15, 2026", fr: "15 février 2026" },
+    excerpt: { en:
       "Detailed coverage metrics across all active modules: 65 total modules, 24 MCP tools, 115K+ lines of TypeScript, and growing. See where we've expanded and what's next on the roadmap.",
-    category: "Report",
+      fr:
+      "Métriques de couverture détaillées pour tous les modules actifs : 65 modules au total, 24 outils MCP, plus de 115 K lignes de TypeScript, et en croissance. Découvrez où nous nous sommes développés et la suite de la feuille de route." },
+    category: { en: "Report", fr: "Rapport" },
     slug: "q4-2025-coverage-report",
-    author: "MapleSpike Team",
+    author: { en: "MapleSpike Team", fr: "Équipe MapleSpike" },
   },
   {
-    title: "Committee Evidence Search: Under the Hood",
-    date: "February 1, 2026",
-    excerpt:
+    title: { en: "Committee Evidence Search: Under the Hood", fr: "Recherche de témoignages en comité : dans les coulisses" },
+    date: { en: "February 1, 2026", fr: "1er février 2026" },
+    excerpt: { en:
       "Technical deep-dive into how we index and search House of Commons and Senate committee evidence. From XML parsing to full-text search, here's how committee surveillance works.",
-    category: "Technical",
+      fr:
+      "Plongée technique dans la façon dont nous indexons et recherchons les témoignages des comités de la Chambre des communes et du Sénat. De l'analyse XML à la recherche plein texte, voici comment fonctionne la surveillance des comités." },
+    category: { en: "Technical", fr: "Technique" },
     slug: "committee-evidence-search",
-    author: "Engineering",
+    author: { en: "Engineering", fr: "Ingénierie" },
   },
   {
-    title: "65 Data Modules and Counting",
-    date: "January 15, 2026",
-    excerpt:
+    title: { en: "65 Data Modules and Counting", fr: "65 modules de données et ce n'est pas fini" },
+    date: { en: "January 15, 2026", fr: "15 janvier 2026" },
+    excerpt: { en:
       "We've reached 65 active data modules covering federal, provincial, territorial, and municipal government data across Canada. A look at our growth trajectory and what's planned for Q1 2026.",
-    category: "Milestone",
+      fr:
+      "Nous avons atteint 65 modules de données actifs couvrant les données gouvernementales fédérales, provinciales, territoriales et municipales partout au Canada. Un aperçu de notre trajectoire de croissance et de ce qui est prévu pour le T1 2026." },
+    category: { en: "Milestone", fr: "Étape importante" },
     slug: "sixty-five-modules",
-    author: "MapleSpike Team",
+    author: { en: "MapleSpike Team", fr: "Équipe MapleSpike" },
   },
   {
-    title: "OpenAPI Specification Published",
-    date: "January 1, 2026",
-    excerpt:
+    title: { en: "OpenAPI Specification Published", fr: "Spécification OpenAPI publiée" },
+    date: { en: "January 1, 2026", fr: "1er janvier 2026" },
+    excerpt: { en:
       "The MapleSpike API now has a full OpenAPI 3.1 specification available at /v1/openapi.json. Use it for code generation, client SDK development, and API exploration.",
-    category: "Announcement",
+      fr:
+      "L'API MapleSpike dispose désormais d'une spécification OpenAPI 3.1 complète disponible à /v1/openapi.json. Utilisez-la pour la génération de code, le développement de SDK clients et l'exploration de l'API." },
+    category: { en: "Announcement", fr: "Annonce" },
     slug: "openapi-spec",
-    author: "Engineering",
+    author: { en: "Engineering", fr: "Ingénierie" },
   },
 ];
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 ---
 <BaseLayout
   title={i18n.t('blog.title')}
-  description="MapleSpike blog — updates, technical deep-dives, and announcements about Canadian government data intelligence."
+  description={t(
+    "MapleSpike blog — updates, technical deep-dives, and announcements about Canadian government data intelligence.",
+    "Blogue MapleSpike — mises à jour, analyses techniques approfondies et annonces sur l'intelligence des données gouvernementales canadiennes.",
+  )}
   lang={lang}
 >
   <!-- Hero -->
@@ -86,15 +104,17 @@ const i18n = createI18n(lang);
           <span class="text-primary">{i18n.t('blog.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          Updates, technical deep-dives, and announcements from the MapleSpike team. Follow along as we
-          build Canada's government data intelligence layer.
+          {t(
+            "Updates, technical deep-dives, and announcements from the MapleSpike team. Follow along as we build Canada's government data intelligence layer.",
+            "Mises à jour, analyses techniques approfondies et annonces de l'équipe MapleSpike. Suivez-nous alors que nous construisons la couche d'intelligence des données gouvernementales du Canada.",
+          )}
         </p>
         <a
           href="/blog.xml"
           class="inline-flex items-center gap-2 mt-4 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9" /><path d="M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
-          Subscribe via RSS
+          {t("Subscribe via RSS", "S'abonner par RSS")}
         </a>
       </div>
     </div>
@@ -110,23 +130,23 @@ const i18n = createI18n(lang);
             <Card class="h-full flex flex-col transition-colors duration-300 hover:border-primary/50">
               <CardHeader>
                 <div class="flex items-center justify-between gap-2 mb-2">
-                  <Badge variant="secondary">{post.category}</Badge>
-                  <span class="text-xs text-muted-foreground">{post.date}</span>
+                  <Badge variant="secondary">{tb(post.category)}</Badge>
+                  <span class="text-xs text-muted-foreground">{tb(post.date)}</span>
                 </div>
                 <CardTitle class="text-lg transition-colors group-hover:text-primary">
-                  {post.title}
+                  {tb(post.title)}
                 </CardTitle>
               </CardHeader>
               <CardContent class="flex-1">
                 <CardDescription class="text-sm leading-relaxed">
-                  {post.excerpt}
+                  {tb(post.excerpt)}
                 </CardDescription>
               </CardContent>
               <div class="px-6 pb-4 flex items-center justify-between gap-2">
-                <span class="text-xs text-muted-foreground">{post.author}</span>
+                <span class="text-xs text-muted-foreground">{tb(post.author)}</span>
                 <span
                   class="inline-flex items-center gap-1 text-xs text-muted-foreground/70"
-                  title="Detail pages launching with the public RSS feed"
+                  title={t("Detail pages launching with the public RSS feed", "Pages de détail lancées avec le flux RSS public")}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                   {i18n.t('blog.read_more')}

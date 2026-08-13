@@ -2,14 +2,19 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ChangelogAccordion from "@/components/ChangelogAccordion";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
 <BaseLayout
   title={i18n.t('changelog.title')}
-  description="Complete changelog for MapleSpike — 267 commits, 5 releases, 206 ingestion modules, 174 MCP tools. Every change tracked from April 2026."
+  description={t(
+    "Complete changelog for MapleSpike — 267 commits, 5 releases, 206 ingestion modules, 174 MCP tools. Every change tracked from April 2026.",
+    "Journal des modifications complet de MapleSpike — 267 validations, 5 versions, 206 modules d'ingestion, 174 outils MCP. Chaque changement suivi depuis avril 2026.",
+  )}
   lang={lang}
 >
   <!-- Hero -->
@@ -21,8 +26,10 @@ const i18n = createI18n(lang);
           <span class="text-gradient">{i18n.t('changelog.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          267 commits across 5 releases — 318K lines of TypeScript added, 68K removed. Built by 3
-          contributors over 36 days. Track every update, feature, and fix to the MapleSpike platform.
+          {t(
+            "267 commits across 5 releases — 318K lines of TypeScript added, 68K removed. Built by 3 contributors over 36 days. Track every update, feature, and fix to the MapleSpike platform.",
+            "267 validations réparties sur 5 versions — 318 K lignes de TypeScript ajoutées, 68 K supprimées. Construit par 3 contributeurs en 36 jours. Suivez chaque mise à jour, fonctionnalité et correctif de la plateforme MapleSpike.",
+          )}
         </p>
       </div>
     </div>
@@ -38,15 +45,17 @@ const i18n = createI18n(lang);
     <div class="absolute inset-0 bg-grid opacity-60" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
-        Start building with MapleSpike today
+        {t("Start building with MapleSpike today", "Commencez à construire avec MapleSpike dès aujourd'hui")}
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
-        Free tier includes 1,000 API calls per month and full access to all 174 MCP tools.
-        No credit card required.
+        {t(
+          "Free tier includes 1,000 API calls per month and full access to all 174 MCP tools. No credit card required.",
+          "Le palier gratuit inclut 1 000 appels API par mois et un accès complet aux 174 outils MCP. Aucune carte de crédit requise.",
+        )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="/signup" class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">Get Started Free</a>
-        <a href="/docs" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Read the Docs</a>
+        <a href="/signup" class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">{t("Get Started Free", "Commencer gratuitement")}</a>
+        <a href="/docs" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">{t("Read the Docs", "Lire la documentation")}</a>
       </div>
     </div>
   </section>

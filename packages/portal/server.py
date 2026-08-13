@@ -348,6 +348,13 @@ class MapleSpikeHandler(SimpleHTTPRequestHandler):
             self.send_header("Expires", "Thu, 01 Jan 1970 00:00:00 GMT")
             self.send_header("Last-Modified", self.date_time_string())
             self.send_header("Pragma", "no-cache")
+        else:
+            # Static assets (js/css/svg/fonts) must revalidate too: without a
+            # Cache-Control header browsers heuristically cache by Last-Modified
+            # and keep serving a stale bundle after a rebuild (seen live: old
+            # script.js running long after dist/ was regenerated). `no-cache`
+            # still lets the browser use a 304 when nothing changed.
+            self.send_header("Cache-Control", "no-cache, must-revalidate")
         super().end_headers()
 
     def do_GET(self):

@@ -8,7 +8,9 @@
 
   const LS_THEME = 'maplespike-theme';
   const LS_INIT = 'maplespike-initialized';
-  const LS_LOCALE = 'maplespike-locale';
+  // Keep in sync with the BaseLayout inline redirect (reads maplespike_lang)
+  // and LanguageSwitcher.astro's onclick persist.
+  const LS_LOCALE = 'maplespike_lang';
 
   // ── i18n Engine ────────────────────────────────────────────────
 
@@ -112,17 +114,25 @@
 
   // ── Dark/Light Theme Toggle ──────────────────────────────────
 
+  function applyTheme(theme) {
+    // The portal's Tailwind v4 CSS uses a CLASS-based dark variant
+    // (@custom-variant dark (&:where(.dark, .dark *))), so the data-theme
+    // attribute alone does not change colors — the `.dark` class on <html>
+    // is the switch that matters. Keep both in sync.
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }
+
   function initTheme() {
     const saved = localStorage.getItem(LS_THEME);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = saved || (prefersDark ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', theme);
+    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
+    applyTheme(next);
     localStorage.setItem(LS_THEME, next);
 
     document.querySelectorAll('.theme-toggle').forEach(btn => {
@@ -132,10 +142,18 @@
 
   function setupThemeToggle() {
     const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    // Legacy emoji buttons (class .theme-toggle).
     document.querySelectorAll('.theme-toggle').forEach(btn => {
       btn.textContent = theme === 'dark' ? '\u{1F319}' : '\u{2600}\u{FE0F}';
       btn.addEventListener('click', toggleTheme);
     });
+    // BaseLayout's nav button is `#theme-toggle` (SVG icons that flip via
+    // the .dark class — dark:hidden / hidden dark:block). Wire the click
+    // WITHOUT clobbering its innerHTML.
+    const navToggle = document.getElementById('theme-toggle');
+    if (navToggle) {
+      navToggle.addEventListener('click', toggleTheme);
+    }
   }
 
   // ── Mobile Menu ─────────────────────────────────────────────
