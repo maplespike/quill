@@ -9,7 +9,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Province or condition filter (e.g., "Ontario", "good", "poor")' },
+      query: { type: 'string', maxLength: 500, description: 'Province or condition filter (e.g., "Ontario", "good", "poor")' },
       limit: { type: 'number', minimum: 1, maximum: 100, description: 'Max results (default: 20)' },
     },
   },

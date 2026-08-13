@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — program, CRS score, or date (e.g., "CEC draw 2024", "CRS 500", "category-based healthcare")',
       },
       limit: {

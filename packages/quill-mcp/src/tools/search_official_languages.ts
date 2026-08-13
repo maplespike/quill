@@ -5,7 +5,7 @@ export const definition: ToolDefinition = {
   name: 'search_official_languages',
   description: 'Search official languages data and statistics. Results from open.canada.ca.',
   inputSchema: { type: 'object', properties: {
-    query: { type: 'string', description: 'Search terms' },
+    query: { type: 'string', maxLength: 2000, description: 'Search terms' },
     limit: { type: 'number', minimum: 1, maximum: 50 },
   }, required: ['query'] },
 };

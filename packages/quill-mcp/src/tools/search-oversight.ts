@@ -21,6 +21,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — topic, body, or keyword (e.g., "cybersecurity", "phoenix pay", "Competition Bureau")',
       },
       body: {

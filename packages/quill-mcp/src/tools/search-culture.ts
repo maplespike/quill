@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — program, organization, or year (e.g., "Canada Council grants", "heritage funding Ontario", "arts programs")',
       },
       limit: {

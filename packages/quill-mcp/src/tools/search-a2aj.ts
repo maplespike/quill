@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 500,
         description: 'Search terms — case name, citation, or legal topic (e.g., "Charter challenge", "2 SCR", "employment law")',
       },
       limit: {

@@ -16,7 +16,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Search terms (e.g., "health", "education", "transportation")' },
+      query: { type: 'string', maxLength: 2000, description: 'Search terms (e.g., "health", "education", "transportation")' },
       province: { type: 'string', enum: Object.keys(PROVINCES), description: 'Province code (ns, nb, on, bc, qc, ab, mb, sk, nl, pe, yt, nt, nu). Omit for all.' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results per province (default: 5)' },
     },

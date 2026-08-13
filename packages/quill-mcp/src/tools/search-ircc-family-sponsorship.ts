@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — visa office, category, or year (e.g., "parent sponsorship", "spousal sponsorship Manila", "PGP 2024")',
       },
       limit: {

@@ -49,6 +49,7 @@ export const searchGTFSRoutesDefinition: ToolDefinition = {
       },
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search route name or number',
       },
     },
@@ -68,6 +69,7 @@ export const searchGTFSStopsDefinition: ToolDefinition = {
       },
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search stop name',
       },
     },

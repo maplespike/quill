@@ -496,6 +496,32 @@ export async function handleRequest(
     return finalizeResponse(Response.redirect(httpsUrl.toString(), 307), environment, requestOrigin);
   }
 
+  // --- Body size guard (P1#4) ---
+  // Reject oversized bodies before they reach any handler. Content-Length
+  // is the earliest signal; on Cloudflare Workers it reflects the actual
+  // body size the runtime will stream. 1 MiB matches the portal proxy
+  // (server.py:22) and the citation claim-verification route.
+  const method = request.method;
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    const cl = request.headers.get('content-length');
+    if (cl !== null) {
+      const bytes = parseInt(cl, 10);
+      if (!isNaN(bytes) && bytes > 1_048_576) {
+        logger.warn({ requestId, pathname: url.pathname, contentLength: bytes }, 'Payload too large — 413');
+        return finalizeResponse(
+          jsonResponse(buildError('PAYLOAD_TOO_LARGE', 'Request body exceeds the 1 MiB limit.', {
+            tenant: { id: 'anon', name: 'Anonymous', emailVerified: false, tier: 'free', isActive: true, journalismMode: false },
+            requestId,
+            startTime,
+            queryOptions,
+            metaOverrides: { cacheStatus: 'miss', durationMs: Date.now() - startTime },
+          }), 413, {}, requestOrigin, environment),
+          environment, requestOrigin,
+        );
+      }
+    }
+  }
+
   const matched = matchRoute(request.url, request.method);
   if (!matched) {
     const durationMs = Date.now() - startTime;

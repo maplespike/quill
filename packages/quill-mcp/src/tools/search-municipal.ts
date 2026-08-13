@@ -23,6 +23,7 @@ export const definition: ToolDefinition = {
       },
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search query within dataset',
       },
     },

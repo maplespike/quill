@@ -12,7 +12,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Search terms / termes de recherche (e.g., "santé", "immigration", "éducation", "environnement")' },
+      query: { type: 'string', maxLength: 2000, description: 'Search terms / termes de recherche (e.g., "santé", "immigration", "éducation", "environnement")' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Maximum results to return (default: 10)' },
       lang: { type: 'string', enum: ['en', 'fr'], description: 'Language hint. When fr, prioritizes French portal (donneesquebec.ca). Default: en' },
     },

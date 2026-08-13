@@ -7,7 +7,7 @@ export const definition: ToolDefinition = {
   name: 'search_committees_op',
   description: 'Search committees via Open Parliament API.',
   inputSchema: { type: 'object', properties: {
-    query: { type: 'string', description: 'Search term' },
+    query: { type: 'string', maxLength: 2000, description: 'Search term' },
     limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results' },
   }, required: ['query'] },
 };

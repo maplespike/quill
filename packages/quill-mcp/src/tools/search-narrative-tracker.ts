@@ -17,10 +17,12 @@ export const definition: ToolDefinition = {
     properties: {
       organization: {
         type: 'string',
+        maxLength: 2000,
         description: 'Filter by specific NGO/think tank organization name (e.g., "Fraser Institute", "CCPA")',
       },
       topic: {
         type: 'string',
+        maxLength: 2000,
         description: 'Filter by topic or theme (e.g., "carbon tax", "affordable housing", "digital privacy")',
       },
       timeframe: {
