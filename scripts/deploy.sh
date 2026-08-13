@@ -43,7 +43,17 @@ fi
 # local docker-compose loops (image distribution branch below); flip your
 # `.env.deployment` to `IMAGE_REGISTRY=nexus:5000` for cluster rolls.
 : "${IMAGE_REGISTRY:=localhost}"
-: "${IMAGE_TAG:=latest}"
+# Immutable tag by default: git short SHA. Reusing a mutable tag (e.g. `latest`,
+# a bare date) with imagePullPolicy: IfNotPresent causes containerd to serve a
+# STALE cached layer when the same tag is rebuilt — the 2026-08-13 incident. A
+# unique tag per build guarantees IfNotPresent always pulls the new image.
+# `latest` is treated as "unset" (it is the worst tag: mutable AND round-trips
+# the registry every restart). Override with IMAGE_TAG=<explicit> to pin
+# (e.g. IMAGE_TAG=2026-08-10-3 for a deliberate rollback).
+if [[ -z "${IMAGE_TAG:-}" || "${IMAGE_TAG}" == "latest" ]]; then
+  IMAGE_TAG="$(date +%Y-%m-%d)-$(git -C "$PROJECT_ROOT" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+fi
+export IMAGE_TAG
 : "${QUILL_STORAGE:=memory}"
 
 echo "╔══════════════════════════════════════════════╗"

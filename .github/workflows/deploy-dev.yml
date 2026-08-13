@@ -1,17 +1,23 @@
 # Dev deploy runs on the self-hosted NixOS runner — node/pnpm/kubectl/nix/podman
 # are system packages per docs/GITHUB-ACTIONS-NIX.md.
 #
-# CANONICAL DEPLOY PATH (2026-08-10): the Nix-generated manifest bundle
-# (`nix build .#saas-manifests` → `kubectl apply -f result/manifests.yaml`) is
-# the single source of truth for the live cluster. Image tags are pinned per
-# service in flake.nix — NOT `latest` (the cluster's `deny-latest-tag-deployments`
-# admission policy rejects it).
+# CANONICAL DEPLOY PATH: the Nix-generated manifest bundle
+# (`nix build .#dev-manifests` → `kubectl apply -f result/manifests.yaml`) is
+# the single source of truth for the `quill-dev` namespace. This is a REAL
+# deploy now (pre-2026-08-10 it only validated manifests — the quill-dev
+# namespace never existed on the single-node cluster; now it does, generated
+# by `saasManifests { namespace = "quill-dev"; dev = true; }` in flake.nix).
 #
-# Old workflow (pre-2026-08-10) deployed to a `quill-dev` namespace that never
-# existed on the single-node k3s cluster — the live cluster has ONE production
-# namespace `maplespike`. Dev is exercised via the Docker Compose stack
-# (`./scripts/dev-up.sh`) or `nix run .#selfhost up`; this workflow gates main
-# and validates the canonical manifests without applying to the shared cluster.
+# Image tags are pinned to the current git short-sha (baked into
+# `.#dev-manifests` via self.shortRev) — NOT `latest` (the cluster's
+# `deny-latest-tag-deployments` admission policy rejects it). The push step
+# below tags $COMMIT = git short sha, matching the pinned bundle.
+#
+# Dev is LAN-only: the bundle renders no cloudflared tunnel, no
+# cluster-scoped GNP/VAP (prod owns those), and dynamic ClusterIPs. The dev
+# ingress hosts are dev.maplespike.ca / dev-api.maplespike.ca /
+# dev-mcp.maplespike.ca. The api pod reads its JWT/pii-hash secrets from the
+# `quill-dev-secrets` Secret (bootstrapped by the deploy-dev app).
 name: Deploy to Development
 
 on:
@@ -42,18 +48,40 @@ jobs:
         run: pnpm test
         continue-on-error: true
 
-  validate-manifests:
-    name: Validate Nix manifests render
+  deploy-dev:
+    name: Deploy to quill-dev (single-node k3s)
     needs: ci
     runs-on: [self-hosted, nixos]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate manifests from Nix (canonical path)
+      - name: Configure kubectl
         run: |
-          nix build .#saas-manifests -L
-          test -s result/manifests.yaml
-          grep -q 'name: maplespike' result/manifests.yaml
-          grep -q 'clusterIP: 10.43.100.10' result/manifests.yaml
-          echo "✓ saas-manifests renders (14 resources)"
+          mkdir -p ~/.kube
+          # Same single-node cluster as prod (nexus) — reuse the prod kubeconfig.
+          echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
+
+      - name: Push pinned image tags to nexus:5000
+        run: |
+          # Pushes nexus:5000/quill-{mcp,api,portal}:<stable> AND :<short-sha>.
+          # The short-sha tag matches the pin baked into .#dev-manifests
+          # (self.shortRev on a git checkout = git rev-parse --short HEAD).
+          # PREREQUISITE: the self-hosted runner must be able to reach and
+          # push to the nexus:5000 registry (prod pushes operator-side; this
+          # workflow pushes from the runner for a self-serve dev env).
+          nix run .#push-images
+
+      - name: Deploy quill-dev bundle (Nix canonical path)
+        run: nix run .#deploy-dev
+
+      - name: Smoke test (port-forward — bypasses LAN DNS/TLS)
+        run: |
+          kubectl rollout status deployment/quill-api -n quill-dev --timeout=120s
+          # API health is the hard gate — a broken deploy must fail CI.
+          kubectl port-forward -n quill-dev svc/quill-api 18082:8082 >/dev/null 2>&1 &
+          PF_PID=$!
+          trap 'kill $PF_PID 2>/dev/null || true' EXIT
+          sleep 8
+          curl -sf --retry 5 --retry-delay 3 --retry-all-errors http://localhost:18082/v1/health
+          echo "✓ quill-dev API healthy"
