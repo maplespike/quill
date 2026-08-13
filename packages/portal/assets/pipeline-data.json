@@ -1,46 +1,12 @@
 {
-  "generatedAt": "2026-08-11T04:29:02.498Z",
+  "generatedAt": "2026-08-13T11:01:39.487Z",
   "generatedBy": "generate-pipeline-data.mjs",
   "sources": {
     "hoc": {
-      "status": "ok",
-      "records": 3,
-      "errors": 15,
-      "data": [
-        {
-          "committee": "ETHI",
-          "name": "Access to Information, Privacy and Ethics",
-          "meeting": 49,
-          "date": null,
-          "inCamera": false,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-49/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ETHI/Evidence/EV14220180/ETHIEV49-E.XML"
-        },
-        {
-          "committee": "ETHI",
-          "name": "Access to Information, Privacy and Ethics",
-          "meeting": 48,
-          "date": null,
-          "inCamera": true,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-48/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ETHI/Evidence/EV14194137/ETHIEV48-E.XML"
-        },
-        {
-          "committee": "ETHI",
-          "name": "Access to Information, Privacy and Ethics",
-          "meeting": 47,
-          "date": null,
-          "inCamera": false,
-          "witnesses": [],
-          "interventionCount": 0,
-          "source": "https://www.ourcommons.ca/DocumentViewer/en/45-1/ETHI/meeting-47/evidence",
-          "xmlSource": "https://www.ourcommons.ca/Content/Committee/451/ETHI/Evidence/EV14184425/ETHIEV47-E.XML"
-        }
-      ]
+      "status": "error",
+      "records": 0,
+      "errors": 12,
+      "data": []
     },
     "senate": {
       "status": "error",
@@ -267,7 +233,7 @@
     "oversight": {
       "status": "ok",
       "records": 15,
-      "errors": 2,
+      "errors": 1,
       "data": [
         {
           "body": "OAG",
@@ -367,27 +333,6 @@
       "errors": 0,
       "data": [
         {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "CSV",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/118fa92a-4368-4767-a34d-460fd6746508/download/bureaux-vote-2021.csv",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "GEOJSON",
-          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/79c44bf6-a247-47a2-890a-ded0c35c2fde/download/bureaux-vote-2021.geojson",
-          "resourceDescription": ""
-        },
-        {
-          "packageTitle": "Municipal elections - Polling stations",
-          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceFormat": "HTML",
-          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1",
-          "resourceDescription": ""
-        },
-        {
           "packageTitle": "2021 Municipal Election — Sections (polling day offices)",
           "packageId": "f0d6a32c-cc97-4f09-bf22-d9bf1e1d3c7c",
           "resourceFormat": "HTML",
@@ -427,6 +372,27 @@
           "packageId": "c96ab120-1f16-4943-9203-5ed240c67d85",
           "resourceFormat": "PDF",
           "resourceUrl": "https://www.gatineau.ca/upload/donneesouvertes/election_municipale_2021_bassins_bvo.pdf",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "CSV",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/118fa92a-4368-4767-a34d-460fd6746508/download/bureaux-vote-2021.csv",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "GEOJSON",
+          "resourceUrl": "https://donnees.montreal.ca/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1/resource/79c44bf6-a247-47a2-890a-ded0c35c2fde/download/bureaux-vote-2021.geojson",
+          "resourceDescription": ""
+        },
+        {
+          "packageTitle": "Municipal elections - Polling stations",
+          "packageId": "35f58e5d-4737-4ee0-aaba-798f8b06aac1",
+          "resourceFormat": "HTML",
+          "resourceUrl": "https://www.donneesquebec.ca/recherche/fr/dataset/35f58e5d-4737-4ee0-aaba-798f8b06aac1",
           "resourceDescription": ""
         },
         {
@@ -640,9 +606,9 @@
           "url": "https://open.canada.ca/data/dataset/8a59f5b5-1d94-46b8-bca8-f3fa92e040bc"
         },
         {
-          "dataset": "Air transportation safety investigation A18W0098",
-          "resources": 2,
-          "url": "https://open.canada.ca/data/dataset/2d77b174-b11b-4516-9c36-209791c6d539"
+          "dataset": "Briefing package for the Chair of Transportation Safety Board for appearance before the Standing committee on Government Operations and Estimates – February 2026",
+          "resources": 5,
+          "url": "https://open.canada.ca/data/dataset/8ff62354-7e7c-440f-91a4-4953c0576e48"
         }
       ]
     },
@@ -723,8 +689,8 @@
     }
   },
   "stats": {
-    "totalRecords": 87,
-    "hoc": 3,
+    "totalRecords": 84,
+    "hoc": 0,
     "senate": 0,
     "gazette": 0,
     "gic": 12,
@@ -747,208 +713,202 @@
   },
   "activity": [
     {
-      "action": "Hoc: ETHI #49 — 3 meetings",
-      "type": "hoc",
-      "time": "2026-08-11T04:29:02.491Z",
-      "count": 3
-    },
-    {
       "action": "Gic: \"APPEARANCE REGARDING LANGUAGE OBLIGATIONS RELATED TO THE PRO\" — 12 resources",
       "type": "gic",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 12
     },
     {
       "action": "Lmia: \"Temporary Foreign Worker Program (TFWP): Positive Labour Mar\" — 10 resources",
       "type": "lmia",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 10
     },
     {
       "action": "Oversight: \"Home\" + 14 more",
       "type": "oversight",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 15
     },
     {
-      "action": "Elections: \"Municipal elections - Polling stations\" — 15 resources",
+      "action": "Elections: \"2021 Municipal Election — Sections (polling day offices)\" — 15 resources",
       "type": "elections",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 15
     },
     {
       "action": "Corporate: \"Proactive Publication - Contracts\" — 3 items",
       "type": "corporate",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 3
     },
     {
       "action": "Lobbying: \"Lobbying Registrations\" — 2 resources",
       "type": "lobbying",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 2
     },
     {
       "action": "Influence: \"Proactive Disclosure - Grants and Contributions\" — 5 items",
       "type": "influence",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 5
     },
     {
       "action": "ProvincialLobbying: \"Lobbyists Registry\" + 0 more",
       "type": "provincialLobbying",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 1
     },
     {
       "action": "Immigration: \"Permanent Residents – Monthly IRCC Updates\" — 4 items",
       "type": "immigration",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 4
     },
     {
       "action": "Transport: \"Briefing package for the Chair of Transportation Safety Boar\" — 5 items",
       "type": "transport",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 5
     },
     {
       "action": "Defence: \"Canadian Armed Forces Regular Force Members by Rank\" — 1 items",
       "type": "defence",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 1
     },
     {
       "action": "Education: \"Canada Gazette: COMMISSIONS - Permission and leave granted \" — 5 items",
       "type": "education",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 5
     },
     {
       "action": "Science: \"Canadian Space Agency Fees Report\" — 6 items",
       "type": "science",
-      "time": "2026-08-11T04:29:02.491Z",
+      "time": "2026-08-13T11:01:39.480Z",
       "count": 6
     }
   ],
   "pipeline": {
     "hoc": {
-      "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
-      "records": 3,
-      "errors": 15
+      "status": "error",
+      "lastRun": "2026-08-13T11:01:39.487Z",
+      "records": 0,
+      "errors": 12
     },
     "senate": {
       "status": "error",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 0,
       "errors": 5
     },
     "gazette": {
       "status": "error",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 0,
       "errors": 2
     },
     "gic": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 12,
       "errors": 0
     },
     "lmia": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 10,
       "errors": 0
     },
     "oversight": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 15,
-      "errors": 2
+      "errors": 1
     },
     "elections": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 15,
       "errors": 0
     },
     "canlii": {
       "status": "error",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 0,
       "errors": 4
     },
     "corporate": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 3,
       "errors": 1
     },
     "lobbying": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 2,
       "errors": 1
     },
     "procurement": {
       "status": "error",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 0,
       "errors": 2
     },
     "influence": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 5,
       "errors": 0
     },
     "provincialLobbying": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 1,
       "errors": 0
     },
     "immigration": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 4,
       "errors": 0
     },
     "indigenous": {
       "status": "error",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 0,
       "errors": 2
     },
     "transport": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 5,
       "errors": 0
     },
     "defence": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 1,
       "errors": 1
     },
     "health": {
       "status": "error",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 0,
       "errors": 2
     },
     "education": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 5,
       "errors": 0
     },
     "science": {
       "status": "ok",
-      "lastRun": "2026-08-11T04:29:02.498Z",
+      "lastRun": "2026-08-13T11:01:39.487Z",
       "records": 6,
       "errors": 0
     }
@@ -1143,6 +1103,6 @@
         "sourceUrl": "https://www.elections.ca/content2.aspx?section=pol&dir=thi&document=index&lang=e"
       }
     ],
-    "ingestedAt": "2026-08-11T04:29:02.498Z"
+    "ingestedAt": "2026-08-13T11:01:39.487Z"
   }
 }
