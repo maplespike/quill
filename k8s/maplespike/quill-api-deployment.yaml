@@ -30,7 +30,7 @@ spec:
         # nix/saas-manifests.nix is the canonical image source (apiTag param).
         # This file is the secondary/kustomize path — keep the tag in sync or
         # applying it rolls back the quill_ rename + better-sqlite3 binding.
-        image: nexus:5000/quill-api:2026-08-10-9
+        image: nexus:5000/quill-api:2026-08-13-14aef96c
         # NOTE: the cluster ValidatingAdmissionPolicy 'deny-latest-tag-deployments'
         # forbids :latest tags — bump this date tag on every image rebuild.
         # IfNotPresent: images are pinned tags in the local containerd store;
