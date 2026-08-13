@@ -1,6 +1,9 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
-import { getRawDb } from '@maplespike/database';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { getRawDb, closeDb } from '@maplespike/database';
 import {
   ENTITY_GRAPH_DDL,
   ensureEntityGraph,
@@ -15,6 +18,16 @@ import {
   backfillGicEntityGraph,
 } from '../graph-builder.js';
 
+// ── Hermetic DB isolation ────────────────────────────────────────────
+// The before/after hooks below DELETE the entity-graph tables and DROP the
+// lobbying/gic source tables. Without isolation they would wipe whichever
+// maplespike.sqlite getRawDb() opens relative to the cwd — including the live
+// graph populated by real ingestion (issue #828). Point this suite at a
+// throwaway temp DB so `pnpm test` (or a repo-root tsx invocation) can never
+// destroy live data. Must be set BEFORE the first getRawDb() call.
+const TEST_DB = path.join(os.tmpdir(), `quill-graph-builder-${process.pid}.sqlite`);
+process.env.QUILL_DB_PATH = TEST_DB;
+
 describe('entity:graph-builder', () => {
   before(() => {
     // Ensure tables exist on the shared DB (idempotent).
@@ -23,8 +36,13 @@ describe('entity:graph-builder', () => {
   });
 
   after(() => {
-    // Leave the shared DB tidy for other suites.
+    // Leave the throwaway DB tidy, close the singleton (releases the fd and
+    // WAL), then remove the file + WAL/SHM sidecars.
     getRawDb().exec('DELETE FROM entity_links; DELETE FROM entity_mentions; DELETE FROM entity_aliases; DELETE FROM entities;');
+    try { closeDb(); } catch { /* best-effort */ }
+    for (const suffix of ['', '-wal', '-shm']) {
+      try { fs.rmSync(TEST_DB + suffix, { force: true }); } catch { /* best-effort */ }
+    }
   });
 
   it('should provide idempotent DDL', () => {
