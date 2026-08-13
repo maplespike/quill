@@ -12,6 +12,18 @@
   // and LanguageSwitcher.astro's onclick persist.
   const LS_LOCALE = 'maplespike_lang';
 
+  // One-time migration: the pre-i18n key was `maplespike-locale`. Carry any
+  // saved preference forward so existing visitors keep their language.
+  (function migrateLocaleKey() {
+    try {
+      const old = localStorage.getItem('maplespike-locale');
+      if (old && !localStorage.getItem(LS_LOCALE)) {
+        localStorage.setItem(LS_LOCALE, old);
+      }
+      localStorage.removeItem('maplespike-locale');
+    } catch (e) { /* storage unavailable — ignore */ }
+  })();
+
   // ── i18n Engine ────────────────────────────────────────────────
 
   const SUPPORTED_LOCALES = ['en-CA', 'fr-CA'];

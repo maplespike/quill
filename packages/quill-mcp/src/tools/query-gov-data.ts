@@ -21,7 +21,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', maxLength: 500,description: 'Search keyword (e.g., "GDP", "housing starts", "CPI")' },
+      query: { type: 'string', maxLength: 2000, description: 'Search keyword (e.g., "GDP", "housing starts", "CPI")' },
       jurisdiction: {
         type: 'string',
         maxLength: 2000,

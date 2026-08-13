@@ -33,10 +33,4 @@ const modules = import.meta.glob('../**/*.astro', { eager: true }) as Record<
 const Component = modules[`../${page}.astro`]?.default;
 ---
 
-{
-  Component ? (
-    <Component lang="fr" />
-  ) : (
-    <p>Page non trouvée.</p>
-  )
-}
+<Component lang="fr" />
