@@ -32,6 +32,11 @@ concurrency:
 jobs:
   build:
     name: Build portal + docs
+    # EXCEPTION (2026-08-13): GitHub Pages deployment (actions/upload-pages-
+    # artifact + actions/deploy-pages) requires a GitHub-hosted runner and
+    # cannot run on self-hosted. This is the ONLY workflow still on a hosted
+    # runner. To go fully self-hosted, move Pages to a self-hosted static
+    # host (Cloudflare Pages / nginx) and delete this workflow.
     runs-on: ubuntu-24.04
     environment:
       name: github-pages
