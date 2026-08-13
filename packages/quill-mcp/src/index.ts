@@ -21,6 +21,18 @@ import { parsePaymentHeader } from './x402-middleware.js';
 import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from './quota.js';
 import { authenticateToken, isCasdoorToken } from './auth/oidc.js';
 import logger from './logger.js';
+import { installStreamErrorGuard } from '@maplespike/pipeline-core/utils/http.js';
+
+// ── Process guard: upstream stream-decompression crashes ─────────────
+// undici's internal gzip inflate throws an UNCAUGHT Z_BUF_ERROR (via Node's
+// webstreams adapter, not a promise rejection) when an upstream truncates a
+// gzip/HTTP2 response mid-transfer — e.g. cbc.ca closing with
+// NGHTTP2_INTERNAL_ERROR. Without this guard one flaky feed would kill the
+// whole SSE server. See installStreamErrorGuard() in pipeline-core.
+installStreamErrorGuard({
+  warn: (obj, msg) => logger.warn({ err: obj.err }, msg ?? ''),
+  error: (obj, msg) => logger.error({ err: obj.err }, msg ?? ''),
+});
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
 const API_KEY = process.env.QUILL_API_KEY ?? 'dev-key';
