@@ -5,7 +5,7 @@ export const definition: ToolDefinition = {
   name: 'search_gazette_part1',
   description: 'Search Canada Gazette Part I. Returns items matching your query.',
   inputSchema: { type: 'object', properties: {
-    query: { type: 'string', description: 'Search terms' },
+    query: { type: 'string', maxLength: 2000, description: 'Search terms' },
     limit: { type: 'number', minimum: 1, maximum: 50 },
   }, required: ['query'] },
 };

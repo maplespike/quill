@@ -29,6 +29,7 @@ export const definition: ToolDefinition = {
     properties: {
       name: {
         type: 'string',
+        maxLength: 500,
         description: 'Entity name to cross-reference (person or organization)',
       },
       type: {

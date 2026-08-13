@@ -11,7 +11,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Bill number or keyword (e.g., "C-", "S-", "budget implementation")' },
+      query: { type: 'string', maxLength: 2000, description: 'Bill number or keyword (e.g., "C-", "S-", "budget implementation")' },
     },
     required: ['query'],
   },

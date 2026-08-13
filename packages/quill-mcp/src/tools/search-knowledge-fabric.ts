@@ -19,7 +19,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Question or search query' },
+      query: { type: 'string', maxLength: 2000, description: 'Question or search query' },
       file_back: {
         type: 'boolean',
         description: 'Save the answer as a Q&A wiki page for future queries',

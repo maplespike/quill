@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — port of entry, nationality, or quarter (e.g., "Toronto Pearson", "US citizens", "Q1 2024")',
       },
       limit: {

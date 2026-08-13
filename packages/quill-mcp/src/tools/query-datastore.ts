@@ -12,7 +12,8 @@ export const definition: ToolDefinition = {
     properties: {
       tools: {
         type: 'string',
-        description: 'Comma-separated tool names to filter by (e.g., "search_committees,search_influence"). Empty for all.',
+        maxLength: 500,
+description: 'Comma-separated tool names to filter by (e.g., "search_committees,search_influence"). Empty for all.',
       },
       limit: {
         type: 'number',

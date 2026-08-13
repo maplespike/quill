@@ -12,7 +12,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Search terms (e.g., "health", "immigration", "education", "environment")' },
+      query: { type: 'string', maxLength: 2000, description: 'Search terms (e.g., "health", "immigration", "education", "environment")' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Maximum results to return (default: 10)' },
     },
     required: ['query'],

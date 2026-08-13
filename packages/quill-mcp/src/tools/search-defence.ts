@@ -16,6 +16,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — branch, rank, procurement category, or year (e.g., "Regular Force by rank 2024", "defence procurement shipbuilding", "Veterans wait times")',
       },
       source: {

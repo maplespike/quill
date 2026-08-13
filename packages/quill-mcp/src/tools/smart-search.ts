@@ -124,7 +124,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Question or keywords (e.g., "inflation trends", "health regulations", "what changed this week")' },
+      query: { type: 'string', maxLength: 2000, description: 'Question or keywords (e.g., "inflation trends", "health regulations", "what changed this week")' },
       mode: { type: 'string', enum: ['search', 'trends'], default: 'search', description: '"search" or "trends"' },
       limit: { type: 'number', minimum: 1, maximum: 30, default: 5 },
     },

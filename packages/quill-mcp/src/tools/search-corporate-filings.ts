@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — company name, ticker, or filing type (e.g., "Shopify financials", "TSX annual report", "insider report")',
       },
       limit: {

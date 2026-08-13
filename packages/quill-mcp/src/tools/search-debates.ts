@@ -9,7 +9,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Search term (e.g., "carbon", "housing", "health")' },
+      query: { type: 'string', maxLength: 2000, description: 'Search term (e.g., "carbon", "housing", "health")' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results (default: 10)' },
     },
     required: ['query'],

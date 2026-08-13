@@ -13,6 +13,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search term for NGO/think tank publications (e.g., "carbon tax", "housing", "digital")',
       },
       limit: {

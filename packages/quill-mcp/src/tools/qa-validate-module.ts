@@ -16,7 +16,8 @@ export const definition: ToolDefinition = {
     properties: {
       moduleName: {
         type: 'string',
-        description: 'Module name (e.g., "committees", "gic", "rss")',
+        maxLength: 500,
+description: 'Module name (e.g., "committees", "gic", "rss")',
       },
       records: {
         type: 'array',
