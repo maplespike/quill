@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search term — indicator name, country, or topic (e.g., "unemployment Canada", "employment rate", "labour force")',
       },
       limit: {

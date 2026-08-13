@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — commodity, province, or metric (e.g., "wheat Saskatchewan", "dairy production", "farm income")',
       },
       limit: {

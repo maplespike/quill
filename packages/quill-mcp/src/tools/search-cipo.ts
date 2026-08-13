@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — applicant, technology area, or trademark (e.g., "AI patent", "Nortel", "brand trademark")',
       },
       limit: {

@@ -10,6 +10,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 500,
         description: 'Search terms — keyword, location, or category (e.g., relevant search terms for this dataset)',
       },
       limit: {

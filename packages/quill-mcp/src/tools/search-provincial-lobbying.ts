@@ -20,6 +20,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — lobbyist name, organization, or subject (e.g., "Ontario Power Generation", "pharmacare")',
       },
       province: {

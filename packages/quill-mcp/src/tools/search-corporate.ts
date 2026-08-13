@@ -20,6 +20,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — company name, executive name, or keyword (e.g., "Google", "sole source", "lobbying")',
       },
       dataset: {

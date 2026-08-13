@@ -25,6 +25,7 @@ export const definition: ToolDefinition = {
     properties: {
       name: {
         type: 'string',
+        maxLength: 2000,
         description: 'Name to resolve — person (e.g. "John Smith") or organization (e.g. "Lockheed Martin Canada")',
       },
       type: {

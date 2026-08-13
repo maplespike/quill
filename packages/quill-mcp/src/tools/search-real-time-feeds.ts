@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — event type, location, or date (e.g., "tornado warning Alberta", "health advisory", "amber alert")',
       },
       limit: {
