@@ -22,6 +22,6 @@ export const handler: ToolHandler = async (args: Record<string, unknown>) => {
     const { results, total } = await fetchBridgeConditions(query, limit);
     return { content: { tool: 'query_bridges', query: query || undefined, limit, results, totalCount: total } };
   } catch (error) {
-    return { content: { tool: 'query_bridges', status: 'error', error: (error as Error).message }, isError: true };
+    return { content: { tool: 'query_bridges', status: 'error', error: (error instanceof Error && error.message) || String(error) }, isError: true };
   }
 };

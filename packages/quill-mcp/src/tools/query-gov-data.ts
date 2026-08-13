@@ -99,7 +99,7 @@ export const handler: ToolHandler = async (args) => {
         limit,
         results: [],
         totalCount: 0,
-        error: (error as Error).message,
+        error: (error instanceof Error && error.message) || String(error),
         knownJurisdictions: KNOWN_JURISDICTIONS,
         note: 'Falling back to direct CKAN query. The API server may be unavailable.',
       },
