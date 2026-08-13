@@ -13,12 +13,17 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('explorer.title')} description="Browse and search Canadian government data across all 206 modules" lang={lang}>
+<BaseLayout title={i18n.t('explorer.title')} description={t(
+  "Browse and search Canadian government data across all 206 modules",
+  "Parcourez et recherchez les données gouvernementales canadiennes dans les 206 modules",
+)} lang={lang}>
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 reveal-on-scroll">
@@ -26,7 +31,10 @@ const i18n = createI18n(lang);
         Data <span class="text-gradient">Explorer</span>
       </h1>
       <p class="mt-2 text-lg text-muted-foreground">
-        Search across 206 data modules spanning federal, provincial, and municipal government sources.
+        {t(
+          "Search across 206 data modules spanning federal, provincial, and municipal government sources.",
+          "Recherchez dans 206 modules de données couvrant les sources gouvernementales fédérales, provinciales et municipales.",
+        )}
       </p>
     </div>
   </section>
@@ -37,9 +45,12 @@ const i18n = createI18n(lang);
     <!-- Search and Filters -->
     <Card className="mb-8 card-hover">
       <CardHeader>
-        <CardTitle>Search</CardTitle>
+        <CardTitle>{t("Search", "Recherche")}</CardTitle>
         <CardDescription>
-          Search across all data modules or filter by specific categories.
+          {t(
+            "Search across all data modules or filter by specific categories.",
+            "Recherchez dans tous les modules de données ou filtrez par catégories précises.",
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -47,50 +58,50 @@ const i18n = createI18n(lang);
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <Input id="query" name="query" type="search" placeholder="Search committees, lobbying records, legislation..." className="pl-10" />
+              <Input id="query" name="query" type="search" placeholder={t("Search committees, lobbying records, legislation...", "Rechercher des comités, des dossiers de lobbying, de la législation…")} className="pl-10" />
             </div>
-            <Button type="submit" className="press-feedback">Search</Button>
+            <Button type="submit" className="press-feedback">{t("Search", "Rechercher")}</Button>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
             <div class="space-y-1">
-              <label for="category" class="text-xs font-medium text-muted-foreground">Category</label>
+              <label for="category" class="text-xs font-medium text-muted-foreground">{t("Category", "Catégorie")}</label>
               <select id="category" name="category" class="flex h-10 w-full min-w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                <option value="">All Categories</option>
-                <option value="federal">Federal Government</option>
-                <option value="provincial">Provincial &amp; Territorial</option>
-                <option value="municipal">Municipal</option>
-                <option value="corporate">Corporate &amp; Influence</option>
-                <option value="regulatory">Regulatory &amp; Oversight</option>
-                <option value="legal">Legal &amp; Justice</option>
-                <option value="parliament">Parliament &amp; Committees</option>
+                <option value="">{t("All Categories", "Toutes les catégories")}</option>
+                <option value="federal">{t("Federal Government", "Gouvernement fédéral")}</option>
+                <option value="provincial">{t("Provincial & Territorial", "Provincial et territorial")}</option>
+                <option value="municipal">{t("Municipal", "Municipal")}</option>
+                <option value="corporate">{t("Corporate & Influence", "Entreprises et influence")}</option>
+                <option value="regulatory">{t("Regulatory & Oversight", "Réglementation et surveillance")}</option>
+                <option value="legal">{t("Legal & Justice", "Droit et justice")}</option>
+                <option value="parliament">{t("Parliament & Committees", "Parlement et comités")}</option>
               </select>
             </div>
 
             <div class="space-y-1">
-              <label for="jurisdiction" class="text-xs font-medium text-muted-foreground">Jurisdiction</label>
+              <label for="jurisdiction" class="text-xs font-medium text-muted-foreground">{t("Jurisdiction", "Compétence")}</label>
               <select id="jurisdiction" name="jurisdiction" class="flex h-10 w-full min-w-[160px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                <option value="">All Jurisdictions</option>
-                <option value="federal">Federal</option>
+                <option value="">{t("All Jurisdictions", "Toutes les compétences")}</option>
+                <option value="federal">{t("Federal", "Fédéral")}</option>
                 <option value="on">Ontario</option>
-                <option value="qc">Quebec</option>
-                <option value="bc">British Columbia</option>
+                <option value="qc">{t("Quebec", "Québec")}</option>
+                <option value="bc">{t("British Columbia", "Colombie-Britannique")}</option>
                 <option value="ab">Alberta</option>
               </select>
             </div>
 
             <div class="space-y-1">
-              <label for="sort" class="text-xs font-medium text-muted-foreground">Sort By</label>
+              <label for="sort" class="text-xs font-medium text-muted-foreground">{t("Sort By", "Trier par")}</label>
               <select id="sort" name="sort" class="flex h-10 w-full min-w-[140px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                <option value="relevance">Relevance</option>
-                <option value="date_desc">Newest First</option>
-                <option value="date_asc">Oldest First</option>
-                <option value="module">Module</option>
+                <option value="relevance">{t("Relevance", "Pertinence")}</option>
+                <option value="date_desc">{t("Newest First", "Plus récents d'abord")}</option>
+                <option value="date_asc">{t("Oldest First", "Plus anciens d'abord")}</option>
+                <option value="module">{t("Module", "Module")}</option>
               </select>
             </div>
 
             <div class="space-y-1">
-              <label for="per_page" class="text-xs font-medium text-muted-foreground">Results</label>
+              <label for="per_page" class="text-xs font-medium text-muted-foreground">{t("Results", "Résultats")}</label>
               <select id="per_page" name="per_page" class="flex h-10 w-full min-w-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                 <option value="10">10</option>
                 <option value="25" selected>25</option>
@@ -108,13 +119,13 @@ const i18n = createI18n(lang);
     <!-- Results Summary -->
     <div class="flex items-center justify-between mb-4 reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
-        Showing <span id="results-shown" class="font-medium text-foreground">1&ndash;10</span> of
-        <span id="results-total" class="font-medium text-foreground">12,847</span> results
+        {t("Showing", "Affichage de")} <span id="results-shown" class="font-medium text-foreground">1&ndash;10</span> {t("of", "sur")}
+        <span id="results-total" class="font-medium text-foreground">12,847</span> {t("results", "résultats")}
         <span id="results-status" class="ml-2 hidden text-xs"></span>
       </p>
       <div class="flex items-center gap-2">
-        <Button variant="outline" size="sm" disabled>Previous</Button>
-        <Button variant="outline" size="sm">Next</Button>
+        <Button variant="outline" size="sm" disabled>{t("Previous", "Précédent")}</Button>
+        <Button variant="outline" size="sm">{t("Next", "Suivant")}</Button>
       </div>
     </div>
 
@@ -124,21 +135,21 @@ const i18n = createI18n(lang);
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[40%]">Title</TableHead>
-              <TableHead>Module</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Trust</TableHead>
+              <TableHead className="w-[40%]">{t("Title", "Titre")}</TableHead>
+              <TableHead>{t("Module", "Module")}</TableHead>
+              <TableHead>{t("Source", "Source")}</TableHead>
+              <TableHead>{t("Date", "Date")}</TableHead>
+              <TableHead>{t("Trust", "Confiance")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody id="explorer-results">
             <TableRow className="transition-colors duration-200 ease-out hover:bg-muted/30">
               <TableCell>
-                <a href="/explorer/result/1" class="font-medium text-primary transition-colors duration-200 hover:underline">House of Commons &mdash; Standing Committee on Finance (FINA) &mdash; Meeting No. 142</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Evidence of ministerial briefing on fiscal update and economic projections for 2026&ndash;2027.</p>
+                <a href="/explorer/result/1" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("House of Commons — Standing Committee on Finance (FINA) — Meeting No. 142", "Chambre des communes — Comité permanent des finances (FINA) — Réunion n° 142")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Evidence of ministerial briefing on fiscal update and economic projections for 2026–2027.", "Témoignages de la séance d'information ministérielle sur la mise à jour économique et les projections financières pour 2026–2027.")}</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">Committees</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">House of Commons</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">{t("Committees", "Comités")}</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("House of Commons", "Chambre des communes")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-15</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -149,11 +160,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/2" class="font-medium text-primary transition-colors duration-200 hover:underline">Lobbying Registry &mdash; Monthly Communication Report &mdash; January 2026</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Registered lobbying communications between designated public office holders and in-house lobbyists.</p>
+                <a href="/explorer/result/2" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Lobbying Registry — Monthly Communication Report — January 2026", "Registre de lobbying — Rapport mensuel de communication — Janvier 2026")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Registered lobbying communications between designated public office holders and in-house lobbyists.", "Communications de lobbying enregistrées entre les titulaires de charge publique désignés et les lobbyistes internes.")}</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">Lobbying</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">OCL Registry</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">{t("Lobbying", "Lobbying")}</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("OCL Registry", "Registre du commissariat au lobbying")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-14</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -164,11 +175,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/3" class="font-medium text-primary transition-colors duration-200 hover:underline">Canada Gazette &mdash; Part I &mdash; Proposed Regulations &mdash; Clean Fuel Standard Amendments</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Proposed regulatory amendments to the Clean Fuel Standard published for public comment.</p>
+                <a href="/explorer/result/3" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Canada Gazette — Part I — Proposed Regulations — Clean Fuel Standard Amendments", "Gazette du Canada — Partie I — Règlements proposés — Modifications au Règlement sur les carburants propres")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Proposed regulatory amendments to the Clean Fuel Standard published for public comment.", "Modifications réglementaires proposées au Règlement sur les carburants propres publiées pour commentaires publics.")}</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">Gazette</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">Canada Gazette</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">{t("Gazette", "Gazette")}</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("Canada Gazette", "Gazette du Canada")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-12</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -179,11 +190,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/4" class="font-medium text-primary transition-colors duration-200 hover:underline">Governor-in-Council Appointments &mdash; February 2026 Report</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">New appointments and renewals to federal boards, commissions, and tribunals.</p>
+                <a href="/explorer/result/4" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Governor-in-Council Appointments — February 2026 Report", "Nominations par décret — Rapport de février 2026")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("New appointments and renewals to federal boards, commissions, and tribunals.", "Nouvelles nominations et renouvellements aux conseils, commissions et tribunaux fédéraux.")}</p>
               </TableCell>
               <TableCell><Badge variant="secondary" className="text-xs">GIC</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">Infobase API</TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("Infobase API", "API Infobase")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-10</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -194,11 +205,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/5" class="font-medium text-primary transition-colors duration-200 hover:underline">SEDI Insider Trade Report &mdash; BCE Inc. &mdash; Executive Share Disposition</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Insider trade report filed with SEDI for disposition of common shares by senior officer.</p>
+                <a href="/explorer/result/5" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("SEDI Insider Trade Report — BCE Inc. — Executive Share Disposition", "Rapport d'opération d'initié SEDI — BCE Inc. — Aliénation d'actions par un dirigeant")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Insider trade report filed with SEDI for disposition of common shares by senior officer.", "Rapport d'opération d'initié déposé auprès de SEDI pour l'aliénation d'actions ordinaires par un cadre supérieur.")}</p>
               </TableCell>
               <TableCell><Badge variant="secondary" className="text-xs">SEDI</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">SEDI Database</TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("SEDI Database", "Base de données SEDI")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-09</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -209,11 +220,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/6" class="font-medium text-primary transition-colors duration-200 hover:underline">OAG &mdash; 2026 Spring Reports &mdash; Volume 1 &mdash; Climate Change Adaptation</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Auditor General audit of federal climate change adaptation programs and expenditures.</p>
+                <a href="/explorer/result/6" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("OAG — 2026 Spring Reports — Volume 1 — Climate Change Adaptation", "BVG — Rapports du printemps 2026 — Volume 1 — Adaptation aux changements climatiques")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Auditor General audit of federal climate change adaptation programs and expenditures.", "Audit du vérificateur général des programmes et dépenses fédéraux d'adaptation aux changements climatiques.")}</p>
               </TableCell>
               <TableCell><Badge variant="secondary" className="text-xs">OAG</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">OAG Website</TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("OAG Website", "Site Web du BVG")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-07</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -224,11 +235,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/7" class="font-medium text-primary transition-colors duration-200 hover:underline">Competition Bureau &mdash; Merger Review &mdash; Rogers&ndash;Shaw Post-Closing Compliance</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Compliance monitoring update on merger remedies and divestiture requirements.</p>
+                <a href="/explorer/result/7" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Competition Bureau — Merger Review — Rogers–Shaw Post-Closing Compliance", "Bureau de la concurrence — Examen du regroupement — Conformité post-clôture Rogers–Shaw")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Compliance monitoring update on merger remedies and divestiture requirements.", "Mise à jour de la surveillance de la conformité concernant les mesures correctives et les exigences de cession du regroupement.")}</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">Competition</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">Competition Bureau</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">{t("Competition", "Concurrence")}</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("Competition Bureau", "Bureau de la concurrence")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-05</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -239,8 +250,8 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/8" class="font-medium text-primary transition-colors duration-200 hover:underline">CanLII &mdash; Federal Court of Appeal &mdash; 2026 FCA 89 &mdash; Environmental Review</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Appeal decision regarding federal environmental assessment jurisdiction.</p>
+                <a href="/explorer/result/8" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("CanLII — Federal Court of Appeal — 2026 FCA 89 — Environmental Review", "CanLII — Cour d'appel fédérale — 2026 CAF 89 — Examen environnemental")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Appeal decision regarding federal environmental assessment jurisdiction.", "Décision d'appel concernant la compétence fédérale en matière d'évaluation environnementale.")}</p>
               </TableCell>
               <TableCell><Badge variant="secondary" className="text-xs">CanLII</Badge></TableCell>
               <TableCell className="text-sm text-muted-foreground">CanLII</TableCell>
@@ -254,11 +265,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/9" class="font-medium text-primary transition-colors duration-200 hover:underline">Statistics Canada &mdash; Labour Force Survey &mdash; April 2026</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Monthly LFS results including unemployment rate, participation rate, and employment by industry.</p>
+                <a href="/explorer/result/9" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Statistics Canada — Labour Force Survey — April 2026", "Statistique Canada — Enquête sur la population active — Avril 2026")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Monthly LFS results including unemployment rate, participation rate, and employment by industry.", "Résultats mensuels de l'EPA, dont le taux de chômage, le taux de participation et l'emploi par industrie.")}</p>
               </TableCell>
               <TableCell><Badge variant="secondary" className="text-xs">StatCan</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">StatCan WDS</TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("StatCan WDS", "SDS de Statistique Canada")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-05-01</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -269,11 +280,11 @@ const i18n = createI18n(lang);
             </TableRow>
             <TableRow>
               <TableCell>
-                <a href="/explorer/result/10" class="font-medium text-primary transition-colors duration-200 hover:underline">Procurement &mdash; TPSGC &mdash; IT Services Contract Award &mdash; March 2026</a>
-                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">Contract award notice for enterprise IT services with 3-year term and option periods.</p>
+                <a href="/explorer/result/10" class="font-medium text-primary transition-colors duration-200 hover:underline">{t("Procurement — TPSGC — IT Services Contract Award — March 2026", "Approvisionnement — SPAC — Octroi de contrat de services TI — Mars 2026")}</a>
+                <p class="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t("Contract award notice for enterprise IT services with 3-year term and option periods.", "Avis d'octroi de contrat pour des services TI d'entreprise avec une durée de 3 ans et des périodes d'option.")}</p>
               </TableCell>
-              <TableCell><Badge variant="secondary" className="text-xs">Procurement</Badge></TableCell>
-              <TableCell className="text-sm text-muted-foreground">CanadaBuys</TableCell>
+              <TableCell><Badge variant="secondary" className="text-xs">{t("Procurement", "Approvisionnement")}</Badge></TableCell>
+              <TableCell className="text-sm text-muted-foreground">{t("CanadaBuys", "AchatsCanada")}</TableCell>
               <TableCell className="text-sm text-muted-foreground whitespace-nowrap">2026-04-28</TableCell>
               <TableCell>
                 <div class="flex items-center gap-1.5">
@@ -290,16 +301,16 @@ const i18n = createI18n(lang);
     <!-- Pagination -->
     <div class="mt-6 flex items-center justify-between reveal-on-scroll">
       <p class="text-sm text-muted-foreground">
-        Page <span class="font-medium text-foreground">1</span> of
+        {t("Page", "Page")} <span class="font-medium text-foreground">1</span> {t("of", "de")}
         <span class="font-medium text-foreground">1</span>
       </p>
       <div class="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Previous
+          {t("Previous", "Précédent")}
         </Button>
         <Button variant="outline" size="sm" className="bg-primary text-primary-foreground">1</Button>
-        <Button variant="outline" size="sm" disabled>Next</Button>
+        <Button variant="outline" size="sm" disabled>{t("Next", "Suivant")}</Button>
       </div>
     </div>
   </section>
@@ -320,6 +331,23 @@ const i18n = createI18n(lang);
       var totalEl = document.getElementById("results-total");
       var statusEl = document.getElementById("results-status");
       if (!form || !tbody) return;
+
+      var FR = window.__LANG === "fr";
+      function L(en, fr) { return FR ? fr : en; }
+      var STR = {
+        noResults: L("No results for “", "Aucun résultat pour «"),
+        noResults2: L("” — try a broader term, or check the live API status.", "» — essayez un terme plus large, ou vérifiez l'état de l'API en direct."),
+        untitled: L("Untitled record", "Enregistrement sans titre"),
+        govSource: L("Government of Canada", "Gouvernement du Canada"),
+        live: L("Live", "En direct"),
+        searching: L("Searching…", "Recherche…"),
+        liveBadge: L("· live", "· en direct"),
+        unavailable: L("· unavailable (API)", "· indisponible (API)"),
+        unreachable: L("· API unreachable — showing showcase data", "· API injoignable — affichage des données de démonstration"),
+        showing: L("1–10", "1–10"),
+        total: L("12,847", "12 847"),
+        govModule: L("Government", "Gouvernement"),
+      };
 
       // Preserve the SSR showcase rows as the initial (no-query) state and as
       // the honest fallback when the live search API is unreachable.
@@ -345,18 +373,18 @@ const i18n = createI18n(lang);
         if (!results || results.length === 0) {
           tbody.innerHTML =
             '<tr><td colspan="5" class="px-4 py-10 text-center text-sm text-muted-foreground">' +
-            "No results for “" + esc(query) + "” — try a broader term, or check the live API status." +
+            STR.noResults + esc(query) + STR.noResults2 +
             "</td></tr>";
           shownEl.textContent = "0";
           totalEl.textContent = "0";
           return;
         }
         var rows = results.map(function (r) {
-          var title = r.title || "Untitled record";
+          var title = r.title || STR.untitled;
           var href = safeHref(r.url || "");
           var desc = r.description || "";
-          var module = r.category || r.source || "Government";
-          var source = r.source || "Government of Canada";
+          var module = r.category || r.source || STR.govModule;
+          var source = r.source || STR.govSource;
           var date = r.date ? String(r.date).slice(0, 10) : "—";
           return (
             '<tr class="transition-colors duration-200 ease-out hover:bg-muted/30">' +
@@ -366,7 +394,7 @@ const i18n = createI18n(lang);
               '<td><span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">' + esc(module) + "</span></td>" +
               '<td class="text-sm text-muted-foreground">' + esc(source) + "</td>" +
               '<td class="text-sm text-muted-foreground whitespace-nowrap">' + esc(date) + "</td>" +
-              '<td><span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Live</span></td>' +
+              '<td><span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>' + STR.live + "</span></td>" +
             "</tr>"
           );
         }).join("");
@@ -390,24 +418,24 @@ const i18n = createI18n(lang);
         var jurEl = document.getElementById("jurisdiction");
         if (jurEl && jurEl.value) params.set("jurisdiction", jurEl.value);
 
-        setStatus("Searching…", "live");
+        setStatus(STR.searching, "live");
         try {
           var resp = await fetch(apiBase + "/gov/search?" + params.toString());
           var body = await resp.json();
           var data = body.data || body;
           if (data.provenance && data.provenance.status === "live") {
-            setStatus("· live", "live");
+            setStatus(STR.liveBadge, "live");
           } else {
-            setStatus("· unavailable (API)", "warn");
+            setStatus(STR.unavailable, "warn");
           }
           renderResults(data.results || [], query);
         } catch (err) {
           // Honest fallback: restore the server-rendered showcase rows rather
           // than showing a fabricated empty state.
           tbody.innerHTML = showcaseHtml;
-          shownEl.textContent = "1–10";
-          totalEl.textContent = "12,847";
-          setStatus("· API unreachable — showing showcase data", "warn");
+          shownEl.textContent = STR.showing;
+          totalEl.textContent = STR.total;
+          setStatus(STR.unreachable, "warn");
         }
       }
 

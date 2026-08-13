@@ -2,12 +2,17 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('terms.title')} description="MapleSpike terms of service — the agreement between you and MapleSpike." lang={lang}>
+<BaseLayout title={i18n.t('terms.title')} description={t(
+  "MapleSpike terms of service — the agreement between you and MapleSpike.",
+  "Conditions d'utilisation de MapleSpike — l'entente entre vous et MapleSpike.",
+)} lang={lang}>
   <section class="border-b py-12 md:py-16">
     <div class="container mx-auto px-4">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -21,100 +26,169 @@ const i18n = createI18n(lang);
     <div class="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">1. Acceptance of Terms</CardTitle>
+          <CardTitle class="text-lg">1. {t("Acceptance of Terms", "Acceptation des conditions")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>By accessing or using MapleSpike's API, web portal, MCP tools, or SDKs ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.</p>
+          <p>{t(
+            "By accessing or using MapleSpike's API, web portal, MCP tools, or SDKs (\"the Service\"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.",
+            "En accédant ou en utilisant l'API, le portail Web, les outils MCP ou les SDK de MapleSpike (« le Service »), vous acceptez d'être lié par les présentes conditions d'utilisation. Si vous n'êtes pas d'accord, n'utilisez pas le Service.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">2. Description of Service</CardTitle>
+          <CardTitle class="text-lg">2. {t("Description of Service", "Description du service")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>MapleSpike provides a unified API for Canadian government data, including but not limited to: parliamentary committees, lobbying registries, procurement records, regulatory filings, court decisions, and statistical data. The Service includes REST API access, MCP server integration for AI agents, TypeScript and Python SDKs, and a web-based data explorer.</p>
-          <p>All data served by MapleSpike is sourced from official Canadian government publications and is licensed under the Open Government Licence – Canada or equivalent provincial open data licenses.</p>
+          <p>{t(
+            "MapleSpike provides a unified API for Canadian government data, including but not limited to: parliamentary committees, lobbying registries, procurement records, regulatory filings, court decisions, and statistical data. The Service includes REST API access, MCP server integration for AI agents, TypeScript and Python SDKs, and a web-based data explorer.",
+            "MapleSpike offre une API unifiée pour les données gouvernementales canadiennes, notamment : comités parlementaires, registres de lobbying, dossiers d'approvisionnement, dépôts réglementaires, décisions judiciaires et données statistiques. Le Service comprend l'accès à l'API REST, l'intégration du serveur MCP pour les agents IA, des SDK TypeScript et Python ainsi qu'un explorateur de données Web.",
+          )}</p>
+          <p>{t(
+            "All data served by MapleSpike is sourced from official Canadian government publications and is licensed under the Open Government Licence – Canada or equivalent provincial open data licenses.",
+            "Toutes les données servies par MapleSpike proviennent de publications officielles du gouvernement canadien et sont sous licence Ouverte du gouvernement – Canada ou sous licences provinciales équivalentes de données ouvertes.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">3. Acceptable Use</CardTitle>
+          <CardTitle class="text-lg">3. {t("Acceptable Use", "Utilisation acceptable")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>You agree NOT to:</p>
+          <p>{t("You agree NOT to:", "Vous acceptez de NE PAS :")}</p>
           <ul class="list-disc pl-5 space-y-1.5">
-            <li>Use the Service to violate any Canadian law or regulation</li>
-            <li>Attempt to reverse-engineer, decompile, or circumvent rate limits or authentication</li>
-            <li>Resell or redistribute raw API data without attribution as required by OGL-Canada</li>
-            <li>Use the Service for automated scraping that exceeds your plan's rate limits</li>
-            <li>Submit queries designed to extract personal information about identifiable individuals</li>
-            <li>Use AI-generated content from the Service without verification for factual accuracy</li>
+            <li>{t("Use the Service to violate any Canadian law or regulation", "Utiliser le Service pour enfreindre une loi ou un règlement canadien")}</li>
+            <li>{t("Attempt to reverse-engineer, decompile, or circumvent rate limits or authentication", "Tenter de faire de la rétro-ingénierie, de décompiler ou de contourner les limites de débit ou l'authentification")}</li>
+            <li>{t("Resell or redistribute raw API data without attribution as required by OGL-Canada", "Revendre ou redistribuer les données brutes de l'API sans attribution, comme l'exige LOGC-Canada")}</li>
+            <li>{t("Use the Service for automated scraping that exceeds your plan's rate limits", "Utiliser le Service pour un extraction automatique qui dépasse les limites de débit de votre forfait")}</li>
+            <li>{t("Submit queries designed to extract personal information about identifiable individuals", "Soumettre des requêtes conçues pour extraire des renseignements personnels sur des personnes identifiables")}</li>
+            <li>{t("Use AI-generated content from the Service without verification for factual accuracy", "Utiliser le contenu généré par IA du Service sans vérifier son exactitude factuelle")}</li>
           </ul>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">4. Plans, Billing & Refunds</CardTitle>
+          <CardTitle class="text-lg">4. {t("Plans, Billing & Refunds", "Forfaits, facturation et remboursements")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>Free tier includes 1,000 API calls per month with no credit card required. Paid plans — Pro ($50 CAD/month) and Business ($200 CAD/month) — unlock higher rate limits and additional features as described on our <a href="/pricing" class="text-primary hover:underline">pricing page</a>.</p>
-          <p><strong>Payment.</strong> Subscriptions are processed by <a href="https://stripe.com" class="text-primary hover:underline" rel="noopener">Stripe</a>. Prices are in Canadian dollars (CAD). Taxes (e.g. GST/HST) are added at checkout where applicable.</p>
-          <p><strong>Billing cycle.</strong> Paid plans are billed in advance on a monthly cycle. Your subscription renews automatically until cancelled.</p>
-          <p><strong>Cancellation.</strong> You may cancel at any time from your account dashboard. Cancellation takes effect at the end of the current billing period; you retain paid access until then. No partial-period refund is issued on cancellation, but you keep what you paid for through period end.</p>
-          <p id="refunds"><strong>Refunds.</strong> If you are dissatisfied within <strong>14 days</strong> of your first payment on a new paid plan, contact <a href="mailto:billing@maplespike.ca" class="text-primary hover:underline">billing@maplespike.ca</a> for a full refund of that charge — no questions asked. Renewal charges beyond the first 14 days are non-refundable, except where required by law or where a service outage breaches our stated SLA.</p>
-          <p><strong>Failed payments.</strong> If a renewal charge fails, we retry and may downgrade your tier to Free at the end of the grace period; no data is deleted.</p>
-          <p>Our refund and cancellation terms are also summarized at checkout. By subscribing you acknowledge having read this section and our <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>.</p>
+          <p>{t(
+            "Free tier includes 1,000 API calls per month with no credit card required. Paid plans — Pro ($50 CAD/month) and Business ($200 CAD/month) — unlock higher rate limits and additional features as described on our",
+            "Le palier gratuit inclut 1 000 appels API par mois sans carte de crédit requise. Les forfaits payants — Pro (50 $ CA/mois) et Affaires (200 $ CA/mois) — débloquent des limites de débit supérieures et des fonctionnalités supplémentaires, comme décrit sur notre",
+          )} <a href="/pricing" class="text-primary hover:underline">{t("pricing page", "page de tarification")}</a>.</p>
+          <p><strong>{t("Payment.", "Paiement.")}</strong> {t(
+            "Subscriptions are processed by",
+            "Les abonnements sont traités par",
+          )} <a href="https://stripe.com" class="text-primary hover:underline" rel="noopener">Stripe</a>. {t(
+            "Prices are in Canadian dollars (CAD). Taxes (e.g. GST/HST) are added at checkout where applicable.",
+            "Les prix sont en dollars canadiens (CAD). Les taxes (p. ex. TPS/TVH) sont ajoutées au moment du paiement, le cas échéant.",
+          )}</p>
+          <p><strong>{t("Billing cycle.", "Cycle de facturation.")}</strong> {t(
+            "Paid plans are billed in advance on a monthly cycle. Your subscription renews automatically until cancelled.",
+            "Les forfaits payants sont facturés à l'avance sur un cycle mensuel. Votre abonnement se renouvelle automatiquement jusqu'à son annulation.",
+          )}</p>
+          <p><strong>{t("Cancellation.", "Annulation.")}</strong> {t(
+            "You may cancel at any time from your account dashboard. Cancellation takes effect at the end of the current billing period; you retain paid access until then. No partial-period refund is issued on cancellation, but you keep what you paid for through period end.",
+            "Vous pouvez annuler à tout moment depuis votre tableau de bord. L'annulation prend effet à la fin de la période de facturation en cours ; vous conservez l'accès payant jusqu'à cette date. Aucun remboursement partiel n'est émis lors de l'annulation, mais vous conservez ce que vous avez payé jusqu'à la fin de la période.",
+          )}</p>
+          <p id="refunds"><strong>{t("Refunds.", "Remboursements.")}</strong> {t(
+            "If you are dissatisfied within",
+            "Si vous n'êtes pas satisfait dans les",
+          )} <strong>14 {t("days", "jours")}</strong> {t(
+            "of your first payment on a new paid plan, contact",
+            "suivant votre premier paiement sur un nouveau forfait payant, contactez",
+          )} <a href="mailto:billing@maplespike.ca" class="text-primary hover:underline">billing@maplespike.ca</a> {t(
+            "for a full refund of that charge — no questions asked. Renewal charges beyond the first 14 days are non-refundable, except where required by law or where a service outage breaches our stated SLA.",
+            "pour un remboursement complet de ce montant — sans poser de questions. Les frais de renouvellement au-delà des 14 premiers jours ne sont pas remboursables, sauf obligation légale ou manquement à notre NDA déclarée en cas de panne de service.",
+          )}</p>
+          <p><strong>{t("Failed payments.", "Paiements échoués.")}</strong> {t(
+            "If a renewal charge fails, we retry and may downgrade your tier to Free at the end of the grace period; no data is deleted.",
+            "Si un frais de renouvellement échoue, nous réessayons et pouvons rétrograder votre palier à Gratuit à la fin du délai de grâce ; aucune donnée n'est supprimée.",
+          )}</p>
+          <p>{t(
+            "Our refund and cancellation terms are also summarized at checkout. By subscribing you acknowledge having read this section and our",
+            "Nos conditions de remboursement et d'annulation sont également résumées au moment du paiement. En vous abonnant, vous reconnaissez avoir lu cette section et notre",
+          )} <a href="/privacy" class="text-primary hover:underline">{t("Privacy Policy", "politique de confidentialité")}</a>.</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">5. Citation & Attribution</CardTitle>
+          <CardTitle class="text-lg">5. {t("Citation & Attribution", "Citation et attribution")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>Every API response includes a citation block with source name, source URL, SHA-256 content hash, and license type. You are responsible for including appropriate attribution when using MapleSpike data in publications, reports, or AI training datasets.</p>
-          <p>The required attribution format is: <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">[Source name], retrieved [date] via MapleSpike. OGL-Canada.</code></p>
+          <p>{t(
+            "Every API response includes a citation block with source name, source URL, SHA-256 content hash, and license type. You are responsible for including appropriate attribution when using MapleSpike data in publications, reports, or AI training datasets.",
+            "Chaque réponse API inclut un bloc de citation avec le nom de la source, l'URL source, le hachage SHA-256 du contenu et le type de licence. Vous êtes responsable d'inclure une attribution appropriée lorsque vous utilisez les données MapleSpike dans des publications, des rapports ou des ensembles d'entraînement IA.",
+          )}</p>
+          <p>{t("The required attribution format is:", "Le format d'attribution requis est :")} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">[Source name], retrieved [date] via MapleSpike. OGL-Canada.</code></p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">6. Data Accuracy Disclaimer</CardTitle>
+          <CardTitle class="text-lg">6. {t("Data Accuracy Disclaimer", "Avis de non-responsabilité sur l'exactitude des données")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>While MapleSpike uses SHA-256 content hashing and trust-score validation to ensure data integrity, we do not guarantee the accuracy, completeness, or timeliness of government source data. Every response includes a <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">quality</code> object with freshness and confidence metrics.</p>
-          <p>For legal or regulatory decisions, always verify data directly with the original source using the provided citation URL and content hash.</p>
+          <p>{t(
+            "While MapleSpike uses SHA-256 content hashing and trust-score validation to ensure data integrity, we do not guarantee the accuracy, completeness, or timeliness of government source data. Every response includes a",
+            "Bien que MapleSpike utilise le hachage SHA-256 du contenu et la validation du score de confiance pour assurer l'intégrité des données, nous ne garantissons pas l'exactitude, l'exhaustivité ou l'actualité des données sources gouvernementales. Chaque réponse inclut un objet",
+          )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">quality</code> {t(
+            "with freshness and confidence metrics.",
+            "avec des métriques de fraîcheur et de confiance.",
+          )}</p>
+          <p>{t(
+            "For legal or regulatory decisions, always verify data directly with the original source using the provided citation URL and content hash.",
+            "Pour les décisions juridiques ou réglementaires, vérifiez toujours les données directement auprès de la source originale à l'aide de l'URL de citation et du hachage de contenu fournis.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">7. Limitation of Liability</CardTitle>
+          <CardTitle class="text-lg">7. {t("Limitation of Liability", "Limitation de responsabilité")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>MapleSpike is provided "as is" without warranty of any kind. We are not liable for indirect, incidental, or consequential damages arising from the use of the Service, including but not limited to decisions made based on data served by the API.</p>
-          <p>Our total liability for any claim shall not exceed the amount you paid for the Service in the 12 months preceding the claim.</p>
+          <p>{t(
+            "MapleSpike is provided \"as is\" without warranty of any kind. We are not liable for indirect, incidental, or consequential damages arising from the use of the Service, including but not limited to decisions made based on data served by the API.",
+            "MapleSpike est fourni « tel quel », sans garantie d'aucune sorte. Nous ne sommes pas responsables des dommages indirects, accessoires ou consécutifs découlant de l'utilisation du Service, y compris, sans s'y limiter, les décisions prises en fonction des données servies par l'API.",
+          )}</p>
+          <p>{t(
+            "Our total liability for any claim shall not exceed the amount you paid for the Service in the 12 months preceding the claim.",
+            "Notre responsabilité totale pour toute réclamation ne dépassera pas le montant que vous avez payé pour le Service au cours des 12 mois précédant la réclamation.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">8. Changes to Terms</CardTitle>
+          <CardTitle class="text-lg">8. {t("Changes to Terms", "Modifications des conditions")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>We may update these Terms from time to time. Material changes will be announced via the <a href="/changelog" class="text-primary hover:underline">changelog</a> and emailed to registered users at least 30 days before taking effect.</p>
+          <p>{t(
+            "We may update these Terms from time to time. Material changes will be announced via the",
+            "Nous pouvons mettre à jour ces conditions de temps à autre. Les changements importants seront annoncés via le",
+          )} <a href="/changelog" class="text-primary hover:underline">{t("changelog", "journal des modifications")}</a> {t(
+            "and emailed to registered users at least 30 days before taking effect.",
+            "et envoyés par courriel aux utilisateurs enregistrés au moins 30 jours avant leur entrée en vigueur.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">9. Contact</CardTitle>
+          <CardTitle class="text-lg">9. {t("Contact", "Contact")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>Questions about these Terms? Email <a href="mailto:legal@maplespike.ca" class="text-primary hover:underline">legal@maplespike.ca</a> or use our <a href="/contact" class="text-primary hover:underline">contact form</a>.</p>
+          <p>{t(
+            "Questions about these Terms? Email",
+            "Des questions sur ces conditions ? Écrivez à",
+          )} <a href="mailto:legal@maplespike.ca" class="text-primary hover:underline">legal@maplespike.ca</a> {t(
+            "or use our",
+            "ou utilisez notre",
+          )} <a href="/contact" class="text-primary hover:underline">{t("contact form", "formulaire de contact")}</a>.</p>
         </CardContent>
       </Card>
     </div>

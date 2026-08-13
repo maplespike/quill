@@ -18,17 +18,43 @@ export interface Props {
 const {
   title,
   description = "MapleSpike: open-source self-sovereign infrastructure for Canada's public record. 208 modules · 165 MCP tools. Forkable. Reproducible end to end.",
-  ogImage = '/og-image.svg',
+  ogImage = '/og-image.png',
   lang = "en",
 } = Astro.props;
 
 const i18n = createI18n(lang);
 const siteUrl = Astro.site?.href ?? `https://quill.maplespike.ca`;
 const pathname = Astro.url.pathname;
-const cleanPath = stripLangPrefix(pathname);
-const canonical = `${siteUrl.replace(/\/$/, "")}${cleanPath === '/' ? '' : cleanPath}`;
-const canonicalEn = `${siteUrl.replace(/\/$/, "")}${cleanPath === '/' ? '' : cleanPath}`;
-const canonicalFr = `${siteUrl.replace(/\/$/, "")}/fr${cleanPath === '/' ? '' : cleanPath}`;
+// `build.format: 'file'` makes Astro.url.pathname carry a `.html` suffix and
+// `/index.html` for the root. Normalize to the extensionless route the server
+// actually serves (/pricing, /fr/pricing, /) before deriving canonical/hreflang.
+const cleanPath = stripLangPrefix(
+  pathname
+    .replace(/\.html$/, '')
+    .replace(/\/index$/, '/')
+    .replace(/\/+$/, '') || '/',
+);
+// Cache-busting version for unhashed public/ scripts (see server.py
+// no-cache policy). Computed in frontmatter so Astro evaluates it at build
+// time — import.meta.env is NOT inlined inside attribute interpolation.
+const assetVersion = import.meta.env.PUBLIC_ASSET_VERSION ?? 1;
+
+// Canonical + hreflang. English lives at the bare path; French mirrors at /fr.
+const base = siteUrl.replace(/\/$/, "");
+const enPath = cleanPath === '/' ? '' : cleanPath; // '' or '/pricing'
+const frPath = enPath === '' ? '/fr' : `/fr${enPath}`;
+const canonical = `${base}${lang === 'fr' ? frPath : enPath}`;
+const canonicalEn = `${base}${enPath}`;
+const canonicalFr = `${base}${frPath}`;
+
+// French share cards swap to the localized OG image variant (-fr suffix).
+const ogImageUrl = lang === 'fr' ? ogImage.replace(/\.png$/, '-fr.png') : ogImage;
+
+// One French description for meta + og + twitter (pages still pass English
+// descriptions; the French surface uses a single brand-aligned string).
+const descriptionResolved = lang === 'fr'
+  ? "Donnez des superpouvoirs à votre chatbot IA avec les données gouvernementales canadiennes — comités, lobbyisme, décisions judiciaires, règlements, et plus. 174+ outils MCP, offre gratuite disponible."
+  : description;
 
 const navLinks = [
   { href: "/", key: "nav.home" as const, match: "/" },
@@ -49,23 +75,26 @@ const isActive = (match: string) =>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} | MapleSpike</title>
-    <meta name="description" content={lang === 'fr'
-      ? "Donnez des superpouvoirs à votre chatbot IA avec les données gouvernementales canadiennes — comités, lobbyisme, décisions judiciaires, règlements, et plus. 174+ outils MCP, offre gratuite disponible."
-      : description
-    } />
+    <meta name="description" content={descriptionResolved} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" href={canonicalEn} hreflang="en-CA" />
     <link rel="alternate" href={canonicalFr} hreflang="fr-CA" />
     <link rel="alternate" href={canonicalEn} hreflang="x-default" />
     <meta property="og:title" content={`${title} | MapleSpike`} />
-    <meta property="og:description" content={lang === 'fr'
-      ? "Donnez des superpouvoirs à votre chatbot IA avec les données gouvernementales canadiennes."
-      : description
-    } />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:description" content={descriptionResolved} />
+    <meta property="og:image" content={`${base}${ogImageUrl}`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/svg+xml" href="/assets/maplespike_logo.svg" />
+    <meta name="twitter:title" content={`${title} | MapleSpike`} />
+    <meta name="twitter:description" content={descriptionResolved} />
+    <meta name="twitter:image" content={`${base}${ogImageUrl}`} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0A0A0F" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
     <ClientRouter />
     <style is:global>
       html { view-transition-name: none; }
@@ -85,6 +114,12 @@ const isActive = (match: string) =>
       header.header-scrolled .header-inner .text-lg {
         font-size: 0.95rem;
       }
+      /* Pill nav hides on scroll — pure CSS driven by header-scrolled class */
+      header.header-scrolled .nav-pills {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+        pointer-events: none;
+      }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -94,7 +129,7 @@ const isActive = (match: string) =>
     />
     <script is:inline>
       (function () {
-        var theme = localStorage.getItem("data-theme") || "dark";
+        var theme = localStorage.getItem("maplespike-theme") || localStorage.getItem("data-theme") || "dark";
         document.documentElement.setAttribute("data-theme", theme);
         if (theme === "dark") document.documentElement.classList.add("dark");
         else document.documentElement.classList.remove("dark");
@@ -359,68 +394,61 @@ const isActive = (match: string) =>
       </div>
     </footer>
 
-    <script>
-      // Mobile menu toggle with icon swap
-      const mobileToggle = document.getElementById("mobile-menu-toggle");
-      const mobileNav = document.getElementById("mobile-nav");
-      const iconOpen = document.getElementById("menu-icon-open");
-      const iconClose = document.getElementById("menu-icon-close");
-      if (mobileToggle && mobileNav) {
-        mobileToggle.addEventListener("click", () => {
-          const isHidden = mobileNav.classList.contains("hidden");
-          mobileNav.classList.toggle("hidden");
-          mobileToggle.setAttribute("aria-expanded", String(isHidden));
-          if (iconOpen && iconClose) {
-            iconOpen.classList.toggle("hidden", isHidden);
-            iconClose.classList.toggle("hidden", !isHidden);
-          }
-        });
-      }
-
-      // Scroll shrink: reduce header height, hide center pills
-      const header = document.querySelector('header.sticky');
-      const pillNav = header?.querySelector('.nav-pills');
-      if (header) {
-        const headerEl = header;
-        let ticking = false;
-        function onScroll() {
-          if (!ticking) {
-            requestAnimationFrame(() => {
-              const scrolled = window.scrollY > 40;
-              headerEl.classList.toggle('header-scrolled', scrolled);
-              if (pillNav) {
-                pillNav.classList.toggle('opacity-0', scrolled);
-                pillNav.classList.toggle('-translate-y-2', scrolled);
-                pillNav.classList.toggle('pointer-events-none', scrolled);
-              }
-              ticking = false;
-            });
-            ticking = true;
-          }
+    <script is:inline>
+      // Mobile menu toggle — re-binds on every ClientRouter navigation.
+      // astro:page-load fires on initial load AND after SPA transitions.
+      (function () {
+        function setupMobileMenu() {
+          var toggle = document.getElementById("mobile-menu-toggle");
+          var nav = document.getElementById("mobile-nav");
+          var iconOpen = document.getElementById("menu-icon-open");
+          var iconClose = document.getElementById("menu-icon-close");
+          if (!toggle || !nav) return;
+          toggle.addEventListener("click", function () {
+            var isHidden = nav.classList.contains("hidden");
+            nav.classList.toggle("hidden");
+            toggle.setAttribute("aria-expanded", String(isHidden));
+            if (iconOpen && iconClose) {
+              iconOpen.classList.toggle("hidden", isHidden);
+              iconClose.classList.toggle("hidden", !isHidden);
+            }
+          });
         }
-        window.addEventListener('scroll', onScroll, { passive: true });
-        if (window.scrollY > 40) {
-          headerEl.classList.add('header-scrolled');
-          if (pillNav) {
-            pillNav.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
-          }
-        }
-      }
+        document.addEventListener("astro:page-load", setupMobileMenu);
+      })();
+      // Scroll shrink is handled by nav-scroll.js (loaded below) via
+      // navScroll.start({ selector: 'header.sticky', className: 'header-scrolled' }).
     </script>
 
     <!-- Runtime config (sets window.MAPLESPIKE before any island runs) -->
-    <script src="/config.js" is:inline></script>
+    <script src={`/config.js?v=${assetVersion}`} is:inline></script>
     <!-- Load auth state manager (runs before React hydration) -->
-    <script src="/auth.js" is:inline></script>
+    <script src={`/auth.js?v=${assetVersion}`} is:inline></script>
     <!-- Shared scroll-shrink utility (DRY with static landing page) -->
-    <script src="/nav-scroll.js" is:inline></script>
+    <script src={`/nav-scroll.js?v=${assetVersion}`} is:inline></script>
+    <script is:inline>
+      // Wire nav-scroll.js into Astro ClientRouter lifecycle
+      (function () {
+        function startScroll() {
+          if (window.navScroll) {
+            window.navScroll.start({
+              selector: 'header.sticky',
+              threshold: 40,
+              className: 'header-scrolled'
+            });
+          }
+        }
+        startScroll();
+        document.addEventListener("astro:page-load", startScroll);
+      })();
+    </script>
     <script is:inline>
       // Expose current language for client-side React components
       window.__LANG = "{lang}";
     </script>
 
     <!-- Load script.js for pages that need it -->
-    <script src="/script.js" is:inline></script>
+    <script src={`/script.js?v=${assetVersion}`} is:inline></script>
     <!-- WebMCP — register structured tools for AI agents -->
     <script is:inline>
 /* ══════════════════════════════════════════════════════════════════
