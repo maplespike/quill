@@ -112,7 +112,8 @@ Portal serves Astro static + a custom Python HTTP server (`server.py`) that adds
 
 | Environment | Where | What runs | How to start |
 | --- | --- | --- | --- |
-| **Dev** | This machine / a workstation | `docker compose` — api:8082, mcp:3001, portal:8080 | `./scripts/dev-up.sh` (wraps `docker compose` v1+v2) |
+| **Dev (local)** | This machine / a workstation | `docker compose` — api:8082, mcp:3001, portal:8080 | `./scripts/dev-up.sh` (wraps `docker compose` v1+v2) |
+| **Dev (cluster)** | k3s cluster on homelab (single node: nexus), namespace `quill-dev` | Same images, LAN-only bundle from `saasManifests { namespace = "quill-dev"; dev = true; }` — no tunnel, dynamic ClusterIPs, dev.* ingress hosts | `nix run .#push-images && nix run .#deploy-dev` (CI: `.github/workflows/deploy-dev.yml` on every push to main) |
 | **Prod** | k3s cluster on homelab (single node: nexus) | `nix build .#saas-manifests && kubectl apply -f result/manifests.yaml` — pods in `maplespike` + `cloudflared` namespaces | `nix run .#deploy-saas` (or `nix build .#saas-manifests -L && kubectl apply -f result/manifests.yaml`) |
 
 ### Cluster topology (current)
@@ -194,7 +195,7 @@ After the 2026-07-10 systemic registry flip, the canonical registry is `nexus:50
 | `k8s/base/17-portal-service.yaml`, `10-api-deploy.yaml`, `11-mcp-deploy.yaml` | The Deployment specs | `nexus:5000/quill-portal:dev` (and `:api:dev`, `:mcp:dev`) |
 | `charts/quill/values*.yaml` | `image.registry: nexus:5000` + `image.tag: stable` — renders to `nexus:5000/quill-<svc>:stable` | post-flip |
 | Kustomize **namePrefix** (overlay, applied to `maplespike` overlay) | Renames `quill-*` Deployments/Services to `maplespike-*` | n/a — affects Service names, not image strings |
-| **Actual running image** in the cluster | What you see via `kubectl describe pod` | `nexus:5000/maplespike-portal:build-20260707-2036` (pre-flip tag, rename wave pending) |
+| **Actual running image** in the cluster | What you see via `kubectl describe pod` | `nexus:5000/quill-portal:2026-08-10-3` (post-flip tag; old `maplespike-portal:build-20260707-2036` phased out per rename wave) |
 
 The cluster DOES pull from `nexus:5000/quill-...` post-flip. The `localhost/...` kustomize override remains in `k8s/base/kustomization.yaml` `images:` block as a defensive override (CI/build pipelines that rely on a local load); it's harmless for `nexus:5000`-pulling overlays because the overlay image spec is what wins at apply time.
 
