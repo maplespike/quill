@@ -14,6 +14,7 @@
 import { httpGet } from '../utils/http.js';
 import { registerModuleResultClaims } from '../claims/index-barrel.js';
 import { createSqliteD1Adapter } from './sqlite-d1.js';
+import { buildEntityGraph } from '../entity/graph-builder.js';
 
 export type ModuleCategory =
   | 'government' | 'corporate' | 'influence' | 'legal' | 'oversight'
@@ -2732,6 +2733,22 @@ export async function runModule(
       }
     } catch (claimErr) {
       console.warn(`[claims] Skipped claim registration for '${name}': ${claimErr instanceof Error ? claimErr.message : String(claimErr)}`);
+    }
+    // GAP-1: populate the entity graph from the same records. Failure-safe by
+    // design — a graph error logs and never breaks ingestion (same contract
+    // as the claims hook). For db-first modules (committees, …) the records
+    // the module returns are count envelopes, so the committees backfill
+    // materializes the persisted speaker/intervention tables instead.
+    try {
+      const graph = await buildEntityGraph(name, result, info.sources[0]?.name ?? '');
+      if (graph.entities > 0 || graph.links > 0) {
+        console.log(
+          `[graph] Registered ${graph.entities} entity(ies), ${graph.mentions} mention(s), ` +
+          `${graph.links} link(s) for module '${name}'`,
+        );
+      }
+    } catch (graphErr) {
+      console.warn(`[graph] Skipped entity graph build for '${name}': ${graphErr instanceof Error ? graphErr.message : String(graphErr)}`);
     }
     return result;
   };

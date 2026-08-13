@@ -12,6 +12,23 @@ export type { IngestionResult } from './ingestion.js';
 export { EntityResolutionService } from './service.js';
 export type { EntityMatch, EntityRelationship, EntityGraph, ResolutionOptions, ServiceConfig } from './service.js';
 
+// Entity graph population (GAP-1) — wired into runModule next to the claims
+// hook so live ingestion materializes the cross-reference graph.
+export {
+  ENTITY_GRAPH_DDL,
+  ensureEntityGraph,
+  entityIdFor,
+  entityIdHash,
+  MAX_ENTITIES_PER_RUN,
+  buildEntityGraphFromRecords,
+  registerModuleResultEntities,
+  backfillCommitteeEntityGraph,
+  backfillLobbyingEntityGraph,
+  backfillGicEntityGraph,
+  buildEntityGraph,
+} from './graph-builder.js';
+export type { GraphBuildResult } from './graph-builder.js';
+
 // Shared entity graph access + cross-reference composition surface.
 // Consumed by BOTH the MCP server (resolve_entity / linked_entities) and
 // the REST API (GET /v1/entities/{id}, GET /v1/entities/{id}/links).
