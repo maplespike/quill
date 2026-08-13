@@ -4,39 +4,60 @@ import SignupForm from "@/components/SignupForm";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 
-const features = [
+const features: { title: Bi; description: Bi; icon: string }[] = [
   {
-    title: "206 Data Modules",
-    description: "Access all 206 Canadian federal, provincial, territorial, and municipal government data sources through a single API.",
-    icon: "database"
+    title: { en: "206 Data Modules", fr: "206 modules de données" },
+    description: {
+      en: "Access all 206 Canadian federal, provincial, territorial, and municipal government data sources through a single API.",
+      fr: "Accédez aux 206 sources de données gouvernementales canadiennes — fédérales, provinciales, territoriales et municipales — via une seule API.",
+    },
+    icon: "database",
   },
   {
-    title: "Verified Citations",
-    description: "Every data point includes SHA-256 citation hashes for independent verification and audit trails.",
+    title: { en: "Verified Citations", fr: "Citations vérifiées" },
+    description: {
+      en: "Every data point includes SHA-256 citation hashes for independent verification and audit trails.",
+      fr: "Chaque donnée comprend des hachages de citation SHA-256 pour une vérification indépendante et des pistes d'audit.",
+    },
     icon: "shield",
   },
   {
-    title: "174 MCP Tools",
-    description: "Model Context Protocol tools for AI agents — committees, lobbying, court decisions, and more.",
+    title: { en: "174 MCP Tools", fr: "174 outils MCP" },
+    description: {
+      en: "Model Context Protocol tools for AI agents — committees, lobbying, court decisions, and more.",
+      fr: "Outils du protocole de contexte de modèle pour les agents IA — comités, lobbyisme, décisions judiciaires, et plus.",
+    },
     icon: "cpu",
   },
   {
-    title: "TypeScript & Python SDKs",
-    description: "Typed client libraries for TypeScript (@maplespike/sdk) and Python (maplespike) with full documentation.",
+    title: { en: "TypeScript & Python SDKs", fr: "SDK TypeScript et Python" },
+    description: {
+      en: "Typed client libraries for TypeScript (@maplespike/sdk) and Python (maplespike) with full documentation.",
+      fr: "Bibliothèques client typées pour TypeScript (@maplespike/sdk) et Python (maplespike) avec documentation complète.",
+    },
     icon: "code",
   },
   {
-    title: "Real-Time Data",
-    description: "Live data from official government APIs, RSS feeds, CKAN portals, and XML dumps — updated continuously.",
+    title: { en: "Real-Time Data", fr: "Données en temps réel" },
+    description: {
+      en: "Live data from official government APIs, RSS feeds, CKAN portals, and XML dumps — updated continuously.",
+      fr: "Données en direct des API gouvernementales officielles, fils RSS, portails CKAN et extractions XML — mises à jour en continu.",
+    },
     icon: "clock",
   },
   {
-    title: "OpenAPI Spec",
-    description: "Full OpenAPI 3.1 specification at /v1/openapi.json for code generation and API exploration.",
+    title: { en: "OpenAPI Spec", fr: "Spécification OpenAPI" },
+    description: {
+      en: "Full OpenAPI 3.1 specification at /v1/openapi.json for code generation and API exploration.",
+      fr: "Spécification OpenAPI 3.1 complète à /v1/openapi.json pour la génération de code et l'exploration de l'API.",
+    },
     icon: "file",
   },
 ];
@@ -49,11 +70,51 @@ const iconPaths: Record<string, string> = {
   clock: "M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2M12 6v6l4 2",
   file: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
 };
+
+const planCards: { name: Bi; desc: Bi; price: string; features: Bi[]; badge?: Bi; highlighted?: boolean }[] = [
+  {
+    name: { en: "Free", fr: "Gratuit" },
+    desc: { en: "For exploration and prototyping", fr: "Pour l'exploration et le prototypage" },
+    price: "$0",
+    features: [
+      { en: "1,000 API calls/month", fr: "1 000 appels API/mois" },
+      { en: "30 req/min rate limit", fr: "30 req/min limite de débit" },
+      { en: "Basic data access", fr: "Accès de base aux données" },
+    ],
+  },
+  {
+    name: { en: "Pro", fr: "Pro" },
+    desc: { en: "For researchers and journalists", fr: "Pour les chercheurs et les journalistes" },
+    price: "$49",
+    badge: { en: "BEST VALUE", fr: "MEILLEUR RAPPORT" },
+    highlighted: true,
+    features: [
+      { en: "50,000 API calls/month", fr: "50 000 appels API/mois" },
+      { en: "120 req/min rate limit", fr: "120 req/min limite de débit" },
+      { en: "Full data access + MCP tools", fr: "Accès complet aux données + outils MCP" },
+      { en: "Priority support", fr: "Support prioritaire" },
+    ],
+  },
+  {
+    name: { en: "Enterprise", fr: "Entreprise" },
+    desc: { en: "For organizations and teams", fr: "Pour les organisations et les équipes" },
+    price: "Custom",
+    features: [
+      { en: "Unlimited API calls", fr: "Appels API illimités" },
+      { en: "Custom rate limits", fr: "Limites de débit personnalisées" },
+      { en: "Dedicated support", fr: "Support dédié" },
+      { en: "On-premise deployment", fr: "Déploiement sur site" },
+    ],
+  },
+];
 ---
 
 <BaseLayout
   title={i18n.t('signup.title')}
-  description="Get your free MapleSpike API key. Access all Canadian government data through a single API. 1,000 calls/month free, no credit card required."
+  description={t(
+    "Get your free MapleSpike API key. Access all Canadian government data through a single API. 1,000 calls/month free, no credit card required.",
+    "Obtenez votre clé API MapleSpike gratuite. Accédez à toutes les données gouvernementales canadiennes via une seule API. 1 000 appels/mois gratuits, sans carte de crédit.",
+  )}
   lang={lang}
 >
   <!-- Hero -->
@@ -62,17 +123,19 @@ const iconPaths: Record<string, string> = {
     <div class="relative z-10 container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          Get your free <span class="text-gradient">API key</span>
+          {t("Get your free", "Obtenez votre")} <span class="text-gradient">{t("API key", "clé API gratuite")}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          1,000 calls per month free. No credit card required. Access all Canadian government data —
-          federal, provincial, territorial, and municipal — through a single, unified API.
+          {t(
+            "1,000 calls per month free. No credit card required. Access all Canadian government data — federal, provincial, territorial, and municipal — through a single, unified API.",
+            "1 000 appels par mois gratuits. Sans carte de crédit. Accédez à toutes les données gouvernementales canadiennes — fédérales, provinciales, territoriales et municipales — via une seule API unifiée.",
+          )}
         </p>
         <div class="flex flex-wrap gap-3 mt-6">
-          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">206 Data Modules</Badge>
-          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">174 MCP Tools</Badge>
-          <Badge variant="secondary" class="text-xs">SHA-256 Citations</Badge>
-          <Badge variant="secondary" class="text-xs">TypeScript & Python SDKs</Badge>
+          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">206 {t("Data Modules", "modules de données")}</Badge>
+          <Badge variant="outline" class="border-primary/30 bg-primary/5 text-primary text-xs">174 {t("MCP Tools", "outils MCP")}</Badge>
+          <Badge variant="secondary" class="text-xs">{t("SHA-256 Citations", "Citations SHA-256")}</Badge>
+          <Badge variant="secondary" class="text-xs">{t("TypeScript & Python SDKs", "SDK TypeScript et Python")}</Badge>
         </div>
       </div>
     </div>
@@ -84,10 +147,10 @@ const iconPaths: Record<string, string> = {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
         <!-- Left: Features -->
         <div>
-          <h2 class="text-2xl font-bold tracking-tight mb-8">Everything you get</h2>
+          <h2 class="text-2xl font-bold tracking-tight mb-8">{t("Everything you get", "Tout ce que vous obtenez")}</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((feature) => (
-              <Card key={feature.title} class="card-hover border-border/60">
+              <Card key={feature.title.en} class="card-hover border-border/60">
                 <CardHeader class="p-4">
                   <div class="flex items-start gap-3">
                     <div class="shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
@@ -107,8 +170,8 @@ const iconPaths: Record<string, string> = {
                       </svg>
                     </div>
                     <div>
-                      <CardTitle class="text-sm font-semibold">{feature.title}</CardTitle>
-                      <CardDescription class="text-xs mt-1">{feature.description}</CardDescription>
+                      <CardTitle class="text-sm font-semibold">{tb(feature.title)}</CardTitle>
+                      <CardDescription class="text-xs mt-1">{tb(feature.description)}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -128,96 +191,41 @@ const iconPaths: Record<string, string> = {
   <!-- Pricing comparison -->
   <section class="border-t py-16 md:py-24">
     <div class="container mx-auto px-4 max-w-5xl">
-      <h2 class="text-2xl font-bold tracking-tight mb-8 text-center">Choose your plan</h2>
+      <h2 class="text-2xl font-bold tracking-tight mb-8 text-center">{t("Choose your plan", "Choisissez votre forfait")}</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card class="card-hover border-border/60">
-          <CardHeader>
-            <CardTitle class="text-lg">Free</CardTitle>
-            <CardDescription>For exploration and prototyping</CardDescription>
-            <p class="text-3xl font-bold mt-4">
-              $0
-              <span class="text-sm font-normal text-muted-foreground">/month</span>
-            </p>
-          </CardHeader>
-          <CardContent class="space-y-3">
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">1,000 API calls/month</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">30 req/min rate limit</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">Basic data access</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card class="card-hover border-primary/50 ring-1 ring-primary/20 shadow-lg shadow-primary/5 relative">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-            <Badge class="btn-sheen">BEST VALUE</Badge>
-          </div>
-          <CardHeader>
-            <CardTitle class="text-lg">Pro</CardTitle>
-            <CardDescription>For researchers and journalists</CardDescription>
-            <p class="text-3xl font-bold mt-4">
-              $49
-              <span class="text-sm font-normal text-muted-foreground">/month</span>
-            </p>
-          </CardHeader>
-          <CardContent class="space-y-3">
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">50,000 API calls/month</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">120 req/min rate limit</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">Full data access + MCP tools</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">Priority support</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card class="card-hover border-border/60">
-          <CardHeader>
-            <CardTitle class="text-lg">Enterprise</CardTitle>
-            <CardDescription>For organizations and teams</CardDescription>
-            <p class="text-3xl font-bold mt-4">
-              Custom
-              <span class="text-sm font-normal text-muted-foreground">/month</span>
-            </p>
-          </CardHeader>
-          <CardContent class="space-y-3">
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">Unlimited API calls</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">Custom rate limits</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">Dedicated support</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
-              <span class="text-muted-foreground">On-premise deployment</span>
-            </div>
-          </CardContent>
-        </Card>
+        {planCards.map((card) => (
+          <Card class={card.highlighted
+            ? "card-hover border-primary/50 ring-1 ring-primary/20 shadow-lg shadow-primary/5 relative"
+            : "card-hover border-border/60 relative"}>
+            {card.badge && (
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge class="btn-sheen">{tb(card.badge)}</Badge>
+              </div>
+            )}
+            <CardHeader>
+              <CardTitle class="text-lg">{tb(card.name)}</CardTitle>
+              <CardDescription>{tb(card.desc)}</CardDescription>
+              <p class="text-3xl font-bold mt-4">
+                {card.price}
+                <span class="text-sm font-normal text-muted-foreground">{t("/month", "/mois")}</span>
+              </p>
+            </CardHeader>
+            <CardContent class="space-y-3">
+              {card.features.map((feature) => (
+                <div class="flex items-center gap-2 text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+                  <span class="text-muted-foreground">{tb(feature)}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ))}
       </div>
       <p class="text-center text-sm text-muted-foreground mt-8">
-        All plans include SHA-256 verified citations, OpenAPI specification, and access to our TypeScript and Python SDKs.
+        {t(
+          "All plans include SHA-256 verified citations, OpenAPI specification, and access to our TypeScript and Python SDKs.",
+          "Tous les forfaits incluent les citations vérifiées SHA-256, la spécification OpenAPI et l'accès à nos SDK TypeScript et Python.",
+        )}
       </p>
     </div>
   </section>

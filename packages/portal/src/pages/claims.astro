@@ -2,14 +2,19 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
 <BaseLayout
   title={i18n.t('claims.title')}
-  description="A live index of the verifiable claim bundles Quill has registered — discover what has been attested, then verify any hash independently."
+  description={t(
+    "A live index of the verifiable claim bundles Quill has registered — discover what has been attested, then verify any hash independently.",
+    "Un index en direct des bundles d'allégations vérifiables enregistrés par Quill — découvrez ce qui a été attesté, puis vérifiez tout hachage de façon indépendante.",
+  )}
   lang={lang}
 >
   <!-- Hero -->
@@ -19,7 +24,7 @@ const i18n = createI18n(lang);
       <div class="max-w-3xl">
         <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground">
           <span class="h-1.5 w-1.5 rounded-full bg-[var(--moss)]"></span>
-          Public discovery — no API key required
+          {t("Public discovery — no API key required", "Découverte publique — aucune clé API requise")}
         </div>
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
           <span class="text-gradient">{i18n.t('claims.title')}</span>

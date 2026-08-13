@@ -2,14 +2,19 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import OwaspDashboard from "@/components/dashboard/OwaspDashboard";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
 <BaseLayout
   title={i18n.t('security.title')}
-  description="MapleSpike OWASP LLM Top 10 compliance assessment — security posture monitoring"
+  description={t(
+    "MapleSpike OWASP LLM Top 10 compliance assessment — security posture monitoring",
+    "Évaluation de conformité MapleSpike à l'OWASP LLM Top 10 — surveillance de la posture de sécurité",
+  )}
   lang={lang}
 >
   <section class="container mx-auto px-4 py-8 md:py-12">

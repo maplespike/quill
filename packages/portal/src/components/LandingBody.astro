@@ -4,42 +4,90 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { localeUrl } from "@/utils/localeUrl";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 
 // Stats — synced with docs/metrics.json (last reviewed 2026-07-10):
 //   208 modules, 175 MCP tools (getAllTools() runtime count), 13 jurisdictions.
 const stats = [
-  { value: "208", label: "Data modules" },
-  { value: "175", label: "MCP tools" },
-  { value: "13", label: "Jurisdictions" },
-  { value: "≈199K", label: "Lines of TS" },
+  { value: "208", label: { en: "Data modules", fr: "Modules de données" } as Bi },
+  { value: "175", label: { en: "MCP tools", fr: "Outils MCP" } as Bi },
+  { value: "13", label: { en: "Jurisdictions", fr: "Juridictions" } as Bi },
+  { value: "≈199K", label: { en: "Lines of TS", fr: "Lignes de TS" } as Bi },
 ];
 
-const categories = [
+const categories: { title: Bi; items: Bi[] }[] = [
   {
-    title: "Federal Core",
-    items: ["IRCC immigration", "StatCan WDS", "Health Canada", "CRA Charity registry", "Federal Budget", "Proactive Disclosure", "ATI", "NPRI + Species at Risk", "CIPO + CMHC"],
+    title: { en: "Federal Core", fr: "Noyau fédéral" },
+    items: [
+      { en: "IRCC immigration", fr: "Immigration IRCC" },
+      { en: "StatCan WDS", fr: "StatCan WDS" },
+      { en: "Health Canada", fr: "Santé Canada" },
+      { en: "CRA Charity registry", fr: "Registre des organismes de bienfaisance de l'ARC" },
+      { en: "Federal Budget", fr: "Budget fédéral" },
+      { en: "Proactive Disclosure", fr: "Divulgation proactive" },
+      { en: "ATI", fr: "AIPRP" },
+      { en: "NPRI + Species at Risk", fr: "INRP + Espèces en péril" },
+      { en: "CIPO + CMHC", fr: "OPIC + SCHL" },
+    ],
   },
   {
-    title: "Parliament",
-    items: ["House committees", "Senate committees", "Hansard transcripts", "Canada Gazette I / II / III", "LEGISinfo", "GIC appointments"],
+    title: { en: "Parliament", fr: "Parlement" },
+    items: [
+      { en: "House committees", fr: "Comités de la Chambre" },
+      { en: "Senate committees", fr: "Comités du Sénat" },
+      { en: "Hansard transcripts", fr: "Transcriptions du hansard" },
+      { en: "Canada Gazette I / II / III", fr: "Gazette du Canada I / II / III" },
+      { en: "LEGISinfo", fr: "LEGISinfo" },
+      { en: "GIC appointments", fr: "Nominations du gouverneur en conseil" },
+    ],
   },
   {
-    title: "Oversight",
-    items: ["OAG · PBO", "Ethics Commissioner", "Lobbying Commissioner", "Competition Bureau", "CRTC", "Privacy Commissioner", "OSFI · FCAC · FINTRAC"],
+    title: { en: "Oversight", fr: "Surveillance" },
+    items: [
+      { en: "OAG · PBO", fr: "BVG · DPO" },
+      { en: "Ethics Commissioner", fr: "Commissaire à l'éthique" },
+      { en: "Lobbying Commissioner", fr: "Commissaire au lobbying" },
+      { en: "Competition Bureau", fr: "Bureau de la concurrence" },
+      { en: "CRTC", fr: "CRTC" },
+      { en: "Privacy Commissioner", fr: "Commissaire à la protection de la vie privée" },
+      { en: "OSFI · FCAC · FINTRAC", fr: "BSIF · ACFC · CANAFE" },
+    ],
   },
   {
-    title: "Corporate + Influence",
-    items: ["Lobbying Registry (1996→)", "CanadaBuys procurement", "SEDI insider trades", "SEDAR+ filings", "Corporations Canada", "31 NGO / think tank RSS feeds"],
+    title: { en: "Corporate + Influence", fr: "Entreprises + influence" },
+    items: [
+      { en: "Lobbying Registry (1996→)", fr: "Registre du lobbying (1996→)" },
+      { en: "CanadaBuys procurement", fr: "Achats Canada" },
+      { en: "SEDI insider trades", fr: "Transactions d'initiés SEDI" },
+      { en: "SEDAR+ filings", fr: "Dépôts SEDAR+" },
+      { en: "Corporations Canada", fr: "Corporations Canada" },
+      { en: "31 NGO / think tank RSS feeds", fr: "31 fils RSS d'ONG / groupes de réflexion" },
+    ],
   },
   {
-    title: "Provincial + Municipal",
-    items: ["All 13 legislatures", "13 CKAN portals", "273 regulators across 21 categories", "19 cities (direct)", "3,490+ via CKAN federation"],
+    title: { en: "Provincial + Municipal", fr: "Provincial + municipal" },
+    items: [
+      { en: "All 13 legislatures", fr: "Les 13 assemblées législatives" },
+      { en: "13 CKAN portals", fr: "13 portails CKAN" },
+      { en: "273 regulators across 21 categories", fr: "273 organismes de réglementation dans 21 catégories" },
+      { en: "19 cities (direct)", fr: "19 villes (direct)" },
+      { en: "3,490+ via CKAN federation", fr: "3 490+ via la fédération CKAN" },
+    ],
   },
   {
-    title: "Justice + Media",
-    items: ["CanLII case law", "A2AJ (116K+ decisions)", "Justice Canada legislation", "CRTC market reports", "ECCC alerts", "CBSA wait times"],
+    title: { en: "Justice + Media", fr: "Justice + médias" },
+    items: [
+      { en: "CanLII case law", fr: "Jurisprudence CanLII" },
+      { en: "A2AJ (116K+ decisions)", fr: "A2AJ (116 000+ décisions)" },
+      { en: "Justice Canada legislation", fr: "Législation de Justice Canada" },
+      { en: "CRTC market reports", fr: "Rapports de marché du CRTC" },
+      { en: "ECCC alerts", fr: "Alertes ECCC" },
+      { en: "CBSA wait times", fr: "Délais d'attente de l'ASFC" },
+    ],
   },
 ];
 
@@ -53,7 +101,7 @@ const platforms = [
 ];
 
 const mcpConfig = `{"mcpServers":{"maplespike":{"url":"https://mcp.maplespike.ca/sse","headers":{"Authorization":"Bearer YOUR_API_KEY"}}}}`;
-const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
+const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\\\
   https://quill.maplespike.ca/v1/search?q=lobbying+registrations`;
 ---
 
@@ -64,27 +112,29 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
     <div class="relative z-10 container mx-auto px-4 max-w-4xl text-center">
       <Badge variant="outline" className="mb-6">Open source · AGPL-3.0 · MIT</Badge>
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-        Canadian government data,
+        {t("Canadian government data,", "Les données gouvernementales canadiennes,")}
         <br />
-        <span class="text-gradient">on tap for any AI.</span>
+        <span class="text-gradient">{t("on tap for any AI.", "à la portée de toute IA.")}</span>
       </h1>
       <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-        208 modules across federal, provincial, territorial, and municipal sources.
-        175 MCP tools. Every record cited and verifiable. One line of config.
+        {t(
+          "208 modules across federal, provincial, territorial, and municipal sources. 175 MCP tools. Every record cited and verifiable. One line of config.",
+          "208 modules issus de sources fédérales, provinciales, territoriales et municipales. 175 outils MCP. Chaque enregistrement est cité et vérifiable. Une ligne de configuration.",
+        )}
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <a href={localeUrl("/signup", lang)} class="press-feedback inline-flex transition-transform duration-[160ms] ease-out">
           <Button asChild size="lg">
-            <span>Get your API key</span>
+            <span>{t("Get your API key", "Obtenez votre clé API")}</span>
           </Button>
         </a>
         <a href="https://github.com/reverb256/quill" target="_blank" rel="noopener noreferrer" class="press-feedback inline-flex transition-transform duration-[160ms] ease-out">
           <Button asChild variant="outline" size="lg">
-            <span>Fork on GitHub</span>
+            <span>{t("Fork on GitHub", "Forker sur GitHub")}</span>
           </Button>
         </a>
       </div>
-      <p class="mt-3 text-sm text-muted-foreground">Free while in beta · No credit card required</p>
+      <p class="mt-3 text-sm text-muted-foreground">{t("Free while in beta · No credit card required", "Gratuit en version bêta · Sans carte de crédit")}</p>
     </div>
   </section>
 
@@ -95,7 +145,7 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
         {stats.map((s) => (
           <div class="px-6 py-4 text-center">
             <div class="text-3xl font-bold tracking-tight text-primary font-mono-num">{s.value}</div>
-            <div class="mt-1 text-sm text-muted-foreground">{s.label}</div>
+            <div class="mt-1 text-sm text-muted-foreground">{tb(s.label)}</div>
           </div>
         ))}
       </div>
@@ -106,20 +156,23 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
   <section id="quill-mcp-server" class="mcp-server-block container mx-auto px-4 py-16 md:py-24">
     <div class="mx-auto max-w-2xl text-center reveal-on-scroll">
       <h2 class="text-3xl font-bold tracking-tight">
-        One line of <span class="text-gradient">config</span>
+        {t("One line of", "Une ligne de")} <span class="text-gradient">{t("config", "configuration")}</span>
       </h2>
       <p class="mt-3 text-muted-foreground">
-        Paste this into your AI chatbot. Works with anything that speaks MCP.
+        {t(
+          "Paste this into your AI chatbot. Works with anything that speaks MCP.",
+          "Collez ceci dans votre chatbot IA. Fonctionne avec tout ce qui parle MCP.",
+        )}
       </p>
     </div>
     <div class="mx-auto mt-8 max-w-2xl reveal-on-scroll">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            MCP Server Config
-            <Button variant="ghost" size="sm" id="copy-config" className="press-feedback" aria-live="polite" aria-label="Copy MCP config">Copy</Button>
+            {t("MCP Server Config", "Configuration du serveur MCP")}
+            <Button variant="ghost" size="sm" id="copy-config" className="press-feedback" aria-live="polite" aria-label={t("Copy MCP config", "Copier la configuration MCP")}>{t("Copy", "Copier")}</Button>
           </CardTitle>
-          <CardDescription>JSON for Claude Desktop, Cursor, ChatGPT, and more</CardDescription>
+          <CardDescription>{t("JSON for Claude Desktop, Cursor, ChatGPT, and more", "JSON pour Claude Desktop, Cursor, ChatGPT, et plus")}</CardDescription>
         </CardHeader>
         <CardContent>
           <pre class="overflow-x-auto rounded-lg bg-muted p-4 text-sm font-mono"><code id="mcp-config-text">{mcpConfig}</code></pre>
@@ -131,8 +184,8 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
     <div class="mx-auto mt-8 max-w-2xl reveal-on-scroll">
       <div class="rounded-lg border border-border/60 bg-card/40 p-4 font-mono text-sm">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs text-muted-foreground uppercase tracking-wider">REST example</span>
-          <Button variant="ghost" size="sm" id="copy-curl" className="press-feedback" aria-live="polite" aria-label="Copy cURL example">Copy</Button>
+          <span class="text-xs text-muted-foreground uppercase tracking-wider">{t("REST example", "Exemple REST")}</span>
+          <Button variant="ghost" size="sm" id="copy-curl" className="press-feedback" aria-live="polite" aria-label={t("Copy cURL example", "Copier l'exemple cURL")}>{t("Copy", "Copier")}</Button>
         </div>
         <pre class="overflow-x-auto text-muted-foreground"><code id="curl-config-text">{curlSnippet}</code></pre>
       </div>
@@ -140,7 +193,7 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
 
     <!-- Platform grid -->
     <div class="mx-auto mt-12 max-w-3xl reveal-on-scroll">
-      <p class="mb-4 text-center text-sm text-muted-foreground">Works with your favorite AI tools</p>
+      <p class="mb-4 text-center text-sm text-muted-foreground">{t("Works with your favorite AI tools", "Fonctionne avec vos outils IA préférés")}</p>
       <div class:list={["grid", "grid-cols-3", "gap-3", "sm:grid-cols-6", "stagger-children"]}>
         {platforms.map((p) => (
           <div class:list={["flex", "flex-col", "items-center", "gap-1", "rounded-lg", "border", "border-border/40", "p-3", "card-hover"]}>
@@ -157,24 +210,27 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
     <div class="container mx-auto px-4">
       <div class="mb-10 text-center reveal-on-scroll">
         <h2 class="text-3xl font-bold tracking-tight">
-          Every source, <span class="text-gradient">openly aggregated</span>
+          {t("Every source,", "Chaque source,")} <span class="text-gradient">{t("openly aggregated", "ouvertement agrégée")}</span>
         </h2>
         <p class="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Every record cites back to its public origin. SHA-256 provenance on every fetch.
+          {t(
+            "Every record cites back to its public origin. SHA-256 provenance on every fetch.",
+            "Chaque enregistrement renvoie à son origine publique. Preuve SHA-256 à chaque requête.",
+          )}
         </p>
       </div>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger-children">
         {categories.map((cat) => (
           <Card className="card-hover">
             <CardHeader>
-              <CardTitle className="text-base">{cat.title}</CardTitle>
+              <CardTitle className="text-base">{tb(cat.title)}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul class="space-y-1.5">
                 {cat.items.map((item) => (
                   <li class="flex items-center gap-2 text-sm text-muted-foreground">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    {item}
+                    {tb(item)}
                   </li>
                 ))}
               </ul>
@@ -190,28 +246,34 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
     <div class="grid gap-8 md:grid-cols-3 stagger-children reveal-on-scroll">
       <Card className="card-hover">
         <CardHeader>
-          <CardTitle className="text-lg">🔍 Verifiable</CardTitle>
+          <CardTitle className="text-lg">🔍 {t("Verifiable", "Vérifiable")}</CardTitle>
           <CardDescription>
-            Every record carries a SHA-256 citation, source URL, fetch timestamp, and pipeline version.
-            Fork the recipe, re-fetch, re-hash — decide for yourself.
+            {t(
+              "Every record carries a SHA-256 citation, source URL, fetch timestamp, and pipeline version. Fork the recipe, re-fetch, re-hash — decide for yourself.",
+              "Chaque enregistrement porte une citation SHA-256, l'URL de la source, l'horodatage de récupération et la version du pipeline. Forkez la recette, récupérez, re-hachez — décidez par vous-même.",
+            )}
           </CardDescription>
         </CardHeader>
       </Card>
       <Card className="card-hover">
         <CardHeader>
-          <CardTitle className="text-lg">🔧 Self-sovereign</CardTitle>
+          <CardTitle className="text-lg">🔧 {t("Self-sovereign", "Auto-souverain")}</CardTitle>
           <CardDescription>
-            Runs in your cluster or on your laptop. No managed-service lock-in.
-            Nix builds for full reproducibility end to end.
+            {t(
+              "Runs in your cluster or on your laptop. No managed-service lock-in. Nix builds for full reproducibility end to end.",
+              "Tourne dans votre cluster ou sur votre portable. Aucune dépendance à un service géré. Builds Nix pour une reproductibilité complète de bout en bout.",
+            )}
           </CardDescription>
         </CardHeader>
       </Card>
       <Card className="card-hover">
         <CardHeader>
-          <CardTitle className="text-lg">📜 Open source</CardTitle>
+          <CardTitle className="text-lg">📜 {t("Open source", "Open source")}</CardTitle>
           <CardDescription>
-            AGPL-3.0 for pipeline-core, MIT for everything else. Forkable, auditable,
-            community-driven.
+            {t(
+              "AGPL-3.0 for pipeline-core, MIT for everything else. Forkable, auditable, community-driven.",
+              "AGPL-3.0 pour pipeline-core, MIT pour tout le reste. Forkable, auditable, mené par la communauté.",
+            )}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -222,15 +284,15 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
   <section id="quill-cta" class="aurora border-t py-16 md:py-20">
     <div class="container mx-auto px-4 text-center reveal-on-scroll">
       <h2 class="text-3xl font-bold tracking-tight">
-        Start building with <span class="text-gradient">Canadian data</span>
+        {t("Start building with", "Commencez à bâtir avec")} <span class="text-gradient">{t("Canadian data", "les données canadiennes")}</span>
       </h2>
       <p class="mx-auto mt-3 max-w-md text-muted-foreground">
-        Get your API key in 30 seconds. Free while in beta.
+        {t("Get your API key in 30 seconds. Free while in beta.", "Obtenez votre clé API en 30 secondes. Gratuit en version bêta.")}
       </p>
       <div class="mt-6">
         <a href={localeUrl("/signup", lang)} class="press-feedback inline-flex transition-transform duration-[160ms] ease-out">
           <Button asChild size="lg">
-            <span>Get started free</span>
+            <span>{t("Get started free", "Commencer gratuitement")}</span>
           </Button>
         </a>
       </div>
@@ -265,11 +327,12 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
   // Copy config button
   const copyBtn = document.getElementById("copy-config");
   const configText = document.getElementById("mcp-config-text");
+  const copiedLabel = window.__LANG === "fr" ? "Copié !" : "Copied!";
   if (copyBtn && configText) {
     copyBtn.addEventListener("click", async () => {
       await navigator.clipboard.writeText(configText.textContent || "");
       const original = copyBtn.textContent;
-      copyBtn.textContent = "Copied!";
+      copyBtn.textContent = copiedLabel;
       setTimeout(() => { copyBtn.textContent = original; }, 2000);
     });
   }
@@ -281,7 +344,7 @@ const curlSnippet = `curl -H "Authorization: Bearer $QUILL_KEY" \\
     copyCurlBtn.addEventListener("click", async () => {
       await navigator.clipboard.writeText(curlText.textContent || "");
       const original = copyCurlBtn.textContent;
-      copyCurlBtn.textContent = "Copied!";
+      copyCurlBtn.textContent = copiedLabel;
       setTimeout(() => { copyCurlBtn.textContent = original; }, 2000);
     });
   }

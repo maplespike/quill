@@ -4,12 +4,17 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import BrowserExtraction from "@/components/dashboard/BrowserExtraction";
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('extraction.title')} description="Extract data from government portals that have no API — your browser renders the page and we cache the results for all users." lang={lang}>
+<BaseLayout title={i18n.t('extraction.title')} description={t(
+  "Extract data from government portals that have no API — your browser renders the page and we cache the results for all users.",
+  "Extrayez des données de portails gouvernementaux sans API — votre navigateur rend la page et nous mettons les résultats en cache pour tous les utilisateurs.",
+)} lang={lang}>
   <section class="container mx-auto px-4 py-16 md:py-20">
     <div class="mb-8">
       <a href={localeUrl('/dashboard', lang)} class="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5">
@@ -24,8 +29,10 @@ const i18n = createI18n(lang);
           <span class="text-gradient">{i18n.t('extraction.title')}</span>
         </h1>
         <p class="mt-2 text-muted-foreground max-w-2xl">
-          Extract data from government portals that have no API — your browser renders the page
-          and we cache the results for all users.
+          {t(
+            "Extract data from government portals that have no API — your browser renders the page and we cache the results for all users.",
+            "Extrayez des données de portails gouvernementaux sans API — votre navigateur rend la page et nous mettons les résultats en cache pour tous les utilisateurs.",
+          )}
         </p>
       </div>
     </div>
@@ -65,8 +72,10 @@ const i18n = createI18n(lang);
       <CardHeader>
         <CardTitle>{i18n.t('extraction.title')}</CardTitle>
         <CardDescription>
-          Your browser renders government pages locally and extracts data file links.
-          Results are cached server-side for 7 days for all subsequent users.
+          {t(
+            "Your browser renders government pages locally and extracts data file links. Results are cached server-side for 7 days for all subsequent users.",
+            "Votre navigateur rend localement les pages gouvernementales et extrait les liens de fichiers de données. Les résultats sont mis en cache côté serveur pendant 7 jours pour tous les utilisateurs suivants.",
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

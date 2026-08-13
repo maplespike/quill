@@ -10,11 +10,16 @@ export function getStaticPaths() {
 }
 
 const { locale } = Astro.params;
+const isFr = locale === "fr";
 ---
 
 <BaseLayout
-  title="Quill · Canada's open data, on tap for any AI"
-  description="Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config."
+  title={isFr
+    ? "Quill · Les données publiques du Canada, à portée de toute IA"
+    : "Quill · Canada's open data, on tap for any AI"}
+  description={isFr
+    ? "Connectez n'importe quel chatbot IA à toutes les données gouvernementales canadiennes — 174 outils MCP, cités et vérifiables. Une ligne de configuration."
+    : "Connect any AI chatbot to all Canadian government data — 174 MCP tools, cited and verifiable. One line of config."}
   lang={locale as "en" | "fr"}
 >
   <LandingBody lang={locale} />
