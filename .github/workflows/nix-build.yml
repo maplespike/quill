@@ -25,16 +25,11 @@ permissions:
 jobs:
   flake-check:
     name: nix flake check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v30
-        with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Nix store
         uses: cachix/cachix-action@v15
@@ -67,7 +62,7 @@ jobs:
 
   build-images:
     name: nix build .#${{ matrix.target }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     needs: flake-check
     timeout-minutes: 45
     strategy:
@@ -80,11 +75,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v30
-        with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Nix store
         uses: cachix/cachix-action@v15
@@ -128,17 +118,12 @@ jobs:
 
   saas-manifests:
     name: nix build .#saas-manifests (canonical deploy artifact)
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     needs: flake-check
     timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v30
-        with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Nix store
         uses: cachix/cachix-action@v15
