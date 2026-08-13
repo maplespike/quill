@@ -11,8 +11,10 @@
  *   Auth middleware reads the DB tier; there is no in-memory override layer.
  *
  *   The `verifiedOrders` Map still exists so the e-Transfer order status
- *   endpoint can answer "did the IMAP poller reconcile my order yet?". The
- *   IMAP poller isn't wired up yet (TODO), so this map stays empty in prod.
+ *   endpoint can answer "did the IMAP poller reconcile my order yet?".
+ *   RETIRED under Decision 0002: the IMAP poller was removed because email
+ *   bodies are PII (see docs/decisions/0002-pii-avoidance.md), so this map
+ *   stays empty in prod by design — no in-flight order reconciliation.
  */
 
 import type { RouteHandler } from '../types.js';
