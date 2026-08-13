@@ -1,6 +1,6 @@
 ---
 import { createI18n } from '@maplespike/i18n';
-import { localeUrl } from '../utils/localeUrl';
+import { stripLangPrefix } from '../utils/localeUrl';
 
 export interface Props {
   currentLang: 'en' | 'fr';
@@ -11,11 +11,25 @@ const { currentLang, currentPath } = Astro.props;
 const i18n = createI18n(currentLang);
 
 const targetLang = currentLang === 'en' ? 'fr' : 'en';
-const targetUrl = localeUrl(currentPath, targetLang);
+// Build a real prefixed URL (/fr ↔ /en on the landing page). localeUrl()
+// strips the prefix (bare-path design), which made the toggle loop back to
+// `/` and fall through to the navigator.language redirect — the language
+// choice was never actually navigated to.
+//
+// French subpages now exist via fr/[...page].astro, so FR targets the same
+// page under /fr (or /fr at root), and EN targets /en at root or the bare
+// English path on subpages. Never navigates to a 404.
+const cleanPath = stripLangPrefix(currentPath);
+const isRoot = cleanPath === '/';
+const targetUrl = targetLang === 'fr'
+  ? (isRoot ? '/fr' : `/fr${cleanPath}`)
+  : (isRoot ? '/en' : cleanPath);
 ---
 
 <a
   href={targetUrl}
+  onclick="try { localStorage.setItem('maplespike_lang', this.dataset.lang); } catch (e) {}"
+  data-lang={targetLang}
   class="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
   aria-label={i18n.t(targetLang === 'fr' ? 'lang.fr_label' : 'lang.en_label')}
   title={i18n.t(targetLang === 'fr' ? 'lang.fr_label' : 'lang.en_label')}

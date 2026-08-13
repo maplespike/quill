@@ -4,12 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import AgentChat from "@/components/dashboard/AgentChat";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('ask.title')} description="Ask natural language questions about Canadian government data. AI-powered answers with verified citations." lang={lang}>
+<BaseLayout title={i18n.t('ask.title')} description={t(
+  "Ask natural language questions about Canadian government data. AI-powered answers with verified citations.",
+  "Posez des questions en langage naturel sur les données gouvernementales canadiennes. Réponses propulsées par IA avec citations vérifiées.",
+)} lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-20"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10">
     <div class="container mx-auto px-4 text-center">
@@ -18,8 +23,10 @@ const i18n = createI18n(lang);
         {i18n.t('ask.title')}
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-        Natural language queries across 206 government data modules. Every answer includes
-        verified citations and SHA-256 source hashes.
+        {t(
+          "Natural language queries across 206 government data modules. Every answer includes verified citations and SHA-256 source hashes.",
+          "Requêtes en langage naturel dans 206 modules de données gouvernementales. Chaque réponse inclut des citations vérifiées et des hachages de source SHA-256.",
+        )}
       </p>
     </div>
     </div>
@@ -46,7 +53,10 @@ const i18n = createI18n(lang);
             <CardContent>
               <div id="history-list" class="space-y-3">
                 <p class="text-sm text-muted-foreground text-center py-8">
-                  Chat history is stored locally in your browser. Sign in to start a conversation.
+                  {t(
+                    "Chat history is stored locally in your browser. Sign in to start a conversation.",
+                    "L'historique des conversations est stocké localement dans votre navigateur. Connectez-vous pour démarrer une conversation.",
+                  )}
                 </p>
               </div>
             </CardContent>

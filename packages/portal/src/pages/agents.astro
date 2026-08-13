@@ -4,88 +4,131 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
 import { localeUrl } from "@/utils/localeUrl";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
-const platforms = [
+const platforms: { name: string; icon: string; description: Bi; setup: string }[] = [
   {
     name: "Claude Desktop",
     icon: "🤖",
-    description: "Anthropic's desktop app. Open Settings → Developer → Edit Config, paste the MCP snippet below.",
+    description: {
+      en: "Anthropic's desktop app. Open Settings → Developer → Edit Config, paste the MCP snippet below.",
+      fr: "L'application de bureau d'Anthropic. Ouvrez Paramètres → Développeur → Modifier la config, collez l'extrait MCP ci-dessous.",
+    },
     setup: "claude_desktop_config.json",
   },
   {
     name: "ChatGPT",
     icon: "🧠",
-    description: "OpenAI's ChatGPT with MCP support. Add the server in Settings → MCP Servers.",
+    description: {
+      en: "OpenAI's ChatGPT with MCP support. Add the server in Settings → MCP Servers.",
+      fr: "ChatGPT d'OpenAI avec support MCP. Ajoutez le serveur dans Paramètres → Serveurs MCP.",
+    },
     setup: "chatgpt_mcp.json",
   },
   {
     name: "Cursor",
     icon: "🖊️",
-    description: "AI code editor. Add to .cursor/mcp.json in your project root.",
+    description: {
+      en: "AI code editor. Add to .cursor/mcp.json in your project root.",
+      fr: "Éditeur de code IA. Ajoutez à .cursor/mcp.json à la racine de votre projet.",
+    },
     setup: ".cursor/mcp.json",
   },
   {
     name: "Windsurf",
     icon: "🌊",
-    description: "AI-powered IDE. Configure MCP servers in Settings → AI → MCP.",
+    description: {
+      en: "AI-powered IDE. Configure MCP servers in Settings → AI → MCP.",
+      fr: "EDI piloté par IA. Configurez les serveurs MCP dans Paramètres → IA → MCP.",
+    },
     setup: "windsurf_mcp.json",
   },
   {
     name: "Codebuff",
     icon: "🦾",
-    description: "Terminal-based AI coding agent. Add to ~/.codebuff/mcp.json.",
+    description: {
+      en: "Terminal-based AI coding agent. Add to ~/.codebuff/mcp.json.",
+      fr: "Agent de codage IA en ligne de commande. Ajoutez à ~/.codebuff/mcp.json.",
+    },
     setup: "~/.codebuff/mcp.json",
   },
   {
     name: "OpenCode",
     icon: "💻",
-    description: "Open-source AI coding agent. Configure in opencode.json in your project.",
+    description: {
+      en: "Open-source AI coding agent. Configure in opencode.json in your project.",
+      fr: "Agent de codage IA open source. Configurez dans opencode.json de votre projet.",
+    },
     setup: "opencode.json",
   },
   {
     name: "Hermes",
     icon: "🔮",
-    description: "Self-evolution AI agent framework. Add MCP server in agent config.",
+    description: {
+      en: "Self-evolution AI agent framework. Add MCP server in agent config.",
+      fr: "Cadre d'agent IA à auto-évolution. Ajoutez le serveur MCP dans la config de l'agent.",
+    },
     setup: "hermes_config.json",
   },
   {
     name: "OpenClaw",
     icon: "🦅",
-    description: "Multi-agent framework. Configure MCP in claw.yaml.",
+    description: {
+      en: "Multi-agent framework. Configure MCP in claw.yaml.",
+      fr: "Cadre multi-agents. Configurez MCP dans claw.yaml.",
+    },
     setup: "claw.yaml",
   },
   {
     name: "Gemini",
     icon: "💎",
-    description: "Google's Gemini. Use via MCP gateway or direct tool integration.",
+    description: {
+      en: "Google's Gemini. Use via MCP gateway or direct tool integration.",
+      fr: "Gemini de Google. Utilisez via la passerelle MCP ou l'intégration directe d'outils.",
+    },
     setup: "gemini_mcp.json",
   },
   {
     name: "Grok",
     icon: "⚡",
-    description: "xAI's Grok. Connect via MCP for real-time Canadian data context.",
+    description: {
+      en: "xAI's Grok. Connect via MCP for real-time Canadian data context.",
+      fr: "Grok de xAI. Connectez-vous via MCP pour un contexte de données canadiennes en temps réel.",
+    },
     setup: "grok_mcp.json",
   },
   {
     name: "LM Studio",
     icon: "🖥️",
-    description: "Local LLM runner. Run @maplespike/mcp alongside your local models.",
+    description: {
+      en: "Local LLM runner. Run @maplespike/mcp alongside your local models.",
+      fr: "Exécuteur de LLM local. Faites tourner @maplespike/mcp avec vos modèles locaux.",
+    },
     setup: "lm_studio_mcp.json",
   },
   {
     name: "Anything with MCP",
     icon: "🔌",
-    description: "Any tool that speaks the Model Context Protocol can use MapleSpike. Same config, same tools.",
+    description: {
+      en: "Any tool that speaks the Model Context Protocol can use MapleSpike. Same config, same tools.",
+      fr: "Tout outil qui parle le protocole de contexte de modèle peut utiliser MapleSpike. Même config, mêmes outils.",
+    },
     setup: "mcp_config.json",
   },
 ];
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 ---
 <BaseLayout
   title={i18n.t('agents.title')}
-  description="Connect any AI chatbot to MapleSpike's Canadian government data. One MCP config, 174 tools, every major AI platform supported."
+  description={t(
+    "Connect any AI chatbot to MapleSpike's Canadian government data. One MCP config, 174 tools, every major AI platform supported.",
+    "Connectez n'importe quel chatbot IA aux données gouvernementales canadiennes de MapleSpike. Une config MCP, 174 outils, toutes les grandes plateformes IA prises en charge.",
+  )}
+  ogImage="/og-image-agents.png"
   lang={lang}
 >
   <!-- Hero -->
@@ -94,13 +137,13 @@ const i18n = createI18n(lang);
     <div class="relative z-10 container mx-auto px-4">
       <div class="max-w-3xl">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-          Connect your AI to<br /><span class="text-gradient">{i18n.t('agents.title')}</span>
+          {t("Connect your AI to", "Connectez votre IA à")}<br /><span class="text-gradient">{i18n.t('agents.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          One config file. 174 tools. Your AI chatbot — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf,
-          Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, or anything that speaks MCP — instantly gains
-          access to all Canadian government data: committees, lobbying, court cases, regulations, budgets,
-          and more.
+          {t(
+            "One config file. 174 tools. Your AI chatbot — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, or anything that speaks MCP — instantly gains access to all Canadian government data: committees, lobbying, court cases, regulations, budgets, and more.",
+            "Un fichier de configuration. 174 outils. Votre chatbot IA — Claude, ChatGPT, Gemini, Grok, Cursor, Windsurf, Codebuff, OpenCode, Hermes, OpenClaw, LM Studio, ou tout ce qui parle MCP — accède instantanément à toutes les données gouvernementales canadiennes : comités, lobbyisme, décisions judiciaires, règlements, budgets, et plus.",
+          )}
         </p>
       </div>
     </div>
@@ -109,9 +152,12 @@ const i18n = createI18n(lang);
   <!-- MCP Config Snippet -->
   <section class="py-12 md:py-16 border-b border-border/60 bg-card/20">
     <div class="container mx-auto px-4 max-w-3xl text-center">
-      <h2 class="text-2xl font-bold mb-4">One config snippet. Every AI.</h2>
+      <h2 class="text-2xl font-bold mb-4">{t("One config snippet. Every AI.", "Un seul extrait de config. Toute IA.")}</h2>
       <p class="text-muted-foreground mb-8">
-        Copy this into your AI's MCP settings. All 12 platforms above use the exact same config.
+        {t(
+          "Copy this into your AI's MCP settings. All 12 platforms above use the exact same config.",
+          "Copiez ceci dans les paramètres MCP de votre IA. Les 12 plateformes ci-dessus utilisent exactement la même config.",
+        )}
       </p>
       <Card class="text-left mx-auto border-primary/20 bg-primary/5 mb-6">
         <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
@@ -137,7 +183,7 @@ const i18n = createI18n(lang);
   <section class="py-16 md:py-24">
     <div class="container mx-auto px-4">
       <h2 class="text-2xl font-bold tracking-tight mb-2 text-center">{i18n.t('agents.title')}</h2>
-      <p class="text-muted-foreground mb-10 text-center">{i18n.t('nav.signup')}</p>
+      <p class="text-muted-foreground mb-10 text-center">{t("One config for every platform", "Une config pour chaque plateforme")}</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl mx-auto">
         {platforms.map((p) => (
           <Card class="card-hover flex flex-col border-border/60">
@@ -146,7 +192,7 @@ const i18n = createI18n(lang);
                 <span class="text-xl" aria-hidden="true">{p.icon}</span>
                 <CardTitle class="text-base">{p.name}</CardTitle>
               </div>
-              <CardDescription class="text-xs mt-2 leading-relaxed">{p.description}</CardDescription>
+              <CardDescription class="text-xs mt-2 leading-relaxed">{tb(p.description)}</CardDescription>
             </CardHeader>
             <CardContent class="p-4 pt-0 mt-auto">
               <Badge variant="secondary" class="text-[10px] font-mono">{p.setup}</Badge>
@@ -162,11 +208,13 @@ const i18n = createI18n(lang);
     <div class="absolute inset-0 bg-grid opacity-60" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
-        Your AI is one line away from understanding Canada
+        {t("Your AI is one line away from understanding Canada", "Votre IA est à une ligne de comprendre le Canada")}
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
-        Free tier includes access to all 174 MCP tools. No credit card required. Your chatbot will be answering
-        questions about Canadian government data in under 60 seconds.
+        {t(
+          "Free tier includes access to all 174 MCP tools. No credit card required. Your chatbot will be answering questions about Canadian government data in under 60 seconds.",
+          "Le forfait gratuit comprend l'accès aux 174 outils MCP. Sans carte de crédit. Votre chatbot répondra à des questions sur les données gouvernementales canadiennes en moins de 60 secondes.",
+        )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">
         <a href={localeUrl('/signup', lang)} class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">{i18n.t('billing.cta.get_started')}</a>

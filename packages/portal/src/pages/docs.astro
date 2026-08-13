@@ -6,292 +6,313 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { createI18n } from "@maplespike/i18n";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 
-const sections = [
-  { id: "quickstart", num: "00", label: "Quickstart", badge: "LIVE" },
-  { id: "authentication", num: "01", label: "Authentication" },
-  { id: "request-response", num: "02", label: "Request + Response" },
-  { id: "endpoints", num: "03", label: "API Reference" },
-  { id: "ai-endpoints", num: "04", label: "AI Endpoints", badge: "EDGE" },
-  { id: "extraction", num: "05", label: "Browser Extraction" },
-  { id: "token-optimization", num: "06", label: "Token Optimization" },
-  { id: "citation-contract", num: "07", label: "Citation Contract" },
-  { id: "mcp-tools", num: "08", label: "MCP Tools", badge: "174 TOOLS" },
-  { id: "rate-limits", num: "09", label: "Rate Limits" },
-  { id: "errors", num: "10", label: "Errors" },
-  { id: "faq", num: "11", label: "FAQ" },
+// MCP tool categories — canonical English keys kept for filtering, French labels for display.
+const catFr: Record<string, string> = {
+  General: "Général", Parliament: "Parlement", Regulatory: "Réglementation",
+  Elections: "Élections", Corporate: "Entreprises", Procurement: "Approvisionnement",
+  Oversight: "Surveillance", Influence: "Influence", Immigration: "Immigration",
+  Defence: "Défense", Health: "Santé", Transport: "Transport",
+  Indigenous: "Autochtones", Provincial: "Provincial", Municipal: "Municipal",
+  Economic: "Économie", Environment: "Environnement", Housing: "Logement",
+  International: "International", Social: "Social", "Public Safety": "Sécurité publique",
+  Media: "Médias", Science: "Science", Community: "Communauté",
+  Charity: "Organismes de bienfaisance", "Global Affairs": "Affaires mondiales",
+  AI: "IA", Entity: "Entités", System: "Système",
+};
+const catLabel = (c: string) => (lang === "fr" ? catFr[c] || c : c);
+
+const sections: { id: string; num: string; label: Bi; badge?: string }[] = [
+  { id: "quickstart", num: "00", label: { en: "Quickstart", fr: "Démarrage rapide" }, badge: "LIVE" },
+  { id: "authentication", num: "01", label: { en: "Authentication", fr: "Authentification" } },
+  { id: "request-response", num: "02", label: { en: "Request + Response", fr: "Requête + réponse" } },
+  { id: "endpoints", num: "03", label: { en: "API Reference", fr: "Référence API" } },
+  { id: "ai-endpoints", num: "04", label: { en: "AI Endpoints", fr: "Points de terminaison IA" }, badge: "EDGE" },
+  { id: "extraction", num: "05", label: { en: "Browser Extraction", fr: "Extraction navigateur" } },
+  { id: "token-optimization", num: "06", label: { en: "Token Optimization", fr: "Optimisation des jetons" } },
+  { id: "citation-contract", num: "07", label: { en: "Citation Contract", fr: "Contrat de citation" } },
+  { id: "mcp-tools", num: "08", label: { en: "MCP Tools", fr: "Outils MCP" }, badge: "174 TOOLS" },
+  { id: "rate-limits", num: "09", label: { en: "Rate Limits", fr: "Limites de débit" } },
+  { id: "errors", num: "10", label: { en: "Errors", fr: "Erreurs" } },
+  { id: "faq", num: "11", label: { en: "FAQ", fr: "FAQ" } },
 ];
 
-const apiEndpoints = [
+const apiEndpoints: { method: string; path: string; desc: Bi }[] = [
   // Core
-  { method: "GET", path: "/v1/health", desc: "System status and usage stats" },
-  { method: "GET", path: "/v1/openapi.json", desc: "Full OpenAPI 3.1 specification" },
-  { method: "GET", path: "/v1/me", desc: "Current tenant info and API keys" },
-  { method: "GET", path: "/v1/usage", desc: "Current billing period usage" },
+  { method: "GET", path: "/v1/health", desc: { en: "System status and usage stats", fr: "État du système et statistiques d'utilisation" } },
+  { method: "GET", path: "/v1/openapi.json", desc: { en: "Full OpenAPI 3.1 specification", fr: "Spécification OpenAPI 3.1 complète" } },
+  { method: "GET", path: "/v1/me", desc: { en: "Current tenant info and API keys", fr: "Informations du locataire et clés API actuelles" } },
+  { method: "GET", path: "/v1/usage", desc: { en: "Current billing period usage", fr: "Utilisation de la période de facturation actuelle" } },
   // Data
-  { method: "GET", path: "/v1/gov/releases", desc: "Latest government data releases" },
-  { method: "GET", path: "/v1/gov/search?query=", desc: "Full-text search across all sources" },
-  { method: "GET", path: "/v1/citation/:hash", desc: "Retrieve citation by SHA-256 hash" },
-  { method: "GET", path: "/v1/signals", desc: "Cross-reference signals (requires engine)" },
+  { method: "GET", path: "/v1/gov/releases", desc: { en: "Latest government data releases", fr: "Dernières publications de données gouvernementales" } },
+  { method: "GET", path: "/v1/gov/search?query=", desc: { en: "Full-text search across all sources", fr: "Recherche plein texte dans toutes les sources" } },
+  { method: "GET", path: "/v1/citation/:hash", desc: { en: "Retrieve citation by SHA-256 hash", fr: "Récupérer une citation par hachage SHA-256" } },
+  { method: "GET", path: "/v1/signals", desc: { en: "Cross-reference signals (requires engine)", fr: "Signaux de recoupement (nécessite le moteur)" } },
   // AI (edge worker)
-  { method: "POST", path: "/v1/ai/ask", desc: "Ask a question, get a sourced answer (edge AI)" },
-  { method: "POST", path: "/v1/ai/search", desc: "Semantic search with edge embeddings" },
-  { method: "GET", path: "/v1/ai/models", desc: "List available AI models" },
-  { method: "POST", path: "/v1/ai/analyze", desc: "Analyze a document/transcript for topics, entities, summary (Pro+)" },
+  { method: "POST", path: "/v1/ai/ask", desc: { en: "Ask a question, get a sourced answer (edge AI)", fr: "Posez une question, obtenez une réponse sourcée (IA de périphérie)" } },
+  { method: "POST", path: "/v1/ai/search", desc: { en: "Semantic search with edge embeddings", fr: "Recherche sémantique avec plongements de périphérie" } },
+  { method: "GET", path: "/v1/ai/models", desc: { en: "List available AI models", fr: "Lister les modèles IA disponibles" } },
+  { method: "POST", path: "/v1/ai/analyze", desc: { en: "Analyze a document/transcript for topics, entities, summary (Pro+)", fr: "Analyser un document/transcription : sujets, entités, résumé (Pro+)" } },
   // Auth
-  { method: "POST", path: "/v1/register", desc: "Create account and API key" },
-  { method: "GET", path: "/v1/verify/:token", desc: "Verify email address" },
-  { method: "POST", path: "/v1/auth/refresh", desc: "Refresh JWT token" },
-  { method: "POST", path: "/v1/auth/logout", desc: "Clear session" },
+  { method: "POST", path: "/v1/register", desc: { en: "Create account and API key", fr: "Créer un compte et une clé API" } },
+  { method: "GET", path: "/v1/verify/:token", desc: { en: "Verify email address", fr: "Vérifier l'adresse courriel" } },
+  { method: "POST", path: "/v1/auth/refresh", desc: { en: "Refresh JWT token", fr: "Actualiser le jeton JWT" } },
+  { method: "POST", path: "/v1/auth/logout", desc: { en: "Clear session", fr: "Fermer la session" } },
   // Keys
-  { method: "GET", path: "/v1/keys", desc: "List API keys" },
-  { method: "POST", path: "/v1/keys", desc: "Create a new API key" },
-  { method: "DELETE", path: "/v1/keys/:id", desc: "Delete an API key" },
-  { method: "POST", path: "/v1/keys/:id/rotate", desc: "Rotate an API key" },
+  { method: "GET", path: "/v1/keys", desc: { en: "List API keys", fr: "Lister les clés API" } },
+  { method: "POST", path: "/v1/keys", desc: { en: "Create a new API key", fr: "Créer une nouvelle clé API" } },
+  { method: "DELETE", path: "/v1/keys/:id", desc: { en: "Delete an API key", fr: "Supprimer une clé API" } },
+  { method: "POST", path: "/v1/keys/:id/rotate", desc: { en: "Rotate an API key", fr: "Faire pivoter une clé API" } },
   // Billing
-  { method: "POST", path: "/v1/billing/checkout", desc: "Create checkout session" },
-  { method: "GET", path: "/v1/billing/plans", desc: "Available pricing plans" },
+  { method: "POST", path: "/v1/billing/checkout", desc: { en: "Create checkout session", fr: "Créer une session de paiement" } },
+  { method: "GET", path: "/v1/billing/plans", desc: { en: "Available pricing plans", fr: "Forfaits disponibles" } },
   // Extraction (browser)
-  { method: "GET", path: "/v1/extraction/tasks", desc: "List browser extraction tasks for no-API portals" },
-  { method: "POST", path: "/v1/extraction/results", desc: "Submit extracted data from browser client" },
-  { method: "GET", path: "/v1/extraction/cached/:source_id", desc: "Get cached browser extraction results" },
+  { method: "GET", path: "/v1/extraction/tasks", desc: { en: "List browser extraction tasks for no-API portals", fr: "Lister les tâches d'extraction navigateur pour les portails sans API" } },
+  { method: "POST", path: "/v1/extraction/results", desc: { en: "Submit extracted data from browser client", fr: "Soumettre les données extraites depuis le navigateur" } },
+  { method: "GET", path: "/v1/extraction/cached/:source_id", desc: { en: "Get cached browser extraction results", fr: "Obtenir les résultats d'extraction navigateur en cache" } },
 ];
 
 const mcpTools = [
   // ── General (6) ──
-  { cat: "General", name: "query_gov_data", desc: "Search across StatCan, CKAN, provincial portals" },
-  { cat: "General", name: "fact_check", desc: "Verify claims against official government data" },
-  { cat: "General", name: "get_citation", desc: "Retrieve citation by SHA-256 hash" },
-  { cat: "General", name: "latest_releases", desc: "Recent government data releases by category" },
-  { cat: "General", name: "smart_search", desc: "Intent-aware search across all sources" },
-  { cat: "General", name: "explore_catalog", desc: "Browse available data modules and categories" },
+  { cat: "General", name: "query_gov_data", desc: { en: "Search across StatCan, CKAN, provincial portals", fr: "Recherche dans StatCan, CKAN et les portails provinciaux" } },
+  { cat: "General", name: "fact_check", desc: { en: "Verify claims against official government data", fr: "Vérifier des affirmations par rapport aux données gouvernementales officielles" } },
+  { cat: "General", name: "get_citation", desc: { en: "Retrieve citation by SHA-256 hash", fr: "Récupérer une citation par hachage SHA-256" } },
+  { cat: "General", name: "latest_releases", desc: { en: "Recent government data releases by category", fr: "Publications récentes de données gouvernementales par catégorie" } },
+  { cat: "General", name: "smart_search", desc: { en: "Intent-aware search across all sources", fr: "Recherche sensible à l'intention dans toutes les sources" } },
+  { cat: "General", name: "explore_catalog", desc: { en: "Browse available data modules and categories", fr: "Parcourir les modules et catégories de données disponibles" } },
   // ── Parliament (9) ──
-  { cat: "Parliament", name: "search_committees", desc: "HoC + Senate committee evidence and transcripts" },
-  { cat: "Parliament", name: "search_committees_op", desc: "Committees via Open Parliament API" },
-  { cat: "Parliament", name: "search_debates", desc: "House of Commons debates (Hansard) by date or topic" },
-  { cat: "Parliament", name: "search_bills", desc: "Federal bills via Open Parliament with LEGISinfo IDs" },
-  { cat: "Parliament", name: "track_bill", desc: "Track a bill through Parliament end-to-end" },
-  { cat: "Parliament", name: "search_votes", desc: "House of Commons voting records via Open Parliament" },
-  { cat: "Parliament", name: "get_member_info", desc: "MP details: name, party, riding, photo URL" },
-  { cat: "Parliament", name: "get_politician_influence", desc: "Influence profile: lobbying, voting, GIC appointments" },
-  { cat: "Parliament", name: "search_legislation", desc: "Federal acts by name, keyword, or jurisdiction" },
+  { cat: "Parliament", name: "search_committees", desc: { en: "HoC + Senate committee evidence and transcripts", fr: "Témoignages et transcriptions des comités (Chambre + Sénat)" } },
+  { cat: "Parliament", name: "search_committees_op", desc: { en: "Committees via Open Parliament API", fr: "Comités via l'API Open Parliament" } },
+  { cat: "Parliament", name: "search_debates", desc: { en: "House of Commons debates (Hansard) by date or topic", fr: "Débats de la Chambre des communes (Hansard) par date ou sujet" } },
+  { cat: "Parliament", name: "search_bills", desc: { en: "Federal bills via Open Parliament with LEGISinfo IDs", fr: "Projets de loi fédéraux via Open Parliament avec identifiants LEGISinfo" } },
+  { cat: "Parliament", name: "track_bill", desc: { en: "Track a bill through Parliament end-to-end", fr: "Suivre un projet de loi au Parlement de bout en bout" } },
+  { cat: "Parliament", name: "search_votes", desc: { en: "House of Commons voting records via Open Parliament", fr: "Registres de votes de la Chambre des communes via Open Parliament" } },
+  { cat: "Parliament", name: "get_member_info", desc: { en: "MP details: name, party, riding, photo URL", fr: "Détails du député : nom, parti, circonscription, URL de la photo" } },
+  { cat: "Parliament", name: "get_politician_influence", desc: { en: "Influence profile: lobbying, voting, GIC appointments", fr: "Profil d'influence : lobbying, votes, nominations par décret" } },
+  { cat: "Parliament", name: "search_legislation", desc: { en: "Federal acts by name, keyword, or jurisdiction", fr: "Lois fédérales par nom, mot-clé ou compétence" } },
   // ── Regulatory (5) ──
-  { cat: "Regulatory", name: "search_gazette", desc: "Canada Gazette Parts I, II, III" },
-  { cat: "Regulatory", name: "search_gazette_part1", desc: "Gazette Part I — notices and proposed regulations" },
-  { cat: "Regulatory", name: "search_gazette_part2", desc: "Gazette Part II — statutory instruments and orders" },
-  { cat: "Regulatory", name: "search_gazette_part3", desc: "Gazette Part III — acts of Parliament as enacted" },
-  { cat: "Regulatory", name: "search_gic", desc: "Governor-in-Council appointments by department" },
+  { cat: "Regulatory", name: "search_gazette", desc: { en: "Canada Gazette Parts I, II, III", fr: "Gazette du Canada, parties I, II, III" } },
+  { cat: "Regulatory", name: "search_gazette_part1", desc: { en: "Gazette Part I — notices and proposed regulations", fr: "Gazette, partie I — avis et règlements proposés" } },
+  { cat: "Regulatory", name: "search_gazette_part2", desc: { en: "Gazette Part II — statutory instruments and orders", fr: "Gazette, partie II — textes réglementaires et décrets" } },
+  { cat: "Regulatory", name: "search_gazette_part3", desc: { en: "Gazette Part III — acts of Parliament as enacted", fr: "Gazette, partie III — lois du Parlement telles qu'adoptées" } },
+  { cat: "Regulatory", name: "search_gic", desc: { en: "Governor-in-Council appointments by department", fr: "Nominations par décret en conseil par ministère" } },
   // ── Elections (1) ──
-  { cat: "Elections", name: "search_elections", desc: "Third-party advertising, election spending data" },
+  { cat: "Elections", name: "search_elections", desc: { en: "Third-party advertising, election spending data", fr: "Publicité de tiers, données de dépenses électorales" } },
   // ── Corporate (9) ──
-  { cat: "Corporate", name: "search_corporate", desc: "Lobbying, procurement, exec statements by company" },
-  { cat: "Corporate", name: "search_corporate_filings", desc: "SEDAR+ filings, insider reports by company or ticker" },
-  { cat: "Corporate", name: "search_sedi", desc: "SEDI insider trading reports by issuer or insider" },
-  { cat: "Corporate", name: "search_cipo", desc: "CIPO patents and trademarks by applicant or tech area" },
-  { cat: "Corporate", name: "search_corporate_registry", desc: "Federal corporations registry data from CKAN" },
-  { cat: "Corporate", name: "search_patents", desc: "Canadian patent data from CIPO via CKAN" },
-  { cat: "Corporate", name: "search_trademarks", desc: "Canadian trademark data from CIPO via CKAN" },
-  { cat: "Corporate", name: "search_financial_regulation", desc: "Financial regulation and oversight data" },
-  { cat: "Corporate", name: "search_provincial_lobbying", desc: "Provincial lobbying registries (ON, BC, QC)" },
+  { cat: "Corporate", name: "search_corporate", desc: { en: "Lobbying, procurement, exec statements by company", fr: "Lobbying, approvisionnement, déclarations de dirigeants par entreprise" } },
+  { cat: "Corporate", name: "search_corporate_filings", desc: { en: "SEDAR+ filings, insider reports by company or ticker", fr: "Dépôts SEDAR+, rapports d'initiés par entreprise ou symbole" } },
+  { cat: "Corporate", name: "search_sedi", desc: { en: "SEDI insider trading reports by issuer or insider", fr: "Rapports d'opérations d'initiés SEDI par émetteur ou initié" } },
+  { cat: "Corporate", name: "search_cipo", desc: { en: "CIPO patents and trademarks by applicant or tech area", fr: "Brevets et marques de l'OPIC par demandeur ou domaine technique" } },
+  { cat: "Corporate", name: "search_corporate_registry", desc: { en: "Federal corporations registry data from CKAN", fr: "Données du registre fédéral des sociétés via CKAN" } },
+  { cat: "Corporate", name: "search_patents", desc: { en: "Canadian patent data from CIPO via CKAN", fr: "Données de brevets canadiens de l'OPIC via CKAN" } },
+  { cat: "Corporate", name: "search_trademarks", desc: { en: "Canadian trademark data from CIPO via CKAN", fr: "Données de marques de commerce canadiennes de l'OPIC via CKAN" } },
+  { cat: "Corporate", name: "search_financial_regulation", desc: { en: "Financial regulation and oversight data", fr: "Données de réglementation et de surveillance financières" } },
+  { cat: "Corporate", name: "search_provincial_lobbying", desc: { en: "Provincial lobbying registries (ON, BC, QC)", fr: "Registres provinciaux de lobbying (ON, C.-B., QC)" } },
   // ── Procurement & Budget (6) ──
-  { cat: "Procurement", name: "search_proactive_disclosure", desc: "Proactive disclosure contracts by vendor or department" },
-  { cat: "Procurement", name: "search_federal_contracts", desc: "Federal contract awards from CKAN" },
-  { cat: "Procurement", name: "search_federal_grants", desc: "Federal grants and contributions data" },
-  { cat: "Procurement", name: "search_goc_spending", desc: "Government spending by vendor, department, program" },
-  { cat: "Procurement", name: "search_federal_budget", desc: "Federal budget by program, department, fiscal year" },
-  { cat: "Procurement", name: "search_ati", desc: "Access to Information requests by keyword or department" },
+  { cat: "Procurement", name: "search_proactive_disclosure", desc: { en: "Proactive disclosure contracts by vendor or department", fr: "Contrats de divulgation proactive par fournisseur ou ministère" } },
+  { cat: "Procurement", name: "search_federal_contracts", desc: { en: "Federal contract awards from CKAN", fr: "Octrois de contrats fédéraux via CKAN" } },
+  { cat: "Procurement", name: "search_federal_grants", desc: { en: "Federal grants and contributions data", fr: "Données de subventions et contributions fédérales" } },
+  { cat: "Procurement", name: "search_goc_spending", desc: { en: "Government spending by vendor, department, program", fr: "Dépenses gouvernementales par fournisseur, ministère, programme" } },
+  { cat: "Procurement", name: "search_federal_budget", desc: { en: "Federal budget by program, department, fiscal year", fr: "Budget fédéral par programme, ministère, exercice financier" } },
+  { cat: "Procurement", name: "search_ati", desc: { en: "Access to Information requests by keyword or department", fr: "Demandes d'accès à l'information par mot-clé ou ministère" } },
   // ── Oversight & Legal (4) ──
-  { cat: "Oversight", name: "search_oversight", desc: "OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau" },
-  { cat: "Oversight", name: "search_canlii", desc: "Court decisions and citations via CanLII" },
-  { cat: "Oversight", name: "search_a2aj", desc: "Access to justice and legal aid resources" },
-  { cat: "Oversight", name: "search_tribunals", desc: "Federal tribunal appointments and decisions" },
+  { cat: "Oversight", name: "search_oversight", desc: { en: "OAG, PBO, Ethics Commissioner, CRTC, Competition Bureau", fr: "BVG, DPR, commissaire à l'éthique, CRTC, Bureau de la concurrence" } },
+  { cat: "Oversight", name: "search_canlii", desc: { en: "Court decisions and citations via CanLII", fr: "Décisions et citations judiciaires via CanLII" } },
+  { cat: "Oversight", name: "search_a2aj", desc: { en: "Access to justice and legal aid resources", fr: "Accès à la justice et ressources d'aide juridique" } },
+  { cat: "Oversight", name: "search_tribunals", desc: { en: "Federal tribunal appointments and decisions", fr: "Nominations et décisions des tribunaux fédéraux" } },
   // ── Influence & NGOs (3) ──
-  { cat: "Influence", name: "search_influence", desc: "Tracked IOs, NGOs, think tanks, funding connections" },
-  { cat: "Influence", name: "search_ngo_rss", desc: "NGO and think tank publications via RSS" },
-  { cat: "Influence", name: "ngo_narrative_tracker", desc: "Track narratives by NGO or think tank organization" },
+  { cat: "Influence", name: "search_influence", desc: { en: "Tracked IOs, NGOs, think tanks, funding connections", fr: "OI, ONG et groupes de réflexion suivis, liens de financement" } },
+  { cat: "Influence", name: "search_ngo_rss", desc: { en: "NGO and think tank publications via RSS", fr: "Publications des ONG et groupes de réflexion via RSS" } },
+  { cat: "Influence", name: "ngo_narrative_tracker", desc: { en: "Track narratives by NGO or think tank organization", fr: "Suivre les narratifs d'une ONG ou d'un groupe de réflexion" } },
   // ── Immigration (12) ──
-  { cat: "Immigration", name: "search_immigration", desc: "IRCC data by country, province, category, or year" },
-  { cat: "Immigration", name: "search_lmia", desc: "LMIA quarterly data, TFW program by employer or NOC" },
-  { cat: "Immigration", name: "search_ircc-citizenship", desc: "Citizenship statistics and grants by province" },
-  { cat: "Immigration", name: "search_ircc_entry_exit", desc: "Port of entry data by nationality and quarter" },
-  { cat: "Immigration", name: "search_ircc_express_entry", desc: "CRS scores, program draws, category-based selection" },
-  { cat: "Immigration", name: "search_ircc_family_sponsorship", desc: "Parent and spousal sponsorship by visa office" },
-  { cat: "Immigration", name: "search_ircc_pr_admissions", desc: "PR admissions by province, category, or year" },
-  { cat: "Immigration", name: "search_ircc_processing_times", desc: "Processing times by application type and country" },
-  { cat: "Immigration", name: "search_ircc_study_permits", desc: "Study permits by institution, province, or country" },
-  { cat: "Immigration", name: "search_ircc_work_permits", desc: "Work permits by NOC code, province, or country" },
-  { cat: "Immigration", name: "search_citizenship_data", desc: "Canadian citizenship statistics from CKAN" },
-  { cat: "Immigration", name: "search_immigration_refugees", desc: "Immigration and refugee data from CKAN" },
+  { cat: "Immigration", name: "search_immigration", desc: { en: "IRCC data by country, province, category, or year", fr: "Données d'IRCC par pays, province, catégorie ou année" } },
+  { cat: "Immigration", name: "search_lmia", desc: { en: "LMIA quarterly data, TFW program by employer or NOC", fr: "Données trimestrielles des EIMT, programme de PTET par employeur ou CNP" } },
+  { cat: "Immigration", name: "search_ircc-citizenship", desc: { en: "Citizenship statistics and grants by province", fr: "Statistiques de citoyenneté et octrois par province" } },
+  { cat: "Immigration", name: "search_ircc_entry_exit", desc: { en: "Port of entry data by nationality and quarter", fr: "Données des points d'entrée par nationalité et trimestre" } },
+  { cat: "Immigration", name: "search_ircc_express_entry", desc: { en: "CRS scores, program draws, category-based selection", fr: "Scores RC, tirages de programme, sélection par catégorie" } },
+  { cat: "Immigration", name: "search_ircc_family_sponsorship", desc: { en: "Parent and spousal sponsorship by visa office", fr: "Parrainage de parents et d'époux par bureau de visa" } },
+  { cat: "Immigration", name: "search_ircc_pr_admissions", desc: { en: "PR admissions by province, category, or year", fr: "Admissions de RP par province, catégorie ou année" } },
+  { cat: "Immigration", name: "search_ircc_processing_times", desc: { en: "Processing times by application type and country", fr: "Délais de traitement par type de demande et pays" } },
+  { cat: "Immigration", name: "search_ircc_study_permits", desc: { en: "Study permits by institution, province, or country", fr: "Permis d'études par établissement, province ou pays" } },
+  { cat: "Immigration", name: "search_ircc_work_permits", desc: { en: "Work permits by NOC code, province, or country", fr: "Permis de travail par code CNP, province ou pays" } },
+  { cat: "Immigration", name: "search_citizenship_data", desc: { en: "Canadian citizenship statistics from CKAN", fr: "Statistiques de citoyenneté canadienne via CKAN" } },
+  { cat: "Immigration", name: "search_immigration_refugees", desc: { en: "Immigration and refugee data from CKAN", fr: "Données d'immigration et de réfugiés via CKAN" } },
   // ── Defence & Veterans (2) ──
-  { cat: "Defence", name: "search_defence", desc: "DND personnel, procurement, defence spending" },
-  { cat: "Defence", name: "search_veterans", desc: "Veterans Affairs: disability, benefits, wait times" },
+  { cat: "Defence", name: "search_defence", desc: { en: "DND personnel, procurement, defence spending", fr: "Personnel du MDN, approvisionnement, dépenses de défense" } },
+  { cat: "Defence", name: "search_veterans", desc: { en: "Veterans Affairs: disability, benefits, wait times", fr: "Anciens combattants : invalidité, prestations, délais d'attente" } },
   // ── Health (3) ──
-  { cat: "Health", name: "search_health", desc: "Health conditions, drugs, procedures, wait times" },
-  { cat: "Health", name: "search_health_canada", desc: "Drug recalls, medical device licences, regulations" },
-  { cat: "Health", name: "search_pharmaceuticals", desc: "Drug pricing, shortages, PMPRB data" },
+  { cat: "Health", name: "search_health", desc: { en: "Health conditions, drugs, procedures, wait times", fr: "Affections, médicaments, interventions, délais d'attente" } },
+  { cat: "Health", name: "search_health_canada", desc: { en: "Drug recalls, medical device licences, regulations", fr: "Rappels de médicaments, licences de dispositifs médicaux, règlements" } },
+  { cat: "Health", name: "search_pharmaceuticals", desc: { en: "Drug pricing, shortages, PMPRB data", fr: "Prix des médicaments, pénuries, données du CEPMB" } },
   // ── Transport & Infrastructure (7) ──
-  { cat: "Transport", name: "search_transport_safety", desc: "TSB occurrences, air and rail safety investigations" },
-  { cat: "Transport", name: "search_transportation_data", desc: "Transportation and infrastructure data from CKAN" },
-  { cat: "Transport", name: "search_geospatial", desc: "Topographic maps, satellite imagery, GIS datasets" },
-  { cat: "Transport", name: "search_arcgis_layers", desc: "ArcGIS feature services for MB, SK, PE" },
-  { cat: "Transport", name: "search_real_time_feeds", desc: "Real-time alerts: weather, health advisories, amber alerts" },
-  { cat: "Transport", name: "search_regional_authorities", desc: "Regional transit and service authorities" },
-  { cat: "Transport", name: "search_utilities", desc: "Hydro, gas, and water utilities by province" },
+  { cat: "Transport", name: "search_transport_safety", desc: { en: "TSB occurrences, air and rail safety investigations", fr: "Événements du BST, enquêtes de sécurité aérienne et ferroviaire" } },
+  { cat: "Transport", name: "search_transportation_data", desc: { en: "Transportation and infrastructure data from CKAN", fr: "Données de transport et d'infrastructure via CKAN" } },
+  { cat: "Transport", name: "search_geospatial", desc: { en: "Topographic maps, satellite imagery, GIS datasets", fr: "Cartes topographiques, imagerie satellite, ensembles SIG" } },
+  { cat: "Transport", name: "search_arcgis_layers", desc: { en: "ArcGIS feature services for MB, SK, PE", fr: "Services d'entités ArcGIS pour MB, SK, Î.-P.-É." } },
+  { cat: "Transport", name: "search_real_time_feeds", desc: { en: "Real-time alerts: weather, health advisories, amber alerts", fr: "Alertes en temps réel : météo, avis de santé, alertes AMBER" } },
+  { cat: "Transport", name: "search_regional_authorities", desc: { en: "Regional transit and service authorities", fr: "Autorités régionales de transport en commun et de services" } },
+  { cat: "Transport", name: "search_utilities", desc: { en: "Hydro, gas, and water utilities by province", fr: "Services d'électricité, de gaz et d'eau par province" } },
   // ── Indigenous (3) ──
-  { cat: "Indigenous", name: "search_indigenous_relations", desc: "Specific claims, TRC calls to action, Indigenous services" },
-  { cat: "Indigenous", name: "search_indigenous_services_directory", desc: "Indigenous services directory and listings" },
-  { cat: "Indigenous", name: "search_indigenous_stats", desc: "Indigenous peoples statistics from CKAN" },
+  { cat: "Indigenous", name: "search_indigenous_relations", desc: { en: "Specific claims, TRC calls to action, Indigenous services", fr: "Revendications particulières, appels à l'action de la CVR, services autochtones" } },
+  { cat: "Indigenous", name: "search_indigenous_services_directory", desc: { en: "Indigenous services directory and listings", fr: "Annuaire et listes des services autochtones" } },
+  { cat: "Indigenous", name: "search_indigenous_stats", desc: { en: "Indigenous peoples statistics from CKAN", fr: "Statistiques sur les peuples autochtones via CKAN" } },
   // ── Provincial (10) ──
-  { cat: "Provincial", name: "search_ab_data", desc: "Alberta: AHS health, AAIP immigration, courts, education" },
-  { cat: "Provincial", name: "search_bc_data", desc: "BC: PharmaCare, BCPNP immigration, courts, education" },
-  { cat: "Provincial", name: "search_on_data", desc: "Ontario: OHIP claims, OINP immigration, EQAO, courts" },
-  { cat: "Provincial", name: "search_qc_data", desc: "Quebec: RAMQ, MIFI immigration, courts, education" },
-  { cat: "Provincial", name: "search_yukon_data", desc: "Yukon open data from open.yukon.ca CKAN portal" },
-  { cat: "Provincial", name: "search_nunavut_data", desc: "Nunavut data from federal CKAN and StatsCan" },
-  { cat: "Provincial", name: "search_provincial_data", desc: "All 13 provinces and territories via CKAN and Socrata" },
-  { cat: "Provincial", name: "search_provincial_legislatures", desc: "Provincial Hansard and legislature debates" },
-  { cat: "Provincial", name: "search_provincial_regulators", desc: "Provincial regulators by profession or province" },
-  { cat: "Provincial", name: "search_provincial_orgs", desc: "Provincial organizations and agencies" },
+  { cat: "Provincial", name: "search_ab_data", desc: { en: "Alberta: AHS health, AAIP immigration, courts, education", fr: "Alberta : santé AHS, immigration AAIP, tribunaux, éducation" } },
+  { cat: "Provincial", name: "search_bc_data", desc: { en: "BC: PharmaCare, BCPNP immigration, courts, education", fr: "C.-B. : PharmaCare, immigration BCPNP, tribunaux, éducation" } },
+  { cat: "Provincial", name: "search_on_data", desc: { en: "Ontario: OHIP claims, OINP immigration, EQAO, courts", fr: "Ontario : demandes SOO, immigration OINP, EQAO, tribunaux" } },
+  { cat: "Provincial", name: "search_qc_data", desc: { en: "Quebec: RAMQ, MIFI immigration, courts, education", fr: "Québec : RAMQ, immigration MIFI, tribunaux, éducation" } },
+  { cat: "Provincial", name: "search_yukon_data", desc: { en: "Yukon open data from open.yukon.ca CKAN portal", fr: "Données ouvertes du Yukon du portail CKAN open.yukon.ca" } },
+  { cat: "Provincial", name: "search_nunavut_data", desc: { en: "Nunavut data from federal CKAN and StatsCan", fr: "Données du Nunavut du CKAN fédéral et de Statistique Canada" } },
+  { cat: "Provincial", name: "search_provincial_data", desc: { en: "All 13 provinces and territories via CKAN and Socrata", fr: "Les 13 provinces et territoires via CKAN et Socrata" } },
+  { cat: "Provincial", name: "search_provincial_legislatures", desc: { en: "Provincial Hansard and legislature debates", fr: "Hansard provincial et débats des assemblées législatives" } },
+  { cat: "Provincial", name: "search_provincial_regulators", desc: { en: "Provincial regulators by profession or province", fr: "Organismes de réglementation provinciaux par profession ou province" } },
+  { cat: "Provincial", name: "search_provincial_orgs", desc: { en: "Provincial organizations and agencies", fr: "Organisations et agences provinciales" } },
   // ── Municipal (3) ──
-  { cat: "Municipal", name: "search_municipal", desc: "Municipal open data from major Canadian cities" },
-  { cat: "Municipal", name: "search_municipal_data", desc: "Municipal datasets across 10 Canadian cities" },
-  { cat: "Municipal", name: "search_municipal_long_tail", desc: "Long-tail municipal data queries and niche datasets" },
+  { cat: "Municipal", name: "search_municipal", desc: { en: "Municipal open data from major Canadian cities", fr: "Données ouvertes municipales des grandes villes canadiennes" } },
+  { cat: "Municipal", name: "search_municipal_data", desc: { en: "Municipal datasets across 10 Canadian cities", fr: "Ensembles de données municipales de 10 villes canadiennes" } },
+  { cat: "Municipal", name: "search_municipal_long_tail", desc: { en: "Long-tail municipal data queries and niche datasets", fr: "Requêtes municipales de longue traîne et ensembles de niche" } },
   // ── Economic (9) ──
-  { cat: "Economic", name: "query_cpi", desc: "Consumer Price Index (inflation) from StatCan" },
-  { cat: "Economic", name: "query_gdp", desc: "GDP from StatCan with time-series and reference dates" },
-  { cat: "Economic", name: "query_labour", desc: "Labour force: employment, unemployment from StatCan" },
-  { cat: "Economic", name: "query_population", desc: "Population estimates by province and territory" },
-  { cat: "Economic", name: "query_trade", desc: "International merchandise trade from StatCan" },
-  { cat: "Economic", name: "query_bridges", desc: "Bridge infrastructure conditions by province" },
-  { cat: "Economic", name: "search_statcan", desc: "Search StatCan datasets by keyword or topic" },
-  { cat: "Economic", name: "search_bank_of_canada", desc: "Bank of Canada rates, speeches, and policy outlook" },
-  { cat: "Economic", name: "compare_regions", desc: "Compare economic indicators across provinces and territories" },
+  { cat: "Economic", name: "query_cpi", desc: { en: "Consumer Price Index (inflation) from StatCan", fr: "Indice des prix à la consommation (inflation) de Statistique Canada" } },
+  { cat: "Economic", name: "query_gdp", desc: { en: "GDP from StatCan with time-series and reference dates", fr: "PIB de Statistique Canada avec séries chronologiques et dates de référence" } },
+  { cat: "Economic", name: "query_labour", desc: { en: "Labour force: employment, unemployment from StatCan", fr: "Population active : emploi, chômage de Statistique Canada" } },
+  { cat: "Economic", name: "query_population", desc: { en: "Population estimates by province and territory", fr: "Estimations de la population par province et territoire" } },
+  { cat: "Economic", name: "query_trade", desc: { en: "International merchandise trade from StatCan", fr: "Commerce international de marchandises de Statistique Canada" } },
+  { cat: "Economic", name: "query_bridges", desc: { en: "Bridge infrastructure conditions by province", fr: "État des ponts par province" } },
+  { cat: "Economic", name: "search_statcan", desc: { en: "Search StatCan datasets by keyword or topic", fr: "Rechercher des ensembles de données de Statistique Canada par mot-clé ou sujet" } },
+  { cat: "Economic", name: "search_bank_of_canada", desc: { en: "Bank of Canada rates, speeches, and policy outlook", fr: "Taux, discours et perspectives de politique de la Banque du Canada" } },
+  { cat: "Economic", name: "compare_regions", desc: { en: "Compare economic indicators across provinces and territories", fr: "Comparer des indicateurs économiques entre provinces et territoires" } },
   // ── Environment (13) ──
-  { cat: "Environment", name: "search_npri", desc: "National Pollutant Release Inventory by facility or substance" },
-  { cat: "Environment", name: "search_nrcan", desc: "Natural Resources Canada: commodities, regions, resources" },
-  { cat: "Environment", name: "search_nrcan_renewable", desc: "Renewable energy data from NRCAN" },
-  { cat: "Environment", name: "search_nrcan_fires", desc: "Wildfire data and fire monitoring from NRCAN" },
-  { cat: "Environment", name: "search_nrcan_forests", desc: "Forestry data and forest inventory from NRCAN" },
-  { cat: "Environment", name: "search_nrcan_minerals", desc: "Mineral and mining data from NRCAN" },
-  { cat: "Environment", name: "search_impact_assessment", desc: "Environmental impact assessments by project or sector" },
-  { cat: "Environment", name: "search_species_at_risk", desc: "Species at risk registry by species name or status" },
-  { cat: "Environment", name: "search_fisheries", desc: "Fisheries: species, regions, aquaculture, licenses" },
-  { cat: "Environment", name: "search_agriculture", desc: "Agriculture: commodities, provinces, farm income" },
-  { cat: "Environment", name: "search_agriculture_data", desc: "Agriculture and agri-food data from CKAN" },
-  { cat: "Environment", name: "search_energy_data", desc: "Energy production and consumption from CKAN" },
-  { cat: "Environment", name: "search_climate_data", desc: "Climate change and weather data from CKAN" },
+  { cat: "Environment", name: "search_npri", desc: { en: "National Pollutant Release Inventory by facility or substance", fr: "Inventaire national des rejets de polluants par installation ou substance" } },
+  { cat: "Environment", name: "search_nrcan", desc: { en: "Natural Resources Canada: commodities, regions, resources", fr: "Ressources naturelles Canada : produits, régions, ressources" } },
+  { cat: "Environment", name: "search_nrcan_renewable", desc: { en: "Renewable energy data from NRCAN", fr: "Données sur les énergies renouvelables de RNCan" } },
+  { cat: "Environment", name: "search_nrcan_fires", desc: { en: "Wildfire data and fire monitoring from NRCAN", fr: "Données sur les feux de forêt et suivi des incendies de RNCan" } },
+  { cat: "Environment", name: "search_nrcan_forests", desc: { en: "Forestry data and forest inventory from NRCAN", fr: "Données forestières et inventaire forestier de RNCan" } },
+  { cat: "Environment", name: "search_nrcan_minerals", desc: { en: "Mineral and mining data from NRCAN", fr: "Données minérales et minières de RNCan" } },
+  { cat: "Environment", name: "search_impact_assessment", desc: { en: "Environmental impact assessments by project or sector", fr: "Évaluations d'impact environnemental par projet ou secteur" } },
+  { cat: "Environment", name: "search_species_at_risk", desc: { en: "Species at risk registry by species name or status", fr: "Registre des espèces en péril par nom ou statut" } },
+  { cat: "Environment", name: "search_fisheries", desc: { en: "Fisheries: species, regions, aquaculture, licenses", fr: "Pêches : espèces, régions, aquaculture, permis" } },
+  { cat: "Environment", name: "search_agriculture", desc: { en: "Agriculture: commodities, provinces, farm income", fr: "Agriculture : produits, provinces, revenus agricoles" } },
+  { cat: "Environment", name: "search_agriculture_data", desc: { en: "Agriculture and agri-food data from CKAN", fr: "Données agricoles et agroalimentaires via CKAN" } },
+  { cat: "Environment", name: "search_energy_data", desc: { en: "Energy production and consumption from CKAN", fr: "Production et consommation d'énergie via CKAN" } },
+  { cat: "Environment", name: "search_climate_data", desc: { en: "Climate change and weather data from CKAN", fr: "Données sur les changements climatiques et la météo via CKAN" } },
   // ── Housing (4) ──
-  { cat: "Housing", name: "search_housing_cmhc", desc: "CMHC housing starts, vacancy rates, affordable housing" },
-  { cat: "Housing", name: "search_housing_data", desc: "Housing and rental market data from CKAN" },
-  { cat: "Housing", name: "search_cmhc", desc: "CMHC metrics by city, province, or year" },
-  { cat: "Housing", name: "search_real_estate", desc: "Real estate market data and trends" },
+  { cat: "Housing", name: "search_housing_cmhc", desc: { en: "CMHC housing starts, vacancy rates, affordable housing", fr: "SCHL : mises en chantier, taux d'inoccupation, logement abordable" } },
+  { cat: "Housing", name: "search_housing_data", desc: { en: "Housing and rental market data from CKAN", fr: "Données sur le logement et le marché locatif via CKAN" } },
+  { cat: "Housing", name: "search_cmhc", desc: { en: "CMHC metrics by city, province, or year", fr: "Indicateurs de la SCHL par ville, province ou année" } },
+  { cat: "Housing", name: "search_real_estate", desc: { en: "Real estate market data and trends", fr: "Données et tendances du marché immobilier" } },
   // ── International (20) ──
-  { cat: "International", name: "get_wdi_indicator", desc: "World Bank Development Indicators by country" },
-  { cat: "International", name: "compare_wdi_countries", desc: "Compare a WDI indicator across multiple countries" },
-  { cat: "International", name: "get_country_wdi_profile", desc: "Country profile with key development indicators" },
-  { cat: "International", name: "analyze_indicator_trend", desc: "Analyze WDI indicator trend over time" },
-  { cat: "International", name: "fetch_topic_indicators", desc: "All indicators for a WDI topic (economy, health, social)" },
-  { cat: "International", name: "get_indicator_metadata", desc: "Metadata for a World Bank indicator" },
-  { cat: "International", name: "get_comtrade_by_partner", desc: "UN Comtrade trade data by partner country" },
-  { cat: "International", name: "get_comtrade_by_commodity", desc: "UN Comtrade trade data by commodity" },
-  { cat: "International", name: "get_comtrade_trends", desc: "UN Comtrade trade trends over time" },
-  { cat: "International", name: "search_oecd_stat", desc: "OECD statistics and indicators" },
-  { cat: "International", name: "search_undp_hdi", desc: "UNDP Human Development Index data" },
-  { cat: "International", name: "search_unhcr_refugees", desc: "UNHCR refugee statistics and displacement data" },
-  { cat: "International", name: "search_us_cia", desc: "CIA World Factbook country data" },
-  { cat: "International", name: "search_au_abs", desc: "Australian Bureau of Statistics" },
-  { cat: "International", name: "search_nz_stats", desc: "Statistics New Zealand" },
-  { cat: "International", name: "search_uk_ons", desc: "UK Office for National Statistics" },
-  { cat: "International", name: "search_who_gho", desc: "WHO Global Health Observatory" },
-  { cat: "International", name: "search_eurostat", desc: "Eurostat European statistics" },
-  { cat: "International", name: "search_un", desc: "UN SDMX data by dimension key" },
-  { cat: "International", name: "search_ilo", desc: "ILO labour statistics by indicator or country" },
+  { cat: "International", name: "get_wdi_indicator", desc: { en: "World Bank Development Indicators by country", fr: "Indicateurs de développement de la Banque mondiale par pays" } },
+  { cat: "International", name: "compare_wdi_countries", desc: { en: "Compare a WDI indicator across multiple countries", fr: "Comparer un indicateur IDM entre plusieurs pays" } },
+  { cat: "International", name: "get_country_wdi_profile", desc: { en: "Country profile with key development indicators", fr: "Profil de pays avec indicateurs de développement clés" } },
+  { cat: "International", name: "analyze_indicator_trend", desc: { en: "Analyze WDI indicator trend over time", fr: "Analyser la tendance d'un indicateur IDM dans le temps" } },
+  { cat: "International", name: "fetch_topic_indicators", desc: { en: "All indicators for a WDI topic (economy, health, social)", fr: "Tous les indicateurs d'un thème IDM (économie, santé, social)" } },
+  { cat: "International", name: "get_indicator_metadata", desc: { en: "Metadata for a World Bank indicator", fr: "Métadonnées d'un indicateur de la Banque mondiale" } },
+  { cat: "International", name: "get_comtrade_by_partner", desc: { en: "UN Comtrade trade data by partner country", fr: "Données commerciales UN Comtrade par pays partenaire" } },
+  { cat: "International", name: "get_comtrade_by_commodity", desc: { en: "UN Comtrade trade data by commodity", fr: "Données commerciales UN Comtrade par produit" } },
+  { cat: "International", name: "get_comtrade_trends", desc: { en: "UN Comtrade trade trends over time", fr: "Tendances commerciales UN Comtrade dans le temps" } },
+  { cat: "International", name: "search_oecd_stat", desc: { en: "OECD statistics and indicators", fr: "Statistiques et indicateurs de l'OCDE" } },
+  { cat: "International", name: "search_undp_hdi", desc: { en: "UNDP Human Development Index data", fr: "Données de l'indice de développement humain du PNUD" } },
+  { cat: "International", name: "search_unhcr_refugees", desc: { en: "UNHCR refugee statistics and displacement data", fr: "Statistiques des réfugiés et données de déplacement du HCR" } },
+  { cat: "International", name: "search_us_cia", desc: { en: "CIA World Factbook country data", fr: "Données pays du CIA World Factbook" } },
+  { cat: "International", name: "search_au_abs", desc: { en: "Australian Bureau of Statistics", fr: "Bureau australien des statistiques" } },
+  { cat: "International", name: "search_nz_stats", desc: { en: "Statistics New Zealand", fr: "Statistiques de la Nouvelle-Zélande" } },
+  { cat: "International", name: "search_uk_ons", desc: { en: "UK Office for National Statistics", fr: "Office britannique des statistiques nationales" } },
+  { cat: "International", name: "search_who_gho", desc: { en: "WHO Global Health Observatory", fr: "Observatoire mondial de la santé de l'OMS" } },
+  { cat: "International", name: "search_eurostat", desc: { en: "Eurostat European statistics", fr: "Statistiques européennes d'Eurostat" } },
+  { cat: "International", name: "search_un", desc: { en: "UN SDMX data by dimension key", fr: "Données SDMX de l'ONU par clé de dimension" } },
+  { cat: "International", name: "search_ilo", desc: { en: "ILO labour statistics by indicator or country", fr: "Statistiques du travail de l'OIT par indicateur ou pays" } },
   // ── Social & Cultural (7) ──
-  { cat: "Social", name: "search_social_programs", desc: "EI claims, CCB payments, poverty rates by province" },
-  { cat: "Social", name: "search_education_research", desc: "NSERC, SSHRC, Canada Research Chairs by institution" },
-  { cat: "Social", name: "search_education_stats", desc: "Education enrolment statistics from CKAN" },
-  { cat: "Social", name: "search_gender_stats", desc: "Gender-based statistics and equality data from CKAN" },
-  { cat: "Social", name: "search_official_languages", desc: "Official languages data from CKAN" },
-  { cat: "Social", name: "search_culture", desc: "Canada Council grants, heritage funding, arts programs" },
-  { cat: "Social", name: "search_culture_data", desc: "Culture, arts, and heritage data from CKAN" },
+  { cat: "Social", name: "search_social_programs", desc: { en: "EI claims, CCB payments, poverty rates by province", fr: "Demandes d'AE, paiements de l'ACE, taux de pauvreté par province" } },
+  { cat: "Social", name: "search_education_research", desc: { en: "NSERC, SSHRC, Canada Research Chairs by institution", fr: "CRSNG, CRSH, chaires de recherche du Canada par établissement" } },
+  { cat: "Social", name: "search_education_stats", desc: { en: "Education enrolment statistics from CKAN", fr: "Statistiques d'inscription scolaire via CKAN" } },
+  { cat: "Social", name: "search_gender_stats", desc: { en: "Gender-based statistics and equality data from CKAN", fr: "Statistiques fondées sur le genre et données d'égalité via CKAN" } },
+  { cat: "Social", name: "search_official_languages", desc: { en: "Official languages data from CKAN", fr: "Données sur les langues officielles via CKAN" } },
+  { cat: "Social", name: "search_culture", desc: { en: "Canada Council grants, heritage funding, arts programs", fr: "Subventions du Conseil des arts, financement du patrimoine, programmes artistiques" } },
+  { cat: "Social", name: "search_culture_data", desc: { en: "Culture, arts, and heritage data from CKAN", fr: "Données culturelles, artistiques et patrimoniales via CKAN" } },
   // ── Public Safety (4) ──
-  { cat: "Public Safety", name: "search_public_safety", desc: "Public safety and emergency management from CKAN" },
-  { cat: "Public Safety", name: "search_emergency_management", desc: "Emergency management and disaster response data" },
-  { cat: "Public Safety", name: "search_policing_security", desc: "Policing and security data" },
-  { cat: "Public Safety", name: "search_criminal_justice", desc: "Prison populations, hate crimes, parole data" },
+  { cat: "Public Safety", name: "search_public_safety", desc: { en: "Public safety and emergency management from CKAN", fr: "Sécurité publique et gestion des urgences via CKAN" } },
+  { cat: "Public Safety", name: "search_emergency_management", desc: { en: "Emergency management and disaster response data", fr: "Données de gestion des urgences et d'intervention en cas de catastrophe" } },
+  { cat: "Public Safety", name: "search_policing_security", desc: { en: "Policing and security data", fr: "Données policières et de sécurité" } },
+  { cat: "Public Safety", name: "search_criminal_justice", desc: { en: "Prison populations, hate crimes, parole data", fr: "Populations carcérales, crimes haineux, données de libération conditionnelle" } },
   // ── Media & Telecom (4) ──
-  { cat: "Media", name: "search_media_broadcasting", desc: "Media and broadcasting data" },
-  { cat: "Media", name: "search_telecommunications", desc: "Broadband, spectrum auctions, telecom by provider" },
-  { cat: "Media", name: "search_crtc", desc: "CRTC decisions, licences, net neutrality rulings" },
-  { cat: "Media", name: "search_crtc_decisions", desc: "CRTC decision numbers and broadcasting rulings" },
+  { cat: "Media", name: "search_media_broadcasting", desc: { en: "Media and broadcasting data", fr: "Données médiatiques et de radiodiffusion" } },
+  { cat: "Media", name: "search_telecommunications", desc: { en: "Broadband, spectrum auctions, telecom by provider", fr: "Large bande, enchères de spectre, télécoms par fournisseur" } },
+  { cat: "Media", name: "search_crtc", desc: { en: "CRTC decisions, licences, net neutrality rulings", fr: "Décisions, licences et décisions sur la neutralité du Net du CRTC" } },
+  { cat: "Media", name: "search_crtc_decisions", desc: { en: "CRTC decision numbers and broadcasting rulings", fr: "Numéros de décision et décisions de radiodiffusion du CRTC" } },
   // ── Science & Technology (4) ──
-  { cat: "Science", name: "search_science", desc: "CSA missions, Mitacs grants, Ocean Networks, Polar Data" },
-  { cat: "Science", name: "search_technology_data", desc: "Technology, innovation, and telecom data from CKAN" },
-  { cat: "Science", name: "search_knowledge_fabric", desc: "Knowledge Fabric data portal queries" },
-  { cat: "Science", name: "search_mining_data", desc: "Mining and mineral production data from CKAN" },
+  { cat: "Science", name: "search_science", desc: { en: "CSA missions, Mitacs grants, Ocean Networks, Polar Data", fr: "Missions de l'ASC, subventions Mitacs, Ocean Networks, données polaires" } },
+  { cat: "Science", name: "search_technology_data", desc: { en: "Technology, innovation, and telecom data from CKAN", fr: "Données technologiques, d'innovation et de télécoms via CKAN" } },
+  { cat: "Science", name: "search_knowledge_fabric", desc: { en: "Knowledge Fabric data portal queries", fr: "Requêtes du portail de données Knowledge Fabric" } },
+  { cat: "Science", name: "search_mining_data", desc: { en: "Mining and mineral production data from CKAN", fr: "Données minières et de production minérale via CKAN" } },
   // ── Community (5) ──
-  { cat: "Community", name: "search_parks", desc: "Parks and recreation facilities in 12 Canadian cities" },
-  { cat: "Community", name: "search_libraries", desc: "Public library systems in 15 Canadian cities" },
-  { cat: "Community", name: "search_universities", desc: "Universities by institution, program, or metric" },
-  { cat: "Community", name: "search_unions", desc: "Labour unions by name, sector, or province" },
-  { cat: "Community", name: "search_crown_corporations", desc: "CBC, Canada Post, EDC and other crown corp financials" },
+  { cat: "Community", name: "search_parks", desc: { en: "Parks and recreation facilities in 12 Canadian cities", fr: "Parcs et installations récréatives de 12 villes canadiennes" } },
+  { cat: "Community", name: "search_libraries", desc: { en: "Public library systems in 15 Canadian cities", fr: "Réseaux de bibliothèques publiques de 15 villes canadiennes" } },
+  { cat: "Community", name: "search_universities", desc: { en: "Universities by institution, program, or metric", fr: "Universités par établissement, programme ou indicateur" } },
+  { cat: "Community", name: "search_unions", desc: { en: "Labour unions by name, sector, or province", fr: "Syndicats par nom, secteur ou province" } },
+  { cat: "Community", name: "search_crown_corporations", desc: { en: "CBC, Canada Post, EDC and other crown corp financials", fr: "CBC, Postes Canada, EDC et données financières des autres sociétés d'État" } },
   // ── Charity (2) ──
-  { cat: "Charity", name: "search_charity_t3010", desc: "T3010 charity filings by name or category" },
-  { cat: "Charity", name: "search_cra_charity", desc: "CRA registered charities by name or BN" },
+  { cat: "Charity", name: "search_charity_t3010", desc: { en: "T3010 charity filings by name or category", fr: "Déclarations T3010 des organismes de bienfaisance par nom ou catégorie" } },
+  { cat: "Charity", name: "search_cra_charity", desc: { en: "CRA registered charities by name or BN", fr: "Organismes de bienfaisance enregistrés de l'ARC par nom ou NE" } },
   // ── Global Affairs (2) ──
-  { cat: "Global Affairs", name: "search_global_canada", desc: "Global Affairs: trade agreements, climate, emissions" },
-  { cat: "Global Affairs", name: "search_lode", desc: "Open Database of Addresses: 10M+ civic addresses" },
+  { cat: "Global Affairs", name: "search_global_canada", desc: { en: "Global Affairs: trade agreements, climate, emissions", fr: "Affaires mondiales : accords commerciaux, climat, émissions" } },
+  { cat: "Global Affairs", name: "search_lode", desc: { en: "Open Database of Addresses: 10M+ civic addresses", fr: "Base ouverte d'adresses : plus de 10 M d'adresses civiques" } },
   // ── AI (3) ──
-  { cat: "AI", name: "ai_ask", desc: "Ask a natural language question, get a sourced answer" },
-  { cat: "AI", name: "ai_analyze", desc: "Analyze a document or transcript for topics, entities, and summary" },
-  { cat: "AI", name: "ai_search_semantic", desc: "Semantic search with edge embeddings" },
+  { cat: "AI", name: "ai_ask", desc: { en: "Ask a natural language question, get a sourced answer", fr: "Poser une question en langage naturel, obtenir une réponse sourcée" } },
+  { cat: "AI", name: "ai_analyze", desc: { en: "Analyze a document or transcript for topics, entities, and summary", fr: "Analyser un document ou une transcription : sujets, entités et résumé" } },
+  { cat: "AI", name: "ai_search_semantic", desc: { en: "Semantic search with edge embeddings", fr: "Recherche sémantique avec plongements de périphérie" } },
   // ── Entity Resolution (5) ──
-  { cat: "Entity", name: "resolve_entity", desc: "Resolve a person or organization name to canonical entity" },
-  { cat: "Entity", name: "find_connections", desc: "Find network connections between entities" },
-  { cat: "Entity", name: "get_entity_profile", desc: "Cross-reference a person across MP, lobbying, and GIC" },
-  { cat: "Entity", name: "get_annotations", desc: "Entity annotations and metadata by type" },
-  { cat: "Entity", name: "search_cross_reference", desc: "Cross-reference all modules at once — unified entity timeline" },
+  { cat: "Entity", name: "resolve_entity", desc: { en: "Resolve a person or organization name to canonical entity", fr: "Résoudre un nom de personne ou d'organisation en entité canonique" } },
+  { cat: "Entity", name: "find_connections", desc: { en: "Find network connections between entities", fr: "Trouver les connexions de réseau entre entités" } },
+  { cat: "Entity", name: "get_entity_profile", desc: { en: "Cross-reference a person across MP, lobbying, and GIC", fr: "Recouper une personne entre député, lobbying et décrets" } },
+  { cat: "Entity", name: "get_annotations", desc: { en: "Entity annotations and metadata by type", fr: "Annotations et métadonnées d'entités par type" } },
+  { cat: "Entity", name: "search_cross_reference", desc: { en: "Cross-reference all modules at once — unified entity timeline", fr: "Recouper tous les modules à la fois — chronologie d'entité unifiée" } },
   // ── System & QA (9) ──
-  { cat: "System", name: "cache_clear", desc: "Clear tool response cache" },
-  { cat: "System", name: "cache_status", desc: "Check cache status and hit rates" },
-  { cat: "System", name: "system_health", desc: "System health check and diagnostics" },
-  { cat: "System", name: "get_module_health", desc: "Health check for a specific data module" },
-  { cat: "System", name: "get_pipeline_health", desc: "Pipeline ingestion health and status" },
-  { cat: "System", name: "signal_check", desc: "Check watched source signals for changes" },
-  { cat: "System", name: "searxng_health", desc: "SearXNG engine health: failures, suspensions, errors" },
-  { cat: "System", name: "qa_schema", desc: "Query module schemas by name" },
-  { cat: "System", name: "qa_validate_module", desc: "Validate module data quality and integrity" },
+  { cat: "System", name: "cache_clear", desc: { en: "Clear tool response cache", fr: "Vider le cache des réponses d'outils" } },
+  { cat: "System", name: "cache_status", desc: { en: "Check cache status and hit rates", fr: "Vérifier l'état du cache et les taux de réussite" } },
+  { cat: "System", name: "system_health", desc: { en: "System health check and diagnostics", fr: "Vérification de l'état du système et diagnostics" } },
+  { cat: "System", name: "get_module_health", desc: { en: "Health check for a specific data module", fr: "Vérification de l'état d'un module de données précis" } },
+  { cat: "System", name: "get_pipeline_health", desc: { en: "Pipeline ingestion health and status", fr: "État et statut de l'ingestion du pipeline" } },
+  { cat: "System", name: "signal_check", desc: { en: "Check watched source signals for changes", fr: "Vérifier les signaux des sources suivies pour détecter des changements" } },
+  { cat: "System", name: "searxng_health", desc: { en: "SearXNG engine health: failures, suspensions, errors", fr: "État des moteurs SearXNG : échecs, suspensions, erreurs" } },
+  { cat: "System", name: "qa_schema", desc: { en: "Query module schemas by name", fr: "Interroger les schémas de modules par nom" } },
+  { cat: "System", name: "qa_validate_module", desc: { en: "Validate module data quality and integrity", fr: "Valider la qualité et l'intégrité des données d'un module" } },
 ];
 
 const rateLimits = [
-  { plan: "Free", perSec: "2/s", perMonth: "1,000", overage: "Hard cap (402)" },
-  { plan: "Pro", perSec: "25/s", perMonth: "50,000", overage: "$1/1K (planned)" },
-  { plan: "Business", perSec: "100/s", perMonth: "250,000", overage: "$0.80/1K (planned)" },
-  { plan: "Enterprise", perSec: "Custom", perMonth: "Custom", overage: "Negotiated" },
+  { plan: { en: "Free", fr: "Gratuit" }, perSec: "2/s", perMonth: "1,000", overage: { en: "Hard cap (402)", fr: "Plafond strict (402)" } },
+  { plan: { en: "Pro", fr: "Pro" }, perSec: "25/s", perMonth: "50,000", overage: { en: "$1/1K (planned)", fr: "1 $/1 K (prévu)" } },
+  { plan: { en: "Business", fr: "Affaires" }, perSec: "100/s", perMonth: "250,000", overage: { en: "$0.80/1K (planned)", fr: "0,80 $/1 K (prévu)" } },
+  { plan: { en: "Enterprise", fr: "Entreprise" }, perSec: "Custom", perMonth: "Custom", overage: { en: "Negotiated", fr: "Négocié" } },
 ];
 
 const errorCodes = [
-  { code: "auth_invalid", status: "401", retry: "No", meaning: "Fix API key or JWT" },
-  { code: "rate_limited", status: "429", retry: "Yes", meaning: "Respect Retry-After header" },
-  { code: "quota_exhausted", status: "402", retry: "No", meaning: "Upgrade plan or wait for reset" },
-  { code: "input_invalid", status: "400", retry: "No", meaning: "Check input schema" },
-  { code: "source_unavailable", status: "502", retry: "Yes", meaning: "Upstream source down, retry later" },
-  { code: "not_found", status: "404", retry: "No", meaning: "Resource doesn't exist" },
-  { code: "server_error", status: "500", retry: "Yes", meaning: "Backoff, report if persistent" },
+  { code: "auth_invalid", status: "401", retry: { en: "No", fr: "Non" }, meaning: { en: "Fix API key or JWT", fr: "Corriger la clé API ou le JWT" } },
+  { code: "rate_limited", status: "429", retry: { en: "Yes", fr: "Oui" }, meaning: { en: "Respect Retry-After header", fr: "Respecter l'en-tête Retry-After" } },
+  { code: "quota_exhausted", status: "402", retry: { en: "No", fr: "Non" }, meaning: { en: "Upgrade plan or wait for reset", fr: "Passer à un forfait supérieur ou attendre la réinitialisation" } },
+  { code: "input_invalid", status: "400", retry: { en: "No", fr: "Non" }, meaning: { en: "Check input schema", fr: "Vérifier le schéma d'entrée" } },
+  { code: "source_unavailable", status: "502", retry: { en: "Yes", fr: "Oui" }, meaning: { en: "Upstream source down, retry later", fr: "Source en amont indisponible, réessayer plus tard" } },
+  { code: "not_found", status: "404", retry: { en: "No", fr: "Non" }, meaning: { en: "Resource doesn't exist", fr: "La ressource n'existe pas" } },
+  { code: "server_error", status: "500", retry: { en: "Yes", fr: "Oui" }, meaning: { en: "Backoff, report if persistent", fr: "Reculer, signaler si persistant" } },
 ];
 ---
 
-<BaseLayout title={i18n.t('docs.title')} description="Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, and SDK usage." lang={lang}>
+<BaseLayout title={i18n.t('docs.title')} description={t(
+  "Full MapleSpike API documentation — quickstart guide, REST API reference, MCP configuration for AI agents, and SDK usage.",
+  "Documentation complète de l'API MapleSpike — guide de démarrage rapide, référence de l'API REST, configuration MCP pour agents IA et utilisation des SDK.",
+)} ogImage="/og-image-docs.png" lang={lang}>
   <div class="flex">
     <!-- Sidebar -->
     <aside class="hidden lg:block w-64 shrink-0 border-r min-h-[calc(100vh-4rem)] sticky top-16 self-start">
       <div class="p-4">
         <div class="relative mb-4">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <Input placeholder="Search docs..." class="pl-9 text-sm" />
+          <Input placeholder={t("Search docs...", "Rechercher dans la documentation…")} class="pl-9 text-sm" />
         </div>
         <nav class="space-y-1">
           {sections.map((s) => (
@@ -300,7 +321,7 @@ const errorCodes = [
               class="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
             >
               <span class="text-xs font-mono text-primary/60">{s.num}</span>
-              <span>{s.label}</span>
+              <span>{tb(s.label)}</span>
               {s.badge && (
                 <span class="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{s.badge}</span>
               )}
@@ -318,17 +339,20 @@ const errorCodes = [
           <span class="text-primary">[</span>
           <span class="text-primary/80">00</span>
           <span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Quickstart</span>
+          <span class="font-semibold text-foreground">{t("Quickstart", "Démarrage rapide")}</span>
           <Badge variant="default" class="text-[10px] px-1.5 py-0.5">LIVE</Badge>
         </div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-          One API key.<br />206 Canadian government data modules. Every response cited.
+          {t("One API key.", "Une seule clé API.")}<br />{t("206 Canadian government data modules. Every response cited.", "206 modules de données gouvernementales canadiennes. Chaque réponse est citée.")}
         </h1>
-        <p class="text-muted-foreground mb-8">Get an API key, make your first call, and see the citation contract — in under 5 minutes.</p>
+        <p class="text-muted-foreground mb-8">{t(
+          "Get an API key, make your first call, and see the citation contract — in under 5 minutes.",
+          "Obtenez une clé API, effectuez votre premier appel et découvrez le contrat de citation — en moins de 5 minutes.",
+        )}</p>
 
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
-            <span class="text-muted-foreground">// 30-second quickstart</span><br /><br />
+            <span class="text-muted-foreground">// {t("30-second quickstart", "Démarrage rapide en 30 secondes")}</span><br /><br />
             <span class="text-muted-foreground">$</span> curl -s https://api.maplespike.ca/v1/gov/search \<br />
             &nbsp;&nbsp;-H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
             &nbsp;&nbsp;-G -d <span class="text-[#D4A017]">&quot;query=housing&quot;</span> \<br />
@@ -348,8 +372,14 @@ const errorCodes = [
 
         <Card class="border-primary/20 bg-primary/5">
           <CardContent class="p-4 text-sm">
-            <strong class="text-primary">No key?</strong>
-            <span class="text-muted-foreground"> Get one free at <a href="/signup" class="text-[#0891B2] hover:underline">signup</a> — 1,000 calls/month included. Or pass <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">_mock=true</code> for sample data with no upstream hit.</span>
+            <strong class="text-primary">{t("No key?", "Pas de clé ?")}</strong>
+            <span class="text-muted-foreground"> {t(
+              "Get one free at",
+              "Obtenez-en une gratuitement à l'",
+            )} <a href="/signup" class="text-[#0891B2] hover:underline">{t("signup", "inscription")}</a> {t(
+              "— 1,000 calls/month included. Or pass",
+              "— 1 000 appels/mois inclus. Ou passez",
+            )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">_mock=true</code> {t("for sample data with no upstream hit.", "pour des données d'exemple sans appel en amont.")}</span>
           </CardContent>
         </Card>
       </section>
@@ -360,45 +390,66 @@ const errorCodes = [
       <section id="authentication" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">01</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Authentication</span>
+          <span class="font-semibold text-foreground">{t("Authentication", "Authentification")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Multiple ways to authenticate</h2>
-        <p class="text-muted-foreground mb-6">Four authentication methods, one JWT token format. All methods issue the same JWT — pick the one that fits your use case.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Multiple ways to authenticate", "Plusieurs façons de s'authentifier")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "Four authentication methods, one JWT token format. All methods issue the same JWT — pick the one that fits your use case.",
+          "Quatre méthodes d'authentification, un seul format de jeton JWT. Toutes les méthodes émettent le même JWT — choisissez celle qui convient à votre cas d'utilisation.",
+        )}</p>
 
-        <h3 class="text-lg font-semibold mt-6 mb-2">API Key (recommended for servers)</h3>
-        <p class="text-sm text-muted-foreground mb-3">Create a key from the <a href="/signup" class="text-[#0891B2] hover:underline">signup</a>, then send it as the <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">X-API-Key</code> header:</p>
+        <h3 class="text-lg font-semibold mt-6 mb-2">{t("API Key (recommended for servers)", "Clé API (recommandée pour les serveurs)")}</h3>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Create a key from the",
+          "Créez une clé à partir de l'",
+        )} <a href="/signup" class="text-[#0891B2] hover:underline">{t("signup", "inscription")}</a>, {t(
+          "then send it as the",
+          "puis envoyez-la dans l'en-tête",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">X-API-Key</code> :</p>
         <Card class="mb-6">
           <CardContent class="p-3 font-mono text-sm">
             <span class="text-muted-foreground">$</span> curl -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> https://api.maplespike.ca/v1/health
           </CardContent>
         </Card>
 
-        <h3 class="text-lg font-semibold mt-6 mb-2">OAuth (recommended for web apps)</h3>
-        <p class="text-sm text-muted-foreground mb-3">Sign in with GitHub, Google, or any OIDC provider:</p>
+        <h3 class="text-lg font-semibold mt-6 mb-2">{t("OAuth (recommended for web apps)", "OAuth (recommandé pour les applications Web)")}</h3>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Sign in with GitHub, Google, or any OIDC provider:",
+          "Connectez-vous avec GitHub, Google ou tout fournisseur OIDC :",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-3 font-mono text-sm">
-            <span class="text-muted-foreground"># List configured providers</span><br />
+            <span class="text-muted-foreground"># {t("List configured providers", "Lister les fournisseurs configurés")}</span><br />
             <span class="text-muted-foreground">$</span> curl https://api.maplespike.ca/v1/auth/oauth/providers
           </CardContent>
         </Card>
 
-        <h3 class="text-lg font-semibold mt-6 mb-2">Web3 Wallet</h3>
-        <p class="text-sm text-muted-foreground mb-3">Sign a SIWE (EIP-4361) message with your wallet:</p>
+        <h3 class="text-lg font-semibold mt-6 mb-2">{t("Web3 Wallet", "Portefeuille Web3")}</h3>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Sign a SIWE (EIP-4361) message with your wallet:",
+          "Signez un message SIWE (EIP-4361) avec votre portefeuille :",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-3 font-mono text-sm">
             POST /v1/auth/web3/challenge {'{'}{' '}<span class="text-[#D4A017]">&quot;address&quot;</span>: <span class="text-[#0891B2]">&quot;0x...&quot;</span>{' '}{'}'}
           </CardContent>
         </Card>
 
-        <h3 class="text-lg font-semibold mt-6 mb-2">Passkey / FIDO2</h3>
-        <p class="text-sm text-muted-foreground mb-3">Register a passkey (Touch ID, Windows Hello, YubiKey):</p>
+        <h3 class="text-lg font-semibold mt-6 mb-2">{t("Passkey / FIDO2", "Clé d'accès / FIDO2")}</h3>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Register a passkey (Touch ID, Windows Hello, YubiKey):",
+          "Enregistrez une clé d'accès (Touch ID, Windows Hello, YubiKey) :",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-3 font-mono text-sm">
             POST /v1/auth/passkey/register/begin {'{'}{' '}<span class="text-[#D4A017]">&quot;userId&quot;</span>: <span class="text-[#0891B2]">&quot;...&quot;</span>{' '}{'}'}
           </CardContent>
         </Card>
 
-        <p class="text-xs text-muted-foreground">All methods issue JWTs with the same format. Use the token as a Bearer header or session cookie. Keys are hashed with SHA-256 at rest.</p>
+        <p class="text-xs text-muted-foreground">{t(
+          "All methods issue JWTs with the same format. Use the token as a Bearer header or session cookie. Keys are hashed with SHA-256 at rest.",
+          "Toutes les méthodes émettent des JWT au même format. Utilisez le jeton comme en-tête Bearer ou cookie de session. Les clés sont hachées avec SHA-256 au repos.",
+        )}</p>
       </section>
 
       <Separator class="mb-16" />
@@ -407,10 +458,13 @@ const errorCodes = [
       <section id="request-response" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">02</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Request + Response</span>
+          <span class="font-semibold text-foreground">{t("Request + Response", "Requête + réponse")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">One envelope. Every endpoint.</h2>
-        <p class="text-muted-foreground mb-6">Every response carries the same structure — data, quality score, citation metadata, and usage info. Your agent always knows where the answer came from.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("One envelope. Every endpoint.", "Une seule enveloppe. Chaque point de terminaison.")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "Every response carries the same structure — data, quality score, citation metadata, and usage info. Your agent always knows where the answer came from.",
+          "Chaque réponse possède la même structure — données, score de qualité, métadonnées de citation et informations d'utilisation. Votre agent sait toujours d'où vient la réponse.",
+        )}</p>
 
         <Card>
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
@@ -439,18 +493,18 @@ const errorCodes = [
       <section id="endpoints" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">03</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">API Reference</span>
+          <span class="font-semibold text-foreground">{t("API Reference", "Référence API")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">REST endpoints</h2>
+        <h2 class="text-2xl font-bold mb-4">{t("REST endpoints", "Points de terminaison REST")}</h2>
 
         <Card>
           <CardContent class="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Method</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Path</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Description</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Method", "Méthode")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Path", "Chemin")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Description", "Description")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -481,14 +535,20 @@ const errorCodes = [
       <section id="ai-endpoints" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">04</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">AI Endpoints</span>
+          <span class="font-semibold text-foreground">{t("AI Endpoints", "Points de terminaison IA")}</span>
           <Badge variant="default" class="text-[10px] px-1.5 py-0.5">EDGE</Badge>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Edge AI — ask, search, analyze</h2>
-        <p class="text-muted-foreground mb-6">AI endpoints run on the Cloudflare edge (Llama 3.3 70B) with automatic fallback to the homelab cluster (Qwen 3.5 27B). Tier-aware routing: free tier uses edge first, pro/business uses homelab first, enterprise uses BYOK if configured.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Edge AI — ask, search, analyze", "IA de périphérie — questionnez, recherchez, analysez")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "AI endpoints run on the Cloudflare edge (Llama 3.3 70B) with automatic fallback to the homelab cluster (Qwen 3.5 27B). Tier-aware routing: free tier uses edge first, pro/business uses homelab first, enterprise uses BYOK if configured.",
+          "Les points de terminaison IA s'exécutent sur la périphérie Cloudflare (Llama 3.3 70B) avec repli automatique vers le cluster du laboratoire maison (Qwen 3.5 27B). Acheminement selon le palier : le palier gratuit utilise la périphérie en premier, pro/affaires utilise le laboratoire maison en premier, entreprise utilise BYOK s'il est configuré.",
+        )}</p>
 
         <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/ask</h3>
-        <p class="text-sm text-muted-foreground mb-3">Ask a natural language question about Canadian government data. The response includes the answer, model used, inference source (edge/homelab/byok), and token usage.</p>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Ask a natural language question about Canadian government data. The response includes the answer, model used, inference source (edge/homelab/byok), and token usage.",
+          "Posez une question en langage naturel sur les données gouvernementales canadiennes. La réponse inclut la réponse, le modèle utilisé, la source d'inférence (périphérie/laboratoire maison/byok) et l'utilisation de jetons.",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/ask \<br />
@@ -512,10 +572,22 @@ const errorCodes = [
             &#125;
           </CardContent>
         </Card>
-        <p class="text-xs text-muted-foreground mb-6">Optional <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">context</code> field injects up to 2000 chars of MapleSpike data into the system prompt. Use <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">model: "fast"</code> for Llama 3.1 8B (lower latency), omit for Llama 3.3 70B (higher quality).</p>
+        <p class="text-xs text-muted-foreground mb-6">{t(
+          "Optional",
+          "Champ facultatif",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">context</code> {t(
+          "field injects up to 2000 chars of MapleSpike data into the system prompt. Use",
+          "qui injecte jusqu'à 2 000 caractères de données MapleSpike dans l'invite système. Utilisez",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">model: "fast"</code> {t(
+          "for Llama 3.1 8B (lower latency), omit for Llama 3.3 70B (higher quality).",
+          "pour Llama 3.1 8B (latence réduite), omettez-le pour Llama 3.3 70B (qualité supérieure).",
+        )}</p>
 
         <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/search</h3>
-        <p class="text-sm text-muted-foreground mb-3">Semantic search using edge-generated embeddings (BGE base) routed to the homelab Qdrant vector database. Falls back to keyword search if embedding generation fails.</p>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Semantic search using edge-generated embeddings (BGE base) routed to the homelab Qdrant vector database. Falls back to keyword search if embedding generation fails.",
+          "Recherche sémantique utilisant des plongements générés en périphérie (BGE base) acheminés vers la base vectorielle Qdrant du laboratoire maison. Repli sur la recherche par mots-clés si la génération de plongements échoue.",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/ai/search \<br />
@@ -533,7 +605,16 @@ const errorCodes = [
             &#125;
           </CardContent>
         </Card>
-        <p class="text-xs text-muted-foreground mb-6">Max <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">limit</code> is 50. If the embedding service is unavailable, the API falls back to keyword search via <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">/v1/gov/search</code> and returns <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">meta.source: "keyword-fallback"</code>.</p>
+        <p class="text-xs text-muted-foreground mb-6">{t(
+          "Max",
+          "La valeur maximale de",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">limit</code> {t(
+          "is 50. If the embedding service is unavailable, the API falls back to keyword search via",
+          "est 50. Si le service de plongements est indisponible, l'API revient à la recherche par mots-clés via",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">/v1/gov/search</code> {t(
+          "and returns",
+          "et renvoie",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">meta.source: "keyword-fallback"</code>.</p>
 
         <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/ai/analyze <span class="text-xs font-normal text-muted-foreground">(Pro tier+)</span></h3>
         <p class="text-sm text-muted-foreground mb-3">Submit a document or transcript for LLM-powered analysis. The model extracts key topics, notable entities, and an overall summary. Optionally specify a <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">mode</code> (e.g. <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"general"</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"legal"</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"financial"</code>) to hint the analysis focus. Defaults to <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">"general"</code> if omitted.</p>
@@ -591,26 +672,35 @@ const errorCodes = [
       <section id="extraction" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span><span class="text-primary/80">05</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Browser Extraction</span>
+          <span class="font-semibold text-foreground">{t("Browser Extraction", "Extraction navigateur")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Extract data from no-API government portals</h2>
-        <p class="text-muted-foreground mb-6">Some government portals (NWT, Nunavut) have no machine-readable API. The extraction system lets the portal client render pages in the user's browser, extract download links, and cache results server-side for MCP tools to use as fallback.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Extract data from no-API government portals", "Extraire des données des portails gouvernementaux sans API")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "Some government portals (NWT, Nunavut) have no machine-readable API. The extraction system lets the portal client render pages in the user's browser, extract download links, and cache results server-side for MCP tools to use as fallback.",
+          "Certains portails gouvernementaux (T.N.-O., Nunavut) n'ont pas d'API lisible par machine. Le système d'extraction permet au client du portail de rendre les pages dans le navigateur de l'utilisateur, d'extraire les liens de téléchargement et de mettre en cache les résultats côté serveur pour que les outils MCP les utilisent en repli.",
+        )}</p>
 
         <Card class="mb-6 border-primary/20 bg-primary/5">
           <CardContent class="p-4 text-sm">
-            <strong class="text-primary">Flow:</strong>
-            <span class="text-muted-foreground"> 1. Client GETs extraction tasks → 2. Browser visits source URLs → 3. Client POSTs extracted results → 4. MCP tools GET cached results as fallback</span>
+            <strong class="text-primary">{t("Flow:", "Flux :")}</strong>
+            <span class="text-muted-foreground"> {t(
+              "1. Client GETs extraction tasks → 2. Browser visits source URLs → 3. Client POSTs extracted results → 4. MCP tools GET cached results as fallback",
+              "1. Le client récupère les tâches d'extraction → 2. Le navigateur visite les URL sources → 3. Le client envoie les résultats extraits → 4. Les outils MCP récupèrent les résultats en cache en repli",
+            )}</span>
           </CardContent>
         </Card>
 
         <h3 class="text-lg font-semibold mt-8 mb-3">GET /v1/extraction/tasks</h3>
-        <p class="text-sm text-muted-foreground mb-3">List extraction tasks for sources that need browser rendering. Optionally filter by jurisdiction via path param or query param.</p>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "List extraction tasks for sources that need browser rendering. Optionally filter by jurisdiction via path param or query param.",
+          "Lister les tâches d'extraction pour les sources nécessitant un rendu navigateur. Filtrer facultativement par compétence via un paramètre de chemin ou de requête.",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
-            <span class="text-muted-foreground"># All extraction tasks</span><br />
+            <span class="text-muted-foreground"># {t("All extraction tasks", "Toutes les tâches d'extraction")}</span><br />
             <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
             &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/tasks | jq .<br /><br />
-            <span class="text-muted-foreground"># Filter by jurisdiction (path param)</span><br />
+            <span class="text-muted-foreground"># {t("Filter by jurisdiction (path param)", "Filtrer par compétence (paramètre de chemin)")}</span><br />
             <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
             &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/tasks/nunavut | jq .<br /><br />
             <span class="text-muted-foreground">// Response</span><br />
@@ -633,7 +723,10 @@ const errorCodes = [
         </Card>
 
         <h3 class="text-lg font-semibold mt-8 mb-3">POST /v1/extraction/results</h3>
-        <p class="text-sm text-muted-foreground mb-3">Submit extracted data from the browser client. The server validates the source_id, blocks SSRF attempts (private IPs, localhost), and caches results with a timestamp.</p>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Submit extracted data from the browser client. The server validates the source_id, blocks SSRF attempts (private IPs, localhost), and caches results with a timestamp.",
+          "Soumettre les données extraites depuis le client navigateur. Le serveur valide le source_id, bloque les tentatives SSRF (IP privées, localhost) et met en cache les résultats avec un horodatage.",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -X POST https://api.maplespike.ca/v1/extraction/results \<br />
@@ -660,15 +753,33 @@ const errorCodes = [
             &#125;
           </CardContent>
         </Card>
-        <p class="text-xs text-muted-foreground mb-6">SSRF protection: URLs pointing to <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">localhost</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">127.x</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">10.x</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">192.168.x</code>, or <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">172.16.x</code> are silently filtered. The <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">rejected</code> field shows how many were blocked.</p>
+        <p class="text-xs text-muted-foreground mb-6">{t(
+          "SSRF protection: URLs pointing to",
+          "Protection SSRF : les URL pointant vers",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">localhost</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">127.x</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">10.x</code>, <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">192.168.x</code>, {t(
+          "or",
+          "ou",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">172.16.x</code> {t(
+          "are silently filtered. The",
+          "sont filtrées silencieusement. Le champ",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">rejected</code> {t(
+          "field shows how many were blocked.",
+          "indique combien ont été bloquées.",
+        )}</p>
 
         <h3 class="text-lg font-semibold mt-8 mb-3">GET /v1/extraction/cached/:source_id</h3>
-        <p class="text-sm text-muted-foreground mb-3">Retrieve cached extraction results if fresh (within <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">cache_ttl_hours</code>). MCP tools use this as fallback when live sources are unavailable.</p>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Retrieve cached extraction results if fresh (within",
+          "Récupérer les résultats d'extraction en cache s'ils sont frais (dans",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">cache_ttl_hours</code>). {t(
+          "MCP tools use this as fallback when live sources are unavailable.",
+          "Les outils MCP utilisent ce mécanisme en repli lorsque les sources en direct sont indisponibles.",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             <span class="text-muted-foreground">$</span> curl -s -H <span class="text-[#D4A017]">&quot;X-API-Key: ms_live_...&quot;</span> \<br />
             &nbsp;&nbsp;https://api.maplespike.ca/v1/extraction/cached/nunavut-bureau-statistics | jq .<br /><br />
-            <span class="text-muted-foreground">// Response (fresh cache)</span><br />
+            <span class="text-muted-foreground">// {t("Response (fresh cache)", "Réponse (cache frais)")}</span><br />
             &#123;<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: true,<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;data&quot;</span>: &#123;<br />
@@ -681,7 +792,7 @@ const errorCodes = [
             &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#D4A017]">&quot;jurisdiction&quot;</span>: <span class="text-[#0891B2]">&quot;nunavut&quot;</span><br />
             &nbsp;&nbsp;&#125;<br />
             &#125;<br /><br />
-            <span class="text-muted-foreground">// Response (expired cache → 404)</span><br />
+            <span class="text-muted-foreground">// {t("Response (expired cache → 404)", "Réponse (cache expiré → 404)")}</span><br />
             &#123;<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;success&quot;</span>: false,<br />
             &nbsp;&nbsp;<span class="text-[#D4A017]">&quot;error&quot;</span>: &#123;<br />
@@ -694,8 +805,11 @@ const errorCodes = [
 
         <Card class="border-primary/20 bg-primary/5">
           <CardContent class="p-4 text-sm">
-            <strong class="text-primary">Currently tracked sources:</strong>
-            <span class="text-muted-foreground"> NWT Open Government Product, Nunavut Bureau of Statistics (3 sub-sources: demographics, economic, main). Cache TTL: 168 hours (7 days).</span>
+            <strong class="text-primary">{t("Currently tracked sources:", "Sources actuellement suivies :")}</strong>
+            <span class="text-muted-foreground"> {t(
+              "NWT Open Government Product, Nunavut Bureau of Statistics (3 sub-sources: demographics, economic, main). Cache TTL: 168 hours (7 days).",
+              "Produit Open Government des T.N.-O., Bureau de statistiques du Nunavut (3 sous-sources : démographie, économie, principale). TTL du cache : 168 heures (7 jours).",
+            )}</span>
           </CardContent>
         </Card>
       </section>
@@ -706,34 +820,37 @@ const errorCodes = [
       <section id="token-optimization" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">06</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Token Optimization</span>
+          <span class="font-semibold text-foreground">{t("Token Optimization", "Optimisation des jetons")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Trim responses for AI agents</h2>
-        <p class="text-muted-foreground mb-6">Every token saved is money earned. These params go in the same request body — they're extracted before validation.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Trim responses for AI agents", "Réduire les réponses pour les agents IA")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "Every token saved is money earned. These params go in the same request body — they're extracted before validation.",
+          "Chaque jeton économisé est de l'argent gagné. Ces paramètres vont dans le même corps de requête — ils sont extraits avant la validation.",
+        )}</p>
 
         <Card>
           <CardContent class="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Param</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Type</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Effect</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Param", "Paramètre")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Type", "Type")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Effect", "Effet")}</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { param: "_fields", type: "string[]", effect: "Return only named fields" },
-                  { param: "_format", type: `"full" | "compact"`, effect: "Compact strips null/empty" },
-                  { param: "_limit", type: "number", effect: "Cap array results" },
-                  { param: "_page", type: "number", effect: "Pagination offset" },
-                  { param: "_summary", type: "boolean", effect: "Return aggregates, not rows" },
-                  { param: "_mock", type: "true", effect: "Sample data, free, no upstream hit" },
+                  { param: "_fields", type: "string[]", effect: { en: "Return only named fields", fr: "Ne renvoyer que les champs nommés" } },
+                  { param: "_format", type: `"full" | "compact"`, effect: { en: "Compact strips null/empty", fr: "Compact supprime les valeurs nulles/vides" } },
+                  { param: "_limit", type: "number", effect: { en: "Cap array results", fr: "Plafonner les résultats des tableaux" } },
+                  { param: "_page", type: "number", effect: { en: "Pagination offset", fr: "Décalage de pagination" } },
+                  { param: "_summary", type: "boolean", effect: { en: "Return aggregates, not rows", fr: "Renvoyer des agrégats, pas des lignes" } },
+                  { param: "_mock", type: "true", effect: { en: "Sample data, free, no upstream hit", fr: "Données d'exemple, gratuites, sans appel en amont" } },
                 ].map((p) => (
                   <tr class="border-b last:border-0 hover:bg-muted/50">
                     <td class="p-3 font-mono text-xs">{p.param}</td>
                     <td class="p-3 font-mono text-xs text-muted-foreground">{p.type}</td>
-                    <td class="p-3 text-muted-foreground">{p.effect}</td>
+                    <td class="p-3 text-muted-foreground">{tb(p.effect)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -748,10 +865,13 @@ const errorCodes = [
       <section id="citation-contract" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">07</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Citation Contract</span>
+          <span class="font-semibold text-foreground">{t("Citation Contract", "Contrat de citation")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Every response. Every endpoint. Verifiable.</h2>
-        <p class="text-muted-foreground mb-6">Every MapleSpike endpoint returns the same citation block — whether you're using the REST API, MCP tools, or cross-reference engine.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Every response. Every endpoint. Verifiable.", "Chaque réponse. Chaque point de terminaison. Vérifiable.")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "Every MapleSpike endpoint returns the same citation block — whether you're using the REST API, MCP tools, or cross-reference engine.",
+          "Chaque point de terminaison MapleSpike renvoie le même bloc de citation — que vous utilisiez l'API REST, les outils MCP ou le moteur de recoupement.",
+        )}</p>
 
         <Card>
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
@@ -768,7 +888,10 @@ const errorCodes = [
           </CardContent>
         </Card>
 
-        <p class="text-sm text-muted-foreground mt-4"><code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">data_hash</code> is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.</p>
+        <p class="text-sm text-muted-foreground mt-4"><code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">data_hash</code> {t(
+          "is the SHA-256 of the response payload at fetch time. Re-fetch the source yourself and compare — if hashes match, you saw what we saw, byte-for-byte.",
+          "est le SHA-256 de la charge utile de la réponse au moment de la récupération. Re-téléchargez la source vous-même et comparez — si les hachages correspondent, vous avez vu ce que nous avons vu, octet pour octet.",
+        )}</p>
       </section>
 
       <Separator class="mb-16" />
@@ -777,11 +900,14 @@ const errorCodes = [
       <section id="mcp-tools" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">08</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">MCP Tools</span>
-          <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">174 TOOLS</Badge>
+          <span class="font-semibold text-foreground">{t("MCP Tools", "Outils MCP")}</span>
+          <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">174 {t("TOOLS", "OUTILS")}</Badge>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Data tools for AI agents</h2>
-        <p class="text-muted-foreground mb-6">All tools return the same <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">&#123; data, quality, citation &#125;</code> envelope.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Data tools for AI agents", "Outils de données pour agents IA")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "All tools return the same",
+          "Tous les outils renvoient la même enveloppe",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">&#123; data, quality, citation &#125;</code>.</p>
 
         <Card class="mb-6">
           <CardContent class="p-3 font-mono text-sm leading-relaxed">
@@ -801,33 +927,33 @@ const errorCodes = [
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
           <div class="relative flex-1">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <Input id="mcp-search" placeholder="Filter 174 tools by name or description..." class="pl-9 text-sm" />
+            <Input id="mcp-search" placeholder={t("Filter 174 tools by name or description...", "Filtrer 174 outils par nom ou description…")} class="pl-9 text-sm" />
           </div>
           <select id="mcp-category" class="text-sm border rounded-md px-3 py-2 bg-background">
-            <option value="">All categories</option>
+            <option value="">{t("All categories", "Toutes les catégories")}</option>
           </select>
         </div>
 
-        <div class="text-sm text-muted-foreground mb-2"><span id="mcp-count">{mcpTools.length}</span> tools <span id="mcp-filtered-label" class="hidden">matching filter</span></div>
+        <div class="text-sm text-muted-foreground mb-2"><span id="mcp-count">{mcpTools.length}</span> {t("tools", "outils")} <span id="mcp-filtered-label" class="hidden">{t("matching filter", "correspondant au filtre")}</span></div>
 
         <Card>
           <CardContent class="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Category</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Tool</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Description</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Category", "Catégorie")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Tool", "Outil")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Description", "Description")}</th>
                 </tr>
               </thead>
               <tbody id="mcp-tbody">
-                {mcpTools.map((t) => (
-                  <tr class="border-b last:border-0 hover:bg-muted/50 mcp-row" data-cat={t.cat} data-name={t.name} data-desc={t.desc}>
+                {mcpTools.map((tool) => (
+                  <tr class="border-b last:border-0 hover:bg-muted/50 mcp-row" data-cat={tool.cat} data-cat-fr={catFr[tool.cat] || tool.cat} data-name={tool.name} data-desc={tb(tool.desc)}>
                     <td class="p-3">
-                      <span class="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">{t.cat}</span>
+                      <span class="text-xs font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">{catLabel(tool.cat)}</span>
                     </td>
-                    <td class="p-3 font-mono text-xs">{t.name}</td>
-                    <td class="p-3 text-muted-foreground">{t.desc}</td>
+                    <td class="p-3 font-mono text-xs">{tool.name}</td>
+                    <td class="p-3 text-muted-foreground">{tb(tool.desc)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -835,7 +961,16 @@ const errorCodes = [
           </CardContent>
         </Card>
 
-        <p class="text-xs text-muted-foreground mt-3">Showing all {mcpTools.length} MCP tools. Use the search box or category dropdown to filter. The full tool list is also available in <a href="/llms.txt" class="text-[#0891B2] hover:underline">llms.txt</a> for machine consumption.</p>
+        <p class="text-xs text-muted-foreground mt-3">{t(
+          "Showing all",
+          "Affichage de",
+        )} {mcpTools.length} MCP {t(
+          "tools. Use the search box or category dropdown to filter. The full tool list is also available in",
+          "outils. Utilisez la zone de recherche ou la liste déroulante des catégories pour filtrer. La liste complète des outils est aussi disponible dans",
+        )} <a href="/llms.txt" class="text-[#0891B2] hover:underline">llms.txt</a> {t(
+          "for machine consumption.",
+          "pour une consommation par machine.",
+        )}</p>
       </section>
 
       <script is:inline>
@@ -847,12 +982,13 @@ const errorCodes = [
           const filteredLabel = document.getElementById('mcp-filtered-label');
           if (!search || !category || !tbody) return;
 
-          // Populate category dropdown from data-cat attributes
+          // Populate category dropdown from data-cat attributes (label from data-cat-fr for the current locale)
           const cats = [...new Set([...tbody.querySelectorAll('.mcp-row')].map(r => r.dataset.cat))].sort();
           cats.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c;
-            opt.textContent = c;
+            const row = tbody.querySelector('.mcp-row[data-cat="' + c + '"]');
+            opt.textContent = (row && row.dataset.catFr) || c;
             category.appendChild(opt);
           });
 
@@ -888,29 +1024,32 @@ const errorCodes = [
       <section id="rate-limits" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">09</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Rate Limits</span>
+          <span class="font-semibold text-foreground">{t("Rate Limits", "Limites de débit")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">Per-plan caps</h2>
-        <p class="text-muted-foreground mb-6">Rate limits are per-second and per-month. Hitting the per-second limit returns 429 with a Retry-After header.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("Per-plan caps", "Plafonds par forfait")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "Rate limits are per-second and per-month. Hitting the per-second limit returns 429 with a Retry-After header.",
+          "Les limites de débit sont par seconde et par mois. Atteindre la limite par seconde renvoie 429 avec un en-tête Retry-After.",
+        )}</p>
 
         <Card>
           <CardContent class="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Plan</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Per sec</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Per month</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Overage</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Plan", "Forfait")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Per sec", "Par seconde")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Per month", "Par mois")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Overage", "Dépassement")}</th>
                 </tr>
               </thead>
               <tbody>
                 {rateLimits.map((r) => (
                   <tr class="border-b last:border-0 hover:bg-muted/50">
-                    <td class="p-3 font-semibold">{r.plan}</td>
+                    <td class="p-3 font-semibold">{tb(r.plan)}</td>
                     <td class="p-3 font-mono text-xs">{r.perSec}</td>
                     <td class="p-3 font-mono text-xs">{r.perMonth}</td>
-                    <td class="p-3 text-muted-foreground text-xs">{r.overage}</td>
+                    <td class="p-3 text-muted-foreground text-xs">{tb(r.overage)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -925,13 +1064,31 @@ const errorCodes = [
       <section id="errors" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">10</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">Errors</span>
+          <span class="font-semibold text-foreground">{t("Errors", "Erreurs")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-4">One shape. Specific categories.</h2>
-        <p class="text-muted-foreground mb-6">All error responses carry <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">success: false</code>, a stable error <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">code</code>, an English <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message</code>, and a French <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message_fr</code>. Every error includes both languages so your app can render the right locale without a separate request.</p>
+        <h2 class="text-2xl font-bold mb-4">{t("One shape. Specific categories.", "Une forme. Des catégories précises.")}</h2>
+        <p class="text-muted-foreground mb-6">{t(
+          "All error responses carry",
+          "Toutes les réponses d'erreur portent",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">success: false</code>, {t(
+          "a stable error",
+          "un code d'erreur stable",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">code</code>, {t(
+          "an English",
+          "un",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message</code> {t(
+          "and a French",
+          "et un",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message_fr</code> {t(
+          "in French. Every error includes both languages so your app can render the right locale without a separate request.",
+          "en français. Chaque erreur inclut les deux langues afin que votre application puisse afficher la bonne langue sans requête distincte.",
+        )}</p>
 
-        <h3 class="text-lg font-semibold mt-8 mb-3">Bilingual Error Response</h3>
-        <p class="text-sm text-muted-foreground mb-3">Every API error returns both an English and a French message. Example 429 response:</p>
+        <h3 class="text-lg font-semibold mt-8 mb-3">{t("Bilingual Error Response", "Réponse d'erreur bilingue")}</h3>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "Every API error returns both an English and a French message. Example 429 response:",
+          "Chaque erreur API renvoie un message en anglais et en français. Exemple de réponse 429 :",
+        )}</p>
         <Card class="mb-6">
           <CardContent class="p-4 font-mono text-sm leading-relaxed overflow-x-auto">
             &#123;<br />
@@ -945,19 +1102,28 @@ const errorCodes = [
           </CardContent>
         </Card>
 
-        <p class="text-sm text-muted-foreground mb-3">When building a French-language UI, display <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message_fr</code> to your users. The <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message</code> field is always English and suitable for logging.</p>
+        <p class="text-sm text-muted-foreground mb-3">{t(
+          "When building a French-language UI, display",
+          "Lors de la création d'une interface en français, affichez",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message_fr</code> {t(
+          "to your users. The",
+          "à vos utilisateurs. Le champ",
+        )} <code class="px-1 py-0.5 bg-muted rounded text-xs font-mono">message</code> {t(
+          "field is always English and suitable for logging.",
+          "est toujours en anglais et convient à la journalisation.",
+        )}</p>
 
-        <h3 class="text-lg font-semibold mt-8 mb-3">Error reference</h3>
+        <h3 class="text-lg font-semibold mt-8 mb-3">{t("Error reference", "Référence des erreurs")}</h3>
 
         <Card>
           <CardContent class="p-0 overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Code</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Status</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Retry</th>
-                  <th class="text-left p-3 font-semibold text-muted-foreground">Meaning</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Code", "Code")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Status", "Statut")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Retry", "Réessayer")}</th>
+                  <th class="text-left p-3 font-semibold text-muted-foreground">{t("Meaning", "Signification")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -976,9 +1142,9 @@ const errorCodes = [
                       }`}>{e.status}</span>
                     </td>
                     <td class="p-3">
-                      <span class={e.retry === "Yes" ? "text-emerald-500" : "text-muted-foreground"}>{e.retry}</span>
+                      <span class={tb(e.retry) === "Oui" ? "text-emerald-500" : "text-muted-foreground"}>{tb(e.retry)}</span>
                     </td>
-                    <td class="p-3 text-muted-foreground">{e.meaning}</td>
+                    <td class="p-3 text-muted-foreground">{tb(e.meaning)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -993,22 +1159,22 @@ const errorCodes = [
       <section id="faq" class="mb-16 scroll-mt-24">
         <div class="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
           <span class="text-primary">[</span>          <span class="text-primary/80">11</span><span class="text-primary">]</span>
-          <span class="font-semibold text-foreground">FAQ</span>
+          <span class="font-semibold text-foreground">{t("FAQ", "FAQ")}</span>
         </div>
-        <h2 class="text-2xl font-bold mb-6">Common questions</h2>
+        <h2 class="text-2xl font-bold mb-6">{t("Common questions", "Questions fréquentes")}</h2>
 
         {[
-          { q: "Do I need a credit card to start?", a: "No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit." },
-          { q: "What makes the citations verifiable?", a: "Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw." },
-          { q: "Which AI frameworks are supported?", a: "MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs." },
-          { q: "How fresh is the data?", a: "Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field." },
-          { q: "What is the cross-reference engine?", a: "Search for any person or company and get their complete government footprint — lobbying meetings, committee testimony, GIC board appointments, procurement contracts, court cases, and campaign donations — in a unified timeline." },
-          { q: "Is my API key secure?", a: "Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly." },
+          { q: { en: "Do I need a credit card to start?", fr: "Dois-je fournir une carte de crédit pour commencer ?" }, a: { en: "No. Free plan: 1,000 calls/month, every source, every SDK, citation hashes included. No card, no time limit.", fr: "Non. Forfait gratuit : 1 000 appels/mois, toutes les sources, tous les SDK, hachages de citation inclus. Pas de carte, pas de limite de temps." } },
+          { q: { en: "What makes the citations verifiable?", fr: "Qu'est-ce qui rend les citations vérifiables ?" }, a: { en: "Every response includes source name, exact upstream URL, retrieval timestamp, and a SHA-256 content hash. You can re-fetch and confirm exactly what the agent saw.", fr: "Chaque réponse inclut le nom de la source, l'URL en amont exacte, l'horodatage de récupération et un hachage SHA-256 du contenu. Vous pouvez re-télécharger et confirmer exactement ce que l'agent a vu." } },
+          { q: { en: "Which AI frameworks are supported?", fr: "Quels cadres IA sont pris en charge ?" }, a: { en: "MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. TypeScript and Python SDKs.", fr: "MCP (Claude, Cursor, Windsurf, ChatGPT), Anthropic tool_use, OpenAI function calling. SDK TypeScript et Python." } },
+          { q: { en: "How fresh is the data?", fr: "Quelle est la fraîcheur des données ?" }, a: { en: "Depends on the source. Committee evidence: ~24h. Canada Gazette: within hours of publication. CanLII: daily. Every response ships with a freshness_seconds field.", fr: "Cela dépend de la source. Témoignages des comités : ~24 h. Gazette du Canada : quelques heures après publication. CanLII : quotidiennement. Chaque réponse est accompagnée d'un champ freshness_seconds." } },
+          { q: { en: "What is the cross-reference engine?", fr: "Qu'est-ce que le moteur de recoupement ?" }, a: { en: "Search for any person or company and get their complete government footprint — lobbying meetings, committee testimony, GIC board appointments, procurement contracts, court cases, and campaign donations — in a unified timeline.", fr: "Recherchez une personne ou une entreprise et obtenez son empreinte gouvernementale complète — réunions de lobbying, témoignages en comité, nominations aux conseils par décret, contrats d'approvisionnement, dossiers judiciaires et dons de campagne — dans une chronologie unifiée." } },
+          { q: { en: "Is my API key secure?", fr: "Ma clé API est-elle sécurisée ?" }, a: { en: "Keys are hashed with SHA-256 at rest — we only see them at verify time. HTTPS-only transit. Rotate from the workspace instantly.", fr: "Les clés sont hachées avec SHA-256 au repos — nous ne les voyons qu'au moment de la vérification. Transit HTTPS uniquement. Rotation instantanée depuis l'espace de travail." } },
         ].map((faq) => (
           <Card class="mb-4">
             <CardContent class="p-4">
-              <p class="font-semibold mb-1">{faq.q}</p>
-              <p class="text-sm text-muted-foreground">{faq.a}</p>
+              <p class="font-semibold mb-1">{tb(faq.q)}</p>
+              <p class="text-sm text-muted-foreground">{tb(faq.a)}</p>
             </CardContent>
           </Card>
         ))}

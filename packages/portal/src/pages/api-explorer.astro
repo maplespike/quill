@@ -5,24 +5,31 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('api_explorer.title')} description="Test MapleSpike API endpoints, view OpenAPI spec, and run live queries against Canadian government data." lang={lang}>
+<BaseLayout title={i18n.t('api_explorer.title')} description={t(
+  "Test MapleSpike API endpoints, view OpenAPI spec, and run live queries against Canadian government data.",
+  "Testez les points de terminaison de l'API MapleSpike, consultez la spécification OpenAPI et exécutez des requêtes en direct sur les données gouvernementales canadiennes.",
+)} lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-20">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10">
       <div class="container mx-auto px-4 text-center">
-        <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">Developer playground</Badge>
+        <Badge variant="outline" class="mb-4 border-primary/30 bg-primary/5 text-primary">{t("Developer playground", "Terrain de jeu développeur")}</Badge>
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
           API&nbsp;<span class="text-gradient">Explorer</span>
         </h1>
         <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-          Test endpoints, inspect responses, and explore the MapleSpike API. All requests go directly
-          against the live API.
+          {t(
+            "Test endpoints, inspect responses, and explore the MapleSpike API. All requests go directly against the live API.",
+            "Testez les points de terminaison, inspectez les réponses et explorez l'API MapleSpike. Toutes les requêtes vont directement vers l'API en direct.",
+          )}
         </p>
       </div>
     </div>
@@ -35,8 +42,8 @@ const i18n = createI18n(lang);
       <div class="grid gap-6 md:grid-cols-3 mb-8">
         <Card class="md:col-span-2">
           <CardHeader>
-            <CardTitle class="text-lg">Endpoint</CardTitle>
-            <CardDescription>Enter API endpoint path relative to base URL</CardDescription>
+            <CardTitle class="text-lg">{t("Endpoint", "Point de terminaison")}</CardTitle>
+            <CardDescription>{t("Enter API endpoint path relative to base URL", "Saisissez le chemin du point de terminaison API relatif à l'URL de base")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div class="flex items-center gap-2">
@@ -47,19 +54,19 @@ const i18n = createI18n(lang);
                 placeholder="/v1/gov/search?query=housing&limit=5"
                 class="font-mono text-sm flex-1"
               />
-              <Button id="send-request-btn">Send</Button>
+              <Button id="send-request-btn">{t("Send", "Envoyer")}</Button>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle class="text-lg">API Key</CardTitle>
-            <CardDescription>Your authentication key</CardDescription>
+            <CardDescription>{t("Your authentication key", "Votre clé d'authentification")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Input type="password" id="api-key-input" placeholder="mp_..." class="font-mono text-sm" />
             <p class="text-xs text-muted-foreground mt-2">
-              Saved locally. <a href="/workspace" class="text-primary hover:underline">Get a key →</a>
+              {t("Saved locally.", "Enregistrée localement.")} <a href="/workspace" class="text-primary hover:underline">{t("Get a key →", "Obtenir une clé →")}</a>
             </p>
           </CardContent>
         </Card>
@@ -74,26 +81,26 @@ const i18n = createI18n(lang);
         <div class="tab-panel" data-tab="get">
           <Card>
             <CardHeader>
-              <CardTitle class="text-lg">Query Parameters</CardTitle>
-              <CardDescription>Add URL query parameters</CardDescription>
+              <CardTitle class="text-lg">{t("Query Parameters", "Paramètres de requête")}</CardTitle>
+              <CardDescription>{t("Add URL query parameters", "Ajouter des paramètres de requête URL")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div class="space-y-3" id="get-params">
                 <div class="flex items-center gap-2">
-                  <Input placeholder="Parameter name" class="w-48 font-mono text-sm" />
-                  <Input placeholder="Value" class="flex-1 font-mono text-sm" />
+                  <Input placeholder={t("Parameter name", "Nom du paramètre")} class="w-48 font-mono text-sm" />
+                  <Input placeholder={t("Value", "Valeur")} class="flex-1 font-mono text-sm" />
                   <Button variant="ghost" size="sm">×</Button>
                 </div>
               </div>
-              <Button variant="outline" size="sm" class="mt-3">+ Add parameter</Button>
+              <Button variant="outline" size="sm" class="mt-3">+ {t("Add parameter", "Ajouter un paramètre")}</Button>
             </CardContent>
           </Card>
         </div>
         <div class="tab-panel hidden" data-tab="post">
           <Card>
             <CardHeader>
-              <CardTitle class="text-lg">Request Body</CardTitle>
-              <CardDescription>JSON payload for POST endpoints</CardDescription>
+              <CardTitle class="text-lg">{t("Request Body", "Corps de la requête")}</CardTitle>
+              <CardDescription>{t("JSON payload for POST endpoints", "Charge utile JSON pour les points de terminaison POST")}</CardDescription>
             </CardHeader>
             <CardContent>
               <textarea
@@ -111,8 +118,8 @@ const i18n = createI18n(lang);
         <CardHeader>
           <div class="flex items-center justify-between">
             <div>
-              <CardTitle class="text-lg">Response</CardTitle>
-              <CardDescription>API response will appear here</CardDescription>
+              <CardTitle class="text-lg">{t("Response", "Réponse")}</CardTitle>
+              <CardDescription>{t("API response will appear here", "La réponse API apparaîtra ici")}</CardDescription>
             </div>
             <div class="flex items-center gap-2" id="response-status">
               <Badge variant="outline" class="font-mono text-xs hidden" id="status-code">200</Badge>
@@ -124,36 +131,36 @@ const i18n = createI18n(lang);
           <pre
             id="response-body"
             class="overflow-auto rounded-lg border bg-muted/50 p-4 font-mono text-xs leading-relaxed max-h-96"
-          ><code class="text-muted-foreground">// Send a request to see the response here</code></pre>
+          ><code class="text-muted-foreground">// {t("Send a request to see the response here", "Envoyez une requête pour voir la réponse ici")}</code></pre>
         </CardContent>
       </Card>
 
       <!-- Sample Requests -->
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">Sample Requests</CardTitle>
-          <CardDescription>Quick-start examples to copy and run</CardDescription>
+          <CardTitle class="text-lg">{t("Sample Requests", "Exemples de requêtes")}</CardTitle>
+          <CardDescription>{t("Quick-start examples to copy and run", "Exemples de démarrage rapide à copier et exécuter")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div class="space-y-4">
             <div class="rounded-lg border bg-muted/30 p-4">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium">Search government data</span>
-                <Button variant="ghost" size="sm" class="copy-sample" data-code='curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"'>Copy</Button>
+                <span class="text-sm font-medium">{t("Search government data", "Rechercher des données gouvernementales")}</span>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code='curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"'>{t("Copy", "Copier")}</Button>
               </div>
               <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s "https://api.maplespike.ca/v1/gov/search?query=housing&limit=5"</code></pre>
             </div>
             <div class="rounded-lg border bg-muted/30 p-4">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium">Health check</span>
-                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/health">Copy</Button>
+                <span class="text-sm font-medium">{t("Health check", "Vérification de l'état")}</span>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/health">{t("Copy", "Copier")}</Button>
               </div>
               <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.ca/v1/health</code></pre>
             </div>
             <div class="rounded-lg border bg-muted/30 p-4">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium">Get data sources</span>
-                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/sources">Copy</Button>
+                <span class="text-sm font-medium">{t("Get data sources", "Obtenir les sources de données")}</span>
+                <Button variant="ghost" size="sm" class="copy-sample" data-code="curl -s https://api.maplespike.ca/v1/sources">{t("Copy", "Copier")}</Button>
               </div>
               <pre class="font-mono text-xs text-muted-foreground overflow-x-auto"><code>curl -s https://api.maplespike.ca/v1/sources</code></pre>
             </div>
