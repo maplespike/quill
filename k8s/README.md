@@ -40,9 +40,14 @@ k8s/
 
 ## Namespace
 
-All app manifests deploy to the `maplespike` namespace. `cloudflared` runs in
+All prod app manifests deploy to the `maplespike` namespace. `cloudflared` runs in
 its own `cloudflared` namespace (must carry label
 `app.kubernetes.io/name: cloudflared` for the API NetworkPolicy).
+
+A **dev/staging namespace `quill-dev`** is generated from the same Nix generator
+(`nix build .#dev-manifests` / `nix run .#deploy-dev`) — LAN-only, dynamic
+ClusterIPs, dev.* ingress hosts, no tunnel/GNP/VAP. See
+`docs/K8S-NIX-MANIFESTS.md` § Dev call site.
 
 ## Applying
 
@@ -53,6 +58,12 @@ kubectl apply -f result/manifests.yaml
 
 # Convenience app (same thing)
 nix run .#deploy-saas
+
+# DEV namespace (quill-dev): same generator, dev call site. Push images
+# first (the bundle pins the git short-sha tag):
+#   nix run .#push-images
+#   nix run .#deploy-dev          # generate + apply + bootstrap dev secret
+#   nix build .#dev-manifests -L  # render-only, inspect result/manifests.yaml
 
 # Kustomize reference path (dev only — the Nix bundle is canonical for prod)
 kubectl apply -k k8s/maplespike/

@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: mcp
-        image: nexus:5000/quill-mcp:2026-08-10-4
+        image: nexus:5000/quill-mcp:2026-08-13-14aef96c
         # NOTE: cluster admission policy forbids :latest tags.
         # IfNotPresent — see quill-api-deployment.yaml (2026-08-11 reboot incident).
         imagePullPolicy: IfNotPresent

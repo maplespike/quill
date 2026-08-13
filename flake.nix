@@ -252,6 +252,38 @@
         portalTag = "2026-08-10-3";
         domain = "maplespike.ca";
       };
+
+      # ── Dev SaaS manifests (namespace quill-dev, LAN-only) ──────
+      # Same generator, different call site. Image tags are pinned to the
+      # current git short-sha so every main push deploys a unique, immutable
+      # tag (the cluster's `deny-latest-tag-deployments` admission policy
+      # forbids :latest). The deploy-dev workflow pushes the matching tags
+      # via `nix run .#push-images` (which tags $COMMIT = git short sha)
+      # BEFORE applying. Dev is namespace-scoped only: no cloudflared, no
+      # GNP/VAP (cluster-scoped — prod owns them), dynamic ClusterIPs,
+      # dev.* ingress hosts, and its own quill-dev-secrets Secret.
+      dev-manifests = saasManifests {
+        inherit pkgs;
+        registry = "nexus:5000";
+        # On a git checkout self.shortRev = git rev-parse --short HEAD, which
+        # is the $COMMIT tag push-images pushes. Fall back to "stable" (also
+        # always pushed) — NOT "dev", which push-images never pushes (a
+        # path-flake eval has no git metadata, so shortRev is missing and a
+        # `:dev` pin would ImagePullBackOff on apply).
+        tag = self.shortRev or "stable";
+        apiTag = self.shortRev or "stable";
+        mcpTag = self.shortRev or "stable";
+        portalTag = self.shortRev or "stable";
+        domain = "maplespike.ca";
+        namespace = "quill-dev";
+        dev = true;
+        # qdrant lives in the ai-inference namespace (reference manifest
+        # k8s/maplespike/quill-api-deployment.yaml). The generator default
+        # now matches that cross-namespace service (was the stale bare
+        # `http://qdrant:6333`), and dev inherits it — RAG works against the
+        # shared vector store (dev runs no ingest cronjobs, so it only reads).
+        qdrantEndpoint = "http://qdrant-service.ai-inference.svc.cluster.local:6333";
+      };
     };
 
     # Top-level easy handles
@@ -346,6 +378,53 @@
           kubectl rollout status deployment/quill-mcp -n maplespike --timeout=120s || true
           echo "✓ SaaS deploy complete — https://quill.$MAPLESPIKE_DOMAIN"
         ''}/bin/quill-deploy-saas";
+      };
+
+      # Dev SaaS deploy: render the quill-dev bundle, bootstrap the dev
+      # secret, apply to the LAN-only quill-dev namespace, and roll out.
+      # Images must already be pushed (deploy-dev workflow runs
+      # `nix run .#push-images` first — the bundle pins the short-sha tag).
+      deploy-dev = {
+        type = "app";
+        program = "${pkgs.writeShellScriptBin "quill-deploy-dev" ''
+          set -euo pipefail
+          HERE="$(cd "$(dirname "''${BASH_SOURCE[0]}")" && pwd)"
+          ROOT="$(cd "$HERE/.." && pwd)"
+          cd "$ROOT"
+          echo "==> Generating dev SaaS manifests (namespace quill-dev)"
+          nix build ".#dev-manifests" -L
+          MANIFEST="result/manifests.yaml"
+          echo "==> Applying to cluster (namespace quill-dev)"
+          kubectl apply -f "$MANIFEST"
+          echo "==> Bootstrapping dev secrets (quill-dev-secrets)"
+          if ! kubectl get secret quill-dev-secrets -n quill-dev >/dev/null 2>&1; then
+            # Values are throwaway random dev creds. Use --from-file (not
+            # --from-literal) to keep them out of the process table — same
+            # posture as scripts/sops-sync-k8s.sh's apply_secret().
+            TMPD=$(mktemp -d)
+            trap 'rm -rf "$TMPD"' EXIT
+            echo -n "$(openssl rand -hex 32)" > "$TMPD/jwt-secret"
+            echo -n "$(openssl rand -hex 32)" > "$TMPD/pii-hash-secret"
+            kubectl create secret generic quill-dev-secrets -n quill-dev \
+              --from-file=jwt-secret="$TMPD/jwt-secret" \
+              --from-file=pii-hash-secret="$TMPD/pii-hash-secret"
+            rm -rf "$TMPD"
+            trap - EXIT
+            echo "✓ created quill-dev-secrets (random dev values)"
+          else
+            echo "✓ quill-dev-secrets already exists (reusing)"
+          fi
+          # The api pod's secretKeyRefs are `optional: true`, so the first pod
+          # boots BEFORE the secret exists (fresh namespace). The restart is
+          # what injects the freshly-created secret env refs — do NOT remove it
+          # as "redundant"; without it dev auth/registration reads empty values.
+          echo "==> Rolling out (picks up dev secret env refs)"
+          kubectl rollout restart deployment/quill-api -n quill-dev
+          kubectl rollout status deployment/quill-api -n quill-dev --timeout=120s || true
+          kubectl rollout status deployment/quill-portal -n quill-dev --timeout=120s || true
+          kubectl rollout status deployment/quill-mcp -n quill-dev --timeout=120s || true
+          echo "✓ Dev deploy complete — LAN: https://dev.maplespike.ca (via Traefik ingress)"
+        ''}/bin/quill-deploy-dev";
       };
     };
 

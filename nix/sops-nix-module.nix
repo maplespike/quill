@@ -52,6 +52,7 @@ in
     sops.secrets = {
       JWT_SECRET          = { owner = "root"; group = "k3s"; mode = "0440"; };
       QUILL_BILLING_SECRET = { owner = "root"; group = "k3s"; mode = "0440"; };
+      QUILL_PII_HASH_SECRET = { owner = "root"; group = "k3s"; mode = "0440"; };
       POSTGRES_PASSWORD   = { owner = "postgres"; group = "postgres"; mode = "0440"; };
       QUILL_GATEWAY_API_KEY = { owner = "root"; group = "k3s"; mode = "0440"; };
       ASTRAL_KEY_URL      = { owner = "root"; group = "k3s"; mode = "0440"; };
