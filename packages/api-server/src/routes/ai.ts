@@ -31,7 +31,6 @@ import { canAccess } from '../feature-gates.js';
  * (that belongs to the MCP/pipeline layer where tool results carry PII).
  */
 function sanitizeString(val: string): string {
-  if (typeof val !== 'string') return val as unknown as string;
   return val
     // Strip <script>, <style>, <iframe>, <object>, <embed> blocks first
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
@@ -39,11 +38,17 @@ function sanitizeString(val: string): string {
     .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
     .replace(/<object\b[^>]*>[\s\S]*?<\/object>/gi, '')
     .replace(/<embed\b[^>]*>/gi, '')
-    // Strip all remaining tags
+    // Strip all remaining tags (this also kills any attribute payloads)
     .replace(/<[^>]+>/g, '')
-    // Strip javascript: and data: URI schemes from attributes / links
-    .replace(/(?:href|src|action|on\w+)\s*=\s*["']?\s*javascript:[^"' ]*/gi, '')
-    .replace(/(?:href|src|action)\s*=\s*["']?\s*data:[^"' ]*/gi, '');
+    // Defense-in-depth: scrub dangerous URI schemes from the remaining text
+    // so a downstream markdown renderer cannot turn `[x](javascript:…)` into
+    // a clickable link. HTML parsers normalize tabs/newlines inside URLs, so
+    // match whitespace and control chars interleaved through the scheme name
+    // (also strips "Java script:" prose — an acceptable tradeoff for catching
+    // `java\tscript:` obfuscation; the regex requires a trailing colon, so
+    // plain mentions of "javascript" in text are untouched).
+    .replace(/j[\s\u0000-\u001f]*a[\s\u0000-\u001f]*v[\s\u0000-\u001f]*a[\s\u0000-\u001f]*s[\s\u0000-\u001f]*c[\s\u0000-\u001f]*r[\s\u0000-\u001f]*i[\s\u0000-\u001f]*p[\s\u0000-\u001f]*t[\s\u0000-\u001f]*:/gi, '')
+    .replace(/v[\s\u0000-\u001f]*b[\s\u0000-\u001f]*s[\s\u0000-\u001f]*c[\s\u0000-\u001f]*r[\s\u0000-\u001f]*i[\s\u0000-\u001f]*p[\s\u0000-\u001f]*t[\s\u0000-\u001f]*:/gi, '');
 }
 
 // ── AI Gateway ──────────────────────────────────────────────────────
