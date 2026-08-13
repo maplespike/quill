@@ -11,6 +11,7 @@ export const getVotingRecordDefinition: ToolDefinition = {
     properties: {
       divisionId: {
         type: 'string',
+        maxLength: 500,
         description: 'Division identifier',
       },
     },
@@ -26,6 +27,7 @@ export const getMPVotingPatternDefinition: ToolDefinition = {
     properties: {
       mpId: {
         type: 'string',
+        maxLength: 500,
         description: 'MP identifier',
       },
       years: {
@@ -45,6 +47,7 @@ export const comparePartyVotingDefinition: ToolDefinition = {
     properties: {
       divisionId: {
         type: 'string',
+        maxLength: 500,
         description: 'Division identifier',
       },
     },

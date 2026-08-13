@@ -20,6 +20,7 @@ export const definition: ToolDefinition = {
     properties: {
       claim: {
         type: 'string',
+        maxLength: 2000,
         description: 'The claim to fact-check (e.g., "unemployment rate rose to 6.5%", "defence spending increased 20%")',
       },
     },

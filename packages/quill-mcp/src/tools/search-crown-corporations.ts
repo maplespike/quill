@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — corporation name, financial data, or year (e.g., "CBC revenue 2024", "Canada Post pension", "EDC exports")',
       },
       limit: {

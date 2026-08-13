@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — vendor, department, or program (e.g., "Amazon Web Services", "PSPC", "innovation grants")',
       },
       limit: {

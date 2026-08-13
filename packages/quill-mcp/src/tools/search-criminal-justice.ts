@@ -16,6 +16,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — institution, province, crime type, or year (e.g., "prison population Ontario 2024", "hate crimes", "parole granted")',
       },
       source: {

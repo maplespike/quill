@@ -17,6 +17,7 @@ export const searchUndpHdrDefinition: ToolDefinition = {
       },
       country: {
         type: 'string',
+        maxLength: 500,
         description: 'ISO-3 country code (e.g., CAN, USA, GBR)',
       },
       minYear: {
@@ -53,6 +54,7 @@ export const getUndpHdrIndicatorDefinition: ToolDefinition = {
       },
       country: {
         type: 'string',
+        maxLength: 500,
         description: 'ISO-3 country code (optional)',
       },
       yearRange: {
@@ -72,6 +74,7 @@ export const getAllUndpHdrDefinition: ToolDefinition = {
     properties: {
       country: {
         type: 'string',
+        maxLength: 500,
         description: 'ISO-3 country code (optional)',
       },
       yearRange: {

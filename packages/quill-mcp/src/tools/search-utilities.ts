@@ -7,7 +7,7 @@ export const definition: ToolDefinition = {
   inputSchema: { type: 'object', properties: {
     province: { type: 'string', description: 'Province code (ON, QC, BC, AB, etc.)' },
     type: { type: 'string', enum: ['hydro', 'gas', 'water', 'telecom'], description: 'Utility type' },
-    query: { type: 'string', description: 'Search by name or service area' },
+    query: { type: 'string', maxLength: 2000, description: 'Search by name or service area' },
   }},
 };
 

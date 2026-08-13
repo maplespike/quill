@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — program, province, or year (e.g., "EI claims Ontario", "CCB payments", "poverty rate")',
       },
       limit: {

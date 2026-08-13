@@ -8,7 +8,7 @@ export const definition: ToolDefinition = {
   name: 'get_entity_profile',
   description: 'Cross-reference a person across MP, lobbying, and GIC data.',
   inputSchema: { type: 'object', properties: {
-    name: { type: 'string', description: 'Person name' },
+    name: { type: 'string', maxLength: 2000, description: 'Person name' },
   }, required: ['name'] },
 };
 

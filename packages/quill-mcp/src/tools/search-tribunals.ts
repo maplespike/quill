@@ -16,7 +16,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Search query — appointee name, tribunal name, or department' },
+      query: { type: 'string', maxLength: 2000, description: 'Search query — appointee name, tribunal name, or department' },
       tribunal: { type: 'string', description: 'Filter by specific tribunal acronym (e.g. IRB, CHRT, CITT)' },
       limit: { type: 'number', description: 'Max results (default 10)', default: 10 },
     },

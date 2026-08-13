@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — NOC code, province, or country (e.g., "software engineers Ontario", "TFWP agriculture", "NOC 21231")',
       },
       limit: {

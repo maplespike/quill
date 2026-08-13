@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — company, decision type, or topic (e.g., "Bell Mobility", "net neutrality", "broadcasting licence")',
       },
       limit: {

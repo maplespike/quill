@@ -49,6 +49,7 @@ export const definition: ToolDefinition = {
       },
       query: {
         type: 'string',
+        maxLength: 500,
         description: 'Search for sources/tools matching text',
       },
       format: {

@@ -5,7 +5,7 @@ export const definition: ToolDefinition = {
   name: 'search_education_stats',
   description: 'Search education statistics and enrolment data. Results from open.canada.ca.',
   inputSchema: { type: 'object', properties: {
-    query: { type: 'string', description: 'Search terms' },
+    query: { type: 'string', maxLength: 2000, description: 'Search terms' },
     limit: { type: 'number', minimum: 1, maximum: 50 },
   }, required: ['query'] },
 };

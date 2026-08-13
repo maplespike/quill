@@ -16,6 +16,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — mode, province, investigation type, or year (e.g., "TSB rail occurrence 2024", "air safety", "bridge funding Ontario")',
       },
       source: {

@@ -11,10 +11,12 @@ export const searchOecdDefinition: ToolDefinition = {
     properties: {
       keyword: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search keyword (indicator name or code)',
       },
       country: {
         type: 'string',
+        maxLength: 500,
         description: 'Country code (e.g., CAN, USA, GBR)',
       },
       indicatorCode: {

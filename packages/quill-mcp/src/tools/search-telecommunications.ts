@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — provider, technology, or region (e.g., "broadband rural Ontario", "spectrum auction", "CRTC telecom")',
       },
       limit: {

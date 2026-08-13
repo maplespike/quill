@@ -5,7 +5,7 @@ export const definition: ToolDefinition = {
   name: 'search_agriculture_data',
   description: 'Search agriculture and agri-food data. Results from open.canada.ca.',
   inputSchema: { type: 'object', properties: {
-    query: { type: 'string', description: 'Search terms' },
+    query: { type: 'string', maxLength: 500, description: 'Search terms' },
     limit: { type: 'number', minimum: 1, maximum: 50 },
   }, required: ['query'] },
 };

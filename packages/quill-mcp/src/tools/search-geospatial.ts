@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 500,
         description: 'Search terms — location, map type, or dataset (e.g., "topographic map Alberta", "satellite imagery", "geospatial data Ontario")',
       },
       limit: {

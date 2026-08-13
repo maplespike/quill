@@ -18,6 +18,7 @@ export const definition: ToolDefinition = {
     properties: {
       text: {
         type: 'string',
+        maxLength: 500,
         description: 'The text content to analyze (document, transcript, article, or data excerpt)',
       },
       analysis_type: {

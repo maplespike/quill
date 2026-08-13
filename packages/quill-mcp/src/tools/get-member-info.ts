@@ -9,7 +9,7 @@ export const definition: ToolDefinition = {
   inputSchema: {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'MP name or riding (e.g., "Trudeau", "Edmonton", "Liberal")' },
+      query: { type: 'string', maxLength: 2000, description: 'MP name or riding (e.g., "Trudeau", "Edmonton", "Liberal")' },
       limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results (default: 10)' },
     },
     required: ['query'],

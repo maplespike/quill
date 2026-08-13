@@ -22,6 +22,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Natural language question about Canadian government data (e.g., "What did the ethics commissioner investigate in 2024?")',
       },
       source_filter: {

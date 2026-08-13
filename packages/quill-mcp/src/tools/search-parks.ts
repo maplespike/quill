@@ -9,7 +9,7 @@ export const definition: ToolDefinition = {
     properties: {
       city: { type: 'string', description: 'City name (toronto, vancouver, calgary, etc.)' },
       province: { type: 'string', description: 'Province code (ON, BC, AB, QC, MB, NS)' },
-      query: { type: 'string', description: 'Search park name or city' },
+      query: { type: 'string', maxLength: 2000, description: 'Search park name or city' },
     },
   },
 };

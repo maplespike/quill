@@ -12,6 +12,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — charity name, BN/registration number, or keyword (e.g., "United Way", "climate justice", "registered charity")',
       },
       limit: {

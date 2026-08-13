@@ -11,6 +11,7 @@ export const definition: ToolDefinition = {
     properties: {
       query: {
         type: 'string',
+        maxLength: 2000,
         description: 'Search terms — regulator name, profession, or province (e.g., "Ontario Securities Commission", "engineering regulator Alberta", "law society")',
       },
       limit: {
