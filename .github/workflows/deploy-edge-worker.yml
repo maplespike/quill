@@ -38,7 +38,7 @@ jobs:
 
   provision-test-key:
     name: Provision test API key in KV
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, nixos]
     needs: deploy
     if: github.ref == 'refs/heads/prod'
     steps:
