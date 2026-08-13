@@ -2,12 +2,17 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('privacy.title')} description="MapleSpike privacy policy — how we handle your data." lang={lang}>
+<BaseLayout title={i18n.t('privacy.title')} description={t(
+  "MapleSpike privacy policy — how we handle your data.",
+  "Politique de confidentialité de MapleSpike — comment nous traitons vos données.",
+)} lang={lang}>
   <section class="border-b py-12 md:py-16">
     <div class="container mx-auto px-4">
       <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -21,85 +26,136 @@ const i18n = createI18n(lang);
     <div class="max-w-none space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">1. Overview</CardTitle>
+          <CardTitle class="text-lg">1. {t("Overview", "Aperçu")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>MapleSpike ("we", "us", "our") provides a government data intelligence platform that aggregates, processes, and serves Canadian public-sector data via REST API, MCP tools, and a web portal. This policy explains what data we collect, how we use it, and your rights.</p>
-          <p>We are committed to transparency. Our core product is <strong>publicly licensed government data</strong> — we do not sell user data to third parties.</p>
+          <p>{t(
+            "MapleSpike (\"we\", \"us\", \"our\") provides a government data intelligence platform that aggregates, processes, and serves Canadian public-sector data via REST API, MCP tools, and a web portal. This policy explains what data we collect, how we use it, and your rights.",
+            "MapleSpike (« nous », « notre ») offre une plateforme d'intelligence des données gouvernementales qui agrège, traite et sert les données du secteur public canadien via une API REST, des outils MCP et un portail Web. Cette politique explique quelles données nous collectons, comment nous les utilisons et quels sont vos droits.",
+          )}</p>
+          <p>{t(
+            "We are committed to transparency. Our core product is",
+            "Nous nous engageons à la transparence. Notre produit principal est constitué de",
+          )} <strong>{t("publicly licensed government data", "données gouvernementales sous licence publique")}</strong> {t(
+            "— we do not sell user data to third parties.",
+            "— nous ne vendons pas les données des utilisateurs à des tiers.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">2. Data We Collect</CardTitle>
+          <CardTitle class="text-lg">2. {t("Data We Collect", "Données que nous collectons")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p><strong>Account data:</strong> Email address, OAuth provider ID (GitHub, Google, Apple), wallet address (if Web3 auth), and tenant tier. We store the minimum required to authenticate you.</p>
-          <p><strong>API usage data:</strong> Request count, endpoint accessed, timestamp, and response status. Used for rate limiting, billing, and abuse prevention. Audit logs are retained for 30 days, then aggregated into daily summaries.</p>
-          <p><strong>AI query data:</strong> Questions submitted to the /v1/ai/ask endpoint are processed in real-time and not stored permanently. PII (emails, phone numbers, SINs) is redacted before any audit logging.</p>
-          <p><strong>Payment data:</strong> We do not store credit card numbers. Crypto payments are processed on-chain. Interac e-Transfer details are handled by our payment processor.</p>
-          <p><strong>We do NOT collect:</strong> Browser fingerprints, tracking cookies for advertising, personal browsing history, or location data beyond IP-based rate limiting.</p>
+          <p><strong>{t("Account data:", "Données de compte :")}</strong> {t(
+            "Email address, OAuth provider ID (GitHub, Google, Apple), wallet address (if Web3 auth), and tenant tier. We store the minimum required to authenticate you.",
+            "Adresse courriel, identifiant du fournisseur OAuth (GitHub, Google, Apple), adresse de portefeuille (si authentification Web3) et palier du locataire. Nous stockons le minimum requis pour vous authentifier.",
+          )}</p>
+          <p><strong>{t("API usage data:", "Données d'utilisation de l'API :")}</strong> {t(
+            "Request count, endpoint accessed, timestamp, and response status. Used for rate limiting, billing, and abuse prevention. Audit logs are retained for 30 days, then aggregated into daily summaries.",
+            "Nombre de requêtes, point de terminaison accédé, horodatage et statut de la réponse. Utilisées pour la limitation de débit, la facturation et la prévention des abus. Les journaux d'audit sont conservés 30 jours, puis agrégés en résumés quotidiens.",
+          )}</p>
+          <p><strong>{t("AI query data:", "Données de requêtes IA :")}</strong> {t(
+            "Questions submitted to the /v1/ai/ask endpoint are processed in real-time and not stored permanently. PII (emails, phone numbers, SINs) is redacted before any audit logging.",
+            "Les questions soumises au point de terminaison /v1/ai/ask sont traitées en temps réel et ne sont pas stockées en permanence. Les RPSN (courriels, numéros de téléphone, NAS) sont masquées avant toute journalisation d'audit.",
+          )}</p>
+          <p><strong>{t("Payment data:", "Données de paiement :")}</strong> {t(
+            "We do not store credit card numbers. Crypto payments are processed on-chain. Interac e-Transfer details are handled by our payment processor.",
+            "Nous ne stockons pas les numéros de carte de crédit. Les paiements cryptographiques sont traités sur la chaîne. Les détails des virements Interac sont gérés par notre processeur de paiement.",
+          )}</p>
+          <p><strong>{t("We do NOT collect:", "Nous ne collectons PAS :")}</strong> {t(
+            "Browser fingerprints, tracking cookies for advertising, personal browsing history, or location data beyond IP-based rate limiting.",
+            "Empreintes de navigateur, témoins de suivi publicitaire, historique de navigation personnel ou données de localisation au-delà de la limitation de débit fondée sur l'adresse IP.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">3. How We Use Your Data</CardTitle>
+          <CardTitle class="text-lg">3. {t("How We Use Your Data", "Comment nous utilisons vos données")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <ul class="list-disc pl-5 space-y-1.5">
-            <li>Authenticate you and manage your account</li>
-            <li>Enforce rate limits and API quotas per your plan tier</li>
-            <li>Process payments and manage billing</li>
-            <li>Detect and prevent abuse, fraud, and unauthorized access</li>
-            <li>Improve our data quality, coverage, and service reliability</li>
-            <li>Comply with legal obligations under Canadian law</li>
+            <li>{t("Authenticate you and manage your account", "Vous authentifier et gérer votre compte")}</li>
+            <li>{t("Enforce rate limits and API quotas per your plan tier", "Appliquer les limites de débit et les quotas API selon votre palier")}</li>
+            <li>{t("Process payments and manage billing", "Traiter les paiements et gérer la facturation")}</li>
+            <li>{t("Detect and prevent abuse, fraud, and unauthorized access", "Détecter et prévenir les abus, la fraude et les accès non autorisés")}</li>
+            <li>{t("Improve our data quality, coverage, and service reliability", "Améliorer la qualité, la couverture et la fiabilité de nos données et services")}</li>
+            <li>{t("Comply with legal obligations under Canadian law", "Respecter les obligations légales en vertu du droit canadien")}</li>
           </ul>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">4. Data Storage & Security</CardTitle>
+          <CardTitle class="text-lg">4. {t("Data Storage & Security", "Stockage et sécurité des données")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>API keys are stored as SHA-256 hashes — we cannot recover your plaintext key after issuance. Authentication uses JWT tokens with short-lived refresh cycles.</p>
-          <p>Government data is cached in our database with provenance metadata (source URL, retrieval timestamp, SHA-256 content hash). All data is licensed under the Open Government Licence – Canada or equivalent provincial licenses.</p>
-          <p>AI inference requests to the edge worker are processed via Cloudflare Workers AI or our self-hosted homelab cluster. No query content is stored beyond the 30-day audit window.</p>
+          <p>{t(
+            "API keys are stored as SHA-256 hashes — we cannot recover your plaintext key after issuance. Authentication uses JWT tokens with short-lived refresh cycles.",
+            "Les clés API sont stockées sous forme de hachages SHA-256 — nous ne pouvons pas récupérer votre clé en clair après son émission. L'authentification utilise des jetons JWT avec de courts cycles d'actualisation.",
+          )}</p>
+          <p>{t(
+            "Government data is cached in our database with provenance metadata (source URL, retrieval timestamp, SHA-256 content hash). All data is licensed under the Open Government Licence – Canada or equivalent provincial licenses.",
+            "Les données gouvernementales sont mises en cache dans notre base de données avec des métadonnées de provenance (URL source, horodatage de récupération, hachage SHA-256 du contenu). Toutes les données sont sous licence Ouverte du gouvernement – Canada ou sous licences provinciales équivalentes.",
+          )}</p>
+          <p>{t(
+            "AI inference requests to the edge worker are processed via Cloudflare Workers AI or our self-hosted homelab cluster. No query content is stored beyond the 30-day audit window.",
+            "Les requêtes d'inférence IA vers le travailleur de périphérie sont traitées via Cloudflare Workers AI ou notre cluster de laboratoire maison auto-hébergé. Aucun contenu de requête n'est conservé au-delà de la fenêtre d'audit de 30 jours.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">5. Your Rights</CardTitle>
+          <CardTitle class="text-lg">5. {t("Your Rights", "Vos droits")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
           <ul class="list-disc pl-5 space-y-1.5">
-            <li><strong>Access:</strong> Request a copy of your account data</li>
-            <li><strong>Deletion:</strong> Request permanent deletion of your account and associated data</li>
-            <li><strong>Portability:</strong> Export your API usage history in JSON format</li>
-            <li><strong>Rectification:</strong> Correct inaccurate account information</li>
-            <li><strong>Withdrawal:</strong> Revoke OAuth grants at any time from your provider</li>
+            <li><strong>{t("Access:", "Accès :")}</strong> {t("Request a copy of your account data", "Demander une copie de vos données de compte")}</li>
+            <li><strong>{t("Deletion:", "Suppression :")}</strong> {t("Request permanent deletion of your account and associated data", "Demander la suppression permanente de votre compte et des données associées")}</li>
+            <li><strong>{t("Portability:", "Portabilité :")}</strong> {t("Export your API usage history in JSON format", "Exporter votre historique d'utilisation de l'API au format JSON")}</li>
+            <li><strong>{t("Rectification:", "Rectification :")}</strong> {t("Correct inaccurate account information", "Corriger des informations de compte inexactes")}</li>
+            <li><strong>{t("Withdrawal:", "Retrait :")}</strong> {t("Revoke OAuth grants at any time from your provider", "Révoquer les autorisations OAuth à tout moment auprès de votre fournisseur")}</li>
           </ul>
-          <p>MapleSpike is operated by the account holder identified at checkout (currently a sole proprietorship; entity details published here upon formal incorporation). As a Canadian service, we handle personal information in accordance with the <strong>Personal Information Protection and Electronic Documents Act (PIPEDA)</strong>. To exercise any of these rights, contact <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a>. We respond within 30 days.</p>
+          <p>{t(
+            "MapleSpike is operated by the account holder identified at checkout (currently a sole proprietorship; entity details published here upon formal incorporation). As a Canadian service, we handle personal information in accordance with the",
+            "MapleSpike est exploité par le titulaire du compte identifié au moment du paiement (actuellement une entreprise individuelle ; les détails de l'entité seront publiés ici lors de l'incorporation formelle). En tant que service canadien, nous traitons les renseignements personnels conformément à la",
+          )} <strong>{t("Personal Information Protection and Electronic Documents Act (PIPEDA)", "Loi sur la protection des renseignements personnels et les documents électroniques (LPRPDE)")}</strong>. {t(
+            "To exercise any of these rights, contact",
+            "Pour exercer l'un de ces droits, contactez",
+          )} <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a>. {t(
+            "We respond within 30 days.",
+            "Nous répondons sous 30 jours.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">6. Cookies</CardTitle>
+          <CardTitle class="text-lg">6. {t("Cookies", "Témoins")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>We use a single session cookie for authentication (JWT) and localStorage for UI preferences (dark/light theme). We do not use third-party tracking cookies, advertising pixels, or analytics scripts that profile individual users.</p>
+          <p>{t(
+            "We use a single session cookie for authentication (JWT) and localStorage for UI preferences (dark/light theme). We do not use third-party tracking cookies, advertising pixels, or analytics scripts that profile individual users.",
+            "Nous utilisons un seul témoin de session pour l'authentification (JWT) et localStorage pour les préférences d'interface (thème sombre/clair). Nous n'utilisons pas de témoins de suivi tiers, de pixels publicitaires ni de scripts d'analyse qui profilent les utilisateurs individuels.",
+          )}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle class="text-lg">7. Contact</CardTitle>
+          <CardTitle class="text-lg">7. {t("Contact", "Contact")}</CardTitle>
         </CardHeader>
         <CardContent class="text-sm text-muted-foreground space-y-3">
-          <p>Questions about this policy? Email <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a> or write to us at Ottawa, Ontario, Canada.</p>
+          <p>{t(
+            "Questions about this policy? Email",
+            "Des questions sur cette politique ? Écrivez à",
+          )} <a href="mailto:privacy@maplespike.ca" class="text-primary hover:underline">privacy@maplespike.ca</a> {t(
+            "or write to us at Ottawa, Ontario, Canada.",
+            "ou écrivez-nous à Ottawa, Ontario, Canada.",
+          )}</p>
         </CardContent>
       </Card>
     </div>

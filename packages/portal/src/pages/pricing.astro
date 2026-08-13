@@ -12,116 +12,145 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createI18n } from "@maplespike/i18n";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 import StripeCheckoutButton from "@/components/billing/StripeCheckoutButton";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 
-const tiers = [
+const tiers: {
+  name: Bi;
+  price: string;
+  period: string;
+  description: Bi;
+  badge: Bi;
+  badgeVariant: "outline" | "default" | "secondary";
+  features: Bi[];
+  cta: Bi;
+  href: string;
+  highlighted: boolean;
+  kind: "signup" | "stripe-pro" | "stripe-business";
+}[] = [
   {
-    name: "Free",
+    name: { en: "Free", fr: "Gratuit" },
     price: "$0",
     period: "/mo",
-    description: "For individual researchers and AI enthusiasts exploring Canadian government data with their chatbot.",
-    badge: "Starter",
-    badgeVariant: "outline" as const,
+    description: {
+      en: "For individual researchers and AI enthusiasts exploring Canadian government data with their chatbot.",
+      fr: "Pour les chercheurs individuels et les passionnés d'IA qui explorent les données gouvernementales canadiennes avec leur chatbot.",
+    },
+    badge: { en: "Starter", fr: "Départ" },
+    badgeVariant: "outline",
     features: [
-      "1,000 API calls per month",
-      "All 206 data modules + 174 MCP tools",
-      "Works with any AI chatbot (Claude, ChatGPT, Gemini, etc.)",
-      "7-day historical data window",
-      "REST API access (rate-limited)",
-      "Community Discord support",
+      { en: "1,000 API calls per month", fr: "1 000 appels API par mois" },
+      { en: "All 206 data modules + 174 MCP tools", fr: "Les 206 modules de données + 174 outils MCP" },
+      { en: "Works with any AI chatbot (Claude, ChatGPT, Gemini, etc.)", fr: "Fonctionne avec tout chatbot IA (Claude, ChatGPT, Gemini, etc.)" },
+      { en: "7-day historical data window", fr: "Fenêtre de données historiques de 7 jours" },
+      { en: "REST API access (rate-limited)", fr: "Accès à l'API REST (limité)" },
+      { en: "Community Discord support", fr: "Support communautaire Discord" },
     ],
-    cta: "Get Started",
+    cta: { en: "Get Started", fr: "Commencer" },
     href: "/signup",
     highlighted: false,
     /** "free" → no payment, just sign up */
     kind: "signup" as const,
   },
   {
-    name: "Pro",
+    name: { en: "Pro", fr: "Pro" },
     price: "$50",
     period: "/mo",
-    description: "For journalists, analysts, and teams who need real-time government intelligence.",
-    badge: "Popular",
-    badgeVariant: "default" as const,
+    description: {
+      en: "For journalists, analysts, and teams who need real-time government intelligence.",
+      fr: "Pour les journalistes, analystes et équipes qui ont besoin d'une veille gouvernementale en temps réel.",
+    },
+    badge: { en: "Popular", fr: "Populaire" },
+    badgeVariant: "default",
     features: [
-      "100,000 API calls per month",
-      "Real-time signal detection via engine",
-      "Full historical data access (all years)",
-      "MCP server integration for AI agents",
-      "Priority support with 4hr response SLA",
-      "SDK access (TypeScript + Python)",
-      "SHA-256 citation verification on all records",
+      { en: "100,000 API calls per month", fr: "100 000 appels API par mois" },
+      { en: "Real-time signal detection via engine", fr: "Détection de signaux en temps réel via le moteur" },
+      { en: "Full historical data access (all years)", fr: "Accès complet aux données historiques (toutes années)" },
+      { en: "MCP server integration for AI agents", fr: "Intégration du serveur MCP pour les agents IA" },
+      { en: "Priority support with 4hr response SLA", fr: "Support prioritaire avec SLA de réponse de 4 h" },
+      { en: "SDK access (TypeScript + Python)", fr: "Accès aux SDK (TypeScript + Python)" },
+      { en: "SHA-256 citation verification on all records", fr: "Vérification des citations SHA-256 sur tous les enregistrements" },
     ],
-    cta: "Buy Pro — $50 CAD/mo",
+    cta: { en: "Buy Pro — $50 CAD/mo", fr: "Acheter Pro — 50 $ CA/mois" },
     href: "/signup?plan=pro",
     highlighted: true,
     kind: "stripe-pro" as const,
   },
   {
-    name: "Business",
+    name: { en: "Business", fr: "Entreprise" },
     price: "$200",
     period: "/mo",
-    description: "For government departments, media organizations, and large-scale compliance teams.",
-    badge: "Enterprise",
-    badgeVariant: "secondary" as const,
+    description: {
+      en: "For government departments, media organizations, and large-scale compliance teams.",
+      fr: "Pour les ministères, les organisations médiatiques et les grandes équipes de conformité.",
+    },
+    badge: { en: "Enterprise", fr: "Entreprise" },
+    badgeVariant: "secondary",
     features: [
-      "Unlimited API calls",
-      "Dedicated ingestion pipeline configuration",
-      "On-premise K3s deployment option",
-      "Custom data module development",
-      "99.95% uptime SLA with dedicated support",
-      "SSO/SAML authentication",
-      "White-label portal option",
-      "Quarterly strategy reviews",
+      { en: "Unlimited API calls", fr: "Appels API illimités" },
+      { en: "Dedicated ingestion pipeline configuration", fr: "Configuration dédiée du pipeline d'ingestion" },
+      { en: "On-premise K3s deployment option", fr: "Option de déploiement K3s sur site" },
+      { en: "Custom data module development", fr: "Développement de modules de données personnalisés" },
+      { en: "99.95% uptime SLA with dedicated support", fr: "SLA de disponibilité de 99,95 % avec support dédié" },
+      { en: "SSO/SAML authentication", fr: "Authentification SSO/SAML" },
+      { en: "White-label portal option", fr: "Option de portail à marque blanche" },
+      { en: "Quarterly strategy reviews", fr: "Revues stratégiques trimestrielles" },
     ],
-    cta: "Buy Business — $200 CAD/mo",
+    cta: { en: "Buy Business — $200 CAD/mo", fr: "Acheter Entreprise — 200 $ CA/mois" },
     href: "/contact",
     highlighted: false,
     kind: "stripe-business" as const,
   },
 ];
 
-const allFeatures = [
-  "Data modules",
-  "API calls",
-  "MCP for AI chatbots",
-  "Historical access",
-  "Real-time signals",
-  "SDK access",
-  "Support",
-  "SLA",
-  "SHA-256 citations",
+const allFeatures: Bi[] = [
+  { en: "Data modules", fr: "Modules de données" },
+  { en: "API calls", fr: "Appels API" },
+  { en: "MCP for AI chatbots", fr: "MCP pour chatbots IA" },
+  { en: "Historical access", fr: "Accès historique" },
+  { en: "Real-time signals", fr: "Signaux en temps réel" },
+  { en: "SDK access", fr: "Accès SDK" },
+  { en: "Support", fr: "Support" },
+  { en: "SLA", fr: "SLA" },
+  { en: "SHA-256 citations", fr: "Citations SHA-256" },
 ];
-const featureValues: Record<string, (string | boolean)[]> = {
-  "Data modules": ["206 modules", "206 modules", "206 + custom"],
-  "API calls": ["1,000/mo", "100,000/mo", "Unlimited"],
-  "MCP for AI chatbots": [true, true, true],
-  "Historical access": ["7 days", "Full", "Full"],
-  "Real-time signals": [false, true, true],
-  "SDK access": [false, "TS + Python", "TS + Python"],
-  "Support": ["Community", "Priority 4hr", "Dedicated"],
-  "SLA": [false, "99.9%", "99.95%"],
-  "SHA-256 citations": [true, true, true],
+const featureValues: Record<string, Bi[]> = {
+  "Data modules": [{ en: "206 modules", fr: "206 modules" }, { en: "206 modules", fr: "206 modules" }, { en: "206 + custom", fr: "206 + sur mesure" }],
+  "API calls": [{ en: "1,000/mo", fr: "1 000/mois" }, { en: "100,000/mo", fr: "100 000/mois" }, { en: "Unlimited", fr: "Illimité" }],
+  "MCP for AI chatbots": [{ en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }],
+  "Historical access": [{ en: "7 days", fr: "7 jours" }, { en: "Full", fr: "Complet" }, { en: "Full", fr: "Complet" }],
+  "Real-time signals": [{ en: "No", fr: "Non" }, { en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }],
+  "SDK access": [{ en: "No", fr: "Non" }, { en: "TS + Python", fr: "TS + Python" }, { en: "TS + Python", fr: "TS + Python" }],
+  "Support": [{ en: "Community", fr: "Communauté" }, { en: "Priority 4hr", fr: "Prioritaire 4 h" }, { en: "Dedicated", fr: "Dédié" }],
+  "SLA": [{ en: "No", fr: "Non" }, { en: "99.9%", fr: "99,9 %" }, { en: "99.95%", fr: "99,95 %" }],
+  "SHA-256 citations": [{ en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }, { en: "Yes", fr: "Oui" }],
 };
 ---
 
-<BaseLayout title={i18n.t('pricing.page_title')} lang={lang}>
+<BaseLayout title={i18n.t('pricing.page_title')} description={t(
+  "Simple, transparent pricing for every scale — from free to enterprise access to Canada's unified data layer.",
+  "Une tarification simple et transparente pour tous les besoins — du gratuit à l'accès entreprise à la couche de données unifiée du Canada.",
+)} ogImage="/og-image-pricing.png" lang={lang}>
   <!-- Hero -->
   <section class="aurora relative overflow-hidden border-b py-16 md:py-24">
     <div class="absolute inset-0 bg-grid" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center reveal-on-scroll">
       <Badge variant="outline" className="mb-4 border-primary/30 bg-primary/5 text-primary"
-        >Simple, transparent pricing</Badge
+        >{t("Simple, transparent pricing", "Tarification simple et transparente")}</Badge
       >
       <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-        Pricing for every&nbsp;<span class="text-gradient">scale</span>
+        {t("Pricing for every", "Tarification pour tous les")}&nbsp;<span class="text-gradient">{t("scale", "besoins")}</span>
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-        From solo researchers to enterprise government intelligence teams — access Canada's
-        unified data layer at a plan that fits.
+        {t(
+          "From solo researchers to enterprise government intelligence teams — access Canada's unified data layer at a plan that fits.",
+          "Des chercheurs indépendants aux équipes gouvernementales de veille — accédez à la couche de données unifiée du Canada avec un forfait adapté.",
+        )}
       </p>
     </div>
   </section>
@@ -141,14 +170,14 @@ const featureValues: Record<string, (string | boolean)[]> = {
             {tier.highlighted && (
               <div class="absolute -top-3 left-1/2 -translate-x-1/2">
                 <Badge className="btn-sheen px-4 py-1 text-xs">
-                  Most Popular
+                  {t("Most Popular", "Le plus populaire")}
                 </Badge>
               </div>
             )}
             <CardHeader>
               <div class="flex items-center justify-between">
-                <CardTitle className="text-xl">{tier.name}</CardTitle>
-                <Badge variant={tier.badgeVariant}>{tier.badge}</Badge>
+                <CardTitle className="text-xl">{tb(tier.name)}</CardTitle>
+                <Badge variant={tier.badgeVariant}>{tb(tier.badge)}</Badge>
               </div>
               <div class="mt-2">
                 <span class="text-4xl font-bold">{tier.price}</span>
@@ -156,7 +185,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
                   <span class="text-sm text-muted-foreground">{tier.period}</span>
                 )}
               </div>
-              <CardDescription className="mt-2">{tier.description}</CardDescription>
+              <CardDescription className="mt-2">{tb(tier.description)}</CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
               <ul class="space-y-3">
@@ -176,7 +205,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
                     >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    <span>{feature}</span>
+                    <span>{tb(feature)}</span>
                   </li>
                 ))}
               </ul>
@@ -202,7 +231,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
                     variant={tier.highlighted ? "default" : "outline"}
                     className={cn("w-full", tier.highlighted && "btn-sheen")}
                   >
-                    {tier.cta}
+                    {tb(tier.cta)}
                   </Button>
                 </a>
               )}
@@ -216,17 +245,17 @@ const featureValues: Record<string, (string | boolean)[]> = {
   <!-- Feature Comparison Table -->
   <section class="border-t py-16 md:py-20">
     <div class="container mx-auto px-4 reveal-on-scroll">
-      <h2 class="mb-12 text-center text-3xl font-bold">Full feature comparison</h2>
+      <h2 class="mb-12 text-center text-3xl font-bold">{t("Full feature comparison", "Comparaison complète des forfaits")}</h2>
       <div class="mx-auto max-w-4xl overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b">
-              <th class="py-4 pr-8 text-left font-medium text-muted-foreground">Feature</th>
+              <th class="py-4 pr-8 text-left font-medium text-muted-foreground">{t("Feature", "Fonctionnalité")}</th>
               {tiers.map((tier) => (
                 <th class="py-4 px-6 text-center font-medium">
-                  {tier.name}
-                  {tier.name === "Pro" && (
-                    <Badge variant="default" className="ml-2 text-xs">Popular</Badge>
+                  {tb(tier.name)}
+                  {tier.name.en === "Pro" && (
+                    <Badge variant="default" className="ml-2 text-xs">{t("Popular", "Populaire")}</Badge>
                   )}
                 </th>
               ))}
@@ -235,11 +264,11 @@ const featureValues: Record<string, (string | boolean)[]> = {
           <tbody>
             {allFeatures.map((feature) => (
               <tr class="border-b last:border-0">
-                <td class="py-4 pr-8 text-left font-medium">{feature}</td>
-                {featureValues[feature].map((value) => (
+                <td class="py-4 pr-8 text-left font-medium">{tb(feature)}</td>
+                {featureValues[feature.en].map((value) => (
                   <td class="py-4 px-6 text-center">
-                    {typeof value === "boolean" ? (
-                      value ? (
+                    {value.en === "Yes" || value.en === "No" ? (
+                      value.en === "Yes" ? (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="20"
@@ -272,7 +301,7 @@ const featureValues: Record<string, (string | boolean)[]> = {
                         </svg>
                       )
                     ) : (
-                      <span class="text-sm">{value}</span>
+                      <span class="text-sm">{tb(value)}</span>
                     )}
                   </td>
                 ))}
@@ -284,12 +313,15 @@ const featureValues: Record<string, (string | boolean)[]> = {
 
       <div class="mt-12 text-center">
         <p class="mb-4 text-sm text-muted-foreground">
-          All plans include OGL-C compliant data attribution and SHA-256 citation verification.
+          {t(
+            "All plans include OGL-C compliant data attribution and SHA-256 citation verification.",
+            "Tous les forfaits incluent l'attribution de données conforme à la LGOC et la vérification des citations SHA-256.",
+          )}
         </p>
         <p class="text-sm text-muted-foreground">
-          Need something different?{" "}
-          <a href="/contact" class="text-primary hover:underline">Contact our team</a>
-          {" "}for custom pricing.
+          {t("Need something different?", "Besoin d'autre chose?")}{" "}
+          <a href="/contact" class="text-primary hover:underline">{t("Contact our team", "Contactez notre équipe")}</a>
+          {" "}{t("for custom pricing.", "pour une tarification personnalisée.")}
         </p>
       </div>
     </div>
@@ -298,46 +330,65 @@ const featureValues: Record<string, (string | boolean)[]> = {
   <!-- FAQ -->
   <section class="border-t py-16 md:py-20">
     <div class="container mx-auto px-4 reveal-on-scroll">
-      <h2 class="mb-12 text-center text-3xl font-bold">Frequently asked questions</h2>
+      <h2 class="mb-12 text-center text-3xl font-bold">{t("Frequently asked questions", "Questions fréquentes")}</h2>
       <div class="mx-auto grid max-w-3xl gap-8 md:grid-cols-2">
         <div>
-          <h3 class="mb-2 font-semibold">Can I switch plans anytime?</h3>
+          <h3 class="mb-2 font-semibold">{t("Can I switch plans anytime?", "Puis-je changer de forfait en tout temps?")}</h3>
           <p class="text-sm text-muted-foreground">
-            Yes. Upgrade or downgrade at any time. Changes take effect on your next billing cycle.
+            {t(
+              "Yes. Upgrade or downgrade at any time. Changes take effect on your next billing cycle.",
+              "Oui. Passez à un forfait supérieur ou inférieur en tout temps. Les changements prennent effet à votre prochain cycle de facturation.",
+            )}
           </p>
         </div>
         <div>
-          <h3 class="mb-2 font-semibold">Is there a free trial for Pro?</h3>
+          <h3 class="mb-2 font-semibold">{t("Is there a free trial for Pro?", "Y a-t-il un essai gratuit pour Pro?")}</h3>
           <p class="text-sm text-muted-foreground">
-            Absolutely. 14-day free trial with full Pro access. No credit card required.
+            {t(
+              "Absolutely. 14-day free trial with full Pro access. No credit card required.",
+              "Absolument. Essai gratuit de 14 jours avec accès Pro complet. Sans carte de crédit.",
+            )}
           </p>
         </div>
         <div>
-          <h3 class="mb-2 font-semibold">What data modules are included?</h3>
+          <h3 class="mb-2 font-semibold">{t("What data modules are included?", "Quels modules de données sont inclus?")}</h3>
           <p class="text-sm text-muted-foreground">
-            The Free tier includes discovery and metadata access (catalog, citations, compliance)
-            across all sources. Pro and Business unlock full data queries and AI analysis on every
-            module.
+            {t(
+              "The Free tier includes discovery and metadata access (catalog, citations, compliance) across all sources. Pro and Business unlock full data queries and AI analysis on every module.",
+              "Le forfait Gratuit comprend l'accès à la découverte et aux métadonnées (catalogue, citations, conformité) sur toutes les sources. Pro et Entreprise débloquent les requêtes de données complètes et l'analyse IA sur chaque module.",
+            )}
           </p>
         </div>
         <div>
-          <h3 class="mb-2 font-semibold">Do you offer academic pricing?</h3>
+          <h3 class="mb-2 font-semibold">{t("Do you offer academic pricing?", "Offrez-vous un tarif académique?")}</h3>
           <p class="text-sm text-muted-foreground">
-            Yes. Contact us with your institution details for a 50% academic discount on Pro.
+            {t(
+              "Yes. Contact us with your institution details for a 50% academic discount on Pro.",
+              "Oui. Contactez-nous avec les détails de votre établissement pour un rabais académique de 50 % sur Pro.",
+            )}
           </p>
         </div>
         <div>
-          <h3 class="mb-2 font-semibold">How does SHA-256 citation work?</h3>
+          <h3 class="mb-2 font-semibold">{t("How does SHA-256 citation work?", "Comment fonctionne la citation SHA-256?")}</h3>
           <p class="text-sm text-muted-foreground">
-            Every record includes a content hash and source provenance URL, enabling independent
-            verification of data integrity.
+            {t(
+              "Every record includes a content hash and source provenance URL, enabling independent verification of data integrity.",
+              "Chaque enregistrement comprend un hachage du contenu et une URL de provenance de la source, permettant la vérification indépendante de l'intégrité des données.",
+            )}
           </p>
         </div>
         <div>
-          <h3 class="mb-2 font-semibold">What payment methods do you accept?</h3>
+          <h3 class="mb-2 font-semibold">{t("What payment methods do you accept?", "Quels modes de paiement acceptez-vous?")}</h3>
           <p class="text-sm text-muted-foreground">
-            All paid plans are processed securely by Stripe (credit card). Prices are in CAD. See our
-            <a href="/terms" class="text-primary hover:underline">Terms</a> for the full refund and cancellation policy.
+            {t(
+              "All paid plans are processed securely by Stripe (credit card). Prices are in CAD.",
+              "Tous les forfaits payants sont traités en toute sécurité par Stripe (carte de crédit). Les prix sont en dollars canadiens.",
+            )}{" "}
+            <a href="/terms" class="text-primary hover:underline">{t("Terms", "Conditions")}</a>{" "}
+            {t(
+              "for the full refund and cancellation policy.",
+              "pour la politique complète de remboursement et d'annulation.",
+            )}
           </p>
         </div>
       </div>
@@ -346,9 +397,9 @@ const featureValues: Record<string, (string | boolean)[]> = {
 
   <footer class="border-t py-8">
     <div class="container mx-auto px-4 text-center text-sm text-muted-foreground space-x-4">
-      <a href="/privacy" class="text-primary hover:underline">Privacy Policy</a>
-      <a href="/terms" class="text-primary hover:underline">Terms of Service</a>
-      <a href="/terms#refunds" class="text-primary hover:underline">Refund Policy</a>
+      <a href="/privacy" class="text-primary hover:underline">{t("Privacy Policy", "Politique de confidentialité")}</a>
+      <a href="/terms" class="text-primary hover:underline">{t("Terms of Service", "Conditions d'utilisation")}</a>
+      <a href="/terms#refunds" class="text-primary hover:underline">{t("Refund Policy", "Politique de remboursement")}</a>
     </div>
   </footer>
 </BaseLayout>

@@ -4,18 +4,26 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import WatcherDashboard from "@/components/dashboard/WatcherDashboard";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('watcher.title')} description="Real-time monitoring of data source changes across MapleSpike" lang={lang}>
+<BaseLayout title={i18n.t('watcher.title')} description={t(
+  "Real-time monitoring of data source changes across MapleSpike",
+  "Surveillance en temps réel des changements de sources de données dans MapleSpike",
+)} lang={lang}>
   <section class="aurora relative overflow-hidden border-b"><div class="absolute inset-0 bg-grid" aria-hidden="true"></div><div class="relative z-10 container mx-auto px-4 py-8 md:py-12">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{i18n.t('watcher.title')}</h1>
         <p class="mt-1 text-muted-foreground">
-          Real-time monitoring of data source changes across all MapleSpike modules.
+          {t(
+            "Real-time monitoring of data source changes across all MapleSpike modules.",
+            "Surveillance en temps réel des changements de sources de données dans tous les modules MapleSpike.",
+          )}
         </p>
       </div>
       <div class="flex gap-2">
@@ -29,7 +37,10 @@ const i18n = createI18n(lang);
       <CardHeader>
         <CardTitle>{i18n.t('workspace.integration')}</CardTitle>
         <CardDescription>
-          Use the API endpoints to query change events and manage webhooks programmatically.
+          {t(
+            "Use the API endpoints to query change events and manage webhooks programmatically.",
+            "Utilisez les points de terminaison API pour interroger les événements de changement et gérer les webhooks par programmation.",
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -40,8 +51,10 @@ POST /v1/webhooks         &lbrace;"url":"https://...","label":"my webhook"&rbrac
 POST /v1/webhooks/:id/test
 GET  /v1/webhooks/:id/deliveries</code></pre>
         <p class="text-xs text-muted-foreground mt-2">
-          Change events are stored in the SqliteWatcherStore. Webhook notifications 
-          are dispatched automatically when changes are detected.
+          {t(
+            "Change events are stored in the SqliteWatcherStore. Webhook notifications are dispatched automatically when changes are detected.",
+            "Les événements de changement sont stockés dans SqliteWatcherStore. Les notifications de webhook sont envoyées automatiquement lorsqu'un changement est détecté.",
+          )}
         </p>
       </CardContent>
     </Card>

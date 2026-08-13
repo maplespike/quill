@@ -2,17 +2,25 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Button } from "@/components/ui/button";
 import { createI18n } from "@maplespike/i18n";
+import { pick } from "@/utils/bilingual";
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
 ---
 
-<BaseLayout title={i18n.t('404.title')} description="This page doesn't exist in our dataset." lang={lang}>
+<BaseLayout title={i18n.t('404.title')} description={t(
+  "This page doesn't exist in our dataset.",
+  "Cette page n'existe pas dans notre ensemble de données.",
+)} lang={lang}>
   <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 py-20">
     <div class="text-8xl font-mono font-extrabold text-primary/30 leading-none">404</div>
     <h1 class="text-2xl font-semibold mt-6 mb-2">{i18n.t('404.message')}</h1>
     <p class="text-sm text-muted-foreground font-mono mb-8">
-      // The requested resource was not found in any of our 206 data modules
+      // {t(
+        "The requested resource was not found in any of our 206 data modules",
+        "La ressource demandée est introuvable dans nos 206 modules de données",
+      )}
     </p>
     <div class="flex gap-3 flex-wrap justify-center">
       <a href="/">

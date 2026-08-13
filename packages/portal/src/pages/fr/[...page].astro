@@ -1,0 +1,42 @@
+---
+// fr/[...page].astro — French mirror for every subpage.
+//
+// The portal's English pages live at bare paths (/pricing, /docs, …) and are
+// hardcoded English because static pages never receive a `lang` prop. This
+// single catch-all re-renders each sibling page with `lang="fr"`, giving every
+// subpage a real /fr/<page> build without restructuring 29 files.
+//
+// The landing page (/fr) is NOT handled here — [locale].astro already emits
+// fr.html at the root. `index`, `[locale]`, `404`, dynamic routes (segments
+// with `[`), and this proxy's own `fr/` directory are excluded.
+export async function getStaticPaths() {
+  const modules = import.meta.glob('../**/*.astro');
+  const paths: { params: { page: string } }[] = [];
+  for (const key of Object.keys(modules)) {
+    const rel = key.replace(/^\.\.\//, '').replace(/\.astro$/, '');
+    if (rel === 'index' || rel === '[locale]' || rel === '404') continue;
+    if (rel.startsWith('fr/')) continue;
+    if (rel.includes('[')) continue; // dynamic routes manage their own params
+    paths.push({ params: { page: rel } });
+  }
+  return paths;
+}
+
+// Astro 7 rest params ([...page]) are strings, e.g. "pricing" or "dashboard/owasp".
+const page = Astro.params.page as string;
+
+const modules = import.meta.glob('../**/*.astro', { eager: true }) as Record<
+  string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  { default: any }
+>;
+const Component = modules[`../${page}.astro`]?.default;
+---
+
+{
+  Component ? (
+    <Component lang="fr" />
+  ) : (
+    <p>Page non trouvée.</p>
+  )
+}

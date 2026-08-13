@@ -3,29 +3,30 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createI18n } from "@maplespike/i18n";
+import { pick, pickBi, type Bi } from "@/utils/bilingual";
 
 const citationExamples = [
   {
-    label: "Committee Evidence",
-    example: "House of Commons Standing Committee on Finance. Evidence, Meeting No. 42, 44th Parliament, 1st Session. March 15, 2026.",
+    label: { en: "Committee Evidence", fr: "Témoignages en comité" },
+    example: { en: "House of Commons Standing Committee on Finance. Evidence, Meeting No. 42, 44th Parliament, 1st Session. March 15, 2026.", fr: "Comité permanent des finances de la Chambre des communes. Témoignages, réunion n° 42, 44e législature, 1re session. 15 mars 2026." },
     hash: "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b",
     source: "ourcommons.ca",
   },
   {
-    label: "Lobbying Registry",
-    example: "Office of the Commissioner of Lobbying. Monthly Communication Report, Registrant #123456. February 2026.",
+    label: { en: "Lobbying Registry", fr: "Registre de lobbying" },
+    example: { en: "Office of the Commissioner of Lobbying. Monthly Communication Report, Registrant #123456. February 2026.", fr: "Commissariat au lobbying. Rapport mensuel de communication, déclarant n° 123456. Février 2026." },
     hash: "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c",
     source: "lobbycanada.gc.ca",
   },
   {
-    label: "Canada Gazette",
-    example: "Canada Gazette, Part I, Vol. 160, No. 12 — Proposed Regulations Amending the Food and Drug Regulations. March 22, 2026.",
+    label: { en: "Canada Gazette", fr: "Gazette du Canada" },
+    example: { en: "Canada Gazette, Part I, Vol. 160, No. 12 — Proposed Regulations Amending the Food and Drug Regulations. March 22, 2026.", fr: "Gazette du Canada, partie I, vol. 160, n° 12 — Règlement modifiant le Règlement sur les aliments et drogues (projet). 22 mars 2026." },
     hash: "sha256:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d",
     source: "gazette.gc.ca",
   },
   {
-    label: "Court Decision",
-    example: "Smith v. Canada (Attorney General), 2026 FC 456. Federal Court. March 10, 2026.",
+    label: { en: "Court Decision", fr: "Décision judiciaire" },
+    example: { en: "Smith v. Canada (Attorney General), 2026 FC 456. Federal Court. March 10, 2026.", fr: "Smith c. Canada (Procureur général), 2026 CF 456. Cour fédérale. 10 mars 2026." },
     hash: "sha256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e",
     source: "canlii.org",
   },
@@ -33,11 +34,16 @@ const citationExamples = [
 
 const lang = (Astro.props.lang as "en" | "fr") || "en";
 const i18n = createI18n(lang);
+const t = (en: string, fr: string) => pick(lang, en, fr);
+const tb = (bi: Bi) => pickBi(lang, bi);
 ---
 
 <BaseLayout
   title={i18n.t('citation.title')}
-  description="MapleSpike citation policy — SHA-256 verified citations for every data record. Learn how to verify and cite Canadian government data with cryptographic assurance."
+  description={t(
+    "MapleSpike citation policy — SHA-256 verified citations for every data record. Learn how to verify and cite Canadian government data with cryptographic assurance.",
+    "Politique de citation de MapleSpike — citations vérifiées par SHA-256 pour chaque enregistrement de données. Apprenez à vérifier et citer les données gouvernementales canadiennes avec une assurance cryptographique.",
+  )}
   lang={lang}
 >
   <!-- Hero -->
@@ -49,8 +55,10 @@ const i18n = createI18n(lang);
           <span class="text-gradient">{i18n.t('citation.title')}</span>
         </h1>
         <p class="mt-4 text-lg text-muted-foreground max-w-2xl">
-          Every data point in MapleSpike includes a verified citation chain — SHA-256 hashed, source-linked,
-          and independently verifiable. Trust, but verify.
+          {t(
+            "Every data point in MapleSpike includes a verified citation chain — SHA-256 hashed, source-linked, and independently verifiable. Trust, but verify.",
+            "Chaque point de données de MapleSpike inclut une chaîne de citation vérifiée — hachée en SHA-256, liée à la source et vérifiable de façon indépendante. Faites confiance, mais vérifiez.",
+          )}
         </p>
       </div>
     </div>
@@ -65,9 +73,12 @@ const i18n = createI18n(lang);
             <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
             </div>
-            <CardTitle class="text-lg">Collect</CardTitle>
+            <CardTitle class="text-lg">{t("Collect", "Collecter")}</CardTitle>
             <CardDescription>
-              Data is fetched directly from official Canadian government sources — APIs, CKAN portals, RSS feeds, and XML dumps.
+              {t(
+                "Data is fetched directly from official Canadian government sources — APIs, CKAN portals, RSS feeds, and XML dumps.",
+                "Les données sont récupérées directement auprès des sources officielles du gouvernement canadien — API, portails CKAN, flux RSS et extractions XML.",
+              )}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -76,9 +87,12 @@ const i18n = createI18n(lang);
             <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
             </div>
-            <CardTitle class="text-lg">Verify</CardTitle>
+            <CardTitle class="text-lg">{t("Verify", "Vérifier")}</CardTitle>
             <CardDescription>
-              Each record is hashed with SHA-256, producing a unique fingerprint. The hash is stored alongside source URL, license, and retrieval timestamp.
+              {t(
+                "Each record is hashed with SHA-256, producing a unique fingerprint. The hash is stored alongside source URL, license, and retrieval timestamp.",
+                "Chaque enregistrement est haché avec SHA-256, produisant une empreinte unique. Le hachage est stocké avec l'URL source, la licence et l'horodatage de récupération.",
+              )}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -87,22 +101,30 @@ const i18n = createI18n(lang);
             <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /></svg>
             </div>
-            <CardTitle class="text-lg">Cite</CardTitle>
+            <CardTitle class="text-lg">{t("Cite", "Citer")}</CardTitle>
             <CardDescription>
-              Every API response includes citation hashes and verify commands. Use them in your research, journalism, or AI training data.
+              {t(
+                "Every API response includes citation hashes and verify commands. Use them in your research, journalism, or AI training data.",
+                "Chaque réponse API inclut des hachages de citation et des commandes de vérification. Utilisez-les dans vos recherches, votre journalisme ou vos données d'entraînement IA.",
+              )}
             </CardDescription>
           </CardHeader>
         </Card>
       </div>
 
       <!-- Citation Hash Format -->
-      <h2 class="text-2xl font-bold tracking-tight mb-6">Citation Hash Format</h2>
+      <h2 class="text-2xl font-bold tracking-tight mb-6">{t("Citation Hash Format", "Format du hachage de citation")}</h2>
       <Card class="mb-12">
         <CardHeader>
           <CardTitle class="text-base font-mono">sha256:&lt;64-hex-characters&gt;</CardTitle>
           <CardDescription>
-            Every citation uses the SHA-256 hash algorithm with a <code>sha256:</code> prefix. The hash covers the
-            full content of the record at the time of ingestion.
+            {t(
+              "Every citation uses the SHA-256 hash algorithm with a",
+              "Chaque citation utilise l'algorithme de hachage SHA-256 avec un préfixe",
+            )} <code>sha256:</code>. {t(
+              "The hash covers the full content of the record at the time of ingestion.",
+              "Le hachage couvre le contenu complet de l'enregistrement au moment de l'ingestion.",
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
@@ -112,20 +134,27 @@ const i18n = createI18n(lang);
             </p>
           </div>
           <p class="text-sm text-muted-foreground">
-            You can verify any citation independently by re-downloading the source data and computing the SHA-256
-            hash. If the hashes match, the data has not been altered.
+            {t(
+              "You can verify any citation independently by re-downloading the source data and computing the SHA-256 hash. If the hashes match, the data has not been altered.",
+              "Vous pouvez vérifier toute citation de façon indépendante en re-téléchargeant les données sources et en calculant le hachage SHA-256. Si les hachages correspondent, les données n'ont pas été modifiées.",
+            )}
           </p>
         </CardContent>
       </Card>
 
       <!-- Verify Command -->
-      <h2 class="text-2xl font-bold tracking-tight mb-6">Verifying a Citation</h2>
+      <h2 class="text-2xl font-bold tracking-tight mb-6">{t("Verifying a Citation", "Vérifier une citation")}</h2>
       <Card class="mb-12">
         <CardHeader>
-          <CardTitle class="text-base">Shell Verification</CardTitle>
+          <CardTitle class="text-base">{t("Shell Verification", "Vérification en ligne de commande")}</CardTitle>
           <CardDescription>
-            Each citation response includes a <code>verify_command</code> field with a shell command to independently verify
-            the data integrity.
+            {t(
+              "Each citation response includes a",
+              "Chaque réponse de citation inclut un champ",
+            )} <code>verify_command</code> {t(
+              "field with a shell command to independently verify the data integrity.",
+              "avec une commande shell pour vérifier de façon indépendante l'intégrité des données.",
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -139,32 +168,49 @@ const i18n = createI18n(lang);
       </Card>
 
       <!-- Trust Score -->
-      <h2 class="text-2xl font-bold tracking-tight mb-6">Trust Scores</h2>
+      <h2 class="text-2xl font-bold tracking-tight mb-6">{t("Trust Scores", "Scores de confiance")}</h2>
       <Card class="mb-12">
         <CardHeader>
-          <CardTitle class="text-base">How Trust Is Measured</CardTitle>
+          <CardTitle class="text-base">{t("How Trust Is Measured", "Comment la confiance est mesurée")}</CardTitle>
           <CardDescription>
-            Every record includes a trust score (0–100%) indicating confidence in the data's accuracy and provenance.
+            {t(
+              "Every record includes a trust score (0–100%) indicating confidence in the data's accuracy and provenance.",
+              "Chaque enregistrement inclut un score de confiance (0–100 %) indiquant le niveau de confiance dans l'exactitude et la provenance des données.",
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="rounded-md border border-green-500/30 bg-green-500/5 p-4">
-              <p class="text-sm font-semibold text-green-500 mb-1">90–100% — Verified</p>
-              <p class="text-xs text-muted-foreground">Cross-referenced from 2+ independent sources. SHA-256 hash verified.</p>
+              <p class="text-sm font-semibold text-green-500 mb-1">90–100 % — {t("Verified", "Vérifié")}</p>
+              <p class="text-xs text-muted-foreground">{t(
+                "Cross-referenced from 2+ independent sources. SHA-256 hash verified.",
+                "Recoupé à partir de 2+ sources indépendantes. Hachage SHA-256 vérifié.",
+              )}</p>
             </div>
             <div class="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-4">
-              <p class="text-sm font-semibold text-yellow-500 mb-1">60–89% — Sourced</p>
-              <p class="text-xs text-muted-foreground">Single authoritative source. Hash present but not cross-referenced.</p>
+              <p class="text-sm font-semibold text-yellow-500 mb-1">60–89 % — {t("Sourced", "Sourcé")}</p>
+              <p class="text-xs text-muted-foreground">{t(
+                "Single authoritative source. Hash present but not cross-referenced.",
+                "Source unique faisant autorité. Hachage présent mais non recoupé.",
+              )}</p>
             </div>
             <div class="rounded-md border border-red-500/30 bg-red-500/5 p-4">
-              <p class="text-sm font-semibold text-red-500 mb-1">&lt;60% — Low Confidence</p>
-              <p class="text-xs text-muted-foreground">Below threshold. Data may be stale or from a non-authoritative source.</p>
+              <p class="text-sm font-semibold text-red-500 mb-1">&lt;60 % — {t("Low Confidence", "Confiance faible")}</p>
+              <p class="text-xs text-muted-foreground">{t(
+                "Below threshold. Data may be stale or from a non-authoritative source.",
+                "Sous le seuil. Les données peuvent être obsolètes ou provenir d'une source non autorisée.",
+              )}</p>
             </div>
           </div>
           <p class="text-sm text-muted-foreground">
-            The minimum trust threshold for API responses is <strong>60%</strong>. Records below this threshold are
-            excluded from search results by default.
+            {t(
+              "The minimum trust threshold for API responses is",
+              "Le seuil de confiance minimal pour les réponses API est de",
+            )} <strong>60 %</strong>. {t(
+              "Records below this threshold are excluded from search results by default.",
+              "Les enregistrements sous ce seuil sont exclus des résultats de recherche par défaut.",
+            )}
           </p>
         </CardContent>
       </Card>
@@ -176,12 +222,12 @@ const i18n = createI18n(lang);
           <Card key={example.label}>
             <CardHeader>
               <div class="flex items-center justify-between gap-2">
-                <CardTitle class="text-base">{example.label}</CardTitle>
+                <CardTitle class="text-base">{tb(example.label)}</CardTitle>
                 <Badge variant="outline" class="font-mono text-[10px]">{example.source}</Badge>
               </div>
             </CardHeader>
             <CardContent class="space-y-3">
-              <p class="text-sm text-muted-foreground">{example.example}</p>
+              <p class="text-sm text-muted-foreground">{tb(example.example)}</p>
               <div class="rounded-md bg-muted p-3">
                 <p class="text-xs font-mono text-muted-foreground break-all">{example.hash}</p>
               </div>
@@ -196,7 +242,10 @@ const i18n = createI18n(lang);
         <CardHeader>
           <CardTitle class="text-base">{i18n.t('api_explorer.title')}</CardTitle>
           <CardDescription>
-            Look up any citation by its SHA-256 hash using the API endpoint.
+            {t(
+              "Look up any citation by its SHA-256 hash using the API endpoint.",
+              "Recherchez toute citation par son hachage SHA-256 à l'aide du point de terminaison API.",
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
@@ -206,7 +255,7 @@ const i18n = createI18n(lang);
             </code>
           </div>
           <div class="rounded-md bg-muted p-4">
-            <p class="text-xs text-muted-foreground font-semibold mb-2">Example response:</p>
+            <p class="text-xs text-muted-foreground font-semibold mb-2">{t("Example response:", "Exemple de réponse :")}</p>
             <pre class="text-xs text-muted-foreground overflow-x-auto">{`{
   "success": true,
   "data": {
@@ -231,15 +280,17 @@ const i18n = createI18n(lang);
     <div class="absolute inset-0 bg-grid opacity-60" aria-hidden="true"></div>
     <div class="relative z-10 container mx-auto px-4 text-center">
       <h2 class="text-2xl font-bold tracking-tight sm:text-3xl mb-4">
-        Start building with verifiable data
+        {t("Start building with verifiable data", "Commencez à construire avec des données vérifiables")}
       </h2>
       <p class="text-muted-foreground mb-8 max-w-xl mx-auto">
-        Every API response includes SHA-256 citations. Get your free API key and start querying
-        Canadian government data with cryptographic assurance.
+        {t(
+          "Every API response includes SHA-256 citations. Get your free API key and start querying Canadian government data with cryptographic assurance.",
+          "Chaque réponse API inclut des citations SHA-256. Obtenez votre clé API gratuite et commencez à interroger les données gouvernementales canadiennes avec une assurance cryptographique.",
+        )}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="/signup" class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">Get Your Free API Key</a>
-        <a href="/api-explorer" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">Try the API Explorer</a>
+        <a href="/signup" class="btn-sheen inline-flex h-12 items-center rounded-full px-8 text-base font-medium text-primary-foreground">{t("Get Your Free API Key", "Obtenez votre clé API gratuite")}</a>
+        <a href="/api-explorer" class="inline-flex h-12 items-center rounded-full border px-8 text-base font-medium hover:bg-foreground/[0.04] transition-colors">{t("Try the API Explorer", "Essayer l'explorateur API")}</a>
       </div>
     </div>
   </section>
