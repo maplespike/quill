@@ -62,6 +62,9 @@ result
 # Bug hunter artifacts
 .bug-hunter/
 
+# Freebuff agent workspace (thread-local run docs, preview logs)
+.freebuff/
+
 # Internal state
 .omo/
 
