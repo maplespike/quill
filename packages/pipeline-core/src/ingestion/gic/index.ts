@@ -21,6 +21,40 @@ import type { GICAppointment, GICCategory, GICIngestionResult, RawGICRecord } fr
 import type { D1Database } from '../committees/db.js';
 import { upsertPerson, upsertOrganization } from '../../shared-db.js';
 
+/**
+ * GIC appointments table schema. MUST stay in lockstep with the INSERT
+ * column list in ingestGIC(). Exported as `GIC_DDL` so the registry's
+ * resolveCallArgs() auto-injects it (like COMMITTEE_DDL / CORPORATE_DDL)
+ * before running the db-first module — without it the table is never
+ * created and every insert fails with "no such table: gic_appointments"
+ * (observed live during the #828 M2-gate run).
+ */
+export const GIC_DDL = `
+CREATE TABLE IF NOT EXISTS gic_appointments (
+  id TEXT PRIMARY KEY,
+  appointee_name TEXT NOT NULL,
+  position_title TEXT,
+  organization TEXT,
+  organization_acronym TEXT,
+  category TEXT,
+  department TEXT,
+  appointment_date TEXT,
+  expiry_date TEXT,
+  is_retroactive INTEGER DEFAULT 0,
+  salary_range TEXT,
+  salary_min REAL,
+  salary_max REAL,
+  location TEXT,
+  predecessor_name TEXT,
+  order_in_council_number TEXT,
+  source_url TEXT,
+  source_system TEXT,
+  ckan_package_id TEXT,
+  ckan_resource_id TEXT,
+  ingested_at TEXT
+);
+`;
+
 
 /**
  * Ingest GIC appointments into the database.
