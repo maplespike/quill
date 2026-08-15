@@ -14,12 +14,19 @@
 # NEVER commit the private keys. The nexus-prod private key lives at
 # /etc/nixos/.age/nexus-prod-key.txt on the nexus host only; the homelab
 # key lives at /etc/nixos/.age/key.txt.
+#
+# 2026-08-15: nexus-prod key rotated (old key age1rx6cf98... was lost;
+# runtime.yaml was unsealable). New nexus-prod pubkey:
+# age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd.
+# The matching private key was written to /etc/nixos/.age/nexus-prod-key.txt
+# on nexus (chmod 600). runtime.yaml was re-sealed to BOTH the new
+# nexus-prod key and the homelab-dev key (see secrets/README.md).
 
 creation_rules:
   # Runtime secrets — decrypted by sops-nix on nexus at boot
   - path_regex: secrets/runtime\.yaml$
     age: >-
-      age1rx6cf983npfx7u2qyr5feq507x4tfjpc095j3evqss86law729eqlh6vvm,
+      age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd,
       age1p98yp8w64rdugp03332gxnz5q2vcnucn69cs5qm6s2l2u7epqfcqmu2pqe
 
   # Build-time secrets — decrypted on dev workstations + CI runners
