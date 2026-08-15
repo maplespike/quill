@@ -9,11 +9,34 @@ fill in real values, then encrypt.
 
 | File | Recipient key | Decrypted where | Consumed by |
 |------|---------------|-----------------|-------------|
-| `runtime.yaml` | nexus-prod | nexus host (sops-nix at boot) | K8s Secrets, api-server, quill-mcp |
+| `runtime.yaml` | nexus-prod + homelab-dev | nexus host (sops-nix at boot) + dev workstations | K8s Secrets, api-server, quill-mcp |
 | `build.yaml` | homelab-dev | dev workstations + CI | deploy.sh, GitHub Actions |
 | `cloudflared.yaml` | both keys | both | cloudflared pod + deploy.sh |
 
 See `.sops.yaml` at repo root for the creation_rules.
+
+> **2026-08-15 rotation (read this before touching keys):**
+> The old nexus-prod private key (`age1rx6cf98...`) was **lost** — it was
+> never at `/etc/nixos/.age/nexus-prod-key.txt` and no copy existed on any
+> host. `runtime.yaml` was therefore unsealable, and the live K8s secret
+> values were not restorable from SOPS.
+>
+> Resolution:
+> 1. New nexus-prod keypair minted; pubkey `age1fwmxsy0la3sp6d2txz4z8yqq2fwtu5yya6pkl4l2927m0x4csemqrrnnmd`.
+> 2. `runtime.yaml` re-sealed to **both** the new nexus-prod key and the
+>    homelab-dev key, so it decrypts on nexus AND on dev workstations.
+> 3. The new private key was installed at `/etc/nixos/.age/nexus-prod-key.txt`
+>    on nexus (root, chmod 600).
+> 4. All runtime secrets **regenerated from /dev/urandom** — safe because the
+>    system has zero users (0 rows in `users`, `sessions`, `billing`; the
+>    single `api_keys` row is a never-used default key). JWT_SECRET,
+>    QUILL_PII_HASH_SECRET, QUILL_BILLING_SECRET, POSTGRES_PASSWORD are fresh.
+> 5. `QUILL_API_KEY` (gates the MCP gateway) added to `runtime.yaml` and to
+>    `maplespike-secrets/quill-api-key`. Without it, the MCP server accepted
+>    the well-known default `dev-key` in production.
+>
+> **Do NOT casually regenerate these again.** They become load-bearing the
+> moment real users sign up (JWT sessions, PII hashes, billing records).
 
 ## First-time setup
 
