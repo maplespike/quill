@@ -323,6 +323,12 @@ let
           labels:
             app: quill-api
         spec:
+          # nexus-only while forge/sentry are unhealthy (no Calico dataplane
+          # on forge + LAN firewall drops 5000/5473): pods on forge have no
+          # network and cannot pull images. Remove when the cluster is fully
+          # healthy. The RWO quill-api-data PVC is local-path on nexus anyway.
+          nodeSelector:
+            kubernetes.io/hostname: nexus
           containers:
           - name: api
             image: ${apiImage}
@@ -473,6 +479,9 @@ ${apiClusterIP}      selector:
           labels:
             app: quill-mcp
         spec:
+          # nexus-only while forge/sentry are unhealthy — see quill-api.
+          nodeSelector:
+            kubernetes.io/hostname: nexus
           containers:
           - name: mcp
             image: ${mcpImage}
@@ -487,6 +496,14 @@ ${apiClusterIP}      selector:
               value: "production"
             - name: QUILL_API_URL
               value: "http://quill-api:8082/v1"
+            # QUILL_API_KEY gates the MCP gateway. Without it the server
+            # falls back to the well-known default 'dev-key' (2026-08-15
+            # auth audit). Value lives in maplespike-secrets/quill-api-key.
+            - name: QUILL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: maplespike-secrets
+                  key: quill-api-key
             # Probe timeouts are 5s (not the 1s k8s default) — the 1s default
             # kills healthy pods during CPU-throttled cold start (2026-08-11
             # incident). Do NOT "clean up" these to defaults.
@@ -549,6 +566,9 @@ ${mcpClusterIP}      selector:
           labels:
             app: quill-portal
         spec:
+          # nexus-only while forge/sentry are unhealthy — see quill-api.
+          nodeSelector:
+            kubernetes.io/hostname: nexus
           containers:
           - name: portal
             image: ${portalImage}
