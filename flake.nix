@@ -42,7 +42,8 @@
       src = ./.;
       filter = path: type:
       let bn = baseNameOf path; in
-      !(bn == "node_modules" || bn == "dist" || bn == ".git" ||
+      !(pkgs.lib.hasSuffix ".tsbuildinfo" bn ||
+        bn == ".turbo" || bn == "node_modules" || bn == "dist" || bn == ".git" ||
         bn == ".devenv" || bn == ".direnv" || bn == "result" ||
         bn == ".hermes" || bn == ".sisyphus" || bn == ".playwright-mcp" ||
         bn == "landing-page.png" || bn == "test-results" ||
@@ -71,6 +72,22 @@
         export COREPACK_ENABLE_STRICT=0
         pnpm install --frozen-lockfile
         pnpm build
+        # pnpm snapshots `file:` workspace deps into the virtual store at
+        # INSTALL time — BEFORE `pnpm build` emits dist/ — so the vstore
+        # copies ship dist-less and the dereferenced image crashes at runtime
+        # (ERR_MODULE_NOT_FOUND on @maplespike/database/dist/index.js,
+        # 2026-08-15 rollout — the old Dockerfile-built images had dist in
+        # the vstore; the nix path did not). Re-point every workspace
+        # package's vstore entry at the LIVE built dir so the image resolves
+        # dist/. Verified: ../../../../../packages/<name> resolves from
+        # node_modules/.pnpm/@maplespike+<hash>/node_modules/@maplespike/<name>.
+        for entry in node_modules/.pnpm/@maplespike+*/node_modules/@maplespike/*; do
+          [ -e "$entry" ] || continue
+          name=$(basename "$entry")
+          [ -d "packages/$name" ] || continue
+          rm -rf "$entry"
+          ln -s "../../../../../packages/$name" "$entry"
+        done
       '';
       installPhase = ''
         mkdir -p $out
@@ -247,10 +264,10 @@
       # ── SaaS K8s manifests (cloudflared-shaped, matches k8s/base) ─
       # Generated YAML you can `kubectl apply -f` directly.
       #
-      # Tag pins match what is LIVE in the cluster (verified 2026-08-11):
-      #   api   = 2026-08-10-9  (quill_ key rename + QUILL_DB_PATH binding fix)
-      #   mcp   = 2026-08-10-4  (GNP 7844 fix, secret ref sync, module-resolution fix)
-      #   portal= 2026-08-10-3  (ThreadingHTTPServer + explorer fix)
+      # Tag pins match what is LIVE in the cluster (rolled 2026-08-15):
+      #   api/mcp/portal = fe9c1e54 (current main: undici stream-guard,
+      #                               GeoMet collection fix, query_* error
+      #                               messages, CI quoting fix)
       # These MUST track live rollouts — a canonical `nix build .#saas-manifests`
       # that pins an older tag regresses the cluster (2026-08-11 incident:
       # api -4 pin would have rolled back the quill_ rename). The admission
@@ -258,10 +275,10 @@
       saas-manifests = saasManifests {
         inherit pkgs;
         registry = "nexus:5000";
-        tag = "2026-08-10-9";
-        apiTag = "2026-08-10-9";
-        mcpTag = "2026-08-10-4";
-        portalTag = "2026-08-10-3";
+        tag = "fe9c1e54";
+        apiTag = "fe9c1e54";
+        mcpTag = "fe9c1e54";
+        portalTag = "fe9c1e54";
         domain = "maplespike.ca";
       };
 
@@ -375,8 +392,10 @@
         type = "app";
         program = "${pkgs.writeShellScriptBin "quill-deploy-saas" ''
           set -euo pipefail
-          HERE="$(cd "$(dirname "''${BASH_SOURCE[0]}")" && pwd)"
-          ROOT="$(cd "$HERE/.." && pwd)"
+          # Resolve the flake root from the caller's cwd (git toplevel), NOT
+          # from BASH_SOURCE: via `nix run` the script lives in the store and
+          # ``cd "$(dirname "$0")/.."`` lands in /nix/store with no flake.nix.
+          ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")"
           cd "$ROOT"
           TAG="''${TAG:-stable}"
           echo "==> Generating SaaS manifests (tag=$TAG)"
@@ -400,8 +419,8 @@
         type = "app";
         program = "${pkgs.writeShellScriptBin "quill-deploy-dev" ''
           set -euo pipefail
-          HERE="$(cd "$(dirname "''${BASH_SOURCE[0]}")" && pwd)"
-          ROOT="$(cd "$HERE/.." && pwd)"
+          # Same ROOT resolution fix as deploy-saas (git toplevel, not store).
+          ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")"
           cd "$ROOT"
           echo "==> Generating dev SaaS manifests (namespace quill-dev)"
           nix build ".#dev-manifests" -L
