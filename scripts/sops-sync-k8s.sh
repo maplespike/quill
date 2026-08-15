@@ -78,10 +78,13 @@ apply_secret() {
   | ${KUBECTL} apply -f -
 }
 
-# ── Sync maplespike-secrets (JWT + billing + PII hash) ──
+# ── Sync maplespike-secrets (JWT + billing + PII hash + MCP API key) ──
 JWT_SECRET=$(read_secret JWT_SECRET runtime)
 BILLING_SECRET=$(read_secret QUILL_BILLING_SECRET runtime)
 PII_HASH_SECRET=$(read_secret QUILL_PII_HASH_SECRET runtime)
+# QUILL_API_KEY gates the MCP gateway (auth audit 2026-08-15): without it
+# the server accepts the well-known default 'dev-key'.
+QUILL_API_KEY=$(read_secret QUILL_API_KEY runtime)
 
 if [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-value" ]; then
   # QUILL_PII_HASH_SECRET is REQUIRED (Decision 0002): the api-server refuses
@@ -107,10 +110,18 @@ if [ -n "${JWT_SECRET}" ] && [ "${JWT_SECRET}" != "change-me-to-a-secure-random-
     # preserve the exact bug this sync exists to fix.
     echo "[sops-sync] ⚠ pii-hash-secret is NOT a 64-char hex string (len=${#PII_HASH_SECRET}) — refusing to apply; fix runtime.yaml with a valid value first"
   else
+    # QUILL_API_KEY: if SOPS lacks it, reuse the in-cluster value (same
+    # guard as pii-hash) so a sync never clears the MCP gateway key.
+    if [ -z "${QUILL_API_KEY}" ] || [ "${QUILL_API_KEY}" = "null" ]; then
+      QUILL_API_KEY=$(${KUBECTL} -n "${NAMESPACE}" get secret maplespike-secrets \
+        -o jsonpath='{.data.quill-api-key}' 2>/dev/null | base64 -d 2>/dev/null)
+      echo "[sops-sync] ⚠ QUILL_API_KEY missing from SOPS — reusing in-cluster value"
+    fi
     apply_secret maplespike-secrets \
       "JWT_SECRET=${JWT_SECRET}" \
       "QUILL_BILLING_SECRET=${BILLING_SECRET}" \
-      "pii-hash-secret=${PII_HASH_SECRET}"
+      "pii-hash-secret=${PII_HASH_SECRET}" \
+      "quill-api-key=${QUILL_API_KEY}"
     echo "[sops-sync] ✓ maplespike-secrets synced"
   fi
 else
