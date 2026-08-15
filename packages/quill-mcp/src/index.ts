@@ -21,7 +21,7 @@ import { parsePaymentHeader } from './x402-middleware.js';
 import { getQuotaTracker, buildIdentity, type QuotaIdentity, quotaHeaders } from './quota.js';
 import { authenticateToken, isCasdoorToken } from './auth/oidc.js';
 import logger from './logger.js';
-import { installStreamErrorGuard } from '@maplespike/pipeline-core/utils/http.js';
+import { installStreamErrorGuard } from '@maplespike/pipeline-core/utils/http';
 
 // ── Process guard: upstream stream-decompression crashes ─────────────
 // undici's internal gzip inflate throws an UNCAUGHT Z_BUF_ERROR (via Node's
