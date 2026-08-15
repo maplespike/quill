@@ -446,7 +446,14 @@ let
           - name: data
             persistentVolumeClaim:
               claimName: quill-api-data
-    ---
+  '';
+
+  # Service for quill-api. Kept as its own fragment: the clusterIP
+  # interpolation line starts at column 0, which forces nix indented-string
+  # stripping to 0 for the whole fragment — a col-0 `---` inside it would
+  # render indented and break kubectl's multi-doc parse (2026-08-15 fix;
+  # the separators come from the concat loop below instead).
+  apiService = pkgs.writeText "10-api-service.yaml" ''
     apiVersion: v1
     kind: Service
     metadata:
@@ -533,7 +540,9 @@ ${apiClusterIP}      selector:
               requests:
                 cpu: 50m
                 memory: 64Mi
-    ---
+  '';
+
+  mcpService = pkgs.writeText "11-mcp-service.yaml" ''
     apiVersion: v1
     kind: Service
     metadata:
@@ -613,7 +622,9 @@ ${mcpClusterIP}      selector:
               requests:
                 cpu: 50m
                 memory: 32Mi
-    ---
+  '';
+
+  portalService = pkgs.writeText "17-portal-service.yaml" ''
     apiVersion: v1
     kind: Service
     metadata:
@@ -665,7 +676,7 @@ ${portalClusterIP}      selector:
   # namespace-scoped only — it must never re-apply cluster-scoped objects.
   fragments = [ namespaceYaml ] ++ (pkgs.lib.optionals (!dev) [
     gnpDefaultDeny vapResourcesSecurity cloudflared
-  ]) ++ [ apiDataPvc apiDeploy mcpDeploy portalDeploy lanIngress ];
+  ]) ++ [ apiDataPvc apiDeploy apiService mcpDeploy mcpService portalDeploy portalService lanIngress ];
 
   # Concatenate all fragments into a single manifests.yaml
   manifest = pkgs.runCommand "saas-manifests.yaml" { } ''
